@@ -1,15 +1,3 @@
-import * as React from "react";
-
-const D = typecell.DocumentView;
-
-history.replaceState({ owner: $.owner, document: $.document }, "");
-
-export default <D owner={$.owner} document={$.document} />
-
-
-
-
-
 
 let paths = typecell.routing();
 
@@ -28,9 +16,8 @@ if (paths.remainingParts.length > 1) {
 
 
 
-
-
 window.onpopstate = (e) => {
+
   const { owner, document } = e.state;
   if (!owner || !document) {
     return;
@@ -42,29 +29,32 @@ window.onpopstate = (e) => {
 
 
 
-
-
-
-
 import * as React from "react";
-let mainRoutes = typecell.routing();
+let mainRoutes = typecell.routing(); debugger;
 export function navigate(data, e) {
+  untracked(() => {
+    if (e) {
+      e.preventDefault();
+    }
 
-  let url = "/" + mainRoutes.owner + "/" + mainRoutes.document;
-  if (mainRoutes.owner !== data.owner) {
-    url += "/" + data.owner + "/";
-    url += "/" + data.document;
-  } else if (mainRoutes.document !== data.document) {
-    url += "/" + data.document;
-  }
+    if ($.owner === data.owner && $.document === data.document) {
+      return;
+    }
 
-  history.pushState(data, "", url);
+    let url = "/" + mainRoutes.owner + "/" + mainRoutes.document;
+    if (mainRoutes.owner !== data.owner) {
+      url += "/" + data.owner + "/";
+      url += "/" + data.document;
+    } else if (mainRoutes.document !== data.document) {
+      url += "/" + data.document;
+    }
 
-  if (e) {
-    e.preventDefault();
-  }
+    history.pushState(data, "", url);
+    $.owner = data.owner;
+    $.document = data.document;
+  });
+});
 
-  $.owner = data.owner;
-  $.document = data.document;
-}
+
+let mainRoutes = typecell.routing();
 export const isRoot = $.document === mainRoutes.document;
