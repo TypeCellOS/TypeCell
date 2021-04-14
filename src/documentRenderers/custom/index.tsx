@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import TCDocument from "../../store";
+import TCDocument from "../../store/TCDocument";
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { autorun, toJS } from "mobx";

@@ -2,7 +2,8 @@ import { ObservableMap } from "mobx";
 import * as monaco from "monaco-editor";
 import DocumentView from "../DocumentView";
 import { Engine } from "../engine";
-import TCDocument, { Ref } from "../store";
+import { Ref } from "../store/Ref";
+import TCDocument from "../store/TCDocument";
 import routing from "../util/routing";
 import resolveImport from "./resolver";
 

@@ -1,93 +1,13 @@
-import { autorun, createAtom, IAtom, observable } from "mobx";
-import { WebrtcProvider } from "y-webrtc";
+import { autorun } from "mobx";
 import { IndexeddbPersistence } from "y-indexeddb";
+import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
-import { observeYType } from "../moby";
 import { observeDoc } from "../moby/doc";
-import * as monaco from "monaco-editor";
-import { VscThumbsdown } from "react-icons/vsc";
-
-// backrefs: [
-//     {namespace: "@workspace", owner: "project", type: "child", doc: "root"}
-//   ]
-
-// type Ref = {
-//   namespace: string // @yousefed/renderer
-//   type: string; //
-
-// };
-
-function hash(str: string) {
-  var hash = 0;
-  for (var i = 0; i < str.length; i++) {
-    var character = str.charCodeAt(i);
-    hash = (hash << 5) - hash + character;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return hash;
-}
-
-export class Ref {
-  public constructor(
-    public readonly namespace: string,
-    public readonly type: string,
-    public readonly target: string,
-    private oneToMany: boolean,
-    private reverseInfo: {
-      oneToMany: boolean;
-      type: string;
-    }
-  ) {
-    if (!namespace || !type || !target || !reverseInfo) {
-      throw new Error("invalid arguments for ref");
-    }
-  }
-
-  public uniqueHash(): number {
-    let hashcode = hash(this.namespace) ^ hash(this.type);
-
-    if (this.oneToMany) {
-      hashcode = hashcode ^ hash(this.target);
-    }
-    return hashcode;
-  }
-
-  public reverse(source: string): Ref {
-    return new Ref(
-      this.namespace,
-      this.reverseInfo.type,
-      source,
-      this.reverseInfo.oneToMany,
-      {
-        oneToMany: this.oneToMany,
-        type: this.type,
-      }
-    );
-  }
-
-  public toJS() {
-    return {
-      namespace: this.namespace,
-      type: this.type,
-      target: this.target,
-    };
-  }
-}
-
-/*
-
-why does ydoc support root elements? such as getMap() and getArray(). But why not a root subdoc?
-
-
-Learnings:
-- types are not overwritten when synced (1 client sets a different type than other client)
-- 
-
-*/
+import { Ref } from "./Ref";
 
 const documentCache = new Map<string, TCDocument>();
-(window as any).documents = documentCache;
-const subDocCache = new Map<string, Y.Doc>();
+// (window as any).documents = documentCache;
+// const subDocCache = new Map<string, Y.Doc>();
 
 export default class TCDocument {
   private refCount = 0;
@@ -201,61 +121,3 @@ export default class TCDocument {
     }
   }
 }
-
-// observableYMap( {
-//   array: [],
-//   arr: Y.array,
-//   s: "",
-//   x: Y.Text,
-// }
-
-// const provider2 = new WebrtcProvider("example-document2", ydoc);
-
-// const docRoot = ydoc.getXmlFragment("cells");
-
-// ydoc.on("update", (update: any) => {
-//   // Y.applyUpdate(doc2, update)
-//   console.log(ydoc.toJSON());
-// });
-
-// export function getDoc(id: string) {
-//   const ydoc = new Y.Doc({});
-//   const provider = new WebrtcProvider("id", ydoc);
-// }
-
-/*
-url: typecell.com/@yousefed/project
-guid: [project]
-{
-  title,
-  type: @yousefed/template-project ---> modifies data.children
-  backlinks: [], // race conditions?
-  // deletedlinks: [],
-  data: { // subdoc
-    cells: "<empty>",
-    children: [
-      {
-        id: "page123" // subdoc
-      }
-    ]
-  }
-}
-
-guid: [project/cells]
-<typecell
-- render sidebar
-- handle urls, handle document
->
-
-
-url: typecell.com/@yousefed/project/page
-- refs: [parent]
-
-
-// global index vs*/
-
-(window as any).test1 = function (id: string) {
-  (window as any).ydoc = new Y.Doc({ guid: id });
-  (window as any).indexedDBProvider = new IndexeddbPersistence(id, this.ydoc);
-};
-(window as any).load = TCDocument.load;

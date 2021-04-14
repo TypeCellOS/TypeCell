@@ -3,7 +3,7 @@ import * as reactdom from "react-dom";
 import * as reactdnd from "react-dnd";
 import * as monaco from "monaco-editor";
 import SkypackResolver from "../engine/resolvers/SkypackResolver";
-import TCDocument from "../store";
+import TCDocument from "../store/TCDocument";
 import { CellListModel } from "../models/CellListModel";
 import { autorun } from "mobx";
 import { getEngineForDoc } from "./EngineWithOutput";

@@ -2,7 +2,6 @@ import { autorun, observable, runInAction, untracked } from "mobx";
 import React from "react";
 import { TypeCellContext } from "./context";
 import { installHooks } from "./hookDisposables";
-import { importTypeCell } from "./importTypeCell";
 import { isStored, stored } from "./storage/stored";
 import { isView, view } from "./view";
 
@@ -237,7 +236,6 @@ export function createExecutionScope(
     $: context.context,
     untracked,
     // editor: globalEditor,
-    importTypeCell, // TODO: needed?
     stored,
     view,
     observable,

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRef } from "react";
 import { CustomRenderer } from "./documentRenderers/custom";
 import CellList from "./documentRenderers/notebook/CellList";
-import TCDocument from "./store";
+import TCDocument from "./store/TCDocument";
 
 type Props = {
   owner: string;
@@ -13,7 +13,7 @@ type Props = {
 
 const DocumentView = observer((props: Props) => {
   if (!props.owner || !props.document) {
-    return <div></div>
+    // return <div></div>
     throw new Error("DocumentView expects both owner and document to be specified");
   }
   const [doc, setDoc] = useState<TCDocument>();

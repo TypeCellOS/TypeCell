@@ -7,7 +7,7 @@ import * as Y from 'yjs'
 import { WebrtcProvider } from 'y-webrtc'
 import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
-import TCDocument from '../store';
+import TCDocument from '../store/TCDocument';
 import TypeCellNode from './TypeCellNode';
 
 const ydoc = new Y.Doc()

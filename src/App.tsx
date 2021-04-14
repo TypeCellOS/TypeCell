@@ -3,7 +3,7 @@ import React from 'react';
 import './App.css';
 import DocumentView from './DocumentView';
 import { setMonacoDefaults } from "./sandbox";
-import TCDocument from './store';
+import TCDocument from './store/TCDocument';
 import routing from './util/routing';
 
 setMonacoDefaults(monaco);

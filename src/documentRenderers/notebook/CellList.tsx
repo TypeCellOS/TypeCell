@@ -6,7 +6,7 @@ import { VscDiffAdded } from "react-icons/vsc";
 import { getEngineForDoc } from "../../typecellEngine/EngineWithOutput";
 // import { renderLogger } from "../logger";
 import { CellListModel } from "../../models/CellListModel";
-import TCDocument from "../../store";
+import TCDocument from "../../store/TCDocument";
 import CellListDraggableCell from "./CellListDraggableCell";
 import NotebookCell from "./NotebookCell";
 

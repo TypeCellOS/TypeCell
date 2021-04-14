@@ -1,7 +1,6 @@
 // from https://github.com/microsoft/TypeScript-Website/blob/v2/packages/sandbox/src/typeAcquisition.ts
 
 import lzstring from "lz-string";
-// import { importTypeCell } from "../engine/importTypeCell";
 
 const globalishObj: any =
   typeof globalThis !== "undefined" ? globalThis : window || {};
@@ -475,7 +474,6 @@ const getDependenciesForModule = (
       const [owner, slug] = moduleToDownload.substr(2).split("/", 2);
 
       throw new Error("not implemented");
-      // const code = await importTypeCell(owner, slug);
       // config.addLibraryToRuntime(code.dtsCode, moduleToDownload+".d.ts");
     } else if (isPackageRootImport) {
       // So it doesn't run twice for a package
