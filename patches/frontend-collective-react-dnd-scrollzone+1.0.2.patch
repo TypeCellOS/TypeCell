@@ -1,0 +1,13 @@
+diff --git a/node_modules/frontend-collective-react-dnd-scrollzone/lib/index.js b/node_modules/frontend-collective-react-dnd-scrollzone/lib/index.js
+index f1f66d6..085b87d 100644
+--- a/node_modules/frontend-collective-react-dnd-scrollzone/lib/index.js
++++ b/node_modules/frontend-collective-react-dnd-scrollzone/lib/index.js
+@@ -178,7 +178,7 @@ function createScrollingComponent(WrappedComponent) {
+         var _this2 = this;
+ 
+         // eslint-disable-next-line react/no-find-dom-node
+-        this.container = (0, _reactDom.findDOMNode)(this.wrappedInstance.current);
++        this.container = this.wrappedInstance.current;
+ 
+         if (this.container && typeof this.container.addEventListener === 'function') {
+           this.container.addEventListener('dragover', this.handleEvent);

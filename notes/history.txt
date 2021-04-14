@@ -1,0 +1,70 @@
+import * as React from "react";
+
+const D = typecell.DocumentView;
+
+history.replaceState({ owner: $.owner, document: $.document }, "");
+
+export default <D owner={$.owner} document={$.document} />
+
+
+
+
+
+
+let paths = typecell.routing();
+
+export let owner = paths.owner;
+export let document = paths.document === "renderer" ? "home" : paths.document;
+
+if (paths.remainingParts.length === 1) {
+  document = paths.remainingParts[0]
+}
+
+if (paths.remainingParts.length > 1) {
+  owner = paths.remainingParts[0];
+  document = paths.remainingParts[1];
+}
+
+
+
+
+
+
+window.onpopstate = (e) => {
+  const { owner, document } = e.state;
+  if (!owner || !document) {
+    return;
+  }
+  $.owner = owner;
+  $.document = document;
+}
+
+
+
+
+
+
+
+
+import * as React from "react";
+let mainRoutes = typecell.routing();
+export function navigate(data, e) {
+
+  let url = "/" + mainRoutes.owner + "/" + mainRoutes.document;
+  if (mainRoutes.owner !== data.owner) {
+    url += "/" + data.owner + "/";
+    url += "/" + data.document;
+  } else if (mainRoutes.document !== data.document) {
+    url += "/" + data.document;
+  }
+
+  history.pushState(data, "", url);
+
+  if (e) {
+    e.preventDefault();
+  }
+
+  $.owner = data.owner;
+  $.document = data.document;
+}
+export const isRoot = $.document === mainRoutes.document;

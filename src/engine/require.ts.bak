@@ -1,0 +1,193 @@
+import * as react from "react";
+import * as reactdom from "react-dom";
+import * as reactdnd from "react-dnd";
+// import { engineLogger } from "../logger";
+import {
+  createImportEvaluator,
+  getImportEvaluator,
+} from "./ImportEvaluator.ts.bak";
+import * as cp from "child_process";
+import * as os from "os";
+import * as path from "path";
+// import type firebase from "firebase";
+import { Storage } from "./storage/Storage";
+const sz = require("frontend-collective-react-dnd-scrollzone");
+let importShim: any;
+
+async function getImportShim() {
+  if (importShim) {
+    return importShim;
+  }
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+  await import("es-module-shims");
+
+  // @ts-ignore
+  importShim = window.importShim as any;
+
+  // @ts-ignore
+  const dynamicImport = importShim.dynamicImport;
+  const resolve = importShim.resolve;
+
+  function createBlob(source: string) {
+    return URL.createObjectURL(
+      new Blob([source], { type: "application/javascript" })
+    );
+  }
+
+  importShim.skip = /none/;
+  importShim.dynamicImport = async (id: any) => {
+    const res = await dynamicImport(id);
+
+    // if (res.useState) {
+    //   return react;
+    // }
+
+    return res;
+  };
+
+  importShim.resolve = (id: string, parent: string) => {
+    if (
+      id.startsWith("/npm:react@") || // jspm
+      id.startsWith("/-/react@") // skypack
+    ) {
+      // engineLogger.log("replacing module", id, "for existing react");
+      (window as any).__typecell_react = react;
+
+      const list = Object.keys(react);
+
+      const url = createBlob(`
+      const react = window.__typecell_react;
+    const { ${list.join(",")} } = react;
+      export { ${list.join(",")} };
+      export default react;
+    `);
+
+      return url;
+    }
+
+    // TODO: document and test which of below are required
+    if (
+      id.startsWith("/npm:react-dom@") || // jspm
+      id.startsWith("/-/react-dom@") // skypack
+    ) {
+      // engineLogger.log("replacing module", id, "for existing react");
+      (window as any).__typecell_reactdom = reactdom;
+
+      const list = Object.keys(reactdom);
+
+      const url = createBlob(`
+      const reactdom = window.__typecell_reactdom;
+      const { ${list.join(",")} } = reactdom;
+      export { ${list.join(",")} };
+      export default reactdom;
+    `);
+
+      return url;
+    }
+
+    if (
+      id.startsWith("/npm:react-dnd@") || // jspm
+      id.startsWith("/-/react-dnd@") // skypack
+    ) {
+      // engineLogger.log("replacing module", id, "for existing react");
+      (window as any).__typecell_reactdnd = reactdnd;
+
+      const list = Object.keys(reactdnd);
+
+      const url = createBlob(`
+      const reactdnd = window.__typecell_reactdnd;
+      const { ${list.join(",")} } = reactdnd;
+      export { ${list.join(",")} };
+      export default reactdnd;
+    `);
+      return url;
+    }
+    if (
+      id.startsWith("/npm:frontend-collective-react-dnd-scrollzone@") || // jspm
+      id.startsWith("/-/frontend-collective-react-dnd-scrollzone@") // skypack
+    ) {
+      // engineLogger.log("replacing module", id, "for existing react");
+      (window as any).__typecell_sz = sz;
+
+      const list = Object.keys(sz).filter((l) => l !== "default");
+
+      const url = createBlob(`
+      const sz = window.__typecell_sz;
+      // const { ${list.join(",")} } = sz;
+      // export { ${list.join(",")} };
+      export default sz;
+    `);
+
+      return url;
+    }
+
+    const ret = resolve(id, parent);
+    return ret;
+  };
+
+  return importShim;
+}
+
+// TODO: do we really need "cell" here, or is it mostly for logging?
+// TODO: architect "cached". We ran into this when using multiple $.scrubber items on one page
+async function browserRequire(moduleName: string, cached: boolean) {
+  if (moduleName.startsWith("https://")) {
+    // @ts-ignore
+    const importShim = await getImportShim();
+    return importShim(moduleName);
+  }
+  if (moduleName.startsWith("!@")) {
+    const evaluator = getImportEvaluator(
+      moduleName,
+      cached ? "1" : "" + Math.random()
+    ) as ReturnType<typeof createImportEvaluator>;
+    // TODO: evaluate is not a nice name if it has already been evaluated
+    return evaluator.getModule();
+  }
+
+  // return importShim(`https://jspm.dev/${moduleName}`);
+  const importShim = await getImportShim();
+  return importShim(`https://cdn.skypack.dev/${moduleName}`);
+}
+
+async function nodeRequire(moduleName: string) {
+  if (moduleName.startsWith("https://")) {
+    throw new Error("not implemented http imports on node.js");
+  }
+  if (moduleName.startsWith("!@")) {
+    throw new Error("not implemented serverside");
+  }
+
+  try {
+    // built in module?
+    return await import(moduleName);
+  } catch (e) {
+    // install module
+    const dir = os.tmpdir();
+    // engineLogger.log("npm install " + moduleName);
+    await cp.execSync("npm install " + moduleName, { cwd: dir });
+    // engineLogger.log("installed", moduleName);
+    return import(path.join(dir, "node_modules", moduleName));
+    // const importShim = await getImportShim();
+    // return importShim(`https://cdn.skypack.dev/${moduleName}`);
+  }
+}
+/*
+https://cdn.skypack.dev/animejs@3.2.0
+https://bundle.run/animejs@3.2.0
+
+https://jspm.org/
+
+https://unpkg.com/
+jsdelivr https://cdn.jsdelivr.net/npm/react-chrono@1.7.1/dist/react-chrono.umd.js
+*/
+
+async function typecellRequire(moduleName: string, cached: boolean) {
+  return typeof window === "undefined"
+    ? nodeRequire(moduleName)
+    : browserRequire(moduleName, cached);
+}
+
+export default typecellRequire;

@@ -1,26 +1,19 @@
+import * as monaco from "monaco-editor";
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import DocumentView from './DocumentView';
+import { setMonacoDefaults } from "./sandbox";
+import TCDocument from './store';
+import routing from './util/routing';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+setMonacoDefaults(monaco);
 
+const nav = routing();
+export const doc = TCDocument.load(nav.owner + "/" + nav.document, nav.document === "home1" ? "@yousefed/project" : "!notebook");
+
+const App = () => {
+  return <DocumentView owner={nav.owner} document={nav.document} />
+};
+
+(window as any).x = doc;
 export default App;

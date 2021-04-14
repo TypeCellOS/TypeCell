@@ -1,0 +1,73 @@
+import React from 'react';
+import SortableTree from 'react-sortable-tree';
+import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
+
+
+function setChild(parentid, childid) {
+  const [owner, document] = parentid.split("/");
+  const doc = typecell.doc({ owner, document });
+  const ref = typecell.createRef("child", childid, true, { oneToMany: false, type: "parent" })
+  doc.ensureRef(ref);
+}
+
+function addPage(page: string) {
+  let doc = typecell.doc({ owner: $.routing.owner, document: page });
+  setChild($.rootDoc.id, doc.id);
+}
+
+function keyHandler(event) {
+  if (event.key === "Enter") {
+    addPage(event.target.value);
+    event.target.value = "";
+  }
+}
+
+function ensureRefs(tree, parent) {
+  for (let child of tree) {
+    if (parent) {
+      setChild(parent.doc, child.doc)
+    }
+    ensureRefs(child.children, child)
+  }
+}
+
+export let tree = <div style={{ height: 200 }}>
+  <input type="text" placeholder="Add page" onKeyUp={keyHandler} />
+  <SortableTree
+    treeData={$.treeData}
+    onChange={ensureRefs}
+    theme={FileExplorerTheme}
+  />
+</div>
+
+
+
+export let routing = typecell.routing();
+export let rootDoc = typecell.doc(routing);
+
+
+
+
+import * as React from "react"
+export const treeData = [getTreeForDoc($.rootDoc)]
+
+function getTreeForDoc(doc) {
+  const children = [];
+  for (let ref of doc.refs.values()) {
+    if (ref.namespace == typecell.namespace && ref.type === "child") {
+      const child = typecell.doc(ref.target);
+      children.push(getTreeForDoc(child));
+    }
+  }
+  // TODO: don't observable react elements
+  return {
+    title: <a href="" onClick={(e) => { e.preventDefault(); $.selected = doc.id }}>{doc.id}</a>,
+    children,
+    expanded: true,
+    doc: doc.id
+  }
+}
+
+
+
+
