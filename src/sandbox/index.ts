@@ -1,21 +1,11 @@
 // stripped down version of https://github.com/microsoft/TypeScript-Website/tree/v2/packages/sandbox
 
-// import { detectNewImportsToAcquireTypeFor } from "./typeAcquisition";
-// import {
-//   getDefaultSandboxCompilerOptions,
-//   getCompilerOptionsFromParams,
-//   createURLQueryWithCompilerOptions,
-// } from "./compilerOptions";
 import type * as Monaco from "monaco-editor";
 // @ts-ignore
-import EditorWorker from "workerize-loader!./editor.worker"; // eslint-disable-line import/no-webpack-loader-syntax
+import EditorWorker from "workerize-loader!./workers/editor.worker"; // eslint-disable-line import/no-webpack-loader-syntax
 // @ts-ignore
-import TsWorker from "workerize-loader!./ts.worker"; // eslint-disable-line import/no-webpack-loader-syntax
-// import { supportedReleases } from "./releases";
-// import { getInitialCode } from "./getInitialCode";
-// import { extractTwoSlashComplierOptions } from "./twoslashSupport";
-// import * as tsvfs from "./vendor/typescript-vfs";
-// import type { languages } from "monaco-editor";
+import TsWorker from "workerize-loader!./workers/ts.worker"; // eslint-disable-line import/no-webpack-loader-syntax
+
 import { getDefaultSandboxCompilerOptions } from "./compilerOptions";
 
 (window as any).MonacoEnvironment = {

@@ -471,9 +471,8 @@ const getDependenciesForModule = (
     const isDenoModule = moduleToDownload.indexOf("https://") === 0;
 
     if (moduleToDownload.startsWith("!@")) {
-      const [owner, slug] = moduleToDownload.substr(2).split("/", 2);
-
-      throw new Error("not implemented");
+      // typecell imports are loaded in TypecellTypeResolver
+      return;
       // config.addLibraryToRuntime(code.dtsCode, moduleToDownload+".d.ts");
     } else if (isPackageRootImport) {
       // So it doesn't run twice for a package

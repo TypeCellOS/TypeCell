@@ -35,6 +35,9 @@ export default function setupTypecellTypeResolver() {
     if (split.length !== 3) {
       return;
     }
+
+    model.onDidChangeContent((e) => {});
+
     const folder = split[0] + "/" + split[1];
     refreshTypes(folder);
     model.onWillDispose(() => {
