@@ -32,6 +32,7 @@ export const CustomRenderer = observer((props: { rendererDocumentId: string }) =
     const newEngine = new EngineWithOutput(document.id);
     setEngine(newEngine);
 
+    // TODO: refactor, and releaseModel()
     const autorunDisposer = autorun(() => {
       const cells = new CellListModel(document.id, document.data);
       const models = cells.cells.forEach(c => {
@@ -45,7 +46,7 @@ export const CustomRenderer = observer((props: { rendererDocumentId: string }) =
       autorunDisposer();
       newEngine.dispose();
     }
-  }, [document]);
+  }, [document, document?.data]);
 
   if (!document || !engine) {
     return <div>Loading</div>;

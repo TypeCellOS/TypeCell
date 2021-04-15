@@ -66,6 +66,7 @@ export default async function resolveImport(
 
     const engine = new EngineWithOutput(doc.id);
 
+    // TODO: refactor, and releaseModel()
     const disposeAutorun = autorun(() => {
       const cells = new CellListModel(doc.id, doc.data);
       const models = cells.cells.forEach((c) => {
