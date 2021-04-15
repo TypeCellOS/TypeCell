@@ -47,7 +47,6 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
         text += `;\nimport type { $ as $type } from "tc/${folder}";
         declare const $: typeof $type;
         `;
-        debugger;
         // always add an empty export to file to make sure it's seen as a module
         // text += "\nexport{};";
       }
