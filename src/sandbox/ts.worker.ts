@@ -31,21 +31,21 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
     // will be seen as globals
     let text = super._getScriptText(fileName);
 
-    // for typecell modules (files named /tc/!@owner/document/cell.(ts|tsx))
+    // for typecell modules (files named /!@owner/document/cell.(ts|tsx))
     // automatically import the context ($) of other cells
-    // The type of this context is defined setupTypecellTypeResolver.ts, and available under tc/!@owner/document
+    // The type of this context is defined setupTypecellTypeResolver.ts, and available under !@owner/document
     if (
-      fileName.startsWith("file:///tc/%21%40") &&
+      fileName.startsWith("file:///%21%40") &&
       (fileName.endsWith(".ts") || fileName.endsWith(".tsx"))
     ) {
-      let split = fileName.substr("file:///tc/%21%40".length).split("/");
+      let split = fileName.substr("file:///%21%40".length).split("/");
 
       if (split.length === 3) {
         const folder = "!@" + split[0] + "/" + split[1];
 
         // add modified code at end, to not mess offsets
-        text += `;\nimport type { $ as $type } from "tc/${folder}";
-        declare const $: typeof $type;
+        text += `;\nimport type * as $type from "${folder}";
+        declare let $: typeof $type;
         `;
         // always add an empty export to file to make sure it's seen as a module
         // text += "\nexport{};";

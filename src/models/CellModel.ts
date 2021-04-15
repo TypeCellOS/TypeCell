@@ -18,7 +18,7 @@ export class CellModel {
 
   public get path() {
     return (
-      "/tc/!@" +
+      "!@" +
       this.parentDocumentId.substr(1) +
       "/" +
       this.fragment.getAttribute("id") +
