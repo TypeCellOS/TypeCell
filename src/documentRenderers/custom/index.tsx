@@ -1,28 +1,11 @@
+import { autorun } from "mobx";
 import { observer } from "mobx-react-lite";
-import TCDocument from "../../store/TCDocument";
 import * as React from "react";
-import { useState, useEffect } from "react";
-import { autorun, toJS } from "mobx";
+import { useEffect, useState } from "react";
 import { CellListModel } from "../../models/CellListModel";
-import { CellModel } from "../../models/CellModel";
-import * as monaco from "monaco-editor";
-import { getEngineForDoc } from "../../typecellEngine/EngineWithOutput";
-
-function getModel(cell: CellModel) {
-  const newCode = cell.code.toJSON();
-  const uri = monaco.Uri.file(cell.path);
-  let model = monaco.editor.getModel(uri);
-  if (!model) {
-    model = monaco.editor.createModel(newCode, "typescript", uri);
-  } else {
-    if (model.getValue() === newCode) {
-      console.warn("setting same code, this is a noop. Why do we set same code?")
-      return model; // immediately return to prevent monaco model listeners to be fired in a loop
-    }
-    model.setValue(newCode);
-  }
-  return model;
-}
+import { getModel } from "../../models/modelCache";
+import TCDocument from "../../store/TCDocument";
+import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 
 // TODO: should this be a React component or raw JS?
 export const CustomRenderer = observer((props: { rendererDocumentId: string }) => {
@@ -30,6 +13,7 @@ export const CustomRenderer = observer((props: { rendererDocumentId: string }) =
     throw new Error("don't expect built-in document as renderer here")
   }
   const [document, setDocument] = useState<TCDocument>();
+  const [engine, setEngine] = useState<EngineWithOutput>();
 
   useEffect(() => {
     const doc = TCDocument.load(props.rendererDocumentId)
@@ -44,23 +28,28 @@ export const CustomRenderer = observer((props: { rendererDocumentId: string }) =
     if (!document) {
       return;
     }
-    const disposer = autorun(() => {
+
+    const newEngine = new EngineWithOutput(document.id);
+    setEngine(newEngine);
+
+    const autorunDisposer = autorun(() => {
       const cells = new CellListModel(document.id, document.data);
-      const engine = getEngineForDoc(document);
       const models = cells.cells.forEach(c => {
         const model = getModel(c);
-        engine.engine.registerModel(model);
-        model.setValue(model.getValue()); // trick to force eval
+        newEngine.engine.registerModel(model);
+        // model.setValue(model.getValue()); // trick to force eval
       });
 
     });
-    return disposer;
+    return () => {
+      autorunDisposer();
+      newEngine.dispose();
+    }
   }, [document]);
 
-  if (!document) {
+  if (!document || !engine) {
     return <div>Loading</div>;
   }
-  const engine = getEngineForDoc(document);
   // console.log(document);
 
   if (document.type !== "!notebook") {
@@ -69,6 +58,9 @@ export const CustomRenderer = observer((props: { rendererDocumentId: string }) =
     // throw new Error("only notebook documents supported");
   }
 
-  return <div><div>{(engine.engine.observableContext).context.layout?.value_}</div>
-    <div>{JSON.stringify(document.refs.toJSON())}</div></div>;
+
+  // setInterval(() => { setRender(Math.random()) }, 2000);
+  // console.log("render", render);
+  return <div>{(engine.engine.observableContext).context.layout?.value_}</div>
+  {/* <div>{JSON.stringify(toJS(engine.engine.observableContext))}</div></div>; */ }
 });

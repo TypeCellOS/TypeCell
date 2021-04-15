@@ -46,25 +46,38 @@ function getExposeGlobalVariables(id: string) {
   };
 }
 
+let ENGINE_ID = 0;
 export default class EngineWithOutput {
+  private readonly disposers: Array<() => void> = [];
+  private disposed: boolean = false;
+
   public readonly outputs = new ObservableMap<monaco.editor.ITextModel, any>();
   public readonly engine: Engine;
-  constructor(id: string) {
+  public readonly id = ENGINE_ID++;
+  constructor(documentId: string) {
+    // console.log(this.id, documentId);
     this.engine = new Engine(
       (model, output) => {
         this.outputs.set(model, output);
       },
-      getExposeGlobalVariables(id),
-      resolveImport
+      getExposeGlobalVariables(documentId),
+      this.resolveImport
     );
   }
-}
 
-const enginesByDoc = new Map<string, EngineWithOutput>();
-
-export function getEngineForDoc(doc: TCDocument) {
-  if (!enginesByDoc.has(doc.id)) {
-    enginesByDoc.set(doc.id, new EngineWithOutput(doc.id));
+  private resolveImport = async (module: string,
+    forModel: monaco.editor.ITextModel) => {
+    const resolved = await resolveImport(module, forModel, this);
+    if (this.disposed) {
+      resolved.dispose(); // engine has been disposed in the meantime
+    }
+    this.disposers.push(resolved.dispose);
+    return resolved.module;
   }
-  return enginesByDoc.get(doc.id)!;
+
+  public dispose() {
+    this.disposed = true;
+    this.engine.dispose();
+    this.disposers.forEach(d => d());
+  }
 }

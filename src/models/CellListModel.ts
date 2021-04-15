@@ -2,16 +2,37 @@ import { YArray } from "yjs/dist/src/internals";
 
 import * as Y from "yjs";
 import { CellModel } from "./CellModel";
-
+import * as _ from "lodash";
 export class CellListModel {
   constructor(private documentId: string, private fragment: Y.XmlFragment) {}
 
+  private _previousChildren: any[] = [];
+  private _previousCells: CellModel[] = [];
+
   public get cells() {
-    const elements = this.fragment.toArray().filter((val) => {
+    /**
+     * because the observable of this.fragment will change anytime the text inside a <typecell> element changes,
+     * we make an optimization here, to see whether the fragments have actually changed.
+     * i.e.:
+     * - we want to return a new value when a cell has been added
+     * - we don't want to return a new value when the contents of a cell have been modified
+     *
+     * TODO: also return the previous value of other elements in case a cell has added. Perhaps use WeakMap<Fragment, CellModel>?
+     */
+
+    const children = this.fragment.toArray().filter((val) => {
       return val instanceof Y.XmlElement && val.nodeName === "typecell";
     }) as Y.XmlElement[];
 
-    return elements.map((el) => new CellModel(this.documentId, el)); // TODO: optimize
+    if (_.isEqual(children, this._previousChildren)) {
+      return this._previousCells;
+    }
+
+    this._previousChildren = children;
+    this._previousCells = children.map(
+      (el) => new CellModel(this.documentId, el)
+    );
+    return this._previousCells;
   }
 
   public addCell(i: number) {

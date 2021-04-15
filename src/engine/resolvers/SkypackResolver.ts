@@ -24,11 +24,14 @@ export default class SkypackResolver {
     if (moduleName.startsWith("https://")) {
       // @ts-ignore
       const importShim = await this.getImportShim();
-      return importShim(moduleName);
+      return { module: importShim(moduleName), dispose: () => {} };
     }
 
     const importShim = await this.getImportShim();
-    return importShim(`https://cdn.skypack.dev/${moduleName}`);
+    return {
+      module: importShim(`https://cdn.skypack.dev/${moduleName}`),
+      dispose: () => {},
+    };
     // return importShim(`https://jspm.dev/${moduleName}`);
   }
 

@@ -1,14 +1,13 @@
-import * as react from "react";
-import * as reactdom from "react-dom";
-import * as reactdnd from "react-dnd";
-import * as monaco from "monaco-editor";
-import SkypackResolver from "../engine/resolvers/SkypackResolver";
-import TCDocument from "../store/TCDocument";
-import { CellListModel } from "../models/CellListModel";
 import { autorun } from "mobx";
-import { getEngineForDoc } from "./EngineWithOutput";
-import { Engine } from "../engine";
-import { CellModel } from "../models/CellModel";
+import * as monaco from "monaco-editor";
+import * as react from "react";
+import * as reactdnd from "react-dnd";
+import * as reactdom from "react-dom";
+import SkypackResolver from "../engine/resolvers/SkypackResolver";
+import { CellListModel } from "../models/CellListModel";
+import { getModel } from "../models/modelCache";
+import TCDocument from "../store/TCDocument";
+import EngineWithOutput from "./EngineWithOutput";
 const sz = require("frontend-collective-react-dnd-scrollzone");
 
 function resolveNestedModule(id: string) {
@@ -37,37 +36,26 @@ function resolveNestedModule(id: string) {
 
 const skypackResolver = new SkypackResolver(resolveNestedModule);
 
-function getModel(cell: CellModel) {
-  const newCode = cell.code.toJSON();
-  const uri = monaco.Uri.file(cell.path);
-  let model = monaco.editor.getModel(uri);
-  if (!model) {
-    model = monaco.editor.createModel(newCode, "typescript", uri);
-  } else {
-    if (model.getValue() === newCode) {
-      console.warn(
-        "setting same code, this is a noop. Why do we set same code?"
-      );
-      return model; // immediately return to prevent monaco model listeners to be fired in a loop
-    }
-    model.setValue(newCode);
-  }
-  return model;
-}
-
 // todo: caches
 
-const cache = new Map<string, any>();
+const cache = new Map<string, ResolvedImport>();
+
+type ResolvedImport = {
+  module: any;
+  dispose: () => void;
+};
 
 export default async function resolveImport(
   moduleName: string,
-  forModel: monaco.editor.ITextModel
-) {
+  forModel: monaco.editor.ITextModel,
+  forEngine: EngineWithOutput
+): Promise<ResolvedImport> {
   if (moduleName.startsWith("!@")) {
-    const key = moduleName + forModel.uri.toString();
-    if (cache.has(key)) {
-      const ret = cache.get(key);
-      return ret;
+    const key = [forEngine.id, forModel.uri.toString(), moduleName].join("$$");
+
+    const cached = cache.get(key);
+    if (cached) {
+      return cached;
     }
 
     const [owner, document] = moduleName.toLowerCase().substr(1).split("/", 2);
@@ -76,17 +64,23 @@ export default async function resolveImport(
     }
     const doc = TCDocument.load(owner + "/" + document);
 
-    const engine = getEngineForDoc(doc);
+    const engine = new EngineWithOutput(doc.id);
 
-    autorun(() => {
+    const disposeAutorun = autorun(() => {
       const cells = new CellListModel(doc.id, doc.data);
       const models = cells.cells.forEach((c) => {
         const model = getModel(c);
         engine.engine.registerModel(model);
-        model.setValue(model.getValue()); // trick to force eval
+        // model.setValue(model.getValue()); // trick to force eval
       });
     });
-    const ret = engine.engine.observableContext.context;
+    const ret = {
+      module: engine.engine.observableContext.context,
+      dispose: () => {
+        disposeAutorun();
+        engine.dispose();
+      },
+    };
     cache.set(key, ret);
     return ret;
   }

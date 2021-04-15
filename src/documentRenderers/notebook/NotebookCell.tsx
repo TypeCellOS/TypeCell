@@ -15,13 +15,13 @@ import {
 } from "react-icons/vsc";
 import { MonacoBinding } from "y-monaco";
 import { doc } from "../../App";
-import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import { CellModel } from "../../models/CellModel";
+import { getModel, releaseModel } from "../../models/modelCache";
+import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import Output from "./Output";
-import useCellModel from "./useCellModel";
 
 // const MonacoMarkdown = require("monaco-markdown");
-
+let idd = 0;
 type Props = {
     cell: CellModel;
     engine: EngineWithOutput,
@@ -33,7 +33,7 @@ type Props = {
 
 const NotebookCell: React.FC<Props> = observer((props) => {
     const initial = useRef(true);
-    const model = useCellModel(props.cell, props.engine.engine);
+    const [model, setModel] = useState<monaco.editor.ITextModel>();
     const [editor, setEditor] = useState<Monaco.editor.IStandaloneCodeEditor>();
     const disposeHandlers = useRef<Array<() => void>>();
     // const [codeRef, setCodeRef] = useState<HTMLDivElement>();
@@ -73,7 +73,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
 
             if (props.initialFocus && initial.current) {
                 initial.current = false;
-                newEditor.focus();
+                // newEditor.focus();
             }
 
             newEditor.onDidBlurEditorWidget(() => {
@@ -84,20 +84,24 @@ const NotebookCell: React.FC<Props> = observer((props) => {
     }, [editor]);
 
     useEffect(() => {
-        if (!model || !editor || model.isDisposed()) {
+        if (!editor) {
             return;
         }
+        const newModel = getModel(props.cell);
+        props.engine.engine.registerModel(newModel);
 
-        editor.setModel(model);
+        editor.setModel(newModel);
+        setModel(newModel);
 
+        // TODO: optimization: new MonacoBinding now calls model.setValue with same content it already has, causing listeners to fire twice
         const monacoBinding = new MonacoBinding(
             props.cell.code,
-            model,
+            newModel,
             new Set([editor]),
             doc.webrtcProvider.awareness // TODO: fix reference to doc
         );
 
-        const disposer = editor.onDidContentSizeChange(() => {
+        const sizeDisposer = editor.onDidContentSizeChange(() => {
             if (!editor) {
                 return;
             }
@@ -110,9 +114,11 @@ const NotebookCell: React.FC<Props> = observer((props) => {
 
         return () => {
             monacoBinding.destroy();
-            disposer.dispose()
+            sizeDisposer.dispose();
+            releaseModel(props.cell);
+            setModel(undefined);
         };
-    }, [model, editor, props.cell.code]);
+    }, [editor, props.cell, props.cell.code, props.engine]);
 
 
     // Disabled, feels weird, work on UX
@@ -193,6 +199,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
                 <VscEllipsis />
               </button> */}
                         </div>
+                        {/* <div>{Math.random()}</div> */}
                         <div className="code" ref={codeRefCallback} style={{ height: "100%" }}></div>
                     </div>
                 )}

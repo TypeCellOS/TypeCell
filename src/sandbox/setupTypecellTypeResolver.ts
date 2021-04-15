@@ -26,6 +26,7 @@ function refreshTypes(folder: string) {
 
 export default function setupTypecellTypeResolver() {
   monaco.editor.onDidCreateModel((model) => {
+    // console.log("created", model.uri.toString());
     let uri = model.uri.toString();
     if (!uri.startsWith("file:///%21%40") /*!@*/) {
       return;
@@ -41,6 +42,7 @@ export default function setupTypecellTypeResolver() {
     const folder = split[0] + "/" + split[1];
     refreshTypes(folder);
     model.onWillDispose(() => {
+      // console.log("dispose", model.uri.toString());
       refreshTypes(folder);
     });
   });
