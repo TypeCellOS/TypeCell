@@ -31,9 +31,11 @@ function ensureRefs(tree, parent) {
   }
 }
 
-export let tree = <div style={{ height: 200 }}>
+export let tree = <div style={{ minHeight: 200, height: '100%', background: "white", position: "relative", zIndex: 10 }}>
   <input type="text" placeholder="Add page" onKeyUp={keyHandler} />
   <SortableTree
+    isVirtualized={false}
+    style={{ height: '100%', minHeight: 200 }}
     treeData={$.treeData}
     onChange={ensureRefs}
     theme={FileExplorerTheme}

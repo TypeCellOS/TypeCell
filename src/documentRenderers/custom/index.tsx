@@ -63,5 +63,5 @@ export const CustomRenderer = observer((props: { rendererDocumentId: string }) =
   // setInterval(() => { setRender(Math.random()) }, 2000);
   // console.log("render", render);
   return <div>{(engine.engine.observableContext).context.layout?.value_}</div>
-  {/* <div>{JSON.stringify(toJS(engine.engine.observableContext))}</div></div>; */ }
+  {/* <div>{JSON.stringify(toJS(engine.engine.observableContext))}</div></div> */ }
 });

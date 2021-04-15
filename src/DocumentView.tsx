@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRef } from "react";
 import { CustomRenderer } from "./documentRenderers/custom";
 import CellList from "./documentRenderers/notebook/CellList";
+import RichText from "./documentRenderers/richtext";
 import TCDocument from "./store/TCDocument";
 
 type Props = {
@@ -19,12 +20,14 @@ const DocumentView = observer((props: Props) => {
   const [doc, setDoc] = useState<TCDocument>();
 
   React.useEffect(() => {
-    setDoc(TCDocument.load(
+    const newDoc = TCDocument.load(
       props.owner + "/" + props.document,
       props.document === "home" ? "@yousefed/renderer" : "!notebook"
-    ));
+    );
+
+    setDoc(newDoc);
     return () => {
-      doc?.dispose();
+      newDoc.dispose();
       setDoc(undefined);
     }
   }, [props.owner, props.document]);
@@ -35,8 +38,8 @@ const DocumentView = observer((props: Props) => {
   // return <div>{doc.title.toJSON()}</div>
   if (doc.type === "!notebook") {
     return <CellList document={doc} />;
-  } else if (doc.type === "!document") {
-    return <div>Not implemented</div>;
+  } else if (doc.type === "!richtext") {
+    return <RichText document={doc} />;
   } else {
     return <CustomRenderer rendererDocumentId={doc.type} />;
   }

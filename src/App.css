@@ -82,3 +82,7 @@
   left: -4px;
   top: -5px;
 }
+
+:focus {
+  outline: none;
+}
