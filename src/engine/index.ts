@@ -3,16 +3,6 @@ import { createCellEvaluator } from "./CellEvaluator";
 import { createContext, TypeCellContext } from "./context";
 import { getCompiledCode } from "./monacoHelpers";
 
-function hash(str: string) {
-  var hash = 0;
-  for (var i = 0; i < str.length; i++) {
-    var character = str.charCodeAt(i);
-    hash = (hash << 5) - hash + character;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return hash;
-}
-
 const evaluatorCache = new Map<
   monaco.editor.ITextModel,
   ReturnType<typeof createCellEvaluator>
@@ -71,16 +61,16 @@ async function evaluateUpdate(
   }
   const evaluator = evaluatorCache.get(model)!;
 
-  const tscode = model.getValue();
-  const hsh = hash(tscode) + "";
-  const cached = localStorage.getItem(hsh);
-  if (cached) {
-    await evaluator.evaluate(cached);
-  } else {
-    let code = (await getCompiledCode(mainWorker, model.uri)).firstJSCode;
-    localStorage.setItem(hsh, code);
-    await evaluator.evaluate(code);
-  }
+  // const tscode = model.getValue();
+  // const hsh = hash(tscode) + "";
+  // const cached = localStorage.getItem(hsh);
+  // if (cached) {
+  // await evaluator.evaluate(cached);
+  // } else {
+  let code = (await getCompiledCode(mainWorker, model.uri)).firstJSCode;
+  // localStorage.setItem(hsh, code);
+  await evaluator.evaluate(code);
+  // }
 }
 
 const evaluateUpdateSingleInitial = awaitFirst(evaluateUpdate);
