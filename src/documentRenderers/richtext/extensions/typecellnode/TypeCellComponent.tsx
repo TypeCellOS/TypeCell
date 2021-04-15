@@ -1,13 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react'
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
+import React from 'react'
 
-export default (props: any) => {
+export default function TypeCellComponent(props: any) {
 
   return (<NodeViewWrapper as="div" className="react-component">
 
     <div>
       {/* <div {...attributes} className={classNames.root}> */}
-      <div contentEditable={false} style={{ marginLeft: "-21px" }}>
+      <div style={{ background: "gray" }}>
         <div>hello</div>
         <NodeViewContent as="div" />
       </div>

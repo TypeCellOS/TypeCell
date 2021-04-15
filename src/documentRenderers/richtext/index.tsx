@@ -4,8 +4,9 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import { defaultExtensions } from "@tiptap/starter-kit";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import TypeCellNode from "../../PMTest/TypeCellNode";
+
 import TCDocument from "../../store/TCDocument";
+import TypeCellNode from "./extensions/typecellnode";
 
 
 type Props = {
@@ -13,7 +14,7 @@ type Props = {
 };
 const RichText: React.FC<Props> = observer((props) => {
   const editor = useEditor({
-    onViewUpdate: ({ editor }) => {
+    onUpdate: ({ editor }) => {
       console.log(editor.getJSON())
     },
     extensions: [...defaultExtensions(),
@@ -26,7 +27,7 @@ const RichText: React.FC<Props> = observer((props) => {
     Collaboration.configure({
       fragment: props.document.data,
     }),
-      //   TypeCellNode
+      TypeCellNode
     ],
     // content: '<p>Hello World! 🌎️</p><react-component></react-component>',
   })
