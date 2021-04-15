@@ -4,14 +4,14 @@ import * as Y from "yjs";
 import { CellModel } from "./CellModel";
 
 export class CellListModel {
-  constructor(private fragment: Y.XmlFragment) {}
+  constructor(private documentId: string, private fragment: Y.XmlFragment) {}
 
   public get cells() {
     const elements = this.fragment.toArray().filter((val) => {
       return val instanceof Y.XmlElement && val.nodeName === "typecell";
     }) as Y.XmlElement[];
 
-    return elements.map((el) => new CellModel(el)); // TODO: optimize
+    return elements.map((el) => new CellModel(this.documentId, el)); // TODO: optimize
   }
 
   public addCell(i: number) {

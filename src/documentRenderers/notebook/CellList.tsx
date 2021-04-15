@@ -24,7 +24,7 @@ const CellList: React.FC<Props> = observer((props) => {
   //   }
   // }));
   const engine = getEngineForDoc(props.document);
-  const cellList = new CellListModel(props.document.data);
+  const cellList = new CellListModel(props.document.id, props.document.data);
   // if (!(props.document.data as any)._aa) {
   //   (props.document.data as any)._aa = 1;
   // }

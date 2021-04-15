@@ -45,7 +45,7 @@ export const CustomRenderer = observer((props: { rendererDocumentId: string }) =
       return;
     }
     const disposer = autorun(() => {
-      const cells = new CellListModel(document.data);
+      const cells = new CellListModel(document.id, document.data);
       const engine = getEngineForDoc(document);
       const models = cells.cells.forEach(c => {
         const model = getModel(c);

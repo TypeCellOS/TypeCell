@@ -3,7 +3,10 @@ import { YArray } from "yjs/dist/src/internals";
 import * as Y from "yjs";
 
 export class CellModel {
-  constructor(private fragment: Y.XmlElement) {}
+  constructor(
+    private parentDocumentId: string,
+    private fragment: Y.XmlElement
+  ) {}
 
   public get language() {
     return "typescript";
@@ -14,7 +17,13 @@ export class CellModel {
   }
 
   public get path() {
-    return this.fragment.getAttribute("id") + ".tsx";
+    return (
+      "/tc/!@" +
+      this.parentDocumentId.substr(1) +
+      "/" +
+      this.fragment.getAttribute("id") +
+      ".tsx"
+    );
   }
 
   public get code() {

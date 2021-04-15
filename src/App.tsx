@@ -3,10 +3,12 @@ import React from 'react';
 import './App.css';
 import DocumentView from './DocumentView';
 import { setMonacoDefaults } from "./sandbox";
+import setupTypecellTypeResolver from "./sandbox/setupTypecellTypeResolver";
 import TCDocument from './store/TCDocument';
 import routing from './util/routing';
 
 setMonacoDefaults(monaco);
+setupTypecellTypeResolver();
 
 const nav = routing();
 export const doc = TCDocument.load(nav.owner + "/" + nav.document, nav.document === "home1" ? "@yousefed/project" : "!notebook");

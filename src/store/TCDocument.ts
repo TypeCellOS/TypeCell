@@ -50,21 +50,10 @@ export default class TCDocument {
 
   public get title(): Y.Text {
     let title: Y.Text = this.ydoc.getText("title");
-
-    // this.reportMapKeyAtom("titlemap", this.meta, "title");
-    // if (
-    //   !title ||
-    //   !(title instanceof Y.Text) /* TODO: warning if not correct type */
-    // ) {
-    //   title = new Y.Text("");
-    //   this.meta.set("title", title);
-    // }
-    // this.reportTextAtom("title", title);
     return title;
   }
 
   public get type(): string {
-    // this.reportMapKeyAtom("typemap", this.meta, "type");
     return this.ydoc.getMap("meta").get("type");
   }
 
@@ -73,7 +62,7 @@ export default class TCDocument {
   }
 
   public get refs(): Y.Map<any> {
-    let map: Y.Map<any> = this.ydoc.getMap("refs"); // TODO: or default check if text
+    let map: Y.Map<any> = this.ydoc.getMap("refs");
     return map;
   }
 

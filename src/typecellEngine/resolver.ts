@@ -79,7 +79,7 @@ export default async function resolveImport(
     const engine = getEngineForDoc(doc);
 
     autorun(() => {
-      const cells = new CellListModel(doc.data);
+      const cells = new CellListModel(doc.id, doc.data);
       const models = cells.cells.forEach((c) => {
         const model = getModel(c);
         engine.engine.registerModel(model);

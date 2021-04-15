@@ -19,7 +19,9 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
 
   public getCustomTransformers(): ts.CustomTransformers {
     return {
-      before: [EnumerateTransformer((this as any)._languageService.getProgram())],
+      before: [
+        EnumerateTransformer((this as any)._languageService.getProgram()),
+      ],
     };
   }
 
@@ -28,13 +30,36 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
     // that doesn't export anything. Otherwise the compiler will assume it's not a module and all variables
     // will be seen as globals
     let text = super._getScriptText(fileName);
-    if (fileName.startsWith("file://") && (fileName.endsWith(".ts") || fileName.endsWith(".tsx"))) {
-      text += "\nexport{};";
+
+    // for typecell modules (files named /tc/!@owner/document/cell.(ts|tsx))
+    // automatically import the context ($) of other cells
+    // The type of this context is defined setupTypecellTypeResolver.ts, and available under tc/!@owner/document
+    if (
+      fileName.startsWith("file:///tc/%21%40") &&
+      (fileName.endsWith(".ts") || fileName.endsWith(".tsx"))
+    ) {
+      let split = fileName.substr("file:///tc/%21%40".length).split("/");
+
+      if (split.length === 3) {
+        const folder = "!@" + split[0] + "/" + split[1];
+
+        // add modified code at end, to not mess offsets
+        text += `;\nimport type { $ as $type } from "tc/${folder}";
+        declare const $: typeof $type;
+        `;
+        debugger;
+        // always add an empty export to file to make sure it's seen as a module
+        // text += "\nexport{};";
+      }
     }
+
     return text;
   }
 }
 
 globalThis.onmessage = () => {
-  worker.initialize((context: any, createData: any) => new CustomTypeScriptWorker(context, createData));
+  worker.initialize(
+    (context: any, createData: any) =>
+      new CustomTypeScriptWorker(context, createData)
+  );
 };
