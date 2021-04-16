@@ -1,11 +1,14 @@
 import * as monaco from "monaco-editor";
 import React from 'react';
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 import './App.css';
-import DocumentView from './DocumentView';
+import DocumentView from './documentRenderers/DocumentView';
 import { setMonacoDefaults } from "./sandbox";
 import setupNpmTypeResolver from "./sandbox/setupNpmTypeResolver";
 import setupTypecellTypeResolver from "./sandbox/setupTypecellTypeResolver";
 import TCDocument from './store/TCDocument';
+import { testyjs } from "./test";
 import routing from './util/routing';
 
 setMonacoDefaults(monaco);
@@ -13,11 +16,9 @@ setupTypecellTypeResolver();
 setupNpmTypeResolver();
 
 const nav = routing();
-export const doc = TCDocument.load(nav.owner + "/" + nav.document, nav.document === "home1" ? "@yousefed/project" : "!notebook");
 
 const App = () => {
-  return <DocumentView owner={nav.owner} document={nav.document} />
+  return <DndProvider backend={HTML5Backend}><DocumentView owner={nav.owner} document={nav.document} /></DndProvider>
 };
 
-(window as any).x = doc;
 export default App;

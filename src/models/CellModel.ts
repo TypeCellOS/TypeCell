@@ -34,32 +34,3 @@ export class CellModel {
     return child;
   }
 }
-
-const data = {
-  children: [
-    {
-      guid: "root1",
-      children: [{ guid: "sub1", children: [] }],
-    },
-    {
-      guid: "root2",
-    },
-  ],
-};
-
-// const root1 {
-//   refs: [
-//     {namespace: "@workspace", owner: "project", type: "child", doc: "sub1"}
-//   ],
-//   backrefs: [
-//     {namespace: "@workspace", owner: "project", type: "child", doc: "root"}
-//   ]
-// }
-
-// const sub1 {
-//   refs: [
-//   ],
-//   backrefs: [
-//     {namespace: "@workspace", owner: "project", type: "child", doc: "root1"}
-//   ]
-// }

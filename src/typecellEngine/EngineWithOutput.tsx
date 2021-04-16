@@ -1,7 +1,8 @@
 import { ObservableMap } from "mobx";
 import * as monaco from "monaco-editor";
-import DocumentView from "../DocumentView";
+import DocumentView from "../documentRenderers/DocumentView";
 import { Engine } from "../engine";
+import LoadingTCDocument from "../store/LoadingTCDocument";
 import { Ref } from "../store/Ref";
 import TCDocument from "../store/TCDocument";
 import routing from "../util/routing";
@@ -14,22 +15,8 @@ function getExposeGlobalVariables(id: string) {
       routing,
       DocumentView,
       namespace: id, // TODO: naming
-      doc: (ref: string | { owner: string; document: string }) => {
-        if (!ref) {
-          throw new Error("invalid arguments for doc");
-        }
-        if (typeof ref !== "string") {
-          if (!ref.owner || !ref.document) {
-            throw new Error("invalid arguments for doc");
-          }
-          ref = ref.owner + "/" + ref.document;
-        }
-
-        if (!ref.startsWith("@") || !ref.includes("/")) {
-          throw new Error("invalid arguments for doc");
-        }
-        // TODO: dispose
-        return TCDocument.load(ref, "!notebook");
+      doc: (identifier: string | { owner: string; document: string }) => {
+        return LoadingTCDocument.load(identifier);
       },
       createRef: (
         type: string,

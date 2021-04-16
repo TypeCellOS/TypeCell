@@ -10,13 +10,13 @@
     "@tiptap/extension-collaboration-cursor": "^2.0.0-beta.5",
     "@tiptap/react": "^2.0.0-beta.19",
     "@tiptap/starter-kit": "^2.0.0-beta.25",
-    "@types/jest": "^26.0.15",
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@typescript/vfs": "^1.3.4",
     "es-module-shims": "0.7.1",
     "frontend-collective-react-dnd-scrollzone": "1.0.2",
+    "limax": "^3.0.0",
     "lodash": "^4.17.21",
     "lz-string": "^1.4.4",
     "mobx": "^6.2.0",
@@ -31,6 +31,7 @@
     "react-icons": "^4.2.0",
     "react-inspector": "^5.1.0",
     "react-scripts": "4.0.3",
+    "speakingurl": "^14.0.1",
     "typescript": "^4.1.2",
     "web-vitals": "^1.0.1",
     "workerize-loader": "^1.3.0",
@@ -65,9 +66,12 @@
     ]
   },
   "devDependencies": {
+    "@types/jest": "^26.0.22",
     "@types/lodash": "^4.14.168",
     "@types/react-inspector": "^4.0.1",
+    "@types/speakingurl": "^13.0.2",
     "cross-env": "^7.0.3",
+    "fake-indexeddb": "^3.1.2",
     "patch-package": "^6.4.7"
   }
 }

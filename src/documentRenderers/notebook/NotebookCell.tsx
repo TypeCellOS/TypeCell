@@ -14,11 +14,12 @@ import {
     VscTrash
 } from "react-icons/vsc";
 import { MonacoBinding } from "y-monaco";
-import { doc } from "../../App";
+
 import { CellModel } from "../../models/CellModel";
 import { getModel, releaseModel } from "../../models/modelCache";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import Output from "./Output";
+import { Awareness } from "y-protocols/awareness";
 
 // const MonacoMarkdown = require("monaco-markdown");
 let idd = 0;
@@ -29,6 +30,7 @@ type Props = {
     classList?: string;
     defaultCollapsed?: boolean;
     initialFocus?: boolean;
+    awareness: Awareness
 };
 
 const NotebookCell: React.FC<Props> = observer((props) => {
@@ -87,19 +89,11 @@ const NotebookCell: React.FC<Props> = observer((props) => {
         if (!editor) {
             return;
         }
-        const newModel = getModel(props.cell);
+        const newModel = getModel(props.cell, editor);
         props.engine.engine.registerModel(newModel);
 
         editor.setModel(newModel);
         setModel(newModel);
-
-        // TODO: optimization: new MonacoBinding now calls model.setValue with same content it already has, causing listeners to fire twice
-        const monacoBinding = new MonacoBinding(
-            props.cell.code,
-            newModel,
-            new Set([editor]),
-            doc.webrtcProvider.awareness // TODO: fix reference to doc
-        );
 
         const sizeDisposer = editor.onDidContentSizeChange(() => {
             if (!editor) {
@@ -113,12 +107,11 @@ const NotebookCell: React.FC<Props> = observer((props) => {
         });
 
         return () => {
-            monacoBinding.destroy();
             sizeDisposer.dispose();
-            releaseModel(props.cell);
+            releaseModel(props.cell, editor);
             setModel(undefined);
         };
-    }, [editor, props.cell, props.cell.code, props.engine]);
+    }, [editor, props.cell, props.cell.code, props.engine, props.awareness]);
 
 
     // Disabled, feels weird, work on UX

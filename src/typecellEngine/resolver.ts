@@ -5,7 +5,8 @@ import * as reactdnd from "react-dnd";
 import * as reactdom from "react-dom";
 import SkypackResolver from "../engine/resolvers/SkypackResolver";
 import { CellListModel } from "../models/CellListModel";
-import { getModel } from "../models/modelCache";
+import { getModel, releaseModel } from "../models/modelCache";
+import LoadingTCDocument from "../store/LoadingTCDocument";
 import TCDocument from "../store/TCDocument";
 import EngineWithOutput from "./EngineWithOutput";
 const sz = require("frontend-collective-react-dnd-scrollzone");
@@ -62,24 +63,44 @@ export default async function resolveImport(
     if (!owner || !document || document.includes("/")) {
       throw new Error("invalid module");
     }
-    const doc = TCDocument.load(owner + "/" + document);
+    // use string identifier directly instead of passing { owner, document},
+    // because in code, we should use the correct slug at all times
+    // (i.e.: don't allow import "@YousefED/hello world", but "@yousefed/hello-world") for consistency
+    const doc = LoadingTCDocument.load(owner + "/" + document);
 
     const engine = new EngineWithOutput(doc.id);
 
+    let releasePreviousModels = () => {};
     // TODO: refactor, and releaseModel()
     const disposeAutorun = autorun(() => {
-      const cells = new CellListModel(doc.id, doc.data);
-      const models = cells.cells.forEach((c) => {
+      const cells = doc.doc?.cells;
+      if (!cells) {
+        return;
+      }
+      releasePreviousModels();
+      cells.forEach((c) => {
         const model = getModel(c);
         engine.engine.registerModel(model);
         // model.setValue(model.getValue()); // trick to force eval
       });
+      releasePreviousModels = () => {
+        cells.forEach((c) => releaseModel(c));
+      };
     });
+
+    let disposed = false;
     const ret = {
       module: engine.engine.observableContext.context,
       dispose: () => {
+        if (disposed) {
+          throw new Error("already disposed");
+        }
+        cache.delete(key);
+        disposed = true;
         disposeAutorun();
         engine.dispose();
+        doc.dispose();
+        releasePreviousModels();
       },
     };
     cache.set(key, ret);
