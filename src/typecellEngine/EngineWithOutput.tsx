@@ -54,6 +54,9 @@ export default class EngineWithOutput {
 
   private resolveImport = async (module: string,
     forModel: monaco.editor.ITextModel) => {
+    if (this.disposed) {
+      throw new Error("EngineWithOutput already disposed (resolveImport called)")
+    }
     const resolved = await resolveImport(module, forModel, this);
     if (this.disposed) {
       resolved.dispose(); // engine has been disposed in the meantime

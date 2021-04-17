@@ -1,4 +1,4 @@
-import { autorun } from "mobx";
+import { autorun, untracked } from "mobx";
 import * as monaco from "monaco-editor";
 import * as react from "react";
 import * as reactdnd from "react-dnd";
@@ -77,11 +77,13 @@ export default async function resolveImport(
       if (!cells) {
         return;
       }
-      releasePreviousModels();
-      cells.forEach((c) => {
-        const model = getModel(c);
-        engine.engine.registerModel(model);
-        // model.setValue(model.getValue()); // trick to force eval
+      untracked(() => {
+        // untracked, because getModel accesses observable data in the cell (code.tostring)
+        releasePreviousModels();
+        cells.forEach((c) => {
+          const model = getModel(c);
+          engine.engine.registerModel(model);
+        });
       });
       releasePreviousModels = () => {
         cells.forEach((c) => releaseModel(c));
