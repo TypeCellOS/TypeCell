@@ -35,11 +35,12 @@ export const CustomRenderer = observer((props: Props) => {
   }, [props.document.type])
 
 
+  // TODO: also useMemo to get engine, instead of useEffect?
   useEffect(() => {
     if (!rendererDocument?.doc) {
       return;
     }
-    debugger;
+
     const newEngine = new EngineWithOutput(rendererDocument.id);
     setEngine(newEngine);
 
