@@ -4,6 +4,7 @@ import React, { useRef } from "react";
 import ObjectInspector from "react-inspector";
 import ErrorBoundary from "./ErrorBoundary";
 import * as monaco from "monaco-editor";
+import RetryErrorBoundary from "./RetryErrorBoundary";
 
 
 type Props = {
@@ -18,8 +19,6 @@ const Output: React.FC<Props> = observer((props) => {
   if (output === undefined) {
     output = "unevaluated";
   }
-  const previousErrorBoundary = useRef<any>();
-  const errorBoundaryKey = useRef(0);
   const htmlElementKey = useRef(0);
 
   try {
@@ -33,15 +32,10 @@ const Output: React.FC<Props> = observer((props) => {
 
     if (mainKey) {
       if (React.isValidElement(mainExport)) {
-        if (previousErrorBoundary.current?.hasError()) {
-          // make sure we rerender the errorboundary, the previous one had an error state and we want to reset it,
-          // because the component "mainExport" might have changed and might not be causing errors anymore
-          errorBoundaryKey.current++;
-        }
         return (
-          <ErrorBoundary key={errorBoundaryKey.current} ref={previousErrorBoundary}>
+          <RetryErrorBoundary>
             {mainExport}
-          </ErrorBoundary>
+          </RetryErrorBoundary>
         );
       } else if (mainExport instanceof HTMLElement) {
         return (

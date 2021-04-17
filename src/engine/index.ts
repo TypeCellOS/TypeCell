@@ -88,15 +88,19 @@ export class Engine {
         this.onOutput
       ); // catch errors?
     };
-    let initialValue: string | undefined = model.getValue();
+    let prevValue: string | undefined = model.getValue();
 
     this.disposers.push(
       model.onDidChangeContent((_event) => {
-        if (model.getValue() !== initialValue) {
-          // make sure there were actual changes from the initial value
+        if (model.getValue() !== prevValue) {
+          // make sure there were actual changes from the previous value
+
+          prevValue = model.getValue();
           evaluate();
+        } else {
+          // TODO: inspect when this is the case. For initialization it makes sense,
+          // but why do we get duplicate events more often?
         }
-        initialValue = undefined; // from now on, consider all changes as new
       }).dispose
     );
 

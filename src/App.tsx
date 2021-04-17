@@ -7,8 +7,6 @@ import DocumentView from './documentRenderers/DocumentView';
 import { setMonacoDefaults } from "./sandbox";
 import setupNpmTypeResolver from "./sandbox/setupNpmTypeResolver";
 import setupTypecellTypeResolver from "./sandbox/setupTypecellTypeResolver";
-import TCDocument from './store/TCDocument';
-import { testyjs } from "./test";
 import routing from './util/routing';
 
 setMonacoDefaults(monaco);
