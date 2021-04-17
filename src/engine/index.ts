@@ -88,7 +88,17 @@ export class Engine {
         this.onOutput
       ); // catch errors?
     };
-    this.disposers.push(model.onDidChangeContent(evaluate).dispose);
+    let initialValue: string | undefined = model.getValue();
+
+    this.disposers.push(
+      model.onDidChangeContent((_event) => {
+        if (model.getValue() !== initialValue) {
+          // make sure there were actual changes from the initial value
+          evaluate();
+        }
+        initialValue = undefined; // from now on, consider all changes as new
+      }).dispose
+    );
 
     // evaluate initial
     evaluate();
@@ -106,6 +116,9 @@ export class Engine {
   }
 
   public dispose() {
+    if (this.disposed) {
+      throw new Error("Engine already disposed");
+    }
     this.disposed = true;
     this.disposers.forEach((d) => d());
     this.evaluatorCache.forEach((e) => e.dispose());
