@@ -48,6 +48,7 @@ export default class TCDocument {
   private getCellListMemoized = _.memoize(
     (data: Y.XmlFragment) => new CellListModel(this.id, data)
   );
+
   public get cellList() {
     return this.getCellListMemoized(this.data);
   }

@@ -1,25 +1,49 @@
-import { IAtom, createAtom } from "mobx";
+import { IAtom, createAtom, untracked } from "mobx";
 import * as Y from "yjs";
+import { observeYType } from ".";
 
 const xmlAtoms = new WeakMap<Y.XmlFragment | Y.XmlText, IAtom>();
 
-// TODO: use observe instead of observeDeep, but this would require hooking into more method calls.
-export function observeXml(value: Y.XmlFragment | Y.XmlText) {
+export function observeXml(value: Y.XmlFragment) {
   let atom = xmlAtoms.get(value);
   if (!atom) {
-    const handler = (_changes: Y.YEvent[]) => {
+    const handler = (event: Y.YXmlEvent) => {
+      event.changes.added.forEach((added) => {
+        if (added.content instanceof Y.ContentType) {
+          const addedType = added.content.type;
+          untracked(() => {
+            observeYType(addedType);
+          });
+        }
+      });
       atom!.reportChanged();
     };
+
     atom = createAtom(
       "xml",
       () => {
-        value.observeDeep(handler);
+        value.observe(handler);
       },
       () => {
-        value.unobserveDeep(handler);
+        value.unobserve(handler);
       }
     );
+
+    const originalToString = value.toString;
+    value.toString = function () {
+      atom!.reportObserved();
+      const ret = Reflect.apply(originalToString, this, arguments);
+      return ret;
+    };
   }
+  xmlAtoms.set(value, atom);
+
+  untracked(() => {
+    value.toArray().forEach((val) => {
+      observeYType(val);
+    });
+  });
+
   atom!.reportObserved();
   return value;
 }

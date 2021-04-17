@@ -18,7 +18,15 @@ export function observeText(value: Y.Text) {
         value.unobserve(handler);
       }
     );
+
+    const originalToString = value.toString;
+    value.toString = function () {
+      atom!.reportObserved();
+      const ret = Reflect.apply(originalToString, this, arguments);
+      return ret;
+    };
   }
+  textAtoms.set(value, atom);
   atom!.reportObserved();
   return value;
 }

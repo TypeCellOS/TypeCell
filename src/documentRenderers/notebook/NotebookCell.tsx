@@ -89,11 +89,31 @@ const NotebookCell: React.FC<Props> = observer((props) => {
         if (!editor) {
             return;
         }
-        const newModel = getModel(props.cell, editor);
+        const newModel = getModel(props.cell);
         props.engine.engine.registerModel(newModel);
 
         editor.setModel(newModel);
         setModel(newModel);
+
+        // TODO: optimization: new MonacoBinding now calls model.setValue with same content it already has, causing listeners to fire twice
+        const monacoBinding = new MonacoBinding(
+            props.cell.code,
+            newModel,
+            new Set([editor]),
+            props.awareness // TODO: fix reference to doc
+        );
+
+        // This is a bit of a hack. MonacoBinding sets an eventListener to cell.code.
+        // however, getModel() already has an event listener.
+        // Make sure that the binding's listener is always raised first, so that:
+        // - first, the binding applies edits to monaco with applyEdits
+        // - then, the autorun in observer is called, but we notice the value hasn't changed
+        // Instead of the other way around:
+        // - first: the autorun is called, calling monacomodel.setValue()
+        // - then, the edits are applied
+        // ---> model value is messed up and we can end up in an infinite loop
+        const old = props.cell.code._eH.l.pop()!;
+        props.cell.code._eH.l.unshift(old);
 
         const sizeDisposer = editor.onDidContentSizeChange(() => {
             if (!editor) {
@@ -107,8 +127,9 @@ const NotebookCell: React.FC<Props> = observer((props) => {
         });
 
         return () => {
+            monacoBinding.destroy();
             sizeDisposer.dispose();
-            releaseModel(props.cell, editor);
+            releaseModel(props.cell);
             setModel(undefined);
         };
     }, [editor, props.cell, props.cell.code, props.engine, props.awareness]);

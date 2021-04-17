@@ -1,80 +1,70 @@
+import { autorun } from "mobx";
 import * as monaco from "monaco-editor";
-import { MonacoBinding } from "../util/y-monaco";
 import { CellModel } from "./CellModel";
 
-const refCount = new Map<string, number>();
-const editorBindings = new Map<string, MonacoBinding>();
+type CacheEntry = {
+  refCount: number;
+  dispose: () => void;
+};
+const cache = new Map<string, CacheEntry>();
 
-export function releaseModel(cell: CellModel, editor?: monaco.editor.IEditor) {
+export function releaseModel(cell: CellModel) {
   const uri = monaco.Uri.file(cell.path);
-  const uriStr = uri.toString();
-  let refs = refCount.get(uriStr) || 0;
-  if (refs === 0) {
+  let entry = cache.get(uri.toString());
+  if (!entry || entry.refCount === 0) {
     throw new Error("releaseModel, but already released");
   }
-  refCount.set(uri.toString(), refs--);
-  if (editor) {
-    editorBindings.get(uriStr)!.removeEditor(editor);
-  }
-
-  if (refs === 0) {
-    let model = monaco.editor.getModel(uri);
-    if (!model) {
-      throw new Error("model not found");
+  entry.refCount--;
+  if (entry.refCount === 0) {
+    let monacoModel = monaco.editor.getModel(uri);
+    if (!monacoModel) {
+      throw new Error("monaco model not found");
     }
-    if (model?.isDisposed()) {
-      throw new Error("already disposed");
+    if (monacoModel?.isDisposed()) {
+      throw new Error("monaco already already disposed");
     }
-    // console.log("dispose", uriStr);
-    model.dispose();
-    refCount.delete(uriStr);
-    editorBindings.get(uriStr)!.destroy();
-    editorBindings.delete(uriStr);
+    entry.dispose();
+    monacoModel.dispose();
+    cache.delete(uri.toString());
   }
 }
 
-export function getModel(
-  cell: CellModel,
-  editor?: monaco.editor.IStandaloneCodeEditor
-) {
+export function getModel(cell: CellModel): monaco.editor.ITextModel {
   const uri = monaco.Uri.file(cell.path);
-  const uriStr = uri.toString();
 
-  const refs = refCount.get(uriStr) || 0;
+  let entry = cache.get(uri.toString());
 
-  refCount.set(uriStr, refs + 1);
+  let monacoModel = monaco.editor.getModel(uri);
 
-  let model = monaco.editor.getModel(uri);
-
-  if (!model && refs > 0) {
-    throw new Error("model not expected");
+  if (monacoModel?.isDisposed()) {
+    throw new Error("got disposed monaco model");
   }
 
-  if (model?.isDisposed()) {
-    throw new Error("already disposed");
-  }
-
-  const newCode = cell.code.toJSON();
-  if (!model) {
-    model = monaco.editor.createModel(newCode, "typescript", uri);
-    const monacoBinding = new MonacoBinding(
-      cell.code,
-      model,
-      editor ? new Set([editor]) : new Set()
-      // props.awareness // TODO: fix reference to doc
-    );
-    editorBindings.set(uriStr, monacoBinding);
+  if (entry) {
+    if (!monacoModel) {
+      throw new Error("monacoModel expected to be available");
+    }
+    entry.refCount++;
+    return monacoModel;
   } else {
-    if (editor) {
-      editorBindings.get(uriStr)!.addEditor(editor);
+    if (monacoModel) {
+      throw new Error("monaco model already exists");
     }
-    if (model.getValue() === newCode) {
-      console.warn(
-        "setting same code, this is a noop. Why do we set same code?"
-      );
-      return model; // immediately return to prevent monaco model listeners to be fired in a loop
-    }
-    model.setValue(newCode);
+    const newCode = cell.code.toJSON();
+    const newModel = monaco.editor.createModel(newCode, "typescript", uri);
+
+    const dispose = autorun(() => {
+      const newCode = cell.code.toString();
+      if (newModel.getValue() !== newCode) {
+        newModel.setValue(newCode);
+      }
+    });
+
+    entry = {
+      refCount: 1,
+      dispose,
+    };
+    cache.set(uri.toString(), entry);
+    return newModel;
   }
-  return model;
 }
