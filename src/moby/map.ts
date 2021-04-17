@@ -98,6 +98,13 @@ export function observeMap(map: Y.Map<any>) {
     return ret;
   };
 
+  const originalForEach = map.forEach;
+  map.forEach = function () {
+    reportSelfAtom();
+    const ret = Reflect.apply(originalForEach, this, arguments);
+    return ret;
+  };
+
   const originalToJSON = map.toJSON;
   map.toJSON = function () {
     reportSelfAtom();

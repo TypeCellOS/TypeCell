@@ -3,11 +3,12 @@ import SortableTree from 'react-sortable-tree';
 import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
 
 
+
 function setChild(parentid, childid) {
   const [owner, document] = parentid.split("/");
   const doc = typecell.doc({ owner, document });
-  const ref = typecell.createRef("child", childid, true, { oneToMany: false, type: "parent" })
-  doc.ensureRef(ref);
+
+  doc.ensureRef($.childReference, childid);
 }
 
 function addPage(page: string) {
@@ -22,13 +23,29 @@ function keyHandler(event) {
   }
 }
 
-function ensureRefs(tree, parent) {
-  for (let child of tree) {
-    if (parent) {
-      setChild(parent.doc, child.doc)
+function findNodeIndexInParent(tree, node) {
+  for (let i = 0; i < tree.length; i++) {
+    let child = tree[i];
+    if (child.doc === node.doc) {
+      return i;
     }
-    ensureRefs(child.children, child)
+    let inSubTree = findNodeIndexInParent(child.children, node);
+    if (inSubTree !== undefined) {
+      return inSubTree;
+    }
   }
+  return undefined;
+}
+
+function onMoveNode(arg: { treeData: object[], node: object, nextParentNode: object, prevPath: number[] | string[], prevTreeIndex: number, nextPath: number[] | string[], nextTreeIndex: number }) {
+  if (!arg.nextParentNode) {
+    return;
+  }
+  const index = findNodeIndexInParent(arg.treeData, arg.node);
+  if (index === undefined) {
+    throw new Error("unexpected");
+  }
+  arg.nextParentNode.doc.ensureRef($.childReference, arg.node.doc.id, index);
 }
 
 export let tree = <div style={{ minHeight: 200, height: '100%', background: "white", position: "relative", zIndex: 10 }}>
@@ -37,7 +54,8 @@ export let tree = <div style={{ minHeight: 200, height: '100%', background: "whi
     isVirtualized={false}
     style={{ height: '100%', minHeight: 200 }}
     treeData={$.treeData}
-    onChange={ensureRefs}
+    onMoveNode={onMoveNode}
+    onChange={() => { }}
     theme={FileExplorerTheme}
   />
 </div>
@@ -49,13 +67,12 @@ export let rootDoc = typecell.doc(routing);
 
 
 
-
 import * as React from "react"
 export const treeData = [getTreeForDoc($.rootDoc)]
 
 function getTreeForDoc(doc) {
   const children = [];
-  for (let ref of doc.refs.values()) {
+  for (let ref of doc.getRefs($.childReference)) {
     if (ref.namespace == typecell.namespace && ref.type === "child") {
       const child = typecell.doc(ref.target);
       children.push(getTreeForDoc(child));
@@ -66,10 +83,9 @@ function getTreeForDoc(doc) {
     title: <a href="" onClick={(e) => { e.preventDefault(); $.selected = doc.id }}>{doc.id}</a>,
     children,
     expanded: true,
-    doc: doc.id
+    doc: doc,
   }
 }
-
 
 
 

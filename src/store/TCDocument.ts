@@ -7,23 +7,23 @@ import { Awareness } from "y-protocols/awareness";
 import LoadingTCDocument from "./LoadingTCDocument";
 export default class TCDocument {
   public constructor(
-    private readonly loadingDoc: LoadingTCDocument, // TODO: circular reference
-    private readonly ydoc: Y.Doc
+    private readonly _loadingDoc: LoadingTCDocument, // TODO: circular reference
+    private readonly _ydoc: Y.Doc
   ) {}
 
   public get id() {
-    return this.loadingDoc.id;
+    return this._loadingDoc.id;
   }
   public get webrtcProvider() {
-    return this.loadingDoc.webrtcProvider;
+    return this._loadingDoc.webrtcProvider;
   }
 
   public get title(): Y.Text {
-    return this.ydoc.getText("title");
+    return this._ydoc.getText("title");
   }
 
   public get type(): string {
-    return this.ydoc.getMap("meta").get("type");
+    return this._ydoc.getMap("meta").get("type");
   }
 
   public set type(type: string) {
@@ -32,25 +32,20 @@ export default class TCDocument {
         "to initialize document with a type, use .create(type) instead"
       );
     }
-    this.ydoc.getMap("meta").set("type", type);
-  }
-
-  public get refs(): Y.Map<any> {
-    let map: Y.Map<any> = this.ydoc.getMap("refs");
-    return map;
+    this._ydoc.getMap("meta").set("type", type);
   }
 
   public get data(): Y.XmlFragment {
-    let xml = this.ydoc.getXmlFragment("doc");
+    let xml = this._ydoc.getXmlFragment("doc");
     return xml;
   }
 
-  private getCellListMemoized = _.memoize(
+  private _getCellListMemoized = _.memoize(
     (data: Y.XmlFragment) => new CellListModel(this.id, data)
   );
 
   public get cellList() {
-    return this.getCellListMemoized(this.data);
+    return this._getCellListMemoized(this.data);
   }
 
   public get cells() {

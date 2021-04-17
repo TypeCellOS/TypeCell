@@ -3,7 +3,7 @@ import * as monaco from "monaco-editor";
 import DocumentView from "../documentRenderers/DocumentView";
 import { Engine } from "../engine";
 import LoadingTCDocument from "../store/LoadingTCDocument";
-import { Ref } from "../store/Ref";
+import { createOneToManyReferenceDefinition, Ref } from "../store/Ref";
 import TCDocument from "../store/TCDocument";
 import routing from "../util/routing";
 import resolveImport from "./resolver";
@@ -18,16 +18,12 @@ function getExposeGlobalVariables(id: string) {
       doc: (identifier: string | { owner: string; document: string }) => {
         return LoadingTCDocument.load(identifier);
       },
-      createRef: (
+      createOneToManyReferenceDefinition: (
         type: string,
-        target: string,
-        oneToMany: boolean,
-        reverseInfo: {
-          oneToMany: boolean;
-          type: string;
-        }
+        reverseType: string,
+        sorted: boolean
       ) => {
-        return new Ref(id, type, target, oneToMany, reverseInfo);
+        return createOneToManyReferenceDefinition(id, type, reverseType, sorted);
       },
     },
   };

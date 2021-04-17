@@ -4,33 +4,41 @@ import { IndexeddbPersistence } from "y-indexeddb";
 import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
 import { observeDoc } from "../moby/doc";
-import { Ref } from "./Ref";
+import {
+  getHashForReference,
+  validateRef,
+  ReferenceDefinition,
+  reverseReferenceDefinition,
+  Ref,
+  createRef,
+} from "./Ref";
 import slug from "speakingurl";
 import TCDocument from "./TCDocument";
+import { generateKeyBetween } from "fractional-indexing";
 
 const documentCache = new Map<string, LoadingTCDocument>();
 // (window as any).documents = documentCache;
 // const subDocCache = new Map<string, Y.Doc>();
 
 export default class LoadingTCDocument {
-  private refCount = 0;
-  private readonly ydoc;
+  private _refCount = 0;
+  private readonly _ydoc;
   public readonly webrtcProvider: WebrtcProvider;
   public readonly indexedDBProvider: IndexeddbPersistence;
 
   private constructor(
     public readonly id: string,
-    private readonly initialTitle?: string
+    private readonly _initialTitle?: string
   ) {
     if (!id.startsWith("@") || id.split("/").length !== 2) {
       throw new Error("invalid arguments for doc");
     }
 
-    this.ydoc = new Y.Doc({ guid: id });
-    this.webrtcProvider = new WebrtcProvider(id, this.ydoc);
-    this.indexedDBProvider = new IndexeddbPersistence(id, this.ydoc);
+    this._ydoc = new Y.Doc({ guid: id });
+    this.webrtcProvider = new WebrtcProvider(id, this._ydoc);
+    this.indexedDBProvider = new IndexeddbPersistence(id, this._ydoc);
 
-    observeDoc(this.ydoc);
+    observeDoc(this._ydoc);
   }
 
   public static load(
@@ -69,19 +77,19 @@ export default class LoadingTCDocument {
         // doc.initialTitle = initialTitleToSet; // TODO
       }
     }
-    doc.refCount++;
+    doc._refCount++;
     return doc;
   }
 
-  private get type(): string {
-    return this.ydoc.getMap("meta").get("type");
+  private get _type(): string {
+    return this._ydoc.getMap("meta").get("type");
   }
 
   private _loadedDoc: TCDocument | undefined;
 
   public get doc() {
-    if (this.type) {
-      this._loadedDoc = this._loadedDoc || new TCDocument(this, this.ydoc);
+    if (this._type) {
+      this._loadedDoc = this._loadedDoc || new TCDocument(this, this._ydoc);
       return this._loadedDoc;
     }
     if (this._loadedDoc) {
@@ -91,47 +99,143 @@ export default class LoadingTCDocument {
   }
 
   public create(type: string) {
-    this.ydoc.getMap("meta").set("type", type);
-    this.ydoc.getMap("meta").set("created_at", Date.now());
+    this._ydoc.getMap("meta").set("type", type);
+    this._ydoc.getMap("meta").set("created_at", Date.now());
   }
 
-  public get refs(): Y.Map<any> {
-    let map: Y.Map<any> = this.ydoc.getMap("refs");
+  private get _refs(): Y.Map<any> {
+    let map: Y.Map<any> = this._ydoc.getMap("refs");
     return map;
   }
 
-  public removeRef(ref: Ref) {
-    this.refs.delete(ref.uniqueHash() + "");
+  public getRefs(definition: ReferenceDefinition) {
+    const ret: Ref[] = []; // TODO: type
+    // this._ydoc.getMap("refs").forEach((val, key) => {
+    //   this._ydoc.getMap("refs").delete(key);
+    // });
+    this._ydoc.getMap("refs").forEach((val) => {
+      if (
+        val.namespace !== definition.namespace ||
+        val.type !== definition.type
+      ) {
+        // filter
+        return;
+      }
+      if (!validateRef(val, definition)) {
+        throw new Error("unexpected");
+      }
+      if (
+        val.namespace === definition.namespace &&
+        val.type === definition.type
+      ) {
+        ret.push(val);
+      }
+    });
+
+    ret.sort((a, b) => ((a.sortKey || "") < (b.sortKey || "") ? -1 : 1));
+    return ret;
+  }
+
+  public getRef(definition: ReferenceDefinition, key: string) {
+    const ref = this._refs.get(key);
+    if (ref && !validateRef(ref, definition)) {
+      throw new Error("unexpected"); // ref with key exists, but doesn't conform to definition
+    }
+    return ref;
+  }
+
+  public removeRef(definition: ReferenceDefinition, targetId: string) {
+    this._refs.delete(getHashForReference(definition, targetId));
     // TODO: delete reverse?
   }
 
-  public ensureRef(ref: Ref, checkReverse = true) {
-    if (!(ref instanceof Ref)) {
-      throw new Error("invalid ref passed");
+  public moveRef(
+    definition: ReferenceDefinition,
+    targetId: string,
+    index: number
+  ) {
+    const key = getHashForReference(definition, targetId);
+    let existing = this.getRef(definition, key);
+    if (!existing) {
+      throw new Error("ref not found");
     }
-    const key = ref.uniqueHash() + ""; // parent: type,  // child: type, target
-    let existing = this.refs.get(key);
+
+    if (
+      definition.relationship.type === "unique" ||
+      !definition.relationship.sorted
+    ) {
+      throw new Error("called moveRef on non sorted definition");
+    }
+
+    const refs = this.getRefs(definition);
+    const sortKey = generateKeyBetween(
+      index === 0 ? null : refs[index - 1].sortKey || null,
+      index >= refs.length ? null : refs[index].sortKey || null
+    );
+    this._refs.set(key, createRef(definition, targetId, sortKey));
+  }
+
+  public ensureRef(
+    definition: ReferenceDefinition,
+    targetId: string,
+    index?: number,
+    checkReverse = true
+  ) {
+    // const ref = new Ref(definition, targetId);
+
+    const key = getHashForReference(definition, targetId);
+    let existing = this.getRef(definition, key);
     if (existing) {
-      // already has a parent
-      if (JSON.stringify(existing) !== JSON.stringify(ref.toJS())) {
-        // TODO: deepequals
-        // different parent
+      // The document already has this relationship
+      if (existing.target !== targetId) {
+        // The relationship that exists is different, remove the reverse relationship
         const doc = LoadingTCDocument.load(existing.target); // TODO: unload document
-        doc.removeRef(ref.reverse(this.id));
+        doc.removeRef(reverseReferenceDefinition(definition), this.id);
       }
     }
-    this.refs.set(ref.uniqueHash() + "", ref.toJS());
+    // Add the relationship
+    let sortKey: string | undefined;
+
+    if (
+      definition.relationship.type === "many" &&
+      definition.relationship.sorted
+    ) {
+      const refs = this.getRefs(definition).filter(
+        (r) => r.target !== targetId
+      );
+      if (index === undefined) {
+        // append as last item
+        sortKey = generateKeyBetween(refs.pop()?.sortKey || null, null);
+      } else {
+        let sortKeyA = index === 0 ? null : refs[index - 1].sortKey || null;
+        let sortKeyB =
+          index >= refs.length ? null : refs[index].sortKey || null;
+        if (sortKeyA === sortKeyB && sortKeyA !== null) {
+          console.warn("unexpected");
+          sortKeyB = null;
+        }
+        sortKey = generateKeyBetween(sortKeyA, sortKeyB);
+      }
+    }
+
+    this._refs.set(key, createRef(definition, targetId, sortKey));
     if (checkReverse) {
-      const reverseDoc = LoadingTCDocument.load(ref.target); // TODO: unload document
-      reverseDoc.ensureRef(ref.reverse(this.id), false);
+      // Add the reverse relationship
+      const reverseDoc = LoadingTCDocument.load(targetId); // TODO: unload document
+      reverseDoc.ensureRef(
+        reverseReferenceDefinition(definition),
+        this.id,
+        undefined,
+        false
+      );
     }
   }
 
   // public get cellList() {}
 
   public dispose() {
-    this.refCount--;
-    if (this.refCount === 0) {
+    this._refCount--;
+    if (this._refCount === 0) {
       this.webrtcProvider.destroy();
       this.indexedDBProvider.destroy();
       documentCache.delete(this.id);

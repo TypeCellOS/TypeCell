@@ -8,59 +8,145 @@ function hash(str: string) {
   return hash;
 }
 
-// backrefs: [
-//     {namespace: "@workspace", owner: "project", type: "child", doc: "root"}
-//   ]
-
-// type Ref = {
-//   namespace: string // @yousefed/renderer
-//   type: string; //
-
-// };
-
-export class Ref {
-  public constructor(
-    public readonly namespace: string,
-    public readonly type: string,
-    public readonly target: string,
-    private oneToMany: boolean,
-    private reverseInfo: {
-      oneToMany: boolean;
-      type: string;
-    }
+export function createRef(
+  definition: ReferenceDefinition,
+  targetId: string,
+  sortKey?: string
+): Ref {
+  if (
+    definition.relationship.type === "many" &&
+    definition.relationship.sorted &&
+    !sortKey
   ) {
-    if (!namespace || !type || !target || !reverseInfo) {
-      throw new Error("invalid arguments for ref");
-    }
+    throw new Error("expected sortKey");
   }
+  return {
+    namespace: definition.namespace,
+    type: definition.type,
+    target: targetId,
+    sortKey,
+  };
+}
 
-  public uniqueHash(): number {
-    let hashcode = hash(this.namespace) ^ hash(this.type);
+export type Ref = {
+  namespace: string;
+  type: string;
+  target: string;
+  sortKey?: string;
+};
 
-    if (this.oneToMany) {
-      hashcode = hashcode ^ hash(this.target);
-    }
-    return hashcode;
+export function validateRef(
+  obj: any,
+  referenceDefinition?: ReferenceDefinition
+): obj is Ref {
+  if (!obj.namespace || !obj.target || !obj.type) {
+    throw new Error("invalid ref");
   }
-
-  public reverse(source: string): Ref {
-    return new Ref(
-      this.namespace,
-      this.reverseInfo.type,
-      source,
-      this.reverseInfo.oneToMany,
-      {
-        oneToMany: this.oneToMany,
-        type: this.type,
+  if (referenceDefinition) {
+    if (
+      obj.namespace !== referenceDefinition.namespace ||
+      obj.type !== referenceDefinition.type
+    ) {
+      throw new Error("reference not matching definition");
+    }
+    if (
+      referenceDefinition.relationship.type === "many" &&
+      referenceDefinition.relationship.sorted
+    ) {
+      if (!obj.sortKey) {
+        throw new Error("no sortkey found");
       }
-    );
+    } else {
+      if (obj.sortKey) {
+        throw new Error("found sort key, but not expected");
+      }
+    }
   }
+  return true;
+}
 
-  public toJS() {
-    return {
-      namespace: this.namespace,
-      type: this.type,
-      target: this.target,
-    };
+export function getSortedRef(obj: {
+  namespace: string;
+  type: string;
+  target: string;
+  sortKey: string;
+}) {
+  if (!obj.namespace || !obj.target || !obj.type || !obj.sortKey) {
+    throw new Error("invalid ref");
   }
+  return obj;
+}
+
+export type ReferenceDefinition = {
+  /**
+   * Owner of the schema
+   * e.g.: "@yousefed/document"
+   */
+  namespace: string;
+  /**
+   * Type of the relation
+   * e.g.: "child", "parent", "mention"
+   */
+  type: string;
+
+  /**
+   * e.g.:
+   * - "parent" is unique, a document can only have 1 parent
+   * - "child" is not unique, a document can have multiple parents
+   */
+  relationship: { type: "unique" } | { type: "many"; sorted: boolean };
+
+  /**
+   * Information needed to get the Reference stored in the "other" document
+   * (e.g., map from "child" to "parent" and vice versa)
+   */
+  reverseInfo: {
+    relationship: { type: "unique" } | { type: "many"; sorted: boolean };
+    type: string;
+  };
+};
+
+export function getHashForReference(
+  definition: ReferenceDefinition,
+  targetId: string
+): string {
+  // uniqueness by namespace + type
+  let hashcode = hash(definition.namespace) ^ hash(definition.type);
+
+  if (definition.relationship.type === "many") {
+    // If many of the namspace/type relations can exists
+    // add uniqueness by targetId
+    hashcode = hashcode ^ hash(targetId);
+  }
+  return hashcode + "";
+}
+
+export function reverseReferenceDefinition(
+  definition: ReferenceDefinition
+): ReferenceDefinition {
+  return {
+    ...definition,
+    ...definition.reverseInfo,
+    reverseInfo: {
+      type: definition.type,
+      relationship: definition.relationship,
+    },
+  };
+}
+
+export function createOneToManyReferenceDefinition(
+  namespace: string,
+  type: string,
+  reverseType: string,
+  sorted: boolean
+): ReferenceDefinition {
+  return {
+    namespace,
+    type,
+    relationship: { type: "many", sorted },
+    reverseInfo: {
+      type: reverseType,
+      relationship: { type: "unique" },
+    },
+  };
 }
