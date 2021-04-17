@@ -86,7 +86,8 @@ export function createCellEvaluator(
         resolveImport,
         clearVariableWatches,
         onExecuted,
-        onError
+        onError,
+        moduleExecution?.disposeVariables
       );
       await moduleExecution.initialRun;
     } catch (e) {
@@ -102,6 +103,7 @@ export function createCellEvaluator(
       // log.debug("cellEvaluator dispose", cell.path);
       if (moduleExecution) {
         moduleExecution.dispose();
+        moduleExecution.disposeVariables();
       }
       clearVariableWatches();
     },

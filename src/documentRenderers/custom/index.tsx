@@ -7,7 +7,7 @@ import { getModel, releaseModel } from "../../models/modelCache";
 import LoadingTCDocument from "../../store/LoadingTCDocument";
 import TCDocument from "../../store/TCDocument";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
-import ErrorBoundary from "../notebook/ErrorBoundary";
+import RetryErrorBoundary from "../notebook/RetryErrorBoundary";
 
 // TODO: should this be a React component or raw JS?
 
@@ -68,8 +68,8 @@ export const CustomRenderer = observer((props: Props) => {
 
   // setInterval(() => { setRender(Math.random()) }, 2000);
   // console.log("render", render);
-  return <ErrorBoundary key={Math.random() + ""}>
+  return <RetryErrorBoundary>
     <div>{(engine.engine.observableContext).context.layout?.value_}</div>
-  </ErrorBoundary>
+  </RetryErrorBoundary>
   {/* <div>{JSON.stringify(toJS(engine.engine.observableContext))}</div></div> */ }
 });

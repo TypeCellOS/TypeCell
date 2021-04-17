@@ -95,6 +95,7 @@ function createDefine(modules: Module[]) {
 export type ModuleExecution = {
   initialRun: Promise<any>;
   dispose: () => void;
+  disposeVariables: (newExportsToKeep?: any) => void;
 };
 
 export async function runModule(
@@ -103,9 +104,10 @@ export async function runModule(
   resolveImport: (module: string) => any,
   beforeExecuting: () => void,
   onExecuted: (exports: any) => void,
-  onError: (error: any) => void
+  onError: (error: any) => void,
+  previousVariableDisposer?: (newExportsToKeep: any) => void
 ): Promise<ModuleExecution> {
-  let disposeOnCodeChange: Array<() => void> = [];
+  let cleanVariablesFromContext: Array<(newExports: any) => void> = [];
   let disposeEveryRun: Array<() => void> = [];
 
   const exports: any = {};
@@ -126,99 +128,116 @@ export async function runModule(
     reject = rejecter;
   });
 
-  let createdAt = Date.now();
+  // let createdAt = Date.now();
+  let wouldLoopOnAutorun = false;
+  let detectedLoop = false;
+  const autorunDisposer = autorun(
+    async () => {
+      try {
+        if (wouldLoopOnAutorun) {
+          detectedLoop = true;
+          throw new Error("loop detected (child run)");
+        }
+        // trace(false);
+        if (initialRun) {
+          // log.debug("engine initial run", cell.id); //, func + "");
+        } else {
+          // log.debug("engine autorun", cell.id, createdAt); //, func + "");
+        }
+        initialRun = false;
 
-  disposeOnCodeChange.push(
-    autorun(
-      async () => {
+        disposeEveryRun.forEach((d) => d());
+        disposeEveryRun.length = 0; // clear existing array in this way, because we've passed the reference to resolveDependencyArray and want to keep it intact
+
+        beforeExecuting();
+        const hooks = installHooks();
+        disposeEveryRun.push(hooks.disposeAll);
+        let executionPromise: Promise<any>;
         try {
-          // trace(false);
-          if (initialRun) {
-            // log.debug("engine initial run", cell.id); //, func + "");
-          } else {
-            // log.debug("engine autorun", cell.id, createdAt); //, func + "");
+          executionPromise = mod.factoryFunction.apply(
+            undefined,
+            argsToCallFunctionWith
+          ); // TODO: what happens with disposers if a rerun of this function is slow / delayed?
+        } finally {
+          // Hooks are only installed for sync code. Ideally, we'd want to run it for all code, but then we have the chance hooks will affect other parts of the TypeCell (non-user) code
+          // (we ran into this that notebooks wouldn't be saved (_.debounce), and also that setTimeout of Monaco blink cursor would be hooked)
+          hooks.unHookAll();
+          if (previousVariableDisposer) {
+            previousVariableDisposer(exports);
           }
-          initialRun = false;
+        }
 
-          disposeEveryRun.forEach((d) => d());
-          disposeEveryRun.length = 0; // clear existing array in this way, because we've passed the reference to resolveDependencyArray and want to keep it intact
+        await executionPromise;
 
-          beforeExecuting();
-          const hooks = installHooks();
-          disposeEveryRun.push(hooks.disposeAll);
-          let executionPromise: Promise<any>;
-          try {
-            executionPromise = mod.factoryFunction.apply(
-              undefined,
-              argsToCallFunctionWith
-            ); // TODO: what happens with disposers if a rerun of this function is slow / delayed?
-          } finally {
-            // Hooks are only installed for sync code. Ideally, we'd want to run it for all code, but then we have the chance hooks will affect other parts of the TypeCell (non-user) code
-            // (we ran into this that notebooks wouldn't be saved (_.debounce), and also that setTimeout of Monaco blink cursor would be hooked)
-            hooks.unHookAll();
-          }
+        // Running the assignments to `context` in action should be a performance improvement to prevent triggering observers one-by-one
+        wouldLoopOnAutorun = true;
+        runInAction(() => {
+          for (var propertyName in exports) {
+            // log.log(cell.id, "exported property:", propertyName, exports[propertyName]);
 
-          await executionPromise;
-
-          // Running the assignments to `context` in action should be a performance improvement to prevent triggering observers one-by-one
-          runInAction(() => {
-            for (var propertyName in exports) {
-              // log.log(cell.id, "exported property:", propertyName, exports[propertyName]);
-
-              const saveValue = (exported: any) => {
-                if (propertyName !== "default") {
-                  if (isStored(exported)) {
-                    // context.storage.addStoredValue(propertyName, exported);
+            const saveValue = (exported: any) => {
+              if (propertyName !== "default") {
+                if (isStored(exported)) {
+                  // context.storage.addStoredValue(propertyName, exported);
+                } else {
+                  // context.storage.removeStoredValue(propertyName);
+                  if (React.isValidElement(exported)) {
+                    context.context[propertyName] = observable.box(exported, {
+                      deep: false,
+                    });
                   } else {
-                    // context.storage.removeStoredValue(propertyName);
-                    if (React.isValidElement(exported)) {
-                      context.context[propertyName] = observable.box(exported, {
-                        deep: false,
-                      });
-                    } else {
-                      context.context[propertyName] = exported;
-                    }
+                    context.context[propertyName] = exported;
                   }
                 }
-              };
-
-              let exported = exports[propertyName];
-              if (isView(exported)) {
-                disposeEveryRun.push(autorun(() => saveValue(exported.value)));
-              } else {
-                saveValue(exported);
               }
+            };
+
+            let exported = exports[propertyName];
+            if (isView(exported)) {
+              disposeEveryRun.push(autorun(() => saveValue(exported.value)));
+            } else {
+              saveValue(exported);
+            }
+          }
+        });
+
+        cleanVariablesFromContext.push((newExports: any) => {
+          runInAction(() => {
+            for (let propertyName in exports) {
+              if (!(propertyName in newExports)) {
+                // don't clean variables that are already exported, we will just overwrite them later in the runInAction above
+                delete context.context[propertyName];
+              }
+              // TODO: stored
             }
           });
+        });
+        wouldLoopOnAutorun = false;
 
-          // TODO: should we use a different dispose logic for this? E.g. every run: dispose context variables that are not set? because exceptions in code could change exported values. Or should we disposeOnCodeChange on errors?
-          disposeOnCodeChange.push(() => {
-            runInAction(() => {
-              for (var propertyName in exports) {
-                delete context.context[propertyName];
-                // TODO: stored
-              }
-            });
-          });
-          onExecuted(exports);
-          resolve();
-        } catch (e) {
-          onError(e);
-          //reject(e);
-          resolve();
+        if (detectedLoop) {
+          throw new Error("loop detected (parent run)");
         }
-      },
-      {
-        // name: cell.id,
+        onExecuted(exports);
+        resolve();
+      } catch (e) {
+        onError(e);
+        //reject(e);
+        resolve();
       }
-    )
+    },
+    {
+      // name: cell.id,
+    }
   );
 
   return {
     initialRun: promise,
+    disposeVariables: (newExportsToKeep: any = {}) => {
+      cleanVariablesFromContext.forEach((d) => d(newExportsToKeep));
+      cleanVariablesFromContext = [];
+    },
     dispose: () => {
-      disposeOnCodeChange.forEach((d) => d());
-      disposeOnCodeChange = [];
+      autorunDisposer();
 
       disposeEveryRun.forEach((d) => d());
       disposeEveryRun = [];
