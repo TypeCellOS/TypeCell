@@ -35,7 +35,7 @@ function getExposeGlobalVariables(id: string) {
 
 let ENGINE_ID = 0;
 export default class EngineWithOutput {
-  private readonly disposers: Array<() => void> = [];
+  private readonly disposers = new Set<() => void>();
   private disposed: boolean = false;
 
   public readonly outputs = new ObservableMap<monaco.editor.ITextModel, any>();
@@ -58,11 +58,14 @@ export default class EngineWithOutput {
     if (this.disposed) {
       resolved.dispose(); // engine has been disposed in the meantime
     }
-    this.disposers.push(resolved.dispose);
+    this.disposers.add(resolved.dispose);
     return resolved.module;
   }
 
   public dispose() {
+    if (this.disposed) {
+      throw new Error("EngineWithOutput already disposed");
+    }
     this.disposed = true;
     this.engine.dispose();
     this.disposers.forEach(d => d());

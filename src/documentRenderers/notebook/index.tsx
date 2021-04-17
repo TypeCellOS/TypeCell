@@ -12,6 +12,7 @@ import NotebookCell from "./NotebookCell";
 type Props = {
   document: TCDocument;
 };
+
 const NotebookRenderer: React.FC<Props> = observer((props) => {
   const disposer = useRef<() => void>();
 
@@ -48,8 +49,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
   // renderLogger.log("cellList");
   return (
     <div className="cellList">
-      <p>{engine && engine.id} {Math.random()}</p>
-
+      {/* <p>{engine && engine.id} {Math.random()}</p> */}
       {cells.length === 0 && <VscDiffAdded onClick={() => onAdd(0)} className="cellList-add-single" />}
       {cells.map((e, i: number) => (
         <CellListDraggableCell
