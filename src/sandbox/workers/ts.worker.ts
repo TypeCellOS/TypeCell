@@ -44,9 +44,15 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
         const folder = "!@" + split[0] + "/" + split[1];
 
         // add modified code at end, to not mess offsets
-        text += `;\nimport type * as $type from "${folder}";
+        text += `;\n
+        // @ts-ignore
+        import type * as $type from "${folder}";
+        // @ts-ignore
         declare let $: typeof $type;
+        // @ts-ignore
         import { typecell } from "typecell";
+        // @ts-ignore
+        import React from 'react';
         `;
         // always add an empty export to file to make sure it's seen as a module
         // text += "\nexport{};";

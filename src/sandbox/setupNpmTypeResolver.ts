@@ -5,9 +5,9 @@ const addLibraryToRuntime = (code: string, path: string) => {
   monaco.languages.typescript.typescriptDefaults.addExtraLib(code, path);
 };
 
-export function acquireTypes(model: monaco.editor.ITextModel) {
+export function acquireTypes(code: string) {
   detectNewImportsToAcquireTypeFor(
-    model.getValue(),
+    code,
     addLibraryToRuntime,
     window.fetch.bind(window),
     console // TODO
@@ -27,7 +27,10 @@ export default function setupNpmTypeResolver() {
     }
 
     model.onDidChangeContent(() => {
-      acquireTypes(model);
+      acquireTypes(model.getValue());
     });
   });
+
+  // always import react types, as this library is imported by default in ts.worker
+  acquireTypes(`import * as React from "react"`);
 }
