@@ -42,7 +42,7 @@
     "yjs": "^13.5.4"
   },
   "scripts": {
-    "emittypes": "npx tsc --declaration --emitDeclarationOnly --noEmit false",
+    "emittypes": "npx tsc --declaration --emitDeclarationOnly --noEmit false --declarationDir public/types",
     "start": "npm run emittypes && react-scripts start",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 npm run emittypes && react-scripts build",
     "test": "react-scripts test",

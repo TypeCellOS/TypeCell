@@ -14,7 +14,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "declarationDir": "public/types",
     "jsx": "react-jsx"
   },
   "include": ["src"]
