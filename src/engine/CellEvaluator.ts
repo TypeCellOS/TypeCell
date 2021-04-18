@@ -31,27 +31,21 @@ export function createCellEvaluator(
       // for server side executions
       return;
     }
-    const newExports = observable<any>({}); // TODO: is this nested observable and autorun necessary?
+    const newExports: any = {};
     for (let propertyName in exports) {
-      variableWatchDisposes.push(
-        autorun(() => {
-          const exported = exports[propertyName];
-          if (isView(exported)) {
-            newExports[propertyName] = exported.view;
-          } else if (propertyName === "default") {
-            // TODO: this if is duplicated from engine.ts
-            if (React.isValidElement(exports[propertyName])) {
-              newExports[propertyName] = observable.box(exports[propertyName], {
-                deep: false,
-              });
-            } else {
-              newExports[propertyName] = exports[propertyName];
-            }
-          } else {
-            newExports[propertyName] = typecellContext.context[propertyName];
-          }
-        })
-      );
+      if (propertyName === "default") {
+        // default exports are not on typecellContext.context
+        newExports.default = exports[propertyName];
+      } else {
+        // Create a shallow "getter" that just returns the variable from the typecellContext.
+        // This way deep modifications are reflected in Output
+        delete newExports[propertyName];
+        Object.defineProperty(newExports, propertyName, {
+          get: () => {
+            return typecellContext.context[propertyName];
+          },
+        });
+      }
     }
     onOutputChanged(newExports);
   }

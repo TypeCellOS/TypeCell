@@ -70,7 +70,7 @@ export const CustomRenderer = observer((props: Props) => {
   // setInterval(() => { setRender(Math.random()) }, 2000);
   // console.log("render", render);
   return <RetryErrorBoundary>
-    <div>{(engine.engine.observableContext).context.layout?.value_}</div>
+    <div>{(engine.engine.observableContext).context.layout}</div>
   </RetryErrorBoundary>
   {/* <div>{JSON.stringify(toJS(engine.engine.observableContext))}</div></div> */ }
 });

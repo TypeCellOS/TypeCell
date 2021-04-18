@@ -14,22 +14,28 @@ type Props = {
 
 // TODO: later maybe also use https://github.com/samdenty/console-feed to capture console messages
 
+
 const Output: React.FC<Props> = observer((props) => {
   let output = props.outputs.get(props.model); // TODO: use context instead of circular reference
-  if (output === undefined) {
-    output = "unevaluated";
+
+  let outputJS: any;
+  let mainKey: string | undefined = undefined;
+  let mainExport: any;
+  if (output) {
+    outputJS = Object.fromEntries(Object.getOwnPropertyNames(output).map((key) => [key, toJS(output[key])]));
+
+    if (Object.values(outputJS).length === 1) {
+      [mainKey, mainExport] = Object.entries(outputJS)[0];
+    } else if (outputJS.hasOwnProperty("default")) {
+      mainKey = "default";
+      mainExport = outputJS["default"];
+    }
+  } else {
+    output = outputJS = "unevaluated";
   }
+
   const htmlElementKey = useRef(0);
-
   try {
-    const outputJS: object = toJS(output);
-    const [mainKey, mainExport] =
-      Object.values(outputJS).length === 1
-        ? Object.entries(outputJS)[0]
-        : outputJS.hasOwnProperty("default")
-          ? ["default", (outputJS as any)["default"]]
-          : [];
-
     if (mainKey) {
       if (React.isValidElement(mainExport)) {
         return (

@@ -1,5 +1,8 @@
 import { observable } from "mobx";
+import { hookDefaultAnnotation } from "./customAnnotation";
 import { Storage } from "./storage/Storage";
+
+hookDefaultAnnotation();
 
 export type TypeCellContext = {
   context: any;

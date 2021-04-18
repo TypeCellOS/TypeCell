@@ -1,4 +1,4 @@
-import { autorun, observable, runInAction, untracked } from "mobx";
+import { autorun, observable, runInAction, trace, untracked } from "mobx";
 import React from "react";
 import { TypeCellContext } from "./context";
 import { installHooks } from "./hookDisposables";
@@ -180,14 +180,7 @@ export async function runModule(
                 if (isStored(exported)) {
                   // context.storage.addStoredValue(propertyName, exported);
                 } else {
-                  // context.storage.removeStoredValue(propertyName);
-                  if (React.isValidElement(exported)) {
-                    context.context[propertyName] = observable.box(exported, {
-                      deep: false,
-                    });
-                  } else {
-                    context.context[propertyName] = exported;
-                  }
+                  context.context[propertyName] = exported;
                 }
               }
             };

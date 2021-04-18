@@ -1,4 +1,4 @@
-import { ObservableMap } from "mobx";
+import { observable } from "mobx";
 import * as monaco from "monaco-editor";
 import DocumentView from "../documentRenderers/DocumentView";
 import { Engine } from "../engine";
@@ -34,7 +34,8 @@ export default class EngineWithOutput {
   private readonly disposers = new Set<() => void>();
   private disposed: boolean = false;
 
-  public readonly outputs = new ObservableMap<monaco.editor.ITextModel, any>();
+  // TODO: maybe observable map is not necessary / we can easily remove mobx dependency here
+  public readonly outputs = observable.map<monaco.editor.ITextModel, any>(undefined, { deep: false });
   public readonly engine: Engine;
   public readonly id = ENGINE_ID++;
   constructor(documentId: string) {
