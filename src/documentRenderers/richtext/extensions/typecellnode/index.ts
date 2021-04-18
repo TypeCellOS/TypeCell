@@ -1,7 +1,6 @@
 import { Node } from "@tiptap/core";
 import { Command, mergeAttributes, ReactNodeViewRenderer } from "@tiptap/react";
 import TypeCellComponent from "./TypeCellComponent";
-import { wrappingInputRule } from "prosemirror-inputrules";
 
 export const inputRegex = /^\s*q\s$/gm;
 

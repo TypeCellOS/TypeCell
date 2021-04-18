@@ -33,6 +33,9 @@ export function createCustomAnnotation(options?: object): Annotation {
     ) {
       if (React.isValidElement(descriptor.value)) {
         return observable.ref.extend_(adm, key, descriptor, proxyTrap);
+      } else if (typeof descriptor.value === "function") {
+        // don't create mobx actions
+        return observable.ref.extend_(adm, key, descriptor, proxyTrap);
       } else {
         return defaultAnnotation.extend_.call(
           this,

@@ -18,7 +18,7 @@ interface DragItem {
 }
 
 const CellListDraggableCell: React.FC<Props> = observer((props) => {
-  const [{ isDragging }, drag, preview] = useDrag({
+  const [{ isDragging }, drag] = useDrag({
     item: { type: "CELL", index: props.index },
     type: "CELL",
     collect: (monitor: any) => ({

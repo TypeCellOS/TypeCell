@@ -1,8 +1,6 @@
-import { autorun } from "mobx";
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { CellListModel } from "../../models/CellListModel";
 import { getModel, releaseModel } from "../../models/modelCache";
 import LoadingTCDocument from "../../store/LoadingTCDocument";
 import TCDocument from "../../store/TCDocument";
@@ -53,7 +51,11 @@ export const CustomRenderer = observer((props: Props) => {
       cells.forEach((c) => releaseModel(c));
       newEngine.dispose();
     };
-  }, [rendererDocument?.doc, rendererDocument?.doc?.cells]); // TODO: does this create a new engine every time the doc changes?
+  }, [
+    rendererDocument?.id,
+    rendererDocument?.doc,
+    rendererDocument?.doc?.cells,
+  ]); // TODO: does this create a new engine every time the doc changes?
 
   if (!rendererDocument || !engine || !rendererDocument.doc) {
     return <div>Loading</div>;
@@ -72,7 +74,4 @@ export const CustomRenderer = observer((props: Props) => {
       <div>{engine.engine.observableContext.context.layout}</div>
     </RetryErrorBoundary>
   );
-  {
-    /* <div>{JSON.stringify(toJS(engine.engine.observableContext))}</div></div> */
-  }
 });

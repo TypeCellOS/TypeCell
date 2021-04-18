@@ -1,9 +1,8 @@
 import { ObservableMap, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
+import * as monaco from "monaco-editor";
 import React, { useRef } from "react";
 import ObjectInspector from "react-inspector";
-import ErrorBoundary from "./ErrorBoundary";
-import * as monaco from "monaco-editor";
 import RetryErrorBoundary from "./RetryErrorBoundary";
 
 type Props = {

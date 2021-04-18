@@ -2,7 +2,6 @@ import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useState } from "react";
 import LoadingTCDocument from "../store/LoadingTCDocument";
-import TCDocument from "../store/TCDocument";
 import CreateDocumentView from "./CreateDocumentView";
 import { CustomRenderer } from "./custom";
 import NotebookRenderer from "./notebook";

@@ -1,4 +1,4 @@
-import { observable } from "mobx";
+import { observable, runInAction } from "mobx";
 import * as monaco from "monaco-editor";
 import { Engine } from "../engine";
 import { getExposeGlobalVariables } from "./lib/exports";
@@ -19,7 +19,7 @@ export default class EngineWithOutput {
   constructor(private documentId: string) {
     // console.log(this.id, documentId);
     this.engine = new Engine((model, output) => {
-      this.outputs.set(model, output);
+      runInAction(() => this.outputs.set(model, output));
     }, this.resolveImport);
   }
 

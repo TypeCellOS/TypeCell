@@ -4,10 +4,8 @@ import * as react from "react";
 import * as reactdnd from "react-dnd";
 import * as reactdom from "react-dom";
 import SkypackResolver from "../engine/resolvers/SkypackResolver";
-import { CellListModel } from "../models/CellListModel";
 import { getModel, releaseModel } from "../models/modelCache";
 import LoadingTCDocument from "../store/LoadingTCDocument";
-import TCDocument from "../store/TCDocument";
 import EngineWithOutput from "./EngineWithOutput";
 const sz = require("frontend-collective-react-dnd-scrollzone");
 

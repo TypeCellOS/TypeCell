@@ -32,9 +32,9 @@ import { getDefaultSandboxCompilerOptions } from "./compilerOptions";
 // Basically android and monaco is pretty bad, this makes it less bad
 // See https://github.com/microsoft/pxt/pull/7099 for this, and the long
 // read is in https://github.com/microsoft/monaco-editor/issues/563
-const isAndroid = navigator && /android/i.test(navigator.userAgent);
+// const isAndroid = navigator && /android/i.test(navigator.userAgent);
 
-/** Default Monaco settings for playground */
+/** Default Monaco settings for playground 
 const sharedEditorOptions: Monaco.editor.IEditorOptions = {
   scrollBeyondLastLine: true,
   scrollBeyondLastColumn: 3,
@@ -52,7 +52,7 @@ const sharedEditorOptions: Monaco.editor.IEditorOptions = {
   acceptSuggestionOnCommitCharacter: !isAndroid,
   acceptSuggestionOnEnter: !isAndroid ? "on" : "off",
   accessibilitySupport: !isAndroid ? "on" : "off",
-};
+};*/
 
 /** Creates a sandbox editor, and returns a set of useful functions and the editor */
 export const setMonacoDefaults = (monaco: typeof Monaco) => {

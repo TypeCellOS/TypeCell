@@ -1,5 +1,4 @@
-import { IAtom, createAtom } from "mobx";
-import { observeText } from "./text";
+import { createAtom, IAtom } from "mobx";
 import * as Y from "yjs";
 import { observeYType } from ".";
 

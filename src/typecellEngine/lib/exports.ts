@@ -1,6 +1,6 @@
 import DocumentView from "../../documentRenderers/DocumentView";
 import LoadingTCDocument from "../../store/LoadingTCDocument";
-import { createOneToManyReferenceDefinition, Ref } from "../../store/Ref";
+import { createOneToManyReferenceDefinition } from "../../store/Ref";
 import routing from "../../util/routing";
 
 // TODO: make sure only relevant types are exported

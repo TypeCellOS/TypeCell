@@ -1,8 +1,7 @@
-import { YArray } from "yjs/dist/src/internals";
-
+import * as _ from "lodash";
 import * as Y from "yjs";
 import { CellModel } from "./CellModel";
-import * as _ from "lodash";
+
 export class CellListModel {
   constructor(private documentId: string, private fragment: Y.XmlFragment) {}
 

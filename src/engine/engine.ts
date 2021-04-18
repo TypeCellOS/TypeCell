@@ -1,5 +1,4 @@
-import { autorun, observable, runInAction, trace, untracked } from "mobx";
-import React from "react";
+import { autorun, observable, runInAction, untracked } from "mobx";
 import { TypeCellContext } from "./context";
 import { installHooks } from "./hookDisposables";
 import { isStored, stored } from "./storage/stored";
@@ -16,6 +15,7 @@ type Module = {
 function getModulesFromCode(code: string, scope: any): Module[] {
   const modules: Module[] = [];
   const define = createDefine(modules);
+  // eslint-disable-next-line
   const f = new Function(code);
   f.apply({ ...scope, define });
   return modules;
@@ -121,11 +121,9 @@ export async function runModule(
 
   let initialRun = true;
   let resolve: (value?: any) => void;
-  let reject: (error: any) => void;
 
   const promise = new Promise((resolver, rejecter) => {
     resolve = resolver;
-    reject = rejecter;
   });
 
   // let createdAt = Date.now();
@@ -172,7 +170,7 @@ export async function runModule(
         // Running the assignments to `context` in action should be a performance improvement to prevent triggering observers one-by-one
         wouldLoopOnAutorun = true;
         runInAction(() => {
-          for (var propertyName in exports) {
+          for (let propertyName in exports) {
             // log.log(cell.id, "exported property:", propertyName, exports[propertyName]);
 
             const saveValue = (exported: any) => {
@@ -260,7 +258,7 @@ ${compiledCode};
 `;
   }
 
-  if (Object.keys(scope).find((key) => !/^[a-zA-Z0-9_\$]+$/.test(key))) {
+  if (Object.keys(scope).find((key) => !/^[a-zA-Z0-9_$]+$/.test(key))) {
     throw new Error("invalid key on scope!");
   }
 

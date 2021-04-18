@@ -1,5 +1,3 @@
-import { YArray } from "yjs/dist/src/internals";
-
 import * as Y from "yjs";
 
 export class CellModel {

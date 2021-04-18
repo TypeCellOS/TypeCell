@@ -1,9 +1,6 @@
+import * as _ from "lodash";
 import * as Y from "yjs";
 import { CellListModel } from "../models/CellListModel";
-import * as _ from "lodash";
-// (window as any).documents = documentCache;
-// const subDocCache = new Map<string, Y.Doc>();
-import { Awareness } from "y-protocols/awareness";
 import LoadingTCDocument from "./LoadingTCDocument";
 export default class TCDocument {
   public constructor(

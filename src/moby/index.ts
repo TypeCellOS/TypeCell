@@ -1,5 +1,3 @@
-import { AbstractType } from "yjs";
-
 import { observeText } from "./text";
 import * as Y from "yjs";
 import { observeMap } from "./map";

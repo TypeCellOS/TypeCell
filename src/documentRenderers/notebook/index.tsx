@@ -1,9 +1,6 @@
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { VscDiffAdded } from "react-icons/vsc";
-
-// import { renderLogger } from "../logger";
-import { CellListModel } from "../../models/CellListModel";
 import TCDocument from "../../store/TCDocument";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import CellListDraggableCell from "./CellListDraggableCell";

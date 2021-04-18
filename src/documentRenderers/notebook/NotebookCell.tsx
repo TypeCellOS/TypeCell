@@ -12,15 +12,12 @@ import {
   VscTrash,
 } from "react-icons/vsc";
 import { MonacoBinding } from "y-monaco";
-
+import { Awareness } from "y-protocols/awareness";
 import { CellModel } from "../../models/CellModel";
 import { getModel, releaseModel } from "../../models/modelCache";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import Output from "./Output";
-import { Awareness } from "y-protocols/awareness";
 
-// const MonacoMarkdown = require("monaco-markdown");
-let idd = 0;
 type Props = {
   cell: CellModel;
   engine: EngineWithOutput;
@@ -86,7 +83,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
         setEditor(newEditor);
       }
     },
-    [editor]
+    [editor, props.initialFocus]
   );
 
   useEffect(() => {

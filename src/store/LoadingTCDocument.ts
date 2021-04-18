@@ -1,20 +1,18 @@
-import { autorun } from "mobx";
-import { VscDebugConsole } from "react-icons/vsc";
+import { generateKeyBetween } from "fractional-indexing";
+import slug from "speakingurl";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
 import { observeDoc } from "../moby/doc";
 import {
+  createRef,
   getHashForReference,
-  validateRef,
+  Ref,
   ReferenceDefinition,
   reverseReferenceDefinition,
-  Ref,
-  createRef,
+  validateRef,
 } from "./Ref";
-import slug from "speakingurl";
 import TCDocument from "./TCDocument";
-import { generateKeyBetween } from "fractional-indexing";
 
 const documentCache = new Map<string, LoadingTCDocument>();
 // (window as any).documents = documentCache;

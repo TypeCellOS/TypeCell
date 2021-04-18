@@ -49,6 +49,7 @@ export async function getCompiledCode(worker: any, uri: Uri) {
     const possiblePlugins = await new Promise<string[]>((resolve) => {
       const exports: any = {};
 
+      // eslint-disable-next-line
       const func = new Function(
         "let define = this.define; \n" + pluginCode.firstJSCode
       );

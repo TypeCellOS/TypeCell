@@ -131,8 +131,8 @@ const mapRelativePath = (moduleDeclaration: string, currentPath: string) => {
     stack.pop(); // remove current file name (or empty string)
 
     for (var i = 0; i < parts.length; i++) {
-      if (parts[i] == ".") continue;
-      if (parts[i] == "..") stack.pop();
+      if (parts[i] === ".") continue;
+      if (parts[i] === "..") stack.pop();
       else stack.push(parts[i]);
     }
     return stack.join("/");
@@ -322,7 +322,7 @@ const getModuleAndRootDefTypePath = async (
       packageJSON: responseJSON,
     };
   } else {
-    throw "This shouldn't happen";
+    throw new Error("This shouldn't happen");
   }
 };
 
@@ -521,7 +521,7 @@ const getDependenciesForModule = (
     } else {
       // E.g. import {Component} from "./MyThing"
       if (!moduleToDownload || !path)
-        throw `No outer module or path for a relative import: ${moduleToDownload}`;
+        throw new Error(`No outer module or path for a relative import: ${moduleToDownload}`);
 
       const absolutePathForModule = mapRelativePath(moduleToDownload, path);
 
