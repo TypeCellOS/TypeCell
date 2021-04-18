@@ -13,9 +13,10 @@ import { TypeScriptWorker } from "monaco-editor/esm/vs/language/typescript/tsWor
 // import transformer from "./transformers/ts-transformer-enumerate";
 
 export class CustomTypeScriptWorker extends TypeScriptWorker {
-  /*constructor(context: any, createData: any) {
+  // eslint-disable-next-line
+  constructor(context: any, createData: any) {
     super(context, createData);
-  }*/
+  }
 
   public getCustomTransformers(): ts.CustomTransformers {
     return {
