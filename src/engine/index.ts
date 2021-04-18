@@ -57,7 +57,6 @@ export class Engine {
    */
   constructor(
     private onOutput: (model: monaco.editor.ITextModel, output: any) => void,
-    private exposeGlobalVariables: { [key: string]: any } = {},
     private resolveImport: (
       module: string,
       forModel: monaco.editor.ITextModel
@@ -83,7 +82,6 @@ export class Engine {
       this.evaluateUpdateSingleInitial(
         model,
         this.observableContext,
-        this.exposeGlobalVariables,
         (moduleName: string) => this.resolveImport(moduleName, model),
         this.onOutput
       ); // catch errors?
@@ -135,7 +133,6 @@ export class Engine {
   private async evaluateUpdate(
     model: monaco.editor.ITextModel,
     typecellContext: TypeCellContext,
-    exposeGlobalVariables: { [key: string]: any },
     resolveImport: (module: string) => Promise<any>,
     onOutput: (model: monaco.editor.ITextModel, output: any) => void
   ) {
@@ -146,12 +143,8 @@ export class Engine {
     if (!this.evaluatorCache.has(model)) {
       this.evaluatorCache.set(
         model,
-        createCellEvaluator(
-          typecellContext,
-          exposeGlobalVariables,
-          resolveImport,
-          true,
-          (output) => onOutput(model, output)
+        createCellEvaluator(typecellContext, resolveImport, true, (output) =>
+          onOutput(model, output)
         )
       );
     }

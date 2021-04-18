@@ -1,5 +1,3 @@
-import { autorun, observable } from "mobx";
-import React from "react";
 import { TypeCellContext } from "./context";
 import {
   createExecutionScope,
@@ -7,13 +5,11 @@ import {
   ModuleExecution,
   runModule,
 } from "./engine";
-import { isView } from "./view";
 
 // const log = engineLogger;
 
 export function createCellEvaluator(
   typecellContext: TypeCellContext,
-  exposeGlobalVariables: { [key: string]: any },
   resolveImport: (module: string) => Promise<any>,
   setAndWatchOutput = true,
   onOutputChanged: (output: any) => void
@@ -55,10 +51,7 @@ export function createCellEvaluator(
     onOutputChanged(error);
   }
 
-  const executionScope = createExecutionScope(
-    typecellContext,
-    exposeGlobalVariables
-  );
+  const executionScope = createExecutionScope(typecellContext);
   let moduleExecution: ModuleExecution | undefined;
 
   async function evaluate(compiledCode: string) {

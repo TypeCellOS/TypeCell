@@ -46,6 +46,7 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
         // add modified code at end, to not mess offsets
         text += `;\nimport type * as $type from "${folder}";
         declare let $: typeof $type;
+        import { typecell } from "typecell";
         `;
         // always add an empty export to file to make sure it's seen as a module
         // text += "\nexport{};";

@@ -238,12 +238,8 @@ export async function runModule(
   };
 }
 
-export function createExecutionScope(
-  context: TypeCellContext,
-  exposeGlobalVariables: { [key: string]: any }
-) {
+export function createExecutionScope(context: TypeCellContext) {
   const scope = {
-    ...exposeGlobalVariables,
     autorun,
     $: context.context,
     untracked,

@@ -1,33 +1,13 @@
 import { observable } from "mobx";
 import * as monaco from "monaco-editor";
-import DocumentView from "../documentRenderers/DocumentView";
+
 import { Engine } from "../engine";
-import LoadingTCDocument from "../store/LoadingTCDocument";
-import { createOneToManyReferenceDefinition, Ref } from "../store/Ref";
-import TCDocument from "../store/TCDocument";
-import routing from "../util/routing";
+import { getExposeGlobalVariables } from "./lib/exports";
+
 import resolveImport from "./resolver";
 
 // TODO: maybe use regular imports?
-function getExposeGlobalVariables(id: string) {
-  return {
-    typecell: {
-      routing,
-      DocumentView,
-      namespace: id, // TODO: naming
-      doc: (identifier: string | { owner: string; document: string }) => {
-        return LoadingTCDocument.load(identifier);
-      },
-      createOneToManyReferenceDefinition: (
-        type: string,
-        reverseType: string,
-        sorted: boolean
-      ) => {
-        return createOneToManyReferenceDefinition(id, type, reverseType, sorted);
-      },
-    },
-  };
-}
+
 
 let ENGINE_ID = 0;
 export default class EngineWithOutput {
@@ -38,13 +18,12 @@ export default class EngineWithOutput {
   public readonly outputs = observable.map<monaco.editor.ITextModel, any>(undefined, { deep: false });
   public readonly engine: Engine;
   public readonly id = ENGINE_ID++;
-  constructor(documentId: string) {
+  constructor(private documentId: string) {
     // console.log(this.id, documentId);
     this.engine = new Engine(
       (model, output) => {
         this.outputs.set(model, output);
       },
-      getExposeGlobalVariables(documentId),
       this.resolveImport
     );
   }
@@ -53,6 +32,9 @@ export default class EngineWithOutput {
     forModel: monaco.editor.ITextModel) => {
     if (this.disposed) {
       throw new Error("EngineWithOutput already disposed (resolveImport called)")
+    }
+    if (module === "typecell") {
+      return getExposeGlobalVariables(this.documentId);
     }
     const resolved = await resolveImport(module, forModel, this);
     if (this.disposed) {

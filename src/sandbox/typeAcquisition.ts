@@ -163,6 +163,32 @@ const convertToModuleReferenceID = (
   }
 };
 
+const addTypecellModuleToRuntime = async (
+  mod: string,
+  path: string,
+  config: ATAConfig
+) => {
+  const content = await (
+    await config.fetcher(process.env.PUBLIC_URL + "/types/" + path)
+  ).text();
+  if (!content) {
+    return errorMsg(
+      `Could not get root d.ts file for the module '${mod}' at ${path}`,
+      {},
+      config
+    );
+  }
+
+  // Now look and grab dependent modules where you need the
+  await getDependenciesForModule(content, mod, path, config);
+
+  config.logger.log("adding typecell module", path);
+  config.addLibraryToRuntime(
+    content,
+    `file:///node_modules/@types/${mod}/${path}`
+  );
+};
+
 /**
  * Takes an initial module and the path for the root of the typings and grab it and start grabbing its
  * dependencies then add those the to runtime.
@@ -404,7 +430,8 @@ export const detectNewImportsToAcquireTypeFor = async (
   sourceCode: string,
   userAddLibraryToRuntime: AddLibToRuntimeFunc,
   fetcher = fetch,
-  logger: any
+  logger: any,
+  moduleName?: string
 ) => {
   // Wrap the runtime func with our own side-effect for visibility
   const addLibraryToRuntime = (code: string, path: string) => {
@@ -421,7 +448,7 @@ export const detectNewImportsToAcquireTypeFor = async (
   };
   const results = getDependenciesForModule(
     sourceCode,
-    undefined,
+    moduleName,
     "playground.ts",
     config
   );
@@ -505,7 +532,11 @@ const getDependenciesForModule = (
         ? absolutePathForModule
         : absolutePathForModule + ".d.ts";
 
-      await addModuleToRuntime(moduleName!, resolvedFilepath, config);
+      if (moduleName === "typecell") {
+        await addTypecellModuleToRuntime(moduleName!, resolvedFilepath, config);
+      } else {
+        await addModuleToRuntime(moduleName!, resolvedFilepath, config);
+      }
     }
   });
 

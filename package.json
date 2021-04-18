@@ -42,8 +42,9 @@
     "yjs": "^13.5.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 react-scripts build",
+    "emittypes": "npx tsc --declaration --emitDeclarationOnly --noEmit false",
+    "start": "npm run emittypes && react-scripts start",
+    "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 npm run emittypes && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "postinstall": "patch-package"
