@@ -3,7 +3,6 @@ import { observer } from "mobx-react-lite";
 import React, { useRef, useState } from "react";
 import { DropTargetMonitor, useDrag, useDrop } from "react-dnd";
 
-
 type Props = {
   index: number;
   moveCard: (dragIndex: number, hoverIndex: number) => void;
@@ -117,7 +116,12 @@ const CellListDraggableCell: React.FC<Props> = observer((props) => {
   return (
     <div className="cellList-item" ref={ref} style={{ opacity }}>
       {hovered && hoverPos === "top" && <div className="dropruler top" />}
-      <div className="shoulder" draggable="true" title="Drag to move cell" ref={dragSourceRef}></div>
+      <div
+        className="shoulder"
+        draggable="true"
+        title="Drag to move cell"
+        ref={dragSourceRef}
+      ></div>
       <button onClick={props.onAddBefore} className="add_cell before" title="Add cell">
         <span></span>
       </button>

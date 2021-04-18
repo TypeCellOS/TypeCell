@@ -12,9 +12,11 @@ const CreateDocumentView = observer((props: Props) => {
     props.document.create("!notebook");
   }
 
-  return <div className={styles.container}>
-    <button onClick={click}>Create new document</button>
-  </div>
+  return (
+    <div className={styles.container}>
+      <button onClick={click}>Create new document</button>
+    </div>
+  );
 });
 
 export default CreateDocumentView;

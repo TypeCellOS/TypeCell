@@ -38,9 +38,13 @@ export function installHooks() {
   hooks.push(installHook(window, "setTimeout", (ret) => clearTimeout(ret)));
   hooks.push(installHook(window, "setInterval", (ret) => clearInterval(ret)));
   hooks.push(
-    installHook(EventTarget.prototype, "addEventListener", function (this: any, ret, args: IArguments) {
-      this.removeEventListener(args[0], args[1]);
-    })
+    installHook(
+      EventTarget.prototype,
+      "addEventListener",
+      function (this: any, ret, args: IArguments) {
+        this.removeEventListener(args[0], args[1]);
+      }
+    )
   );
 
   return {
