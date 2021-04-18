@@ -1,12 +1,8 @@
 import { observable } from "mobx";
 import * as monaco from "monaco-editor";
-
 import { Engine } from "../engine";
 import { getExposeGlobalVariables } from "./lib/exports";
-
 import resolveImport from "./resolver";
-
-// TODO: maybe use regular imports?
 
 
 let ENGINE_ID = 0;
