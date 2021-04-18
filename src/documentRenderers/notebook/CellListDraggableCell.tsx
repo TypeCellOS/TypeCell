@@ -85,7 +85,8 @@ const CellListDraggableCell: React.FC<Props> = observer((props) => {
       const hoverBoundingRect = ref.current.getBoundingClientRect();
 
       // Get vertical middle
-      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
 
       // Determine mouse position
       const clientOffset = monitor.getClientOffset();
@@ -93,7 +94,9 @@ const CellListDraggableCell: React.FC<Props> = observer((props) => {
       // Get pixels to the top
       const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top;
 
-      setHoverPos(hoverClientY < hoverMiddleY ? ("top" as "top") : ("bottom" as "bottom"));
+      setHoverPos(
+        hoverClientY < hoverMiddleY ? ("top" as "top") : ("bottom" as "bottom")
+      );
     },
     drop: (item, monitor) => {
       const calc = calcDrag(item, monitor);
@@ -120,14 +123,19 @@ const CellListDraggableCell: React.FC<Props> = observer((props) => {
         className="shoulder"
         draggable="true"
         title="Drag to move cell"
-        ref={dragSourceRef}
-      ></div>
-      <button onClick={props.onAddBefore} className="add_cell before" title="Add cell">
+        ref={dragSourceRef}></div>
+      <button
+        onClick={props.onAddBefore}
+        className="add_cell before"
+        title="Add cell">
         <span></span>
       </button>
       {props.children}
       {/* <NotebookCell cell={props.cell} onRemove={props.onRemove}></NotebookCell> */}
-      <button onClick={props.onAddAfter} className="add_cell after" title="Add cell">
+      <button
+        onClick={props.onAddAfter}
+        className="add_cell after"
+        title="Add cell">
         <span></span>
       </button>
       {hovered && hoverPos === "bottom" && <div className="dropruler bottom" />}

@@ -6,7 +6,7 @@ export default class ErrorBoundary extends React.Component<
     error: any;
     hasError: boolean;
   }
-  > {
+> {
   constructor(props: {}) {
     super(props);
     this.state = { hasError: false, error: undefined };
@@ -30,7 +30,9 @@ export default class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       // You can render any custom fallback UI
-      return <strong>Something went wrong: {this.state.error.toString()}</strong>;
+      return (
+        <strong>Something went wrong: {this.state.error.toString()}</strong>
+      );
     }
 
     return this.props.children;

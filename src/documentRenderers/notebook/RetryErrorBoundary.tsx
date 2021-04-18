@@ -14,8 +14,9 @@ export default function RetryErrorBoundary(props: { children: any }) {
     errorBoundaryKey.current++;
   }
 
-  return <ErrorBoundary key={errorBoundaryKey.current} ref={previousErrorBoundary}>
-    {props.children}
-  </ErrorBoundary>
-
+  return (
+    <ErrorBoundary key={errorBoundaryKey.current} ref={previousErrorBoundary}>
+      {props.children}
+    </ErrorBoundary>
+  );
 }

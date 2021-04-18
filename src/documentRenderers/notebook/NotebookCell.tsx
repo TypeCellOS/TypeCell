@@ -4,7 +4,13 @@ import { observer } from "mobx-react-lite";
 import type * as Monaco from "monaco-editor";
 import * as monaco from "monaco-editor";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { VscChevronDown, VscChevronRight, VscFile, VscFileCode, VscTrash } from "react-icons/vsc";
+import {
+  VscChevronDown,
+  VscChevronRight,
+  VscFile,
+  VscFileCode,
+  VscTrash,
+} from "react-icons/vsc";
 import { MonacoBinding } from "y-monaco";
 
 import { CellModel } from "../../models/CellModel";
@@ -33,7 +39,10 @@ const NotebookCell: React.FC<Props> = observer((props) => {
   // const [codeRef, setCodeRef] = useState<HTMLDivElement>();
 
   const [codeVisible, setCodeVisible] = useState(
-    untracked(() => !(props.defaultCollapsed === true || props.cell.language === "markdown"))
+    untracked(
+      () =>
+        !(props.defaultCollapsed === true || props.cell.language === "markdown")
+    )
   );
 
   const codeRefCallback = useCallback(
@@ -170,9 +179,9 @@ const NotebookCell: React.FC<Props> = observer((props) => {
 
   return (
     <div
-      className={`notebookCell ${codeVisible ? "expanded" : "collapsed"} ${props.cell.language} ${
-        props.classList || ""
-      }`}
+      className={`notebookCell ${codeVisible ? "expanded" : "collapsed"} ${
+        props.cell.language
+      } ${props.classList || ""}`}
       style={{ display: "flex", flexDirection: "row" }}>
       {codeVisible ? (
         <VscChevronDown
@@ -193,8 +202,12 @@ const NotebookCell: React.FC<Props> = observer((props) => {
             <div className="code-toolbar">
               <button
                 title="TypeScript"
-                className={props.cell.language === "typescript" ? "active" : ""}>
-                <VscFileCode onClick={() => (props.cell.language = "typescript")} />
+                className={
+                  props.cell.language === "typescript" ? "active" : ""
+                }>
+                <VscFileCode
+                  onClick={() => (props.cell.language = "typescript")}
+                />
               </button>
               {/* <button title="TypeScript (node)" className={props.cell.language === "node-typescript" ? "active" : ""}>
                 <VscServerProcess onClick={() => props.cell.setLanguage("node-typescript")} />
@@ -214,7 +227,10 @@ const NotebookCell: React.FC<Props> = observer((props) => {
               </button> */}
             </div>
             {/* <div>{Math.random()}</div> */}
-            <div className="code" ref={codeRefCallback} style={{ height: "100%" }}></div>
+            <div
+              className="code"
+              ref={codeRefCallback}
+              style={{ height: "100%" }}></div>
           </div>
         )}
         <div className="output">

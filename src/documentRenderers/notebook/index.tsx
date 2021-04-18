@@ -34,23 +34,28 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
         disposer.current();
         disposer.current = undefined;
       }
-    }
+    };
   }, []);
 
   const onAdd = (i: number) => {
     props.document.cellList.addCell(i);
-  }
+  };
 
   const remove = (i: number) => {
     props.document.cellList.removeCell(i);
-  }
+  };
 
   const cells = props.document.cells;
   // renderLogger.log("cellList");
   return (
     <div className="cellList">
       {/* <p>{engine && engine.id} {Math.random()}</p> */}
-      {cells.length === 0 && <VscDiffAdded onClick={() => onAdd(0)} className="cellList-add-single" />}
+      {cells.length === 0 && (
+        <VscDiffAdded
+          onClick={() => onAdd(0)}
+          className="cellList-add-single"
+        />
+      )}
       {cells.map((e, i: number) => (
         <CellListDraggableCell
           key={i}
@@ -58,9 +63,12 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
           onAddAfter={() => onAdd(i + 1)}
           onRemove={() => remove(i)}
           index={i}
-          moveCard={props.document.cellList.moveCell}
-        >
-          <NotebookCell cell={e} engine={engine} awareness={props.document.webrtcProvider.awareness} />
+          moveCard={props.document.cellList.moveCell}>
+          <NotebookCell
+            cell={e}
+            engine={engine}
+            awareness={props.document.webrtcProvider.awareness}
+          />
         </CellListDraggableCell>
       ))}
     </div>

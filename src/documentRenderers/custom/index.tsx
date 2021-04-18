@@ -21,7 +21,7 @@ type Props = {
  */
 export const CustomRenderer = observer((props: Props) => {
   if (!props.document.type || props.document.type.startsWith("!")) {
-    throw new Error("don't expect built-in document as renderer here")
+    throw new Error("don't expect built-in document as renderer here");
   }
   const [rendererDocument, setRendererDocument] = useState<LoadingTCDocument>();
   const [engine, setEngine] = useState<EngineWithOutput>();
@@ -31,9 +31,8 @@ export const CustomRenderer = observer((props: Props) => {
     setRendererDocument(loader);
     return () => {
       loader.dispose();
-    }
-  }, [props.document.type])
-
+    };
+  }, [props.document.type]);
 
   // TODO: also useMemo to get engine, instead of useEffect?
   useEffect(() => {
@@ -45,15 +44,15 @@ export const CustomRenderer = observer((props: Props) => {
     setEngine(newEngine);
 
     const cells = rendererDocument.doc.cells;
-    cells.forEach(c => {
+    cells.forEach((c) => {
       const model = getModel(c);
       newEngine.engine.registerModel(model);
     });
 
     return () => {
-      cells.forEach(c => releaseModel(c));
+      cells.forEach((c) => releaseModel(c));
       newEngine.dispose();
-    }
+    };
   }, [rendererDocument?.doc, rendererDocument?.doc?.cells]); // TODO: does this create a new engine every time the doc changes?
 
   if (!rendererDocument || !engine || !rendererDocument.doc) {
@@ -66,11 +65,14 @@ export const CustomRenderer = observer((props: Props) => {
     throw new Error("only notebook documents supported");
   }
 
-
   // setInterval(() => { setRender(Math.random()) }, 2000);
   // console.log("render", render);
-  return <RetryErrorBoundary>
-    <div>{(engine.engine.observableContext).context.layout}</div>
-  </RetryErrorBoundary>
-  {/* <div>{JSON.stringify(toJS(engine.engine.observableContext))}</div></div> */ }
+  return (
+    <RetryErrorBoundary>
+      <div>{engine.engine.observableContext.context.layout}</div>
+    </RetryErrorBoundary>
+  );
+  {
+    /* <div>{JSON.stringify(toJS(engine.engine.observableContext))}</div></div> */
+  }
 });

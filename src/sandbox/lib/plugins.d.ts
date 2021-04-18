@@ -16,4 +16,10 @@ type truePropertyNames<T> = {
 
 export type matchingPlugins<PluginsType, ObjectType> = any extends ObjectType // don't match plugins for any (any can also indicate compile error of the cell)
   ? never
-  : truePropertyNames<{ [K in keyof PluginsType]: ObjectType extends arg0Type<PluginsType[K]> ? true : never }>;
+  : truePropertyNames<
+      {
+        [K in keyof PluginsType]: ObjectType extends arg0Type<PluginsType[K]>
+          ? true
+          : never;
+      }
+    >;

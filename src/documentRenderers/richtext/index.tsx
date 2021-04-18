@@ -8,33 +8,34 @@ import React from "react";
 import TCDocument from "../../store/TCDocument";
 import TypeCellNode from "./extensions/typecellnode";
 
-
 type Props = {
   document: TCDocument;
 };
 const RichText: React.FC<Props> = observer((props) => {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
-      console.log(editor.getJSON())
+      console.log(editor.getJSON());
     },
-    extensions: [...defaultExtensions(),
+    extensions: [
+      ...defaultExtensions(),
 
-    CollaborationCursor.configure({
-      provider: props.document.webrtcProvider,
-      user: { name: 'Hello', color: '#f783ac' },
-
-    }),
-    Collaboration.configure({
-      fragment: props.document.data,
-    }),
-      TypeCellNode
+      CollaborationCursor.configure({
+        provider: props.document.webrtcProvider,
+        user: { name: "Hello", color: "#f783ac" },
+      }),
+      Collaboration.configure({
+        fragment: props.document.data,
+      }),
+      TypeCellNode,
     ],
     // content: '<p>Hello World! 🌎️</p><react-component></react-component>',
-  })
+  });
 
-  return <div style={{ maxWidth: 600, margin: "0 auto" }}>
-    <EditorContent editor={editor} />
-  </div>
+  return (
+    <div style={{ maxWidth: 600, margin: "0 auto" }}>
+      <EditorContent editor={editor} />
+    </div>
+  );
 });
 
 export default RichText;

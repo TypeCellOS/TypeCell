@@ -7,8 +7,11 @@
 // NOTE: for this to work, typescript in package.json must be the same as in monaco-editor
 import * as ts from "typescript";
 
-export default function transformer(program: ts.Program): ts.TransformerFactory<ts.SourceFile> {
-  return (context: ts.TransformationContext) => (file: ts.SourceFile) => visitNodeAndChildren(file, program, context);
+export default function transformer(
+  program: ts.Program
+): ts.TransformerFactory<ts.SourceFile> {
+  return (context: ts.TransformationContext) => (file: ts.SourceFile) =>
+    visitNodeAndChildren(file, program, context);
 }
 
 function visitNodeAndChildren(
@@ -33,9 +36,21 @@ function visitNodeAndChildren(
   );
 }
 
-function visitNode(node: ts.SourceFile, program: ts.Program, context: ts.TransformationContext): ts.SourceFile;
-function visitNode(node: ts.Node, program: ts.Program, context: ts.TransformationContext): ts.Node | undefined;
-function visitNode(node: ts.Node, program: ts.Program, context: ts.TransformationContext): ts.Node | undefined {
+function visitNode(
+  node: ts.SourceFile,
+  program: ts.Program,
+  context: ts.TransformationContext
+): ts.SourceFile;
+function visitNode(
+  node: ts.Node,
+  program: ts.Program,
+  context: ts.TransformationContext
+): ts.Node | undefined;
+function visitNode(
+  node: ts.Node,
+  program: ts.Program,
+  context: ts.TransformationContext
+): ts.Node | undefined {
   const typeChecker = program.getTypeChecker();
   if (isEnumerateImportExpression(node)) {
     return;
@@ -44,17 +59,26 @@ function visitNode(node: ts.Node, program: ts.Program, context: ts.Transformatio
     return node;
   }
   const literals: string[] = [];
-  node.typeArguments && resolveStringLiteralTypes(typeChecker.getTypeFromTypeNode(node.typeArguments[0]), literals);
+  node.typeArguments &&
+    resolveStringLiteralTypes(
+      typeChecker.getTypeFromTypeNode(node.typeArguments[0]),
+      literals
+    );
 
   return context.factory.createObjectLiteralExpression(
     literals.map((literal) =>
-      context.factory.createPropertyAssignment(JSON.stringify(literal), context.factory.createStringLiteral(literal))
+      context.factory.createPropertyAssignment(
+        JSON.stringify(literal),
+        context.factory.createStringLiteral(literal)
+      )
     )
   );
 }
 
 // const indexJs = path.join(__dirname, "index.js");
-function isEnumerateImportExpression(node: ts.Node): node is ts.ImportDeclaration {
+function isEnumerateImportExpression(
+  node: ts.Node
+): node is ts.ImportDeclaration {
   if (!ts.isImportDeclaration(node)) {
     return false;
   }
@@ -72,7 +96,10 @@ function isEnumerateImportExpression(node: ts.Node): node is ts.ImportDeclaratio
   }
 }
 
-function isEnumerateCallExpression(node: ts.Node, typeChecker: ts.TypeChecker): node is ts.CallExpression {
+function isEnumerateCallExpression(
+  node: ts.Node,
+  typeChecker: ts.TypeChecker
+): node is ts.CallExpression {
   if (!ts.isCallExpression(node)) {
     return false;
   }
@@ -87,7 +114,8 @@ function isEnumerateCallExpression(node: ts.Node, typeChecker: ts.TypeChecker): 
   return (
     !!declaration &&
     !ts.isJSDocSignature(declaration) &&
-    declaration.getSourceFile().fileName === "transformers/ts-transformer-enumerate.d.ts" && // TODO
+    declaration.getSourceFile().fileName ===
+      "transformers/ts-transformer-enumerate.d.ts" && // TODO
     !!declaration.name &&
     declaration.name.getText() === "enumerate"
   );

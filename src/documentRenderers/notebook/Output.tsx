@@ -6,14 +6,12 @@ import ErrorBoundary from "./ErrorBoundary";
 import * as monaco from "monaco-editor";
 import RetryErrorBoundary from "./RetryErrorBoundary";
 
-
 type Props = {
-  model: monaco.editor.ITextModel
-  outputs: ObservableMap<monaco.editor.ITextModel, any>
+  model: monaco.editor.ITextModel;
+  outputs: ObservableMap<monaco.editor.ITextModel, any>;
 };
 
 // TODO: later maybe also use https://github.com/samdenty/console-feed to capture console messages
-
 
 const Output: React.FC<Props> = observer((props) => {
   let output = props.outputs.get(props.model); // TODO: use context instead of circular reference
@@ -22,7 +20,9 @@ const Output: React.FC<Props> = observer((props) => {
   let mainKey: string | undefined = undefined;
   let mainExport: any;
   if (output) {
-    outputJS = Object.fromEntries(Object.getOwnPropertyNames(output).map((key) => [key, toJS(output[key])]));
+    outputJS = Object.fromEntries(
+      Object.getOwnPropertyNames(output).map((key) => [key, toJS(output[key])])
+    );
 
     if (Object.values(outputJS).length === 1) {
       [mainKey, mainExport] = Object.entries(outputJS)[0];
@@ -38,11 +38,7 @@ const Output: React.FC<Props> = observer((props) => {
   try {
     if (mainKey) {
       if (React.isValidElement(mainExport)) {
-        return (
-          <RetryErrorBoundary>
-            {mainExport}
-          </RetryErrorBoundary>
-        );
+        return <RetryErrorBoundary>{mainExport}</RetryErrorBoundary>;
       } else if (mainExport instanceof HTMLElement) {
         return (
           <div
@@ -56,7 +52,10 @@ const Output: React.FC<Props> = observer((props) => {
       } else {
         return (
           <span className="outputWrapper">
-            <ObjectInspector name={mainKey} data={mainExport} expandLevel={0}></ObjectInspector>
+            <ObjectInspector
+              name={mainKey}
+              data={mainExport}
+              expandLevel={0}></ObjectInspector>
           </span>
         );
       }
@@ -66,7 +65,9 @@ const Output: React.FC<Props> = observer((props) => {
       // TODO: proper error check
       return (
         <span className="outputWrapper">
-          <ObjectInspector data={output.toString()} expandLevel={1}></ObjectInspector>
+          <ObjectInspector
+            data={output.toString()}
+            expandLevel={1}></ObjectInspector>
         </span>
       );
     } else {
