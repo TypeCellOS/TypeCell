@@ -8,6 +8,7 @@ import { DocConnection } from "./DocConnection";
  * A resource with multiple cells, used for either the Notebook or Richtext built-in types
  */
 export class DocumentResource extends BaseResource {
+  /** @internal */
   constructor(connection: DocConnection) {
     super(connection);
     if (this.type !== "!notebook" && this.type !== "!richtext") {
@@ -15,10 +16,12 @@ export class DocumentResource extends BaseResource {
     }
   }
 
+  /** @internal */
   public get title(): Y.Text {
     return this.ydoc.getText("title");
   }
 
+  /** @internal */
   public get data(): Y.XmlFragment {
     let xml = this.ydoc.getXmlFragment("doc");
     return xml;

@@ -17,8 +17,12 @@ import { DocumentResource } from "./DocumentResource";
  * All entities extend from BaseResource, which provides support for id, type, and references
  */
 export class BaseResource {
-  public constructor(protected readonly connection: DocConnection) {}
+  /** @internal */
+  public constructor(
+    /** @internal */ protected readonly connection: DocConnection
+  ) {}
 
+  /** @internal */
   protected get ydoc() {
     return this.connection._ydoc;
   }
@@ -31,6 +35,7 @@ export class BaseResource {
   }
 
   // TODO: do / how do we want to expose this?
+  /** @internal */
   public get webrtcProvider() {
     return this.connection.webrtcProvider;
   }

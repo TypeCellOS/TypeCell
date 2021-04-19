@@ -3,6 +3,7 @@ import * as Y from "yjs";
 import { CellModel } from "./CellModel";
 
 export class CellListModel {
+  /** @internal */
   constructor(private documentId: string, private fragment: Y.XmlFragment) {}
 
   private _previousChildren: any[] = [];

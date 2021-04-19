@@ -1,6 +1,7 @@
 import * as Y from "yjs";
 
 export class CellModel {
+  /** @internal */
   constructor(
     private parentDocumentId: string,
     private fragment: Y.XmlElement
@@ -24,6 +25,7 @@ export class CellModel {
     );
   }
 
+  /** @internal */
   public get code() {
     const child = this.fragment.firstChild;
     if (!(child instanceof Y.XmlText)) {

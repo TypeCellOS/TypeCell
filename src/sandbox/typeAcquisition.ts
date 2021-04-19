@@ -198,6 +198,11 @@ const addModuleToRuntime = async (
   path: string,
   config: ATAConfig
 ) => {
+  if (mod === "yjs" || mod.startsWith("y-")) {
+    throw new Error(
+      "looking for yjs types, this indicates internal type leaking from typecell"
+    );
+  }
   const isDeno = path && path.indexOf("https://") === 0;
 
   const dtsFileURL = isDeno ? path : unpkgURL(mod, path);
@@ -521,7 +526,9 @@ const getDependenciesForModule = (
     } else {
       // E.g. import {Component} from "./MyThing"
       if (!moduleToDownload || !path)
-        throw new Error(`No outer module or path for a relative import: ${moduleToDownload}`);
+        throw new Error(
+          `No outer module or path for a relative import: ${moduleToDownload}`
+        );
 
       const absolutePathForModule = mapRelativePath(moduleToDownload, path);
 
