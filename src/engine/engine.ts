@@ -206,7 +206,9 @@ export async function runModule(
         wouldLoopOnAutorun = false;
 
         if (detectedLoop) {
-          throw new Error("loop detected (parent run)");
+          throw new Error(
+            "loop detected (parent run). Are you referencing an exported variable with $ in the same cell?"
+          );
         }
         onExecuted(exports);
         resolve();

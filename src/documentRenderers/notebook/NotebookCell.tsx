@@ -70,6 +70,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
           scrollbar: {
             alwaysConsumeMouseWheel: false,
           },
+          theme: "typecellTheme",
         });
 
         if (props.initialFocus && initial.current) {

@@ -74,4 +74,13 @@ export const setMonacoDefaults = (monaco: typeof Monaco) => {
     ),
   };
   defaults.setCompilerOptions(compilerOptions);
+
+  monaco.editor.defineTheme("typecellTheme", {
+    base: "vs", // can also be vs-dark or hc-black
+    inherit: true, // can also be false to completely replace the builtin rules
+    colors: {
+      "editor.background": "#f4f5f7",
+    },
+    rules: [{ background: "#f4f5f7" } as any],
+  });
 };
