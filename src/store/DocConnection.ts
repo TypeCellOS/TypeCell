@@ -77,7 +77,6 @@ export class DocConnection {
       throw new Error("already disposed or invalid refcount");
     }
     this._refCount--;
-    console.log(this._refCount);
     if (this._refCount === 0) {
       this.webrtcProvider.destroy();
       this.indexedDBProvider.destroy();
