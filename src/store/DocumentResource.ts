@@ -10,7 +10,7 @@ import { DocConnection } from "./DocConnection";
 export class DocumentResource extends BaseResource {
   constructor(connection: DocConnection) {
     super(connection);
-    if (this.type !== "!notebook" && this.type !== "richtext") {
+    if (this.type !== "!notebook" && this.type !== "!richtext") {
       throw new Error("invalid type for DocumentResource");
     }
   }
