@@ -39,7 +39,7 @@ export function getDefaultSandboxCompilerOptions(
     esModuleInterop: false,
     preserveConstEnums: false,
     removeComments: false,
-    skipLibCheck: false,
+    skipLibCheck: true,
 
     checkJs: config.useJavaScript,
     allowJs: config.useJavaScript,
