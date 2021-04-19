@@ -5,7 +5,7 @@ import * as reactdnd from "react-dnd";
 import * as reactdom from "react-dom";
 import SkypackResolver from "../engine/resolvers/SkypackResolver";
 import { getModel, releaseModel } from "../models/modelCache";
-import LoadingTCDocument from "../store/LoadingTCDocument";
+import { DocConnection } from "../store/DocConnection";
 import EngineWithOutput from "./EngineWithOutput";
 const sz = require("frontend-collective-react-dnd-scrollzone");
 
@@ -64,7 +64,7 @@ export default async function resolveImport(
     // use string identifier directly instead of passing { owner, document},
     // because in code, we should use the correct slug at all times
     // (i.e.: don't allow import "@YousefED/hello world", but "@yousefed/hello-world") for consistency
-    const doc = LoadingTCDocument.load(owner + "/" + document);
+    const doc = DocConnection.load(owner + "/" + document);
 
     const engine = new EngineWithOutput(doc.id);
 

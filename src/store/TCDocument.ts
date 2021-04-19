@@ -1,39 +1,15 @@
 import * as _ from "lodash";
 import * as Y from "yjs";
 import { CellListModel } from "../models/CellListModel";
-import LoadingTCDocument from "./LoadingTCDocument";
-export default class TCDocument {
-  public constructor(
-    private readonly _loadingDoc: LoadingTCDocument, // TODO: circular reference
-    private readonly _ydoc: Y.Doc
-  ) {}
+import { BaseResource } from "./BaseResource";
 
-  public get id() {
-    return this._loadingDoc.id;
-  }
-  public get webrtcProvider() {
-    return this._loadingDoc.webrtcProvider;
-  }
-
+export class TCDocument extends BaseResource {
   public get title(): Y.Text {
-    return this._ydoc.getText("title");
-  }
-
-  public get type(): string {
-    return this._ydoc.getMap("meta").get("type");
-  }
-
-  public set type(type: string) {
-    if (!this.type) {
-      throw new Error(
-        "to initialize document with a type, use .create(type) instead"
-      );
-    }
-    this._ydoc.getMap("meta").set("type", type);
+    return this.connection._ydoc.getText("title");
   }
 
   public get data(): Y.XmlFragment {
-    let xml = this._ydoc.getXmlFragment("doc");
+    let xml = this.connection._ydoc.getXmlFragment("doc");
     return xml;
   }
 

@@ -2,8 +2,11 @@ import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { getModel, releaseModel } from "../../models/modelCache";
-import LoadingTCDocument from "../../store/LoadingTCDocument";
-import TCDocument from "../../store/TCDocument";
+import { BaseResource } from "../../store/BaseResource";
+
+import { DocConnection } from "../../store/DocConnection";
+import { TCDocument } from "../../store/TCDocument";
+
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import RetryErrorBoundary from "../notebook/RetryErrorBoundary";
 
@@ -21,11 +24,11 @@ export const CustomRenderer = observer((props: Props) => {
   if (!props.document.type || props.document.type.startsWith("!")) {
     throw new Error("don't expect built-in document as renderer here");
   }
-  const [rendererDocument, setRendererDocument] = useState<LoadingTCDocument>();
+  const [rendererDocument, setRendererDocument] = useState<BaseResource>();
   const [engine, setEngine] = useState<EngineWithOutput>();
 
   useEffect(() => {
-    const loader = LoadingTCDocument.load(props.document.type);
+    const loader = DocConnection.load(props.document.type);
     setRendererDocument(loader);
     return () => {
       loader.dispose();

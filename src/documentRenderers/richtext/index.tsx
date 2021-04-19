@@ -5,7 +5,7 @@ import { defaultExtensions } from "@tiptap/starter-kit";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import TCDocument from "../../store/TCDocument";
+import { TCDocument } from "../../store/TCDocument";
 import TypeCellNode from "./extensions/typecellnode";
 
 type Props = {

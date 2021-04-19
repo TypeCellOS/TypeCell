@@ -1,7 +1,8 @@
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useState } from "react";
-import LoadingTCDocument from "../store/LoadingTCDocument";
+import { BaseResource } from "../store/BaseResource";
+import { DocConnection } from "../store/DocConnection";
 import CreateDocumentView from "./CreateDocumentView";
 import { CustomRenderer } from "./custom";
 import NotebookRenderer from "./notebook";
@@ -19,10 +20,10 @@ const DocumentView = observer((props: Props) => {
       "DocumentView expects both owner and document to be specified"
     );
   }
-  const [loader, setLoader] = useState<LoadingTCDocument>();
+  const [loader, setLoader] = useState<BaseResource>();
 
   React.useEffect(() => {
-    const newLoader = LoadingTCDocument.load({
+    const newLoader = DocConnection.load({
       owner: props.owner,
       document: props.document,
     });
@@ -37,17 +38,17 @@ const DocumentView = observer((props: Props) => {
   if (!loader) {
     return null;
   }
-  if (!loader.doc) {
+  if (!loader.type) {
     return <CreateDocumentView document={loader} />;
   }
-  if (loader.doc.type === "!notebook") {
-    return <NotebookRenderer document={loader.doc} />;
-  } else if (loader.doc.type === "!richtext") {
-    return <RichText document={loader.doc} />;
-  } else if (loader.doc.type.startsWith("!")) {
+  if (loader.type === "!notebook") {
+    return <NotebookRenderer document={loader.doc!} />;
+  } else if (loader.type === "!richtext") {
+    return <RichText document={loader.doc!} />;
+  } else if (loader.type.startsWith("!")) {
     throw new Error("invalid built in type");
   } else {
-    return <CustomRenderer document={loader.doc} />;
+    return <CustomRenderer document={loader.doc!} />;
   }
 });
 

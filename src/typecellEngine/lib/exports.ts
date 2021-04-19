@@ -1,7 +1,7 @@
 import DocumentView from "../../documentRenderers/DocumentView";
-import LoadingTCDocument from "../../store/LoadingTCDocument";
+import { DocConnection } from "../../store/DocConnection";
 import { createOneToManyReferenceDefinition } from "../../store/Ref";
-import routing from "../../util/routing";
+import routing from "./routing";
 
 // TODO: make sure only relevant types are exported
 export function getExposeGlobalVariables(id: string) {
@@ -10,8 +10,8 @@ export function getExposeGlobalVariables(id: string) {
       routing,
       DocumentView,
       namespace: id, // TODO: naming
-      doc: (identifier: string | { owner: string; document: string }) => {
-        return LoadingTCDocument.load(identifier);
+      open: (identifier: string | { owner: string; document: string }) => {
+        return DocConnection.load(identifier);
       },
       createOneToManyReferenceDefinition: (
         type: string,

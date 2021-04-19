@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useMemo, useRef } from "react";
 import { VscDiffAdded } from "react-icons/vsc";
-import TCDocument from "../../store/TCDocument";
+import { TCDocument } from "../../store/TCDocument";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import CellListDraggableCell from "./CellListDraggableCell";
 import NotebookCell from "./NotebookCell";

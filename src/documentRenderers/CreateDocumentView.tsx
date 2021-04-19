@@ -1,20 +1,26 @@
 import { observer } from "mobx-react-lite";
 import * as React from "react";
-import TCDocument from "../store/LoadingTCDocument";
+import { BaseResource } from "../store/BaseResource";
+
 import styles from "./CreateDocumentView.module.css";
 
 type Props = {
-  document: TCDocument;
+  document: BaseResource;
 };
 
 const CreateDocumentView = observer((props: Props) => {
-  function click() {
+  function createNotebook() {
     props.document.create("!notebook");
+  }
+
+  function createPlugin() {
+    props.document.create("!plugin");
   }
 
   return (
     <div className={styles.container}>
-      <button onClick={click}>Create new document</button>
+      <button onClick={createNotebook}>Create new document</button>
+      <button onClick={createPlugin}>Create new plugin</button>
     </div>
   );
 });
