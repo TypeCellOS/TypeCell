@@ -7,6 +7,9 @@ import { BaseResource } from "./BaseResource";
 
 const cache = new Map<string, DocConnection>();
 
+/**
+ * Encapsulates a Y.Doc and exposes the Resource the Y.Doc represents
+ */
 export class DocConnection {
   private disposed: boolean = false;
   private _refCount = 0;

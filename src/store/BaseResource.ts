@@ -12,6 +12,10 @@ import {
 import * as Y from "yjs";
 import { DocumentResource } from "./DocumentResource";
 
+/**
+ * A resource is an entity definied by a unique id.
+ * All entities extend from BaseResource, which provides support for id, type, and references
+ */
 export class BaseResource {
   public constructor(protected readonly connection: DocConnection) {}
 
@@ -33,6 +37,10 @@ export class BaseResource {
 
   private _loadedDoc: DocumentResource | undefined;
 
+  /**
+   * When the entity has a type (it has either just been "created" or loaded from a remote),
+   * we can load
+   */
   public get doc() {
     if (this.type) {
       this._loadedDoc =

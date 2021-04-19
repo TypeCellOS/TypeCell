@@ -2,8 +2,19 @@ import * as _ from "lodash";
 import * as Y from "yjs";
 import { CellListModel } from "../models/CellListModel";
 import { BaseResource } from "./BaseResource";
+import { DocConnection } from "./DocConnection";
 
+/**
+ * A resource with multiple cells, used for either the Notebook or Richtext built-in types
+ */
 export class DocumentResource extends BaseResource {
+  constructor(connection: DocConnection) {
+    super(connection);
+    if (this.type !== "!notebook" && this.type !== "richtext") {
+      throw new Error("invalid type for DocumentResource");
+    }
+  }
+
   public get title(): Y.Text {
     return this.ydoc.getText("title");
   }
