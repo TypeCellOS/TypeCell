@@ -48,7 +48,7 @@ const DocumentView = observer((props: Props) => {
   } else if (loader.type.startsWith("!")) {
     throw new Error("invalid built in type");
   } else {
-    return <CustomRenderer document={loader.doc!} />;
+    return <CustomRenderer document={loader} />;
   }
 });
 
