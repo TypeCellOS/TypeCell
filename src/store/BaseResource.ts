@@ -10,16 +10,20 @@ import {
 } from "./Ref";
 
 import * as Y from "yjs";
-import { TCDocument } from "./TCDocument";
+import { DocumentResource } from "./DocumentResource";
 
 export class BaseResource {
   public constructor(protected readonly connection: DocConnection) {}
+
+  protected get ydoc() {
+    return this.connection._ydoc;
+  }
 
   public get id() {
     return this.connection.id;
   }
   public get type(): string {
-    return this.connection._ydoc.getMap("meta").get("type");
+    return this.ydoc.getMap("meta").get("type");
   }
 
   // TODO: do / how do we want to expose this?
@@ -27,7 +31,7 @@ export class BaseResource {
     return this.connection.webrtcProvider;
   }
 
-  private _loadedDoc: TCDocument | undefined;
+  private _loadedDoc: DocumentResource | undefined;
 
   public get doc() {
     if (this.type) {
@@ -43,21 +47,21 @@ export class BaseResource {
   }
 
   public create(type: string) {
-    this.connection._ydoc.getMap("meta").set("type", type);
-    this.connection._ydoc.getMap("meta").set("created_at", Date.now());
+    this.ydoc.getMap("meta").set("type", type);
+    this.ydoc.getMap("meta").set("created_at", Date.now());
   }
 
   private get _refs(): Y.Map<any> {
-    let map: Y.Map<any> = this.connection._ydoc.getMap("refs");
+    let map: Y.Map<any> = this.ydoc.getMap("refs");
     return map;
   }
 
   public getRefs(definition: ReferenceDefinition) {
     const ret: Ref[] = []; // TODO: type
-    // this.connection._ydoc.getMap("refs").forEach((val, key) => {
-    //   this.connection._ydoc.getMap("refs").delete(key);
+    // this.ydoc.getMap("refs").forEach((val, key) => {
+    //   this.ydoc.getMap("refs").delete(key);
     // });
-    this.connection._ydoc.getMap("refs").forEach((val) => {
+    this.ydoc.getMap("refs").forEach((val) => {
       if (
         val.namespace !== definition.namespace ||
         val.type !== definition.type

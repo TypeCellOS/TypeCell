@@ -5,7 +5,7 @@ import { getModel, releaseModel } from "../../models/modelCache";
 import { BaseResource } from "../../store/BaseResource";
 
 import { DocConnection } from "../../store/DocConnection";
-import { TCDocument } from "../../store/TCDocument";
+import { DocumentResource } from "../../store/DocumentResource";
 
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import RetryErrorBoundary from "../notebook/RetryErrorBoundary";
@@ -13,7 +13,7 @@ import RetryErrorBoundary from "../notebook/RetryErrorBoundary";
 // TODO: should this be a React component or raw JS?
 
 type Props = {
-  document: TCDocument;
+  document: DocumentResource;
 };
 
 /**

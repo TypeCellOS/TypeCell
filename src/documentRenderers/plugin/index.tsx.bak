@@ -1,16 +1,16 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useMemo, useRef } from "react";
 import { VscDiffAdded } from "react-icons/vsc";
-import { DocumentResource } from "../../store/DocumentResource";
+import TCDocument from "../../store/TCDocument";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import CellListDraggableCell from "./CellListDraggableCell";
 import NotebookCell from "./NotebookCell";
 
 type Props = {
-  document: DocumentResource;
+  document: TCDocument;
 };
 
-const NotebookRenderer: React.FC<Props> = observer((props) => {
+const PluginRenderer: React.FC<Props> = observer((props) => {
   const disposer = useRef<() => void>();
 
   const engine = useMemo(() => {
@@ -72,4 +72,4 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
   );
 });
 
-export default NotebookRenderer;
+export default PluginRenderer;

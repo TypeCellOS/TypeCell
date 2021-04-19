@@ -5,11 +5,11 @@ import { defaultExtensions } from "@tiptap/starter-kit";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { TCDocument } from "../../store/TCDocument";
+import { DocumentResource } from "../../store/DocumentResource";
 import TypeCellNode from "./extensions/typecellnode";
 
 type Props = {
-  document: TCDocument;
+  document: DocumentResource;
 };
 const RichText: React.FC<Props> = observer((props) => {
   const editor = useEditor({

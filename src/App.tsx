@@ -7,7 +7,7 @@ import DocumentView from "./documentRenderers/DocumentView";
 import { setMonacoDefaults } from "./sandbox";
 import setupNpmTypeResolver from "./sandbox/setupNpmTypeResolver";
 import setupTypecellTypeResolver from "./sandbox/setupTypecellTypeResolver";
-import { TCDocument } from "./store/TCDocument";
+import { DocumentResource } from "./store/DocumentResource";
 import routing from "./typecellEngine/lib/routing";
 
 setMonacoDefaults(monaco);
@@ -24,6 +24,6 @@ const App = () => {
   );
 };
 
-(window as any).TCDocument = TCDocument; // TODO: hacky
+(window as any).TCDocument = DocumentResource; // TODO: hacky
 
 export default App;

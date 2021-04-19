@@ -3,13 +3,13 @@ import * as Y from "yjs";
 import { CellListModel } from "../models/CellListModel";
 import { BaseResource } from "./BaseResource";
 
-export class TCDocument extends BaseResource {
+export class DocumentResource extends BaseResource {
   public get title(): Y.Text {
-    return this.connection._ydoc.getText("title");
+    return this.ydoc.getText("title");
   }
 
   public get data(): Y.XmlFragment {
-    let xml = this.connection._ydoc.getXmlFragment("doc");
+    let xml = this.ydoc.getXmlFragment("doc");
     return xml;
   }
 
