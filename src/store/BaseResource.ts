@@ -40,23 +40,32 @@ export class BaseResource {
     return this.connection.webrtcProvider;
   }
 
-  private _loadedDoc: DocumentResource | undefined;
-
   /**
    * When the entity has a type (it has either just been "created" or loaded from a remote),
    * we can load
    */
   public get doc() {
-    if (this.type) {
-      this._loadedDoc =
-        this._loadedDoc ||
-        (new (window as any).TCDocument(this.connection) as any); // TODO: hacky
-      return this._loadedDoc;
+    return this.getSpecificType<DocumentResource>(
+      (window as any).DocumentResource // TODO: hacky to prevent circular ref
+    );
+  }
+
+  private _specificType: any;
+
+  public getSpecificType<T extends BaseResource>(
+    constructor: new (connection: DocConnection) => T
+  ): T | undefined {
+    if (this._specificType && !(this._specificType instanceof constructor)) {
+      throw new Error("already has different specifictype");
     }
-    if (this._loadedDoc) {
-      throw new Error("has loaded doc, but no type");
+
+    if (!this.type) {
+      return undefined;
     }
-    return undefined;
+
+    this._specificType = this._specificType || new constructor(this.connection);
+
+    return this._specificType;
   }
 
   public create(type: string) {

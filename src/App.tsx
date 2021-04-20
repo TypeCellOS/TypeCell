@@ -24,6 +24,6 @@ const App = () => {
   );
 };
 
-(window as any).TCDocument = DocumentResource; // TODO: hacky
+(window as any).DocumentResource = DocumentResource; // TODO: hacky
 
 export default App;

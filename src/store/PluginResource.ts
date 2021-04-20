@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import * as Y from "yjs";
 import { CellListModel } from "../models/CellListModel";
+import { CellModel } from "../models/CellModel";
 import { BaseResource } from "./BaseResource";
 import { DocConnection } from "./DocConnection";
 
@@ -16,28 +17,31 @@ export default class PluginResource extends BaseResource {
     }
   }
 
-  public get description(): Y.Text {
-    return this.ydoc.getText("description");
+  // TODO: turn into Y.Text
+  public set description(descr: string) {
+    this.ydoc.getMap("pluginmeta").set("description", descr);
   }
 
-  public get data(): Y.XmlFragment {
-    let xml = this.ydoc.getXmlFragment("doc");
-    return xml;
-  }
-
-  private _getCellListMemoized = _.memoize(
-    (data: Y.XmlFragment) => new CellListModel(this.id, data)
-  );
-
-  private get cellList() {
-    const list = this._getCellListMemoized(this.data);
-    if (list.cells.length !== 1) {
-      throw new Error("expected only 1 cell");
+  public get description(): string {
+    const descr = this.ydoc.getMap("pluginmeta").get("description");
+    if (!descr) {
+      return "";
     }
-    return list;
+    if (typeof descr !== "string") {
+      throw new Error("expected string");
+    }
+    return descr;
   }
+
+  private _pluginCell: CellModel | undefined;
 
   public get pluginCell() {
-    return this.cellList.cells[0];
+    this._pluginCell =
+      this._pluginCell ||
+      new CellModel(
+        "!@" + this.id.substr(1) + "/plugin.tsx",
+        this.ydoc.getText("pluginCell")
+      );
+    return this._pluginCell;
   }
 }

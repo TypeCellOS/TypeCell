@@ -29,9 +29,16 @@ export class CellListModel {
     }
 
     this._previousChildren = children;
-    this._previousCells = children.map(
-      (el) => new CellModel(this.documentId, el)
-    );
+    this._previousCells = children.map((el) => {
+      const path =
+        "!@" + this.documentId.substr(1) + "/" + el.getAttribute("id") + ".tsx";
+
+      const code = el.firstChild;
+      if (!(code instanceof Y.XmlText)) {
+        throw new Error("should be text");
+      }
+      return new CellModel(path, code);
+    });
     return this._previousCells;
   }
 

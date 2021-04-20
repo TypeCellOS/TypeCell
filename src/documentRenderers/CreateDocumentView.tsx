@@ -5,16 +5,16 @@ import { BaseResource } from "../store/BaseResource";
 import styles from "./CreateDocumentView.module.css";
 
 type Props = {
-  document: BaseResource;
+  resource: BaseResource;
 };
 
 const CreateDocumentView = observer((props: Props) => {
   function createNotebook() {
-    props.document.create("!notebook");
+    props.resource.create("!notebook");
   }
 
   function createPlugin() {
-    props.document.create("!plugin");
+    props.resource.create("!plugin");
   }
 
   return (

@@ -3,10 +3,12 @@ import * as React from "react";
 import { useState } from "react";
 import { BaseResource } from "../store/BaseResource";
 import { DocConnection } from "../store/DocConnection";
+import PluginResource from "../store/PluginResource";
 import CreateDocumentView from "./CreateDocumentView";
-import { CustomRenderer } from "./custom";
-import NotebookRenderer from "./notebook";
-import RichText from "./richtext";
+import { CustomRenderer } from "./custom/CustomRenderer";
+import NotebookRenderer from "./notebook/NotebookRenderer";
+import PluginRenderer from "./plugin/PluginRenderer";
+import RichTextRenderer from "./richtext";
 
 type Props = {
   owner: string;
@@ -39,12 +41,14 @@ const DocumentView = observer((props: Props) => {
     return null;
   }
   if (!loader.type) {
-    return <CreateDocumentView document={loader} />;
+    return <CreateDocumentView resource={loader} />;
   }
   if (loader.type === "!notebook") {
     return <NotebookRenderer document={loader.doc!} />;
   } else if (loader.type === "!richtext") {
-    return <RichText document={loader.doc!} />;
+    return <RichTextRenderer document={loader.doc!} />;
+  } else if (loader.type === "!plugin") {
+    return <PluginRenderer plugin={loader.getSpecificType(PluginResource)!} />;
   } else if (loader.type.startsWith("!")) {
     throw new Error("invalid built in type");
   } else {
