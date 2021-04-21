@@ -1,4 +1,5 @@
 import * as monaco from "monaco-editor";
+// import { hash } from "../util/hash";
 import { createCellEvaluator } from "./CellEvaluator";
 import { createContext, TypeCellContext } from "./context";
 import { getCompiledCode } from "./monacoHelpers";
@@ -159,12 +160,12 @@ export class Engine {
     // const hsh = hash(tscode) + "";
     // const cached = localStorage.getItem(hsh);
     // if (cached) {
-    // await evaluator.evaluate(cached);
+    //   await evaluator.evaluate(cached);
     // } else {
-    // console.log(model.uri, model.getValue());
+    //   console.log(model.uri, model.getValue());
     let code = (await getCompiledCode(mainWorker, model.uri)).firstJSCode;
 
-    // localStorage.setItem(hsh, code);
+    //   localStorage.setItem(hsh, code);
     await evaluator.evaluate(code);
     // }
   }
