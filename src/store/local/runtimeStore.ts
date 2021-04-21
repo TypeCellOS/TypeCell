@@ -7,6 +7,14 @@ export type ResourceType = {
 
 class RuntimeStore {
   resourceTypes = observable.set<ResourceType>(undefined, { deep: false });
+  customRenderers = observable.map<
+    string,
+    {
+      type: string;
+      rendererId: string;
+      variable: string;
+    }
+  >(undefined, { deep: false });
 
   constructor() {
     makeObservable(this, {

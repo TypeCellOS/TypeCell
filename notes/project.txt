@@ -1,27 +1,30 @@
-import * as React from "react";
 import * as drag from "!@yousefed/drag";
 
 export { drag }
-// export default drag;
+
 
 const D = typecell.DocumentView;
 const doc = $.routing.isRoot ? "placeholder" : $.routing.document;
 
+
 export let layout = <div style={{ display: "flex", flexDirection: "row", height: "100%", minHeight: "100vh" }}>
-  <div style={{ minWidth: "200px" }}>{drag.tree.value_}</div>
+  <div style={{ minWidth: "200px", height: "100%" }}>{drag.tree}</div>
   <div style={{ width: "100%" }}><D owner={$.routing.owner} document={doc} /></div>
 </div>
 
-export default layout;
+//  <div style={{ width: "100%" }}><D owner={$.routing.owner} document={doc} /></div>
+export default layout;      
 
 
-import * as routing from "!@yousefed/urls";
 
+
+import * as routing from "!@yousefed/urls"
 export { routing }
+
 
 
 
 if ($.drag.selected) {
   const [owner, document] = $.drag.selected.split("/");
-  $.routing.navigate({ owner, document })
+  $.routing.navigate({ owner, document });
 }

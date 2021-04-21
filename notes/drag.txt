@@ -1,4 +1,3 @@
-import React from 'react';
 import SortableTree from 'react-sortable-tree';
 import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
 
@@ -6,13 +5,13 @@ import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
 
 function setChild(parentid, childid) {
   const [owner, document] = parentid.split("/");
-  const doc = typecell.doc({ owner, document });
+  const doc = typecell.open({ owner, document });
 
   doc.ensureRef($.childReference, childid);
 }
 
 function addPage(page: string) {
-  let doc = typecell.doc({ owner: $.routing.owner, document: page });
+  let doc = typecell.open({ owner: $.routing.owner, document: page });
   setChild($.rootDoc.id, doc.id);
 }
 
@@ -58,23 +57,26 @@ export let tree = <div style={{ minHeight: 200, height: '100%', background: "whi
     onChange={() => { }}
     theme={FileExplorerTheme}
   />
-</div>
+</div> 
+
+
+
 
 
 
 export let routing = typecell.routing();
-export let rootDoc = typecell.doc(routing);
+export let rootDoc = typecell.open(routing);
 
 
 
-import * as React from "react"
+
 export const treeData = [getTreeForDoc($.rootDoc)]
 
 function getTreeForDoc(doc) {
   const children = [];
   for (let ref of doc.getRefs($.childReference)) {
     if (ref.namespace == typecell.namespace && ref.type === "child") {
-      const child = typecell.doc(ref.target);
+      const child = typecell.open(ref.target);
       children.push(getTreeForDoc(child));
     }
   }
@@ -88,4 +90,12 @@ function getTreeForDoc(doc) {
 }
 
 
+export const childReference = typecell.createOneToManyReferenceDefinition(
+  "child",
+  "parent",
+  true
+);
 
+
+
+export default $.rootDoc.getRefs($.childReference)

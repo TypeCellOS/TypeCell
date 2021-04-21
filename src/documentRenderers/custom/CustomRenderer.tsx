@@ -5,6 +5,7 @@ import { getModel, releaseModel } from "../../models/modelCache";
 import { BaseResource } from "../../store/BaseResource";
 
 import { DocConnection } from "../../store/DocConnection";
+import { runtimeStore } from "../../store/local/runtimeStore";
 
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import RetryErrorBoundary from "../notebook/RetryErrorBoundary";
@@ -26,13 +27,18 @@ export const CustomRenderer = observer((props: Props) => {
   const [rendererDocument, setRendererDocument] = useState<BaseResource>();
   const [engine, setEngine] = useState<EngineWithOutput>();
 
+  const renderer = runtimeStore.customRenderers.get(props.document.type);
+
   useEffect(() => {
-    const loader = DocConnection.load(props.document.type);
+    if (!renderer) {
+      return;
+    }
+    const loader = DocConnection.load(renderer.rendererId);
     setRendererDocument(loader);
     return () => {
       loader.dispose();
     };
-  }, [props.document.type]);
+  }, [renderer]);
 
   // TODO: also useMemo to get engine, instead of useEffect?
   useEffect(() => {
@@ -59,21 +65,28 @@ export const CustomRenderer = observer((props: Props) => {
     rendererDocument?.doc?.cells,
   ]); // TODO: does this create a new engine every time the doc changes?
 
+  if (!renderer) {
+    return <div>No renderer for this type found</div>;
+  }
   if (!rendererDocument || !engine || !rendererDocument.doc) {
     return <div>Loading</div>;
   }
-  // console.log(document);
 
   if (rendererDocument.doc.type !== "!notebook") {
     // return <div>Invalid document type {props.document.type} {rendererDocument.type}</div>
     throw new Error("only notebook documents supported");
   }
 
-  // setInterval(() => { setRender(Math.random()) }, 2000);
-  // console.log("render", render);
+  const layoutObject =
+    engine.engine.observableContext.context[renderer.variable];
+
+  if (!layoutObject) {
+    return <div>Invalid renderer for this type</div>;
+  }
+
   return (
     <RetryErrorBoundary>
-      <div>{engine.engine.observableContext.context.layout}</div>
+      <div>{layoutObject}</div>
     </RetryErrorBoundary>
   );
 });

@@ -15,7 +15,6 @@ if (paths.remainingParts.length > 1) {
 
 
 
-
 window.onpopstate = (e) => {
 
   const { owner, document } = e.state;
@@ -29,8 +28,7 @@ window.onpopstate = (e) => {
 
 
 
-import * as React from "react";
-let mainRoutes = typecell.routing(); debugger;
+let mainRoutes = typecell.routing();
 export function navigate(data, e) {
   untracked(() => {
     if (e) {

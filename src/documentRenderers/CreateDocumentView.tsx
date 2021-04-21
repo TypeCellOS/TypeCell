@@ -19,6 +19,7 @@ const CreateDocumentView = observer((props: Props) => {
   }
 
   function createCustom(resourceType: ResourceType) {
+    // TODO: add a plugin Ref to the document, and add support for DocumentPlugins
     props.resource.create(resourceType.id);
   }
 
