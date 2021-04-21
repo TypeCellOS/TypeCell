@@ -52,6 +52,7 @@ export class BaseResource {
 
   private _specificType: any;
 
+  /** @internal */
   public getSpecificType<T extends BaseResource>(
     constructor: new (connection: DocConnection) => T
   ): T | undefined {

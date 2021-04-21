@@ -1,5 +1,7 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useMemo, useRef } from "react";
+import PluginEngine from "../../pluginEngine/PluginEngine";
+import { getEngineForPlugin } from "../../pluginEngine/pluginSystem";
 import PluginResource from "../../store/PluginResource";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import NotebookCell from "../notebook/NotebookCell";
@@ -9,32 +11,11 @@ type Props = {
 };
 
 const PluginRenderer: React.FC<Props> = observer((props) => {
-  const disposer = useRef<() => void>();
-
-  const engine = useMemo(() => {
-    if (disposer.current) {
-      disposer.current();
-      disposer.current = undefined;
-    }
-    const newEngine = new EngineWithOutput(props.plugin.id);
-    disposer.current = () => {
-      newEngine.dispose();
-    };
-    return newEngine;
-  }, [props.plugin.id]);
-
-  useEffect(() => {
-    return () => {
-      if (disposer.current) {
-        disposer.current();
-        disposer.current = undefined;
-      }
-    };
-  }, []);
+  const engine = getEngineForPlugin(props.plugin);
 
   // renderLogger.log("cellList");
   return (
-    <div className="cellLidst">
+    <div className="cellList">
       {/* TODO: should execute in a separate sandbox? */}
       <NotebookCell
         cell={props.plugin.pluginCell}

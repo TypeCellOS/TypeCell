@@ -15,12 +15,13 @@ import { MonacoBinding } from "y-monaco";
 import { Awareness } from "y-protocols/awareness";
 import { CellModel } from "../../models/CellModel";
 import { getModel, releaseModel } from "../../models/modelCache";
+import PluginEngine from "../../pluginEngine/PluginEngine";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import Output from "./Output";
 
 type Props = {
   cell: CellModel;
-  engine: EngineWithOutput;
+  engine: PluginEngine | EngineWithOutput;
   onRemove?: () => void;
   classList?: string;
   defaultCollapsed?: boolean;
@@ -92,6 +93,9 @@ const NotebookCell: React.FC<Props> = observer((props) => {
       return;
     }
     const newModel = getModel(props.cell);
+
+    // TODO: do we want to do this here? At least for PluginRenderer, it will register twice
+    // (currently this is ignored in the engine and only logs a warning)
     props.engine.engine.registerModel(newModel);
 
     editor.setModel(newModel);

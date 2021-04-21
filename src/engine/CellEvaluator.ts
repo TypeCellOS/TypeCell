@@ -12,15 +12,9 @@ export function createCellEvaluator(
   typecellContext: TypeCellContext,
   resolveImport: (module: string) => Promise<any>,
   setAndWatchOutput = true,
-  onOutputChanged: (output: any) => void
+  onOutputChanged: (output: any) => void,
+  beforeExecuting: () => void
 ) {
-  let variableWatchDisposes: Array<() => void> = [];
-
-  function clearVariableWatches() {
-    variableWatchDisposes.forEach((d) => d());
-    variableWatchDisposes = [];
-  }
-
   function onExecuted(exports: any) {
     // log.debug("cellEvaluator onExecuted", cell.path);
     if (!setAndWatchOutput) {
@@ -71,7 +65,7 @@ export function createCellEvaluator(
         modules[0],
         typecellContext,
         resolveImport,
-        clearVariableWatches,
+        beforeExecuting,
         onExecuted,
         onError,
         moduleExecution?.disposeVariables
@@ -92,7 +86,6 @@ export function createCellEvaluator(
         moduleExecution.dispose();
         moduleExecution.disposeVariables();
       }
-      clearVariableWatches();
     },
   };
 }

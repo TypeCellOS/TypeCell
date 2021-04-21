@@ -1,7 +1,7 @@
 import { observable, runInAction } from "mobx";
 import * as monaco from "monaco-editor";
 import { Engine } from "../engine";
-import { getExposeGlobalVariables } from "./lib/exports";
+import getExposeGlobalVariables from "./lib/exports";
 import resolveImport from "./resolver";
 
 let ENGINE_ID = 0;
@@ -18,9 +18,13 @@ export default class EngineWithOutput {
   public readonly id = ENGINE_ID++;
   constructor(private documentId: string) {
     // console.log(this.id, documentId);
-    this.engine = new Engine((model, output) => {
-      runInAction(() => this.outputs.set(model, output));
-    }, this.resolveImport);
+    this.engine = new Engine(
+      (model, output) => {
+        runInAction(() => this.outputs.set(model, output));
+      },
+      () => {},
+      this.resolveImport
+    );
   }
 
   private resolveImport = async (
@@ -33,7 +37,7 @@ export default class EngineWithOutput {
       );
     }
     if (module === "typecell") {
-      return getExposeGlobalVariables(this.documentId);
+      return { default: getExposeGlobalVariables(this.documentId) };
     }
     const resolved = await resolveImport(module, forModel, this);
     if (this.disposed) {

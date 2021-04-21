@@ -2,7 +2,11 @@ import * as Y from "yjs";
 
 export class CellModel {
   /** @internal */
-  constructor(public readonly path: string, public readonly code: Y.Text) {}
+  constructor(
+    public readonly path: string,
+    /** @internal */
+    public readonly code: Y.Text
+  ) {}
 
   public get language() {
     return "typescript";

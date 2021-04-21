@@ -31,7 +31,11 @@ export class CellListModel {
     this._previousChildren = children;
     this._previousCells = children.map((el) => {
       const path =
-        "!@" + this.documentId.substr(1) + "/" + el.getAttribute("id") + ".tsx";
+        "!@" +
+        this.documentId.substr(1) +
+        "/" +
+        el.getAttribute("id") +
+        ".cell.tsx";
 
       const code = el.firstChild;
       if (!(code instanceof Y.XmlText)) {

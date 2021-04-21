@@ -2,17 +2,25 @@ import * as monaco from "monaco-editor";
 import { detectNewImportsToAcquireTypeFor } from "./typeAcquisition";
 
 /**
- * Loads the standard "typecell" helper library, as defined in typecellEngine/lib/exports
+ * Uses type definitions emitted by npm run emittypes to the public/types directory.
+ * Now we can use types from this typecell codebase in the runtime
+ *
+ * TODO: if loading multiple modules, we won't reuse underlying types and they will be reloaded from public/types,
+ * might not be ideal architecture but probably also doesn't have a large impact
  */
-async function loadTypecellLibTypes() {
+async function loadTypecellLibTypes(
+  moduleName: string,
+  typecellTypePath: string
+) {
   const lib = `
-  import { getExposeGlobalVariables } from "./typecellEngine/lib/exports";
-  export let typecell: ReturnType<typeof getExposeGlobalVariables>["typecell"];
+    import getExposeGlobalVariables from "${typecellTypePath}";
+    let exp: ReturnType<typeof getExposeGlobalVariables>;
+    export default exp;
   `;
 
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
     lib,
-    "file:///node_modules/@types/typecell/index.d.ts"
+    `file:///node_modules/@types/${moduleName}/index.d.ts`
   );
 
   detectNewImportsToAcquireTypeFor(
@@ -22,7 +30,7 @@ async function loadTypecellLibTypes() {
     ),
     window.fetch.bind(window),
     console, // TODO
-    "typecell"
+    moduleName
   );
 }
 
@@ -82,9 +90,15 @@ function listenForTypecellUserModels() {
  * - user written code and the $ context variable
  * - built in helper library
  *
- * These types are automatically imported in the cell context, in ts.worker.ts
+ * These types are automatically imported in the cell / plugin context, in ts.worker.ts
  */
 export default function setupTypecellTypeResolver() {
-  loadTypecellLibTypes();
+  // Loads types for standard "typecell" helper library, as defined in typecellEngine/lib/exports
+  loadTypecellLibTypes("typecell", "./typecellEngine/lib/exports");
+
+  // Loads types for "typecell-plugin" helper library, as defined in pluginEngine/lib/exports
+  loadTypecellLibTypes("typecell-plugin", "./pluginEngine/lib/exports");
+
+  // Loads types for $ context variables
   listenForTypecellUserModels();
 }

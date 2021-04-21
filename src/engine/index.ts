@@ -57,6 +57,7 @@ export class Engine {
    */
   constructor(
     private onOutput: (model: monaco.editor.ITextModel, output: any) => void,
+    private beforeExecuting: (model: monaco.editor.ITextModel) => void,
     private resolveImport: (
       module: string,
       forModel: monaco.editor.ITextModel
@@ -143,8 +144,12 @@ export class Engine {
     if (!this.evaluatorCache.has(model)) {
       this.evaluatorCache.set(
         model,
-        createCellEvaluator(typecellContext, resolveImport, true, (output) =>
-          onOutput(model, output)
+        createCellEvaluator(
+          typecellContext,
+          resolveImport,
+          true,
+          (output) => onOutput(model, output),
+          () => this.beforeExecuting(model)
         )
       );
     }

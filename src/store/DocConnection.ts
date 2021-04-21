@@ -5,7 +5,13 @@ import * as Y from "yjs";
 import { observeDoc } from "../moby/doc";
 import { BaseResource } from "./BaseResource";
 
-const cache = new Map<string, DocConnection>();
+const cache = new Map<
+  string,
+  {
+    connection: DocConnection;
+    baseResource: BaseResource;
+  }
+>();
 
 /**
  * Encapsulates a Y.Doc and exposes the Resource the Y.Doc represents
@@ -57,13 +63,15 @@ export class DocConnection {
       identifier = ownerSlug + "/" + documentSlug;
     }
 
-    let connection = cache.get(identifier);
-    if (!connection) {
-      connection = new DocConnection(identifier);
-      cache.set(identifier, connection);
+    let entry = cache.get(identifier);
+    if (!entry) {
+      const connection = new DocConnection(identifier);
+      const baseResource = new BaseResource(connection);
+      entry = { connection, baseResource };
+      cache.set(identifier, entry);
     }
-    connection.addRef();
-    return new BaseResource(connection);
+    entry.connection.addRef();
+    return entry.baseResource;
   }
 
   public base: any;

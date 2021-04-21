@@ -41,7 +41,7 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
     ) {
       let split = fileName.substr("file:///%21%40".length).split("/");
 
-      if (split.length === 3) {
+      if (split.length === 3 && fileName.endsWith(".cell.tsx")) {
         const folder = "!@" + split[0] + "/" + split[1];
 
         // add modified code at end, to not mess offsets
@@ -51,9 +51,19 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
         // @ts-ignore
         declare let $: typeof $type;
         // @ts-ignore
-        import { typecell } from "typecell";
+        import typecell from "typecell";
         // @ts-ignore
         import React from 'react';
+        `;
+        // always add an empty export to file to make sure it's seen as a module
+        // text += "\nexport{};";
+      }
+
+      if (split.length === 3 && fileName.endsWith("plugin.tsx")) {
+        // add modified code at end, to not mess offsets
+        text += `;\n
+        // @ts-ignore
+        import plugin from "typecell-plugin";
         `;
         // always add an empty export to file to make sure it's seen as a module
         // text += "\nexport{};";

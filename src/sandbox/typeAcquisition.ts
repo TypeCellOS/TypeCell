@@ -539,7 +539,7 @@ const getDependenciesForModule = (
         ? absolutePathForModule
         : absolutePathForModule + ".d.ts";
 
-      if (moduleName === "typecell") {
+      if (moduleName?.startsWith("typecell")) {
         await addTypecellModuleToRuntime(moduleName!, resolvedFilepath, config);
       } else {
         await addModuleToRuntime(moduleName!, resolvedFilepath, config);

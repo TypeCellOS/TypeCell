@@ -1,6 +1,3 @@
-import * as _ from "lodash";
-import * as Y from "yjs";
-import { CellListModel } from "../models/CellListModel";
 import { CellModel } from "../models/CellModel";
 import { BaseResource } from "./BaseResource";
 import { DocConnection } from "./DocConnection";
