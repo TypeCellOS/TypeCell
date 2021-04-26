@@ -67,6 +67,11 @@
       "last 1 safari version"
     ]
   },
+  "jest": {
+    "transformIgnorePatterns": [
+      "/node_modules/(?!monaco-editor).+\\.js$"
+    ]
+  },
   "devDependencies": {
     "@types/jest": "^26.0.22",
     "@types/lodash": "^4.14.168",

@@ -1,12 +1,14 @@
 // stripped down version of https://github.com/microsoft/TypeScript-Website/tree/v2/packages/sandbox
 
 import type * as Monaco from "monaco-editor";
+import parserTypescript from "prettier/parser-typescript";
+import prettier from "prettier/standalone";
 // @ts-ignore
 import EditorWorker from "workerize-loader!./workers/editor.worker"; // eslint-disable-line import/no-webpack-loader-syntax
 // @ts-ignore
 import TsWorker from "workerize-loader!./workers/ts.worker"; // eslint-disable-line import/no-webpack-loader-syntax
-
 import { getDefaultSandboxCompilerOptions } from "./compilerOptions";
+import { diffToMonacoTextEdits } from "./diffToMonacoTextEdits";
 
 (window as any).MonacoEnvironment = {
   getWorker: function (workerId: string, label: string) {
@@ -58,6 +60,8 @@ const sharedEditorOptions: Monaco.editor.IEditorOptions = {
 export const setMonacoDefaults = (monaco: typeof Monaco) => {
   // const getWorker = monaco.languages.typescript.getTypeScriptWorker;
 
+  monaco.editor.EditorOptions.formatOnPaste.defaultValue = true;
+
   const defaults = monaco.languages.typescript.typescriptDefaults;
 
   defaults.setDiagnosticsOptions({
@@ -83,4 +87,27 @@ export const setMonacoDefaults = (monaco: typeof Monaco) => {
     },
     rules: [{ background: "#f4f5f7" } as any],
   });
+  setupPrettier(monaco);
 };
+
+function setupPrettier(monaco: typeof Monaco) {
+  monaco.languages.registerDocumentFormattingEditProvider("typescript", {
+    provideDocumentFormattingEdits(model, options, token) {
+      try {
+        const newText = prettier.format(model.getValue(), {
+          parser: "typescript",
+          plugins: [parserTypescript],
+          tabWidth: 2,
+          printWidth: 80,
+          jsxBracketSameLine: true,
+        });
+
+        let ret = diffToMonacoTextEdits(model, newText);
+        return ret;
+      } catch (e) {
+        console.warn("error while formatting code (prettier)", e);
+        return [];
+      }
+    },
+  });
+}
