@@ -1,5 +1,5 @@
 import * as Y from "yjs";
-import { observeYType } from ".";
+import { isYType, observeYJS } from ".";
 
 const docsObserved = new WeakSet<Y.Doc>();
 
@@ -20,41 +20,11 @@ export function observeDoc(doc: Y.Doc) {
     if (!ret) {
       return ret;
     }
-    if (
-      ret instanceof Y.AbstractType ||
-      Object.prototype.hasOwnProperty.call(ret, "autoLoad")
-    ) {
-      return observeYType(ret);
+    if (isYType(ret)) {
+      return observeYJS(ret);
     }
     return ret;
   };
 
   return doc;
 }
-
-/*
-    let x = new Proxy(
-      {},
-      {
-        get: (target, p, receiver) => {
-          if (typeof p === "string") {
-            reportMapKeyAtom(p);
-          }
-          const ret = Reflect.get(target, p, receiver);
-          if (ret.$proxy) {
-            return ret.$proxy;
-          }
-  
-          if ()
-  
-          return ret;
-        },
-        has: (target, p) => {
-          if (typeof p === "string") {
-            reportMapKeyAtom(p);
-          }
-          const ret = Reflect.has(target, p);
-          return ret;
-        },
-      }
-    );*/

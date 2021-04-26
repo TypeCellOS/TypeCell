@@ -1,6 +1,6 @@
-import { createAtom, IAtom } from "mobx";
+import { IAtom, createAtom } from "mobx";
 import * as Y from "yjs";
-import { observeYType } from ".";
+import { isYType, observeYJS } from ".";
 
 const mapsObserved = new WeakSet<Y.Map<any>>();
 
@@ -81,11 +81,8 @@ export function observeMap(map: Y.Map<any>) {
     if (!ret) {
       return ret;
     }
-    if (
-      ret instanceof Y.AbstractType ||
-      Object.prototype.hasOwnProperty.call(ret, "autoLoad")
-    ) {
-      return observeYType(ret);
+    if (isYType(ret)) {
+      return observeYJS(ret);
     }
     return ret;
   };
@@ -113,30 +110,3 @@ export function observeMap(map: Y.Map<any>) {
 
   return map;
 }
-
-/*
-    let x = new Proxy(
-      {},
-      {
-        get: (target, p, receiver) => {
-          if (typeof p === "string") {
-            reportMapKeyAtom(p);
-          }
-          const ret = Reflect.get(target, p, receiver);
-          if (ret.$proxy) {
-            return ret.$proxy;
-          }
-  
-          if ()
-  
-          return ret;
-        },
-        has: (target, p) => {
-          if (typeof p === "string") {
-            reportMapKeyAtom(p);
-          }
-          const ret = Reflect.has(target, p);
-          return ret;
-        },
-      }
-    );*/

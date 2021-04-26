@@ -1,10 +1,18 @@
+import { AbstractType } from "yjs";
 import { observeText } from "./text";
 import * as Y from "yjs";
 import { observeMap } from "./map";
 import { observeDoc } from "./doc";
 import { observeXml } from "./xml";
 
-export function observeYType(element: Y.AbstractType<any> | Y.Doc) {
+export function isYType(element: any) {
+  return (
+    element instanceof Y.AbstractType ||
+    Object.prototype.hasOwnProperty.call(element, "autoLoad")
+  ); // detect subdocs. Is there a better way for this?
+}
+
+export function observeYJS(element: Y.AbstractType<any> | Y.Doc) {
   if (element instanceof Y.XmlText) {
     return observeText(element);
   } else if (element instanceof Y.Text) {
@@ -31,3 +39,5 @@ export function observeYType(element: Y.AbstractType<any> | Y.Doc) {
   }
   return element;
 }
+
+export { observeText, observeMap, observeDoc };

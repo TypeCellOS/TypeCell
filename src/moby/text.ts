@@ -25,8 +25,8 @@ export function observeText(value: Y.Text) {
       const ret = Reflect.apply(originalToString, this, arguments);
       return ret;
     };
+    textAtoms.set(value, atom);
   }
-  textAtoms.set(value, atom);
   atom!.reportObserved();
   return value;
 }

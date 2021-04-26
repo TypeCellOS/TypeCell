@@ -1,6 +1,6 @@
 import { IAtom, createAtom, untracked } from "mobx";
 import * as Y from "yjs";
-import { observeYType } from ".";
+import { observeYJS } from ".";
 
 const xmlAtoms = new WeakMap<Y.XmlFragment | Y.XmlText, IAtom>();
 
@@ -12,7 +12,7 @@ export function observeXml(value: Y.XmlFragment) {
         if (added.content instanceof Y.ContentType) {
           const addedType = added.content.type;
           untracked(() => {
-            observeYType(addedType);
+            observeYJS(addedType);
           });
         }
       });
@@ -35,12 +35,12 @@ export function observeXml(value: Y.XmlFragment) {
       const ret = Reflect.apply(originalToString, this, arguments);
       return ret;
     };
+    xmlAtoms.set(value, atom);
   }
-  xmlAtoms.set(value, atom);
 
   untracked(() => {
     value.toArray().forEach((val) => {
-      observeYType(val);
+      observeYJS(val);
     });
   });
 
