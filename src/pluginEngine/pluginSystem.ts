@@ -1,16 +1,9 @@
 import { autorun } from "mobx";
-import { getModel, releaseModel } from "../models/modelCache";
 import { pluginStore } from "../store/local/pluginStore";
 import PluginResource from "../store/PluginResource";
 import PluginEngine from "./PluginEngine";
 
 const runningPlugins = new Map<PluginResource, PluginEngine>();
-
-function createNewPluginEngine(plugin: PluginResource) {
-  const engine = new PluginEngine(plugin.id);
-  engine.engine.registerModel(getModel(plugin.pluginCell));
-  return engine;
-}
 
 export function getEngineForPlugin(plugin: PluginResource) {
   const engine = runningPlugins.get(plugin);
@@ -25,7 +18,7 @@ export function enablePluginSystem() {
     runningPlugins.forEach((engine, plugin) => {
       if (!pluginStore.plugins.has(plugin)) {
         // dispose
-        releaseModel(plugin.pluginCell);
+        // releaseModel(plugin.pluginCell); TODO
         engine.dispose();
         runningPlugins.delete(plugin);
       }
@@ -34,7 +27,7 @@ export function enablePluginSystem() {
     pluginStore.plugins.forEach((plugin) => {
       if (!runningPlugins.has(plugin)) {
         // add
-        const engine = createNewPluginEngine(plugin);
+        const engine = new PluginEngine(plugin);
         runningPlugins.set(plugin, engine);
       }
     });

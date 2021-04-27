@@ -18,7 +18,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
       disposer.current();
       disposer.current = undefined;
     }
-    const newEngine = new EngineWithOutput(props.document.id);
+    const newEngine = new EngineWithOutput(props.document.id, true);
     disposer.current = () => {
       newEngine.dispose();
     };

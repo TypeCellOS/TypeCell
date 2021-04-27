@@ -1,10 +1,6 @@
 import { TypeCellContext } from "./context";
-import {
-  createExecutionScope,
-  getModulesFromTypeCellCode,
-  ModuleExecution,
-  runModule,
-} from "./engine";
+import { ModuleExecution, runModule } from "./executor";
+import { createExecutionScope, getModulesFromTypeCellCode } from "./modules";
 
 // const log = engineLogger;
 

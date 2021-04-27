@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { getModel, releaseModel } from "../../models/modelCache";
+import { getTypeCellCodeModel } from "../../models/TypeCellCodeModel";
 import { BaseResource } from "../../store/BaseResource";
 
 import { DocConnection } from "../../store/DocConnection";
@@ -46,17 +46,17 @@ export const CustomRenderer = observer((props: Props) => {
       return;
     }
 
-    const newEngine = new EngineWithOutput(rendererDocument.id);
+    const newEngine = new EngineWithOutput(rendererDocument.id, false);
     setEngine(newEngine);
 
     const cells = rendererDocument.doc.cells;
-    cells.forEach((c) => {
-      const model = getModel(c);
-      newEngine.engine.registerModel(model);
+    const models = cells.map((c) => getTypeCellCodeModel(c));
+    models.forEach((m) => {
+      newEngine.engine.registerModel(m.object);
     });
 
     return () => {
-      cells.forEach((c) => releaseModel(c));
+      models.forEach((m) => m.dispose());
       newEngine.dispose();
     };
   }, [

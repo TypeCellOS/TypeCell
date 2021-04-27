@@ -1,6 +1,6 @@
 import { observable, runInAction } from "mobx";
-import * as monaco from "monaco-editor";
 import { Engine } from "../engine";
+import { TypeCellCodeModel } from "../models/TypeCellCodeModel";
 import getExposeGlobalVariables from "./lib/exports";
 import resolveImport from "./resolver";
 
@@ -10,13 +10,15 @@ export default class EngineWithOutput {
   private disposed: boolean = false;
 
   // TODO: maybe observable map is not necessary / we can easily remove mobx dependency here
-  public readonly outputs = observable.map<monaco.editor.ITextModel, any>(
-    undefined,
-    { deep: false }
-  );
-  public readonly engine: Engine;
+  public readonly outputs = observable.map<TypeCellCodeModel, any>(undefined, {
+    deep: false,
+  });
+  public readonly engine: Engine<TypeCellCodeModel>;
   public readonly id = ENGINE_ID++;
-  constructor(private documentId: string) {
+  constructor(
+    private readonly documentId: string,
+    private readonly needsTypesInMonaco: boolean
+  ) {
     // console.log(this.id, documentId);
     this.engine = new Engine(
       (model, output) => {
@@ -29,7 +31,7 @@ export default class EngineWithOutput {
 
   private resolveImport = async (
     module: string,
-    forModel: monaco.editor.ITextModel
+    forModel: TypeCellCodeModel
   ) => {
     if (this.disposed) {
       throw new Error(
@@ -39,7 +41,12 @@ export default class EngineWithOutput {
     if (module === "typecell") {
       return { default: getExposeGlobalVariables(this.documentId) };
     }
-    const resolved = await resolveImport(module, forModel, this);
+    const resolved = await resolveImport(
+      module,
+      forModel,
+      this,
+      this.needsTypesInMonaco
+    );
     if (this.disposed) {
       resolved.dispose(); // engine has been disposed in the meantime
     }

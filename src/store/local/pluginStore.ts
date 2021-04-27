@@ -8,11 +8,11 @@ class PluginStore {
     deep: false,
   });
 
-  constructor() {
-    // makeObservable(this, {
-    //   plugins: observable.shallow,
-    // });
-  }
+  // constructor() {
+  // makeObservable(this, {
+  //   plugins: observable.shallow,
+  // });
+  // }
 
   public loadPlugin(id: string) {
     if (!this._plugins.has(id)) {

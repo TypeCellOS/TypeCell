@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /**
  * Diff Match and Patch
  * Copyright 2018 The diff-match-patch Authors.

@@ -1,9 +1,7 @@
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useMemo, useRef } from "react";
-import PluginEngine from "../../pluginEngine/PluginEngine";
+import React from "react";
 import { getEngineForPlugin } from "../../pluginEngine/pluginSystem";
 import PluginResource from "../../store/PluginResource";
-import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import NotebookCell from "../notebook/NotebookCell";
 
 type Props = {

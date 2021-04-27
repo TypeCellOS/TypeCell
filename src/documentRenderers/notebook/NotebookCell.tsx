@@ -14,7 +14,10 @@ import {
 import { MonacoBinding } from "y-monaco";
 import { Awareness } from "y-protocols/awareness";
 import { CellModel } from "../../models/CellModel";
-import { getModel, releaseModel } from "../../models/modelCache";
+import {
+  getTypeCellCodeModel,
+  TypeCellCodeModel,
+} from "../../models/TypeCellCodeModel";
 import PluginEngine from "../../pluginEngine/PluginEngine";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import Output from "./Output";
@@ -31,7 +34,7 @@ type Props = {
 
 const NotebookCell: React.FC<Props> = observer((props) => {
   const initial = useRef(true);
-  const [model, setModel] = useState<monaco.editor.ITextModel>();
+  const [model, setModel] = useState<TypeCellCodeModel>();
   const [editor, setEditor] = useState<Monaco.editor.IStandaloneCodeEditor>();
   const disposeHandlers = useRef<Array<() => void>>();
   // const [codeRef, setCodeRef] = useState<HTMLDivElement>();
@@ -92,19 +95,19 @@ const NotebookCell: React.FC<Props> = observer((props) => {
     if (!editor) {
       return;
     }
-    const newModel = getModel(props.cell);
+    const newModel = getTypeCellCodeModel(props.cell);
 
     // TODO: do we want to do this here? At least for PluginRenderer, it will register twice
     // (currently this is ignored in the engine and only logs a warning)
-    props.engine.engine.registerModel(newModel);
-
-    editor.setModel(newModel);
-    setModel(newModel);
+    props.engine.engine.registerModel(newModel.object);
+    const monacoModel = newModel.object.acquireMonacoModel();
+    editor.setModel(monacoModel);
+    setModel(newModel.object);
 
     // TODO: optimization: new MonacoBinding now calls model.setValue with same content it already has, causing listeners to fire twice
     const monacoBinding = new MonacoBinding(
       props.cell.code,
-      newModel,
+      monacoModel,
       new Set([editor]),
       props.awareness // TODO: fix reference to doc
     );
@@ -138,7 +141,9 @@ const NotebookCell: React.FC<Props> = observer((props) => {
     return () => {
       monacoBinding.destroy();
       sizeDisposer.dispose();
-      releaseModel(props.cell);
+      // releaseModel(props.cell);
+      newModel.object.releaseMonacoModel();
+      newModel.dispose();
       setModel(undefined);
     };
   }, [editor, props.cell, props.cell.code, props.engine, props.awareness]);

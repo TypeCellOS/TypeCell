@@ -1,10 +1,12 @@
 import { autorun, untracked } from "mobx";
-import * as monaco from "monaco-editor";
 import * as react from "react";
 import * as reactdnd from "react-dnd";
 import * as reactdom from "react-dom";
 import SkypackResolver from "../engine/resolvers/SkypackResolver";
-import { getModel, releaseModel } from "../models/modelCache";
+import {
+  getTypeCellCodeModel,
+  TypeCellCodeModel,
+} from "../models/TypeCellCodeModel";
 import { DocConnection } from "../store/DocConnection";
 import EngineWithOutput from "./EngineWithOutput";
 const sz = require("frontend-collective-react-dnd-scrollzone");
@@ -46,11 +48,12 @@ type ResolvedImport = {
 
 export default async function resolveImport(
   moduleName: string,
-  forModel: monaco.editor.ITextModel,
-  forEngine: EngineWithOutput
+  forModel: TypeCellCodeModel,
+  forEngine: EngineWithOutput,
+  needsTypesInMonaco: boolean
 ): Promise<ResolvedImport> {
   if (moduleName.startsWith("!@")) {
-    const key = [forEngine.id, forModel.uri.toString(), moduleName].join("$$");
+    const key = [forEngine.id, forModel.path, moduleName].join("$$");
 
     const cached = cache.get(key);
     if (cached) {
@@ -66,7 +69,7 @@ export default async function resolveImport(
     // (i.e.: don't allow import "@YousefED/hello world", but "@yousefed/hello-world") for consistency
     const doc = DocConnection.load(owner + "/" + document);
 
-    const engine = new EngineWithOutput(doc.id);
+    const engine = new EngineWithOutput(doc.id, needsTypesInMonaco);
 
     let releasePreviousModels = () => {};
     // TODO: refactor, and releaseModel()
@@ -78,14 +81,22 @@ export default async function resolveImport(
       untracked(() => {
         // untracked, because getModel accesses observable data in the cell (code.tostring)
         releasePreviousModels();
-        cells.forEach((c) => {
-          const model = getModel(c);
-          engine.engine.registerModel(model);
+        const models = cells.map((c) => getTypeCellCodeModel(c));
+        models.forEach((m) => {
+          if (needsTypesInMonaco) {
+            m.object.acquireMonacoModel();
+          }
+          engine.engine.registerModel(m.object);
         });
+        releasePreviousModels = () => {
+          models.forEach((m) => {
+            if (needsTypesInMonaco) {
+              m.object.releaseMonacoModel();
+            }
+            m.dispose();
+          });
+        };
       });
-      releasePreviousModels = () => {
-        cells.forEach((c) => releaseModel(c));
-      };
     });
 
     let disposed = false;

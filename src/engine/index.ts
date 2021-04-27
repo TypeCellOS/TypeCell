@@ -1,36 +1,7 @@
-import * as monaco from "monaco-editor";
-// import { hash } from "../util/hash";
+import { CodeModel } from "./CodeModel";
 import { createCellEvaluator } from "./CellEvaluator";
 import { createContext, TypeCellContext } from "./context";
-import { getCompiledCode } from "./monacoHelpers";
-
-let mainWorker: (
-  ...uris: monaco.Uri[]
-) => Promise<monaco.languages.typescript.TypeScriptWorker | undefined>;
-
-let initialPromise: Promise<void> | undefined;
-// for performance: don't fire all compilations immediately. Compile once first, so we can use recompilation results
-// TODO: verify performance improvement
-function awaitFirst<T extends Function>(func: T): T {
-  return (async function () {
-    // @ts-ignore
-    let args = arguments;
-    if (initialPromise) {
-      await initialPromise;
-      return func.apply(null, args);
-    }
-
-    initialPromise = new Promise<void>(async (resolve) => {
-      try {
-        const ret = await func.apply(null, args);
-        return ret;
-      } finally {
-        resolve();
-      }
-    });
-    return initialPromise;
-  } as any) as T;
-}
+import { compile } from "./compilers/MonacoCompiler";
 
 /**
  * The engine automatically runs models registered to it.
@@ -40,14 +11,14 @@ function awaitFirst<T extends Function>(func: T): T {
  * @export
  * @class Engine
  */
-export class Engine {
+export class Engine<T extends CodeModel> {
   private disposed = false;
   private disposers: Array<() => void> = [];
   public readonly observableContext = createContext({} as any);
-  private readonly registeredModels = new Set<monaco.editor.ITextModel>();
+  private readonly registeredModels = new Set<T>();
 
   private readonly evaluatorCache = new Map<
-    monaco.editor.ITextModel,
+    T,
     ReturnType<typeof createCellEvaluator>
   >();
   /**
@@ -57,12 +28,9 @@ export class Engine {
    * @param resolveImport Function (resolver) to resolve imports
    */
   constructor(
-    private onOutput: (model: monaco.editor.ITextModel, output: any) => void,
-    private beforeExecuting: (model: monaco.editor.ITextModel) => void,
-    private resolveImport: (
-      module: string,
-      forModel: monaco.editor.ITextModel
-    ) => Promise<any>
+    private onOutput: (model: T, output: any) => void,
+    private beforeExecuting: (model: T) => void,
+    private resolveImport: (module: string, forModel: T) => Promise<any>
   ) {}
 
   /**
@@ -71,7 +39,7 @@ export class Engine {
    * When the model is disposed (model.dispose()), the model is automatically unregistered.
    * @param model model to register
    */
-  public registerModel(model: monaco.editor.ITextModel) {
+  public registerModel(model: T) {
     if (this.disposed) {
       throw new Error("registering model on disposed engine");
     }
@@ -81,7 +49,7 @@ export class Engine {
     }
     this.registeredModels.add(model);
     const evaluate = () => {
-      this.evaluateUpdateSingleInitial(
+      this.evaluateUpdate(
         model,
         this.observableContext,
         (moduleName: string) => this.resolveImport(moduleName, model),
@@ -128,20 +96,12 @@ export class Engine {
     this.evaluatorCache.forEach((e) => e.dispose());
   }
 
-  private evaluateUpdateSingleInitial = awaitFirst(
-    this.evaluateUpdate.bind(this)
-  );
-
   private async evaluateUpdate(
-    model: monaco.editor.ITextModel,
+    model: T,
     typecellContext: TypeCellContext,
     resolveImport: (module: string) => Promise<any>,
-    onOutput: (model: monaco.editor.ITextModel, output: any) => void
+    onOutput: (model: T, output: any) => void
   ) {
-    if (!mainWorker) {
-      mainWorker = await monaco.languages.typescript.getTypeScriptWorker();
-    }
-
     if (!this.evaluatorCache.has(model)) {
       this.evaluatorCache.set(
         model,
@@ -155,18 +115,7 @@ export class Engine {
       );
     }
     const evaluator = this.evaluatorCache.get(model)!;
-
-    // const tscode = model.getValue();
-    // const hsh = hash(tscode) + "";
-    // const cached = localStorage.getItem(hsh);
-    // if (cached) {
-    //   await evaluator.evaluate(cached);
-    // } else {
-    //   console.log(model.uri, model.getValue());
-    let code = (await getCompiledCode(mainWorker, model.uri)).firstJSCode;
-
-    //   localStorage.setItem(hsh, code);
+    let code = await compile(model);
     await evaluator.evaluate(code);
-    // }
   }
 }

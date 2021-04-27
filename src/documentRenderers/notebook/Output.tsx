@@ -1,13 +1,13 @@
 import { ObservableMap, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import * as monaco from "monaco-editor";
 import React, { useRef } from "react";
 import ObjectInspector from "react-inspector";
+import { TypeCellCodeModel } from "../../models/TypeCellCodeModel";
 import RetryErrorBoundary from "./RetryErrorBoundary";
 
 type Props = {
-  model: monaco.editor.ITextModel;
-  outputs: ObservableMap<monaco.editor.ITextModel, any>;
+  model: TypeCellCodeModel;
+  outputs: ObservableMap<TypeCellCodeModel, any>;
 };
 
 // TODO: later maybe also use https://github.com/samdenty/console-feed to capture console messages
