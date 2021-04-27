@@ -37,17 +37,49 @@ function awaitFirst<T extends Function>(func: T): T {
   } as any) as T;
 }
 
-const ENABLE_CACHE = false;
+// TODO: LRU cache or similar
+const ENABLE_CACHE = true;
+
+function saveCachedItem(
+  model: CodeModel,
+  item: { hash: string; compiledCode: string }
+) {
+  const key = "cc-" + model.path;
+  localStorage.setItem(key, JSON.stringify(item));
+}
+
+function getCachedItem(model: CodeModel) {
+  const key = "cc-" + model.path;
+  const cached = localStorage.getItem(key);
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (parsed.hash && parsed.compiledCode) {
+        return parsed as {
+          hash: string;
+          compiledCode: string;
+        };
+      } else {
+        // invalid
+        localStorage.removeItem(key);
+      }
+    } catch (e) {
+      // invalid
+      localStorage.removeItem(key);
+    }
+  }
+  return undefined;
+}
 
 async function _compile(model: CodeModel) {
   const tscode = model.getValue();
   const hsh = hash(tscode) + "";
 
   if (ENABLE_CACHE) {
-    const cached = localStorage.getItem(hsh);
-    if (cached) {
+    const cached = getCachedItem(model);
+    if (cached && cached.hash === hsh) {
       console.log("cache hit", model.path);
-      return cached;
+      return cached.compiledCode;
     }
   }
 
@@ -59,12 +91,12 @@ async function _compile(model: CodeModel) {
     mainWorker = await monaco.languages.typescript.getTypeScriptWorker();
   }
 
-  let code = (await getCompiledCode(mainWorker, mm.uri)).firstJSCode;
+  let compiledCode = (await getCompiledCode(mainWorker, mm.uri)).firstJSCode;
   m.releaseMonacoModel();
   if (ENABLE_CACHE) {
-    localStorage.setItem(hsh, code);
+    saveCachedItem(model, { hash: hsh, compiledCode });
   }
-  return code;
+  return compiledCode;
 }
 
 export const compile = awaitFirst(_compile);
