@@ -1,17 +1,17 @@
-
 let paths = typecell.routing();
 
 export let owner = paths.owner;
-export let document = paths.document === "renderer" ? "home" : paths.document;
+export let document = paths.document;
 
 if (paths.remainingParts.length === 1) {
-  document = paths.remainingParts[0]
+  document = paths.remainingParts[0];
 }
 
 if (paths.remainingParts.length > 1) {
   owner = paths.remainingParts[0];
   document = paths.remainingParts[1];
 }
+
 
 
 

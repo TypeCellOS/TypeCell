@@ -155,7 +155,7 @@ export class BaseResource {
     // const ref = new Ref(definition, targetId);
 
     const key = getHashForReference(definition, targetId);
-    let existing = this.getRef(definition, key);
+    let existing = this.getRef(definition, key); // TODO: this doesn't work distributed + reverseDoc?, because maybe this document isn't synced
     if (existing) {
       // The document already has this relationship
       if (existing.target !== targetId) {
