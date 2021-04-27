@@ -17,8 +17,6 @@ export function enablePluginSystem() {
   autorun(() => {
     runningPlugins.forEach((engine, plugin) => {
       if (!pluginStore.plugins.has(plugin)) {
-        // dispose
-        // releaseModel(plugin.pluginCell); TODO
         engine.dispose();
         runningPlugins.delete(plugin);
       }

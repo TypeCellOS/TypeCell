@@ -80,7 +80,7 @@ function getTreeForDoc(doc) {
       children.push(getTreeForDoc(child));
     }
   }
-  // TODO: don't observable react elements
+  
   return {
     title: <a href="" onClick={(e) => { e.preventDefault(); $.selected = doc.id }}>{doc.id}</a>,
     children,

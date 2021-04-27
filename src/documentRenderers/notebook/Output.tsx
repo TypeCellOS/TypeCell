@@ -13,7 +13,7 @@ type Props = {
 // TODO: later maybe also use https://github.com/samdenty/console-feed to capture console messages
 
 const Output: React.FC<Props> = observer((props) => {
-  let output = props.outputs.get(props.model); // TODO: use context instead of circular reference
+  let output = props.outputs.get(props.model);
 
   let outputJS: any;
   let mainKey: string | undefined = undefined;
