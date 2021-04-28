@@ -38,7 +38,7 @@ export class TypeChecker extends Disposable {
     visualizers: Map<string, TypeVisualizer<any>>
   ) {
     if (visualizers.size === 0) {
-      return [];
+      return [] as string[];
     }
     let visualizerEntries = Array.from(visualizers.entries());
 

@@ -2,6 +2,7 @@ import { autorun, makeObservable, observable, runInAction } from "mobx";
 import { TypeCellCodeModel } from "../models/TypeCellCodeModel";
 import { Disposable } from "../util/vscode-common/lifecycle";
 import EngineWithOutput from "./EngineWithOutput";
+import { TypeVisualizer } from "./lib/exports";
 
 export class ModelOutput extends Disposable {
   private autorunDisposer: (() => void) | undefined;
@@ -35,12 +36,14 @@ export class ModelOutput extends Disposable {
       );
       runInAction(() => {
         this.value = newValue;
-        this.typeVisualizers = visualizers;
+        this.typeVisualizers = visualizers.map(
+          (v) => this.engine.availableVisualizers.get(v)!
+        );
       });
     });
   }
   value: any;
-  typeVisualizers: any;
+  typeVisualizers: TypeVisualizer<any>[] = [];
 
   public dispose() {
     if (this.autorunDisposer) {
