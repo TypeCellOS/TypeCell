@@ -12,6 +12,20 @@ type Props = {
 
 // TODO: later maybe also use https://github.com/samdenty/console-feed to capture console messages
 
+/* Performance / debugging note: this is triggered twice when a cell changes:
+    - one time because the output of the cell changes after re-running
+    - one time because the variable on the context has been modified
+
+  It will only trigger once when modifying output from another cell ($.outputOtherCell = 3).
+
+  Double render should have neglegible perf impact, so ok for now */
+
+/**
+ * The Output component renders the output of a code cell:
+ * - DOM elements are rendered directly
+ * - React elements are rendered directly
+ * - All other values are rendered using ObjectInspector
+ */
 const Output: React.FC<Props> = observer((props) => {
   let output = props.outputs.get(props.model);
 
@@ -19,6 +33,12 @@ const Output: React.FC<Props> = observer((props) => {
   let mainKey: string | undefined = undefined;
   let mainExport: any;
   if (output) {
+    /*
+    Find the main export to visualize:
+    - default if there is a default export
+    - else, the single export if there is only one named export
+    - else, the object with all exports
+    */
     outputJS = Object.fromEntries(
       Object.getOwnPropertyNames(output).map((key) => [key, toJS(output[key])])
     );
