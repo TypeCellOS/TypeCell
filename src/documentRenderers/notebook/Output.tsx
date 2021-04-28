@@ -140,8 +140,7 @@ const Output: React.FC<Props> = observer((props) => {
           <div>
             <button
               title="default"
-              className={!selectedVisualizer ? "active" : ""}
-              style={btnStyle}
+              style={!selectedVisualizer ? btnStyleActive : btnStyle}
               onClick={() => {
                 setSelectedVisualizer(undefined);
               }}>
@@ -156,7 +155,11 @@ const Output: React.FC<Props> = observer((props) => {
                     ? "active"
                     : ""
                 }
-                style={btnStyle}
+                style={
+                  tv.visualizer.name === selectedVisualizer?.visualizer.name
+                    ? btnStyleActive
+                    : btnStyle
+                }
                 onClick={() => {
                   setSelectedVisualizer(tv);
                 }}>
@@ -181,6 +184,12 @@ const btnStyle = {
   position: "relative" as "relative",
   bottom: -10,
   left: -10,
+  background: "none",
+};
+
+const btnStyleActive = {
+  ...btnStyle,
+  textDecoration: "underline" as "underline",
 };
 
 export default Output;
