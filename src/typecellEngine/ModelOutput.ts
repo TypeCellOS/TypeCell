@@ -1,20 +1,15 @@
-import {
-  autorun,
-  computed,
-  makeObservable,
-  observable,
-  reaction,
-  runInAction,
-} from "mobx";
+import { autorun, makeObservable, observable, runInAction } from "mobx";
 import { TypeCellCodeModel } from "../models/TypeCellCodeModel";
+import { Disposable } from "../util/vscode-common/lifecycle";
 import EngineWithOutput from "./EngineWithOutput";
 
-export class ModelOutput {
+export class ModelOutput extends Disposable {
   private autorunDisposer: (() => void) | undefined;
   constructor(
     private model: TypeCellCodeModel,
     private engine: EngineWithOutput
   ) {
+    super();
     makeObservable(this, {
       typeVisualizers: observable.ref,
       value: observable.ref,
@@ -25,15 +20,20 @@ export class ModelOutput {
     if (this.autorunDisposer) {
       this.autorunDisposer();
     }
-    console.log("updateValue");
-    // const val = value;
+    const tc = this.engine.typechecker;
+    if (!tc) {
+      runInAction(() => {
+        this.value = newValue;
+        this.typeVisualizers = [];
+      });
+      return;
+    }
     this.autorunDisposer = autorun(async () => {
-      const visualizers = await this.engine.typechecker.findMatchingVisualizers(
+      const visualizers = await tc.findMatchingVisualizers(
         this.model,
         this.engine.availableVisualizers
       );
       runInAction(() => {
-        console.log("set");
         this.value = newValue;
         this.typeVisualizers = visualizers;
       });
@@ -41,4 +41,11 @@ export class ModelOutput {
   }
   value: any;
   typeVisualizers: any;
+
+  public dispose() {
+    if (this.autorunDisposer) {
+      this.autorunDisposer();
+    }
+    super.dispose();
+  }
 }

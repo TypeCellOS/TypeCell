@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useRef } from "react";
 import { VscDiffAdded } from "react-icons/vsc";
 import { DocumentResource } from "../../store/DocumentResource";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
-import { TypeChecker } from "../../typecellEngine/TypeChecker";
 import CellListDraggableCell from "./CellListDraggableCell";
 import NotebookCell from "./NotebookCell";
 

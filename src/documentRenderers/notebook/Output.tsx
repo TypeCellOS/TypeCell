@@ -1,4 +1,4 @@
-import { ObservableMap, toJS, trace } from "mobx";
+import { ObservableMap, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import React, { useRef } from "react";
 import ObjectInspector from "react-inspector";
@@ -14,7 +14,6 @@ type Props = {
 // TODO: later maybe also use https://github.com/samdenty/console-feed to capture console messages
 
 const Output: React.FC<Props> = observer((props) => {
-  trace();
   const modelOutput = props.outputs.get(props.model);
   let output = modelOutput?.value;
 

@@ -1,33 +1,36 @@
 import * as monaco from "monaco-editor";
-import { getCompiledCode } from "../engine/compilers/monacoHelpers";
 import { TypeCellCodeModel } from "../models/TypeCellCodeModel";
 import { Sequencer } from "../util/vscode-common/async";
+import { Disposable } from "../util/vscode-common/lifecycle";
 import { TypeVisualizer } from "./lib/exports";
-
-// TODO: add as local file instead of declare module?
-// monaco.languages.typescript.typescriptDefaults.addExtraLib(
-//   "declare module 'ts-transformer-enumerate' { export function enumerate<T extends string>(): { [K in T]: K }; }",
-//   "transformers/ts-transformer-enumerate.d.ts"
-// );
 
 type WorkerType = (
   ...uris: monaco.Uri[]
 ) => Promise<monaco.languages.typescript.TypeScriptWorker | undefined>;
 
-export class TypeChecker {
+export class TypeChecker extends Disposable {
   private worker: WorkerType | undefined;
   private readonly model: monaco.editor.ITextModel;
   private queue = new Sequencer();
 
-  constructor(private readonly documentId: string) {
+  constructor(
+    private readonly engineId: string,
+    private readonly documentId: string
+  ) {
+    super();
     const uri = monaco.Uri.file(
-      `/typecell/typechecker/${documentId}/typechecker.ts`
+      `/typecell/typechecker/${documentId}/typechecker${engineId}.ts`
     );
 
     this.model = monaco.editor.getModel(uri)!;
-    if (!this.model) {
-      this.model = monaco.editor.createModel("", "typescript", uri);
+
+    if (this.model) {
+      throw new Error("unexpected, TypeChecker model already exists");
     }
+
+    this.model = this._register(
+      monaco.editor.createModel("", "typescript", uri)
+    );
   }
 
   public findMatchingVisualizers(
@@ -65,50 +68,41 @@ export class TypeChecker {
 
     type arg0Type<T> = T extends (arg0: infer R, ...args: any[]) => void ? R : any;
   
-                type truePropertyNames<T> = {
-                  [K in keyof T]: T[K] extends never ? never : K;
-                }[keyof T];
-  
-                export type matchingPlugins<PluginsType, ObjectType> = any extends ObjectType
-                  ? never
-                  : truePropertyNames<{ [K in keyof PluginsType]: ObjectType extends arg0Type<PluginsType[K]> ? true : never }>;
-  
-  
-                type RequireOnlyOne<T> = {
-                  [K in keyof T]: { type: T[K]; exclude: Exclude<keyof T, K> };
-                } extends {
-                  [K in keyof T]: { type: infer R; exclude: never };
-                }
-                  ? R
-                  : never;
-                
-                  // mainExportType.d.tsx
-                export type mainExportType<T> = T extends {
-                  default: infer R;
-                }
-                  ? R
-                  : RequireOnlyOne<T> extends never
-                  ? T
-                  : RequireOnlyOne<T>;
-                  
+    type truePropertyNames<T> = {
+      [K in keyof T]: T[K] extends never ? never : K;
+    }[keyof T];
 
-                  export let plugins = {
-                    ${plugins}
-                  };
+    type matchingPlugins<PluginsType, ObjectType> = any extends ObjectType
+      ? never
+      : truePropertyNames<{ [K in keyof PluginsType]: ObjectType extends arg0Type<PluginsType[K]> ? true : never }>;
 
 
-                 
-                  // import { enumerate } from "ts-transformer-enumerate";
-                  // export { mod };
-                  type mainExportTypeModule = mainExportType<typeof mod>;
-                  type pluginsPossible = matchingPlugins<typeof plugins, mainExportTypeModule>;
-                  
-                  // export default Object.keys(enumerate<pluginsPossible>()));
+    type RequireOnlyOne<T> = {
+      [K in keyof T]: { type: T[K]; exclude: Exclude<keyof T, K> };
+    } extends {
+      [K in keyof T]: { type: infer R; exclude: never };
+    }
+      ? R
+      : never;
+    
+    // mainExportType.d.tsx
+    type mainExportType<T> = T extends {
+      default: infer R;
+    }
+      ? R
+      : RequireOnlyOne<T> extends never
+      ? T
+      : RequireOnlyOne<T>;
+      
+      let plugins = {
+        ${plugins}
+      };
 
-                  // let x: pluginsPossible = {} as any;
+      type mainExportTypeModule = mainExportType<typeof mod>;
+      type pluginsPossible = matchingPlugins<typeof plugins, mainExportTypeModule>;
 
-                  let filteredPlugins: Pick<typeof plugins, pluginsPossible> = {} as any;
-                  filteredPlugins.`;
+      let filteredPlugins: Pick<typeof plugins, pluginsPossible> = {} as any;
+      filteredPlugins.`;
 
     this.model.setValue(code);
 
