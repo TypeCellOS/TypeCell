@@ -1,6 +1,7 @@
 import * as monaco from "monaco-editor";
 import { getCompiledCode } from "../engine/compilers/monacoHelpers";
 import { TypeCellCodeModel } from "../models/TypeCellCodeModel";
+import { Sequencer } from "../util/vscode-common/async";
 import { TypeVisualizer } from "./lib/exports";
 
 // TODO: add as local file instead of declare module?
@@ -9,12 +10,18 @@ import { TypeVisualizer } from "./lib/exports";
 //   "transformers/ts-transformer-enumerate.d.ts"
 // );
 
+type WorkerType = (
+  ...uris: monaco.Uri[]
+) => Promise<monaco.languages.typescript.TypeScriptWorker | undefined>;
+
 export class TypeChecker {
+  private worker: WorkerType | undefined;
   private readonly model: monaco.editor.ITextModel;
+  private queue = new Sequencer();
+
   constructor(private readonly documentId: string) {
     const uri = monaco.Uri.file(
-      // `/typecell/typechecker/${documentId}/typechecker.ts`
-      `/typechecker.ts`
+      `/typecell/typechecker/${documentId}/typechecker.ts`
     );
 
     this.model = monaco.editor.getModel(uri)!;
@@ -23,27 +30,38 @@ export class TypeChecker {
     }
   }
 
-  public async findMatchingVisualizers(
+  public findMatchingVisualizers(
     module: TypeCellCodeModel,
     visualizers: Map<string, TypeVisualizer<any>>
   ) {
-    let keys = Array.from(visualizers.entries());
+    if (visualizers.size === 0) {
+      return [];
+    }
+    let visualizerEntries = Array.from(visualizers.entries());
 
-    let imports = keys
+    return this.queue.queue(() =>
+      this._findMatchingVisualizers(module, visualizerEntries)
+    );
+  }
+
+  private async _findMatchingVisualizers(
+    module: TypeCellCodeModel,
+    visualizerKeys: Array<[string, TypeVisualizer<any>]>
+  ) {
+    let imports = visualizerKeys
       .map((key) => `import { ${key[0]} } from "!${this.documentId}";`)
       .join("\n");
 
-    let plugins = keys
+    let plugins = visualizerKeys
       .map((key) => `${key[0]}: ${key[0]}.visualizer.function`)
       .join(",\n");
 
-    const otherUri = monaco.Uri.file(
-      module.path
-      // `/!${this.documentId}/0.2912850723158924.cell`
-    );
+    const otherUri = monaco.Uri.file(module.path);
     const uristring = otherUri.toString().replace(/(\.ts|\.tsx)$/, "");
     const code = `
     ${imports}
+
+    import * as mod from "${uristring}";
 
     type arg0Type<T> = T extends (arg0: infer R, ...args: any[]) => void ? R : any;
   
@@ -79,8 +97,6 @@ export class TypeChecker {
                   };
 
 
-                  import * as mod from "${uristring}";
-
                  
                   // import { enumerate } from "ts-transformer-enumerate";
                   // export { mod };
@@ -96,11 +112,19 @@ export class TypeChecker {
 
     this.model.setValue(code);
 
-    let mainWorker = await monaco.languages.typescript.getTypeScriptWorker();
+    if (!this.worker) {
+      this.worker = await monaco.languages.typescript.getTypeScriptWorker();
+    }
 
-    // this.model.getWordAtPosition(code.length - 1);
-    let x = await mainWorker(this.model.uri);
-    const completions = await x.getCompletionsAtPosition(
+    let ts = (await this.worker(this.model.uri))!;
+
+    // (await ts.getSyntacticDiagnostics(this.model.uri.toString())).forEach(
+    //   (d) => {
+    //     console.log(d.messageText);
+    //   }
+    // );
+
+    const completions = await ts.getCompletionsAtPosition(
       this.model.uri.toString(),
       this.model.getValue().length
     );
@@ -116,7 +140,8 @@ export class TypeChecker {
     const pluginNames = completions.entries.map(
       (entry: any) => entry.name
     ) as string[];
-    // TODO: sanity check
+
+    // TODO: sanity check, does entry occur in visualizers
 
     return pluginNames;
   }

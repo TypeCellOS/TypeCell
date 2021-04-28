@@ -35,7 +35,6 @@ const Output: React.FC<Props> = observer((props) => {
   } else {
     output = outputJS = "unevaluated";
   }
-  console.log(modelOutput?.typeVisualizers);
   const htmlElementKey = useRef(0);
   try {
     if (mainKey) {
