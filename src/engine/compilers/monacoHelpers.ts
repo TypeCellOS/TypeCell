@@ -1,6 +1,9 @@
-import { Uri } from "monaco-editor";
+import * as monaco from "monaco-editor";
 
-async function getCompiledCodeInternal(process: any, uri: Uri) {
+async function getCompiledCodeInternal(
+  process: monaco.languages.typescript.TypeScriptWorker,
+  uri: monaco.Uri
+) {
   const result = await process.getEmitOutput(uri.toString());
 
   const firstJS = result.outputFiles.find(
@@ -13,13 +16,12 @@ async function getCompiledCodeInternal(process: any, uri: Uri) {
   );
   const firstDTSCode = (firstDTS && firstDTS.text) || "";
 
-  // const ff = await process.getScriptFileNames();
+  // const ff = await process.getSemanticDiagnostics(uri.toString());
 
-  // ff.forEach(async (sf: any) => {
-  //   const dd = await process.getSemanticDiagnostics(sf);
+  // console.log("\n\n DIAGNOSTICS FOR " + uri.toString());
 
-  //   console.log("\n\n DIAGNOSTICS FOR " + sf);
-  //   console.log(dd.map((d: any) => d.messageText));
+  // ff.forEach((diag) => {
+  //   console.log(diag.messageText);
   // });
 
   return {
@@ -28,10 +30,13 @@ async function getCompiledCodeInternal(process: any, uri: Uri) {
   };
 }
 
-export async function getCompiledCode(worker: any, uri: Uri) {
-  const process = await worker(uri);
-  const uriCode = await getCompiledCodeInternal(process, uri);
+export type WorkerType = (
+  ...uris: monaco.Uri[]
+) => Promise<monaco.languages.typescript.TypeScriptWorker | undefined>;
 
+export async function getCompiledCode(worker: WorkerType, uri: monaco.Uri) {
+  const process = (await worker(uri))!;
+  const uriCode = await getCompiledCodeInternal(process, uri);
   /*
         "define(["require", "exports"], function (require, exports) {
         "use strict";

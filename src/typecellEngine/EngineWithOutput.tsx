@@ -1,8 +1,17 @@
-import { observable, runInAction } from "mobx";
+import {
+  autorun,
+  computed,
+  makeObservable,
+  observable,
+  ObservableMap,
+  runInAction,
+} from "mobx";
 import { Engine } from "../engine";
 import { TypeCellCodeModel } from "../models/TypeCellCodeModel";
-import getExposeGlobalVariables from "./lib/exports";
+import getExposeGlobalVariables, { TypeVisualizer } from "./lib/exports";
+import { ModelOutput } from "./ModelOutput";
 import resolveImport from "./resolver";
+import { TypeChecker } from "./TypeChecker";
 
 let ENGINE_ID = 0;
 export default class EngineWithOutput {
@@ -10,23 +19,67 @@ export default class EngineWithOutput {
   private disposed: boolean = false;
 
   // TODO: maybe observable map is not necessary / we can easily remove mobx dependency here
-  public readonly outputs = observable.map<TypeCellCodeModel, any>(undefined, {
-    deep: false,
-  });
+  public readonly outputs = observable.map<TypeCellCodeModel, ModelOutput>(
+    undefined,
+    {
+      deep: false,
+    }
+  );
+
+  public readonly availableVisualizers = new ObservableMap<
+    string,
+    TypeVisualizer<any>
+  >();
   public readonly engine: Engine<TypeCellCodeModel>;
   public readonly id = ENGINE_ID++;
+  // private preRunDisposers = new Map<TypeCellCodeModel, Array<() => void>>();
+  public readonly typechecker: TypeChecker;
   constructor(
     private readonly documentId: string,
     private readonly needsTypesInMonaco: boolean
   ) {
+    this.typechecker = new TypeChecker(documentId);
     // console.log(this.id, documentId);
     this.engine = new Engine(
       (model, output) => {
-        runInAction(() => this.outputs.set(model, output));
+        let modelOutput = this.outputs.get(model);
+        if (!modelOutput) {
+          modelOutput = new ModelOutput(model, this);
+          this.outputs.set(model, modelOutput);
+        }
+        modelOutput.updateValue(output);
       },
-      () => {},
+      (model) => {
+        // this.preRunDisposers.get(model)?.forEach((d) => d());
+        // this.preRunDisposers.set(model, []);
+      },
       this.resolveImport
     );
+
+    const dispose = autorun(() => {
+      const toSet: string[] = [];
+      const toDelete: string[] = [];
+      const ctx = this.engine.observableContext.context;
+      for (let obj in ctx) {
+        if (ctx[obj] instanceof TypeVisualizer) {
+          toSet.push(obj);
+        }
+      }
+      this.availableVisualizers.forEach((el, key) => {
+        if (!ctx[key]) {
+          toDelete.push(key);
+        }
+      });
+      runInAction(() => {
+        toSet.forEach((key) => {
+          this.availableVisualizers.set(key, ctx[key]);
+        });
+        toDelete.forEach((key) => {
+          this.availableVisualizers.delete(key);
+        });
+      });
+    });
+    this.disposers.add(dispose);
   }
 
   private resolveImport = async (
@@ -39,7 +92,9 @@ export default class EngineWithOutput {
       );
     }
     if (module === "typecell") {
-      return { default: getExposeGlobalVariables(this.documentId) };
+      return {
+        default: getExposeGlobalVariables(this.documentId),
+      };
     }
     const resolved = await resolveImport(
       module,

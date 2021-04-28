@@ -1,4 +1,4 @@
-import { untracked } from "mobx";
+import { autorun, untracked } from "mobx";
 import { observer } from "mobx-react-lite";
 // import useCellModel from "./useCellModel.ts.bak";
 import type * as Monaco from "monaco-editor";

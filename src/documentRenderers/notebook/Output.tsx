@@ -1,19 +1,22 @@
-import { ObservableMap, toJS } from "mobx";
+import { ObservableMap, toJS, trace } from "mobx";
 import { observer } from "mobx-react-lite";
 import React, { useRef } from "react";
 import ObjectInspector from "react-inspector";
 import { TypeCellCodeModel } from "../../models/TypeCellCodeModel";
+import { ModelOutput } from "../../typecellEngine/ModelOutput";
 import RetryErrorBoundary from "./RetryErrorBoundary";
 
 type Props = {
   model: TypeCellCodeModel;
-  outputs: ObservableMap<TypeCellCodeModel, any>;
+  outputs: ObservableMap<TypeCellCodeModel, ModelOutput>;
 };
 
 // TODO: later maybe also use https://github.com/samdenty/console-feed to capture console messages
 
 const Output: React.FC<Props> = observer((props) => {
-  let output = props.outputs.get(props.model);
+  trace();
+  const modelOutput = props.outputs.get(props.model);
+  let output = modelOutput?.value;
 
   let outputJS: any;
   let mainKey: string | undefined = undefined;
@@ -32,7 +35,7 @@ const Output: React.FC<Props> = observer((props) => {
   } else {
     output = outputJS = "unevaluated";
   }
-
+  console.log(modelOutput?.typeVisualizers);
   const htmlElementKey = useRef(0);
   try {
     if (mainKey) {
