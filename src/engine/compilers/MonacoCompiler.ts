@@ -2,13 +2,11 @@ import * as monaco from "monaco-editor";
 import { TypeCellCodeModel } from "../../models/TypeCellCodeModel";
 import { hash } from "../../util/hash";
 import { CodeModel } from "../CodeModel";
-import { getCompiledCode } from "./monacoHelpers";
+import { getCompiledCode, WorkerType } from "./monacoHelpers";
 
 // TODO: this should be moved outside of the /engine directory, and passed in externally
 // because we don't need a reference to Monaco or to SharedModel in the /engine code.
-let mainWorker: (
-  ...uris: monaco.Uri[]
-) => Promise<monaco.languages.typescript.TypeScriptWorker | undefined>;
+let mainWorker: WorkerType;
 
 let initialPromise: Promise<void> | undefined;
 

@@ -22,6 +22,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
     disposer.current = () => {
       newEngine.dispose();
     };
+
     return newEngine;
   }, [props.document.id]);
 

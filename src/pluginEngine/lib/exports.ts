@@ -1,15 +1,13 @@
 import { runtimeStore } from "../../store/local/runtimeStore";
+import { isFalsyOrWhitespace } from "../../util/vscode-common/strings";
 
-function checkNotEmptyString(val: string) {
-  return val && typeof val === "string";
-}
 export default function getExposeGlobalVariables(
   id: string,
   addDispose: (disposer: () => void) => void
 ) {
   return {
     registerType: (type: { id: string; name: string }) => {
-      if (!checkNotEmptyString(type.id) || !checkNotEmptyString(type.name)) {
+      if (isFalsyOrWhitespace(type.id) || isFalsyOrWhitespace(type.name)) {
         throw new Error("invalid args");
       }
       runtimeStore.resourceTypes.add(type);
@@ -23,9 +21,9 @@ export default function getExposeGlobalVariables(
       variable: string;
     }) => {
       if (
-        !checkNotEmptyString(renderer.type) ||
-        !checkNotEmptyString(renderer.rendererId) ||
-        !checkNotEmptyString(renderer.variable) ||
+        isFalsyOrWhitespace(renderer.type) ||
+        isFalsyOrWhitespace(renderer.rendererId) ||
+        isFalsyOrWhitespace(renderer.variable) ||
         !renderer.rendererId.startsWith("@") // TODO
       ) {
         throw new Error("invalid args");
