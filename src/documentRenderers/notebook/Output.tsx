@@ -120,14 +120,16 @@ const Output: React.FC<Props> = observer((props) => {
   } else {
     output = outputJS = "unevaluated";
   }
-  if (visualizer) {
-    if (mainKey) {
-      mainExport = visualizer.visualizer.function(mainExport);
-    } else {
-      outputJS = visualizer.visualizer.function(outputJS);
-    }
-  }
+
   try {
+    if (visualizer) {
+      if (mainKey) {
+        mainExport = visualizer.visualizer.function(mainExport);
+      } else {
+        outputJS = visualizer.visualizer.function(outputJS);
+      }
+    }
+
     return (
       <>
         <DefaultVisualizer
