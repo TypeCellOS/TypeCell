@@ -28,7 +28,7 @@ const RichText: React.FC<Props> = observer((props) => {
       }),
       TypeCellNode,
     ],
-    // content: '<p>Hello World! 🌎️</p><react-component></react-component>',
+    content: "This text is in a TipTap editor, feel free to change it. Live collaboration is also enabled.",
   });
 
   return (
