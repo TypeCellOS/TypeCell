@@ -37,9 +37,11 @@ const RichText: React.FC<Props> = observer((props) => {
     return (
       <div style={{ maxWidth: 600, margin: "0 auto" }}>
         {InlineMenu(editor)}
+        <EditorContent editor={editor} />
       </div>
     );
   }
+
   return (
     <div style={{ maxWidth: 600, margin: "0 auto" }}>
       <EditorContent editor={editor} />
