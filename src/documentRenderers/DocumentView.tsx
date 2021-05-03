@@ -8,7 +8,7 @@ import CreateDocumentView from "./CreateDocumentView";
 import { CustomRenderer } from "./custom/CustomRenderer";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
-import RichTextRenderer from "./richtext";
+import RichTextRenderer from "./richtext/RichTextRenderer"
 
 type Props = {
   owner: string;

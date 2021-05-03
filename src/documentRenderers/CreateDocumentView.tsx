@@ -18,6 +18,10 @@ const CreateDocumentView = observer((props: Props) => {
     props.resource.create("!plugin");
   }
 
+  function createRichText() {
+    props.resource.create("!richtext");
+  }
+
   function createCustom(resourceType: ResourceType) {
     // TODO: add a plugin Ref to the document, and add support for DocumentPlugins
     props.resource.create(resourceType.id);
@@ -27,6 +31,7 @@ const CreateDocumentView = observer((props: Props) => {
     <div className={styles.container}>
       <button onClick={createNotebook}>Create new document</button>
       <button onClick={createPlugin}>Create new plugin</button>
+      <button onClick={createRichText}>Create new rich text editor</button>
       {values(runtimeStore.resourceTypes).map((type) => (
         <button key={type.name} onClick={() => createCustom(type)}>
           Create new {type.name}
