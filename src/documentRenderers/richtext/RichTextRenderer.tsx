@@ -7,6 +7,9 @@ import React from "react";
 
 import { DocumentResource } from "../../store/DocumentResource";
 import TypeCellNode from "./extensions/typecellnode";
+import DraggableNode from "./DraggableNode";
+
+import "./RichTextStyle.css"
 
 type Props = {
   document: DocumentResource;
@@ -27,8 +30,19 @@ const RichText: React.FC<Props> = observer((props) => {
         fragment: props.document.data,
       }),
       TypeCellNode,
+      DraggableNode
     ],
-    content: "This text is in a TipTap editor, feel free to change it. Live collaboration is also enabled.",
+    editorProps: {
+      attributes: {
+        class: "editor"
+      }
+    },
+    content: `
+      <div>
+        <div class="draggable-item">Item 1</div>
+        <div class="draggable-item">Item 2</div>
+        <div class="draggable-item">Item 3</div>
+      </div>`,
   });
 
   return (
