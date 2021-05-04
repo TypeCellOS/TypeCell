@@ -27,6 +27,7 @@
     display: inline-block;
     vertical-align: top;
     padding: 0.5rem;
+    margin: 0.5rem;
     background: #eeeeee;
     border-radius: 0.5rem;
 }
@@ -38,3 +39,14 @@
 .react-renderer {
     margin: 1rem;
 }
+
+.boundary {
+    visibility: hidden;
+    margin: 0.2rem;
+}
+
+/*p {*/
+/*    margin: 0.2rem;*/
+/*    padding: 0.2rem;*/
+/*    border: solid turquoise;*/
+/*}*/

@@ -8,6 +8,7 @@ import React from "react";
 import { DocumentResource } from "../../store/DocumentResource";
 import TypeCellNode from "./extensions/typecellnode";
 import DraggableNode from "./DraggableNode";
+import BoundaryNode from "./BoundaryNode";
 
 import "./RichTextStyle.css"
 
@@ -30,7 +31,8 @@ const RichText: React.FC<Props> = observer((props) => {
         fragment: props.document.data,
       }),
       TypeCellNode,
-      DraggableNode
+      DraggableNode,
+      BoundaryNode
     ],
     editorProps: {
       attributes: {
@@ -39,9 +41,28 @@ const RichText: React.FC<Props> = observer((props) => {
     },
     content: `
       <div>
-        <div class="draggable-item">Item 1</div>
-        <div class="draggable-item">Item 2</div>
-        <div class="draggable-item">Item 3</div>
+        <div class="boundary">boundary</div>
+        <div class="draggable-item">
+          <div class="boundary">boundary</div>
+          Item 1
+          <div class="draggable-item">
+            <div class="boundary">boundary</div>
+            Item 2
+            <div class="boundary">boundary</div>
+          </div>
+          <div class="draggable-item">
+            <div class="boundary">boundary</div>
+            Item 3
+            <div class="boundary">boundary</div>
+          </div>
+          <div class="boundary">boundary</div>
+        </div>
+        <div class="draggable-item">
+          <div class="boundary">boundary</div>
+          Item 4
+          <div class="boundary">boundary</div>
+        </div>
+        <div class="boundary">boundary</div>
       </div>`,
   });
 
