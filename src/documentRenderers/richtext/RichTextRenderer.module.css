@@ -1,0 +1,21 @@
+.blockish {
+  border: grey 0.1em solid;
+  display: grid;
+  grid-template-columns: 1fr 9fr;
+  grid-auto-flow: column;
+}
+
+.handle {
+  grid-column: 1/2;
+  font-size: 1.6em;
+  margin: auto;
+}
+
+.handle:hover {
+  color: red;
+  cursor: pointer;
+}
+
+.block-content {
+  grid-column: 2/3;
+}
