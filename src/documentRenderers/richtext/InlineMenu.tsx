@@ -1,41 +1,49 @@
 import { BubbleMenu, Editor } from "@tiptap/react";
-import "./css/inlineMenu.css";
-const ACTIVE_CSS_CLASS = "is-active";
+import React from "react";
+import styles from "./InlineMenu.module.css";
 
-function addInlineMenu(editor: Editor) {
-  return (
-    <>
-      {editor && (
-        <BubbleMenu className="bubble-menu" editor={editor}>
-          <button
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            className={editor.isActive("bold") ? ACTIVE_CSS_CLASS : ""}>
-            Bold
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={editor.isActive("italic") ? ACTIVE_CSS_CLASS : ""}>
-            Italic
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleStrike().run()}
-            className={editor.isActive("strike") ? ACTIVE_CSS_CLASS : ""}>
-            Strike
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleCode().run()}
-            className={editor.isActive("code") ? ACTIVE_CSS_CLASS : ""}>
-            Code
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-            className={editor.isActive("underline") ? ACTIVE_CSS_CLASS : ""}>
-            Underline
-          </button>
-        </BubbleMenu>
-      )}
-    </>
-  );
+type InlineMenuProps = { editor: Editor };
+
+class InlineMenu extends React.Component<InlineMenuProps> {
+  render() {
+    return (
+      <BubbleMenu className={styles.BubbleMenu} editor={this.props.editor}>
+        <button
+          onClick={() => this.props.editor.chain().focus().toggleBold().run()}
+          className={this.props.editor.isActive("bold") ? styles.isActive : ""}>
+          Bold
+        </button>
+        <button
+          onClick={() => this.props.editor.chain().focus().toggleItalic().run()}
+          className={
+            this.props.editor.isActive("italic") ? styles.isActive : ""
+          }>
+          Italic
+        </button>
+        <button
+          onClick={() => this.props.editor.chain().focus().toggleStrike().run()}
+          className={
+            this.props.editor.isActive("strike") ? styles.isActive : ""
+          }>
+          Strike
+        </button>
+        <button
+          onClick={() => this.props.editor.chain().focus().toggleCode().run()}
+          className={this.props.editor.isActive("code") ? styles.isActive : ""}>
+          Code
+        </button>
+        <button
+          onClick={() =>
+            this.props.editor.chain().focus().toggleUnderline().run()
+          }
+          className={
+            this.props.editor.isActive("underline") ? styles.isActive : ""
+          }>
+          Underline
+        </button>
+      </BubbleMenu>
+    );
+  }
 }
 
-export default addInlineMenu;
+export default InlineMenu;

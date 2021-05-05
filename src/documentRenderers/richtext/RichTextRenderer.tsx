@@ -8,7 +8,7 @@ import React from "react";
 import { DocumentResource } from "../../store/DocumentResource";
 import { Underline } from "./extensions/marks/Underline";
 import TypeCellNode from "./extensions/typecellnode";
-import addInlineMenu from "./InlineMenu";
+import InlineMenu from "./InlineMenu";
 
 type Props = {
   document: DocumentResource;
@@ -35,17 +35,9 @@ const RichText: React.FC<Props> = observer((props) => {
       "This text is in a TipTap editor, feel free to change it. Live collaboration is also enabled.",
   });
 
-  if (editor != null) {
-    return (
-      <div style={{ maxWidth: 600, margin: "0 auto" }}>
-        {addInlineMenu(editor)}
-        <EditorContent editor={editor} />
-      </div>
-    );
-  }
-
   return (
     <div style={{ maxWidth: 600, margin: "0 auto" }}>
+      {editor != null ? <InlineMenu editor={editor} /> : null}
       <EditorContent editor={editor} />
     </div>
   );

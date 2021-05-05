@@ -1,11 +1,11 @@
-.bubble-menu {
+.BubbleMenu {
   display: flex;
   background-color: #0d0d0d;
   padding: 0.2rem;
   border-radius: 0.5rem;
 }
 
-.bubble-menu > button {
+.BubbleMenu > button {
   border: none;
   background: none;
   color: #fff;
@@ -15,7 +15,7 @@
   opacity: 0.6;
 }
 
-.bubble-menu > button:hover,
-.bubble-menu > button.is-active {
+.BubbleMenu > button:hover,
+.BubbleMenu > button.isActive {
   opacity: 1;
 }
