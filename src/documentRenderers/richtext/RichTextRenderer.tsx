@@ -6,8 +6,9 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { DocumentResource } from "../../store/DocumentResource";
+import { Underline } from "./extensions/marks/Underline";
 import TypeCellNode from "./extensions/typecellnode";
-import InlineMenu from "./InlineMenu";
+import addInlineMenu from "./InlineMenu";
 
 type Props = {
   document: DocumentResource;
@@ -19,6 +20,7 @@ const RichText: React.FC<Props> = observer((props) => {
     },
     extensions: [
       ...defaultExtensions(),
+      Underline,
 
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,
@@ -36,7 +38,7 @@ const RichText: React.FC<Props> = observer((props) => {
   if (editor != null) {
     return (
       <div style={{ maxWidth: 600, margin: "0 auto" }}>
-        {InlineMenu(editor)}
+        {addInlineMenu(editor)}
         <EditorContent editor={editor} />
       </div>
     );
