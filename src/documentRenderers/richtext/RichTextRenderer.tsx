@@ -1,5 +1,6 @@
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import Placeholder from "@tiptap/extension-placeholder";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { defaultExtensions } from "@tiptap/starter-kit";
 import { observer } from "mobx-react-lite";
@@ -7,6 +8,10 @@ import React from "react";
 
 import { DocumentResource } from "../../store/DocumentResource";
 import TypeCellNode from "./extensions/typecellnode";
+import SlashCommandExtension from "./extensions/slashcommand";
+
+import "./RichTextRenderer.css";
+import { editor } from "monaco-editor";
 
 type Props = {
   document: DocumentResource;
@@ -14,7 +19,7 @@ type Props = {
 const RichText: React.FC<Props> = observer((props) => {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
-      console.log(editor.getJSON());
+      // console.log(editor.getJSON());
     },
     extensions: [
       ...defaultExtensions(),
@@ -26,9 +31,18 @@ const RichText: React.FC<Props> = observer((props) => {
       Collaboration.configure({
         fragment: props.document.data,
       }),
-      TypeCellNode,
+
+      Placeholder.configure({
+        placeholder: "Use '/' to insert a new block.",
+        showOnlyCurrent: true,
+      }),
+
+      // TypeCellNode,
+      SlashCommandExtension.configure({
+        commands: {},
+      }),
     ],
-    content: "This text is in a TipTap editor, feel free to change it. Live collaboration is also enabled.",
+    // content: "This text is in a TipTap editor, feel free to change it. Live collaboration is also enabled.",
   });
 
   return (
