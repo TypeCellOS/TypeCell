@@ -15,6 +15,11 @@ type Props = {
   document: string;
 };
 
+/**
+ * Load a Resource based on a URL (owner/document).
+ * When a resource doesn't have a type, show create window
+ * When a resource has a type, load the corresponding renderer
+ */
 const DocumentView = observer((props: Props) => {
   if (!props.owner || !props.document) {
     // return <div></div>
