@@ -8,7 +8,7 @@ import CreateDocumentView from "./CreateDocumentView";
 import { CustomRenderer } from "./custom/CustomRenderer";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
-import RichTextRenderer from "./richtext/RichTextRenderer"
+import RichTextRenderer from "./richtext/RichTextRenderer";
 
 type Props = {
   owner: string;
@@ -46,7 +46,7 @@ const DocumentView = observer((props: Props) => {
   if (loader.type === "!notebook") {
     return <NotebookRenderer document={loader.doc!} />;
   } else if (loader.type === "!richtext") {
-    return <RichTextRenderer document={loader.doc!} />;
+    return <RichTextRenderer document={props.document} owner={props.owner} />;
   } else if (loader.type === "!plugin") {
     return <PluginRenderer plugin={loader.getSpecificType(PluginResource)!} />;
   } else if (loader.type.startsWith("!")) {

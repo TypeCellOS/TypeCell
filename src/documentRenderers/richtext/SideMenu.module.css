@@ -1,0 +1,30 @@
+.side-menu {
+  border: solid blue 0.1em;
+  border-radius: 0.5em;
+  margin: 0;
+  width: max-content;
+}
+
+.side-menu-list {
+  height: min-content;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.side-menu-option {
+  display: block;
+  text-align: left;
+  margin: 0 auto;
+  flex-grow: 1;
+}
+
+.side-menu-option:hover {
+  color: blue;
+  cursor: pointer;
+}
+.concealed {
+  display: none;
+}

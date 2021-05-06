@@ -1,127 +1,94 @@
-import Collaboration from "@tiptap/extension-collaboration";
-import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
-import { useEditor, EditorContent } from "@tiptap/react";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { mergeAttributes } from "@tiptap/core";
-import CodeBlock from "@tiptap/extension-code-block";
-import Document from "@tiptap/extension-document";
-import Paragraph from "@tiptap/extension-paragraph";
-import Text from "@tiptap/extension-text";
-import { DocumentResource } from "../../store/DocumentResource";
-import TypeCellNode from "./extensions/typecellnode";
+
 import styles from "./RichTextRenderer.module.css";
+import { DocConnection } from "../../store/DocConnection";
+import RichTextEditor from "./RichTextEditor";
+import RichTextConsole from "./RichTextConsole";
 
-type Props = {
-  document: DocumentResource;
-};
-
-function deamon() {
-  const registerListeners = () => {
-    document.querySelectorAll(".unfinished").forEach((handle) => {
-      handle.classList.remove("unfinished");
-      handle.addEventListener("click", (event) => {
-        if (handle.parentElement) {
-          handle.parentElement.remove();
-        }
-      });
-    });
-  };
-  setInterval(registerListeners, 1000);
+function getNewDoc(owner: string, document: string, serial: number) {
+  const loader = DocConnection.load({
+    owner: owner,
+    document: `${document}#${serial}`,
+  });
+  loader.create("!richtext");
+  return loader.doc;
 }
 
-const RichText: React.FC<Props> = observer((props) => {
-  const editor = useEditor({
-    onCreate: ({ editor }) => {
-      deamon();
-    },
-    onUpdate: ({ editor }) => {
-      console.log(editor.getJSON());
-    },
-    extensions: [
-      Document,
-      Text,
-      Paragraph.extend({
-        addAttributes() {
-          return {
-            blockType: {
-              renderHTML: (attributes) => {
-                return {
-                  class: `tiptap-${attributes.blockType}`,
-                  style: `border: solid grey 0.1em`,
-                };
-              },
-              default: "paragraph",
-            },
-          };
-        },
-        // @ts-ignore
-        renderHTML({ HTMLAttributes }) {
-          //console.log(HTMLAttributes);
-          return [
-            "div",
-            mergeAttributes(HTMLAttributes, {
-              class: `${styles.blockish}`,
-            }),
-            [
-              "div",
-              {
-                class: `${styles["handle"]} unfinished`,
-              },
-              " ⁞ ",
-            ],
-            [
-              "p",
-              mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
-                class: `${styles["block-content"]}`,
-              }),
-              0,
-            ],
-          ];
-        },
-        // @ts-ignore
-        addCommands() {
-          return {
+// Frame
+function reduce(state: any, action: any): any {
+  let newState = {};
+  if (action.type) {
+    console.log(`state is ${state}`);
+    console.log(`action type is ${action.type} with data ${action.data}`);
+    if (action.type === "add") {
+      newState = {
+        content: [
+          ...state.content.slice(),
+          <RichTextEditor
+            key={`data-block-${state.globalId}`}
             // @ts-ignore
-            deleteNode: (attributes) => ({ chain }) => {
-              return chain().focus().clearContent().run();
-            },
-          };
-        },
-        // @ts-ignore
-        addKeyboardShortcuts() {
-          return {
-            "Mod-Alt-p": () =>
-              // @ts-ignore
-              this.editor.commands.deleteNode(),
-          };
-        },
-      }),
-      CodeBlock.extend({
-        addKeyboardShortcuts() {
-          return {
-            "Mod-p": () => this.editor.commands.toggleCodeBlock(),
-          };
-        },
-      }),
-      CollaborationCursor.configure({
-        provider: props.document.webrtcProvider,
-        user: { name: "Hello", color: "#f783ac" },
-      }),
-      Collaboration.configure({
-        fragment: props.document.data,
-      }),
-      TypeCellNode,
-    ],
-    content:
-      "<p>This text is in a TipTap editor, feel free to change it. Live collaboration is also enabled.</p>",
-  });
+            document={getNewDoc(state.owner, state.document, state.globalId)}
+            id={`data-block-${state.globalId}`}
+            dispatcher={action.dispatcher}></RichTextEditor>,
+        ],
+        document: state.document,
+        globalId: state.globalId + 1,
+        owner: state.owner,
+      };
+    } else if (action.type === "delete") {
+      // @ts-ignore
+      const newChildren = state.content.filter((e) => {
+        console.log(e);
+        if (action.data === e.key) {
+          return false;
+        }
+        return true;
+      });
+      newState = {
+        content: newChildren,
+        document: state.document,
+        globalId: state.globalId,
+        owner: state.owner,
+      };
+    }
+  }
+  document
+    .querySelectorAll(".hidden")
+    // @ts-ignore
+    .forEach((e) => (e.style.display = "none"));
+  return newState;
+}
+type RichTextFrameProps = {
+  content?: Array<React.FC>;
+  document?: string; //DocumentResource;
+  globalId?: number;
+  owner: string;
+};
+const RichTextFrame: React.FC<RichTextFrameProps> = observer(
+  (props: RichTextFrameProps) => {
+    console.log(`in richtextframe props.document is ${props.document}`);
+    const [state, dispatch] = React.useReducer(reduce, {
+      ...props,
+      globalId: 1,
+      content: [],
+    });
 
-  return (
-    <div style={{ maxWidth: 600, margin: "0 auto" }}>
-      <EditorContent editor={editor} />
-    </div>
-  );
-});
+    // const init = (
+    //   <RichTextBlock
+    //     // @ts-ignore
+    //     document={getNewDoc(props.owner, props.document, 1)}
+    //     id={`${1}`}
+    //     dispatcher={dispatch}></RichTextBlock>
+    // );
+    return (
+      <div id={styles["rich-text-frame"]} className={styles.manifest}>
+        <div id={`${styles["rich-text-content"]}`}>{state.content}</div>
+        <RichTextConsole dispatcher={dispatch}></RichTextConsole>
+      </div>
+    );
+  }
+);
+// Frame
 
-export default RichText;
+export default RichTextFrame;
