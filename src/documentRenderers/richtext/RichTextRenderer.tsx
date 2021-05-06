@@ -65,7 +65,8 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       },
       handleDrop(view: EditorView, event: Event, slice: Slice, moved: boolean) {
         const nodeType = Object(event).target.className;
-        return nodeType != "ProseMirror editor ProseMirror-hideselection";
+        console.log(nodeType)
+        return nodeType != "ProseMirror editor ProseMirror-focused ProseMirror-hideselection";
       },
     },
     content: `
