@@ -28,9 +28,10 @@ const Draggable = Node.create({
   name: "draggable",
   group: "block",
   content: "block*",
-  isolating: true,
   draggable: true,
-  atom: true,
+
+  // False means that empty blocks are deleted on backspace, but true means that space between blocks can be selected.
+  isolating: false,
 
   parseHTML() {
     return [

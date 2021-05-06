@@ -97,6 +97,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       }),
       Document,
       DropCursor,
+      GapCursor,
       HardBreak,
       Heading,
       Paragraph,
@@ -114,16 +115,16 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     content: `
       <div>
         <draggable>
-          Item 1
+          <p>Item 1</p>
         </draggable>
         <draggable>
-          Item 2
+          <p>Item 2</p>
         </draggable>
         <draggable>
-          Item 3
+          <p>Item 3</p>
         </draggable>
         <draggable>
-          Item 4
+          <p>Item 4</p>
         </draggable>
       </div>
       `,
