@@ -21,6 +21,9 @@ import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
 import { useEditor, EditorContent } from "@tiptap/react";
 
+import { Slice } from "prosemirror-model"
+import { EditorView } from "prosemirror-view"
+
 import { observer } from "mobx-react-lite";
 import React from "react";
 
@@ -59,6 +62,10 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     editorProps: {
       attributes: {
         class: "editor"
+      },
+      handleDrop(view: EditorView, event: Event, slice: Slice, moved: boolean) {
+        const nodeType = Object(event).target.className;
+        return nodeType != "ProseMirror editor ProseMirror-hideselection";
       },
     },
     content: `
