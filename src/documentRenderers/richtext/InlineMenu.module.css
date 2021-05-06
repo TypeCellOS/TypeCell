@@ -1,0 +1,21 @@
+.BubbleMenu {
+  display: flex;
+  background-color: #0d0d0d;
+  padding: 0.2rem;
+  border-radius: 0.5rem;
+}
+
+.BubbleMenu > button {
+  border: none;
+  background: none;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0 0.2rem;
+  opacity: 0.6;
+}
+
+.BubbleMenu > button:hover,
+.BubbleMenu > button.isActive {
+  opacity: 1;
+}
