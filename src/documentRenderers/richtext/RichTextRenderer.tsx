@@ -1,5 +1,6 @@
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import Link from "@tiptap/extension-link";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { defaultExtensions } from "@tiptap/starter-kit";
 import { observer } from "mobx-react-lite";
@@ -18,7 +19,7 @@ const RichText: React.FC<Props> = observer((props) => {
     },
     extensions: [
       ...defaultExtensions(),
-
+      Link,
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,
         user: { name: "Hello", color: "#f783ac" },
