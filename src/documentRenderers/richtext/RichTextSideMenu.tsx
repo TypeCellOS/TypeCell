@@ -1,14 +1,16 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
-import styles from "./SideMenu.module.css";
+import styles from "./RichTextSideMenu.module.css";
 import { Action } from "./RichTextConsole";
 
 type RichTextBlockMenuProps = {
   id: string;
   dispatcher: React.Dispatch<Action>;
 };
+/**
+ * This Component is the side menu for the block that immediately encloses it
+ */
 const SideMenu: React.FC<RichTextBlockMenuProps> = observer((props) => {
-  // const [state, setState] = React.useState<boolean>(false);
   return (
     <div
       className={`${styles["side-menu"]} hidden`}

@@ -12,7 +12,8 @@ import { DocumentResource } from "../../store/DocumentResource";
 import { Action } from "./RichTextConsole";
 import TypeCellNode from "./extensions/typecellnode";
 import styles from "./RichTextRenderer.module.css";
-import SideMenu from "./SideMenu";
+import SideMenu from "./RichTextSideMenu";
+import Handle from "./RichTextHandle";
 
 // Editor
 type RichTextEditorProps = {
@@ -20,6 +21,9 @@ type RichTextEditorProps = {
   id: string;
   dispatcher: React.Dispatch<Action>;
 };
+/**
+ * This Component encapsulates a block instance
+ */
 const RichTextEditor: React.FC<RichTextEditorProps> = observer((props) => {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
@@ -59,15 +63,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = observer((props) => {
           ];
         },
         // @ts-ignore
-        addCommands() {
-          return {
-            // @ts-ignore
-            deleteNode: (attributes) => ({ chain }) => {
-              return chain().focus().clearContent().run();
-            },
-          };
-        },
-        // @ts-ignore
         addKeyboardShortcuts() {
           return {
             "Mod-Alt-p": () =>
@@ -102,45 +97,5 @@ const RichTextEditor: React.FC<RichTextEditorProps> = observer((props) => {
     </div>
   );
 });
-// Editor
-
-// Handle
-type HandleProps = {
-  id: string;
-  // dispatcher: React.Dispatch<Action>;
-};
-const Handle: React.FC<HandleProps> = observer((props) => {
-  return (
-    <div
-      className={`${styles["handle"]}`}
-      onClick={(event) => {
-        console.log(`clicking a handle...`);
-        // @ts-ignore
-        const handle: any = event.nativeEvent.target;
-        const menu = document.querySelector(`#${props.id} > div`);
-        // @ts-ignore
-        const display = menu.style.display;
-        if (menu && display === "none") {
-          const rect = handle.getBoundingClientRect();
-          // @ts-ignore
-          menu.style.left = `${-999}px`;
-          // @ts-ignore
-          menu.style.display = "block";
-          // @ts-ignore
-          menu.style.left = `calc(${rect.left - menu.scrollWidth}px - 2em)`;
-          // @ts-ignore
-          menu.style.top = `${
-            (rect.top + rect.bottom) / 2 - menu.scrollHeight / 2
-          }px`;
-        } else {
-          // @ts-ignore
-          menu.style.display = "none";
-        }
-      }}>
-      &nbsp;⁞&nbsp;
-    </div>
-  );
-});
-// Handle
 
 export default RichTextEditor;

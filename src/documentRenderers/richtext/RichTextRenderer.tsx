@@ -15,7 +15,6 @@ function getNewDoc(owner: string, document: string, serial: number) {
   return loader.doc;
 }
 
-// Frame
 function reduce(state: any, action: any): any {
   let newState = {};
   if (action.type) {
@@ -65,6 +64,9 @@ type RichTextFrameProps = {
   globalId?: number;
   owner: string;
 };
+/**
+ * This Component is for displaying numerous blocks and a console used to manipulate them
+ */
 const RichTextFrame: React.FC<RichTextFrameProps> = observer(
   (props: RichTextFrameProps) => {
     console.log(`in richtextframe props.document is ${props.document}`);
@@ -89,6 +91,5 @@ const RichTextFrame: React.FC<RichTextFrameProps> = observer(
     );
   }
 );
-// Frame
 
 export default RichTextFrame;

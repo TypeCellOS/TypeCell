@@ -11,6 +11,10 @@ export type Action = {
 type RichTextConsoleProps = {
   dispatcher: React.Dispatch<Action>;
 };
+/**
+ * This Component is the menu bar at the bottom for adding another block
+ * It should be extended with other features later
+ */
 const RichTextConsole: React.FC<RichTextConsoleProps> = observer((props) => {
   const opt = styles["rich-text-option"];
   const { dispatcher } = props;
