@@ -22,24 +22,23 @@ const Component: React.FC<Props> = observer((props) => {
 );
 })
 
-const DraggableNode = Node.create({
-  name: "draggableItem",
+const Draggable = Node.create({
+  name: "draggable",
   group: "block",
   content: "block*",
   isolating: true,
   draggable: true,
 
-
   parseHTML() {
     return [
       {
-        tag: 'div[class="draggable-item"]',
+        tag: 'draggable',
       },
     ]
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['div', mergeAttributes(HTMLAttributes, { 'class': 'draggable-item' }), 0];
+    return ['draggable', mergeAttributes(HTMLAttributes)];
   },
 
   addNodeView() {
@@ -47,4 +46,4 @@ const DraggableNode = Node.create({
   }
 })
 
-export default DraggableNode;
+export default Draggable;
