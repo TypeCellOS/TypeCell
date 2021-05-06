@@ -6,6 +6,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { DocumentResource } from "../../store/DocumentResource";
+import { ImageNode } from "./extensions/nodes/ImageEmbed";
 import TypeCellNode from "./extensions/typecellnode";
 
 type Props = {
@@ -26,9 +27,11 @@ const RichText: React.FC<Props> = observer((props) => {
       Collaboration.configure({
         fragment: props.document.data,
       }),
+      ImageNode,
       TypeCellNode,
     ],
-    content: "This text is in a TipTap editor, feel free to change it. Live collaboration is also enabled.",
+    content:
+      "This text is in a TipTap editor, feel free to change it. Live collaboration is also enabled.",
   });
 
   return (
