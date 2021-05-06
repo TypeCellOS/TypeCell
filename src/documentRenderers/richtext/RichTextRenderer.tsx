@@ -7,6 +7,7 @@ import React from "react";
 
 import { DocumentResource } from "../../store/DocumentResource";
 import { Underline } from "./extensions/marks/Underline";
+import { ImageEmbed } from "./extensions/nodes/ImageEmbed";
 import TypeCellNode from "./extensions/typecellnode";
 import InlineMenu from "./InlineMenu";
 
@@ -29,6 +30,7 @@ const RichText: React.FC<Props> = observer((props) => {
       Collaboration.configure({
         fragment: props.document.data,
       }),
+      ImageEmbed,
       TypeCellNode,
     ],
     content:
