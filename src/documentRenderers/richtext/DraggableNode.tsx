@@ -8,6 +8,7 @@ type Props = {
   document: DocumentResource;
 };
 
+// React component used to structure draggable blocks.
 const Component: React.FC<Props> = observer((props) => {
   return(
     <NodeViewWrapper className="draggable-item">
@@ -22,12 +23,14 @@ const Component: React.FC<Props> = observer((props) => {
 );
 })
 
+// Wrapper to create draggable blocks with a drag handle.
 const Draggable = Node.create({
   name: "draggable",
   group: "block",
   content: "block*",
   isolating: true,
   draggable: true,
+  atom: true,
 
   parseHTML() {
     return [
@@ -41,6 +44,7 @@ const Draggable = Node.create({
     return ['draggable', mergeAttributes(HTMLAttributes)];
   },
 
+  // Used for rendering a React component inside the node. Here it's just used to add a drag handle to each block.
   addNodeView() {
     return ReactNodeViewRenderer(Component);
   }

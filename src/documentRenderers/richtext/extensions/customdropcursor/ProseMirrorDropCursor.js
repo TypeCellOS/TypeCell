@@ -51,7 +51,9 @@ class DropCursorView {
     if (pos == this.cursorPos) return
     this.cursorPos = pos
     if (pos == null) {
-      this.element.parentNode.removeChild(this.element)
+      if (this.element) {
+        this.element.parentNode.removeChild(this.element)
+      }
       this.element = null
     } else {
       this.updateOverlay()
@@ -60,7 +62,10 @@ class DropCursorView {
 
   updateOverlay() {
     let $pos = this.editorView.state.doc.resolve(this.cursorPos), rect
-    if ($pos.depth == 0) {
+
+    // This if statement is the only change from the normal implementation.
+    // It ensures the drop cursor is not rendered inside blocks, only between them.
+    if ($pos.depth === 0) {
       if (!$pos.parent.inlineContent) {
         let before = $pos.nodeBefore, after = $pos.nodeAfter
         if (before || after) {
