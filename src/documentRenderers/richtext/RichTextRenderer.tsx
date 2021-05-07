@@ -2,7 +2,7 @@ import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit, { defaultExtensions } from "@tiptap/starter-kit";
+import StarterKit from "@tiptap/starter-kit";
 import { observer } from "mobx-react-lite";
 import React from "react";
 

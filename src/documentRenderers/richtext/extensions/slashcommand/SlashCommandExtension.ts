@@ -3,6 +3,10 @@ import { Selection } from "prosemirror-state";
 import { Node } from "prosemirror-model";
 import defaultCommands from "./defaultCommands";
 import { matchSlashCommand, SlashCommand } from "./SlashCommand";
+import { Editor, ReactRenderer } from "@tiptap/react";
+import tippy from "tippy.js";
+import { CommandList } from "./CommandList";
+import { SlashCommandPlugin } from "./SlashCommandPlugin";
 
 declare module "@tiptap/core" {
   interface Commands {
@@ -23,9 +27,10 @@ declare module "@tiptap/core" {
  * @param selection the selection (only works if the selection is empty; i.e. is a cursor).
  * @returns the word following a '/' or undefined if no such word could be found.
  */
-function findCommandBeforeCursor(
+export function findCommandBeforeCursor(
+  char: string,
   selection: Selection<any>
-): string | undefined {
+): { range: Range; query: string } | undefined {
   if (!selection.empty) return undefined;
 
   if (selection.$anchor.parent.type.name !== "paragraph") return undefined;
@@ -39,11 +44,18 @@ function findCommandBeforeCursor(
   if (parts.length < 1) return undefined;
 
   const lastPart = parts[parts.length - 1];
-  const match = lastPart.match(/\/(\w+)$/);
+  // TODO: Make starting character dynamic
+  const match = lastPart.match(/\/(\w*)$/);
 
   if (!match) return undefined;
 
-  return match[1] ?? undefined;
+  return {
+    query: match[1],
+    range: {
+      from: selection.$anchor.pos - match[1].length - 1,
+      to: selection.$anchor.pos,
+    },
+  };
 }
 
 export type SlashCommandOptions = {
@@ -61,53 +73,34 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
     // The editor is ready.
   },
   onUpdate() {},
-  onSelectionUpdate() {
-    const match = findCommandBeforeCursor(this.editor.state.selection);
-  },
-  addKeyboardShortcuts() {
-    return {
-      Enter: () => {
-        const { selection } = this.editor.state;
+  onSelectionUpdate() {},
+  // addKeyboardShortcuts() {
+  //   return {
+  //     Enter: () => {
+  //       const { selection } = this.editor.state;
 
-        // Check if there is a command right before the cursor; exit otherwise
-        const match = findCommandBeforeCursor(selection);
-        if (!match) return false;
+  //       // Check if there is a command right before the cursor; exit otherwise
+  //       const match = findCommandBeforeCursor("/", selection);
+  //       if (!match) return false;
 
-        // Find a matching slash command
-        let result = matchSlashCommand(this.options.commands, match);
+  //       // Find a matching slash command
+  //       let result = matchSlashCommand(this.options.commands, match.query);
 
-        if (!result) return false;
+  //       if (!result) return false;
 
-        // If such a command exists, replace the command text with the node created by the command
-        if (result.command) {
-          const { $anchor } = selection;
-          const start = $anchor.pos - match.length - 1;
-          const end = $anchor.pos;
+  //       // If such a command exists, replace the command text with the node created by the command
+  //       if (result.command) {
+  //         return result.command.execute(this.editor, match.range, result.args);
+  //       }
 
-          console.log(start, end);
-
-          // Create the node using the command's callback
-          const range = { from: start, to: end };
-
-          return result.command.execute(this.editor, range, result.args);
-        }
-
-        return false;
-      },
-    };
-  },
-  onTransaction({ transaction }) {
-    // The editor state has changed.
-  },
-  onFocus({ event }) {
-    // The editor is focused.
-  },
-  onBlur({ event }) {
-    // The editor isn’t focused anymore.
-  },
-  onDestroy() {
-    // The editor is being destroyed.
-  },
+  //       return false;
+  //     },
+  //   };
+  // },
+  onTransaction({ transaction }) {},
+  onFocus({ event }) {},
+  onBlur({ event }) {},
+  onDestroy() {},
   addCommands() {
     return {
       replaceRangeCustom: (range, node) => ({ tr, dispatch }) => {
@@ -122,5 +115,76 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
         return true;
       },
     };
+  },
+
+  addProseMirrorPlugins() {
+    return [
+      SlashCommandPlugin({
+        editor: this.editor,
+        items: (query) => {
+          const commands = [];
+
+          for (const key in this.options.commands) {
+            commands.push(this.options.commands[key]);
+          }
+
+          return commands.filter((cmd: SlashCommand) =>
+            cmd.name.toLowerCase().startsWith(query.toLowerCase())
+          );
+        },
+        render: () => {
+          let component: ReactRenderer;
+          let popup: any;
+
+          return {
+            onStart: (props) => {
+              console.log("start");
+              component = new ReactRenderer(CommandList as any, {
+                editor: this.editor as Editor,
+                props: {
+                  items: props.items,
+                  selectItemCallback: props.selectItemCallback,
+                },
+              });
+
+              popup = tippy("body", {
+                getReferenceClientRect: props.clientRect,
+                appendTo: () => document.body,
+                content: component.element,
+                showOnCreate: true,
+                interactive: true,
+                trigger: "manual",
+                placement: "bottom-start",
+              });
+            },
+
+            onUpdate: (props) => {
+              console.log("update");
+
+              component.updateProps(props);
+
+              popup[0].setProps({
+                getReferenceClientRect: props.clientRect,
+              });
+            },
+
+            onKeyDown: (props) => {
+              if (!component.ref) return false;
+              return (component.ref as CommandList).onKeyDown(props);
+            },
+
+            onExit: (props) => {
+              console.log("exit");
+
+              popup[0].destroy();
+              component.destroy();
+            },
+          };
+        },
+        selectItemCallback: ({ command, editor, range }) => {
+          command.execute(this.editor, range);
+        },
+      }),
+    ];
   },
 });
