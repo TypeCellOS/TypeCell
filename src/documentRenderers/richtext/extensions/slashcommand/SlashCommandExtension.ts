@@ -62,7 +62,6 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
   },
   onUpdate() {},
   onSelectionUpdate() {
-    console.log(this.editor.state.selection.$anchor.pos);
     const match = findCommandBeforeCursor(this.editor.state.selection);
   },
   addKeyboardShortcuts() {
@@ -82,25 +81,15 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
         // If such a command exists, replace the command text with the node created by the command
         if (result.command) {
           const { $anchor } = selection;
-          const start = $anchor.start();
-          const end = $anchor.end();
+          const start = $anchor.pos - match.length - 1;
+          const end = $anchor.pos;
+
+          console.log(start, end);
 
           // Create the node using the command's callback
           const range = { from: start, to: end };
 
-          console.log(range);
-
           return result.command.execute(this.editor, range, result.args);
-
-          // Replace the command text with the new node
-
-          // tr.replaceRangeWith(start, end, newNode);
-
-          // Move the cursor to the newly created node
-          // BUG: Doesn't work properly in nested blocks such as lists
-          // const resolvedAnchor = tr.doc.resolve(tr.mapping.map(start, -1));
-
-          // tr.setSelection(Selection.near(resolvedAnchor, 1));
         }
 
         return false;
@@ -121,11 +110,13 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
   },
   addCommands() {
     return {
-      replaceRangeCustom: (range, node) => ({ tr, commands, dispatch }) => {
+      replaceRangeCustom: (range, node) => ({ tr, dispatch }) => {
         const { from, to } = range;
 
         if (dispatch) {
           tr.replaceRangeWith(from, to, node);
+          const pos = tr.mapping.map(from, -1);
+          tr.setSelection(Selection.near(tr.doc.resolve(pos), 1));
         }
 
         return true;

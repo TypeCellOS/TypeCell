@@ -1,4 +1,5 @@
 import { toInteger } from "lodash";
+import { TextSelection } from "prosemirror-state";
 import { SlashCommand } from "./SlashCommand";
 
 const defaultCommands: { [key: string]: SlashCommand } = {
@@ -11,7 +12,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         level: level,
       });
 
-      editor.chain().focus().replaceRangeCustom(range, node).run();
+      editor.chain().replaceRangeCustom(range, node).run();
 
       return true;
     },
@@ -23,7 +24,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("paragraph");
 
-      editor.chain().focus().replaceRangeCustom(range, node).run();
+      editor.chain().replaceRangeCustom(range, node).run();
 
       return true;
     },
@@ -34,7 +35,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("codeBlock");
 
-      editor.chain().focus().replaceRangeCustom(range, node).run();
+      editor.chain().replaceRangeCustom(range, node).run();
 
       return true;
     },
@@ -47,7 +48,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       const listItem = editor.schema.node("listItem", {}, paragraph);
       const node = editor.schema.node("bulletList", {}, listItem);
 
-      editor.chain().focus().replaceRangeCustom(range, node).run();
+      editor.chain().replaceRangeCustom(range, node).run();
 
       return true;
     },
@@ -60,7 +61,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       const listItem = editor.schema.node("listItem", {}, paragraph);
       const node = editor.schema.node("orderedList", {}, listItem);
 
-      editor.chain().focus().replaceRangeCustom(range, node).run();
+      editor.chain().replaceRangeCustom(range, node).run();
 
       return true;
     },
@@ -72,7 +73,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       const paragraph = editor.schema.node("paragraph");
       const node = editor.schema.node("blockquote", {}, paragraph);
 
-      editor.chain().focus().replaceRangeCustom(range, node).run();
+      editor.chain().replaceRangeCustom(range, node).run();
 
       return true;
     },
@@ -84,18 +85,31 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("horizontalRule");
 
-      editor.chain().focus().replaceRangeCustom(range, node).run();
-
-      const newCursorPos = editor.state.selection.$to.end();
-
       editor
         .chain()
-        .setTextSelection({ from: newCursorPos, to: newCursorPos })
-        .insertContent({
-          type: "paragraph",
+        .replaceRangeCustom(range, node)
+        .command(({ tr, dispatch }) => {
+          if (dispatch) {
+            const { parent } = tr.selection.$to;
+            const nodeAfter = tr.selection.$to.nodeAfter;
+
+            // end of document
+            if (!nodeAfter) {
+              const posAfter = tr.selection.$to.end();
+              const node = parent.type.contentMatch.defaultType?.create();
+
+              if (node) {
+                tr.insert(posAfter, node);
+                tr.setSelection(TextSelection.create(tr.doc, posAfter));
+              }
+            }
+
+            tr.scrollIntoView();
+          }
+
+          return true;
         })
         .run();
-
       return true;
     },
     ["hr"]
