@@ -1,4 +1,5 @@
 import { toInteger } from "lodash";
+import { doc } from "prettier";
 import { TextSelection } from "prosemirror-state";
 import { SlashCommand } from "./SlashCommand";
 
@@ -93,9 +94,10 @@ const defaultCommands: { [key: string]: SlashCommand } = {
             const { parent } = tr.selection.$to;
             const nodeAfter = tr.selection.$to.nodeAfter;
 
+            const posAfter = tr.selection.$to.pos;
+
             // end of document
             if (!nodeAfter) {
-              const posAfter = tr.selection.$to.end();
               const node = parent.type.contentMatch.defaultType?.create();
 
               if (node) {
@@ -103,6 +105,12 @@ const defaultCommands: { [key: string]: SlashCommand } = {
                 tr.setSelection(TextSelection.create(tr.doc, posAfter));
               }
             }
+
+            tr.doc.nodesBetween(posAfter, posAfter + 1, (node, pos) => {
+              if (node.type.name !== "horizontalRule") {
+                tr.setSelection(TextSelection.create(tr.doc, pos));
+              }
+            });
 
             tr.scrollIntoView();
           }

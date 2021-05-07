@@ -74,29 +74,7 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
   },
   onUpdate() {},
   onSelectionUpdate() {},
-  // addKeyboardShortcuts() {
-  //   return {
-  //     Enter: () => {
-  //       const { selection } = this.editor.state;
-
-  //       // Check if there is a command right before the cursor; exit otherwise
-  //       const match = findCommandBeforeCursor("/", selection);
-  //       if (!match) return false;
-
-  //       // Find a matching slash command
-  //       let result = matchSlashCommand(this.options.commands, match.query);
-
-  //       if (!result) return false;
-
-  //       // If such a command exists, replace the command text with the node created by the command
-  //       if (result.command) {
-  //         return result.command.execute(this.editor, match.range, result.args);
-  //       }
-
-  //       return false;
-  //     },
-  //   };
-  // },
+  // addKeyboardShortcuts() {},
   onTransaction({ transaction }) {},
   onFocus({ event }) {},
   onBlur({ event }) {},
