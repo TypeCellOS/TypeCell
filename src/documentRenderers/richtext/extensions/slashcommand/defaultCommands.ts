@@ -1,5 +1,4 @@
 import { toInteger } from "lodash";
-import { doc } from "prettier";
 import { TextSelection } from "prosemirror-state";
 import { SlashCommand } from "./SlashCommand";
 
@@ -102,7 +101,6 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
               if (node) {
                 tr.insert(posAfter, node);
-                tr.setSelection(TextSelection.create(tr.doc, posAfter));
               }
             }
 

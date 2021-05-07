@@ -2,7 +2,7 @@ import { Extension, Command, Range } from "@tiptap/core";
 import { Selection } from "prosemirror-state";
 import { Node } from "prosemirror-model";
 import defaultCommands from "./defaultCommands";
-import { matchSlashCommand, SlashCommand } from "./SlashCommand";
+import { SlashCommand } from "./SlashCommand";
 import { Editor, ReactRenderer } from "@tiptap/react";
 import tippy from "tippy.js";
 import { CommandList } from "./CommandList";
