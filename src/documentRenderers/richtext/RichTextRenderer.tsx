@@ -2,7 +2,7 @@ import React from "react";
 import { observer } from "mobx-react-lite";
 
 import { useEditor, EditorContent, Extension } from "@tiptap/react";
-import { defaultExtensions } from "@tiptap/starter-kit"
+import StarterKit from "@tiptap/starter-kit"
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 
@@ -20,7 +20,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       console.log(editor.getJSON());
     },
     extensions: [
-      ...defaultExtensions(),
+      StarterKit,
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,
         user: { name: "Hello", color: "#f783ac" },
