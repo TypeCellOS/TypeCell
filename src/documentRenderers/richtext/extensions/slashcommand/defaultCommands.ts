@@ -4,69 +4,99 @@ import { SlashCommand } from "./SlashCommand";
 const defaultCommands: { [key: string]: SlashCommand } = {
   heading: new SlashCommand(
     "heading",
-    (editor, args) => {
+    (editor, range, args) => {
       const level = args ? toInteger(args[1]) : 1;
 
-      return editor.schema.node("heading", {
+      const node = editor.schema.node("heading", {
         level: level,
       });
+
+      editor.chain().focus().replaceRangeCustom(range, node).run();
+
+      return true;
     },
     [],
     /(heading|h)([1-6]?)/
   ),
   paragraph: new SlashCommand(
     "paragraph",
-    (editor) => {
-      return editor.schema.node("paragraph");
+    (editor, range) => {
+      const node = editor.schema.node("paragraph");
+
+      editor.chain().focus().replaceRangeCustom(range, node).run();
+
+      return true;
     },
     ["p"]
   ),
   codeblock: new SlashCommand(
     "codeblock",
-    (editor) => {
-      return editor.schema.node("codeBlock");
+    (editor, range) => {
+      const node = editor.schema.node("codeBlock");
+
+      editor.chain().focus().replaceRangeCustom(range, node).run();
+
+      return true;
     },
     ["code"]
   ),
   bulletlist: new SlashCommand(
     "bulletlist",
-    (editor) => {
+    (editor, range) => {
       const paragraph = editor.schema.node("paragraph");
       const listItem = editor.schema.node("listItem", {}, paragraph);
       const node = editor.schema.node("bulletList", {}, listItem);
 
-      return node;
+      editor.chain().focus().replaceRangeCustom(range, node).run();
+
+      return true;
     },
     ["ul", "list"]
   ),
   orderedlist: new SlashCommand(
     "orderedlist",
-    (editor) => {
+    (editor, range) => {
       const paragraph = editor.schema.node("paragraph");
       const listItem = editor.schema.node("listItem", {}, paragraph);
       const node = editor.schema.node("orderedList", {}, listItem);
 
-      return node;
+      editor.chain().focus().replaceRangeCustom(range, node).run();
+
+      return true;
     },
     ["ol"]
   ),
   blockquote: new SlashCommand(
     "blockquote",
-    (editor) => {
+    (editor, range) => {
       const paragraph = editor.schema.node("paragraph");
       const node = editor.schema.node("blockquote", {}, paragraph);
 
-      return node;
+      editor.chain().focus().replaceRangeCustom(range, node).run();
+
+      return true;
     },
     ["quote"]
   ),
 
   horizontalRule: new SlashCommand(
     "horizontalRule",
-    (editor) => {
+    (editor, range) => {
       const node = editor.schema.node("horizontalRule");
 
-      return node;
+      editor.chain().focus().replaceRangeCustom(range, node).run();
+
+      const newCursorPos = editor.state.selection.$to.end();
+
+      editor
+        .chain()
+        .setTextSelection({ from: newCursorPos, to: newCursorPos })
+        .insertContent({
+          type: "paragraph",
+        })
+        .run();
+
+      return true;
     },
     ["hr"]
   ),

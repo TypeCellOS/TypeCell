@@ -2,7 +2,7 @@ import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEditor, EditorContent } from "@tiptap/react";
-import { defaultExtensions } from "@tiptap/starter-kit";
+import StarterKit, { defaultExtensions } from "@tiptap/starter-kit";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
@@ -22,7 +22,7 @@ const RichText: React.FC<Props> = observer((props) => {
       // console.log(editor.getJSON());
     },
     extensions: [
-      ...defaultExtensions(),
+      StarterKit,
 
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,

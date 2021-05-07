@@ -1,10 +1,10 @@
-import { Node, Schema } from "prosemirror-model";
-import { Editor } from "@tiptap/core";
+import { Editor, Range } from "@tiptap/core";
 
 export type SlashCommandCallback = (
   editor: Editor,
+  range: Range,
   args?: any[]
-) => Node<Schema<any, any>>;
+) => boolean;
 
 export function matchSlashCommand(
   commandMap: { [key: string]: SlashCommand },
@@ -35,7 +35,7 @@ export class SlashCommand {
   aliases?: string[];
   regex: RegExp;
 
-  callback: SlashCommandCallback;
+  execute: SlashCommandCallback;
 
   /**
    * Constructs a new slash-command. One can either supply a name and aliases,
@@ -47,19 +47,19 @@ export class SlashCommand {
    * The matched groups (bits between parentheses) are passed as arguments in the command's callback function.
    *
    * @param name The name of the command
-   * @param callback The callback for creating a new node
+   * @param execute The callback for creating a new node
    * @param aliases
    * @param regex A regex for matching this command. This regex fully determines matching behaviour when supplied.
    */
   constructor(
     name: string,
-    callback: SlashCommandCallback,
+    execute: SlashCommandCallback,
     aliases?: string[],
     regex?: RegExp
   ) {
     this.name = name.toLowerCase();
     this.aliases = aliases?.map((val) => val.toLowerCase());
-    this.callback = callback;
+    this.execute = execute;
 
     if (regex) {
       const newRegex = `\\b(${regex.source})\\b`;
