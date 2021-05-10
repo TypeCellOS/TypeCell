@@ -42,6 +42,17 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["code"]
   ),
+  typecell: new SlashCommand(
+    "typecell",
+    (editor, range) => {
+      const node = editor.schema.node("typecell");
+
+      editor.chain().replaceRangeCustom(range, node).run();
+
+      return true;
+    },
+    ["typecell"]
+  ),
   bulletlist: new SlashCommand(
     "bulletlist",
     (editor, range) => {
