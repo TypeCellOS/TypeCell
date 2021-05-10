@@ -1,9 +1,11 @@
 import React from "react";
+import { observer } from "mobx-react-lite";
+import { DocumentResource } from "../../store/DocumentResource";
+
 import { ReactNodeViewRenderer, NodeViewContent, NodeViewWrapper } from "@tiptap/react"
 import Paragraph from "@tiptap/extension-paragraph";
 
-import { observer } from "mobx-react-lite";
-import { DocumentResource } from "../../store/DocumentResource";
+import styles from "./Block.module.css"
 
 type Props = {
   document: DocumentResource;
@@ -12,14 +14,14 @@ type Props = {
 // React component which adds a drag handle to the node.
 const Component: React.FC<Props> = observer((props) => {
   return(
-    <NodeViewWrapper className="block">
+    <NodeViewWrapper className={styles.block}>
       <div
-        className="drag-handle"
+        className={styles.handle}
         contentEditable="false"
         draggable="true"
         data-drag-handle
     />
-    <NodeViewContent className="content"/>
+    <NodeViewContent className={styles.content}/>
   </NodeViewWrapper>
   );
 })

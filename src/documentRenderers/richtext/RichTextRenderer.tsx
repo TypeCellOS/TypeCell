@@ -1,15 +1,15 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
+import { DocumentResource } from "../../store/DocumentResource";
 
 import { useEditor, EditorContent, Extension } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit"
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 
-import { DocumentResource } from "../../store/DocumentResource";
-
-import "./RichTextStyle.css"
 import ParagraphBlock from "./ParagraphBlock";
+
+import "./RichTextRenderer.css"
 
 type Props = {
   document: DocumentResource;
