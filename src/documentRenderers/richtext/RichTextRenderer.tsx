@@ -1,27 +1,29 @@
+import React from "react";
+import { observer } from "mobx-react-lite";
+
+import { useEditor, EditorContent, Extension } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit"
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
-import { useEditor, EditorContent } from "@tiptap/react";
-import { defaultExtensions } from "@tiptap/starter-kit";
-import { observer } from "mobx-react-lite";
-import React from "react";
 
 import { DocumentResource } from "../../store/DocumentResource";
 import { Underline } from "./extensions/marks/Underline";
 import TypeCellNode from "./extensions/typecellnode";
 import InlineMenu from "./InlineMenu";
+import ParagraphBlock from "./ParagraphBlock";
+
+import "./RichTextRenderer.css"
 
 type Props = {
   document: DocumentResource;
 };
-const RichText: React.FC<Props> = observer((props) => {
+const RichTextRenderer: React.FC<Props> = observer((props) => {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
       console.log(editor.getJSON());
     },
     extensions: [
-      ...defaultExtensions(),
-      Underline,
-
+      StarterKit,
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,
         user: { name: "Hello", color: "#f783ac" },
@@ -29,10 +31,22 @@ const RichText: React.FC<Props> = observer((props) => {
       Collaboration.configure({
         fragment: props.document.data,
       }),
-      TypeCellNode,
+      ParagraphBlock,
     ],
-    content:
-      "This text is in a TipTap editor, feel free to change it. Live collaboration is also enabled.",
+    editorProps: {
+      attributes: {
+        class: "editor"
+      },
+    },
+
+    content: `
+      <div>
+        <p>Item 1</p>
+        <p>Item 2</p>
+        <p>Item 3</p>
+        <p>Item 4</p>
+      </div>
+      `,
   });
 
   return (
@@ -43,4 +57,4 @@ const RichText: React.FC<Props> = observer((props) => {
   );
 });
 
-export default RichText;
+export default RichTextRenderer;
