@@ -1,11 +1,20 @@
 import { BubbleMenu, Editor } from "@tiptap/react";
 import React from "react";
+import { Selection, NodeSelection} from "prosemirror-state";
 import styles from "./InlineMenu.module.css";
 
 type InlineMenuProps = { editor: Editor };
 
 class InlineMenu extends React.Component<InlineMenuProps> {
   render() {
+    // Renders an empty menu if a block is selected.
+    if (this.props.editor.state.selection instanceof NodeSelection) {
+      const nodeType: string = Object(this.props.editor.state.selection).node.type.name;
+      if(nodeType == "paragraph") {
+        return (<BubbleMenu editor={this.props.editor}/>);
+      }
+    }
+
     return (
       <BubbleMenu className={styles.BubbleMenu} editor={this.props.editor}>
         <button

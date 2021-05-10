@@ -32,6 +32,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         fragment: props.document.data,
       }),
       ParagraphBlock,
+      Underline,
     ],
     editorProps: {
       attributes: {
