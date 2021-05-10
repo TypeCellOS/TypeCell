@@ -1,5 +1,6 @@
-import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
-import { Command, Node, nodeInputRule, mergeAttributes } from "@tiptap/core";
+import { Plugin, PluginKey } from "prosemirror-state";
+import { Node as ProsemirrorNode } from "prosemirror-model";
+import { EditorView } from "prosemirror-view";
 import Image from "@tiptap/extension-image";
 import "./ImageEmbed.module.css";
 
@@ -15,7 +16,7 @@ export const ImageEmbed = Image.extend({
       new Plugin({
         key: new PluginKey("imagePasteRule"),
         props: {
-          handlePaste(view, event: ClipboardEvent, slice) {
+          handlePaste(view: EditorView, event: ClipboardEvent, slice) {
             const items = event.clipboardData?.items;
             if (items == undefined) return false;
             for (const item of items) {
@@ -28,7 +29,7 @@ export const ImageEmbed = Image.extend({
 
                 const reader = new FileReader();
                 reader.onload = (readerEvent) => {
-                  const node = schema.nodes.image.create({
+                  const node: ProsemirrorNode = schema.nodes.image.create({
                     src: readerEvent.target?.result,
                   });
                   const transaction = view.state.tr.replaceSelectionWith(node);
@@ -71,7 +72,7 @@ export const ImageEmbed = Image.extend({
                 const reader = new FileReader();
 
                 reader.onload = (readerEvent) => {
-                  const node = schema.nodes.image.create({
+                  const node: ProsemirrorNode = schema.nodes.image.create({
                     src: readerEvent.target?.result,
                   });
                   const transaction = view.state.tr.insert(
