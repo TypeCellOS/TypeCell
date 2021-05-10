@@ -31,8 +31,6 @@ const RichText: React.FC<Props> = observer((props) => {
       }),
       TypeCellNode,
     ],
-    content:
-      "This text is in a TipTap editor, feel free to change it. Live collaboration is also enabled.",
   });
 
   return (

@@ -1,7 +1,8 @@
 .BubbleMenu {
   display: flex;
-  background-color: #0d0d0d;
-  padding: 0.2rem;
+  background-color: transparent;
+  margin: -0.3rem -0.5rem;
+  padding: -0.2rem;
   border-radius: 0.5rem;
 }
 
@@ -11,11 +12,20 @@
   color: #fff;
   font-size: 0.85rem;
   font-weight: 500;
-  padding: 0 0.2rem;
+  padding: 0 -0.2rem;
   opacity: 0.6;
 }
 
 .BubbleMenu > button:hover,
 .BubbleMenu > button.isActive {
   opacity: 1;
+}
+
+.buttonTooltip {
+  text-align: center;
+}
+
+.secondaryText {
+  font-weight: 400;
+  opacity: 0.6;
 }
