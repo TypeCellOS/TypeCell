@@ -2,13 +2,13 @@ import React from "react";
 import { observer } from "mobx-react-lite";
 
 import { useEditor, EditorContent, Extension } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit"
+import StarterKit from "@tiptap/starter-kit";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 
 import { DocumentResource } from "../../store/DocumentResource";
 
-import "./RichTextStyle.css"
+import "./RichTextStyle.css";
 import ParagraphBlock from "./ParagraphBlock";
 
 type Props = {
@@ -32,7 +32,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     ],
     editorProps: {
       attributes: {
-        class: "editor"
+        class: "editor",
       },
     },
 
