@@ -1,37 +1,23 @@
 import React from "react";
 
-import { observer } from "mobx-react-lite";
+import menuOptionHandlers from "./SideMenuEvents";
 import "./SideMenu.css";
 
-const SideMenu: React.FC = observer((props) => {
+/**
+ * A side menu is created for each block. This is wrapped in a Tippy instance.
+ * @param props none;
+ * @returns React.FC
+ */
+const SideMenu: React.FC = (props) => {
   return (
-    <div
-      className={`hidden side-menu`}
-      style={{ display: "none", position: "absolute" }}>
+    <div className={`side-menu`}>
       <ul className={`menu-list`}>
-        <li
-          className={`menu-option`}
-          onClick={(event) => {
-            console.log(`menu option clicked`);
-            const block =
-              event.currentTarget.parentNode?.parentNode?.parentNode
-                ?.parentNode;
-            if (!block) {
-              window.alert(`no parent found! error!`);
-            }
-            // @ts-ignore
-            block.remove();
-          }}>
+        <li className={`menu-option`} onClick={menuOptionHandlers["onDelete"]}>
           Delete
-        </li>
-        <li
-          className={`menu-option`}
-          onClick={() => window.alert("unfinished work")}>
-          Select
         </li>
       </ul>
     </div>
   );
-});
+};
 
 export default SideMenu;

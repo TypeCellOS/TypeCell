@@ -5,6 +5,7 @@ import {
   NodeViewWrapper,
 } from "@tiptap/react";
 import Paragraph from "@tiptap/extension-paragraph";
+import Tippy from "@tippyjs/react";
 
 import { observer } from "mobx-react-lite";
 import { DocumentResource } from "../../store/DocumentResource";
@@ -18,42 +19,18 @@ type Props = {
 const Component: React.FC<Props> = observer((props) => {
   return (
     <NodeViewWrapper className="block">
-      <div
-        className="drag-handle"
-        contentEditable="false"
-        draggable="true"
-        data-drag-handle
-        onClick={(event) => {
-          console.log(`clicked`);
-          const menu = event.currentTarget.nextSibling;
-          if (!menu) {
-            window.alert("menu unavailable");
-            return;
-          }
-          // @ts-ignore
-          const shown: boolean = !(menu.style.display === "none");
-          if (shown) {
-            // @ts-ignore
-            menu.style.display = "none";
-          } else {
-            const rect = event.currentTarget.getBoundingClientRect();
-            // @ts-ignore
-            menu.style.left = `${-999}px`;
-            // @ts-ignore
-            menu.style.display = "block";
-            // @ts-ignore
-            menu.style.left = `calc(${-menu.scrollWidth}px - 1em)`;
-            // @ts-ignore
-            menu.style.top = `${
-              window.pageYOffset +
-              (rect.top + rect.bottom) / 2 -
-              // @ts-ignore
-              menu.scrollHeight / 2
-            }px`;
-          }
-        }}
-      />
-      <SideMenu></SideMenu>
+      <Tippy
+        content={<SideMenu></SideMenu>}
+        trigger={"click"}
+        placement={"left"}
+        interactive={true}>
+        <div
+          className="drag-handle"
+          contentEditable="false"
+          draggable="true"
+          data-drag-handle
+        />
+      </Tippy>
       <NodeViewContent className="content" />
     </NodeViewWrapper>
   );
