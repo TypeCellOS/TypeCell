@@ -1,6 +1,7 @@
 import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
 import { Command, Node, nodeInputRule, mergeAttributes } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
+import "./ImageEmbed.module.css";
 
 export const ImageEmbed = Image.extend({
   inline: false,
