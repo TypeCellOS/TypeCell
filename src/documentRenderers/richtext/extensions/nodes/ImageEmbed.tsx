@@ -1,103 +1,15 @@
-import { Plugin, PluginKey } from "prosemirror-state";
+import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
 import { Command, Node, nodeInputRule, mergeAttributes } from "@tiptap/core";
+import Image from "@tiptap/extension-image";
 
-/**
- * Code copied from the TipTap source code
- * https://github.com/ueberdosis/tiptap/blob/main/packages/extension-image/src/image.ts
- */
-export interface ImageOptions {
-  inline: boolean;
-  HTMLAttributes: Record<string, any>;
-}
-
-declare module "@tiptap/core" {
-  interface Commands {
-    image: {
-      /**
-       * Add an image
-       */
-      setImage: (options: {
-        src: string;
-        alt?: string;
-        title?: string;
-      }) => Command;
-    };
-  }
-}
-
-export const inputRegex = /!\[(.+|:?)]\((\S+)(?:(?:\s+)["'](\S+)["'])?\)/;
-
-export const ImageEmbed = Node.create<ImageOptions>({
-  name: "image",
-
-  defaultOptions: {
-    inline: false,
-    HTMLAttributes: {},
-  },
-
-  inline() {
-    return this.options.inline;
-  },
-
-  group() {
-    return this.options.inline ? "inline" : "block";
-  },
-
-  draggable: true,
-
-  addAttributes() {
-    return {
-      src: {
-        default: null,
-      },
-      alt: {
-        default: null,
-      },
-      title: {
-        default: null,
-      },
-    };
-  },
-
-  parseHTML() {
-    return [
-      {
-        tag: "img[src]",
-      },
-    ];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return [
-      "img",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
-    ];
-  },
-
-  addCommands() {
-    return {
-      setImage: (options) => ({ commands }) => {
-        return commands.insertContent({
-          type: this.name,
-          attrs: options,
-        });
-      },
-    };
-  },
-
-  addInputRules() {
-    return [
-      nodeInputRule(inputRegex, this.type, (match) => {
-        const [, alt, src, title] = match;
-
-        return { src, alt, title };
-      }),
-    ];
-  },
+export const ImageEmbed = Image.extend({
+  inline: false,
+  atom: true,
 
   // Code of Slava Vishnyakov
   // https://gist.github.com/slava-vishnyakov/16076dff1a77ddaca93c4bccd4ec4521
   addPasteRules() {
+    const setImage: Function = this.editor.commands.setImage;
     return [
       new Plugin({
         key: new PluginKey("imagePasteRule"),
@@ -111,7 +23,7 @@ export const ImageEmbed = Node.create<ImageOptions>({
                 const { schema } = view.state;
 
                 const image = item.getAsFile();
-                if (image == null) return false;
+                if (image === null) return false;
 
                 const reader = new FileReader();
                 reader.onload = (readerEvent) => {
@@ -119,7 +31,7 @@ export const ImageEmbed = Node.create<ImageOptions>({
                     src: readerEvent.target?.result,
                   });
                   const transaction = view.state.tr.replaceSelectionWith(node);
-                  view.dispatch(transaction);
+                  view.dispatch(transaction.scrollIntoView());
                 };
                 reader.readAsDataURL(image);
               }
