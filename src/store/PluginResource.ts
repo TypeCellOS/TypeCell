@@ -36,6 +36,7 @@ export default class PluginResource extends BaseResource {
     this._pluginCell =
       this._pluginCell ||
       new CellModel(
+        this.id,
         "!@" + this.id.substr(1) + "/plugin.tsx",
         this.ydoc.getText("pluginCell")
       );

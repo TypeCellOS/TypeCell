@@ -21,7 +21,7 @@ export default Node.create({
   group: "block",
 
   // NOTE: probably something wrong with this configuration?
-  content: "block*",
+  content: "text*",
   //    content: 'inline*', al
   defining: true,
   atom: true,
@@ -29,18 +29,11 @@ export default Node.create({
     return ReactNodeViewRenderer(TypeCellComponent);
   },
 
-  addCommands() {
+  addAttributes() {
     return {
-      test: () => ({ commands }) => {
-        return commands.insertContent({ type: "typecell" });
+      id: {
+        default: undefined,
       },
-    };
-  },
-
-  addKeyboardShortcuts() {
-    return {
-      m: () =>
-        this.editor.chain().insertContent("<typecell>test</typecell>").run(),
     };
   },
   parseHTML() {

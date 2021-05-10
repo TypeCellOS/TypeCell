@@ -30,18 +30,24 @@ export class CellListModel {
 
     this._previousChildren = children;
     this._previousCells = children.map((el) => {
-      const path =
-        "!@" +
-        this.documentId.substr(1) +
-        "/" +
-        el.getAttribute("id") +
-        ".cell.tsx";
+      const id = el.getAttribute("id");
+      if (!id) {
+        el.setAttribute("id", Math.random() + "");
+        // throw new Error("no id specified");
+      }
+      const path = "!@" + this.documentId.substr(1) + "/" + id + ".cell.tsx";
+
+      if (!el.firstChild) {
+        el.insert(0, [new Y.XmlText("// hello")]);
+      }
 
       const code = el.firstChild;
+
       if (!(code instanceof Y.XmlText)) {
         throw new Error("should be text");
       }
-      return new CellModel(path, code);
+
+      return new CellModel(id, path, code);
     });
     return this._previousCells;
   }

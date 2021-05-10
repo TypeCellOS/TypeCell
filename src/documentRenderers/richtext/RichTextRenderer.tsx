@@ -4,7 +4,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { observer } from "mobx-react-lite";
-import React from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 
 import { DocumentResource } from "../../store/DocumentResource";
 import TypeCellNode from "./extensions/typecellnode";
@@ -12,14 +12,40 @@ import SlashCommandExtension from "./extensions/slashcommand";
 
 import "./RichTextRenderer.css";
 import { editor } from "monaco-editor";
+import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
+import { EngineContext } from "./extensions/typecellnode/EngineContext";
 
 type Props = {
   document: DocumentResource;
 };
 const RichText: React.FC<Props> = observer((props) => {
+  const disposer = useRef<() => void>();
+
+  const engine = useMemo(() => {
+    if (disposer.current) {
+      disposer.current();
+      disposer.current = undefined;
+    }
+    const newEngine = new EngineWithOutput(props.document.id, true);
+    disposer.current = () => {
+      newEngine.dispose();
+    };
+
+    return newEngine;
+  }, [props.document.id]);
+
+  useEffect(() => {
+    return () => {
+      if (disposer.current) {
+        disposer.current();
+        disposer.current = undefined;
+      }
+    };
+  }, []);
+
   const editor = useEditor({
     onUpdate: ({ editor }) => {
-      // console.log(editor.getJSON());
+      console.log(editor.getJSON());
     },
     extensions: [
       StarterKit,
@@ -37,7 +63,7 @@ const RichText: React.FC<Props> = observer((props) => {
         showOnlyCurrent: true,
       }),
 
-      // TypeCellNode,
+      TypeCellNode,
       SlashCommandExtension.configure({
         commands: {},
       }),
@@ -47,7 +73,9 @@ const RichText: React.FC<Props> = observer((props) => {
 
   return (
     <div style={{ maxWidth: 600, margin: "0 auto" }}>
-      <EditorContent editor={editor} />
+      <EngineContext.Provider value={{ engine, document: props.document }}>
+        <EditorContent editor={editor} />
+      </EngineContext.Provider>
     </div>
   );
 });
