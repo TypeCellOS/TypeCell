@@ -5,7 +5,7 @@
 }
 
 .handle {
-    display: none;
+    display: flex;
     position: absolute;
     width: 1rem;
     height: 1rem;
@@ -18,7 +18,7 @@
 }
 
 .outer {
-    display: none;
+    display: flex;
     position: absolute;
     width: 1rem;
     height: 1rem;
