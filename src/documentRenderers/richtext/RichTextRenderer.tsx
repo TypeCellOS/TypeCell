@@ -5,14 +5,23 @@ import { useEditor, EditorContent, Extension } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit"
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import Placeholder from "@tiptap/extension-placeholder";
 
 import { DocumentResource } from "../../store/DocumentResource";
 import { Underline } from "./extensions/marks/Underline";
 import TypeCellNode from "./extensions/typecellnode";
 import InlineMenu from "./InlineMenu";
-import ParagraphBlock from "./ParagraphBlock";
+import BulletListBlock from "./extensions/blocktypes/BulletListBlock";
+import HeadingBlock from "./extensions/blocktypes/HeadingBlock";
+import ListItemBlock from "./extensions/blocktypes/ListItemBlock";
+import ParagraphBlock from "./extensions/blocktypes/ParagraphBlock";
+import SlashCommandExtension from "./extensions/slashcommand";
 
 import "./RichTextRenderer.css"
+
+import "./RichTextRenderer.css";
+import { editor } from "monaco-editor";
+import OrderedListBlock from "./extensions/blocktypes/OrderedListBlock";
 
 type Props = {
   document: DocumentResource;
@@ -20,7 +29,7 @@ type Props = {
 const RichTextRenderer: React.FC<Props> = observer((props) => {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
-      console.log(editor.getJSON());
+      // console.log(editor.getJSON());
     },
     extensions: [
       StarterKit,
@@ -31,6 +40,18 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       Collaboration.configure({
         fragment: props.document.data,
       }),
+      Placeholder.configure({
+        placeholder: "Use '/' to insert a new block.",
+        showOnlyCurrent: true,
+      }),
+      SlashCommandExtension.configure({
+        commands: {},
+      }),
+      // TypeCellNode,
+      BulletListBlock,
+      HeadingBlock,
+      ListItemBlock,
+      OrderedListBlock,
       ParagraphBlock,
       Underline,
     ],
@@ -39,15 +60,6 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         class: "editor"
       },
     },
-
-    // content: `
-    //   <div>
-    //     <p>Item 1</p>
-    //     <p>Item 2</p>
-    //     <p>Item 3</p>
-    //     <p>Item 4</p>
-    //   </div>
-    //   `,
   });
 
   return (

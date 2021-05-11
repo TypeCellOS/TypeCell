@@ -1,6 +1,6 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
-import { DocumentResource } from "../../store/DocumentResource";
+import { DocumentResource } from "../../../../store/DocumentResource";
 
 import { ReactNodeViewRenderer, NodeViewContent, NodeViewWrapper } from "@tiptap/react"
 import Paragraph from "@tiptap/extension-paragraph";
@@ -21,7 +21,7 @@ const Component: React.FC<Props> = observer((props) => {
         draggable="true"
         data-drag-handle
     />
-    <NodeViewContent className={styles.content}/>
+    <NodeViewContent className={styles.content} as={"p"}/>
   </NodeViewWrapper>
   );
 })
