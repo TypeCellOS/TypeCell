@@ -9,6 +9,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 
 import { DocumentResource } from "../../store/DocumentResource";
 import { Underline } from "./extensions/marks/Underline";
+import { ImageBlock } from "./extensions/blocktypes/ImageBlock";
 import TypeCellNode from "./extensions/typecellnode";
 import InlineMenu from "./InlineMenu";
 import BlockQuoteBlock from "./extensions/blocktypes/BlockQuoteBlock";
@@ -57,10 +58,13 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       CodeBlockBlock,
       HeadingBlock,
       HorizontalRuleBlock,
+      ImageBlock,
       ListItemBlock,
       OrderedListBlock,
       ParagraphBlock,
       Underline,
+
+      // TypeCellNode,
     ],
     editorProps: {
       attributes: {

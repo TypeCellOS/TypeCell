@@ -37,3 +37,8 @@
 .block:hover .handle {
     display: flex;
 }
+
+img {
+    display: block;
+    max-width: 100%;
+}
