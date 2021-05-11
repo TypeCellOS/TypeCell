@@ -1,15 +1,8 @@
 import React from "react";
-<<<<<<< HEAD
-import "./SideMenu.css";
-
-type Props = {
-	onDelete: () => void;
-=======
 import styles from "./SideMenu.module.css";
 
 type Props = {
   onDelete: () => void;
->>>>>>> origin/node-deletion
 };
 
 /**
@@ -18,24 +11,10 @@ type Props = {
  * @returns React.FC
  */
 const SideMenu = (props: Props) => {
-<<<<<<< HEAD
-	return (
-		<div className={`side-menu`}>
-			<ul className={`menu-list`}>
-				<li className={`menu-option`} onClick={props.onDelete}>
-					Delete
-				</li>
-			</ul>
-		</div>
-	);
-};
-
-export default SideMenu;
-=======
   return (
-    <div className={styles[`side-menu`]}>
-      <ul className={styles[`menu-list`]}>
-        <li className={styles[`menu-option`]} onClick={props.onDelete}>
+    <div>
+      <ul className={styles.menuList}>
+        <li className={styles.menuOption} onClick={props.onDelete}>
           Delete
         </li>
       </ul>
@@ -44,4 +23,3 @@ export default SideMenu;
 };
 
 export default SideMenu;
->>>>>>> origin/node-deletion
