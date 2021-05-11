@@ -4,7 +4,7 @@ import { EditorView } from "prosemirror-view";
 import Image from "@tiptap/extension-image";
 import "./Block.module.css";
 
-export const ImageBlock = Image.extend({
+const ImageBlock = Image.extend({
   draggable: true,
   inline: false,
   atom: true,
@@ -92,3 +92,5 @@ export const ImageBlock = Image.extend({
     ];
   },
 });
+
+export default ImageBlock;
