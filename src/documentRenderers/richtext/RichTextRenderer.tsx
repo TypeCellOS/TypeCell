@@ -11,8 +11,11 @@ import { DocumentResource } from "../../store/DocumentResource";
 import { Underline } from "./extensions/marks/Underline";
 import TypeCellNode from "./extensions/typecellnode";
 import InlineMenu from "./InlineMenu";
+import BlockQuoteBlock from "./extensions/blocktypes/BlockQuoteBlock";
 import BulletListBlock from "./extensions/blocktypes/BulletListBlock";
+import CodeBlockBlock from "./extensions/blocktypes/CodeBlockBlock";
 import HeadingBlock from "./extensions/blocktypes/HeadingBlock";
+import HorizontalRuleBlock from "./extensions/blocktypes/HorizontalRuleBlock";
 import ListItemBlock from "./extensions/blocktypes/ListItemBlock";
 import ParagraphBlock from "./extensions/blocktypes/ParagraphBlock";
 import SlashCommandExtension from "./extensions/slashcommand";
@@ -22,6 +25,7 @@ import "./RichTextRenderer.css"
 import "./RichTextRenderer.css";
 import { editor } from "monaco-editor";
 import OrderedListBlock from "./extensions/blocktypes/OrderedListBlock";
+import CodeBlock from "@tiptap/extension-code-block";
 
 type Props = {
   document: DocumentResource;
@@ -48,8 +52,11 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         commands: {},
       }),
       // TypeCellNode,
+      BlockQuoteBlock,
       BulletListBlock,
+      CodeBlockBlock,
       HeadingBlock,
+      HorizontalRuleBlock,
       ListItemBlock,
       OrderedListBlock,
       ParagraphBlock,
