@@ -22,7 +22,10 @@ export type SuggestionRendererProps<T extends SuggestionItem> = {
   editor: Editor;
   range: Range;
   query: string;
-  items: T[];
+  groups: {
+    [groupName: string]: T[];
+  };
+  count: number;
   selectItemCallback: (item: T) => void;
   decorationNode: Element | null;
   // virtual node for popper.js or tippy.js
@@ -142,11 +145,24 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           const decorationNode = document.querySelector(
             `[data-decoration-id="${state.decorationId}"]`
           );
+
+          // Filter items using query and map them to groups
+          let count = 0;
+          const groups: { [groupName: string]: T[] } = {};
+          for (const item of items(state.query)) {
+            if (!groups[item.groupName]) groups[item.groupName] = [];
+
+            groups[item.groupName].push(item);
+
+            count++;
+          }
+
           const rendererProps: SuggestionRendererProps<T> = {
             editor,
             range: state.range,
             query: state.query,
-            items: handleChange || handleStart ? items(state.query) : [],
+            groups: handleChange || handleStart ? groups : {},
+            count: count,
             selectItemCallback: (item: T) => {
               selectItemCallback({
                 item,

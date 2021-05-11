@@ -4,7 +4,8 @@ import SuggestionItem from "../../prosemirrorPlugins/suggestions/SuggestionItem"
 export type SlashCommandCallback = (editor: Editor, range: Range) => boolean;
 
 export enum CommandGroup {
-  BASIC = "Basic",
+  HEADINGS = "Headings",
+  BASIC_BLOCKS = "Basic Blocks",
 
   // Just some examples, that are not currently in use
   INLINE = "Inline",

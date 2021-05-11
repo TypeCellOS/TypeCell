@@ -16,7 +16,8 @@ export default function createRenderer<T extends SuggestionItem>(
       component = new ReactRenderer(SuggestionList as any, {
         editor: editor as ReactEditor,
         props: {
-          items: props.items,
+          groups: props.groups,
+          count: props.count,
           selectItemCallback: props.selectItemCallback,
         },
       });

@@ -5,13 +5,18 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 1 heading
   heading: new SlashCommand(
     "Heading",
-    CommandGroup.BASIC,
+    CommandGroup.HEADINGS,
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 1,
       });
 
-      editor.chain().replaceRangeCustom(range, node).run();
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
 
       return true;
     },
@@ -21,13 +26,18 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 2 heading
   heading2: new SlashCommand(
     "Heading 2",
-    CommandGroup.BASIC,
+    CommandGroup.HEADINGS,
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 2,
       });
 
-      editor.chain().replaceRangeCustom(range, node).run();
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
 
       return true;
     },
@@ -37,13 +47,18 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 3 heading
   heading3: new SlashCommand(
     "Heading 3",
-    CommandGroup.BASIC,
+    CommandGroup.HEADINGS,
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 3,
       });
 
-      editor.chain().replaceRangeCustom(range, node).run();
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
 
       return true;
     },
@@ -53,13 +68,18 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 4 heading
   heading4: new SlashCommand(
     "Heading 4",
-    CommandGroup.BASIC,
+    CommandGroup.HEADINGS,
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 4,
       });
 
-      editor.chain().replaceRangeCustom(range, node).run();
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
 
       return true;
     },
@@ -69,13 +89,18 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 5 heading
   heading5: new SlashCommand(
     "Heading 5",
-    CommandGroup.BASIC,
+    CommandGroup.HEADINGS,
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 5,
       });
 
-      editor.chain().replaceRangeCustom(range, node).run();
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
 
       return true;
     },
@@ -85,13 +110,18 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 6 heading
   heading6: new SlashCommand(
     "Heading 6",
-    CommandGroup.BASIC,
+    CommandGroup.HEADINGS,
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 6,
       });
 
-      editor.chain().replaceRangeCustom(range, node).run();
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
 
       return true;
     },
@@ -101,11 +131,16 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a paragraph (pretty useless)
   paragraph: new SlashCommand(
     "Paragraph",
-    CommandGroup.BASIC,
+    CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
       const node = editor.schema.node("paragraph");
 
-      editor.chain().replaceRangeCustom(range, node).run();
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
 
       return true;
     },
@@ -115,11 +150,16 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a code block
   codeblock: new SlashCommand(
     "Code Block",
-    CommandGroup.BASIC,
+    CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
       const node = editor.schema.node("codeBlock");
 
-      editor.chain().replaceRangeCustom(range, node).run();
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
 
       return true;
     },
@@ -129,13 +169,18 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a bullet list
   bulletlist: new SlashCommand(
     "Bullet List",
-    CommandGroup.BASIC,
+    CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
       const paragraph = editor.schema.node("paragraph");
       const listItem = editor.schema.node("listItem", {}, paragraph);
       const node = editor.schema.node("bulletList", {}, listItem);
 
-      editor.chain().replaceRangeCustom(range, node).run();
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
 
       return true;
     },
@@ -145,13 +190,18 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating an ordered list
   orderedlist: new SlashCommand(
     "Ordered List",
-    CommandGroup.BASIC,
+    CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
       const paragraph = editor.schema.node("paragraph");
       const listItem = editor.schema.node("listItem", {}, paragraph);
       const node = editor.schema.node("orderedList", {}, listItem);
 
-      editor.chain().replaceRangeCustom(range, node).run();
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
 
       return true;
     },
@@ -161,12 +211,17 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a blockquote
   blockquote: new SlashCommand(
     "Block Quote",
-    CommandGroup.BASIC,
+    CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
       const paragraph = editor.schema.node("paragraph");
       const node = editor.schema.node("blockquote", {}, paragraph);
 
-      editor.chain().replaceRangeCustom(range, node).run();
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
 
       return true;
     },
@@ -176,7 +231,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a horizontal rule
   horizontalRule: new SlashCommand(
     "Horizontal Rule",
-    CommandGroup.BASIC,
+    CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
       const node = editor.schema.node("horizontalRule");
 
@@ -214,6 +269,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
           return true;
         })
+        .focus()
         .scrollIntoView()
         .run();
       return true;

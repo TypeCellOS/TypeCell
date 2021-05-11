@@ -1,29 +1,8 @@
-import { Extension, Command, Range } from "@tiptap/core";
+import { Extension } from "@tiptap/core";
 import { Selection } from "prosemirror-state";
-import { Node } from "prosemirror-model";
 import defaultCommands from "./defaultCommands";
 import { SlashCommand } from "./SlashCommand";
 import { SuggestionPlugin } from "../../prosemirrorPlugins/suggestions/SuggestionPlugin";
-
-declare module "@tiptap/core" {
-  interface Commands {
-    replaceRangeCustom: {
-      /**
-       * Command for replacing a range with a node.
-       *
-       * This command tries to put the cursor at the start of the newly created node,
-       * such that the user can start typing in the new node immediately.
-       *
-       * **Only use this command works best for inserting nodes that contain editable text.**
-       *
-       * @param range the range
-       * @param node the prosemirror node
-       * @returns true iff the command succeeded
-       */
-      replaceRangeCustom: (range: Range, node: Node) => Command;
-    };
-  }
-}
 
 export type SlashCommandOptions = {
   commands: { [key: string]: SlashCommand };
@@ -42,7 +21,10 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
         const { from, to } = range;
 
         if (dispatch) {
+          // Replace range with node
           tr.replaceRangeWith(from, to, node);
+
+          // Put cursor at the start of the new node (or try to at least)
           const pos = tr.mapping.map(from, -1);
           tr.setSelection(Selection.near(tr.doc.resolve(pos), 1));
         }
