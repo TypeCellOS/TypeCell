@@ -36,16 +36,6 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
     commands: defaultCommands,
   },
 
-  onCreate() {
-    // The editor is ready.
-  },
-  onUpdate() {},
-  onSelectionUpdate() {},
-  // addKeyboardShortcuts() {},
-  onTransaction({ transaction }) {},
-  onFocus({ event }) {},
-  onBlur({ event }) {},
-  onDestroy() {},
   addCommands() {
     return {
       replaceRangeCustom: (range, node) => ({ tr, dispatch }) => {
@@ -74,9 +64,7 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
             commands.push(this.options.commands[key]);
           }
 
-          return commands.filter((cmd: SlashCommand) =>
-            cmd.name.toLowerCase().startsWith(query.toLowerCase())
-          );
+          return commands.filter((cmd: SlashCommand) => cmd.match(query));
         },
         selectItemCallback: ({ item, editor, range }) => {
           item.execute(editor, range);

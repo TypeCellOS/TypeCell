@@ -1,26 +1,94 @@
-import { toInteger } from "lodash";
 import { TextSelection } from "prosemirror-state";
-import { SlashCommand } from "./SlashCommand";
+import { CommandGroup, SlashCommand } from "./SlashCommand";
 
 const defaultCommands: { [key: string]: SlashCommand } = {
   heading: new SlashCommand(
-    "heading",
-    (editor, range, args) => {
-      const level = args ? toInteger(args[1]) : 1;
-
+    "Heading",
+    CommandGroup.BASIC,
+    (editor, range) => {
       const node = editor.schema.node("heading", {
-        level: level,
+        level: 1,
       });
 
       editor.chain().replaceRangeCustom(range, node).run();
 
       return true;
     },
-    [],
-    /(heading|h)([1-6]?)/
+    ["h", "heading1", "h1"]
+  ),
+  heading2: new SlashCommand(
+    "Heading 2",
+    CommandGroup.BASIC,
+    (editor, range) => {
+      const node = editor.schema.node("heading", {
+        level: 2,
+      });
+
+      editor.chain().replaceRangeCustom(range, node).run();
+
+      return true;
+    },
+    ["h2", "heading2", "subheading"]
+  ),
+  heading3: new SlashCommand(
+    "Heading 3",
+    CommandGroup.BASIC,
+    (editor, range) => {
+      const node = editor.schema.node("heading", {
+        level: 3,
+      });
+
+      editor.chain().replaceRangeCustom(range, node).run();
+
+      return true;
+    },
+    ["h3", "heading3", "subsubheading"]
+  ),
+  heading4: new SlashCommand(
+    "Heading 4",
+    CommandGroup.BASIC,
+    (editor, range) => {
+      const node = editor.schema.node("heading", {
+        level: 4,
+      });
+
+      editor.chain().replaceRangeCustom(range, node).run();
+
+      return true;
+    },
+    ["h4", "heading4"]
+  ),
+  heading5: new SlashCommand(
+    "Heading 5",
+    CommandGroup.BASIC,
+    (editor, range) => {
+      const node = editor.schema.node("heading", {
+        level: 5,
+      });
+
+      editor.chain().replaceRangeCustom(range, node).run();
+
+      return true;
+    },
+    ["h5", "heading5"]
+  ),
+  heading6: new SlashCommand(
+    "Heading 6",
+    CommandGroup.BASIC,
+    (editor, range) => {
+      const node = editor.schema.node("heading", {
+        level: 6,
+      });
+
+      editor.chain().replaceRangeCustom(range, node).run();
+
+      return true;
+    },
+    ["h6", "heading6"]
   ),
   paragraph: new SlashCommand(
-    "paragraph",
+    "Paragraph",
+    CommandGroup.BASIC,
     (editor, range) => {
       const node = editor.schema.node("paragraph");
 
@@ -31,7 +99,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     ["p"]
   ),
   codeblock: new SlashCommand(
-    "codeblock",
+    "Code Block",
+    CommandGroup.BASIC,
     (editor, range) => {
       const node = editor.schema.node("codeBlock");
 
@@ -39,10 +108,11 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["code"]
+    ["code", "codeblock"]
   ),
   bulletlist: new SlashCommand(
-    "bulletlist",
+    "Bullet List",
+    CommandGroup.BASIC,
     (editor, range) => {
       const paragraph = editor.schema.node("paragraph");
       const listItem = editor.schema.node("listItem", {}, paragraph);
@@ -52,10 +122,11 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["ul", "list"]
+    ["ul", "list", "bulletlist"]
   ),
   orderedlist: new SlashCommand(
-    "orderedlist",
+    "Ordered List",
+    CommandGroup.BASIC,
     (editor, range) => {
       const paragraph = editor.schema.node("paragraph");
       const listItem = editor.schema.node("listItem", {}, paragraph);
@@ -65,10 +136,11 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["ol"]
+    ["ol", "orderedlist"]
   ),
   blockquote: new SlashCommand(
-    "blockquote",
+    "Block Quote",
+    CommandGroup.BASIC,
     (editor, range) => {
       const paragraph = editor.schema.node("paragraph");
       const node = editor.schema.node("blockquote", {}, paragraph);
@@ -77,11 +149,12 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["quote"]
+    ["quote", "blockquote"]
   ),
 
   horizontalRule: new SlashCommand(
-    "horizontalRule",
+    "Horizontal Rule",
+    CommandGroup.BASIC,
     (editor, range) => {
       const node = editor.schema.node("horizontalRule");
 
@@ -123,7 +196,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         .run();
       return true;
     },
-    ["hr"]
+    ["hr", "horizontalrule"]
   ),
 };
 
