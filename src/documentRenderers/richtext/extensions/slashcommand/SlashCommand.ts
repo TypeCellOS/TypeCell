@@ -7,6 +7,7 @@ export enum CommandGroup {
   BASIC = "Basic",
 
   // Just some examples, that are not currently in use
+  INLINE = "Inline",
   EMBED = "Embed",
   PLUGIN = "Plugin",
 }

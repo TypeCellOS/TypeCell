@@ -2,6 +2,7 @@ import { TextSelection } from "prosemirror-state";
 import { CommandGroup, SlashCommand } from "./SlashCommand";
 
 const defaultCommands: { [key: string]: SlashCommand } = {
+  // Command for creating a level 1 heading
   heading: new SlashCommand(
     "Heading",
     CommandGroup.BASIC,
@@ -16,6 +17,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["h", "heading1", "h1"]
   ),
+
+  // Command for creating a level 2 heading
   heading2: new SlashCommand(
     "Heading 2",
     CommandGroup.BASIC,
@@ -30,6 +33,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["h2", "heading2", "subheading"]
   ),
+
+  // Command for creating a level 3 heading
   heading3: new SlashCommand(
     "Heading 3",
     CommandGroup.BASIC,
@@ -44,6 +49,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["h3", "heading3", "subsubheading"]
   ),
+
+  // Command for creating a level 4 heading
   heading4: new SlashCommand(
     "Heading 4",
     CommandGroup.BASIC,
@@ -58,6 +65,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["h4", "heading4"]
   ),
+
+  // Command for creating a level 5 heading
   heading5: new SlashCommand(
     "Heading 5",
     CommandGroup.BASIC,
@@ -72,6 +81,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["h5", "heading5"]
   ),
+
+  // Command for creating a level 6 heading
   heading6: new SlashCommand(
     "Heading 6",
     CommandGroup.BASIC,
@@ -86,6 +97,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["h6", "heading6"]
   ),
+
+  // Command for creating a paragraph (pretty useless)
   paragraph: new SlashCommand(
     "Paragraph",
     CommandGroup.BASIC,
@@ -98,6 +111,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["p"]
   ),
+
+  // Command for creating a code block
   codeblock: new SlashCommand(
     "Code Block",
     CommandGroup.BASIC,
@@ -110,6 +125,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["code", "codeblock"]
   ),
+
+  // Command for creating a bullet list
   bulletlist: new SlashCommand(
     "Bullet List",
     CommandGroup.BASIC,
@@ -124,6 +141,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["ul", "list", "bulletlist"]
   ),
+
+  // Command for creating an ordered list
   orderedlist: new SlashCommand(
     "Ordered List",
     CommandGroup.BASIC,
@@ -138,6 +157,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["ol", "orderedlist"]
   ),
+
+  // Command for creating a blockquote
   blockquote: new SlashCommand(
     "Block Quote",
     CommandGroup.BASIC,
@@ -152,6 +173,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     ["quote", "blockquote"]
   ),
 
+  // Command for creating a horizontal rule
   horizontalRule: new SlashCommand(
     "Horizontal Rule",
     CommandGroup.BASIC,
