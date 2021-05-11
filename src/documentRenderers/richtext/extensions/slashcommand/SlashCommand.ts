@@ -1,4 +1,5 @@
 import { Editor, Range } from "@tiptap/core";
+import SuggestionItem from "../../prosemirrorPlugins/suggestions/SuggestionItem";
 
 export type SlashCommandCallback = (
   editor: Editor,
@@ -30,7 +31,7 @@ export function matchSlashCommand(
  *
  * Not to be confused with ProseMirror commands nor TipTap commands.
  */
-export class SlashCommand {
+export class SlashCommand implements SuggestionItem {
   name: string;
   aliases?: string[];
   regex: RegExp;

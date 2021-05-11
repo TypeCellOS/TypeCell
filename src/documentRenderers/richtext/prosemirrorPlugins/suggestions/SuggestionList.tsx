@@ -1,19 +1,19 @@
 import React from "react";
 import {
-  SlashCommandRendererKeyDownProps,
-  SlashCommandRendererProps,
-} from "./SlashCommandPlugin";
-import "./CommandList.css";
-import { SlashCommand } from "./SlashCommand";
+  SuggestionRendererKeyDownProps,
+  SuggestionRendererProps,
+} from "./SuggestionPlugin";
+import "./SuggestionList.css";
+import SuggestionItem from "./SuggestionItem";
 
-export class CommandList extends React.Component<
+export class SuggestionList<T extends SuggestionItem> extends React.Component<
   {
-    items: SlashCommand[];
-    selectItemCallback: (command: SlashCommand) => void;
+    items: T[];
+    selectItemCallback: (item: T) => void;
   },
   { selectedIndex: number }
 > {
-  constructor(props: SlashCommandRendererProps) {
+  constructor(props: SuggestionRendererProps<T>) {
     super(props);
 
     this.state = {
@@ -21,7 +21,8 @@ export class CommandList extends React.Component<
     };
   }
 
-  componentDidUpdate(oldProps: SlashCommandRendererProps) {
+  componentDidUpdate(oldProps: SuggestionRendererProps<T>) {
+    // if the set of items is different, reset the selectedIndex to 0
     if (this.props.items !== oldProps.items) {
       this.setState({
         selectedIndex: 0,
@@ -29,7 +30,7 @@ export class CommandList extends React.Component<
     }
   }
 
-  onKeyDown({ event }: SlashCommandRendererKeyDownProps) {
+  onKeyDown({ event }: SuggestionRendererKeyDownProps) {
     if (event.key === "ArrowUp") {
       this.upHandler();
       return true;
@@ -67,10 +68,10 @@ export class CommandList extends React.Component<
   }
 
   selectItem(index: number) {
-    const command = this.props.items[index];
+    const item = this.props.items[index];
 
-    if (command) {
-      this.props.selectItemCallback(command);
+    if (item) {
+      this.props.selectItemCallback(item);
     }
   }
 

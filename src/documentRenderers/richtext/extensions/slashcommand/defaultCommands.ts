@@ -85,36 +85,41 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("horizontalRule");
 
+      // insert horizontal rule, create a new block after the horizontal rule if applicable
+      // and put the cursor in the block after the horizontal rule.
       editor
         .chain()
         .replaceRangeCustom(range, node)
         .command(({ tr, dispatch }) => {
           if (dispatch) {
-            const { parent } = tr.selection.$to;
+            // the node immediately after the cursor
             const nodeAfter = tr.selection.$to.nodeAfter;
 
-            const posAfter = tr.selection.$to.pos;
+            // the position of the cursor
+            const cursorPos = tr.selection.$to.pos;
 
-            // end of document
+            // check if there is no node after the cursor (end of document)
             if (!nodeAfter) {
+              // create a new block of the default type (probably paragraph) after the cursor
+              const { parent } = tr.selection.$to;
               const node = parent.type.contentMatch.defaultType?.create();
 
               if (node) {
-                tr.insert(posAfter, node);
+                tr.insert(cursorPos, node);
               }
             }
 
-            tr.doc.nodesBetween(posAfter, posAfter + 1, (node, pos) => {
+            // try to put the cursor at the start of the node directly after the inserted horizontal rule
+            tr.doc.nodesBetween(cursorPos, cursorPos + 1, (node, pos) => {
               if (node.type.name !== "horizontalRule") {
                 tr.setSelection(TextSelection.create(tr.doc, pos));
               }
             });
-
-            tr.scrollIntoView();
           }
 
           return true;
         })
+        .scrollIntoView()
         .run();
       return true;
     },
