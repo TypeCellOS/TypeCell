@@ -1,5 +1,5 @@
 import React from "react";
-import "./SideMenu.css";
+import styles from "./SideMenu.module.css";
 
 type Props = {
   onDelete: () => void;
@@ -12,9 +12,9 @@ type Props = {
  */
 const SideMenu = (props: Props) => {
   return (
-    <div className={`side-menu`}>
-      <ul className={`menu-list`}>
-        <li className={`menu-option`} onClick={props.onDelete}>
+    <div className={styles[`side-menu`]}>
+      <ul className={styles[`menu-list`]}>
+        <li className={styles[`menu-option`]} onClick={props.onDelete}>
           Delete
         </li>
       </ul>
