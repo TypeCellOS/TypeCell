@@ -30,6 +30,17 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["p"]
   ),
+  ref: new SlashCommand(
+    "ref",
+    (editor, range) => {
+      const node = editor.schema.node("ref");
+
+      editor.chain().replaceRangeCustom(range, node).run();
+
+      return true;
+    },
+    ["ref"]
+  ),
   codeblock: new SlashCommand(
     "codeblock",
     (editor, range) => {

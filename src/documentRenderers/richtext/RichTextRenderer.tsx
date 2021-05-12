@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 
 import { useEditor, EditorContent, Extension } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Collaboration from "@tiptap/extension-collaboration";
+import Collaboration from "./extensions/collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import Placeholder from "@tiptap/extension-placeholder";
 
@@ -23,6 +23,7 @@ import ParagraphBlock from "./extensions/blocktypes/ParagraphBlock";
 import SlashCommandExtension from "./extensions/slashcommand";
 
 import "./RichTextRenderer.css";
+import RefBlock from "./extensions/blocktypes/RefBlock";
 
 type Props = {
   document: DocumentResource;
@@ -34,10 +35,10 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     },
     extensions: [
       StarterKit,
-      CollaborationCursor.configure({
-        provider: props.document.webrtcProvider,
-        user: { name: "Hello", color: "#f783ac" },
-      }),
+      // CollaborationCursor.configure({
+      //   provider: props.document.webrtcProvider,
+      //   user: { name: "Hello", color: "#f783ac" },
+      // }),
       Collaboration.configure({
         fragment: props.document.data,
       }),
@@ -49,6 +50,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         commands: {},
       }),
       // TypeCellNode,
+      RefBlock,
       BlockQuoteBlock,
       BulletListBlock,
       CodeBlockBlock,

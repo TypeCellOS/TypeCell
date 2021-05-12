@@ -8,7 +8,6 @@
     "@testing-library/user-event": "^12.1.10",
     "@tippyjs/react": "^4.2.5",
     "@tiptap/extension-bubble-menu": "2.0.0-beta.7",
-    "@tiptap/extension-collaboration": "^2.0.0-beta.15",
     "@tiptap/extension-collaboration-cursor": "^2.0.0-beta.17",
     "@tiptap/extension-image": "^2.0.0-beta.11",
     "@tiptap/extension-placeholder": "^2.0.0-beta.15",
@@ -45,6 +44,7 @@
     "y-indexeddb": "^9.0.6",
     "y-monaco": "^0.1.2",
     "y-webrtc": "^10.1.8",
+    "y-prosemirror": "file:../y-prosemirror",
     "yjs": "^13.5.4"
   },
   "scripts": {
