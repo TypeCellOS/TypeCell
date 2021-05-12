@@ -12,6 +12,7 @@
     "@tiptap/react": "^2.0.0-beta.33",
     "@tiptap/starter-kit": "^2.0.0-beta.50",
     "@tiptap/suggestion": "^2.0.0-beta.53",
+    "@tiptap/extension-bubble-menu": "2.0.0-beta.7",
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
