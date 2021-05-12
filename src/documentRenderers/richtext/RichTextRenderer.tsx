@@ -21,6 +21,11 @@ import ListItemBlock from "./extensions/blocktypes/ListItemBlock";
 import OrderedListBlock from "./extensions/blocktypes/OrderedListBlock";
 import ParagraphBlock from "./extensions/blocktypes/ParagraphBlock";
 import SlashCommandExtension from "./extensions/slashcommand";
+import Table from "@tiptap/extension-table";
+import TableCell from "@tiptap/extension-table-cell";
+import TableRow from "@tiptap/extension-table-row";
+import TableHeader from "@tiptap/extension-table-header";
+import CustomTable from "./extensions/blocktypes/Table";
 
 import "./RichTextRenderer.css";
 
@@ -59,7 +64,10 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       OrderedListBlock,
       ParagraphBlock,
       Underline,
-
+      CustomTable,
+      TableCell,
+      TableHeader,
+      TableRow,
       // TypeCellNode,
     ],
     editorProps: {
@@ -67,6 +75,23 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         class: "editor",
       },
     },
+    content: `
+    <p>a paragraph</p>
+    <table>
+      <tbody>
+        <tr>
+          <th>Name</th>
+          <th colspan="3">Description</th>
+        </tr>
+        <tr>
+          <td>Cyndi Lauper</td>
+          <td>singer</td>
+          <td>songwriter</td>
+          <td>actress</td>
+        </tr>
+      </tbody>
+    </table>
+    `,
   });
 
   return (

@@ -1,0 +1,48 @@
+table {
+  overflow-x: scroll;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.selectedCell:after {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(200, 200, 255, 0.4);
+  pointer-events: none;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.resize-cursor {
+  cursor: ew-resize;
+  cursor: col-resize;
+}
+
+.tableMenu {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+
+.tableMenuOption {
+  outline: none;
+  border: none;
+  background-color: Transparent;
+  color: gray;
+}
+
+.tableMenuOption:hover {
+  color: white;
+  cursor: pointer;
+}
