@@ -1207,9 +1207,8 @@ diff_match_patch.prototype.diff_cleanupMerge = function (diffs) {
                 diffs[pointer - count_delete - count_insert - 1][0] ==
                   DIFF_EQUAL
               ) {
-                diffs[
-                  pointer - count_delete - count_insert - 1
-                ][1] += text_insert.substring(0, commonlength);
+                diffs[pointer - count_delete - count_insert - 1][1] +=
+                  text_insert.substring(0, commonlength);
               } else {
                 diffs.splice(
                   0,
