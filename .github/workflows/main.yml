@@ -2,15 +2,13 @@
 
 name: CI
 
-
-
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the dev branch
   push:
-    branches: [ dev ]
+    branches: [dev]
   pull_request:
-    branches: [ dev ]
+    branches: [dev]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -27,8 +25,8 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       - uses: creyD/prettier_action@v3.3
-        with:
-          # Running the script in dry mode just shows whether there are files that should be prettified or not
-          dry: true
-          # Only prettify files changed in the last commit, can't be used with file_pattern!
-          only_changed: true
+        # with:
+        #   # Running the script in dry mode just shows whether there are files that should be prettified or not
+        #   dry: true
+        #   # Only prettify files changed in the last commit, can't be used with file_pattern!
+        #   only_changed: true
