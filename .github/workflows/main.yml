@@ -30,10 +30,10 @@ jobs:
           # This is important to fetch the changes to the previous commit
           fetch-depth: 0
       - uses: creyD/prettier_action@v3.3
-        # with:
-        #   # Running the script in dry mode just shows whether there are files that should be prettified or not
-        #   dry: true
-        #   # Only prettify files changed in the last commit, can't be used with file_pattern!
-        #   only_changed: true
+        with:
+          #   # Running the script in dry mode just shows whether there are files that should be prettified or not
+          #   dry: true
+          # Only prettify files changed in the last commit, can't be used with file_pattern!
+          only_changed: true
         env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
