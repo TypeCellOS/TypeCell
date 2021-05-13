@@ -124,6 +124,7 @@ export class DocConnection extends Disposable {
       this.indexedDBProvider.destroy();
       resourceCache.delete(this.id);
       this.disposed = true;
+      super.dispose();
     }
   }
 }
