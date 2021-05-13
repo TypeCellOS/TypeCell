@@ -35,10 +35,10 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     },
     extensions: [
       StarterKit,
-      // CollaborationCursor.configure({
-      //   provider: props.document.webrtcProvider,
-      //   user: { name: "Hello", color: "#f783ac" },
-      // }),
+      CollaborationCursor.configure({
+        provider: props.document.webrtcProvider,
+        user: { name: "Hello", color: "#f783ac" },
+      }),
       Collaboration.configure({
         fragment: props.document.data,
       }),
