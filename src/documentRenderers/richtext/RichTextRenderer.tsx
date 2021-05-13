@@ -1,5 +1,4 @@
 import React from "react";
-import { observer } from "mobx-react-lite";
 
 import { useEditor, EditorContent, Extension } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -27,7 +26,7 @@ import "./RichTextRenderer.css";
 type Props = {
   document: DocumentResource;
 };
-const RichTextRenderer: React.FC<Props> = observer((props) => {
+const RichTextRenderer: React.FC<Props> = (props) => {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
@@ -43,12 +42,11 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       }),
       Placeholder.configure({
         placeholder: "Use '/' to insert a new block.",
-        showOnlyCurrent: true,
+        showOnlyCurrent: false,
       }),
       SlashCommandExtension.configure({
         commands: {},
       }),
-      // TypeCellNode,
       BlockQuoteBlock,
       BulletListBlock,
       CodeBlockBlock,
@@ -75,6 +73,6 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       <EditorContent editor={editor} />
     </div>
   );
-});
+};
 
 export default RichTextRenderer;
