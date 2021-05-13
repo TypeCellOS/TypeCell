@@ -42,3 +42,14 @@
 p {
   display: inline;
 }
+
+.ProseMirror [data-block-table] .react-renderer {
+  margin: 0;
+}
+
+.ProseMirror [data-block-table] [data-node-view-content] > div {
+  margin: 0;
+  background: transparent;
+  padding: 0;
+  margin: auto;
+}

@@ -25,7 +25,9 @@ import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableRow from "@tiptap/extension-table-row";
 import TableHeader from "@tiptap/extension-table-header";
-import CustomTable from "./extensions/blocktypes/Table";
+import CustomTable, { TableMenu } from "./extensions/blocktypes/Table";
+import Paragraph from "@tiptap/extension-paragraph";
+import Tippy from "@tippyjs/react";
 
 import "./RichTextRenderer.css";
 
@@ -91,14 +93,36 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         </tr>
       </tbody>
     </table>
+    <p>another paragraph</p>
+    <table>
+      <tbody>
+        <tr>
+          <th>Name</th>
+        </tr>
+        <tr>
+          <td>Cyndi Lauper</td>
+        </tr>
+      </tbody>
+    </table>
     `,
   });
 
   return (
-    <div style={{ maxWidth: 600, margin: "0 auto" }}>
-      {editor != null ? <InlineMenu editor={editor} /> : null}
-      <EditorContent editor={editor} />
-    </div>
+    <Tippy
+      placement="right"
+      interactive={true}
+      hideOnClick={true}
+      followCursor={true}
+      content={
+        <div id={"floater"}>
+          {editor !== null ? <TableMenu editor={editor}></TableMenu> : null}
+        </div>
+      }>
+      <div style={{ maxWidth: 600, margin: "0 auto" }}>
+        {editor != null ? <InlineMenu editor={editor} /> : null}
+        <EditorContent editor={editor} />
+      </div>
+    </Tippy>
   );
 });
 

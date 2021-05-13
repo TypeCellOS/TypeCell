@@ -6,6 +6,17 @@ table {
   border-collapse: collapse;
 }
 
+tr {
+  width: 100%;
+  border: solid 0.05em black;
+}
+
+td,
+th {
+  padding: 0.25em;
+  border: solid 0.05em black !important;
+}
+
 .selectedCell:after {
   z-index: 2;
   position: absolute;
@@ -29,13 +40,14 @@ table {
 
 .tableMenu {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   align-content: center;
 }
 
 .tableMenuOption {
+  font-size: larger;
   outline: none;
   border: none;
   background-color: Transparent;

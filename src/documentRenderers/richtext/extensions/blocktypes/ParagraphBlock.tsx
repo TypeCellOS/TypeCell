@@ -10,7 +10,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import SideMenu from "../../SideMenu";
 
-import styles from "./Block.module.css"
+import styles from "./Block.module.css";
 
 // React component which adds a drag handle to the node.
 const Component: React.FC<NodeViewRendererProps> = observer((props) => {
@@ -24,6 +24,18 @@ const Component: React.FC<NodeViewRendererProps> = observer((props) => {
       from: pos,
       to: pos + props.node.nodeSize,
     });
+  }
+
+  if (typeof props.getPos !== "boolean") {
+    const parent = props.editor.state.doc.resolve(props.getPos()).parent;
+    if (parent.type.name !== "doc") {
+      console.log(`not top level, without handle`);
+      return (
+        <NodeViewWrapper>
+          <NodeViewContent as={"p"}></NodeViewContent>
+        </NodeViewWrapper>
+      );
+    }
   }
 
   return (
@@ -40,7 +52,7 @@ const Component: React.FC<NodeViewRendererProps> = observer((props) => {
           data-drag-handle
         />
       </Tippy>
-      <NodeViewContent className={styles.content} as={"p"}/>
+      <NodeViewContent className={styles.content} as={"p"} />
     </NodeViewWrapper>
   );
 });

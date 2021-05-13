@@ -10,14 +10,15 @@ import {
   ReactNodeViewRenderer,
 } from "@tiptap/react";
 import React from "react";
+import { Editor } from "@tiptap/core";
+
 import SideMenu from "../../SideMenu";
 import styles from "./Block.module.css";
 import tableStyles from "./Table.module.css";
 
-import { Editor } from "@tiptap/core";
-
 type TableMenuProps = { editor: Editor };
 
+// React component for the menu bar for functions related to tables.
 const TableMenu: React.FC<TableMenuProps> = (props) => {
   console.log(`table menu triggered`);
   return (
@@ -39,6 +40,21 @@ const TableMenu: React.FC<TableMenuProps> = (props) => {
       </button>
       <button
         className={tableStyles.tableMenuOption}
+        onClick={() => props.editor.chain().focus().addColumnBefore().run()}>
+        AddColBefore
+      </button>
+      <button
+        className={tableStyles.tableMenuOption}
+        onClick={() => props.editor.chain().focus().addColumnAfter().run()}>
+        AddColAfter
+      </button>
+      <button
+        className={tableStyles.tableMenuOption}
+        onClick={() => props.editor.chain().focus().deleteColumn().run()}>
+        DeleteCol
+      </button>
+      <button
+        className={tableStyles.tableMenuOption}
         onClick={() => props.editor.chain().focus().deleteTable().run()}>
         DeleteTable
       </button>
@@ -46,6 +62,7 @@ const TableMenu: React.FC<TableMenuProps> = (props) => {
   );
 };
 
+// React component which adds a drag handle to the node. Note how the NodeViewContent is rendered with an custom attribute.
 const TableComponent: React.FC<NodeViewRendererProps> = (props) => {
   function onDelete() {
     if (typeof props.getPos === "boolean") {
@@ -60,7 +77,7 @@ const TableComponent: React.FC<NodeViewRendererProps> = (props) => {
   }
 
   return (
-    <NodeViewWrapper>
+    <NodeViewWrapper className={"block"}>
       <Tippy
         content={<SideMenu onDelete={onDelete}></SideMenu>}
         trigger={"click"}
@@ -72,23 +89,22 @@ const TableComponent: React.FC<NodeViewRendererProps> = (props) => {
           draggable="true"
           data-drag-handle></div>
       </Tippy>
-      <Tippy
-        content={<TableMenu editor={props.editor}></TableMenu>}
-        placement={"top"}
-        interactive={true}
-        trigger={"mouseenter focus focusin"}>
-        <div>
-          <NodeViewContent as={"table"}></NodeViewContent>
-        </div>
-      </Tippy>
+      <NodeViewContent
+        data-block-table
+        className={styles.content}></NodeViewContent>
     </NodeViewWrapper>
   );
 };
 
+// Extends Tables to make them draggable and give them drag handles.
 const CustomTable = Table.extend({
   draggable: true,
+
+  // Used for rendering a React component inside the node. Here it's just used to add a drag handle to each block.
   addNodeView() {
     return ReactNodeViewRenderer(TableComponent);
   },
 });
+
 export default CustomTable;
+export { TableMenu };
