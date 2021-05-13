@@ -11,6 +11,7 @@ import Tippy from "@tippyjs/react";
 import SideMenu from "../../SideMenu";
 
 import styles from "./Block.module.css";
+import {Node} from "@tiptap/core";
 
 /**
  * This function creates a React component that represents a block in the editor. This is so that editor blocks can be
@@ -19,7 +20,7 @@ import styles from "./Block.module.css";
  * @param type	The type of HTML element to be rendered as a block.
  * @returns			A React component, to be used in a TipTap node view.
  */
-function Block(type: ElementType="p") {
+function Block(type: ElementType) {
 	return (function Component(props: PropsWithChildren<NodeViewRendererProps>) {
 		function onDelete() {
 			if (typeof props.getPos === "boolean") {
@@ -33,8 +34,22 @@ function Block(type: ElementType="p") {
 			});
 		}
 
+		if (typeof props.getPos === "boolean") {
+			throw new Error("unexpected");
+		}
+
+		const parent = props.editor.state.doc.resolve(props.getPos()).parent;
+
+		if (type === "p" && parent.type.name !== "div") {
+			return (
+				<NodeViewWrapper>
+					<NodeViewContent className={styles.content} as={type}/>
+				</NodeViewWrapper>
+			)
+		}
+
 		return (
-			<NodeViewWrapper className="block">
+			<NodeViewWrapper className={styles.block}>
 				<Tippy
 					content={<SideMenu onDelete={onDelete}></SideMenu>}
 					trigger={"click"}
@@ -43,6 +58,7 @@ function Block(type: ElementType="p") {
 					<div
 						className={styles.handle}
 						contentEditable="false"
+						unselectable="on"
 						draggable="true"
 						data-drag-handle // Ensures that the element can only be dragged using the drag handle.
 					/>
