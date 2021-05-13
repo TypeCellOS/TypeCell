@@ -1,6 +1,8 @@
 import { BubbleMenu, Editor } from "@tiptap/react";
 import React from "react";
 import styles from "./InlineMenu.module.css";
+import Tippy from "@tippyjs/react";
+import LinkField from "./LinkField"
 
 type InlineMenuProps = { editor: Editor };
 
@@ -41,6 +43,23 @@ class InlineMenu extends React.Component<InlineMenuProps> {
           }>
           Underline
         </button>
+        <Tippy
+          content={<LinkField></LinkField>}
+          trigger={"click"}
+          placement={"top"}
+          interactive={true}>
+          <button
+            /*
+            onClick={() =>
+              this.props.editor.chain().focus().toggleUnderline().run()
+            }
+            */
+            className={
+              this.props.editor.isActive("link") ? styles.isActive : ""
+            }>
+            Link
+          </button>
+        </Tippy>
       </BubbleMenu>
     );
   }

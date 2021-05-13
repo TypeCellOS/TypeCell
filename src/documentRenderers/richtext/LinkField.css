@@ -1,0 +1,28 @@
+.menu-list {
+  list-style: none;
+  border: solid 0.1em gray;
+  border-radius: 0.25em;
+  padding: 0.2em;
+}
+
+.menu-text-field {
+  text-align: center;
+  display: block;
+  padding: 0.1em;
+}
+
+.menu-button {
+  text-align: center;
+  display: block;
+  padding: 0.1em;
+}
+
+.menu-text-field:hover {
+  cursor: pointer;
+  color: blue;
+}
+
+.menu-button:hover {
+  cursor: pointer;
+  color: blue;
+}
