@@ -8,9 +8,11 @@ import { enablePluginSystem } from "./pluginEngine/pluginSystem";
 import { setMonacoDefaults } from "./sandbox";
 import setupNpmTypeResolver from "./sandbox/setupNpmTypeResolver";
 import setupTypecellTypeResolver from "./sandbox/setupTypecellTypeResolver";
+import { setupSearch } from "./search";
 import { DocumentResource } from "./store/DocumentResource";
 import routing from "./typecellEngine/lib/routing";
 
+setupSearch();
 setMonacoDefaults(monaco);
 setupTypecellTypeResolver();
 setupNpmTypeResolver();

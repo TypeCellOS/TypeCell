@@ -1,51 +1,69 @@
-import { DocConnection } from "../store/DocConnection";
-import * as idb from "idb";
 import { BroadcastChannel, createLeaderElection } from "broadcast-channel";
-import { Disposable } from "../util/vscode-common/lifecycle";
+import Fuse from "fuse.js";
+import * as Y from "yjs";
+import { DocConnection } from "../store/DocConnection";
+import { DesiredDocumentState, IndexedDocumentState, Indexer } from "./Indexer";
 
+import { getStateVector } from "./util";
 
 const channel = new BroadcastChannel("typecell-indexer");
 const elector = createLeaderElection(channel);
 
-type SearchableBlock = {
+export type SearchableBlock = {
   id: string;
   content: string;
 };
 
-type SearchableDoc = {
+export type SearchableDoc = {
   id: string;
   title: string;
   blocks: SearchableBlock[];
-  version: string;
+  version: IndexedDocumentState;
 };
 
-function reindexChangedDocs(db: idb.IDBPDatabase) {
-  db.transaction();
-}
+const fuse = new Fuse<SearchableDoc>([], {
+  keys: ["title", "id", "blocks.content"],
+});
 
-class Indexer extends Disposable {
-  private readonly changeFeedDoc: DocConnection = this._register(DocConnection.loadConnection(".changefeed"));
-  constructor () {
-    super();
-
-    const handle = setInterval(this.reIndex, 5000);
-    this._register({
-      dispose: () => clearInterval(handle);
-    })
-  }
-}
+const changeFeedDoc = DocConnection.loadConnection(".changefeed");
 
 let indexer: Indexer | undefined;
 
 export async function setupSearch() {
-  const db = await idb.openDB("search");
+  // const db = await idb.openDB("search");
   DocConnection.onDocConnectionAdded((docConnection) => {
-    // observe
-    // if local change, add change doc
+    docConnection._ydoc.on(
+      "afterAllTransactions",
+      (doc: Y.Doc, transactions: Y.Transaction[]) => {
+        if (
+          transactions.find(
+            (t) =>
+              t.local &&
+              t.origin &&
+              (t.changed.size || t.deleteSet.clients.size)
+          )
+        ) {
+          const stateVector = getStateVector(doc.store)[doc.clientID];
+          if (!stateVector) {
+            console.error("unexpected, stateVector not found");
+            return;
+          }
+
+          const state: DesiredDocumentState = {
+            client: doc.clientID + "",
+            clock: stateVector,
+          };
+
+          changeFeedDoc._ydoc
+            .getMap("documentUpdates")
+            .set(docConnection.id, state);
+        }
+      }
+    );
   });
 
   elector.awaitLeadership().then(() => {
-    indexer = new Indexer();
+    indexer = new Indexer(changeFeedDoc, fuse);
   });
   elector.onduplicate = () => {
     if (elector.isLeader) {

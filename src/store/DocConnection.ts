@@ -34,16 +34,14 @@ export class DocConnection extends Disposable {
 
   public readonly onWillDispose: Event<void> = this._onWillDispose.event;
 
-  private static readonly _onDocConnectionAdded: Emitter<DocConnection> = new Emitter<DocConnection>();
+  private static readonly _onDocConnectionAdded: Emitter<DocConnection> =
+    new Emitter<DocConnection>();
 
   public static readonly onDocConnectionAdded: Event<DocConnection> =
     DocConnection._onDocConnectionAdded.event;
 
   protected constructor(public readonly id: string) {
     super();
-    if (!id.startsWith("@") || id.split("/").length !== 2) {
-      throw new Error("invalid arguments for doc");
-    }
 
     this._ydoc = new Y.Doc({ guid: id });
     this.webrtcProvider = new WebrtcProvider(id, this._ydoc);
@@ -96,14 +94,17 @@ export class DocConnection extends Disposable {
       identifier = ownerSlug + "/" + documentSlug;
     }
 
+    if (!identifier.startsWith("@") || identifier.split("/").length !== 2) {
+      throw new Error("invalid arguments for doc");
+    }
+
     let entry = resourceCache.get(identifier);
+    const connection = this.loadConnection(identifier);
     if (!entry) {
-      const connection = new DocConnection(identifier);
       const baseResource = new BaseResource(connection);
       entry = { connection, baseResource };
       resourceCache.set(identifier, entry);
     }
-    entry.connection.addRef();
     return entry.baseResource;
   }
 
