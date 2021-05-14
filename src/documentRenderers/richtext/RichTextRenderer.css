@@ -34,3 +34,27 @@
 blockquote {
   margin: 0;
 }
+
+.ProseMirror ul {
+  margin: 0;
+  padding: 0;
+}
+
+.ProseMirror li {
+  margin-left: 1.1rem;
+}
+
+/* .children > div > div > .inner {
+  padding-left: 1rem;
+} */
+
+.parent {
+  width: calc(100% + 2rem);
+  left: -1rem;
+  position: relative;
+}
+
+.children {
+  left: 1rem;
+  position: relative;
+}

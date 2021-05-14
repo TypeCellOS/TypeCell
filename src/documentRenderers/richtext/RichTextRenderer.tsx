@@ -47,6 +47,9 @@ import ParagraphPlainBlock from "./extensions/blocktypes/ParagraphPlainBlock";
 import TypeCellNode from "./extensions/typecellnode";
 
 import "./RichTextRenderer.css";
+import { NestedBlocks } from "./extensions/NestedBlocks";
+import ChildrenBlock from "./extensions/blocktypes/ChildrenBlock";
+import ParentBlock from "./extensions/blocktypes/ParentBlock";
 
 type Props = {
   document: DocumentResource;
@@ -72,7 +75,9 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       SlashCommandExtension.configure({
         commands: {},
       }),
-
+      NestedBlocks,
+      ChildrenBlock.configure({ HTMLAttributes: { class: "children" } }),
+      ParentBlock.configure({ HTMLAttributes: { class: "parent" } }),
       Bold,
       Code,
       Italic,

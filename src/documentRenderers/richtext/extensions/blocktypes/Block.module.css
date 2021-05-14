@@ -35,7 +35,7 @@
   background-position: center;
 }
 
-.block:hover .handle {
+.block:hover > .inner > .handleContainer > .handle {
   display: block;
 }
 
@@ -44,8 +44,6 @@ img {
   max-width: 100%;
 }
 
-.content {
-}
 blockquote.content {
   padding: 0.5rem 1rem;
 }

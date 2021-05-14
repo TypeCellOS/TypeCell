@@ -33,7 +33,7 @@ function Block(type: ElementType) {
 
     return (
       <NodeViewWrapper className={styles.block}>
-        <div className={styles.inner}>
+        <div className={styles.inner + " inner"}>
           <div className={styles.handleContainer}>
             <Tippy
               content={<SideMenu onDelete={onDelete}></SideMenu>}
