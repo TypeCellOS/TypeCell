@@ -113,7 +113,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
   });
 
   return (
-    <div style={{ maxWidth: 600, margin: "0 auto" }}>
+    <div>
       {editor != null ? <InlineMenu editor={editor} /> : null}
       <EditorContent editor={editor} />
     </div>

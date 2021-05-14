@@ -33,26 +33,34 @@ function Block(type: ElementType) {
 
     return (
       <NodeViewWrapper className={styles.block}>
-        <Tippy
-          content={<SideMenu onDelete={onDelete}></SideMenu>}
-          trigger={"click"}
-          placement={"left"}
-          interactive={true}>
-          <div
-            className={styles.handle}
-            contentEditable="false"
-            unselectable="on"
-            draggable="true"
-            data-drag-handle // Ensures that the element can only be dragged using the drag handle.
-          />
-        </Tippy>
-        {type === "code" ? ( // Wraps content in "pre" tags if the content is code.
-          <pre>
-            <NodeViewContent className={styles.content} as={type} />
-          </pre>
-        ) : (
-          <NodeViewContent className={styles.content} as={type} />
-        )}
+        <div className={styles.inner}>
+          <div className={styles.handleContainer}>
+            <Tippy
+              content={<SideMenu onDelete={onDelete}></SideMenu>}
+              trigger={"click"}
+              placement={"left"}
+              interactive={true}>
+              <div
+                className={styles.handle}
+                contentEditable="false"
+                unselectable="on"
+                draggable="true"
+                data-drag-handle // Ensures that the element can only be dragged using the drag handle.
+              />
+            </Tippy>
+          </div>
+          {type === "code" ? ( // Wraps content in "pre" tags if the content is code.
+            <pre>
+              <NodeViewContent className={styles.content} as={type} />
+            </pre>
+          ) : (
+            <NodeViewContent
+              contentEditable={true}
+              className={styles.content}
+              as={type}
+            />
+          )}
+        </div>
       </NodeViewWrapper>
     );
   };
