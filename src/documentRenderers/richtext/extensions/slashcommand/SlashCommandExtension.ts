@@ -33,7 +33,7 @@ export function findCommandBeforeCursor(
 ): { range: Range; query: string } | undefined {
   if (!selection.empty) return undefined;
 
-  if (selection.$anchor.parent.type.name !== "paragraph") return undefined;
+  // if (selection.$anchor.parent.type.name !== "paragraph") return undefined;
 
   const node = selection.$anchor.nodeBefore;
 
@@ -81,17 +81,19 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
   onDestroy() {},
   addCommands() {
     return {
-      replaceRangeCustom: (range, node) => ({ tr, dispatch }) => {
-        const { from, to } = range;
+      replaceRangeCustom:
+        (range, node) =>
+        ({ tr, dispatch }) => {
+          const { from, to } = range;
 
-        if (dispatch) {
-          tr.replaceRangeWith(from, to, node);
-          const pos = tr.mapping.map(from, -1);
-          tr.setSelection(Selection.near(tr.doc.resolve(pos), 1));
-        }
+          if (dispatch) {
+            tr.replaceRangeWith(from, to, node);
+            const pos = tr.mapping.map(from, -1);
+            tr.setSelection(Selection.near(tr.doc.resolve(pos), 1));
+          }
 
-        return true;
-      },
+          return true;
+        },
     };
   },
 
