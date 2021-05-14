@@ -18,50 +18,6 @@ import tableStyles from "./Table.module.css";
 
 type TableMenuProps = { editor: Editor };
 
-// React component for the menu bar for functions related to tables.
-const TableMenu: React.FC<TableMenuProps> = (props) => {
-  console.log(`table menu triggered`);
-  return (
-    <div className={tableStyles.TableMenu}>
-      <button
-        className={tableStyles.tableMenuOption}
-        onClick={() => props.editor?.chain().focus().addRowBefore().run()}>
-        AddRowBefore
-      </button>
-      <button
-        className={tableStyles.tableMenuOption}
-        onClick={() => props.editor?.chain().focus().addRowAfter().run()}>
-        AddRowAfter
-      </button>
-      <button
-        className={tableStyles.tableMenuOption}
-        onClick={() => props.editor.chain().focus().deleteRow().run()}>
-        DeleteRow
-      </button>
-      <button
-        className={tableStyles.tableMenuOption}
-        onClick={() => props.editor.chain().focus().addColumnBefore().run()}>
-        AddColBefore
-      </button>
-      <button
-        className={tableStyles.tableMenuOption}
-        onClick={() => props.editor.chain().focus().addColumnAfter().run()}>
-        AddColAfter
-      </button>
-      <button
-        className={tableStyles.tableMenuOption}
-        onClick={() => props.editor.chain().focus().deleteColumn().run()}>
-        DeleteCol
-      </button>
-      <button
-        className={tableStyles.tableMenuOption}
-        onClick={() => props.editor.chain().focus().deleteTable().run()}>
-        DeleteTable
-      </button>
-    </div>
-  );
-};
-
 // React component which adds a drag handle to the node. Note how the NodeViewContent is rendered with an custom attribute.
 const TableComponent: React.FC<NodeViewRendererProps> = (props) => {
   function onDelete() {
@@ -97,7 +53,7 @@ const TableComponent: React.FC<NodeViewRendererProps> = (props) => {
 };
 
 // Extends Tables to make them draggable and give them drag handles.
-const CustomTable = Table.extend({
+const CustomTable = Table.configure({ resizable: true }).extend({
   draggable: true,
 
   // Used for rendering a React component inside the node. Here it's just used to add a drag handle to each block.
@@ -107,4 +63,3 @@ const CustomTable = Table.extend({
 });
 
 export default CustomTable;
-export { TableMenu };
