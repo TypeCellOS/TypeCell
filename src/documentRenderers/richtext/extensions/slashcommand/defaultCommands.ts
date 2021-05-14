@@ -44,7 +44,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   bulletlist: new SlashCommand(
     "bulletlist",
     (editor, range) => {
-      const paragraph = editor.schema.node("paragraph");
+      const paragraph = editor.schema.node("paragraphplain");
       const listItem = editor.schema.node("listItem", {}, paragraph);
       const node = editor.schema.node("bulletList", {}, listItem);
 
@@ -57,7 +57,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   orderedlist: new SlashCommand(
     "orderedlist",
     (editor, range) => {
-      const paragraph = editor.schema.node("paragraph");
+      const paragraph = editor.schema.node("paragraphplain");
       const listItem = editor.schema.node("listItem", {}, paragraph);
       const node = editor.schema.node("orderedList", {}, listItem);
 

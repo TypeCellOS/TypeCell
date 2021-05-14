@@ -20,9 +20,11 @@ import ListItemBlock from "./extensions/blocktypes/ListItemBlock";
 import OrderedListBlock from "./extensions/blocktypes/OrderedListBlock";
 import ParagraphPlainBlock from "./extensions/blocktypes/ParagraphPlainBlock";
 import SlashCommandExtension from "./extensions/slashcommand";
+import Text from "@tiptap/extension-text";
 
 import "./RichTextRenderer.css";
 import ParagraphBlock from "./extensions/blocktypes/ParagraphBlock";
+import { DocumentTopNode } from "./extensions/blocktypes/DocumentTopNode";
 
 type Props = {
   document: DocumentResource;
@@ -33,7 +35,6 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       // console.log(editor.getJSON());
     },
     extensions: [
-      StarterKit,
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,
         user: { name: "Hello", color: "#f783ac" },
@@ -48,19 +49,21 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       SlashCommandExtension.configure({
         commands: {},
       }),
+      DocumentTopNode,
       ParagraphPlainBlock,
       ParagraphBlock,
       BlockQuoteBlock,
-      // BulletListBlock,
-      // CodeBlockBlock,
-      // HeadingBlock,
-      // HorizontalRuleBlock,
-      // ImageBlock,
-      // ListItemBlock,
-      // OrderedListBlock,
-      // Underline,
+      BulletListBlock,
+      CodeBlockBlock,
+      HeadingBlock,
+      HorizontalRuleBlock,
+      ImageBlock,
+      ListItemBlock,
+      OrderedListBlock,
+      Underline,
 
       // TypeCellNode,
+      Text,
     ],
     editorProps: {
       attributes: {
