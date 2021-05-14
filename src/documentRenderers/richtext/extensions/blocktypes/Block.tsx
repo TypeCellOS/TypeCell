@@ -51,10 +51,8 @@ function Block(type: ElementType) {
     function deleteBlock(pos: number) {
       let block: Node = new Node();
       props.editor.state.doc.forEach(function f(node, offset, index) {
-        console.log("pos: ", offset);
         if (offset <= pos && pos < offset + node.nodeSize) {
           block = node;
-          console.log(block);
           const tr = props.editor.state.tr.delete(
             offset,
             offset + node.nodeSize
@@ -65,6 +63,28 @@ function Block(type: ElementType) {
       return block;
     }
 
+    function nodeCoordsAtPos(pos: number) {
+      const dimensions = {
+        top: -1,
+        left: -1,
+        bottom: -1,
+        right: -1,
+      };
+      props.editor.state.doc.forEach(function f(node, offset, index) {
+        if (offset <= pos && pos < offset + node.nodeSize) {
+          dimensions.top = props.editor.view.coordsAtPos(offset).top;
+          dimensions.left = props.editor.view.coordsAtPos(offset).left;
+          dimensions.bottom = props.editor.view.coordsAtPos(
+            offset + node.nodeSize
+          ).bottom;
+          dimensions.right = props.editor.view.coordsAtPos(
+            offset + node.nodeSize
+          ).right;
+        }
+      });
+      return dimensions;
+    }
+
     const [{ isDragging }, dragRef, dragPreviewRef] = useDrag(() => ({
       type: "block",
     }));
@@ -72,24 +92,48 @@ function Block(type: ElementType) {
     const [{ initialMousePos, finalMousePos }, dropRef] = useDrop(() => ({
       accept: "block",
       drop(item, monitor) {
-        const initialMousePos = monitor.getInitialClientOffset();
-        const finalMousePos = monitor.getClientOffset();
-        console.log("OriginalMousePos: ", initialMousePos);
-        console.log("CurrentMousePos: ", finalMousePos);
-        if (initialMousePos === null || finalMousePos === null) {
+        // Mouse cursor x, y coordinates.
+        const initialMouseCoords = monitor.getInitialClientOffset();
+        const finalMouseCoords = monitor.getClientOffset();
+        if (initialMouseCoords === null || finalMouseCoords === null) {
           return;
         }
-        const initialPos = props.editor.view.posAtCoords({
-          left: initialMousePos.x,
-          top: initialMousePos.y,
+        // Mouse cursor positions which use ProseMirror token indexing.
+        const initialMousePos = props.editor.view.posAtCoords({
+          left: initialMouseCoords.x,
+          top: initialMouseCoords.y,
         });
-        const finalPos = props.editor.view.posAtCoords({
-          left: finalMousePos.x,
-          top: finalMousePos.y,
+        const finalMousePos = props.editor.view.posAtCoords({
+          left: finalMouseCoords.x,
+          top: finalMouseCoords.y,
         });
-        if (initialPos && finalPos) {
-          let block: Node = deleteBlock(initialPos.pos);
-          insertBlock(finalPos.pos, block);
+        if (initialMousePos && finalMousePos) {
+          // Top, left, bottom, and right side dimensions of the block under the cursor.
+          const dimensions = nodeCoordsAtPos(finalMousePos.pos);
+          // ProseMirror token positions just before and just after the block under the cursor.
+          const posBeforeNode = props.editor.view.posAtCoords({
+            left: dimensions.left,
+            top: dimensions.top,
+          });
+          const posAfterNode = props.editor.view.posAtCoords({
+            left: dimensions.left,
+            top: dimensions.bottom,
+          });
+          console.log("PosBefore: ", posBeforeNode);
+          console.log("PosAfter: ", posAfterNode);
+          console.log("PosFinal: ", finalMousePos.pos);
+
+          // Checks if move was above or below the target block's center line to drop above or below it.
+          if (
+            finalMouseCoords.y <= (dimensions.top + dimensions.bottom) / 2 &&
+            posBeforeNode
+          ) {
+            let block: Node = deleteBlock(initialMousePos.pos);
+            insertBlock(posBeforeNode.pos, block);
+          } else if (posAfterNode) {
+            let block: Node = deleteBlock(initialMousePos.pos);
+            insertBlock(posAfterNode.pos, block);
+          }
         }
       },
     }));
