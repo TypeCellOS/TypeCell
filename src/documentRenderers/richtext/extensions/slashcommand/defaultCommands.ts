@@ -70,7 +70,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
   blockquote: new SlashCommand(
     "blockquote",
     (editor, range) => {
-      const paragraph = editor.schema.node("paragraph");
+      const paragraph = editor.schema.node("paragraphplain");
       const node = editor.schema.node("blockquote", {}, paragraph);
 
       editor.chain().replaceRangeCustom(range, node).run();

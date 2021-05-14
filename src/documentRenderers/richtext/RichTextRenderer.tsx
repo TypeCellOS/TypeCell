@@ -18,10 +18,11 @@ import HorizontalRuleBlock from "./extensions/blocktypes/HorizontalRuleBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import ListItemBlock from "./extensions/blocktypes/ListItemBlock";
 import OrderedListBlock from "./extensions/blocktypes/OrderedListBlock";
-import ParagraphBlock from "./extensions/blocktypes/ParagraphBlock";
+import ParagraphPlainBlock from "./extensions/blocktypes/ParagraphPlainBlock";
 import SlashCommandExtension from "./extensions/slashcommand";
 
 import "./RichTextRenderer.css";
+import ParagraphBlock from "./extensions/blocktypes/ParagraphBlock";
 
 type Props = {
   document: DocumentResource;
@@ -47,16 +48,17 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       SlashCommandExtension.configure({
         commands: {},
       }),
-      BlockQuoteBlock,
-      BulletListBlock,
-      CodeBlockBlock,
-      HeadingBlock,
-      HorizontalRuleBlock,
-      ImageBlock,
-      ListItemBlock,
-      OrderedListBlock,
+      ParagraphPlainBlock,
       ParagraphBlock,
-      Underline,
+      BlockQuoteBlock,
+      // BulletListBlock,
+      // CodeBlockBlock,
+      // HeadingBlock,
+      // HorizontalRuleBlock,
+      // ImageBlock,
+      // ListItemBlock,
+      // OrderedListBlock,
+      // Underline,
 
       // TypeCellNode,
     ],
