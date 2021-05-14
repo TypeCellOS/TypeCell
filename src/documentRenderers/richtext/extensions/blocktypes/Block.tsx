@@ -31,6 +31,18 @@ function Block(type: ElementType) {
       });
     }
 
+    // If a paragraph is inside a TableCell, render it without the drag handle
+    if (typeof props.getPos !== "boolean") {
+      const parent = props.editor.state.doc.resolve(props.getPos()).parent;
+      if (parent.type.name.toLowerCase().startsWith("table")) {
+        return (
+          <NodeViewWrapper>
+            <NodeViewContent as={"p"}></NodeViewContent>
+          </NodeViewWrapper>
+        );
+      }
+    }
+
     return (
       <NodeViewWrapper className={styles.block}>
         <Tippy

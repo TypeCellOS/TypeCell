@@ -2,12 +2,17 @@ table {
   overflow-x: scroll;
   table-layout: fixed;
   width: 100%;
+  max-width: 100%;
   margin: 0;
   border-collapse: collapse;
 }
 
+table > div {
+  max-width: 100%;
+}
+
 tr {
-  width: 100%;
+  max-width: 100%;
   border: solid 0.05em black;
 }
 
@@ -57,4 +62,9 @@ th {
 .tableMenuOption:hover {
   color: white;
   cursor: pointer;
+}
+
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
 }

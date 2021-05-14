@@ -1,8 +1,5 @@
-import { BubbleMenu, Editor } from "@tiptap/react";
-import { Selection, NodeSelection } from "prosemirror-state";
-import React, { MouseEventHandler } from "react";
-import styles from "./InlineMenu.module.css";
-import Tippy from "@tippyjs/react";
+import { Editor } from "@tiptap/react";
+import React from "react";
 import "tippy.js/themes/material.css";
 import "tippy.js/dist/tippy.css";
 
@@ -11,6 +8,7 @@ import { TableBubbleMenu } from "./extensions/table/TableBubbleMenu";
 
 type TableMenuProps = { editor: Editor };
 
+// This component is invoked only when a cursor is inside a TableCell, otherwise hidden
 class TableMenu extends React.Component<TableMenuProps> {
   render() {
     const TOP_DEPTH = 1;
@@ -19,9 +17,11 @@ class TableMenu extends React.Component<TableMenuProps> {
       this.props.editor.state.selection.from
     );
 
+    // If the cursor is inside another node
     if (resolvedPos.depth > TOP_DEPTH) {
       const grandParent = resolvedPos.node(resolvedPos.depth - 1);
 
+      // if grandParent node is of types that belong to tables
       if (
         grandParent &&
         grandParent.type.name.toLowerCase().startsWith("table")
@@ -107,9 +107,7 @@ class TableMenu extends React.Component<TableMenuProps> {
       }
     }
 
-    return (
-      <TableBubbleMenu className={styles.hidden} editor={this.props.editor} />
-    );
+    return <TableBubbleMenu className={"hidden"} editor={this.props.editor} />;
   }
 }
 

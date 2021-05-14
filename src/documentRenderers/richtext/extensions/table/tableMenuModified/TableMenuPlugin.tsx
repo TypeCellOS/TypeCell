@@ -77,6 +77,7 @@ export class TableBubbleMenuView {
       trigger: "manual",
       placement: "top",
       hideOnClick: "toggle",
+      zIndex: 9000,
       ...options,
     });
   }
@@ -92,6 +93,15 @@ export class TableBubbleMenuView {
     }
 
     const { from, to, empty } = selection;
+
+    if (empty) {
+      const resolvedPos = doc.resolve(selection.from);
+      // if the cursor is at top level, i.e., not inside a table node, hide it
+      if (resolvedPos.depth === 1) {
+        this.hide();
+        return;
+      }
+    }
 
     this.tippy.setProps({
       getReferenceClientRect: () => posToDOMRect(view, from, to),
