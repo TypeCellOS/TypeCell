@@ -7,7 +7,7 @@ import Block from "./Block";
 const BlockQuoteBlock = BlockQuote.extend({
   draggable: true,
   selectable: false,
-  content: "plainblock*",
+  content: "plainblock+",
   // Used for rendering a React component inside the node, i.e. to add a drag handle to it.
   addNodeView() {
     return ReactNodeViewRenderer(Block("blockquote"));
