@@ -1,7 +1,5 @@
 import Paragraph from "@tiptap/extension-paragraph";
-import {
-  ReactNodeViewRenderer,
-} from "@tiptap/react";
+import { ReactNodeViewRenderer } from "@tiptap/react";
 import React from "react";
 import Block from "./Block";
 

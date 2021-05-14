@@ -1,17 +1,14 @@
-import React, {
-	ElementType,
-	PropsWithChildren
-} from "react";
+import React, { ElementType, PropsWithChildren } from "react";
 import {
-	NodeViewContent,
-	NodeViewRendererProps,
-	NodeViewWrapper
+  NodeViewContent,
+  NodeViewRendererProps,
+  NodeViewWrapper,
 } from "@tiptap/react";
 import Tippy from "@tippyjs/react";
 import SideMenu from "../../SideMenu";
 
 import styles from "./Block.module.css";
-import {Node} from "@tiptap/core";
+import { Node } from "@tiptap/core";
 
 /**
  * This function creates a React component that represents a block in the editor. This is so that editor blocks can be
@@ -21,54 +18,44 @@ import {Node} from "@tiptap/core";
  * @returns			A React component, to be used in a TipTap node view.
  */
 function Block(type: ElementType) {
-	return (function Component(props: PropsWithChildren<NodeViewRendererProps>) {
-		function onDelete() {
-			if (typeof props.getPos === "boolean") {
-				throw new Error("unexpected");
-			}
-			const pos = props.getPos();
+  return function Component(props: PropsWithChildren<NodeViewRendererProps>) {
+    function onDelete() {
+      if (typeof props.getPos === "boolean") {
+        throw new Error("unexpected");
+      }
+      const pos = props.getPos();
 
-			props.editor.commands.deleteRange({
-				from: pos,
-				to: pos + props.node.nodeSize,
-			});
-		}
+      props.editor.commands.deleteRange({
+        from: pos,
+        to: pos + props.node.nodeSize,
+      });
+    }
 
-		if (typeof props.getPos === "boolean") {
-			throw new Error("unexpected");
-		}
-
-		const parent = props.editor.state.doc.resolve(props.getPos()).parent;
-
-		if (type === "p" && parent.type.name === "blockquote") {
-			return (
-				<NodeViewWrapper>
-					<NodeViewContent className={styles.content} as={type}/>
-				</NodeViewWrapper>
-			)
-		}
-
-		return (
-			<NodeViewWrapper className={styles.block}>
-				<Tippy
-					content={<SideMenu onDelete={onDelete}></SideMenu>}
-					trigger={"click"}
-					placement={"left"}
-					interactive={true}>
-					<div
-						className={styles.handle}
-						contentEditable="false"
-						unselectable="on"
-						draggable="true"
-						data-drag-handle // Ensures that the element can only be dragged using the drag handle.
-					/>
-				</Tippy>
-				{type ===  "code" ? // Wraps content in "pre" tags if the content is code.
-					<pre><NodeViewContent className={styles.content} as={type}/></pre> :
-					<NodeViewContent className={styles.content} as={type}/>}
-			</NodeViewWrapper>
-		);
-	});
+    return (
+      <NodeViewWrapper className={styles.block}>
+        <Tippy
+          content={<SideMenu onDelete={onDelete}></SideMenu>}
+          trigger={"click"}
+          placement={"left"}
+          interactive={true}>
+          <div
+            className={styles.handle}
+            contentEditable="false"
+            unselectable="on"
+            draggable="true"
+            data-drag-handle // Ensures that the element can only be dragged using the drag handle.
+          />
+        </Tippy>
+        {type === "code" ? ( // Wraps content in "pre" tags if the content is code.
+          <pre>
+            <NodeViewContent className={styles.content} as={type} />
+          </pre>
+        ) : (
+          <NodeViewContent className={styles.content} as={type} />
+        )}
+      </NodeViewWrapper>
+    );
+  };
 }
 
 export default Block;

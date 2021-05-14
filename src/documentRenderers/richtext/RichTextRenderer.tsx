@@ -9,6 +9,7 @@ import DropCursor from "@tiptap/extension-dropcursor";
 import Placeholder from "@tiptap/extension-placeholder";
 
 import InlineMenu from "./InlineMenu";
+import SlashCommandExtension from "./extensions/slashcommand";
 
 // Marks
 import Bold from "@tiptap/extension-bold";
@@ -19,17 +20,6 @@ import Strike from "@tiptap/extension-strike";
 import { Underline } from "./extensions/marks/Underline";
 
 // Nodes
-import BlockQuoteBlock from "./extensions/blocktypes/BlockQuoteBlock";
-import BulletListBlock from "./extensions/blocktypes/BulletListBlock";
-import CodeBlockBlock from "./extensions/blocktypes/CodeBlockBlock";
-import HeadingBlock from "./extensions/blocktypes/HeadingBlock";
-import HorizontalRuleBlock from "./extensions/blocktypes/HorizontalRuleBlock";
-import ImageBlock from "./extensions/blocktypes/ImageBlock";
-import ListItemBlock from "./extensions/blocktypes/ListItemBlock";
-import OrderedListBlock from "./extensions/blocktypes/OrderedListBlock";
-import ParagraphBlock from "./extensions/blocktypes/ParagraphBlock";
-import SlashCommandExtension from "./extensions/slashcommand";
-
 import BlockQuote from "@tiptap/extension-blockquote";
 import BulletList from "@tiptap/extension-bullet-list";
 import CodeBlock from "@tiptap/extension-code-block";
@@ -41,6 +31,18 @@ import ListItem from "@tiptap/extension-list-item";
 import OrderedList from "@tiptap/extension-ordered-list";
 import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
+
+import BlockQuoteBlock from "./extensions/blocktypes/BlockQuoteBlock";
+import BulletListBlock from "./extensions/blocktypes/BulletListBlock";
+import CodeBlockBlock from "./extensions/blocktypes/CodeBlockBlock";
+import { DocumentTopNode } from "./extensions/blocktypes/DocumentTopNode";
+import HeadingBlock from "./extensions/blocktypes/HeadingBlock";
+import HorizontalRuleBlock from "./extensions/blocktypes/HorizontalRuleBlock";
+import ImageBlock from "./extensions/blocktypes/ImageBlock";
+import ListItemBlock from "./extensions/blocktypes/ListItemBlock";
+import OrderedListBlock from "./extensions/blocktypes/OrderedListBlock";
+import ParagraphBlock from "./extensions/blocktypes/ParagraphBlock";
+import ParagraphPlainBlock from "./extensions/blocktypes/ParagraphPlainBlock";
 import TypeCellNode from "./extensions/typecellnode";
 
 import "./RichTextRenderer.css";
@@ -87,15 +89,18 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       OrderedList,
       Paragraph,
       Text,
+
       BlockQuoteBlock,
       BulletListBlock,
       CodeBlockBlock,
+      DocumentTopNode,
       HeadingBlock,
       HorizontalRuleBlock,
       ImageBlock,
       ListItemBlock,
       OrderedListBlock,
       ParagraphBlock,
+      ParagraphPlainBlock,
       // TypeCellNode,
     ],
     editorProps: {
