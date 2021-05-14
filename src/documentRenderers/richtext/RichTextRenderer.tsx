@@ -24,6 +24,7 @@ import BlockQuote from "@tiptap/extension-blockquote";
 import BulletList from "@tiptap/extension-bullet-list";
 import CodeBlock from "@tiptap/extension-code-block";
 import Document from "@tiptap/extension-document";
+import HardBreak from "@tiptap/extension-hard-break";
 import Heading from "@tiptap/extension-heading";
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import { Image } from "@tiptap/extension-image";
@@ -82,6 +83,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       BulletList,
       CodeBlock,
       Document,
+      HardBreak,
       Heading,
       HorizontalRule,
       Image,
