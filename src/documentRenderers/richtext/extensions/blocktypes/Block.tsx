@@ -1,15 +1,19 @@
-import React, {
-	ElementType,
-	PropsWithChildren,
-    useRef
-} from "react";
+import React, { ElementType, PropsWithChildren, useRef } from "react";
 import {
-	NodeViewContent,
-	NodeViewRendererProps,
-	NodeViewWrapper
+  NodeViewContent,
+  NodeViewRendererProps,
+  NodeViewWrapper,
 } from "@tiptap/react";
 import Tippy from "@tippyjs/react";
-import {ConnectableElement, DragSourceMonitor, DropTargetMonitor, useDrag, useDrop} from 'react-dnd'
+import {
+  ConnectableElement,
+  DragSourceMonitor,
+  DropTargetMonitor,
+  useDrag,
+  useDrop,
+} from "react-dnd";
+import { Node } from "prosemirror-model";
+import { Transaction } from "prosemirror-state";
 import SideMenu from "../../SideMenu";
 
 import styles from "./Block.module.css";
@@ -22,81 +26,102 @@ import styles from "./Block.module.css";
  * @returns			A React component, to be used in a TipTap node view.
  */
 function Block(type: ElementType) {
-	return (function Component(props: PropsWithChildren<NodeViewRendererProps>) {
-		function onDelete() {
-			if (typeof props.getPos === "boolean") {
-				throw new Error("unexpected");
-			}
-			const pos = props.getPos();
+  return function Component(props: PropsWithChildren<NodeViewRendererProps>) {
+    function onDelete() {
+      if (typeof props.getPos === "boolean") {
+        throw new Error("unexpected");
+      }
+      const pos = props.getPos();
 
-			props.editor.commands.deleteRange({
-				from: pos,
-				to: pos + props.node.nodeSize,
-			});
-		}
+      props.editor.commands.deleteRange({
+        from: pos,
+        to: pos + props.node.nodeSize,
+      });
+    }
 
-		const [{ isDragging }, dragRef, dragPreviewRef] = useDrag(() => ({
-			// "type" is required. It is used by the "accept" specification of drop targets.
-			type: 'BOX',
-			// The collect function utilizes a "monitor" instance (see the Overview for what this is)
-			// to pull important pieces of state from the DnD system.
-			collect: (monitor: DragSourceMonitor) => ({
-				isDragging: monitor.isDragging(),
-			})
-		}))
+    function insertBlock(pos: number, block: Node) {
+      props.editor.state.doc.forEach(function f(node, offset, index) {
+        if (offset <= pos && pos < offset + node.nodeSize) {
+          const tr: Transaction = props.editor.state.tr.insert(offset, block);
+          props.editor.view.dispatch(tr);
+        }
+      });
+    }
 
-		const [{ canDrop }, dropRef] = useDrop(() => ({
-			// The type (or types) to accept - strings or symbols
-			accept: 'BOX',
-			collect: (monitor) => ({
-				canDrop: monitor.canDrop(),
-			}),
-			drop(item, monitor) {
-				console.log("Dropped")
-			},
-			hover(item, monitor) {
+    function deleteBlock(pos: number) {
+      let block: Node = new Node();
+      props.editor.state.doc.forEach(function f(node, offset, index) {
+        console.log("pos: ", offset);
+        if (offset <= pos && pos < offset + node.nodeSize) {
+          block = node;
+          console.log(block);
+          const tr = props.editor.state.tr.delete(
+            offset,
+            offset + node.nodeSize
+          );
+          props.editor.view.dispatch(tr);
+        }
+      });
+      return block;
+    }
 
-			}
-		}))
+    const [{ isDragging }, dragRef, dragPreviewRef] = useDrag(() => ({
+      type: "block",
+    }));
 
-		// if (typeof props.getPos === "boolean") {
-		// 	throw new Error("unexpected");
-		// }
-		//
-		// const parent = props.editor.state.doc.resolve(props.getPos()).parent;
-		//
-		// if (type === "p" && parent.type.name === "blockquote") {
-		// 	return (
-		// 		<NodeViewWrapper>
-		// 			<NodeViewContent className={styles.content} as={type}/>
-		// 		</NodeViewWrapper>
-		// 	)
-		// }
+    const [{ initialMousePos, finalMousePos }, dropRef] = useDrop(() => ({
+      accept: "block",
+      drop(item, monitor) {
+        const initialMousePos = monitor.getInitialClientOffset();
+        const finalMousePos = monitor.getClientOffset();
+        console.log("OriginalMousePos: ", initialMousePos);
+        console.log("CurrentMousePos: ", finalMousePos);
+        if (initialMousePos === null || finalMousePos === null) {
+          return;
+        }
+        const initialPos = props.editor.view.posAtCoords({
+          left: initialMousePos.x,
+          top: initialMousePos.y,
+        });
+        const finalPos = props.editor.view.posAtCoords({
+          left: finalMousePos.x,
+          top: finalMousePos.y,
+        });
+        if (initialPos && finalPos) {
+          let block: Node = deleteBlock(initialPos.pos);
+          insertBlock(finalPos.pos, block);
+        }
+      },
+    }));
 
-		function dropAndPreviewRefs(el: ConnectableElement) {
-			dropRef(el)
-			dragPreviewRef(el)
-		}
+    // Ref which allows an element to both act as a drop target and drag preview.
+    function dropAndPreviewRef(el: ConnectableElement) {
+      dropRef(el);
+      dragPreviewRef(el);
+    }
 
-		return (
-			<NodeViewWrapper className={styles.wrapper}>
-				<div
-					// Entire block within the node view wrapper
-					ref={dropAndPreviewRefs}
-					className={styles.block}
-				>
-					<div
-						// Drag handle
-						ref={dragRef}
-						className={styles.handle}
-					/>
-				{type ===  "code" ? // Wraps content in "pre" tags if the content is code.
-					<pre><NodeViewContent className={styles.content} as={type}/></pre> :
-					<NodeViewContent className={styles.content} as={type}/>}
-				</div>
-			</NodeViewWrapper>
-		)
-	});
+    return (
+      <NodeViewWrapper className={styles.wrapper}>
+        <div
+          // Entire block within the node view wrapper
+          ref={dropAndPreviewRef}
+          className={styles.block}>
+          <div
+            // Drag handle
+            ref={dragRef}
+            className={styles.handle}
+          />
+          {type === "code" ? ( // Wraps content in "pre" tags if the content is code.
+            <pre>
+              <NodeViewContent className={styles.content} as={type} />
+            </pre>
+          ) : (
+            <NodeViewContent className={styles.content} as={type} />
+          )}
+        </div>
+      </NodeViewWrapper>
+    );
+  };
 }
 
 export default Block;

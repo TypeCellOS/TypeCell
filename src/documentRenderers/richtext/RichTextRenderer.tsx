@@ -28,8 +28,9 @@ type Props = {
 };
 const RichTextRenderer: React.FC<Props> = (props) => {
   const editor = useEditor({
-    onUpdate: ({ editor }) => {
+    onSelectionUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
+      console.log(editor.state.selection);
     },
     extensions: [
       StarterKit,
