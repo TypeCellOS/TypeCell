@@ -30,6 +30,7 @@ import Paragraph from "@tiptap/extension-paragraph";
 import Tippy from "@tippyjs/react";
 
 import "./RichTextRenderer.css";
+import TableMenu from "./TableMenu";
 
 type Props = {
   document: DocumentResource;
@@ -135,6 +136,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
   return (
     <div style={{ maxWidth: 600, margin: "0 auto" }}>
       {editor != null ? <InlineMenu editor={editor} /> : null}
+      {editor != null ? <TableMenu editor={editor} /> : null}
       <EditorContent editor={editor} />
     </div>
   );
