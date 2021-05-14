@@ -1,6 +1,7 @@
 import React, {
 	ElementType,
-	PropsWithChildren
+	PropsWithChildren,
+    useRef
 } from "react";
 import {
 	NodeViewContent,
@@ -8,10 +9,10 @@ import {
 	NodeViewWrapper
 } from "@tiptap/react";
 import Tippy from "@tippyjs/react";
+import {ConnectableElement, DragSourceMonitor, DropTargetMonitor, useDrag, useDrop} from 'react-dnd'
 import SideMenu from "../../SideMenu";
 
 import styles from "./Block.module.css";
-import {Node} from "@tiptap/core";
 
 /**
  * This function creates a React component that represents a block in the editor. This is so that editor blocks can be
@@ -34,40 +35,67 @@ function Block(type: ElementType) {
 			});
 		}
 
-		if (typeof props.getPos === "boolean") {
-			throw new Error("unexpected");
-		}
+		const [{ isDragging }, dragRef, dragPreviewRef] = useDrag(() => ({
+			// "type" is required. It is used by the "accept" specification of drop targets.
+			type: 'BOX',
+			// The collect function utilizes a "monitor" instance (see the Overview for what this is)
+			// to pull important pieces of state from the DnD system.
+			collect: (monitor: DragSourceMonitor) => ({
+				isDragging: monitor.isDragging(),
+			})
+		}))
 
-		const parent = props.editor.state.doc.resolve(props.getPos()).parent;
+		const [{ canDrop }, dropRef] = useDrop(() => ({
+			// The type (or types) to accept - strings or symbols
+			accept: 'BOX',
+			collect: (monitor) => ({
+				canDrop: monitor.canDrop(),
+			}),
+			drop(item, monitor) {
+				console.log("Dropped")
+			},
+			hover(item, monitor) {
 
-		if (type === "p" && parent.type.name === "blockquote") {
-			return (
-				<NodeViewWrapper>
-					<NodeViewContent className={styles.content} as={type}/>
-				</NodeViewWrapper>
-			)
+			}
+		}))
+
+		// if (typeof props.getPos === "boolean") {
+		// 	throw new Error("unexpected");
+		// }
+		//
+		// const parent = props.editor.state.doc.resolve(props.getPos()).parent;
+		//
+		// if (type === "p" && parent.type.name === "blockquote") {
+		// 	return (
+		// 		<NodeViewWrapper>
+		// 			<NodeViewContent className={styles.content} as={type}/>
+		// 		</NodeViewWrapper>
+		// 	)
+		// }
+
+		function dropAndPreviewRefs(el: ConnectableElement) {
+			dropRef(el)
+			dragPreviewRef(el)
 		}
 
 		return (
-			<NodeViewWrapper className={styles.block}>
-				<Tippy
-					content={<SideMenu onDelete={onDelete}></SideMenu>}
-					trigger={"click"}
-					placement={"left"}
-					interactive={true}>
+			<NodeViewWrapper className={styles.wrapper}>
+				<div
+					// Entire block within the node view wrapper
+					ref={dropAndPreviewRefs}
+					className={styles.block}
+				>
 					<div
+						// Drag handle
+						ref={dragRef}
 						className={styles.handle}
-						contentEditable="false"
-						unselectable="on"
-						draggable="true"
-						data-drag-handle // Ensures that the element can only be dragged using the drag handle.
 					/>
-				</Tippy>
 				{type ===  "code" ? // Wraps content in "pre" tags if the content is code.
 					<pre><NodeViewContent className={styles.content} as={type}/></pre> :
 					<NodeViewContent className={styles.content} as={type}/>}
+				</div>
 			</NodeViewWrapper>
-		);
+		)
 	});
 }
 

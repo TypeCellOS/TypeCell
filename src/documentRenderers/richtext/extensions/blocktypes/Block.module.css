@@ -1,7 +1,12 @@
 .block {
     display: block;
-    padding: 0;
-    margin: 0 2rem 0 0;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: solid grey;
+}
+
+.content {
+    margin: 0;
 }
 
 .handle {
@@ -28,10 +33,6 @@
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
-}
-
-.react-renderer {
-    margin: 0.7rem;
 }
 
 img {
