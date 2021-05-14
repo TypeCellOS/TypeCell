@@ -30,19 +30,6 @@ function Block(type: ElementType) {
         to: pos + props.node.nodeSize,
       });
     }
-    if (typeof props.getPos === "boolean") {
-      throw new Error("unexpected");
-    }
-
-    const parent = props.editor.state.doc.resolve(props.getPos()).parent;
-
-    if (type === "p" && parent.type.name === "blockquote") {
-      return (
-        <NodeViewWrapper>
-          <NodeViewContent className={styles.content} as={type} />
-        </NodeViewWrapper>
-      );
-    }
 
     return (
       <NodeViewWrapper className={styles.block}>

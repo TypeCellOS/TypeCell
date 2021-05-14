@@ -7,7 +7,7 @@ import Block from "./Block";
 const ListItemBlock = ListItem.extend({
   draggable: true,
   selectable: false,
-  content: "plainblock+",
+  content: "(plainblock | bulletList | orderedList)+",
   // Used for rendering a React component inside the node, i.e. to add a drag handle to it.
   addNodeView() {
     return ReactNodeViewRenderer(Block("li"));
