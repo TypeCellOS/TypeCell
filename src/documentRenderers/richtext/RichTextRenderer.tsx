@@ -1,15 +1,24 @@
 import React from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import { DocumentResource } from "../../store/DocumentResource";
 
-import { useEditor, EditorContent, Extension } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
+// Extensions
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import DropCursor from "@tiptap/extension-dropcursor";
 import Placeholder from "@tiptap/extension-placeholder";
 
-import { DocumentResource } from "../../store/DocumentResource";
-import { Underline } from "./extensions/marks/Underline";
-import TypeCellNode from "./extensions/typecellnode";
 import InlineMenu from "./InlineMenu";
+
+// Marks
+import Bold from "@tiptap/extension-bold";
+import Code from "@tiptap/extension-code";
+import Italic from "@tiptap/extension-italic";
+import Strike from "@tiptap/extension-strike";
+
+import { Underline } from "./extensions/marks/Underline";
+
+// Nodes
 import BlockQuoteBlock from "./extensions/blocktypes/BlockQuoteBlock";
 import BulletListBlock from "./extensions/blocktypes/BulletListBlock";
 import CodeBlockBlock from "./extensions/blocktypes/CodeBlockBlock";
@@ -20,6 +29,19 @@ import ListItemBlock from "./extensions/blocktypes/ListItemBlock";
 import OrderedListBlock from "./extensions/blocktypes/OrderedListBlock";
 import ParagraphBlock from "./extensions/blocktypes/ParagraphBlock";
 import SlashCommandExtension from "./extensions/slashcommand";
+
+import BlockQuote from "@tiptap/extension-blockquote";
+import BulletList from "@tiptap/extension-bullet-list";
+import CodeBlock from "@tiptap/extension-code-block";
+import Document from "@tiptap/extension-document";
+import Heading from "@tiptap/extension-heading";
+import HorizontalRule from "@tiptap/extension-horizontal-rule";
+import { Image } from "@tiptap/extension-image";
+import ListItem from "@tiptap/extension-list-item";
+import OrderedList from "@tiptap/extension-ordered-list";
+import Paragraph from "@tiptap/extension-paragraph";
+import Text from "@tiptap/extension-text";
+import TypeCellNode from "./extensions/typecellnode";
 
 import "./RichTextRenderer.css";
 
@@ -32,7 +54,6 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       // console.log(editor.getJSON());
     },
     extensions: [
-      StarterKit,
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,
         user: { name: "Hello", color: "#f783ac" },
@@ -40,6 +61,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Collaboration.configure({
         fragment: props.document.data,
       }),
+      DropCursor,
       Placeholder.configure({
         placeholder: "Use '/' to insert a new block.",
         showOnlyCurrent: false,
@@ -47,6 +69,24 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       SlashCommandExtension.configure({
         commands: {},
       }),
+
+      Bold,
+      Code,
+      Italic,
+      Strike,
+      Underline,
+
+      BlockQuote,
+      BulletList,
+      CodeBlock,
+      Document,
+      Heading,
+      HorizontalRule,
+      Image,
+      ListItem,
+      OrderedList,
+      Paragraph,
+      Text,
       BlockQuoteBlock,
       BulletListBlock,
       CodeBlockBlock,
@@ -56,8 +96,6 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       ListItemBlock,
       OrderedListBlock,
       ParagraphBlock,
-      Underline,
-
       // TypeCellNode,
     ],
     editorProps: {
