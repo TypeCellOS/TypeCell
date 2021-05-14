@@ -22,13 +22,11 @@
 .ProseMirror pre {
   padding: 8px;
   border-radius: 5px;
-  background-color: #333;
-  color: #eee;
+  background-color: #333 !important;
+  color: #eee !important;
 }
 
 .ProseMirror blockquote {
-  margin-left: 1rem;
-  padding-left: 1rem;
   border-left: 2px solid #262626;
   color: #262626;
 }
@@ -43,11 +41,11 @@ p {
   display: inline;
 }
 
-.ProseMirror [data-block-table] .react-renderer {
+.ProseMirror table .react-renderer {
   margin: 0;
 }
 
-.ProseMirror [data-block-table] [data-node-view-content] > div {
+.ProseMirror table [data-node-view-content] > div {
   margin: 0;
   background: transparent;
   padding: 0;
