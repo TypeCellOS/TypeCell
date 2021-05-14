@@ -40,7 +40,7 @@ function Block(type: ElementType) {
 
 		const parent = props.editor.state.doc.resolve(props.getPos()).parent;
 
-		if (type === "p" && parent.type.name !== "div") {
+		if (type === "p" && parent.type.name === "blockquote") {
 			return (
 				<NodeViewWrapper>
 					<NodeViewContent className={styles.content} as={type}/>
