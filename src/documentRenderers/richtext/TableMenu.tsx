@@ -1,4 +1,4 @@
-import { Editor } from "@tiptap/react";
+import { BubbleMenu, Editor } from "@tiptap/react";
 import { Selection, NodeSelection } from "prosemirror-state";
 import React, { MouseEventHandler } from "react";
 import styles from "./InlineMenu.module.css";
