@@ -1,14 +1,15 @@
 import React from "react";
-import { SuggestionRendererKeyDownProps } from "./SuggestionPlugin";
 import SuggestionItem from "./SuggestionItem";
 import { SuggestionGroup } from "./SuggestionGroup";
 import styles from "./SuggestionList.module.css";
+import { SuggestionRendererKeyDownProps } from "./SuggestionPlugin";
 
 type SuggestionListProps<T> = {
   groups: {
     [groupName: string]: T[];
   };
   count: number;
+  selectedIndex: number;
   selectItemCallback: (item: T) => void;
 };
 

@@ -1,5 +1,5 @@
 import { Editor, Range } from "@tiptap/core";
-import { escapeRegExp } from "lodash";
+import { escapeRegExp, groupBy } from "lodash";
 import { Plugin, PluginKey, Selection } from "prosemirror-state";
 import { EditorView, Decoration, DecorationSet } from "prosemirror-view";
 import SuggestionItem from "./SuggestionItem";
@@ -147,22 +147,18 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           );
 
           // Filter items using query and map them to groups
-          let count = 0;
-          const groups: { [groupName: string]: T[] } = {};
-          for (const item of items(state.query)) {
-            if (!groups[item.groupName]) groups[item.groupName] = [];
-
-            groups[item.groupName].push(item);
-
-            count++;
-          }
+          const filteredItems = items(state.query);
+          const groups: { [groupName: string]: T[] } = groupBy(
+            filteredItems,
+            "groupName"
+          );
 
           const rendererProps: SuggestionRendererProps<T> = {
             editor,
             range: state.range,
             query: state.query,
             groups: handleChange || handleStart ? groups : {},
-            count: count,
+            count: filteredItems.length,
             selectItemCallback: (item: T) => {
               selectItemCallback({
                 item,

@@ -22,6 +22,9 @@ const RichText: React.FC<Props> = observer((props) => {
       // console.log(editor.getJSON());
     },
     extensions: [
+      SlashCommandExtension.configure({
+        commands: {},
+      }),
       StarterKit,
       Underline,
 
@@ -39,9 +42,6 @@ const RichText: React.FC<Props> = observer((props) => {
       }),
 
       // TypeCellNode,
-      SlashCommandExtension.configure({
-        commands: {},
-      }),
     ],
   });
 

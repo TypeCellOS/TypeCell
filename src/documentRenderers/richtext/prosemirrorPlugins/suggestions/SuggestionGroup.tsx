@@ -1,4 +1,3 @@
-import React from "react";
 import SuggestionItem from "./SuggestionItem";
 import styles from "./SuggestionGroup.module.css";
 
@@ -25,31 +24,28 @@ type SuggestionGroupProps<T> = {
   clickItem: (item: T) => void;
 };
 
-export class SuggestionGroup<T extends SuggestionItem> extends React.Component<
-  SuggestionGroupProps<T>,
-  {}
-> {
-  render() {
-    return (
-      <div className={styles.itemGroup}>
-        <div className={styles.groupName}>{this.props.name}</div>
-        <div className={styles.items}>
-          {this.props.items.map((item, index) => (
-            <button
-              className={`${styles.item} ${
-                this.props.selectedIndex !== undefined
-                  ? this.props.selectedIndex === index
-                    ? styles.isSelected
-                    : ""
+export function SuggestionGroup<T extends SuggestionItem>(
+  props: SuggestionGroupProps<T>
+) {
+  return (
+    <div className={styles.itemGroup}>
+      <div className={styles.groupName}>{props.name}</div>
+      <div className={styles.items}>
+        {props.items.map((item, index) => (
+          <button
+            className={`${styles.item} ${
+              props.selectedIndex !== undefined
+                ? props.selectedIndex === index
+                  ? styles.isSelected
                   : ""
-              }`}
-              key={index}
-              onClick={() => this.props.clickItem(item)}>
-              {item.name}
-            </button>
-          ))}
-        </div>
+                : ""
+            }`}
+            key={index}
+            onClick={() => props.clickItem(item)}>
+            {item.name}
+          </button>
+        ))}
       </div>
-    );
-  }
+    </div>
+  );
 }
