@@ -2,6 +2,7 @@ import BlockQuote from "@tiptap/extension-blockquote";
 import { mergeAttributes, ReactNodeViewRenderer } from "@tiptap/react";
 import React from "react";
 import { Node } from "@tiptap/core";
+import Block from "./Block";
 
 export interface ParentBlockOptions {
   HTMLAttributes: Record<string, any>;
@@ -10,7 +11,7 @@ export interface ParentBlockOptions {
 const ParentBlock = Node.create<ParentBlockOptions>({
   name: "parentblock",
   group: "block",
-  content: "block childrenblock",
+  content: "paragraphplain childrenblock",
   defaultOptions: {
     HTMLAttributes: {},
   },
@@ -32,6 +33,10 @@ const ParentBlock = Node.create<ParentBlockOptions>({
       Tab: () => this.editor.commands.sinkBlock("parentblock"),
       "Shift-Tab": () => this.editor.commands.liftListItem("parentblock"),
     };
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(Block("div", this.options.HTMLAttributes));
   },
 });
 

@@ -1,14 +1,25 @@
-import React, { ElementType, PropsWithChildren } from "react";
+import Tippy from "@tippyjs/react";
 import {
   NodeViewContent,
   NodeViewRendererProps,
   NodeViewWrapper,
 } from "@tiptap/react";
-import Tippy from "@tippyjs/react";
+import { makeAutoObservable } from "mobx";
+import { observer } from "mobx-react-lite";
+import React, {
+  ElementType,
+  MouseEvent,
+  PropsWithChildren,
+  useRef,
+  useState,
+} from "react";
 import SideMenu from "../../SideMenu";
-
 import styles from "./Block.module.css";
-import { Node } from "@tiptap/core";
+
+let globalState = makeAutoObservable({
+  activeBlocks: {} as any, // using this pattern to prevent multiple rerenders
+  activeBlock: 0,
+});
 
 /**
  * This function creates a React component that represents a block in the editor. This is so that editor blocks can be
@@ -17,8 +28,12 @@ import { Node } from "@tiptap/core";
  * @param type	The type of HTML element to be rendered as a block.
  * @returns			A React component, to be used in a TipTap node view.
  */
-function Block(type: ElementType) {
-  return function Component(props: PropsWithChildren<NodeViewRendererProps>) {
+function Block(type: ElementType, attrs: Record<string, any> = {}) {
+  return observer(function Component(
+    props: PropsWithChildren<NodeViewRendererProps>
+  ) {
+    const childList = useRef<any>(undefined);
+    const [id] = useState(Math.random());
     function onDelete() {
       if (typeof props.getPos === "boolean") {
         throw new Error("unexpected");
@@ -31,8 +46,19 @@ function Block(type: ElementType) {
       });
     }
 
+    function onMouseOver(e: MouseEvent) {
+      if (globalState.activeBlock !== id) {
+        delete globalState.activeBlocks[globalState.activeBlock];
+        globalState.activeBlocks[id] = true;
+        globalState.activeBlock = id;
+      }
+    }
+
+    let hover = globalState.activeBlocks[id];
+    console.log("render", childList.current);
     return (
       <NodeViewWrapper className={styles.block}>
+        <div className={styles.mouseCapture} onMouseOver={onMouseOver}></div>
         <div className={styles.inner + " inner"}>
           <div className={styles.handleContainer}>
             <Tippy
@@ -41,7 +67,7 @@ function Block(type: ElementType) {
               placement={"left"}
               interactive={true}>
               <div
-                className={styles.handle}
+                className={styles.handle + (hover ? " " + styles.hover : "")}
                 contentEditable="false"
                 unselectable="on"
                 draggable="true"
@@ -56,14 +82,14 @@ function Block(type: ElementType) {
           ) : (
             <NodeViewContent
               contentEditable={true}
-              className={styles.content}
+              className={(attrs.class || "") + " " + styles.content}
               as={type}
             />
           )}
         </div>
       </NodeViewWrapper>
     );
-  };
+  });
 }
 
 export default Block;

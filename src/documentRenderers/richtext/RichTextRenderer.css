@@ -48,13 +48,10 @@ blockquote {
   padding-left: 1rem;
 } */
 
-.parent {
-  width: calc(100% + 2rem);
-  left: -1rem;
-  position: relative;
+.ProseMirror {
+  overflow-x: hidden;
 }
 
 .children {
-  left: 1rem;
-  position: relative;
+  margin-left: 1.1rem;
 }

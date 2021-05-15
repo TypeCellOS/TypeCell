@@ -21,6 +21,7 @@ export const sinkItem =
 
     return originalSinkListItem(
       type,
+      getNodeType("paragraphplain", state.schema),
       getNodeType("parentblock", state.schema),
       getNodeType("childrenblock", state.schema)
     )(state, dispatch);
@@ -39,6 +40,7 @@ export const sinkItem =
 // into an inner list.
 export function originalSinkListItem(
   itemType: NodeType<any>,
+  plainType: NodeType<any>,
   parentContainerType: NodeType<any>,
   childContainerType: NodeType<any>
 ) {
@@ -93,12 +95,14 @@ export function originalSinkListItem(
           .scrollIntoView()
       );
     } else {
+      const existingNode = parent.child(startIndex);
       const fragment = Fragment.from(
         parentContainerType.create(null, [
-          nodeBefore,
-          childContainerType.create(null, range.parent.child(startIndex)),
+          plainType.create(nodeBefore.attrs, nodeBefore.content),
+          childContainerType.create(null, existingNode),
         ])
       );
+
       const slice = new Slice(fragment, 0, 0);
       // Fragment.from(state.doc.content).cut(range.start, range.end);
       // const testSlice = new Slice(state.doc.content, range.start, range.end);

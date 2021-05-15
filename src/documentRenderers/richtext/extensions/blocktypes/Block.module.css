@@ -5,16 +5,20 @@
   so that drag-handle never dissappears when moving vertically 
   but instantly moves to next element */
   padding: 0.5rem 0;
+  position: relative;
 }
 
 .inner {
   max-width: 600px;
   margin: 0 auto;
   min-height: 1rem; /* same as .handle height */
+  position: relative;
+  z-index: 2;
 }
 
 .handleContainer {
   position: absolute;
+  z-index: -1;
 }
 
 .block p {
@@ -35,7 +39,7 @@
   background-position: center;
 }
 
-.block:hover > .inner > .handleContainer > .handle {
+.handle.hover {
   display: block;
 }
 
@@ -55,4 +59,13 @@ blockquote.content p {
 hr.content {
   position: relative;
   top: 0.5rem; /* half of handle height */
+}
+
+.mouseCapture {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -50vw;
+  width: 100vw;
+  z-index: 1;
 }

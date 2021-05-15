@@ -57,7 +57,7 @@ type Props = {
 const RichTextRenderer: React.FC<Props> = (props) => {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
-      // console.log(editor.getJSON());
+      console.log(editor.getJSON());
     },
     extensions: [
       CollaborationCursor.configure({
@@ -75,9 +75,9 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       SlashCommandExtension.configure({
         commands: {},
       }),
-      NestedBlocks,
-      ChildrenBlock.configure({ HTMLAttributes: { class: "children" } }),
-      ParentBlock.configure({ HTMLAttributes: { class: "parent" } }),
+      // NestedBlocks,
+      // ChildrenBlock.configure({ HTMLAttributes: { class: "children" } }),
+      // ParentBlock.configure({ HTMLAttributes: { class: "parent" } }),
       Bold,
       Code,
       Italic,
