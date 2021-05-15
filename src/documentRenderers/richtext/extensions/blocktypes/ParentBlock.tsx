@@ -30,8 +30,8 @@ const ParentBlock = Node.create<ParentBlockOptions>({
   addKeyboardShortcuts() {
     return {
       // Enter: () => this.editor.commands.splitListItem("listItem"),
-      Tab: () => this.editor.commands.sinkBlock("parentblock"),
-      "Shift-Tab": () => this.editor.commands.liftListItem("parentblock"),
+      // Tab: () => this.editor.commands.sinkBlock("parentblock"),
+      // "Shift-Tab": () => this.editor.commands.liftListItem("parentblock"),
     };
   },
 

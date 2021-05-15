@@ -15,8 +15,8 @@ const ParagraphBlock = Paragraph.extend({
   addKeyboardShortcuts() {
     return {
       // Enter: () => this.editor.commands.splitListItem("listItem"),
-      Tab: () => this.editor.commands.sinkBlock("paragraph"),
-      "Shift-Tab": () => this.editor.commands.liftListItem("paragraph"),
+      // Tab: () => this.editor.commands.sinkBlock("paragraph"),
+      // "Shift-Tab": () => this.editor.commands.liftListItem("paragraph"),
     };
   },
 });
