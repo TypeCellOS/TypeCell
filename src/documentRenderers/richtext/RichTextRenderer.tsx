@@ -57,7 +57,11 @@ type Props = {
 const RichTextRenderer: React.FC<Props> = (props) => {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
-      console.log(editor.getJSON());
+      // console.log(editor.getJSON());
+    },
+    onSelectionUpdate: ({ editor }) => {
+      // console.log(editor.getJSON());
+      console.log(editor.state.selection);
     },
     extensions: [
       CollaborationCursor.configure({

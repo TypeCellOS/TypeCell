@@ -4,9 +4,9 @@ import Block from "./Block";
 
 // Extends paragraphs to make them draggable and give them drag handles.
 const ParagraphBlock = Paragraph.extend({
-  draggable: true,
-  selectable: false,
-  content: "inline*",
+  // draggable: true,
+  // selectable: false,
+
   // Used for rendering a React component inside the node, i.e. to add a drag handle to it.
   addNodeView() {
     return ReactNodeViewRenderer(Block("p"));
