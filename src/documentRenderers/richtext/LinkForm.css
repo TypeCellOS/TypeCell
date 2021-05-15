@@ -1,28 +1,42 @@
-.menu-list {
-  list-style: none;
-  border: solid 0.1em gray;
-  border-radius: 0.25em;
-  padding: 0.2em;
+.link-menu {
+  display: flex;
+  background-color: #0d0d0d;
+  padding: 0.3rem;
+  border-radius: 0.5rem;
 }
 
-.menu-text-field {
-  text-align: center;
-  display: block;
-  padding: 0.1em;
+.link-icon {
+  color: #fff;
+  opacity: 0.6;
+  display: inline-block;
 }
 
-.menu-button {
-  text-align: center;
-  display: block;
-  padding: 0.1em;
+.link-icon-container {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 0.2rem 0.2rem;
 }
 
-.menu-text-field:hover {
-  cursor: pointer;
-  color: blue;
+.input-field {
+  border: 2px solid #fff;
+  display: inline-block;
+  padding: 0.2rem 0.2rem;
+  border-radius: 0.3rem;
+  opacity: 0.6;
 }
 
-.menu-button:hover {
-  cursor: pointer;
-  color: blue;
+.submit-button {
+  display: inline-block;
+  border: none;
+  background: none;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0 0.3rem 0 0.3rem;
+  opacity: 0.6;
+}
+
+.submit-button:hover,
+.submit-buttonn.isactive {
+  opacity:1;
 }
