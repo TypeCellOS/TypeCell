@@ -2,7 +2,7 @@ import BulletList from "@tiptap/extension-bullet-list";
 
 // Extends bullet lists to make them draggable and give them drag handles.
 const BulletListBlock = BulletList.extend({
-  draggable: true,
+  draggable: false,
   selectable: false,
 
   // Used for rendering a React component inside the node, i.e. to add a drag handle to it.

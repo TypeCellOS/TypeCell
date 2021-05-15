@@ -4,7 +4,7 @@ import {
   NodeViewRendererProps,
   NodeViewWrapper,
 } from "@tiptap/react";
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { Node } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
@@ -159,28 +159,19 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
 
     function onMouseOver(e: MouseEvent) {
       if (globalState.activeBlock !== id) {
-        delete globalState.activeBlocks[globalState.activeBlock];
-        globalState.activeBlocks[id] = true;
-        globalState.activeBlock = id;
+        runInAction(() => {
+          delete globalState.activeBlocks[globalState.activeBlock];
+          globalState.activeBlocks[id] = true;
+          globalState.activeBlock = id;
+        });
       }
     }
 
-    // <div
-    //       // Entire block within the node view wrapper
-    //       ref={dropAndPreviewRef}
-    //       className={styles.block}>
-    //       <div
-    //         // Drag handle
-    //         ref={dragRef}
-    //         className={styles.handle}
-    //       />
-
     let hover = globalState.activeBlocks[id];
-    console.log("render", childList.current);
     return (
-      <NodeViewWrapper className={styles.block} ref={dropAndPreviewRef}>
+      <NodeViewWrapper className={styles.block}>
         <div className={styles.mouseCapture} onMouseOver={onMouseOver}></div>
-        <div className={styles.inner + " inner"}>
+        <div className={styles.inner + " inner"} ref={dropAndPreviewRef}>
           <div className={styles.handleContainer}>
             <Tippy
               content={<SideMenu onDelete={onDelete}></SideMenu>}
@@ -189,9 +180,6 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
               interactive={true}>
               <div
                 className={styles.handle + (hover ? " " + styles.hover : "")}
-                contentEditable="false"
-                unselectable="on"
-                draggable="true"
                 ref={dragRef}
               />
             </Tippy>

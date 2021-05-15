@@ -5,7 +5,7 @@ import Block from "./Block";
 
 // Extends list items to make them draggable and give them drag handles.
 const ListItemBlock = ListItem.extend({
-  draggable: true,
+  draggable: false,
   selectable: false,
   content: "(plainblock | bulletList | orderedList)+",
   // Used for rendering a React component inside the node, i.e. to add a drag handle to it.

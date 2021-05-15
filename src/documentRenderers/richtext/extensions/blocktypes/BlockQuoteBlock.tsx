@@ -5,7 +5,7 @@ import Block from "./Block";
 
 // Extends block quotes to make them draggable and give them drag handles.
 const BlockQuoteBlock = BlockQuote.extend({
-  draggable: true,
+  draggable: false,
   selectable: false,
   content: "plainblock+",
   // Used for rendering a React component inside the node, i.e. to add a drag handle to it.
