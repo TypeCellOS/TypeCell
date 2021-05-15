@@ -4,6 +4,7 @@ import {
   NodeViewRendererProps,
   NodeViewWrapper,
 } from "@tiptap/react";
+import { drop } from "lodash";
 import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { Node } from "prosemirror-model";
@@ -36,6 +37,7 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
   return observer(function Component(
     props: PropsWithChildren<NodeViewRendererProps>
   ) {
+    const mouseCaptureRef = useRef<HTMLDivElement>(null);
     const childList = useRef<any>(undefined);
     const [id] = useState(Math.random());
 
@@ -48,19 +50,10 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
       });
     }
 
-    function deleteBlock(pos: number) {
-      let block: Node = new Node();
-      props.editor.state.doc.forEach(function f(node, offset, index) {
-        if (offset <= pos && pos < offset + node.nodeSize) {
-          block = node;
-          const tr = props.editor.state.tr.delete(
-            offset,
-            offset + node.nodeSize
-          );
-          props.editor.view.dispatch(tr);
-        }
-      });
-      return block;
+    function deleteBlock(pos: number, node: Node) {
+      const tr = props.editor.state.tr.delete(pos, pos + node.nodeSize);
+      props.editor.view.dispatch(tr);
+      return node;
     }
 
     function nodeCoordsAtPos(pos: number) {
@@ -86,64 +79,60 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
     }
 
     const [{ isDragging }, dragRef, dragPreviewRef] = useDrag(() => {
-      debugger;
-      return { type: "block" };
-    });
+      if (typeof props.getPos === "boolean") {
+        throw new Error("unexpected getPos type");
+      }
+      return {
+        type: "block",
+        item: { getPos: props.getPos, node: props.node },
+      };
+    }, [props.getPos, props.node]);
 
-    const [{ initialMousePos, finalMousePos }, dropRef] = useDrop(() => ({
-      accept: "block",
-      drop(item, monitor) {
-        // Mouse cursor x, y coordinates.
-        const initialMouseCoords = monitor.getInitialClientOffset();
-        const finalMouseCoords = monitor.getClientOffset();
-        if (initialMouseCoords === null || finalMouseCoords === null) {
-          return;
-        }
-        // Mouse cursor positions which use ProseMirror token indexing.
-        const initialMousePos = props.editor.view.posAtCoords({
-          left: initialMouseCoords.x,
-          top: initialMouseCoords.y,
-        });
-        const finalMousePos = props.editor.view.posAtCoords({
-          left: finalMouseCoords.x,
-          top: finalMouseCoords.y,
-        });
-        if (initialMousePos && finalMousePos) {
-          // Top, left, bottom, and right side dimensions of the block under the cursor.
-          const dimensions = nodeCoordsAtPos(finalMousePos.pos);
+    const [{}, drop] = useDrop(
+      () => ({
+        accept: "block",
+        drop(item: any, monitor) {
+          if (typeof props.getPos === "boolean") {
+            throw new Error("unexpected getPos type");
+          }
+
+          // Determine rectangle on screen
+          const hoverBoundingRect =
+            mouseCaptureRef.current!.getBoundingClientRect();
+
+          // Get vertical middle
+          const hoverMiddleY =
+            (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+
+          // Determine mouse position
+          const clientOffset = monitor.getClientOffset();
+
+          // Get pixels to the top
+          const hoverClientY = clientOffset!.y - hoverBoundingRect.top;
+
+          const dimensions = nodeCoordsAtPos(item.getPos());
           // ProseMirror token positions just before and just after the block under the cursor.
-          const posBeforeNode = props.editor.view.posAtCoords({
-            left: dimensions.left,
-            top: dimensions.top,
-          });
-          const posAfterNode = props.editor.view.posAtCoords({
-            left: dimensions.left,
-            top: dimensions.bottom,
-          });
+          const posBeforeNode = props.getPos() - 1;
+          const posAfterNode = props.getPos() + props.node.nodeSize;
           console.log("PosBefore: ", posBeforeNode);
           console.log("PosAfter: ", posAfterNode);
-          console.log("PosFinal: ", finalMousePos.pos);
+          // console.log("PosFinal: ", finalMousePos.pos);
 
           // Checks if move was above or below the target block's center line to drop above or below it.
-          if (
-            finalMouseCoords.y <= (dimensions.top + dimensions.bottom) / 2 &&
-            posBeforeNode
-          ) {
-            let block: Node = deleteBlock(initialMousePos.pos);
-            insertBlock(posBeforeNode.pos, block);
-          } else if (posAfterNode) {
-            let block: Node = deleteBlock(initialMousePos.pos);
-            insertBlock(posAfterNode.pos, block);
-          }
-        }
-      },
-    }));
+          let block: Node = deleteBlock2(item.getPos(), item.node);
 
-    // Ref which allows an element to both act as a drop target and drag preview.
-    function dropAndPreviewRef(el: ConnectableElement) {
-      dropRef(el);
-      dragPreviewRef(el);
-    }
+          console.log("block to move", block.toJSON());
+          if (hoverClientY < hoverMiddleY) {
+            console.log("before");
+            insertBlock(posBeforeNode, block);
+          } else if (posAfterNode) {
+            console.log("after");
+            insertBlock(posAfterNode, block);
+          }
+        },
+      }),
+      [props.getPos, props.node]
+    );
 
     function onDelete() {
       if (typeof props.getPos === "boolean") {
@@ -168,10 +157,14 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
     }
 
     let hover = globalState.activeBlocks[id];
+    drop(mouseCaptureRef);
     return (
       <NodeViewWrapper className={styles.block}>
-        <div className={styles.mouseCapture} onMouseOver={onMouseOver}></div>
-        <div className={styles.inner + " inner"} ref={dropAndPreviewRef}>
+        <div
+          className={styles.mouseCapture}
+          onMouseOver={onMouseOver}
+          ref={mouseCaptureRef}></div>
+        <div className={styles.inner + " inner"} ref={dragPreviewRef}>
           <div className={styles.handleContainer}>
             <Tippy
               content={<SideMenu onDelete={onDelete}></SideMenu>}

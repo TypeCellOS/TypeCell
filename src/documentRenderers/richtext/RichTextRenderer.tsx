@@ -71,7 +71,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Collaboration.configure({
         fragment: props.document.data,
       }),
-      DropCursor,
+      // DropCursor,
       Placeholder.configure({
         placeholder: "Use '/' to insert a new block.",
         showOnlyCurrent: false,
