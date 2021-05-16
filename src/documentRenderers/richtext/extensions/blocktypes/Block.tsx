@@ -4,7 +4,6 @@ import {
   NodeViewRendererProps,
   NodeViewWrapper,
 } from "@tiptap/react";
-import { drop } from "lodash";
 import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { Node } from "prosemirror-model";
@@ -17,7 +16,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { ConnectableElement, useDrag, useDrop } from "react-dnd";
+import { useDrag, useDrop } from "react-dnd";
 import SideMenu from "../../SideMenu";
 import styles from "./Block.module.css";
 
@@ -25,6 +24,11 @@ let globalState = makeAutoObservable({
   activeBlocks: {} as any, // using this pattern to prevent multiple rerenders
   activeBlock: 0,
 });
+
+type DnDItemType = {
+  getPos: () => number;
+  node: Node;
+};
 
 /**
  * This function creates a React component that represents a block in the editor. This is so that editor blocks can be
@@ -38,47 +42,22 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
     props: PropsWithChildren<NodeViewRendererProps>
   ) {
     const mouseCaptureRef = useRef<HTMLDivElement>(null);
+    const innerRef = useRef<HTMLDivElement>(null);
+    const outerRef = useRef<HTMLDivElement>(null);
     const childList = useRef<any>(undefined);
     const [id] = useState(Math.random());
 
-    function insertBlock(pos: number, block: Node) {
-      props.editor.state.doc.forEach(function f(node, offset, index) {
-        if (offset <= pos && pos < offset + node.nodeSize) {
-          const tr: Transaction = props.editor.state.tr.insert(offset, block);
-          props.editor.view.dispatch(tr);
-        }
-      });
+    function deleteBlock(tr: Transaction, pos: number, node: Node) {
+      // use deleteRange
+      // https://discuss.prosemirror.net/t/defining-a-container-node-that-gets-removed-when-empty/762
+      return tr.deleteRange(pos, pos + node.nodeSize);
     }
 
-    function deleteBlock(pos: number, node: Node) {
-      const tr = props.editor.state.tr.delete(pos, pos + node.nodeSize);
-      props.editor.view.dispatch(tr);
-      return node;
-    }
-
-    function nodeCoordsAtPos(pos: number) {
-      const dimensions = {
-        top: -1,
-        left: -1,
-        bottom: -1,
-        right: -1,
-      };
-      props.editor.state.doc.forEach(function f(node, offset, index) {
-        if (offset <= pos && pos < offset + node.nodeSize) {
-          dimensions.top = props.editor.view.coordsAtPos(offset).top;
-          dimensions.left = props.editor.view.coordsAtPos(offset).left;
-          dimensions.bottom = props.editor.view.coordsAtPos(
-            offset + node.nodeSize
-          ).bottom;
-          dimensions.right = props.editor.view.coordsAtPos(
-            offset + node.nodeSize
-          ).right;
-        }
-      });
-      return dimensions;
-    }
-
-    const [{ isDragging }, dragRef, dragPreviewRef] = useDrag(() => {
+    const [{ isDragging }, dragRef, dragPreview] = useDrag<
+      DnDItemType,
+      any,
+      any
+    >(() => {
       if (typeof props.getPos === "boolean") {
         throw new Error("unexpected getPos type");
       }
@@ -88,13 +67,20 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
       };
     }, [props.getPos, props.node]);
 
-    const [{}, drop] = useDrop(
+    const [{}, drop] = useDrop<DnDItemType, any, any>(
       () => ({
         accept: "block",
-        drop(item: any, monitor) {
+        hover(item, monitor) {
+          // TODO: show drop line
+        },
+        drop(item, monitor) {
           if (typeof props.getPos === "boolean") {
             throw new Error("unexpected getPos type");
           }
+
+          // We're dropping item.node (source) to props.node (target)
+          // Should we move source to the top of bottom of target? Let's find out
+          // (logic from https://react-dnd.github.io/react-dnd/examples/sortable/simple)
 
           // Determine rectangle on screen
           const hoverBoundingRect =
@@ -110,25 +96,37 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
           // Get pixels to the top
           const hoverClientY = clientOffset!.y - hoverBoundingRect.top;
 
-          const dimensions = nodeCoordsAtPos(item.getPos());
-          // ProseMirror token positions just before and just after the block under the cursor.
-          const posBeforeNode = props.getPos() - 1;
-          const posAfterNode = props.getPos() + props.node.nodeSize;
-          console.log("PosBefore: ", posBeforeNode);
-          console.log("PosAfter: ", posAfterNode);
-          // console.log("PosFinal: ", finalMousePos.pos);
+          // ProseMirror token positions just before and just after the target block
+          const posBeforeTargetNode = props.getPos() - 1;
+          const posAfterTargetNode = props.getPos() + props.node.nodeSize;
 
-          // Checks if move was above or below the target block's center line to drop above or below it.
-          let block: Node = deleteBlock2(item.getPos(), item.node);
+          // create a new transaction
+          const tr = props.editor.state.tr;
+          const oldDocSize = tr.doc.nodeSize;
 
-          console.log("block to move", block.toJSON());
-          if (hoverClientY < hoverMiddleY) {
-            console.log("before");
-            insertBlock(posBeforeNode, block);
-          } else if (posAfterNode) {
-            console.log("after");
-            insertBlock(posAfterNode, block);
+          // delete the old block
+          deleteBlock(tr, item.getPos(), item.node);
+
+          let posToInsert =
+            hoverClientY < hoverMiddleY
+              ? posBeforeTargetNode
+              : posAfterTargetNode;
+
+          if (item.getPos() < posToInsert) {
+            // we're moving an item downwards. As "delete" happens before "insert",
+            // we need to adjust the insert position
+
+            // note that we cannot simply use item.node.nodeSize for deleted length;
+            // it's possible more has been deleted, for example if the state is <ul><li><p>text</p></li></ul>
+            // deleteBlock would have deleted the empty <ul> when deleting the <li>
+            const deletedLength = oldDocSize - tr.doc.nodeSize;
+            posToInsert -= deletedLength;
           }
+          // insert the block at new position
+          tr.insert(posToInsert, item.node);
+
+          // execute transaction
+          props.editor.view.dispatch(tr);
         },
       }),
       [props.getPos, props.node]
@@ -138,12 +136,9 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
       if (typeof props.getPos === "boolean") {
         throw new Error("unexpected");
       }
-      const pos = props.getPos();
-
-      props.editor.commands.deleteRange({
-        from: pos,
-        to: pos + props.node.nodeSize,
-      });
+      props.editor.view.dispatch(
+        deleteBlock(props.editor.state.tr, props.getPos(), props.node)
+      );
     }
 
     function onMouseOver(e: MouseEvent) {
@@ -157,37 +152,40 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
     }
 
     let hover = globalState.activeBlocks[id];
-    drop(mouseCaptureRef);
+    drop(outerRef);
+    dragPreview(innerRef);
     return (
       <NodeViewWrapper className={styles.block}>
-        <div
-          className={styles.mouseCapture}
-          onMouseOver={onMouseOver}
-          ref={mouseCaptureRef}></div>
-        <div className={styles.inner + " inner"} ref={dragPreviewRef}>
-          <div className={styles.handleContainer}>
-            <Tippy
-              content={<SideMenu onDelete={onDelete}></SideMenu>}
-              trigger={"click"}
-              placement={"left"}
-              interactive={true}>
-              <div
-                className={styles.handle + (hover ? " " + styles.hover : "")}
-                ref={dragRef}
+        <div ref={outerRef}>
+          <div
+            className={styles.mouseCapture}
+            onMouseOver={onMouseOver}
+            ref={mouseCaptureRef}></div>
+          <div className={styles.inner + " inner"} ref={innerRef}>
+            <div className={styles.handleContainer}>
+              <Tippy
+                content={<SideMenu onDelete={onDelete}></SideMenu>}
+                trigger={"click"}
+                placement={"left"}
+                interactive={true}>
+                <div
+                  className={styles.handle + (hover ? " " + styles.hover : "")}
+                  ref={dragRef}
+                />
+              </Tippy>
+            </div>
+            {type === "code" ? ( // Wraps content in "pre" tags if the content is code.
+              <pre>
+                <NodeViewContent className={styles.content} as={type} />
+              </pre>
+            ) : (
+              <NodeViewContent
+                contentEditable={true}
+                className={(attrs.class || "") + " " + styles.content}
+                as={type}
               />
-            </Tippy>
+            )}
           </div>
-          {type === "code" ? ( // Wraps content in "pre" tags if the content is code.
-            <pre>
-              <NodeViewContent className={styles.content} as={type} />
-            </pre>
-          ) : (
-            <NodeViewContent
-              contentEditable={true}
-              className={(attrs.class || "") + " " + styles.content}
-              as={type}
-            />
-          )}
         </div>
       </NodeViewWrapper>
     );
