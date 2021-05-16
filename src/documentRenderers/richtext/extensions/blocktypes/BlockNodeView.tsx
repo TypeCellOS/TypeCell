@@ -124,13 +124,20 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
           }
           // insert the block at new position
           tr.insert(posToInsert, item.node);
-
           // execute transaction
           props.editor.view.dispatch(tr);
         },
       }),
       [props.getPos, props.node]
     );
+
+    if (!props.node.attrs["block-id"]) {
+      return (
+        <NodeViewWrapper>
+          <NodeViewContent className={styles.content} as={type} />
+        </NodeViewWrapper>
+      );
+    }
 
     function onDelete() {
       if (typeof props.getPos === "boolean") {
