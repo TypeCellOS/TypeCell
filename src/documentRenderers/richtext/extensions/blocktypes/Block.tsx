@@ -165,7 +165,7 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
       <NodeViewWrapper className={styles.block}>
         <div ref={outerRef}>
           <div className={styles.inner + " inner"} ref={innerRef}>
-            <div className={styles.handleContainer}>
+            <div className={styles.handleContainer} contentEditable={false}>
               <Tippy
                 content={<SideMenu onDelete={onDelete}></SideMenu>}
                 trigger={"click"}
@@ -179,7 +179,11 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
             </div>
             {type === "code" ? ( // Wraps content in "pre" tags if the content is code.
               <pre>
-                <NodeViewContent className={styles.content} as={type} />
+                <NodeViewContent
+                  className={styles.content}
+                  as={type}
+                  contentEditable={true}
+                />
               </pre>
             ) : (
               <NodeViewContent
