@@ -1,7 +1,7 @@
 import { Node, NodeConfig } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { ElementType } from "react";
-import Block from "./BlockNodeView";
+import Block from "./Block";
 import BlockQuote from "@tiptap/extension-blockquote";
 import CodeBlock from "@tiptap/extension-code-block";
 import ListItem from "@tiptap/extension-list-item";
