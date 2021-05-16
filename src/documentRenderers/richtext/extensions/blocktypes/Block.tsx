@@ -164,10 +164,6 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
     return (
       <NodeViewWrapper className={styles.block}>
         <div ref={outerRef}>
-          <div
-            className={styles.mouseCapture}
-            onMouseOver={onMouseOver}
-            ref={mouseCaptureRef}></div>
           <div className={styles.inner + " inner"} ref={innerRef}>
             <div className={styles.handleContainer}>
               <Tippy
@@ -193,6 +189,11 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
               />
             )}
           </div>
+          <div
+            className={styles.mouseCapture}
+            onMouseOver={onMouseOver}
+            ref={mouseCaptureRef}
+            contentEditable={false}></div>
         </div>
       </NodeViewWrapper>
     );
