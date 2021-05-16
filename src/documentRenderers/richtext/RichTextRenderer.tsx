@@ -1,9 +1,6 @@
-// Nodes
-// Marks
 import Bold from "@tiptap/extension-bold";
 import BulletList from "@tiptap/extension-bullet-list";
 import Code from "@tiptap/extension-code";
-// Extensions
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import Document from "@tiptap/extension-document";
