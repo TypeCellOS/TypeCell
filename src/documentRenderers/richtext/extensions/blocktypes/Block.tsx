@@ -165,29 +165,24 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
       <NodeViewWrapper className={styles.block}>
         <div ref={outerRef}>
           <div className={styles.inner + " inner"} ref={innerRef}>
-            <div className={styles.handleContainer} contentEditable={false}>
+            <div className={styles.handleContainer} ref={dragRef}>
               <Tippy
                 content={<SideMenu onDelete={onDelete}></SideMenu>}
                 trigger={"click"}
                 placement={"left"}
                 interactive={true}>
                 <div
+                  contentEditable={false} // This is needed because otherwise pressing key up when positioned just after draghandle doesn't work
                   className={styles.handle + (hover ? " " + styles.hover : "")}
-                  ref={dragRef}
                 />
               </Tippy>
             </div>
             {type === "code" ? ( // Wraps content in "pre" tags if the content is code.
               <pre>
-                <NodeViewContent
-                  className={styles.content}
-                  as={type}
-                  contentEditable={true}
-                />
+                <NodeViewContent className={styles.content} as={type} />
               </pre>
             ) : (
               <NodeViewContent
-                contentEditable={true}
                 className={(attrs.class || "") + " " + styles.content}
                 as={type}
               />
