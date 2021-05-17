@@ -4,16 +4,18 @@ import React, { MouseEventHandler } from "react";
 import styles from "./InlineMenu.module.css";
 import Tippy from "@tippyjs/react";
 import { Underline } from "./extensions/marks/Underline";
+import { ButtonItem } from "@atlaskit/menu";
+import Button from "@atlaskit/button";
 
 type InlineMenuProps = { editor: Editor };
 type MenuButtonProps = {
   editor: Editor;
   styleDetails: StyleDetails;
-  onClick: MouseEventHandler;
+  onClick: () => void;
 };
 
 /**
- * [name] has to be the same as the name in the defining Mark
+ * [name] has to be the same as the name in the defining Mark (see underline below)
  */
 type StyleDetails = {
   name: string;
@@ -53,15 +55,6 @@ const underline: StyleDetails = {
   secondaryTooltip: "Ctrl+U",
 };
 
-function styledTooltip(mainText: string, secondaryText?: string) {
-  return (
-    <div className={styles.buttonTooltip}>
-      <div className={styles.mainText}>{mainText}</div>
-      <div className={styles.secondaryText}>{secondaryText}</div>
-    </div>
-  );
-}
-
 /**
  * The button that shows in the inline menu.
  *
@@ -84,13 +77,12 @@ class InlineMenuButton extends React.Component<MenuButtonProps> {
     const name = this.props.styleDetails.name;
 
     return (
-      <Tippy content={tooltipContent} theme="material">
-        <button
+      <Tippy content={tooltipContent}>
+        <Button
           onClick={this.props.onClick}
-          className={this.props.editor.isActive(name) ? styles.isActive : ""}
-          id={"inlineMenuButton-" + name}>
+          isSelected={this.props.editor.isActive(name)}>
           {name.toUpperCase()[0]}
-        </button>
+        </Button>
       </Tippy>
     );
   }
