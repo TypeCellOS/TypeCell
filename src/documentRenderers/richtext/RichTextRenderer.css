@@ -1,14 +1,8 @@
-.react-renderer {
-  margin: 0;
-}
-
 /*For the text inside the Node View Content*/
 [data-node-view-content] > div {
   display: block;
-  padding: 0.5rem;
-  margin: 0 0 0 2rem;
-  background: #eeeeee; /* TEMP, TODO */
-  border-radius: 0.5rem; /* TEMP, TODO */
+  margin: 0;
+  /* background: #eeeeee;  */
 }
 
 .ProseMirror p.is-empty::before {
@@ -22,13 +16,11 @@
 .ProseMirror pre {
   padding: 8px;
   border-radius: 5px;
-  background-color: #333;
-  color: #eee;
+  background-color: #333 !important;
+  color: #eee !important;
 }
 
 .ProseMirror blockquote {
-  margin-left: 1rem;
-  padding-left: 1rem;
   border-left: 2px solid #262626;
   color: #262626;
 }
@@ -37,4 +29,25 @@
   border: 1px solid #262626;
   border-radius: 5px;
   background-color: #262626;
+}
+
+blockquote {
+  margin: 0;
+}
+
+.ProseMirror ul {
+  margin: 0;
+  padding: 0;
+}
+
+.ProseMirror li {
+  margin-left: 1.1rem;
+}
+
+.ProseMirror {
+  overflow-x: hidden;
+}
+
+.indent {
+  margin-left: 1.1rem;
 }
