@@ -44,7 +44,6 @@ function Block(type: ElementType, options: any) {
     const mouseCaptureRef = useRef<HTMLDivElement>(null);
     const innerRef = useRef<HTMLDivElement>(null);
     const outerRef = useRef<HTMLDivElement>(null);
-    const childList = useRef<any>(undefined);
     const [id] = useState(Math.random());
 
     function deleteBlock(tr: Transaction, pos: number, node: Node) {
@@ -131,6 +130,8 @@ function Block(type: ElementType, options: any) {
       [props.getPos, props.node]
     );
 
+    // The node is not supposed to be draggable, for example, we could be dealing with a paragraph
+    // inside a <li> or <blockquote>. In that case, the wrapper should be draggable, not this item itself.
     if (!props.node.attrs["block-id"]) {
       return (
         <NodeViewWrapper>
