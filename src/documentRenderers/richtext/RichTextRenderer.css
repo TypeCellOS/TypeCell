@@ -44,14 +44,10 @@ blockquote {
   margin-left: 1.1rem;
 }
 
-/* .children > div > div > .inner {
-  padding-left: 1rem;
-} */
-
 .ProseMirror {
   overflow-x: hidden;
 }
 
-.children {
+.indent {
   margin-left: 1.1rem;
 }

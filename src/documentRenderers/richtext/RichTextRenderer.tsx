@@ -20,9 +20,11 @@ import {
   CodeBlockBlock,
   HeadingBlock,
   HorizontalRuleBlock,
+  IndentItemBlock,
   ListItemBlock,
   ParagraphBlock,
 } from "./extensions/blocktypes";
+import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
 import SlashCommandExtension from "./extensions/slashcommand";
 import InlineMenu from "./InlineMenu";
@@ -78,6 +80,14 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       HorizontalRuleBlock,
       ParagraphBlock,
       ListItemBlock,
+      IndentItemBlock.configure({
+        HTMLAttributes: {
+          class: "indent",
+        },
+      }),
+
+      // custom containers:
+      IndentGroup,
 
       // from tiptap (unmodified)
       BulletList,

@@ -8,6 +8,7 @@ import ListItem from "@tiptap/extension-list-item";
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import Heading from "@tiptap/extension-heading";
 import Paragraph from "@tiptap/extension-paragraph";
+import { IndentItem } from "./IndentItem";
 
 export function extendAsBlock(
   node: Node,
@@ -21,6 +22,22 @@ export function extendAsBlock(
 
     addNodeView() {
       return ReactNodeViewRenderer(Block(tag, this.options));
+    },
+
+    addKeyboardShortcuts() {
+      return {
+        // blocks should be "indentable" with Tab
+        Enter: () => this.editor.commands.splitListItem("indentItem"),
+        Tab: () =>
+          this.editor.commands.first(({ commands }) => [
+            () => commands.sinkListItem("indentItem"),
+            () => commands.createIndentGroup(),
+          ]),
+        "Shift-Tab": () => this.editor.commands.liftListItem("indentItem"),
+
+        // add parent keyboard shortcuts
+        ...this.parent?.(),
+      };
     },
     ...extendedConfig,
   });
@@ -39,3 +56,4 @@ export const ListItemBlock = extendAsBlock(ListItem, "li", {
 export const HorizontalRuleBlock = extendAsBlock(HorizontalRule, "hr");
 export const HeadingBlock = extendAsBlock(Heading, "h1");
 export const ParagraphBlock = extendAsBlock(Paragraph, "p");
+export const IndentItemBlock = extendAsBlock(IndentItem, "div");
