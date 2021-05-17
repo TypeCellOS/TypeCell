@@ -6,10 +6,9 @@ import {
 } from "@tiptap/react";
 import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
-import { Node } from "prosemirror-model";
+import { Node, DOMOutputSpec } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
 import {
-  default as React,
   ElementType,
   MouseEvent,
   PropsWithChildren,
@@ -40,10 +39,27 @@ type DnDItemType = {
  * @param type	The type of HTML element to be rendered as a block.
  * @returns			A React component, to be used in a TipTap node view.
  */
-function Block(type: ElementType, options: any) {
+function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
   return observer(function Component(
     props: PropsWithChildren<NodeViewRendererProps>
   ) {
+    const domOutput = toDOM(props.node);
+    let domType: ElementType;
+    let domAttrs: { [attr: string]: string | null | undefined } = {};
+
+    if (Array.isArray(domOutput)) {
+      // We assume here that domOutput[0] is indeed a valid HTML tag
+      domType = domOutput[0] as ElementType;
+      if (domOutput[1]) {
+        if (typeof domOutput[1] !== "object" || Array.isArray(domOutput[1])) {
+          throw new Error("toDOM does not return a valid attribute parameter");
+        }
+        domAttrs = domOutput[1];
+      }
+    } else {
+      throw new Error("toDOM does not return a valid DOM Type");
+    }
+
     const mouseCaptureRef = useRef<HTMLDivElement>(null);
     const innerRef = useRef<HTMLDivElement>(null);
     const outerRef = useRef<HTMLDivElement>(null);
@@ -139,7 +155,7 @@ function Block(type: ElementType, options: any) {
     if (!props.node.attrs["block-id"]) {
       return (
         <NodeViewWrapper>
-          <NodeViewContent className={styles.content} as={type} />
+          <NodeViewContent as={domType} {...domAttrs} />
         </NodeViewWrapper>
       );
     }
@@ -197,17 +213,14 @@ function Block(type: ElementType, options: any) {
                 />
               </Tippy>
             </div>
-            {type === "code" ? ( // Wraps content in "pre" tags if the content is code.
+            {domType === "code" ? ( // Wraps content in "pre" tags if the content is code.
               <pre>
-                <NodeViewContent className={styles.content} as={type} />
+                <NodeViewContent as={domType} {...domAttrs} />
               </pre>
             ) : (
-              <NodeViewContent
-                className={
-                  (options.HTMLAttributes?.class || "") + " " + styles.content
-                }
-                as={type}
-              />
+              <div>
+                <NodeViewContent as={domType} {...domAttrs} />
+              </div>
             )}
           </div>
           <div
