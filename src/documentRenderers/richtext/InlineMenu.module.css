@@ -2,17 +2,17 @@
   display: flex;
   background-color: transparent;
   margin: -0.3rem -0.5rem;
-  padding: -0.2rem;
+  padding: -0.1rem;
   border-radius: 0.5rem;
 }
 
 .BubbleMenu > button {
-  border: none;
+  border: 1px dotted #aaaaaa20;
   background: none;
   color: #fff;
   font-size: 0.85rem;
   font-weight: 500;
-  padding: 0 -0.2rem;
+  padding: 0.5rem 0.5rem;
   opacity: 0.6;
 }
 
