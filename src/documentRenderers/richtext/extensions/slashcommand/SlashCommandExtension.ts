@@ -33,7 +33,7 @@ export function findCommandBeforeCursor(
 ): { range: Range; query: string } | undefined {
   if (!selection.empty) return undefined;
 
-  // if (selection.$anchor.parent.type.name !== "paragraph") return undefined;
+  if (selection.$anchor.parent.type.name !== "paragraph") return undefined;
 
   const node = selection.$anchor.nodeBefore;
 
