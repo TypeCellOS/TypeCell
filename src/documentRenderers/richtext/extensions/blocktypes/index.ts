@@ -12,18 +12,17 @@ import { IndentItem } from "./IndentItem";
 
 export function extendAsBlock(
   node: Node,
-  tag: ElementType,
   extendedConfig?: Partial<NodeConfig<any>>
 ) {
   return node.extend({
     addAttributes() {
-      return { "block-id": null };
+      return { "block-id": null, ...this.parent?.() };
     },
 
     addNodeView() {
       // TODO? If we don't have a block-id, we don't really need the node-view wrapper with all corresponding <div>s
       // https://github.com/YousefED/typecell-next/issues/57
-      return ReactNodeViewRenderer(Block(tag, this.options));
+      return ReactNodeViewRenderer(Block(this.type.spec.toDOM!, this.options));
     },
 
     addKeyboardShortcuts() {
@@ -47,18 +46,18 @@ export function extendAsBlock(
   });
 }
 
-export const BlockQuoteBlock = extendAsBlock(BlockQuote, "blockquote", {
+export const BlockQuoteBlock = extendAsBlock(BlockQuote, {
   // only allow paragraphs in blockquote elements
   content: "paragraph+",
 });
 
-export const CodeBlockBlock = extendAsBlock(CodeBlock, "code");
-export const ListItemBlock = extendAsBlock(ListItem, "li", {
+export const CodeBlockBlock = extendAsBlock(CodeBlock);
+export const ListItemBlock = extendAsBlock(ListItem, {
   // TODO: the tiptap default is "paragraph block*"
   // It would be nicer to have paragraph list?, but that breaks backspace behavior
   //   content: "paragraph list?",
 });
-export const HorizontalRuleBlock = extendAsBlock(HorizontalRule, "hr");
-export const HeadingBlock = extendAsBlock(Heading, "h1");
-export const ParagraphBlock = extendAsBlock(Paragraph, "p");
-export const IndentItemBlock = extendAsBlock(IndentItem, "div");
+export const HorizontalRuleBlock = extendAsBlock(HorizontalRule);
+export const HeadingBlock = extendAsBlock(Heading);
+export const ParagraphBlock = extendAsBlock(Paragraph);
+export const IndentItemBlock = extendAsBlock(IndentItem);
