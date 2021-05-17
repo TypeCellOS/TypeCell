@@ -1,8 +1,8 @@
 table {
   overflow-x: scroll;
   table-layout: fixed;
-  width: 100%;
-  max-width: 100%;
+  /* width: 100%;
+  max-width: 100%; */
   margin: 0;
   border-collapse: collapse;
 }
@@ -14,10 +14,12 @@ table > div {
 tr {
   max-width: 100%;
   border: solid 0.05em black;
+  word-wrap: break-all;
 }
 
 td,
 th {
+  word-wrap: break-word;
   padding: 0.5em;
   border: solid 0.05em black !important;
 }
@@ -67,4 +69,9 @@ th {
 .hidden {
   display: none !important;
   visibility: hidden !important;
+}
+
+.optionIcon {
+  width: 1.6em;
+  height: 1.6em;
 }

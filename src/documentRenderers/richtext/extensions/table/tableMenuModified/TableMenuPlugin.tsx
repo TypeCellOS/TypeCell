@@ -70,13 +70,13 @@ export class TableBubbleMenuView {
 
   createTooltip(options: Partial<Props> = {}) {
     this.tippy = tippy(this.view.dom, {
-      duration: 0,
+      arrow: false,
       getReferenceClientRect: null,
       content: this.element,
       interactive: true,
       trigger: "manual",
       placement: "top",
-      hideOnClick: "toggle",
+      hideOnClick: true,
       zIndex: 9000,
       ...options,
     });
