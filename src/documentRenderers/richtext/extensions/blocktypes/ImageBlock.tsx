@@ -5,7 +5,7 @@ import Image from "@tiptap/extension-image";
 import "./Block.module.css";
 
 const ImageBlock = Image.extend({
-  draggable: true,
+  draggable: false,
   inline: false,
   atom: true,
 
@@ -52,9 +52,9 @@ const ImageBlock = Image.extend({
                 return false;
               }
 
-              const images = Array.from(
-                event.dataTransfer!.files
-              ).filter((file) => /image/i.test(file.type));
+              const images = Array.from(event.dataTransfer!.files).filter(
+                (file) => /image/i.test(file.type)
+              );
 
               if (images.length === 0) {
                 return false;
