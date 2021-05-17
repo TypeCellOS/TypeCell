@@ -78,7 +78,7 @@ const IndentGroup = Node.create({
             parentList &&
             range.depth - parentList.depth <= 1
           ) {
-            // we're already indented, don't handle here, but by "sinkListItem" in ./index
+            // we're already indented / or in a list, don't handle here, but by "sinkListItem" in ./index
             return false;
           }
 

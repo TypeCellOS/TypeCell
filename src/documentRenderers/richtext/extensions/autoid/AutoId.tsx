@@ -5,6 +5,8 @@ import { isList } from "../../util/isList";
 
 export interface AutoIdOptions {}
 
+// TODO: tiptap is working on this as well:
+// https://github.com/ueberdosis/tiptap/issues/1041
 export const AutoId = Extension.create<AutoIdOptions>({
   name: "autoId",
 

@@ -21,10 +21,13 @@ export function extendAsBlock(
     },
 
     addNodeView() {
+      // TODO? If we don't have a block-id, we don't really need the node-view wrapper with all corresponding <div>s
       return ReactNodeViewRenderer(Block(tag, this.options));
     },
 
     addKeyboardShortcuts() {
+      // These extra keyboard shortcuts are similar to ListItem
+      // (https://github.com/ueberdosis/tiptap/blob/main/packages/extension-list-item/src/list-item.ts)
       return {
         // blocks should be "indentable" with Tab
         Enter: () => this.editor.commands.splitListItem("indentItem"),
@@ -44,6 +47,7 @@ export function extendAsBlock(
 }
 
 export const BlockQuoteBlock = extendAsBlock(BlockQuote, "blockquote", {
+  // only allow paragraphs in blockquote elements
   content: "paragraph+",
 });
 

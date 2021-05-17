@@ -20,6 +20,9 @@ import { useDrag, useDrop } from "react-dnd";
 import SideMenu from "../../SideMenu";
 import styles from "./Block.module.css";
 
+/**
+ * A global store that keeps track of which block is being hovered over
+ */
 let globalState = makeAutoObservable({
   activeBlocks: {} as any, // using this pattern to prevent multiple rerenders
   activeBlock: 0,
@@ -149,6 +152,17 @@ function Block(type: ElementType, options: any) {
       );
     }
 
+    /**
+     * We use a special div and a mouse-over event handled in Javascript to determine the hovered element.
+     * Why not just handle this in CSS using :hover? Two reasons:
+     * 1) If we're in a nested list, we only want the drag handle for the deepest Block to be shown.
+     *    CSS will always trigger :hover for the deep block and it's parent block, and make two handles appear.
+     *    It seems like there's no easy way around that
+     * 2) We use a special MouseCapture div that extends to the entire page with, so that we also capture events when we're hovering
+     *    over the "white" area on the side of the document. This is a little bit hacky, but works well from a user perspective
+     *    (the div is absolutely positioned, and this could cause other issues with contenteditable selections, etc. We might
+     *    want to move away from this solution later, and for example capture a global mousemove and calculate hover from that)
+     */
     function onMouseOver(e: MouseEvent) {
       if (globalState.activeBlock !== id) {
         runInAction(() => {
@@ -159,9 +173,13 @@ function Block(type: ElementType, options: any) {
       }
     }
 
+    // if activeBlocks[id] is set, this block is being hovered over
     let hover = globalState.activeBlocks[id];
+
+    // setup react DnD
     drop(outerRef);
     dragPreview(innerRef);
+
     return (
       <NodeViewWrapper className={styles.block}>
         <div ref={outerRef}>
