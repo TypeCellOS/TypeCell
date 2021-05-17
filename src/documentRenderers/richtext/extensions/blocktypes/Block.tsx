@@ -45,10 +45,17 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
   ) {
     const domOutput = toDOM(props.node);
     let domType: ElementType;
+    let domAttrs: { [attr: string]: string | null | undefined } = {};
 
     if (Array.isArray(domOutput)) {
       // We assume here that domOutput[0] is indeed a valid HTML tag
       domType = domOutput[0] as ElementType;
+      if (domOutput[1]) {
+        if (typeof domOutput[1] !== "object" || Array.isArray(domOutput[1])) {
+          throw new Error("toDOM does not return a valid attribute parameter");
+        }
+        domAttrs = domOutput[1];
+      }
     } else {
       throw new Error("toDOM does not return a valid DOM Type");
     }
@@ -95,7 +102,8 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           // (logic from https://react-dnd.github.io/react-dnd/examples/sortable/simple)
 
           // Determine rectangle on screen
-          const hoverBoundingRect = mouseCaptureRef.current!.getBoundingClientRect();
+          const hoverBoundingRect =
+            mouseCaptureRef.current!.getBoundingClientRect();
 
           // Get vertical middle
           const hoverMiddleY =
@@ -147,7 +155,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
     if (!props.node.attrs["block-id"]) {
       return (
         <NodeViewWrapper>
-          <NodeViewContent className={styles.content} as={domType} />
+          <NodeViewContent as={domType} {...domAttrs} />
         </NodeViewWrapper>
       );
     }
@@ -207,15 +215,12 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
             </div>
             {domType === "code" ? ( // Wraps content in "pre" tags if the content is code.
               <pre>
-                <NodeViewContent className={styles.content} as={domType} />
+                <NodeViewContent as={domType} {...domAttrs} />
               </pre>
             ) : (
-              <NodeViewContent
-                className={
-                  (options.HTMLAttributes?.class || "") + " " + styles.content
-                }
-                as={domType}
-              />
+              <div>
+                <NodeViewContent as={domType} {...domAttrs} />
+              </div>
             )}
           </div>
           <div
