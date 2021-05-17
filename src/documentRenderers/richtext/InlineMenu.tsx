@@ -22,20 +22,6 @@ type StyleDetails = {
   // When we implement icons they should also go here
 };
 
-// const boldName = "bold";
-// const italicName = "italic";
-// const strikeName = "strike";
-// const codeName = "code";
-// const underlineName = "underline";
-
-// const tooltips: { [key: string]: JSX.Element } = {
-//   [boldName]: styledTooltip("Bold", "Ctrl+B"),
-//   [italicName]: styledTooltip("Italic", "Ctrl+I"),
-//   [strikeName]: styledTooltip("Strikethrough", "Ctrl+Shift+X"),
-//   [codeName]: styledTooltip("Inline Code", "Ctrl+E"),
-//   [underlineName]: styledTooltip("Underline", "Ctrl+U"),
-// };
-
 const bold: StyleDetails = {
   name: "bold",
   mainTooltip: "Bold",
