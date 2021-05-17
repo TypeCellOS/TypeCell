@@ -20,7 +20,7 @@ export function extendAsBlock(
     },
 
     addNodeView() {
-      return ReactNodeViewRenderer(Block(tag));
+      return ReactNodeViewRenderer(Block(tag, this.options));
     },
     ...extendedConfig,
   });

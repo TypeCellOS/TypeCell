@@ -1,6 +1,7 @@
-import { Extension } from "@tiptap/react";
+import { Extension, Node } from "@tiptap/react";
 import { uniqueId } from "lodash";
 import { Plugin, PluginKey } from "prosemirror-state";
+import { isList } from "../../util/isList";
 
 export interface AutoIdOptions {}
 
@@ -26,11 +27,7 @@ export const AutoId = Extension.create<AutoIdOptions>({
 
           // We can probably optimize this for performance
           newState.doc.descendants((node, pos, parent) => {
-            if (
-              node.isBlock &&
-              (parent === newState.doc ||
-                ((parent.type as any).groups as string[]).includes("list"))
-            ) {
+            if (node.isBlock && (parent === newState.doc || isList(parent))) {
               if (!node.attrs["block-id"]) {
                 tr.setNodeMarkup(pos, undefined, {
                   ...node.attrs,

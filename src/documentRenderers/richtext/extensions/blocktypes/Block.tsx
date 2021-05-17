@@ -37,7 +37,7 @@ type DnDItemType = {
  * @param type	The type of HTML element to be rendered as a block.
  * @returns			A React component, to be used in a TipTap node view.
  */
-function Block(type: ElementType, attrs: Record<string, any> = {}) {
+function Block(type: ElementType, options: any) {
   return observer(function Component(
     props: PropsWithChildren<NodeViewRendererProps>
   ) {
@@ -183,7 +183,9 @@ function Block(type: ElementType, attrs: Record<string, any> = {}) {
               </pre>
             ) : (
               <NodeViewContent
-                className={(attrs.class || "") + " " + styles.content}
+                className={
+                  (options.HTMLAttributes?.class || "") + " " + styles.content
+                }
                 as={type}
               />
             )}
