@@ -9,7 +9,6 @@ import { observer } from "mobx-react-lite";
 import { Node, DOMOutputSpec } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
 import {
-  default as React,
   ElementType,
   MouseEvent,
   PropsWithChildren,
