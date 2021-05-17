@@ -15,7 +15,13 @@ export function extendAsBlock(
 ) {
   return node.extend({
     addAttributes() {
-      return { "block-id": null, ...this.parent?.() };
+      return {
+        "block-id": {
+          default: null,
+          rendered: false,
+        },
+        ...this.parent?.(),
+      };
     },
 
     addNodeView() {
