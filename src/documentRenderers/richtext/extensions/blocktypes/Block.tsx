@@ -74,6 +74,7 @@ function Block(type: ElementType, options: any) {
         accept: "block",
         hover(item, monitor) {
           // TODO: show drop line
+          // https://github.com/YousefED/typecell-next/issues/53
         },
         drop(item, monitor) {
           if (typeof props.getPos === "boolean") {
