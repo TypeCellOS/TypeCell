@@ -1,5 +1,5 @@
 import { Editor } from "@tiptap/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AiOutlineLink } from 'react-icons/ai';
 import { IconContext } from "react-icons";
 
@@ -11,11 +11,23 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
 
   const [url, setUrl] = useState("");
 
+  useEffect(() => {
+      console.log("triggered");
+      console.log(props.editor.isActive("link"));
+      /*
+      if(props.editor.isActive("link")) {
+        console.log(props.editor.getAttributes("link").href);
+        setUrl(props.editor.getAttributes("link").href)
+      } else {
+        setUrl("");
+      }
+      */
+  });
+
   const handleSubmit = (e: any) => {
     e.preventDefault();
     console.log("submitted");
     props.editor.chain().focus().setLink({ href: url }).run()
-    console.log("ex");
     setUrl("");
   }
 
