@@ -44,7 +44,8 @@ class InlineMenu extends React.Component<InlineMenuProps> {
           Underline
         </button>
         <Tippy
-          content={<LinkForm></LinkForm>}
+          // @ts-ignore
+          content={<LinkForm editor={this.props.editor}></LinkForm>}
           trigger={"click"}
           placement={"top"}
           interactive={true}>

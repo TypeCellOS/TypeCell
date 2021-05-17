@@ -1,21 +1,27 @@
+import { Editor } from "@tiptap/react";
 import React, { useState } from "react";
 import { AiOutlineLink } from 'react-icons/ai';
 import { IconContext } from "react-icons";
 
 import "./LinkForm.css";
 
-const LinkForm: React.FC = (props) => {
+export type LinkFormProps = { editor: Editor };
+
+const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
 
   const [url, setUrl] = useState("");
 
   const handleSubmit = (e: any) => {
-    console.log("submitted");
     e.preventDefault();
+    console.log("submitted");
+    props.editor.chain().focus().setLink({ href: url }).run()
+    console.log("ex");
+    setUrl("");
   }
 
   const handleChange = (e: any) => {
-    console.log("changed");
     setUrl(e.target.value);
+    console.log("changed to ", url);
   }
 
   return (
@@ -26,7 +32,7 @@ const LinkForm: React.FC = (props) => {
             <AiOutlineLink />
           </div>
         </IconContext.Provider>
-        <input className={'input-field'} type="text" onChange={handleChange}/>
+        <input className={'input-field'} type="text" value={url} onChange={handleChange}/>
         <input className={'submit-button'} type="submit" value=">"/>
       </form>
     </div>
