@@ -10,15 +10,18 @@ export default function createRenderer<T extends SuggestionItem>(
 ): SuggestionRenderer<T> {
   let component: ReactRenderer;
   let popup: any;
+  let componentsDisposedOrDisposing = true;
 
   return {
     onStart: (props) => {
+      componentsDisposedOrDisposing = false;
       component = new ReactRenderer(SuggestionList as any, {
         editor: editor as ReactEditor,
         props: {
           groups: props.groups,
           count: props.count,
           selectItemCallback: props.selectItemCallback,
+          onClose: props.onClose,
         },
       });
 
@@ -42,13 +45,26 @@ export default function createRenderer<T extends SuggestionItem>(
     },
 
     onKeyDown: (props) => {
-      if (!component.ref) return false;
+      if (!component.ref) {
+        return false;
+      }
       return (component.ref as SuggestionList<T>).onKeyDown(props);
     },
 
     onExit: (props) => {
-      popup[0].destroy();
-      component.destroy();
+      if (componentsDisposedOrDisposing) {
+        return;
+      }
+      // onExit, first hide tippy popup so it shows fade-out
+      // then (after 1 second, actually destroy resources)
+      componentsDisposedOrDisposing = true;
+      const popupToDestroy = popup[0];
+      const componentToDestroy = component;
+      popupToDestroy.hide();
+      setTimeout(() => {
+        popupToDestroy.destroy();
+        componentToDestroy.destroy();
+      }, 1000);
     },
   };
 }

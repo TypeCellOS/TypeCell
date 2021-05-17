@@ -11,6 +11,7 @@ type SuggestionListProps<T> = {
   count: number;
   selectedIndex: number;
   selectItemCallback: (item: T) => void;
+  onClose: () => void;
 };
 
 export class SuggestionList<T extends SuggestionItem> extends React.Component<
@@ -50,6 +51,11 @@ export class SuggestionList<T extends SuggestionItem> extends React.Component<
       return true;
     }
 
+    if (event.key === "Escape") {
+      this.escapeHandler();
+      return true;
+    }
+
     return false;
   }
 
@@ -68,6 +74,10 @@ export class SuggestionList<T extends SuggestionItem> extends React.Component<
 
   enterHandler() {
     this.selectIndex(this.state.selectedIndex);
+  }
+
+  escapeHandler() {
+    this.props.onClose();
   }
 
   private itemByIndex(index: number): T | undefined {
