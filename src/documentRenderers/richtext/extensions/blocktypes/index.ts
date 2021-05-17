@@ -8,6 +8,7 @@ import ListItem from "@tiptap/extension-list-item";
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import Heading from "@tiptap/extension-heading";
 import Paragraph from "@tiptap/extension-paragraph";
+import Table from "@tiptap/extension-table";
 import { IndentItem } from "./IndentItem";
 
 export function extendAsBlock(
@@ -62,3 +63,4 @@ export const HorizontalRuleBlock = extendAsBlock(HorizontalRule, "hr");
 export const HeadingBlock = extendAsBlock(Heading, "h1");
 export const ParagraphBlock = extendAsBlock(Paragraph, "p");
 export const IndentItemBlock = extendAsBlock(IndentItem, "div");
+export const TableBlock = extendAsBlock(Table, "table");

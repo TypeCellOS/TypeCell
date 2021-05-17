@@ -97,7 +97,13 @@ export class TableBubbleMenuView {
     if (empty) {
       const resolvedPos = doc.resolve(selection.from);
       // if the cursor is at top level, i.e., not inside a table node, hide it
-      if (resolvedPos.depth === 1) {
+      if (
+        resolvedPos.depth === 1 ||
+        !resolvedPos
+          .node(resolvedPos.depth - 1)
+          .type.name.toLowerCase()
+          .startsWith("table")
+      ) {
         this.hide();
         return;
       }
