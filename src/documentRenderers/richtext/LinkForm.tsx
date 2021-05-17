@@ -1,5 +1,5 @@
 import { Editor } from "@tiptap/react";
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { AiOutlineLink } from 'react-icons/ai';
 import { IconContext } from "react-icons";
 
@@ -7,21 +7,30 @@ import "./LinkForm.css";
 
 export type LinkFormProps = { editor: Editor };
 
-const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
+const LinkForm: React.FC<LinkFormProps> = forwardRef((props: LinkFormProps, ref: any) => {
 
   const [url, setUrl] = useState("");
+  const [expanded, setExpanded] = useState(false);
+
+  useImperativeHandle(ref, () => ({
+
+    toggleExpansion() {
+      setExpanded(prevExpanded => !prevExpanded);
+      console.log("the menu is expanded:", expanded);
+    }
+
+  }));
 
   useEffect(() => {
       console.log("triggered");
-      console.log(props.editor.isActive("link"));
-      /*
-      if(props.editor.isActive("link")) {
+      console.log("a link is active: ", props.editor.isActive("link"));
+      console.log("the menu is expanded:", expanded);
+      if(!expanded && props.editor.isActive("link")) {
         console.log(props.editor.getAttributes("link").href);
         setUrl(props.editor.getAttributes("link").href)
-      } else {
+      } else if(!expanded && !props.editor.isActive("link")){
         setUrl("");
       }
-      */
   });
 
   const handleSubmit = (e: any) => {
@@ -49,6 +58,6 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
       </form>
     </div>
   );
-}
+});
 
 export default LinkForm;
