@@ -26,9 +26,21 @@ import {
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
+import { Mention, MentionType } from "./extensions/mentions/Mention";
+import { MentionsExtension } from "./extensions/mentions/MentionsExtension";
 import SlashCommandExtension from "./extensions/slashcommand";
 import InlineMenu from "./InlineMenu";
 import "./RichTextRenderer.css";
+
+// This is a temporary array to show off mentions
+const PEOPLE = [
+  new Mention("Pepijn Vunderink", MentionType.PEOPLE),
+  new Mention("Yousef El-Dardiri", MentionType.PEOPLE),
+  new Mention("Chong Zhao", MentionType.PEOPLE),
+  new Mention("Matthew Lipski", MentionType.PEOPLE),
+  new Mention("Emre Agca", MentionType.PEOPLE),
+  new Mention("Nikolay Zhlebinkov", MentionType.PEOPLE),
+];
 
 type Props = {
   document: DocumentResource;
@@ -56,7 +68,15 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         showOnlyCurrent: false,
       }),
       SlashCommandExtension.configure({
+        // Extra commands can be registered here
         commands: {},
+      }),
+      MentionsExtension.configure({
+        providers: {
+          people: (query) => {
+            return PEOPLE.filter((mention) => mention.match(query));
+          },
+        },
       }),
       AutoId,
       HardBreak,
