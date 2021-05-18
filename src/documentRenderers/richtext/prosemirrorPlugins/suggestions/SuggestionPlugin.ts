@@ -130,20 +130,25 @@ export function SuggestionPlugin<T extends SuggestionItem>({
             `[data-decoration-id="${state.decorationId}"]`
           );
 
-          // Filter items using query and map them to groups
-          const filteredItems = state.items;
           const groups: { [groupName: string]: T[] } = groupBy(
-            filteredItems,
+            state.items,
             "groupName"
           );
+
+          const deactivate = () => {
+            view.dispatch(
+              view.state.tr.setMeta(PLUGIN_KEY, { deactivate: true })
+            );
+          };
 
           const rendererProps: SuggestionRendererProps<T> = {
             editor,
             range: state.range,
             query: state.query,
             groups: changed || started ? groups : {},
-            count: filteredItems.length,
+            count: state.items.length,
             selectItemCallback: (item: T) => {
+              deactivate();
               selectItemCallback({
                 item,
                 editor,
@@ -157,6 +162,7 @@ export function SuggestionPlugin<T extends SuggestionItem>({
               ? () => decorationNode.getBoundingClientRect()
               : null,
             onClose: () => {
+              deactivate();
               renderer?.onExit?.(rendererProps);
             },
           };
@@ -189,22 +195,25 @@ export function SuggestionPlugin<T extends SuggestionItem>({
       },
 
       // Apply changes to the plugin state from a view transaction.
-      apply(transaction, prev) {
+      apply(transaction, prev, oldState, newState) {
         const { selection } = transaction;
         const next = { ...prev };
         // We can only be suggesting if there is no selection
 
         if (
           selection.from === selection.to &&
+          // deactivate popup from view (e.g.: choice has been made or esc has been pressed)
+          !transaction.getMeta(PLUGIN_KEY)?.deactivate &&
+          // deactivate because a mouse event occurs (user clicks somewhere else in the document)
           !transaction.getMeta("focus") &&
           !transaction.getMeta("blur") &&
           !transaction.getMeta("pointer")
         ) {
-          // Reset active state if we just left the previous suggestion range
+          // Reset active state if we just left the previous suggestion range (e.g.: key arrows moving before /)
           if (prev.active && selection.from <= prev.range.from) {
             next.active = false;
           } else if (transaction.getMeta(PLUGIN_KEY)?.activate) {
-            transaction.setMeta(PLUGIN_KEY, undefined);
+            // Start showing suggestions. activate has been set after typing a "/", so let's create the decoration and initialize
             const newDecorationId = `id_${Math.floor(
               Math.random() * 0xffffffff
             )}`;
@@ -238,12 +247,8 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           } else {
             // Update the "notFoundCount",
             // which indicates how many characters have been typed after showing no results
-            if (
-              transaction.steps.find(
-                (s) => s instanceof ReplaceStep && (s as any).slice.size
-              )
-            ) {
-              // Text has been entered, but still no items found, update Count
+            if (next.range.to > prev.range.to) {
+              // Text has been entered (selection moved to right), but still no items found, update Count
               next.notFoundCount = prev.notFoundCount + 1;
             } else {
               // No text has been entered in this tr, keep not found count
