@@ -2,7 +2,6 @@ import * as monaco from "monaco-editor";
 import React from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import "./App.css";
 import DocumentView from "./documentRenderers/DocumentView";
 import { enablePluginSystem } from "./pluginEngine/pluginSystem";
 import { setMonacoDefaults } from "./sandbox";
@@ -10,6 +9,10 @@ import setupNpmTypeResolver from "./sandbox/setupNpmTypeResolver";
 import setupTypecellTypeResolver from "./sandbox/setupTypecellTypeResolver";
 import { DocumentResource } from "./store/DocumentResource";
 import routing from "./typecellEngine/lib/routing";
+
+import "./App.css";
+import "tippy.js/themes/material.css";
+import "tippy.js/dist/tippy.css";
 
 setMonacoDefaults(monaco);
 setupTypecellTypeResolver();

@@ -1,28 +1,49 @@
+import Bold from "@tiptap/extension-bold";
+import BulletList from "@tiptap/extension-bullet-list";
+import Code from "@tiptap/extension-code";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import Link from "@tiptap/extension-link";
-import { useEditor, EditorContent } from "@tiptap/react";
-import { defaultExtensions } from "@tiptap/starter-kit";
-import { observer } from "mobx-react-lite";
+import Document from "@tiptap/extension-document";
+import HardBreak from "@tiptap/extension-hard-break";
+import { Image } from "@tiptap/extension-image";
+import Italic from "@tiptap/extension-italic";
+import OrderedList from "@tiptap/extension-ordered-list";
+import Placeholder from "@tiptap/extension-placeholder";
+import Strike from "@tiptap/extension-strike";
+import Text from "@tiptap/extension-text";
+import { EditorContent, useEditor } from "@tiptap/react";
 import React from "react";
-
 import { DocumentResource } from "../../store/DocumentResource";
+import { AutoId } from "./extensions/autoid/AutoId";
+import {
+  BlockQuoteBlock,
+  CodeBlockBlock,
+  HeadingBlock,
+  HorizontalRuleBlock,
+  IndentItemBlock,
+  ListItemBlock,
+  ParagraphBlock,
+} from "./extensions/blocktypes";
+import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
-import TypeCellNode from "./extensions/typecellnode";
+import SlashCommandExtension from "./extensions/slashcommand";
 import InlineMenu from "./InlineMenu";
+import "./RichTextRenderer.css";
 
 type Props = {
   document: DocumentResource;
 };
-const RichText: React.FC<Props> = observer((props) => {
+const RichTextRenderer: React.FC<Props> = (props) => {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
-      console.log(editor.getJSON());
+      // console.log(editor.getJSON());
+    },
+    onSelectionUpdate: ({ editor }) => {
+      // console.log(editor.getJSON());
+      // console.log(editor.state.selection);
     },
     extensions: [
-      ...defaultExtensions(),
-      Link,
-      Underline,
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,
         user: { name: "Hello", color: "#f783ac" },
@@ -30,18 +51,67 @@ const RichText: React.FC<Props> = observer((props) => {
       Collaboration.configure({
         fragment: props.document.data,
       }),
-      TypeCellNode,
+      // DropCursor,
+      Placeholder.configure({
+        placeholder: "Use '/' to insert a new block.",
+        showOnlyCurrent: false,
+      }),
+      SlashCommandExtension.configure({
+        commands: {},
+      }),
+      AutoId,
+      HardBreak,
+
+      // basics:
+      Text,
+      Document,
+
+      // marks:
+      Bold,
+      Code,
+      Italic,
+      Strike,
+      Underline,
+      Link,
+
+      // custom blocks:
+      Image,
+      BlockQuoteBlock,
+      CodeBlockBlock,
+      HeadingBlock,
+      HorizontalRuleBlock,
+      ParagraphBlock,
+      ListItemBlock,
+      IndentItemBlock.configure({
+        HTMLAttributes: {
+          class: "indent",
+        },
+      }),
+
+      // custom containers:
+      IndentGroup,
+
+      // from tiptap (unmodified)
+      BulletList,
+      OrderedList,
+
+      // TypeCellNode,
     ],
-    content:
-      "This text is in a TipTap editor, feel free to change it. Live collaboration is also enabled.",
+    enableInputRules: true,
+    enablePasteRules: true,
+    editorProps: {
+      attributes: {
+        class: "editor",
+      },
+    },
   });
 
   return (
-    <div style={{ maxWidth: 600, margin: "0 auto" }}>
+    <div>
       {editor != null ? <InlineMenu editor={editor} /> : null}
       <EditorContent editor={editor} />
     </div>
   );
-});
+};
 
-export default RichText;
+export default RichTextRenderer;

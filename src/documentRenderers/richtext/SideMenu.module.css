@@ -1,0 +1,17 @@
+.menuList {
+  list-style: none;
+  border: solid 0.1em gray;
+  border-radius: 0.25em;
+  padding: 0.2em;
+}
+
+.menuOption {
+  text-align: center;
+  display: block;
+  padding: 0.1em;
+}
+
+.menuOption:hover {
+  cursor: pointer;
+  color: blue;
+}
