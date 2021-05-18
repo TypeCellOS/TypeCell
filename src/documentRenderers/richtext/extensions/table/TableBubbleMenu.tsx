@@ -5,6 +5,8 @@ import {
   TableBubbleMenuPluginKey,
 } from "./tableMenuModified/TableMenuPlugin";
 
+// Code adapted from https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/BubbleMenu.tsx
+// This is needed to provide a similar implementation for TableBubbleMenu. Names are changed accordingly.
 export type TableBubbleMenuProps = Omit<
   TableBubbleMenuPluginProps,
   "element"

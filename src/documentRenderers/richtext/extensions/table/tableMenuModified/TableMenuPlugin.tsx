@@ -3,6 +3,8 @@ import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import tippy, { Instance, Props } from "tippy.js";
 
+// Code adapted from https://github.com/ueberdosis/tiptap/blob/7bf4c1d11ce4c36ad2846c4a15491ef8b649280d/packages/extension-bubble-menu/src/bubble-menu-plugin.ts
+// This plugin is needed for the TableMenuExtension so that a slightly different Tippy menu could be rendered only for the table block.
 export interface TableBubbleMenuPluginProps {
   editor: Editor;
   element: HTMLElement;
@@ -68,6 +70,7 @@ export class TableBubbleMenuView {
     this.hide();
   };
 
+  // hide on click, no arrow shown
   createTooltip(options: Partial<Props> = {}) {
     this.tippy = tippy(this.view.dom, {
       arrow: false,
@@ -77,7 +80,7 @@ export class TableBubbleMenuView {
       trigger: "manual",
       placement: "top",
       hideOnClick: true,
-      zIndex: 9000,
+      zIndex: 9999,
       ...options,
     });
   }
@@ -94,6 +97,7 @@ export class TableBubbleMenuView {
 
     const { from, to, empty } = selection;
 
+    // When selection is empty, do not just hide it right away.
     if (empty) {
       const resolvedPos = doc.resolve(selection.from);
       // if the cursor is at top level, i.e., not inside a table node, hide it
