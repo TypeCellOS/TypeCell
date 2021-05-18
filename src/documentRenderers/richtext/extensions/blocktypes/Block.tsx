@@ -12,11 +12,13 @@ import {
   default as React,
   ElementType,
   MouseEvent,
+  MutableRefObject,
   PropsWithChildren,
+  RefObject,
   useRef,
   useState,
 } from "react";
-import { useDrag, useDrop } from "react-dnd";
+import { useDrag, useDrop, XYCoord } from "react-dnd";
 import SideMenu from "../../SideMenu";
 import styles from "./Block.module.css";
 
@@ -69,13 +71,13 @@ function Block(type: ElementType, options: any) {
       };
     }, [props.getPos, props.node]);
 
-    const [{}, drop] = useDrop<DnDItemType, any, any>(
+    const [{ isOver, canDrop, clientOffset }, drop] = useDrop<
+      DnDItemType,
+      any,
+      any
+    >(
       () => ({
         accept: "block",
-        hover(item, monitor) {
-          // TODO: show drop line
-          // https://github.com/YousefED/typecell-next/issues/53
-        },
         drop(item, monitor) {
           if (typeof props.getPos === "boolean") {
             throw new Error("unexpected getPos type");
@@ -84,20 +86,6 @@ function Block(type: ElementType, options: any) {
           // We're dropping item.node (source) to props.node (target)
           // Should we move source to the top of bottom of target? Let's find out
           // (logic from https://react-dnd.github.io/react-dnd/examples/sortable/simple)
-
-          // Determine rectangle on screen
-          const hoverBoundingRect =
-            mouseCaptureRef.current!.getBoundingClientRect();
-
-          // Get vertical middle
-          const hoverMiddleY =
-            (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-
-          // Determine mouse position
-          const clientOffset = monitor.getClientOffset();
-
-          // Get pixels to the top
-          const hoverClientY = clientOffset!.y - hoverBoundingRect.top;
 
           // ProseMirror token positions just before and just after the target block
           const posBeforeTargetNode = props.getPos() - 1;
@@ -110,10 +98,12 @@ function Block(type: ElementType, options: any) {
           // delete the old block
           deleteBlock(tr, item.getPos(), item.node);
 
-          let posToInsert =
-            hoverClientY < hoverMiddleY
-              ? posBeforeTargetNode
-              : posAfterTargetNode;
+          let posToInsert = cursorInUpperHalf(
+            mouseCaptureRef,
+            monitor.getClientOffset()
+          )
+            ? posBeforeTargetNode
+            : posAfterTargetNode;
 
           if (item.getPos() < posToInsert) {
             // we're moving an item downwards. As "delete" happens before "insert",
@@ -130,6 +120,11 @@ function Block(type: ElementType, options: any) {
           // execute transaction
           props.editor.view.dispatch(tr);
         },
+        collect: (monitor) => ({
+          isOver: monitor.isOver(),
+          canDrop: monitor.canDrop(),
+          clientOffset: monitor.getClientOffset(),
+        }),
       }),
       [props.getPos, props.node]
     );
@@ -174,6 +169,33 @@ function Block(type: ElementType, options: any) {
       }
     }
 
+    /**
+     * Checks if the mouse cursor lies in the upper half of the DOM node it is hovering over.
+     * @param mouseCaptureRef Mouse position reference.
+     * @param mouseOffset     Mouse position offset.
+     * @returns True if cursor is in upper half of node, false otherwise.
+     */
+    function cursorInUpperHalf(
+      mouseCaptureRef: RefObject<HTMLDivElement> | null,
+      mouseOffset: XYCoord | null
+    ) {
+      // Determine rectangle on screen
+      const hoverBoundingRect =
+        mouseCaptureRef!.current!.getBoundingClientRect();
+
+      // Get vertical middle
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+
+      // Get pixels to the top
+      const hoverClientY = mouseOffset!.y - hoverBoundingRect.top;
+
+      console.log(hoverMiddleY);
+      console.log(hoverClientY);
+
+      return hoverClientY < hoverMiddleY;
+    }
+
     // if activeBlocks[id] is set, this block is being hovered over
     let hover = globalState.activeBlocks[id];
 
@@ -181,8 +203,27 @@ function Block(type: ElementType, options: any) {
     drop(outerRef);
     dragPreview(innerRef);
 
+    let upper;
+    if (mouseCaptureRef && clientOffset) {
+      upper = cursorInUpperHalf(mouseCaptureRef, clientOffset);
+    }
+    const mouse = clientOffset;
+
+    const isActive = canDrop && isOver;
+    let borderTop = "";
+    let borderBottom = "";
+    if (isActive) {
+      if (upper) {
+        borderTop = "solid black";
+      } else {
+        borderBottom = "solid black";
+      }
+    }
+
     return (
-      <NodeViewWrapper className={styles.block}>
+      <NodeViewWrapper
+        className={styles.block}
+        style={{ ...styles, borderTop, borderBottom }}>
         <div ref={outerRef}>
           <div className={styles.inner + " inner"} ref={innerRef}>
             <div className={styles.handleContainer} ref={dragRef}>
