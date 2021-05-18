@@ -14,14 +14,15 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
   useEffect(() => {
       console.log("triggered");
       console.log(props.editor.isActive("link"));
-      /*
-      if(props.editor.isActive("link")) {
-        console.log(props.editor.getAttributes("link").href);
-        setUrl(props.editor.getAttributes("link").href)
-      } else {
-        setUrl("");
+      
+      if(props.editor.isFocused) {
+        if(props.editor.isActive("link")) {
+          setUrl(props.editor.getAttributes("link").href);
+        } else {
+          setUrl("");
+        }
       }
-      */
+      
   });
 
   const handleSubmit = (e: any) => {
