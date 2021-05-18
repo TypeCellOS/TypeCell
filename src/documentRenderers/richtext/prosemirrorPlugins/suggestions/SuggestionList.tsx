@@ -3,6 +3,7 @@ import SuggestionItem from "./SuggestionItem";
 import { SuggestionGroup } from "./SuggestionGroup";
 import styles from "./SuggestionList.module.css";
 import { SuggestionRendererKeyDownProps } from "./SuggestionPlugin";
+import { spawn } from "child_process";
 
 type SuggestionListProps<T> = {
   groups: {
@@ -125,6 +126,14 @@ export class SuggestionList<T extends SuggestionItem> extends React.Component<
       currentGroupIndex += items.length;
     }
 
-    return <div className={styles.suggestionList}>{renderedGroups}</div>;
+    return (
+      <div className={styles.suggestionList}>
+        {renderedGroups.length > 0 ? (
+          renderedGroups
+        ) : (
+          <span className={styles.notFoundText}>No match found</span>
+        )}
+      </div>
+    );
   }
 }
