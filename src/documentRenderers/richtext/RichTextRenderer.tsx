@@ -55,9 +55,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         placeholder: "Use '/' to insert a new block.",
         showOnlyCurrent: false,
       }),
-      SlashCommandExtension.configure({
-        commands: {},
-      }),
+
       AutoId,
       HardBreak,
 
@@ -93,6 +91,11 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       BulletList,
       OrderedList,
 
+      // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
+      // should be handled before Enter handlers in other components like splitListItem
+      SlashCommandExtension.configure({
+        commands: {},
+      }),
       // TypeCellNode,
     ],
     enableInputRules: true,

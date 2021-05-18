@@ -4,7 +4,7 @@ import { Plugin, PluginKey, Selection } from "prosemirror-state";
 import { EditorView, Decoration, DecorationSet } from "prosemirror-view";
 import SuggestionItem from "./SuggestionItem";
 import createRenderer from "./SuggestionListReactRenderer";
-
+import { ReplaceStep } from "prosemirror-transform";
 export interface SuggestionRenderer<T extends SuggestionItem> {
   onExit?: (props: SuggestionRendererProps<T>) => void;
   onUpdate?: (props: SuggestionRendererProps<T>) => void;
@@ -31,6 +31,7 @@ export type SuggestionRendererProps<T extends SuggestionItem> = {
   // virtual node for popper.js or tippy.js
   // this can be used for building popups without a DOM node
   clientRect: (() => DOMRect) | null;
+  onClose: () => void;
 };
 
 export type SuggestionPluginOptions<T extends SuggestionItem> = {
@@ -61,26 +62,13 @@ export function findCommandBeforeCursor(
 ): { range: Range; query: string } | undefined {
   if (!selection.empty) return undefined;
 
-  // make sure the cursor is in a paragraph node
-  const { parent } = selection.$anchor;
-  if (parent.type.name !== "paragraph") return undefined;
-
   // get the text before the cursor as a node
   const node = selection.$anchor.nodeBefore;
   if (!node || !node.text) return undefined;
 
-  // split the text into parts
-  const parts = node.text.split(" ");
-  if (parts.length < 1) return undefined;
-
-  // get the last word from the text before the cursor
-  const lastPart = parts[parts.length - 1];
-
-  // regex to match words starting with the specified char (e.g. '/') followed by word-characters (a-z, A-Z, 0-9 and _)
-  const regex = new RegExp(`${escapeRegExp(char)}(\\w*)$`);
-
-  // match the last word agains the regex
-  const match = lastPart.match(regex);
+  // regex to match anything between with the specified char (e.g. '/') and the end of text (which is the end of selection)
+  const regex = new RegExp(`${escapeRegExp(char)}([^${escapeRegExp(char)}]*)$`);
+  const match = node.text.match(regex);
 
   if (!match) return undefined;
 
@@ -92,6 +80,8 @@ export function findCommandBeforeCursor(
     },
   };
 }
+
+const PLUGIN_KEY = new PluginKey("suggestion");
 
 /**
  * A ProseMirror plugin for suggestions, designed to make '/'-commands possible as well as mentions.
@@ -111,14 +101,13 @@ export function SuggestionPlugin<T extends SuggestionItem>({
   selectItemCallback = () => {},
   items = () => [],
   renderer = undefined,
-  allow = () => true,
 }: SuggestionPluginOptions<T>) {
   // Use react renderer by default
   // This will fail if the editor is not a @tiptap/react editor
   if (!renderer) renderer = createRenderer(editor);
 
   return new Plugin({
-    key: new PluginKey("suggestion"),
+    key: PLUGIN_KEY,
 
     view() {
       return {
@@ -127,39 +116,39 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           const next = this.key?.getState(view.state);
 
           // See how the state changed
-          const moved =
-            prev.active && next.active && prev.range.from !== next.range.from;
           const started = !prev.active && next.active;
           const stopped = prev.active && !next.active;
           const changed = !started && !stopped && prev.query !== next.query;
-          const handleStart = started || moved;
-          const handleChange = changed && !moved;
-          const handleExit = stopped || moved;
 
           // Cancel when suggestion isn't active
-          if (!handleStart && !handleChange && !handleExit) {
+          if (!started && !changed && !stopped) {
             return;
           }
 
-          const state = handleExit ? prev : next;
+          const state = stopped ? prev : next;
           const decorationNode = document.querySelector(
             `[data-decoration-id="${state.decorationId}"]`
           );
 
-          // Filter items using query and map them to groups
-          const filteredItems = items(state.query);
           const groups: { [groupName: string]: T[] } = groupBy(
-            filteredItems,
+            state.items,
             "groupName"
           );
+
+          const deactivate = () => {
+            view.dispatch(
+              view.state.tr.setMeta(PLUGIN_KEY, { deactivate: true })
+            );
+          };
 
           const rendererProps: SuggestionRendererProps<T> = {
             editor,
             range: state.range,
             query: state.query,
-            groups: handleChange || handleStart ? groups : {},
-            count: filteredItems.length,
+            groups: changed || started ? groups : {},
+            count: state.items.length,
             selectItemCallback: (item: T) => {
+              deactivate();
               selectItemCallback({
                 item,
                 editor,
@@ -172,17 +161,21 @@ export function SuggestionPlugin<T extends SuggestionItem>({
             clientRect: decorationNode
               ? () => decorationNode.getBoundingClientRect()
               : null,
+            onClose: () => {
+              deactivate();
+              renderer?.onExit?.(rendererProps);
+            },
           };
 
-          if (handleExit) {
+          if (stopped) {
             renderer?.onExit?.(rendererProps);
           }
 
-          if (handleChange) {
+          if (changed) {
             renderer?.onUpdate?.(rendererProps);
           }
 
-          if (handleStart) {
+          if (started) {
             renderer?.onStart?.(rendererProps);
           }
         },
@@ -196,43 +189,77 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           active: false,
           range: {},
           query: null,
+          notFoundCount: 0,
+          items: [],
         };
       },
 
       // Apply changes to the plugin state from a view transaction.
-      apply(transaction, prev) {
+      apply(transaction, prev, oldState, newState) {
         const { selection } = transaction;
         const next = { ...prev };
-
         // We can only be suggesting if there is no selection
-        if (selection.from === selection.to) {
-          // Reset active state if we just left the previous suggestion range
-          if (
-            selection.from < prev.range.from ||
-            selection.from > prev.range.to
-          ) {
+
+        if (
+          selection.from === selection.to &&
+          // deactivate popup from view (e.g.: choice has been made or esc has been pressed)
+          !transaction.getMeta(PLUGIN_KEY)?.deactivate &&
+          // deactivate because a mouse event occurs (user clicks somewhere else in the document)
+          !transaction.getMeta("focus") &&
+          !transaction.getMeta("blur") &&
+          !transaction.getMeta("pointer")
+        ) {
+          // Reset active state if we just left the previous suggestion range (e.g.: key arrows moving before /)
+          if (prev.active && selection.from <= prev.range.from) {
             next.active = false;
-          }
-
-          // Try to match against where our cursor currently is
-          const match = findCommandBeforeCursor(char, selection);
-          const newDecorationId = `id_${Math.floor(
-            Math.random() * 0xffffffff
-          )}`;
-
-          // If we found a match, update the current state to show it
-          if (match && allow({ editor, range: match.range })) {
+          } else if (transaction.getMeta(PLUGIN_KEY)?.activate) {
+            // Start showing suggestions. activate has been set after typing a "/", so let's create the decoration and initialize
+            const newDecorationId = `id_${Math.floor(
+              Math.random() * 0xffffffff
+            )}`;
+            next.decorationId = newDecorationId;
+            next.range = {
+              from: selection.from - 1,
+              to: selection.to,
+            };
+            next.query = "";
             next.active = true;
-            next.decorationId = prev.decorationId
-              ? prev.decorationId
-              : newDecorationId;
+          } else if (prev.active) {
+            // Try to match against where our cursor currently is
+            const match = findCommandBeforeCursor(char, selection);
+            if (!match) {
+              throw new Error("active but no match (suggestions)");
+            }
+
             next.range = match.range;
+            next.active = true;
+            next.decorationId = prev.decorationId;
             next.query = match.query;
-          } else {
-            next.active = false;
           }
         } else {
           next.active = false;
+        }
+
+        if (next.active) {
+          next.items = items(next.query);
+          if (next.items.length) {
+            next.notFoundCount = 0;
+          } else {
+            // Update the "notFoundCount",
+            // which indicates how many characters have been typed after showing no results
+            if (next.range.to > prev.range.to) {
+              // Text has been entered (selection moved to right), but still no items found, update Count
+              next.notFoundCount = prev.notFoundCount + 1;
+            } else {
+              // No text has been entered in this tr, keep not found count
+              // (e.g.: user hits backspace after no results)
+              next.notFoundCount = prev.notFoundCount;
+            }
+          }
+
+          if (next.notFoundCount > 3) {
+            next.active = false;
+          }
         }
 
         // Make sure to empty the range if suggestion is inactive
@@ -240,6 +267,8 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           next.decorationId = null;
           next.range = {};
           next.query = null;
+          next.notFoundCount = 0;
+          next.items = [];
         }
 
         return next;
@@ -247,11 +276,21 @@ export function SuggestionPlugin<T extends SuggestionItem>({
     },
 
     props: {
-      // Call the keydown hook if suggestion is active.
       handleKeyDown(view, event) {
         const { active, range } = this.getState(view.state);
 
         if (!active) {
+          // activate the popup on / keypress
+          if (event.key === "/") {
+            view.dispatch(
+              view.state.tr
+                .insertText("/")
+                .scrollIntoView()
+                .setMeta(PLUGIN_KEY, { activate: true })
+            );
+            // return true to cancel the original event, as we insert / ourselves
+            return true;
+          }
           return false;
         }
 
