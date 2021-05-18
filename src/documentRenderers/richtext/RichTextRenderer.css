@@ -31,10 +31,6 @@
   background-color: #262626;
 }
 
-p {
-  display: inline;
-}
-
 .ProseMirror table .react-renderer {
   margin: 0;
 }
@@ -83,4 +79,48 @@ blockquote {
 .ProseMirror hr {
   position: relative;
   top: 0.5rem; /* half of handle height */
+}
+
+.ProseMirror table {
+  table-layout: fixed;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.ProseMirror table > div {
+  max-width: 100%;
+}
+
+.ProseMirror tr {
+  max-width: 100%;
+  border: solid 0.05em black;
+  word-wrap: break-all;
+}
+
+.ProseMirror td,
+.ProseMirror th {
+  word-wrap: break-word;
+  padding: 0.5em;
+  border: solid 0.05em black !important;
+}
+
+.ProseMirror .selectedCell:after {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(200, 200, 255, 0.4);
+  pointer-events: none;
+}
+
+.ProseMirror .tableWrapper {
+  overflow-x: auto;
+}
+
+.ProseMirror .resize-cursor {
+  cursor: ew-resize;
+  cursor: col-resize;
 }

@@ -111,59 +111,6 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         class: "editor",
       },
     },
-    content: `
-    <p>a paragraph</p>
-    <table>
-      <tbody>
-        <tr>
-          <th>Name</th>
-          <th>Rank</th>
-          <th>Radius</th>
-        </tr>
-        <tr>
-          <td>Mercury</td>
-          <td>1</td>
-          <td>2440</td>
-        </tr>
-        <tr>
-          <td>Venus</td>
-          <td>2</td>
-          <td>6052</td>
-        </tr>
-        <tr>
-          <td>Earth</td>
-          <td>3</td>
-          <td>6371</td>
-        </tr>
-        <tr>
-          <td>Mars</td>
-          <td>4</td>
-          <td>3390</td>
-        </tr>
-        <tr>
-          <td>Jupiter</td>
-          <td>5</td>
-          <td>69911</td>
-        </tr>
-        <tr>
-          <td>Saturn</td>
-          <td>6</td>
-          <td>58232</td>
-        </tr>
-        <tr>
-          <td>Uranus</td>
-          <td>7</td>
-          <td>25362</td>
-        </tr>
-        <tr>
-          <td>Neptune</td>
-          <td>8</td>
-          <td>24622</td>
-        </tr>
-      </tbody>
-    </table>
-    <p>another paragraph</p>
-    `,
   });
 
   return (

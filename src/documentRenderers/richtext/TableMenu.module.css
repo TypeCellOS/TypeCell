@@ -1,0 +1,34 @@
+.ProseMirror .tableMenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+.tableMenuOption {
+  font-size: larger;
+  outline: none;
+  border: none;
+  background-color: Transparent;
+  color: gray;
+}
+
+.tableMenuOption:hover {
+  color: white;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+.optionIcon {
+  width: 2em;
+  height: 2em;
+}
+
+.optionIcon > svg {
+  width: 1.6em;
+  height: 1.6em;
+}
