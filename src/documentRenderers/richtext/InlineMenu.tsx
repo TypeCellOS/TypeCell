@@ -5,6 +5,7 @@ import styles from "./InlineMenu.module.css";
 import Tippy from "@tippyjs/react";
 import LinkForm from "./LinkForm"
 import { Underline } from "./extensions/marks/Underline";
+import Link from "@tiptap/extension-link";
 
 type InlineMenuProps = { editor: Editor };
 type MenuButtonProps = {
@@ -54,6 +55,12 @@ const underline: StyleDetails = {
   secondaryTooltip: "Ctrl+U",
 };
 
+const link: StyleDetails = {
+  name: "link",
+  mainTooltip: "Link",
+  secondaryTooltip: "Ctrl+L",
+}
+
 function styledTooltip(mainText: string, secondaryText?: string) {
   return (
     <div className={styles.buttonTooltip}>
@@ -84,16 +91,33 @@ class InlineMenuButton extends React.Component<MenuButtonProps> {
     );
     const name = this.props.styleDetails.name;
 
-    return (
-      <Tippy content={tooltipContent} theme="material">
-        <button
-          onClick={this.props.onClick}
-          className={this.props.editor.isActive(name) ? styles.isActive : ""}
-          id={"inlineMenuButton-" + name}>
-          {name.toUpperCase()[0]}
-        </button>
-      </Tippy>
-    );
+    if(name == "link") {
+      return (
+        <Tippy content={tooltipContent} theme="material">
+          <Tippy
+            content={<LinkForm editor={this.props.editor} />}
+            trigger={"click"}
+            interactive={true}>
+            <button
+              className={this.props.editor.isActive(name) ? styles.isActive : ""}
+              id={"inlineMenuButton-" + name}>
+              {name.toUpperCase()[0]}
+            </button>
+          </Tippy>
+        </Tippy>
+      )
+    } else {
+      return (
+        <Tippy content={tooltipContent} theme="material">
+          <button
+            onClick={this.props.onClick}
+            className={this.props.editor.isActive(name) ? styles.isActive : ""}
+            id={"inlineMenuButton-" + name}>
+            {name.toUpperCase()[0]}
+          </button>
+        </Tippy>
+      );
+    }
   }
 }
 
@@ -105,6 +129,17 @@ class InlineMenu extends React.Component<InlineMenuProps> {
         <BubbleMenu className={styles.hidden} editor={this.props.editor} />
       );
     }
+
+    const tooltipContent = (
+      <div className={styles.buttonTooltip}>
+        <div className={styles.mainText}>
+          {"Link"}
+        </div>
+        <div className={styles.secondaryText}>
+          {"Ctrl+K"}
+        </div>
+      </div>
+    );
 
     return (
       <BubbleMenu className={styles.BubbleMenu} editor={this.props.editor}>
@@ -133,16 +168,11 @@ class InlineMenu extends React.Component<InlineMenuProps> {
           onClick={() => this.props.editor.chain().focus().toggleUnderline().run()}
           styleDetails={underline}
         />
-        <Tippy
-          content={<LinkForm editor={this.props.editor}></LinkForm>}
-          trigger={"click"}
-          placement={"top"}
-          interactive={true}>
-          <button
-            className={this.props.editor.isActive("link") ? styles.isActive : ""}>
-            Link
-          </button>
-        </Tippy>
+        <InlineMenuButton
+          editor={this.props.editor}
+          onClick={() => {return}}
+          styleDetails={link}
+        />
       </BubbleMenu>
     );
   }

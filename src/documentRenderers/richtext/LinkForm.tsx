@@ -27,9 +27,12 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    console.log("submitted");
-    props.editor.chain().focus().setLink({ href: url }).run()
-    setUrl("");
+    if(url == "") {
+      props.editor.chain().focus().unsetLink().run();
+    } else {
+      props.editor.chain().focus().setLink({ href: url }).run();
+      setUrl("");
+    }
   }
 
   const handleChange = (e: any) => {
@@ -38,7 +41,6 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
   }
 
   return (
-    <div className={`link-menu`}>
       <form onSubmit={handleSubmit}>
         <IconContext.Provider value={{ className: "link-icon" }}>
           <div className={'link-icon-container'} >
@@ -48,7 +50,6 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
         <input className={'input-field'} type="text" value={url} onChange={handleChange}/>
         <input className={'submit-button'} type="submit" value=">"/>
       </form>
-    </div>
   );
 }
 
