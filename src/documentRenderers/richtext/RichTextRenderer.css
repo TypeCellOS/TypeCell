@@ -66,3 +66,21 @@ blockquote {
 .indent {
   margin-left: 1.1rem;
 }
+
+.ProseMirror img {
+  display: block;
+  max-width: 100%;
+}
+
+.ProseMirror blockquote {
+  padding: 0.5rem 1rem;
+}
+
+.ProseMirror blockquote p {
+  padding: 0.5rem 0;
+}
+
+.ProseMirror hr {
+  position: relative;
+  top: 0.5rem; /* half of handle height */
+}

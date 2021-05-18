@@ -3,8 +3,9 @@ import { Node as ProsemirrorNode } from "prosemirror-model";
 import { EditorView } from "prosemirror-view";
 import Image from "@tiptap/extension-image";
 import "./Block.module.css";
+import { extendAsBlock } from ".";
 
-const ImageBlock = Image.extend({
+const ImageBlock = extendAsBlock(Image, {
   draggable: false,
   inline: false,
   atom: true,

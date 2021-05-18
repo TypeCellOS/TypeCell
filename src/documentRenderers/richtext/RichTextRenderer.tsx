@@ -5,7 +5,6 @@ import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import Document from "@tiptap/extension-document";
 import HardBreak from "@tiptap/extension-hard-break";
-import { Image } from "@tiptap/extension-image";
 import Italic from "@tiptap/extension-italic";
 import OrderedList from "@tiptap/extension-ordered-list";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -25,6 +24,7 @@ import {
   ParagraphBlock,
   TableBlock,
 } from "./extensions/blocktypes";
+import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
 import SlashCommandExtension from "./extensions/slashcommand";
@@ -78,7 +78,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Underline,
 
       // custom blocks:
-      Image,
+      ImageBlock,
       BlockQuoteBlock,
       CodeBlockBlock,
       HeadingBlock,
@@ -88,7 +88,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       TableBlock,
       IndentItemBlock.configure({
         HTMLAttributes: {
-          class: "indent",
+          className: "indent",
         },
       }),
 
