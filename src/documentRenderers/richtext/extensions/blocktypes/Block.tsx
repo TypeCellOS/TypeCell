@@ -78,6 +78,13 @@ function Block(type: ElementType, options: any) {
     >(
       () => ({
         accept: "block",
+        hover(item, monitor) {
+          if (cursorInUpperHalf(mouseCaptureRef, monitor.getClientOffset())) {
+            mouseCaptureRef.current!.className = styles.dragBefore;
+          } else {
+            mouseCaptureRef.current!.className = styles.dragAfter;
+          }
+        },
         drop(item, monitor) {
           if (typeof props.getPos === "boolean") {
             throw new Error("unexpected getPos type");
@@ -190,9 +197,6 @@ function Block(type: ElementType, options: any) {
       // Get pixels to the top
       const hoverClientY = mouseOffset!.y - hoverBoundingRect.top;
 
-      console.log(hoverMiddleY);
-      console.log(hoverClientY);
-
       return hoverClientY < hoverMiddleY;
     }
 
@@ -203,27 +207,16 @@ function Block(type: ElementType, options: any) {
     drop(outerRef);
     dragPreview(innerRef);
 
-    let upper;
-    if (mouseCaptureRef && clientOffset) {
-      upper = cursorInUpperHalf(mouseCaptureRef, clientOffset);
-    }
-    const mouse = clientOffset;
-
-    const isActive = canDrop && isOver;
-    let borderTop = "";
-    let borderBottom = "";
-    if (isActive) {
-      if (upper) {
-        borderTop = "solid black";
-      } else {
-        borderBottom = "solid black";
-      }
+    if (
+      mouseCaptureRef.current &&
+      (mouseCaptureRef.current.className == styles.dragBefore ||
+        mouseCaptureRef.current.className == styles.dragAfter)
+    ) {
+      mouseCaptureRef.current.className = styles.mouseCapture;
     }
 
     return (
-      <NodeViewWrapper
-        className={styles.block}
-        style={{ ...styles, borderTop, borderBottom }}>
+      <NodeViewWrapper className={styles.block}>
         <div ref={outerRef}>
           <div className={styles.inner + " inner"} ref={innerRef}>
             <div className={styles.handleContainer} ref={dragRef}>
