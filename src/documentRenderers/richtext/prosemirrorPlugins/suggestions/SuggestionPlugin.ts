@@ -201,10 +201,7 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           !transaction.getMeta("pointer")
         ) {
           // Reset active state if we just left the previous suggestion range
-          if (
-            prev.active &&
-            selection.from <= prev.range.from //|| selection.from > prev.range.to)
-          ) {
+          if (prev.active && selection.from <= prev.range.from) {
             next.active = false;
           } else if (transaction.getMeta(PLUGIN_KEY)?.activate) {
             transaction.setMeta(PLUGIN_KEY, undefined);

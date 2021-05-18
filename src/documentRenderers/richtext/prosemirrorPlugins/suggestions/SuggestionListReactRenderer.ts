@@ -5,6 +5,7 @@ import SuggestionItem from "./SuggestionItem";
 import { SuggestionList } from "./SuggestionList";
 import { SuggestionRenderer } from "./SuggestionPlugin";
 
+// If we do major work on this, consider exploring a cleaner approach: https://github.com/YousefED/typecell-next/issues/59
 export default function createRenderer<T extends SuggestionItem>(
   editor: Editor
 ): SuggestionRenderer<T> {
