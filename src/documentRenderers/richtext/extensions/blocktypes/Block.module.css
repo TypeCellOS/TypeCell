@@ -1,3 +1,7 @@
+:root {
+  --drop-indicator: solid black;
+}
+
 .block {
   display: block;
   /* use padding instead of margin. 
@@ -52,10 +56,14 @@
   z-index: 1;
 }
 
-.dragBefore {
-  border-top: solid black;
+.topIndicator, .bottomIndicator {
+
 }
 
-.dragAfter {
-  border-bottom: solid black;
+.topIndicator {
+  border-top: var(--drop-indicator);
+}
+
+.bottomIndicator {
+  border-bottom: var(--drop-indicator);
 }

@@ -96,20 +96,19 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
       () => ({
         accept: "block",
         hover(item, monitor) {
-          let blocks = document.getElementsByClassName(styles.mouseCapture);
+          const blocks = document.getElementsByClassName(styles.mouseCapture);
 
           // When trying to find the nearest block to the cursor, we look for the minimum distance between the top and
           // bottom of each block, then pick the smaller of the 2 to get the indicator position. This is much more
           // reliable than using distance to the center of each block when there is nesting involved.
-          let topIndex = -1;
-          let topMinDistance = Number.MAX_VALUE;
 
-          let bottomIndex = -1;
-          let bottomMinDistance = Number.MAX_VALUE;
-
-          // Finds block with nearest top to cursor and block with nearest bottom to cursor. These are not necessarily
-          // the same block if there are nested blocks in the document.
           if (blocks.length > 0) {
+            let topIndex = -1;
+            let topMinDistance = Number.MAX_VALUE;
+
+            let bottomIndex = -1;
+            let bottomMinDistance = Number.MAX_VALUE;
+
             for (let i = 0; i < blocks.length; i++) {
               const topDistance =
                 monitor.getClientOffset()!.y -
@@ -138,7 +137,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
                 if (i === topIndex) {
                   blocks[
                     i
-                  ].className = `${styles.mouseCapture} ${styles.dragBefore}`;
+                  ].className = `${styles.mouseCapture} ${styles.topIndicator}`;
                 } else {
                   blocks[i].className = styles.mouseCapture;
                 }
@@ -148,7 +147,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
                 if (i === bottomIndex) {
                   blocks[
                     i
-                  ].className = `${styles.mouseCapture} ${styles.dragAfter}`;
+                  ].className = `${styles.mouseCapture} ${styles.bottomIndicator}`;
                 } else {
                   blocks[i].className = styles.mouseCapture;
                 }
@@ -282,14 +281,9 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
 
     // Clear all drop indicators
     if (!isDragging && !canDrop) {
-      let dragAfter = document.getElementsByClassName(styles.dragAfter);
-      for (let i = 0; i < dragAfter.length; i++) {
-        dragAfter[i].className = styles.mouseCapture;
-      }
-
-      let dragBefore = document.getElementsByClassName(styles.dragBefore);
-      for (let i = 0; i < dragBefore.length; i++) {
-        dragBefore[i].className = styles.mouseCapture;
+      const blocks = document.getElementsByClassName(styles.mouseCapture);
+      for (let i = 0; i < blocks.length; i++) {
+        blocks[i].className = styles.mouseCapture;
       }
     }
 
