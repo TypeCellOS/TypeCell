@@ -20,13 +20,14 @@ type TableMenuProps = { editor: Editor };
 // This component is invoked only when a cursor is inside a TableCell, otherwise hidden
 class TableMenu extends React.Component<TableMenuProps> {
   render() {
+    // This depth is what a top-level block would have, any nested block has a larger value
     const TOP_DEPTH = 1;
 
     const resolvedPos = this.props.editor.state.doc.resolve(
       this.props.editor.state.selection.from
     );
 
-    // If the cursor is inside another node
+    // If the cursor is inside another node, i.e. it is a nested block
     if (resolvedPos.depth > TOP_DEPTH) {
       const grandParent = resolvedPos.node(resolvedPos.depth - 1);
 
