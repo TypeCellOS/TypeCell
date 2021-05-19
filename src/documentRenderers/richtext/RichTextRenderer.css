@@ -45,7 +45,8 @@ blockquote {
 }
 
 .ProseMirror {
-  overflow-x: hidden;
+  overflow-y: visible;
+  overflow-x: clip;
 }
 
 .indent {
