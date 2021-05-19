@@ -13,11 +13,7 @@ export enum MentionType {
  */
 export class Mention implements SuggestionItem {
   // Used by the SuggestionPlugin
-  groupName: string;
-
-  match(query: string): boolean {
-    return this.name.toLowerCase().startsWith(query.toLowerCase());
-  }
+  public readonly groupName: string;
 
   /**
    * Constructs a new mention.
@@ -27,5 +23,9 @@ export class Mention implements SuggestionItem {
    */
   constructor(public readonly name: string, public readonly type: MentionType) {
     this.groupName = type;
+  }
+
+  match(query: string): boolean {
+    return this.name.toLowerCase().startsWith(query.toLowerCase());
   }
 }
