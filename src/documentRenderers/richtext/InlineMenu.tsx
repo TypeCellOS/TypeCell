@@ -1,10 +1,9 @@
 import { BubbleMenu, Editor } from "@tiptap/react";
-import { Selection, NodeSelection } from "prosemirror-state";
-import React, { MouseEventHandler } from "react";
+import { NodeSelection } from "prosemirror-state";
+import React from "react";
 import styles from "./InlineMenu.module.css";
 import Tippy from "@tippyjs/react";
 import { Underline } from "./extensions/marks/Underline";
-import { ButtonItem } from "@atlaskit/menu";
 import Button from "@atlaskit/button";
 
 type InlineMenuProps = { editor: Editor };
@@ -79,6 +78,7 @@ class InlineMenuButton extends React.Component<MenuButtonProps> {
     return (
       <Tippy content={tooltipContent}>
         <Button
+          appearance="subtle"
           onClick={this.props.onClick}
           isSelected={this.props.editor.isActive(name)}>
           {name.toUpperCase()[0]}
@@ -98,7 +98,7 @@ class InlineMenu extends React.Component<InlineMenuProps> {
     }
 
     return (
-      <BubbleMenu className={styles.BubbleMenu} editor={this.props.editor}>
+      <BubbleMenu className={styles.inlineMenu} editor={this.props.editor}>
         <InlineMenuButton
           editor={this.props.editor}
           onClick={() => this.props.editor.chain().focus().toggleBold().run()}
