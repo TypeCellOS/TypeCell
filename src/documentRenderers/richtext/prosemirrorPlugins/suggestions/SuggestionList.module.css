@@ -1,0 +1,16 @@
+.suggestionList {
+  position: relative;
+  border-radius: 0.25rem;
+  background: white;
+  color: rgba(black, 0.8);
+  overflow: hidden;
+  font-size: 0.9rem;
+  box-shadow: 0 0 0 1px #ddd, 0px 10px 20px #ddd;
+  min-width: 125px;
+}
+
+.notFoundText {
+  color: #666;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
+}

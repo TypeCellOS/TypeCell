@@ -5,7 +5,6 @@ import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import Document from "@tiptap/extension-document";
 import HardBreak from "@tiptap/extension-hard-break";
-import { Image } from "@tiptap/extension-image";
 import Italic from "@tiptap/extension-italic";
 import OrderedList from "@tiptap/extension-ordered-list";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -24,6 +23,7 @@ import {
   ListItemBlock,
   ParagraphBlock,
 } from "./extensions/blocktypes";
+import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
 import SlashCommandExtension from "./extensions/slashcommand";
@@ -55,9 +55,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         placeholder: "Use '/' to insert a new block.",
         showOnlyCurrent: false,
       }),
-      SlashCommandExtension.configure({
-        commands: {},
-      }),
+
       AutoId,
       HardBreak,
 
@@ -73,7 +71,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Underline,
 
       // custom blocks:
-      Image,
+      ImageBlock,
       BlockQuoteBlock,
       CodeBlockBlock,
       HeadingBlock,
@@ -82,7 +80,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       ListItemBlock,
       IndentItemBlock.configure({
         HTMLAttributes: {
-          class: "indent",
+          className: "indent",
         },
       }),
 
@@ -93,6 +91,11 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       BulletList,
       OrderedList,
 
+      // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
+      // should be handled before Enter handlers in other components like splitListItem
+      SlashCommandExtension.configure({
+        commands: {},
+      }),
       // TypeCellNode,
     ],
     enableInputRules: true,

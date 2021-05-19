@@ -1,28 +1,16 @@
 import { Editor, Range } from "@tiptap/core";
+import SuggestionItem from "../../prosemirrorPlugins/suggestions/SuggestionItem";
 
-export type SlashCommandCallback = (
-  editor: Editor,
-  range: Range,
-  args?: any[]
-) => boolean;
+export type SlashCommandCallback = (editor: Editor, range: Range) => boolean;
 
-export function matchSlashCommand(
-  commandMap: { [key: string]: SlashCommand },
-  command: string
-): { command: SlashCommand; args: any[] } | undefined {
-  const commandName = command.toLowerCase();
+export enum CommandGroup {
+  HEADINGS = "Headings",
+  BASIC_BLOCKS = "Basic Blocks",
 
-  for (const key in commandMap) {
-    const cmd = commandMap[key];
-
-    const match = commandName.match(cmd.regex);
-
-    if (match) {
-      return { command: cmd, args: match.slice(2) };
-    }
-  }
-
-  return undefined;
+  // Just some examples, that are not currently in use
+  INLINE = "Inline",
+  EMBED = "Embed",
+  PLUGIN = "Plugin",
 }
 
 /**
@@ -30,52 +18,40 @@ export function matchSlashCommand(
  *
  * Not to be confused with ProseMirror commands nor TipTap commands.
  */
-export class SlashCommand {
+export class SlashCommand implements SuggestionItem {
   name: string;
-  aliases?: string[];
-  regex: RegExp;
-
+  group: CommandGroup;
+  aliases: string[];
   execute: SlashCommandCallback;
+  groupName: string;
+
+  match(query: string): boolean {
+    return (
+      this.name.toLowerCase().startsWith(query.toLowerCase()) ||
+      this.aliases.filter((alias) =>
+        alias.toLowerCase().startsWith(query.toLowerCase())
+      ).length !== 0
+    );
+  }
 
   /**
-   * Constructs a new slash-command. One can either supply a name and aliases,
-   * the constructor will then automatically generate a regular expression,
-   * or one can supply a name combined with a custom regex,
-   * this custom regex will then be used for matching this command.
-   *
-   * An example of a custom regex could look like: `\(heading|h)([1-6?])\`.
-   * The matched groups (bits between parentheses) are passed as arguments in the command's callback function.
+   * Constructs a new slash-command.
    *
    * @param name The name of the command
    * @param execute The callback for creating a new node
-   * @param aliases
+   * @param aliases Aliases for this command
    * @param regex A regex for matching this command. This regex fully determines matching behaviour when supplied.
    */
   constructor(
     name: string,
+    group: CommandGroup,
     execute: SlashCommandCallback,
-    aliases?: string[],
-    regex?: RegExp
+    aliases?: string[]
   ) {
-    this.name = name.toLowerCase();
-    this.aliases = aliases?.map((val) => val.toLowerCase());
+    this.name = name;
+    this.group = group;
+    this.groupName = group;
+    this.aliases = aliases ?? [];
     this.execute = execute;
-
-    if (regex) {
-      const newRegex = `\\b(${regex.source})\\b`;
-
-      console.log(newRegex);
-      this.regex = new RegExp(newRegex);
-    } else {
-      let rawRegex = `\\b(${this.name}`;
-
-      rawRegex = this.aliases
-        ? this.aliases.reduce((acc, alias) => acc + "|" + alias, rawRegex)
-        : rawRegex;
-
-      rawRegex += ")\\b";
-
-      this.regex = new RegExp(rawRegex);
-    }
   }
 }

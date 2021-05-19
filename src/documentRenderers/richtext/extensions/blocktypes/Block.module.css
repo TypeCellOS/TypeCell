@@ -43,24 +43,6 @@
   display: block;
 }
 
-img {
-  display: block;
-  max-width: 100%;
-}
-
-blockquote.content {
-  padding: 0.5rem 1rem;
-}
-
-blockquote.content p {
-  padding: 0.5rem 0;
-}
-
-hr.content {
-  position: relative;
-  top: 0.5rem; /* half of handle height */
-}
-
 .mouseCapture {
   position: absolute;
   top: 0;
