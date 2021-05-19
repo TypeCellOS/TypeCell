@@ -12,7 +12,6 @@ import {
   default as React,
   ElementType,
   MouseEvent,
-  MutableRefObject,
   PropsWithChildren,
   RefObject,
   useRef,
