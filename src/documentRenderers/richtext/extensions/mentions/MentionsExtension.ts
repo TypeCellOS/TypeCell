@@ -74,33 +74,6 @@ export const MentionsExtension = Node.create<MentionsOptions>({
     return `@${node.attrs.id}`;
   },
 
-  addKeyboardShortcuts() {
-    return {
-      Backspace: () =>
-        this.editor.commands.command(({ tr, state }) => {
-          let isMention = false;
-          const { selection } = state;
-          const { empty, anchor } = selection;
-
-          if (!empty) {
-            return false;
-          }
-
-          // Delete mention but preserve the @ symbol
-          state.doc.nodesBetween(anchor - 1, anchor, (node, pos) => {
-            if (node.type.name === this.name) {
-              isMention = true;
-              tr.insertText("@", pos, pos + node.nodeSize);
-
-              return false;
-            }
-          });
-
-          return isMention;
-        }),
-    };
-  },
-
   addProseMirrorPlugins() {
     return [
       SuggestionPlugin<Mention>({
