@@ -17,20 +17,50 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
 
   addCommands() {
     return {
-      replaceRangeCustom: (range, node) => ({ tr, dispatch }) => {
-        const { from, to } = range;
+      replaceRangeCustom:
+        (range, node) =>
+        ({ tr, dispatch }) => {
+          const { from, to } = range;
 
-        if (dispatch) {
-          // Replace range with node
-          tr.replaceRangeWith(from, to, node);
+          if (dispatch) {
+            // Give the node a temporary id, for placing the cursor in it
+            node.attrs["temp-id"] = `id_${Math.floor(
+              Math.random() * 0xffffffff
+            )}`;
+            // Replace range with node
+            tr.replaceRangeWith(from, to, node);
 
-          // Put cursor at the start of the new node (or try to at least)
-          const pos = tr.mapping.map(from, -1);
-          tr.setSelection(Selection.near(tr.doc.resolve(pos), 1));
-        }
+            // These positions mark the lower and upper bound of the range for searching the position of the newly placed node
+            const mappedFrom = tr.mapping.map(from, -1);
+            const mappedTo = tr.mapping.map(to, 1);
 
-        return true;
-      },
+            // Keeps track of whether the node has been placed yet
+            let placed = false;
+
+            // Go over all nodes in the range
+            tr.doc.nodesBetween(mappedFrom, mappedTo, (n, pos, parent) => {
+              // If cursor is already placed, exit the callback and stop recursing
+              if (placed) return false;
+
+              // Check if this node is the node we just created, by comparing their temp-id
+              if (n.attrs["temp-id"] === node.attrs["temp-id"]) {
+                tr.setSelection(Selection.near(tr.doc.resolve(pos)));
+                placed = true;
+
+                // Stop recursing
+                return false;
+              }
+
+              // In case of no success; keep on recursing
+              return true;
+            });
+
+            // Clear the temp-id
+            node.attrs["temp-id"] = undefined;
+          }
+
+          return true;
+        },
     };
   },
 
