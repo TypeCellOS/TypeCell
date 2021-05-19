@@ -184,7 +184,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["ul", "list", "bulletlist"]
+    ["ul", "list", "bulletlist"],
+    "/icons/icons8-do-not-touch-48.svg"
   ),
 
   // Command for creating an ordered list

@@ -1,3 +1,5 @@
+import { MenuGroup, Section, ButtonItem } from "@atlaskit/menu";
+
 import SuggestionItem from "./SuggestionItem";
 import styles from "./SuggestionGroup.module.css";
 
@@ -24,28 +26,28 @@ type SuggestionGroupProps<T> = {
   clickItem: (item: T) => void;
 };
 
+const ImgIcon = ({ src, alt }: { src: string; alt: string }) => (
+  <img src={src} height={24} width={24} alt={alt} style={{ borderRadius: 3 }} />
+);
+
 export function SuggestionGroup<T extends SuggestionItem>(
   props: SuggestionGroupProps<T>
 ) {
   return (
-    <div className={styles.itemGroup}>
-      <div className={styles.groupName}>{props.name}</div>
-      <div className={styles.items}>
-        {props.items.map((item, index) => (
-          <button
-            className={`${styles.item} ${
-              props.selectedIndex !== undefined
-                ? props.selectedIndex === index
-                  ? styles.isSelected
-                  : ""
-                : ""
-            }`}
-            key={index}
-            onClick={() => props.clickItem(item)}>
-            {item.name}
-          </button>
-        ))}
-      </div>
-    </div>
+    <Section title={props.name}>
+      {props.items.map((item, index) => (
+        <ButtonItem
+          isSelected={
+            props.selectedIndex !== undefined && props.selectedIndex === index
+          } // This is needed to navigate with the keyboard
+          iconBefore={
+            item.iconUrl && <ImgIcon src={item.iconUrl} alt={"pretty icon"} />
+          }
+          key={index}
+          onClick={() => props.clickItem(item)}>
+          {item.name}
+        </ButtonItem>
+      ))}
+    </Section>
   );
 }

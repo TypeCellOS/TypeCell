@@ -1,4 +1,4 @@
-.groupName {
+/* .groupName {
   text-transform: uppercase;
   font-weight: bold;
   font-size: 0.6rem;
@@ -19,6 +19,6 @@
 
 .item.isSelected,
 .item:hover {
-  /* color: #a975ff; */
+  color: #a975ff;
   background-color: #eee;
-}
+} */

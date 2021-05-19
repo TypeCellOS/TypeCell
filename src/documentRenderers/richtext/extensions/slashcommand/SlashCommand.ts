@@ -24,6 +24,7 @@ export class SlashCommand implements SuggestionItem {
   aliases: string[];
   execute: SlashCommandCallback;
   groupName: string;
+  iconUrl?: string;
 
   match(query: string): boolean {
     return (
@@ -46,12 +47,14 @@ export class SlashCommand implements SuggestionItem {
     name: string,
     group: CommandGroup,
     execute: SlashCommandCallback,
-    aliases?: string[]
+    aliases?: string[],
+    iconUrl?: string
   ) {
     this.name = name;
     this.group = group;
     this.groupName = group;
     this.aliases = aliases ?? [];
     this.execute = execute;
+    this.iconUrl = iconUrl;
   }
 }
