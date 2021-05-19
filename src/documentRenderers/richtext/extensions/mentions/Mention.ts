@@ -12,9 +12,6 @@ export enum MentionType {
  * A class that defines a mention.
  */
 export class Mention implements SuggestionItem {
-  name: string;
-  type: MentionType;
-
   // Used by the SuggestionPlugin
   groupName: string;
 
@@ -28,9 +25,7 @@ export class Mention implements SuggestionItem {
    * @param name The name of the mention
    * @param type The type of the mention
    */
-  constructor(name: string, type: MentionType) {
-    this.name = name;
-    this.type = type;
+  constructor(public readonly name: string, public readonly type: MentionType) {
     this.groupName = type;
   }
 }
