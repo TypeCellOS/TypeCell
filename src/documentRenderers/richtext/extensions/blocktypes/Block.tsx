@@ -21,7 +21,6 @@ import {
 import { useDrag, useDrop, XYCoord } from "react-dnd";
 import SideMenu from "../../SideMenu";
 import styles from "./Block.module.css";
-
 /**
  * A global store that keeps track of which block is being hovered over
  */
@@ -67,7 +66,10 @@ function Block(type: ElementType, options: any) {
       }
       return {
         type: "block",
-        item: { getPos: props.getPos, node: props.node },
+        item: {
+          getPos: props.getPos,
+          node: props.node,
+        },
       };
     }, [props.getPos, props.node]);
 
@@ -79,10 +81,68 @@ function Block(type: ElementType, options: any) {
       () => ({
         accept: "block",
         hover(item, monitor) {
+          // IMPORTANT: mouseCaptureRef.current can refer to several nodes at once if they're nested.
           if (cursorInUpperHalf(mouseCaptureRef, monitor.getClientOffset())) {
             mouseCaptureRef.current!.className = styles.dragBefore;
           } else {
             mouseCaptureRef.current!.className = styles.dragAfter;
+          }
+
+          // Lists of all shown indicators above & below nodes.
+          let dragBefore = document.getElementsByClassName(styles.dragBefore);
+          let dragAfter = document.getElementsByClassName(styles.dragAfter);
+
+          // Finds indicator above a node that is closest to cursor and hides all others.
+          let beforeIndex = -1;
+          let beforeMinDistance = Number.MAX_VALUE;
+          if (dragBefore.length > 0) {
+            // Finding closest indicator.
+            let distance;
+            for (let i = 0; i < dragBefore.length; i++) {
+              distance =
+                monitor.getClientOffset()!.y -
+                dragBefore[i].getBoundingClientRect().top;
+              if (0 <= distance && distance < beforeMinDistance) {
+                beforeIndex = i;
+                beforeMinDistance = distance;
+              }
+            }
+            // Hiding all other indicators.
+            for (let i = 0; i < dragBefore.length; i++) {
+              if (i !== beforeIndex) {
+                dragBefore[i].className = styles.mouseCapture;
+              }
+            }
+          }
+
+          // Finds indicator below a node that is closest to cursor and hides all others.
+          let afterIndex = -1;
+          let afterMinDistance = Number.MAX_VALUE;
+          if (dragAfter.length > 0) {
+            // Finding closest indicator.
+            let distance;
+            for (let i = 0; i < dragAfter.length; i++) {
+              distance =
+                dragAfter[i].getBoundingClientRect().bottom -
+                monitor.getClientOffset()!.y;
+              if (0 <= distance && distance < afterMinDistance) {
+                afterIndex = i;
+                afterMinDistance = distance;
+              }
+            }
+            // Hiding all other indicators.
+            for (let i = 0; i < dragAfter.length; i++) {
+              if (i !== afterIndex) {
+                dragAfter[i].className = styles.mouseCapture;
+              }
+            }
+          }
+
+          // If both an above and below indicator are shown, hide the one further from the cursor.
+          if (beforeIndex >= 0 && afterIndex >= 0) {
+            beforeMinDistance > afterMinDistance
+              ? (dragBefore[beforeIndex].className = styles.mouseCapture)
+              : (dragAfter[afterIndex].className = styles.mouseCapture);
           }
         },
         drop(item, monitor) {
@@ -195,9 +255,11 @@ function Block(type: ElementType, options: any) {
         (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
 
       // Get pixels to the top
-      const hoverClientY = mouseOffset!.y - hoverBoundingRect.top;
+      if (mouseOffset) {
+        const hoverClientY = mouseOffset.y - hoverBoundingRect.top;
 
-      return hoverClientY < hoverMiddleY;
+        return hoverClientY < hoverMiddleY;
+      }
     }
 
     // if activeBlocks[id] is set, this block is being hovered over
@@ -207,12 +269,15 @@ function Block(type: ElementType, options: any) {
     drop(outerRef);
     dragPreview(innerRef);
 
-    if (
-      mouseCaptureRef.current &&
-      (mouseCaptureRef.current.className == styles.dragBefore ||
-        mouseCaptureRef.current.className == styles.dragAfter)
-    ) {
-      mouseCaptureRef.current.className = styles.mouseCapture;
+    // Clear all drop indicators
+    let dragAfter = document.getElementsByClassName(styles.dragAfter);
+    for (let i = 0; i < dragAfter.length; i++) {
+      dragAfter[i].className = styles.mouseCapture;
+    }
+
+    let dragBefore = document.getElementsByClassName(styles.dragBefore);
+    for (let i = 0; i < dragBefore.length; i++) {
+      dragBefore[i].className = styles.mouseCapture;
     }
 
     return (
