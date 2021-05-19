@@ -54,20 +54,8 @@
 
 .dragBefore {
   border-top: solid black;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: -50vw;
-  width: 200vw;
-  z-index: 1;
 }
 
 .dragAfter {
   border-bottom: solid black;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: -50vw;
-  width: 200vw;
-  z-index: 1;
 }

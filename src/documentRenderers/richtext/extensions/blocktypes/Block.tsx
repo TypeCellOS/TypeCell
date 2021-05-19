@@ -96,68 +96,64 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
       () => ({
         accept: "block",
         hover(item, monitor) {
-          // IMPORTANT: mouseCaptureRef.current can refer to several nodes at once if they're nested.
-          if (cursorInUpperHalf(mouseCaptureRef, monitor.getClientOffset())) {
-            mouseCaptureRef.current!.className = styles.dragBefore;
-          } else {
-            mouseCaptureRef.current!.className = styles.dragAfter;
-          }
+          let blocks = document.getElementsByClassName(styles.mouseCapture);
 
-          // Lists of all shown indicators above & below nodes.
-          let dragBefore = document.getElementsByClassName(styles.dragBefore);
-          let dragAfter = document.getElementsByClassName(styles.dragAfter);
+          // When trying to find the nearest block to the cursor, we look for the minimum distance between the top and
+          // bottom of each block, then pick the smaller of the 2 to get the indicator position. This is much more
+          // reliable than using distance to the center of each block when there is nesting involved.
+          let topIndex = -1;
+          let topMinDistance = Number.MAX_VALUE;
 
-          // Finds indicator above a node that is closest to cursor and hides all others.
-          let beforeIndex = -1;
-          let beforeMinDistance = Number.MAX_VALUE;
-          if (dragBefore.length > 0) {
-            // Finding closest indicator.
-            let distance;
-            for (let i = 0; i < dragBefore.length; i++) {
-              distance =
+          let bottomIndex = -1;
+          let bottomMinDistance = Number.MAX_VALUE;
+
+          // Finds block with nearest top to cursor and block with nearest bottom to cursor. These are not necessarily
+          // the same block if there are nested blocks in the document.
+          if (blocks.length > 0) {
+            for (let i = 0; i < blocks.length; i++) {
+              const topDistance =
                 monitor.getClientOffset()!.y -
-                dragBefore[i].getBoundingClientRect().top;
-              if (0 <= distance && distance < beforeMinDistance) {
-                beforeIndex = i;
-                beforeMinDistance = distance;
-              }
-            }
-            // Hiding all other indicators.
-            for (let i = 0; i < dragBefore.length; i++) {
-              if (i !== beforeIndex) {
-                dragBefore[i].className = styles.mouseCapture;
-              }
-            }
-          }
+                blocks[i].getBoundingClientRect().top;
 
-          // Finds indicator below a node that is closest to cursor and hides all others.
-          let afterIndex = -1;
-          let afterMinDistance = Number.MAX_VALUE;
-          if (dragAfter.length > 0) {
-            // Finding closest indicator.
-            let distance;
-            for (let i = 0; i < dragAfter.length; i++) {
-              distance =
-                dragAfter[i].getBoundingClientRect().bottom -
+              const bottomDistance =
+                blocks[i].getBoundingClientRect().bottom -
                 monitor.getClientOffset()!.y;
-              if (0 <= distance && distance < afterMinDistance) {
-                afterIndex = i;
-                afterMinDistance = distance;
-              }
-            }
-            // Hiding all other indicators.
-            for (let i = 0; i < dragAfter.length; i++) {
-              if (i !== afterIndex) {
-                dragAfter[i].className = styles.mouseCapture;
-              }
-            }
-          }
 
-          // If both an above and below indicator are shown, hide the one further from the cursor.
-          if (beforeIndex >= 0 && afterIndex >= 0) {
-            beforeMinDistance > afterMinDistance
-              ? (dragBefore[beforeIndex].className = styles.mouseCapture)
-              : (dragAfter[afterIndex].className = styles.mouseCapture);
+              // Top of block must be above the cursor.
+              if (0 <= topDistance && topDistance < topMinDistance) {
+                topIndex = i;
+                topMinDistance = topDistance;
+              }
+
+              // Bottom of block must be below the cursor.
+              if (0 <= bottomDistance && bottomDistance < bottomMinDistance) {
+                bottomIndex = i;
+                bottomMinDistance = bottomDistance;
+              }
+            }
+
+            // Adds drop indicator to the appropriate location and removes it from all other locations
+            if (topMinDistance < bottomMinDistance) {
+              for (let i = 0; i < blocks.length; i++) {
+                if (i === topIndex) {
+                  blocks[
+                    i
+                  ].className = `${styles.mouseCapture} ${styles.dragBefore}`;
+                } else {
+                  blocks[i].className = styles.mouseCapture;
+                }
+              }
+            } else {
+              for (let i = 0; i < blocks.length; i++) {
+                if (i === bottomIndex) {
+                  blocks[
+                    i
+                  ].className = `${styles.mouseCapture} ${styles.dragAfter}`;
+                } else {
+                  blocks[i].className = styles.mouseCapture;
+                }
+              }
+            }
           }
         },
         drop(item, monitor) {
@@ -285,14 +281,16 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
     dragPreview(innerRef);
 
     // Clear all drop indicators
-    let dragAfter = document.getElementsByClassName(styles.dragAfter);
-    for (let i = 0; i < dragAfter.length; i++) {
-      dragAfter[i].className = styles.mouseCapture;
-    }
+    if (!isDragging && !canDrop) {
+      let dragAfter = document.getElementsByClassName(styles.dragAfter);
+      for (let i = 0; i < dragAfter.length; i++) {
+        dragAfter[i].className = styles.mouseCapture;
+      }
 
-    let dragBefore = document.getElementsByClassName(styles.dragBefore);
-    for (let i = 0; i < dragBefore.length; i++) {
-      dragBefore[i].className = styles.mouseCapture;
+      let dragBefore = document.getElementsByClassName(styles.dragBefore);
+      for (let i = 0; i < dragBefore.length; i++) {
+        dragBefore[i].className = styles.mouseCapture;
+      }
     }
 
     return (
