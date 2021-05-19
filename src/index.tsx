@@ -4,6 +4,8 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import * as reo from "react-error-overlay";
+import MatrixApp from "./MatrixApp";
+import { verifyServerConfig } from "./auth/util/verifyServerConfig";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays
@@ -15,12 +17,26 @@ if (process.env.NODE_ENV === "development") {
   (reo as any).stopReportingRuntimeErrors();
 }
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById("root")
-);
+const config = {
+  default_server_config: {
+    "m.homeserver": {
+      base_url: "https://matrix-client.matrix.org",
+      server_name: "matrix.org",
+    },
+    "m.identity_server": {
+      base_url: "https://vector.im",
+    },
+  },
+};
+
+verifyServerConfig(config).then((val) => {
+  ReactDOM.render(
+    <React.StrictMode>
+      <MatrixApp config={val} />
+    </React.StrictMode>,
+    document.getElementById("root")
+  );
+});
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
