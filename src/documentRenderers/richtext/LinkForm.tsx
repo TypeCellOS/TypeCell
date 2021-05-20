@@ -10,15 +10,16 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
   const [url, setUrl] = useState("");
 
   useEffect(() => {
-      if(props.editor.isFocused) {
-        if(props.editor.isActive("link")) {
-          setUrl(props.editor.getAttributes("link").href.substring(2));
-        } else {
-          setUrl("");
-        }
+    if(props.editor.isFocused) {
+      if(props.editor.isActive("link")) {
+        setUrl(props.editor.getAttributes("link").href.substring(2));
+      } else {
+        setUrl("");
       }
-      
+    }
   });
+
+
 
   const handleSubmit = (e: any) => {
 
@@ -38,13 +39,17 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
   }
 
   return (
+    <div className={styles.formContainer}>
       <form onSubmit={handleSubmit}>
+        {/*
         <div className={styles.linkIconContainer} >
           <AiOutlineLink />
         </div>
-        <input className={styles.inputField} type="text" value={url} onChange={handleChange}/>
-        <input className={styles.submitButton} type="submit" value=">"/>
+        */}
+        <input autoFocus className={styles.inputField} type="text" placeholder="URL" value={url} onChange={handleChange}/>
+        <input className={styles.submitButton} type="submit" value="OK"/>
       </form>
+    </div>
   );
 }
 

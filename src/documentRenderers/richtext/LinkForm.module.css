@@ -1,26 +1,33 @@
-.link-icon {
-  color: #fff;
-  opacity: 0.6;
-  display: inline-block;
-}
-
-.linkIconContainer {
-  display: inline-block;
-  vertical-align: middle;
-  padding: 0.2rem 0.2rem;
+.formContainer {
+  position: relative;
+  width: 300px;
+  height: 30px;
 }
 
 .inputField {
+  position: absolute;
+  left: 0px;
+  top: 50%;
+  bottom: 50%;
+  transform: translate(0, -50%);
+  width: 88%;
+  height: 90%;
+  font-size: 12px;
   border: 2px solid #fff;
-  display: inline-block;
-  padding: 0.2rem 0.2rem;
-  border-radius: 0.3rem;
-  opacity: 0.6;
+  padding: 0.3rem 0.4rem;
+  border-radius: 0.1rem;
+  opacity: 0.8;
 }
 
 .submitButton {
-  display: inline-block;
-  font-size: 20px;
+  position: absolute;
+  right: 0px;
+  top: 50%;
+  bottom: 50%;
+  height: 90%;
+  width: 10%;
+  transform: translate(0, -50%);
+  text-align: right;
   border: none;
   background: none;
   color: #fff;

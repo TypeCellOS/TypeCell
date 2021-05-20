@@ -129,7 +129,8 @@ class LinkInlineMenuButton extends React.Component<LinkMenuButtonProps> {
         <Tippy
           content={<LinkForm editor={this.props.editor} />}
           trigger={"click"}
-          interactive={true}>
+          interactive={true}
+          maxWidth={500}>
           <button
             className={this.props.editor.isActive("link") ? styles.isActive : ""}
             id={"inlineMenuButton-link"}>

@@ -8,6 +8,7 @@
 
 .BubbleMenu > button {
   border: 1px dotted #aaaaaa20;
+  width: 20%;
   background: none;
   color: #fff;
   font-size: 0.85rem;
