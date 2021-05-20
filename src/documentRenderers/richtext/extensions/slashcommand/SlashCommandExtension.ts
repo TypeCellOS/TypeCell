@@ -41,6 +41,8 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
             let placed = false;
 
             // Go over all nodes in the range
+            // Refer to https://discuss.prosemirror.net/t/find-new-node-instances-and-track-them/96
+            // for a discussion on how to find the position of a newly placed node in the document
             tr.doc.nodesBetween(mappedFrom, mappedTo, (n, pos) => {
               // If cursor is already placed, exit the callback and stop recursing
               if (placed) return false;
