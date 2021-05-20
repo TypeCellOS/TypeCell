@@ -5,7 +5,6 @@ import styles from "./InlineMenu.module.css";
 import Tippy from "@tippyjs/react";
 import LinkForm from "./LinkForm"
 import { Underline } from "./extensions/marks/Underline";
-import Link from "@tiptap/extension-link";
 
 type InlineMenuProps = { editor: Editor };
 type MenuButtonProps = {
@@ -13,6 +12,10 @@ type MenuButtonProps = {
   styleDetails: StyleDetails;
   onClick: MouseEventHandler;
 };
+type LinkMenuButtonProps = {
+  editor: Editor;
+  styleDetails: StyleDetails;
+}
 
 /**
  * [name] has to be the same as the name in the defining Mark
@@ -58,7 +61,7 @@ const underline: StyleDetails = {
 const link: StyleDetails = {
   name: "link",
   mainTooltip: "Link",
-  secondaryTooltip: "Ctrl+L",
+  secondaryTooltip: "Ctrl+K",
 }
 
 function styledTooltip(mainText: string, secondaryText?: string) {
@@ -71,6 +74,24 @@ function styledTooltip(mainText: string, secondaryText?: string) {
 }
 
 /**
+ * The tooltip component that is rendered for the tippy content prop
+ */
+class ToolTip extends React.Component<StyleDetails> {
+  render() {
+    return (
+      <div className={styles.buttonTooltip}>
+        <div className={styles.mainText}>
+          {this.props.mainTooltip}
+        </div>
+        <div className={styles.secondaryText}>
+          {this.props.secondaryTooltip}
+        </div>
+      </div>
+    )
+  }
+}
+
+/**
  * The button that shows in the inline menu.
  *
  * __When adding new marks(menu items)__
@@ -79,48 +100,50 @@ function styledTooltip(mainText: string, secondaryText?: string) {
  */
 class InlineMenuButton extends React.Component<MenuButtonProps> {
   render() {
-    const tooltipContent = (
-      <div className={styles.buttonTooltip}>
-        <div className={styles.mainText}>
-          {this.props.styleDetails.mainTooltip}
-        </div>
-        <div className={styles.secondaryText}>
-          {this.props.styleDetails.secondaryTooltip}
-        </div>
-      </div>
-    );
     const name = this.props.styleDetails.name;
 
-    if(name == "link") {
-      return (
-        <Tippy content={tooltipContent} theme="material">
-          <Tippy
-            content={<LinkForm editor={this.props.editor} />}
-            trigger={"click"}
-            interactive={true}>
-            <button
-              className={this.props.editor.isActive(name) ? styles.isActive : ""}
-              id={"inlineMenuButton-" + name}>
-              {name.toUpperCase()[0]}
-            </button>
-          </Tippy>
-        </Tippy>
-      )
-    } else {
-      return (
-        <Tippy content={tooltipContent} theme="material">
-          <button
-            onClick={this.props.onClick}
-            className={this.props.editor.isActive(name) ? styles.isActive : ""}
-            id={"inlineMenuButton-" + name}>
-            {name.toUpperCase()[0]}
-          </button>
-        </Tippy>
-      );
-    }
+    return (
+      <Tippy content={<ToolTip {...this.props.styleDetails} />} theme="material">
+        <button
+          onClick={this.props.onClick}
+          className={this.props.editor.isActive(name) ? styles.isActive : ""}
+          id={"inlineMenuButton-" + name}>
+          {name.toUpperCase()[0]}
+        </button>
+      </Tippy>
+    );
   }
 }
 
+/**
+ * The link button that shows in the inline menu
+ * 
+ * The link button has an additional menu when clicked on,
+ * which is why it is needed to be rendered differently from the other
+ * menu buttons. The clicking even is handled by the inner Tippy tag.
+ */
+class LinkInlineMenuButton extends React.Component<LinkMenuButtonProps> {
+  render() {
+    return (
+      <Tippy content={<ToolTip {...this.props.styleDetails}/>} theme="material">
+        <Tippy
+          content={<LinkForm editor={this.props.editor} />}
+          trigger={"click"}
+          interactive={true}>
+          <button
+            className={this.props.editor.isActive("link") ? styles.isActive : ""}
+            id={"inlineMenuButton-link"}>
+            L
+          </button>
+        </Tippy>
+      </Tippy>
+    )
+  }
+}
+
+/**
+ * The bubble menu which renders InlineMenuButtons and a LinkInlineMenu
+ */
 class InlineMenu extends React.Component<InlineMenuProps> {
   render() {
     // Renders an empty menu if a block is selected.
@@ -129,17 +152,6 @@ class InlineMenu extends React.Component<InlineMenuProps> {
         <BubbleMenu className={styles.hidden} editor={this.props.editor} />
       );
     }
-
-    const tooltipContent = (
-      <div className={styles.buttonTooltip}>
-        <div className={styles.mainText}>
-          {"Link"}
-        </div>
-        <div className={styles.secondaryText}>
-          {"Ctrl+K"}
-        </div>
-      </div>
-    );
 
     return (
       <BubbleMenu className={styles.BubbleMenu} editor={this.props.editor}>
@@ -168,9 +180,8 @@ class InlineMenu extends React.Component<InlineMenuProps> {
           onClick={() => this.props.editor.chain().focus().toggleUnderline().run()}
           styleDetails={underline}
         />
-        <InlineMenuButton
+        <LinkInlineMenuButton
           editor={this.props.editor}
-          onClick={() => {return}}
           styleDetails={link}
         />
       </BubbleMenu>

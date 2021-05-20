@@ -1,23 +1,16 @@
-.link-menu {
-  display: flex;
-  background-color: #0d0d0d;
-  padding: 0.3rem;
-  border-radius: 0.5rem;
-}
-
 .link-icon {
   color: #fff;
   opacity: 0.6;
   display: inline-block;
 }
 
-.link-icon-container {
+.linkIconContainer {
   display: inline-block;
   vertical-align: middle;
   padding: 0.2rem 0.2rem;
 }
 
-.input-field {
+.inputField {
   border: 2px solid #fff;
   display: inline-block;
   padding: 0.2rem 0.2rem;
@@ -25,7 +18,7 @@
   opacity: 0.6;
 }
 
-.submit-button {
+.submitButton {
   display: inline-block;
   font-size: 20px;
   border: none;
@@ -37,7 +30,7 @@
   opacity: 0.6;
 }
 
-.submit-button:hover,
-.submit-buttonn.isactive {
+.submitButton:hover,
+.submitButtonn.isactive {
   opacity:1;
 }
