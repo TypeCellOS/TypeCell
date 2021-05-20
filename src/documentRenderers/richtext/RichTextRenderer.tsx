@@ -22,8 +22,8 @@ import {
   IndentItemBlock,
   ListItemBlock,
   ParagraphBlock,
-  TableBlock,
 } from "./extensions/blocktypes";
+import { TableBlock } from "./extensions/blocktypes/TableBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";

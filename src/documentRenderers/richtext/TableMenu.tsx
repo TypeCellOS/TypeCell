@@ -17,7 +17,15 @@ import { TableBubbleMenu } from "./extensions/table/TableBubbleMenu";
 
 type TableMenuProps = { editor: Editor };
 
-// This component is invoked only when a cursor is inside a TableCell, otherwise hidden
+/**
+ * This component is an adapted version of inline menu. This menu will only show itself when the
+ * cursor is inside a table block, providing functions specific to tables, such as inserting rows.
+ * A normal bubble menu is hidden when there is no selection, i.e. selection is empty.
+ * But this modified TableMenu CAN appear inside a tableCell even when there is NO selection of text.
+ * By clicking again this TableMenu can disappear.
+ * e.g. simply put the cursor in any table cell inside a table, a table menu will appear, where you may insert
+ * another column to the right of this table cell in which your cursor is located.
+ */
 class TableMenu extends React.Component<TableMenuProps> {
   render() {
     // This depth is what a top-level block would have, any nested block has a larger value
