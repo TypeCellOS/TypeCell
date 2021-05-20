@@ -8,7 +8,7 @@
 export default interface SuggestionItem {
   name: string;
   groupName: string;
-  iconUrl?: string;
+  icon?: JSX.Element;
 
   match(query: string): boolean;
 }

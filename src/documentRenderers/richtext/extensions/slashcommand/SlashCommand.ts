@@ -1,4 +1,5 @@
 import { Editor, Range } from "@tiptap/core";
+import React from "react";
 import SuggestionItem from "../../prosemirrorPlugins/suggestions/SuggestionItem";
 
 export type SlashCommandCallback = (editor: Editor, range: Range) => boolean;
@@ -19,12 +20,29 @@ export enum CommandGroup {
  * Not to be confused with ProseMirror commands nor TipTap commands.
  */
 export class SlashCommand implements SuggestionItem {
-  name: string;
-  group: CommandGroup;
   aliases: string[];
-  execute: SlashCommandCallback;
   groupName: string;
-  iconUrl?: string;
+  // other parameters initialized in the constructor
+
+  /**
+   * Constructs a new slash-command.
+   *
+   * @param name The name of the command
+   * @param group Used to organize the menu
+   * @param execute The callback for creating a new node
+   * @param aliases Aliases for this command
+   * @param icon To be shown next to the name in the menu
+   */
+  constructor(
+    public name: string,
+    public group: CommandGroup,
+    public execute: SlashCommandCallback,
+    aliases: string[],
+    public icon?: JSX.Element
+  ) {
+    this.aliases = aliases ?? [];
+    this.groupName = group;
+  }
 
   match(query: string): boolean {
     return (
@@ -33,28 +51,5 @@ export class SlashCommand implements SuggestionItem {
         alias.toLowerCase().startsWith(query.toLowerCase())
       ).length !== 0
     );
-  }
-
-  /**
-   * Constructs a new slash-command.
-   *
-   * @param name The name of the command
-   * @param execute The callback for creating a new node
-   * @param aliases Aliases for this command
-   * @param regex A regex for matching this command. This regex fully determines matching behaviour when supplied.
-   */
-  constructor(
-    name: string,
-    group: CommandGroup,
-    execute: SlashCommandCallback,
-    aliases?: string[],
-    iconUrl?: string
-  ) {
-    this.name = name;
-    this.group = group;
-    this.groupName = group;
-    this.aliases = aliases ?? [];
-    this.execute = execute;
-    this.iconUrl = iconUrl;
   }
 }

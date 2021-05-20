@@ -1,5 +1,8 @@
 import { TextSelection } from "prosemirror-state";
 import { CommandGroup, SlashCommand } from "./SlashCommand";
+import { ReactComponent as UnorderedList } from "../../icons/list-unordered.svg";
+import { ReactComponent as H6 } from "../../icons/h-6.svg";
+import { Ri24HoursFill } from "react-icons/ri";
 
 const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 1 heading
@@ -41,7 +44,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["h2", "heading2", "subheading"]
+    ["h2", "heading2", "subheading"],
+    <Ri24HoursFill />
   ),
 
   // Command for creating a level 3 heading
@@ -125,7 +129,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["h6", "heading6"]
+    ["h6", "heading6"],
+    <H6 fill={"blue"} />
   ),
 
   // Command for creating a paragraph (pretty useless)
@@ -184,8 +189,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["ul", "list", "bulletlist"],
-    "/icons/icons8-do-not-touch-48.svg"
+    ["ul", "list", "bulletlist"]
   ),
 
   // Command for creating an ordered list
