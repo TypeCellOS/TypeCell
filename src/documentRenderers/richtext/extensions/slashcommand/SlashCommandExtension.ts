@@ -23,7 +23,10 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
           const { from, to } = range;
 
           if (dispatch) {
-            // Give the node a temporary id, for placing the cursor in it
+            // Give the node a temporary id.
+            // This temporary id is used to keep track of the node, such that we can be 100% certain
+            // that  the cursor is placed in the right node (and not a different node of the same type for example)
+            // TODO: replace this temp-id "hack" with node-id's (once we have implemented the node-id system)
             node.attrs["temp-id"] = `id_${Math.floor(
               Math.random() * 0xffffffff
             )}`;
@@ -38,11 +41,14 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
             let placed = false;
 
             // Go over all nodes in the range
-            tr.doc.nodesBetween(mappedFrom, mappedTo, (n, pos, parent) => {
+            tr.doc.nodesBetween(mappedFrom, mappedTo, (n, pos) => {
               // If cursor is already placed, exit the callback and stop recursing
               if (placed) return false;
 
               // Check if this node is the node we just created, by comparing their temp-id
+              // IMPORTANT: this temp-id is used to ensure that we place the cursor in the correct node
+              // Only comparing types, for example, is not sufficient, because the cursor might be
+              // placed in a different node of the same type
               if (n.attrs["temp-id"] === node.attrs["temp-id"]) {
                 tr.setSelection(Selection.near(tr.doc.resolve(pos)));
                 placed = true;
@@ -55,7 +61,7 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
               return true;
             });
 
-            // Clear the temp-id
+            // Clear the temp-id (NOTE: this might not work correctly, since nodes are supposed to be immutable)
             node.attrs["temp-id"] = undefined;
           }
 
