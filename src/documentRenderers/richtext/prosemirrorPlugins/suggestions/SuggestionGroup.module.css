@@ -1,0 +1,24 @@
+.groupName {
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 0.6rem;
+  background-color: #ddd;
+  color: #666;
+  padding: 0.2rem 0.4rem;
+}
+
+.item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0;
+}
+
+.item.isSelected,
+.item:hover {
+  /* color: #a975ff; */
+  background-color: #eee;
+}
