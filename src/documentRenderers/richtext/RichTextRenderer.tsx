@@ -16,7 +16,6 @@ import { DocumentResource } from "../../store/DocumentResource";
 import { AutoId } from "./extensions/autoid/AutoId";
 import {
   BlockQuoteBlock,
-  CodeBlockBlock,
   HeadingBlock,
   HorizontalRuleBlock,
   IndentItemBlock,
@@ -24,6 +23,7 @@ import {
   ParagraphBlock,
 } from "./extensions/blocktypes";
 import { TableBlock } from "./extensions/blocktypes/TableBlock";
+import { CodeBlockBlock } from "./extensions/blocktypes/CodeBlockBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";

@@ -18,6 +18,7 @@ import {
 import { useDrag, useDrop } from "react-dnd";
 import SideMenu from "../../SideMenu";
 import styles from "./Block.module.css";
+import codeStyles from "./CodeBlockBlock.module.css";
 
 /**
  * A global store that keeps track of which block is being hovered over
@@ -213,9 +214,9 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
                 />
               </Tippy>
             </div>
-            {domType === "code" ? ( // Wraps content in "pre" tags if the content is code.
-              <pre>
-                <NodeViewContent as={domType} {...domAttrs} />
+            {domType === "pre" ? ( // Wraps content in "pre" tags if the content is code.
+              <pre className={codeStyles.pre}>
+                <NodeViewContent as={"code"} {...domAttrs} />
               </pre>
             ) : (
               <div>
