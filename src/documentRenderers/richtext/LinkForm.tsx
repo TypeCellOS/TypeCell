@@ -12,7 +12,7 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
   useEffect(() => {
       if(props.editor.isFocused) {
         if(props.editor.isActive("link")) {
-          setUrl(props.editor.getAttributes("link").href);
+          setUrl(props.editor.getAttributes("link").href.substring(2));
         } else {
           setUrl("");
         }
@@ -21,11 +21,14 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
   });
 
   const handleSubmit = (e: any) => {
+
+    const absoluteUrl = "//" + url;
+
     e.preventDefault();
     if(url == "") {
       props.editor.chain().focus().unsetLink().run();
     } else {
-      props.editor.chain().focus().setLink({ href: url }).run();
+      props.editor.chain().focus().setLink({ href: absoluteUrl }).run();
       setUrl("");
     }
   }

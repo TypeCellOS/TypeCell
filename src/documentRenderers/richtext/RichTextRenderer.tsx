@@ -3,7 +3,6 @@ import BulletList from "@tiptap/extension-bullet-list";
 import Code from "@tiptap/extension-code";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
-import Link from "@tiptap/extension-link";
 import Document from "@tiptap/extension-document";
 import HardBreak from "@tiptap/extension-hard-break";
 import { Image } from "@tiptap/extension-image";
@@ -27,6 +26,7 @@ import {
 } from "./extensions/blocktypes";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
+import { CustomLink } from "./extensions/marks/CustomLink";
 import SlashCommandExtension from "./extensions/slashcommand";
 import InlineMenu from "./InlineMenu";
 import "./RichTextRenderer.css";
@@ -72,7 +72,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Italic,
       Strike,
       Underline,
-      Link,
+      CustomLink,
 
       // custom blocks:
       Image,
