@@ -1,7 +1,3 @@
-:root {
-  --drop-indicator: solid black;
-}
-
 .block {
   display: block;
   /* use padding instead of margin. 
@@ -56,14 +52,29 @@
   z-index: 1;
 }
 
-.topIndicator, .bottomIndicator {
+.topIndicator::before {
+  content: '';
+  width: 40rem;
+  height: 0.1rem;
+  background-color: #0d0d0d;
+  border-radius: 0.1rem;
 
+  /*Centering relative to page*/
+  position: fixed;
+  left: 50%;
+  margin-left: -20rem; /*Half of width*/
 }
 
-.topIndicator {
-  border-top: var(--drop-indicator);
-}
+.bottomIndicator::after {
+  content: '';
+  width: 40rem;
+  height: 0.1rem;
+  margin-top: 2.15rem; /*Ugly number due to fixed positioning - necessary for centering on page*/
+  background-color: #0d0d0d;
+  border-radius: 0.1rem;
 
-.bottomIndicator {
-  border-bottom: var(--drop-indicator);
+  /*Centering relative to page*/
+  position: fixed;
+  left: 50%;
+  margin-left: -20rem; /*Half of width*/
 }
