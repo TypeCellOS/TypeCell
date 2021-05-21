@@ -77,6 +77,7 @@ export const MentionsExtension = Node.create<MentionsOptions>({
   addProseMirrorPlugins() {
     return [
       SuggestionPlugin<Mention>({
+        pluginName: "mentions",
         editor: this.editor,
         char: "@",
         items: (query) => {

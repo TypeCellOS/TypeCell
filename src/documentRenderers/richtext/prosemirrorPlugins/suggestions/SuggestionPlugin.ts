@@ -35,6 +35,8 @@ export type SuggestionRendererProps<T extends SuggestionItem> = {
 };
 
 export type SuggestionPluginOptions<T extends SuggestionItem> = {
+  // Used for ensuring that the plugin key is unique when more than one instance of the SuggestionPlugin is used.
+  pluginName: string;
   editor: Editor;
   char: string;
   selectItemCallback?: (props: {
@@ -94,6 +96,7 @@ export function findCommandBeforeCursor(
  * @returns the prosemirror plugin
  */
 export function SuggestionPlugin<T extends SuggestionItem>({
+  pluginName,
   editor,
   char,
   selectItemCallback = () => {},
@@ -105,9 +108,7 @@ export function SuggestionPlugin<T extends SuggestionItem>({
   if (!renderer) renderer = createRenderer(editor);
 
   // Create a random plugin key (since this plugin might be instantiated multiple times)
-  const PLUGIN_KEY = new PluginKey(
-    `suggestion_${Math.floor(Math.random() * 0xffffffff)}`
-  );
+  const PLUGIN_KEY = new PluginKey(`suggestions-${pluginName}`);
 
   return new Plugin({
     key: PLUGIN_KEY,

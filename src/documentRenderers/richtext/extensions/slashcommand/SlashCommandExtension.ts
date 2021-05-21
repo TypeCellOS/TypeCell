@@ -17,26 +17,29 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
 
   addCommands() {
     return {
-      replaceRangeCustom: (range, node) => ({ tr, dispatch }) => {
-        const { from, to } = range;
+      replaceRangeCustom:
+        (range, node) =>
+        ({ tr, dispatch }) => {
+          const { from, to } = range;
 
-        if (dispatch) {
-          // Replace range with node
-          tr.replaceRangeWith(from, to, node);
+          if (dispatch) {
+            // Replace range with node
+            tr.replaceRangeWith(from, to, node);
 
-          // Put cursor at the start of the new node (or try to at least)
-          const pos = tr.mapping.map(from, -1);
-          tr.setSelection(Selection.near(tr.doc.resolve(pos), 1));
-        }
+            // Put cursor at the start of the new node (or try to at least)
+            const pos = tr.mapping.map(from, -1);
+            tr.setSelection(Selection.near(tr.doc.resolve(pos), 1));
+          }
 
-        return true;
-      },
+          return true;
+        },
     };
   },
 
   addProseMirrorPlugins() {
     return [
       SuggestionPlugin<SlashCommand>({
+        pluginName: "slash-commands",
         editor: this.editor,
         char: "/",
         items: (query) => {
