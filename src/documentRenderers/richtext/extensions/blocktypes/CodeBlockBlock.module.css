@@ -1,3 +1,19 @@
+select {
+  position: absolute;
+  outline: none;
+  top: 0.25rem;
+  right: 0.25rem;
+  border: none;
+  border-radius: 0.2rem;
+  padding: 0.1rem;
+  background-color: lightgrey;
+  font-weight: bold;
+}
+
+select:hover {
+  cursor: pointer;
+}
+
 pre {
   background: #0d0d0d;
   color: #fff;
@@ -5,6 +21,7 @@ pre {
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
 }
+
 code {
   color: inherit;
   padding: 0;
@@ -12,54 +29,54 @@ code {
   font-size: 0.8rem;
 }
 
-.hljs-comment,
-.hljs-quote {
+:global(.hljs-comment),
+:global(.hljs-quote) {
   color: #616161;
 }
 
-.hljs-variable,
-.hljs-template-variable,
-.hljs-attribute,
-.hljs-tag,
-.hljs-name,
-.hljs-regexp,
-.hljs-link,
-.hljs-name,
-.hljs-selector-id,
-.hljs-selector-class {
+:global(.hljs-variable),
+:global(.hljs-template-variable),
+:global(.hljs-attribute),
+:global(.hljs-tag),
+:global(.hljs-name),
+:global(.hljs-regexp),
+:global(.hljs-link),
+:global(.hljs-name),
+:global(.hljs-selector-id),
+:global(.hljs-selector-class) {
   color: #f98181;
 }
 
-.hljs-number,
-.hljs-meta,
-.hljs-built_in,
-.hljs-builtin-name,
-.hljs-literal,
-.hljs-type,
-.hljs-params {
+:global(.hljs-number),
+:global(.hljs-meta),
+:global(.hljs-built_in),
+:global(.hljs-builtin-name),
+:global(.hljs-literal),
+:global(.hljs-type),
+:global(.hljs-params) {
   color: #fbbc88;
 }
 
-.hljs-string,
-.hljs-symbol,
-.hljs-bullet {
+:global(.hljs-string),
+:global(.hljs-symbol),
+:global(.hljs-bullet) {
   color: #b9f18d;
 }
 
-.hljs-title,
-.hljs-section {
+:global(.hljs-title),
+:global(.hljs-section) {
   color: #faf594;
 }
 
-.hljs-keyword,
-.hljs-selector-tag {
+:global(.hljs-keyword),
+:global(.hljs-selector-tag) {
   color: #70cff8;
 }
 
-.hljs-emphasis {
+:global(.hljs-emphasis) {
   font-style: italic;
 }
 
-.hljs-strong {
+:global(.hljs-strong) {
   font-weight: 700;
 }

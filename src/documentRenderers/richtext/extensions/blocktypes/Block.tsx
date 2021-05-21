@@ -8,7 +8,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { Node, DOMOutputSpec } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
-import {
+import React, {
   ElementType,
   MouseEvent,
   PropsWithChildren,
@@ -18,7 +18,6 @@ import {
 import { useDrag, useDrop } from "react-dnd";
 import SideMenu from "../../SideMenu";
 import styles from "./Block.module.css";
-import codeStyles from "./CodeBlockBlock.module.css";
 
 /**
  * A global store that keeps track of which block is being hovered over
@@ -215,9 +214,38 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
               </Tippy>
             </div>
             {domType === "pre" ? ( // Wraps content in "pre" tags if the content is code.
-              <pre className={codeStyles.pre}>
-                <NodeViewContent as={"code"} {...domAttrs} />
-              </pre>
+              <React.Fragment>
+                <pre>
+                  {/* <style>{codeStyles}</style> */}
+                  <select
+                    value={props.node.attrs["language"]}
+                    onChange={(event) => {
+                      console.log("language changed");
+                      // @ts-ignore
+                      props.updateAttributes({
+                        // @ts-ignore
+                        language: event.nativeEvent.target?.value,
+                      });
+                    }}>
+                    <option value="null">auto</option>
+                    <option disabled>—</option>
+                    {props.extension.options.lowlight
+                      .listLanguages()
+                      // @ts-ignore
+                      .map((lang, index) => {
+                        return (
+                          <option
+                            key={props.node.attrs["block-id"] + index}
+                            value={lang}>
+                            {lang}
+                          </option>
+                        );
+                      })}
+                  </select>
+
+                  <NodeViewContent as={"code"} {...domAttrs} />
+                </pre>
+              </React.Fragment>
             ) : (
               <div>
                 <NodeViewContent as={domType} {...domAttrs} />
