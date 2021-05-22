@@ -70,7 +70,9 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Italic,
       Strike,
       Underline,
-      CustomLink,
+      CustomLink.configure({
+        openOnClick: false,
+      }),
 
       // custom blocks:
       ImageBlock,
