@@ -12,16 +12,11 @@
   transform: translate(0, -50%);
   width: 88%;
   height: 90%;
+  font-size: 12px;
+  border: 2px solid #fff;
   padding: 0.3rem 0.4rem;
   border-radius: 0.1rem;
-  border: solid #fff;
-  background-color: #fff;
   opacity: 0.8;
-  transition: 0.2s;
-}
-
-.inputField:focus {
-  opacity: 1;
 }
 
 .submitButton {
