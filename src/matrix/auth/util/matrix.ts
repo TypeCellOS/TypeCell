@@ -5,6 +5,6 @@ export interface IMatrixClientCreds {
   deviceId?: string;
   accessToken: string;
   guest?: boolean;
-  pickleKey?: string;
+  pickleKey?: string | undefined;
   freshLogin?: boolean;
 }
