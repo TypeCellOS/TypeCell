@@ -1,8 +1,13 @@
 import { TextSelection } from "prosemirror-state";
 import { CommandGroup, SlashCommand } from "./SlashCommand";
 import { ReactComponent as UnorderedList } from "../../icons/list-unordered.svg";
+import { ReactComponent as H1 } from "../../icons/h-1.svg";
+import { ReactComponent as H2 } from "../../icons/h-2.svg";
+import { ReactComponent as H3 } from "../../icons/h-3.svg";
+import { ReactComponent as H4 } from "../../icons/h-4.svg";
+import { ReactComponent as H5 } from "../../icons/h-5.svg";
 import { ReactComponent as H6 } from "../../icons/h-6.svg";
-import { Ri24HoursFill } from "react-icons/ri";
+import styles from "./test.module.css";
 
 const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 1 heading
@@ -23,7 +28,17 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["h", "heading1", "h1"]
+    ["h", "heading1", "h1"],
+    (
+      <H1
+        width="40"
+        height="40"
+        viewBox="-5 -5 50 50"
+        enableBackground="white"
+        className={styles.icon}
+      />
+    ),
+    "Big section heading"
   ),
 
   // Command for creating a level 2 heading
@@ -45,7 +60,11 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h2", "heading2", "subheading"],
-    <Ri24HoursFill />
+    (
+      <div className={styles.icon2}>
+        <H2 width="20" height="20" />
+      </div>
+    )
   ),
 
   // Command for creating a level 3 heading
@@ -66,7 +85,12 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["h3", "heading3", "subsubheading"]
+    ["h3", "heading3", "subsubheading"],
+    (
+      <div className={styles.icon3}>
+        <H3 width="20" height="20" />
+      </div>
+    )
   ),
 
   // Command for creating a level 4 heading
@@ -87,7 +111,12 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["h4", "heading4"]
+    ["h4", "heading4"],
+    (
+      <div className={styles.icon4}>
+        <H4 width="20" height="20" />
+      </div>
+    )
   ),
 
   // Command for creating a level 5 heading
@@ -108,7 +137,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["h5", "heading5"]
+    ["h5", "heading5"],
+    <H5 />
   ),
 
   // Command for creating a level 6 heading
@@ -130,7 +160,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h6", "heading6"],
-    <H6 fill={"blue"} />
+    <H6 />
   ),
 
   // Command for creating a paragraph (pretty useless)

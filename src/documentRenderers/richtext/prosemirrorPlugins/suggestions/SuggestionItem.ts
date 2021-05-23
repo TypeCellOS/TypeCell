@@ -9,6 +9,7 @@ export default interface SuggestionItem {
   name: string;
   groupName: string;
   icon?: JSX.Element;
+  hint?: string;
 
   match(query: string): boolean;
 }
