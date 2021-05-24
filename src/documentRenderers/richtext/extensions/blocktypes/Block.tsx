@@ -214,38 +214,33 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
               </Tippy>
             </div>
             {domType === "pre" ? ( // Wraps content in "pre" tags if the content is code.
-              <React.Fragment>
-                <pre>
-                  {/* <style>{codeStyles}</style> */}
-                  <select
-                    value={props.node.attrs["language"]}
-                    onChange={(event) => {
-                      console.log("language changed");
-                      // @ts-ignore
-                      props.updateAttributes({
-                        // @ts-ignore
-                        language: event.nativeEvent.target?.value,
-                      });
-                    }}>
-                    <option value="null">auto</option>
-                    <option disabled>—</option>
-                    {props.extension.options.lowlight
-                      .listLanguages()
-                      // @ts-ignore
-                      .map((lang, index) => {
-                        return (
-                          <option
-                            key={props.node.attrs["block-id"] + index}
-                            value={lang}>
-                            {lang}
-                          </option>
-                        );
-                      })}
-                  </select>
+              <pre>
+                <select
+                  value={props.node.attrs["language"]}
+                  onChange={(event) => {
+                    // @ts-ignore
+                    props.updateAttributes({
+                      language: event.target.value,
+                    });
+                  }}>
+                  <option value="null">auto</option>
+                  <option disabled>—</option>
+                  {props.extension.options.lowlight
+                    .listLanguages()
+                    // @ts-ignore
+                    .map((lang, index) => {
+                      return (
+                        <option
+                          key={props.node.attrs["block-id"] + index}
+                          value={lang}>
+                          {lang}
+                        </option>
+                      );
+                    })}
+                </select>
 
-                  <NodeViewContent as={"code"} {...domAttrs} />
-                </pre>
-              </React.Fragment>
+                <NodeViewContent as={"code"} {...domAttrs} />
+              </pre>
             ) : (
               <div>
                 <NodeViewContent as={domType} {...domAttrs} />
