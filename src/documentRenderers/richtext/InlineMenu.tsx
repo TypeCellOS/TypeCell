@@ -6,6 +6,8 @@ import Tippy from "@tippyjs/react";
 import LinkForm from "./LinkForm"
 import { Underline } from "./extensions/marks/Underline";
 
+import tableStyles from "./extensions/blocktypes/Table.module.css";
+
 type InlineMenuProps = { editor: Editor };
 type MenuButtonProps = {
   editor: Editor;
@@ -147,6 +149,25 @@ class LinkInlineMenuButton extends React.Component<LinkMenuButtonProps> {
  */
 class InlineMenu extends React.Component<InlineMenuProps> {
   render() {
+    const TOP_DEPTH = 1;
+
+    const resolvedPos = this.props.editor.state.doc.resolve(
+      this.props.editor.state.selection.from
+    );
+
+    if (resolvedPos.depth > TOP_DEPTH) {
+      const grandParent = resolvedPos.node(resolvedPos.depth - 1);
+      // console.log(`the grandpa.type.name is ${grandParent.type.name}`);
+      if (
+        grandParent &&
+        grandParent.type.name.toLowerCase().startsWith("table")
+      ) {
+        return (
+          <BubbleMenu className={styles.hidden} editor={this.props.editor} />
+        );
+      }
+    }
+
     // Renders an empty menu if a block is selected.
     if (this.props.editor.state.selection instanceof NodeSelection) {
       return (
