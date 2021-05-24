@@ -37,11 +37,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h", "heading1", "h1"],
-    (
-      <div className={styles.icon}>
-        <H1 />
-      </div>
-    ),
+    H1,
     "Used for a top-level heading",
     "Ctrl+Alt+1"
   ),
@@ -65,11 +61,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h2", "heading2", "subheading"],
-    (
-      <div className={styles.icon}>
-        <H2 />
-      </div>
-    ),
+    H2,
     "Used for key sections",
     "Ctrl+Alt+2"
   ),
@@ -93,11 +85,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h3", "heading3", "subsubheading"],
-    (
-      <div className={styles.icon}>
-        <H3 />
-      </div>
-    ),
+    H3,
     "Used for subsections and group headings",
     "Ctrl+Alt+3"
   ),
@@ -121,11 +109,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h4", "heading4"],
-    (
-      <div className={styles.icon}>
-        <H4 />
-      </div>
-    ),
+    H4,
     "Used for deep headings",
     "Ctrl+Alt+4"
   ),
@@ -149,11 +133,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h5", "heading5"],
-    (
-      <div className={styles.icon}>
-        <H5 />
-      </div>
-    ),
+    H5,
     "Used for grouping list items",
     "Ctrl+Alt+5"
   ),
@@ -177,11 +157,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h6", "heading6"],
-    (
-      <div className={styles.icon}>
-        <H6 />
-      </div>
-    ),
+    H6,
     "Used for low-level headings",
     "Ctrl+Alt+6"
   ),
@@ -203,11 +179,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["p"],
-    (
-      <div className={styles.icon}>
-        <TextIcon />
-      </div>
-    ),
+    TextIcon,
     "Used for the body of your document"
   ),
 
@@ -228,11 +200,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["code", "codeblock"],
-    (
-      <div className={styles.icon}>
-        <CodeIcon />
-      </div>
-    ),
+    CodeIcon,
     "Used to display formatted code that can't be run"
   ),
 
@@ -255,11 +223,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["ul", "list", "bulletlist"],
-    (
-      <div className={styles.icon}>
-        <UnorderedList />
-      </div>
-    ),
+    UnorderedList,
     "Used to display an unordered list item"
   ),
 
@@ -282,11 +246,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["ol", "orderedlist"],
-    (
-      <div className={styles.icon}>
-        <OrderedList />
-      </div>
-    ),
+    OrderedList,
     "Used to display an ordered (enumerated) list item"
   ),
 
@@ -308,11 +268,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["quote", "blockquote"],
-    (
-      <div className={styles.icon}>
-        <QuoteIcon />
-      </div>
-    ),
+    QuoteIcon,
     "Used to make a quote stand out",
     "Ctrl+Shift+B"
   ),
@@ -364,11 +320,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["hr", "horizontalrule"],
-    (
-      <div className={styles.icon}>
-        <SeparatorIcon />
-      </div>
-    ),
+    SeparatorIcon,
     "Used to separate sections with a horizontal line"
   ),
 
@@ -387,11 +339,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["table", "database"],
-    (
-      <div className={styles.icon}>
-        <RiTableLine />
-      </div>
-    )
+    RiTableLine,
+    "Used to create a simple table"
   ),
 };
 

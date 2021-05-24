@@ -38,7 +38,7 @@ export class SlashCommand implements SuggestionItem {
     public group: CommandGroup,
     public execute: SlashCommandCallback,
     aliases: string[],
-    public icon?: JSX.Element,
+    public icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>,
     public hint?: string,
     public shortcut?: string
   ) {

@@ -22,11 +22,24 @@
   padding: 3px;
   border-radius: 3px;
 }
-.icon {
+.iconWrapper {
   border: 1px solid rgba(128, 128, 128, 0.5);
   border-radius: 4px;
   background-color: white;
   width: 40px;
   height: 40px;
-  padding: 5px;
+  padding: 10px;
+}
+.icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--N800);
+}
+.icon path[fill="none"] {
+  stroke: none;
+}
+
+.selectedIcon path {
+  stroke: var(--N800);
+  stroke-width: 1px;
 }

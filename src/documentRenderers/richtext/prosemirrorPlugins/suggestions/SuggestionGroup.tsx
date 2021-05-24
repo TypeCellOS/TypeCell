@@ -47,20 +47,37 @@ function SuggestionContent<T extends SuggestionItem>(props: { item: T }) {
   );
 }
 
+function getIcon<T extends SuggestionItem>(
+  item: T,
+  isButtonSelected: boolean
+): JSX.Element | undefined {
+  const Icon = item.icon;
+  return (
+    Icon && ( // This is a null check
+      <div className={styles.iconWrapper}>
+        <Icon
+          className={
+            styles.icon + " " + (isButtonSelected ? styles.selectedIcon : "")
+          }
+        />
+      </div>
+    )
+  );
+}
+
 export function SuggestionGroup<T extends SuggestionItem>(
   props: SuggestionGroupProps<T>
 ) {
   return (
     <Section title={props.name}>
       {props.items.map((item, index) => {
+        let isButtonSelected =
+          props.selectedIndex !== undefined && props.selectedIndex === index;
         return (
           <div className={styles.buttonItem}>
             <ButtonItem
-              isSelected={
-                props.selectedIndex !== undefined &&
-                props.selectedIndex === index
-              } // This is needed to navigate with the keyboard
-              iconBefore={item.icon}
+              isSelected={isButtonSelected} // This is needed to navigate with the keyboard
+              iconBefore={getIcon(item, isButtonSelected)}
               key={index}
               onClick={() => props.clickItem(item)}>
               <SuggestionContent item={item} />
