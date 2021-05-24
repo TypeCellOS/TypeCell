@@ -214,8 +214,9 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
               </Tippy>
             </div>
             {domType === "pre" ? ( // Wraps content in "pre" tags if the content is code.
-              <pre>
+              <pre className={styles.pre}>
                 <select
+                  className={styles.select}
                   value={props.node.attrs["language"]}
                   onChange={(event) => {
                     // @ts-ignore
@@ -239,7 +240,11 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
                     })}
                 </select>
 
-                <NodeViewContent as={"code"} {...domAttrs} />
+                <NodeViewContent
+                  as={"code"}
+                  {...domAttrs}
+                  className={styles.code}
+                />
               </pre>
             ) : (
               <div>
