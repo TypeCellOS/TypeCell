@@ -5,6 +5,10 @@
   /* background: #eeeeee;  */
 }
 
+.editor {
+  padding-bottom: 1rem; /*ensures drop indicator fits at the bottom of the editor*/
+}
+
 .ProseMirror p.is-empty::before {
   content: attr(data-placeholder);
   float: left;

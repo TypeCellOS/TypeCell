@@ -52,7 +52,7 @@
   z-index: 1;
 }
 
-.topIndicator::before {
+.topIndicator::before, .bottomIndicator::after {
   content: '';
   width: 40rem;
   height: 0.1rem;
@@ -60,21 +60,13 @@
   border-radius: 0.1rem;
 
   /*Centering relative to page*/
-  position: fixed;
-  left: 50%;
-  margin-left: -20rem; /*Half of width*/
+  position:absolute;
+  margin:auto;
+  left: 0;
+  right: 0;
 }
 
 .bottomIndicator::after {
-  content: '';
-  width: 40rem;
-  height: 0.1rem;
-  margin-top: 2.15rem; /*Ugly number due to fixed positioning - necessary for centering on page*/
-  background-color: #0d0d0d;
-  border-radius: 0.1rem;
-
-  /*Centering relative to page*/
-  position: fixed;
-  left: 50%;
-  margin-left: -20rem; /*Half of width*/
+  /*Display below block*/
+  bottom: -0.1rem; /*Negative height value*/
 }
