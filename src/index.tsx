@@ -5,7 +5,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import * as reo from "react-error-overlay";
 import MatrixApp from "./MatrixApp";
-import { verifyServerConfig } from "./auth/util/verifyServerConfig";
+import { verifyServerConfig } from "./matrix/auth/util/verifyServerConfig";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays
@@ -29,7 +29,7 @@ const config = {
   },
 };
 
-verifyServerConfig(config).then((val) => {
+verifyServerConfig(config).then((val: any) => {
   ReactDOM.render(
     <React.StrictMode>
       <MatrixApp config={val} />

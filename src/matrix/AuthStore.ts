@@ -1,15 +1,19 @@
-import { action, makeObservable, observable } from "mobx";
+import { MatrixClient } from "matrix-js-sdk";
+import { action, makeObservable, observable, runInAction } from "mobx";
 import { IMatrixClientCreds } from "./auth/util/matrix";
-import { createClient, MatrixClient } from "matrix-js-sdk";
-import * as StorageManager from "./StorageManager";
-import createMatrixClient from "./createMatrixClient";
+import {
+  abortLogin,
+  clearStorage,
+  createPickleKey,
+  getPickleKey,
+  getStoredSessionVars,
+  isSoftLogout,
+  persistCredentials,
+  pickleKeyToAesKey,
+} from "./AuthStoreUtil";
 import { MatrixClientPeg } from "./MatrixClientPeg";
-import { idbLoad, idbSave } from "./StorageManager";
-import { encodeUnpaddedBase64 } from "./unexported/olmlib";
-import { decryptAES, encryptAES } from "./unexported/aes";
-
-const HOMESERVER_URL_KEY = "mx_hs_url";
-const ID_SERVER_URL_KEY = "mx_is_url";
+import * as StorageManager from "./StorageManager";
+import { decryptAES } from "./unexported/aes";
 
 interface ILoadSessionOpts {
   enableGuest?: boolean;
@@ -30,7 +34,7 @@ export interface IStoredSession {
   isGuest: boolean;
 }
 
-class AuthStore {
+export class AuthStore {
   private accountPassword: string | undefined;
   private accountPasswordTimer: ReturnType<typeof setTimeout> | undefined;
   private firstSyncPromise: Promise<void> | undefined;
@@ -46,11 +50,6 @@ class AuthStore {
       loggedIn: observable,
       postLoginSetup: action,
     });
-  }
-
-  // Source: https://github.com/matrix-org/matrix-react-sdk/blob/d0d56d4b4293498c07605c17e773b9071e048b0c/src/Lifecycle.ts#L754
-  private isSoftLogout(): boolean {
-    return localStorage.getItem("mx_soft_logout") === "true";
   }
 
   /**
@@ -70,7 +69,7 @@ class AuthStore {
   ): Promise<MatrixClient> {
     credentials.guest = Boolean(credentials.guest);
 
-    const softLogout = this.isSoftLogout();
+    const softLogout = isSoftLogout();
 
     console.log(
       "setLoggedIn: mxid: " +
@@ -97,7 +96,7 @@ class AuthStore {
     // dis.dispatch({ action: "on_logging_in" }, true);
 
     if (clearStorageEnabled) {
-      await this.clearStorage();
+      await clearStorage();
     }
 
     const results = await StorageManager.checkConsistency();
@@ -109,7 +108,7 @@ class AuthStore {
       results.cryptoInited &&
       !results.dataInCryptoStore
     ) {
-      await this.abortLogin();
+      await abortLogin();
     }
 
     // Analytics.setLoggedIn(credentials.guest, credentials.homeserverUrl);
@@ -134,7 +133,7 @@ class AuthStore {
 
     if (localStorage) {
       try {
-        await this.persistCredentials(credentials);
+        await persistCredentials(credentials);
         // make sure we don't think that it's a fresh login any more
         sessionStorage.removeItem("mx_fresh_login");
       } catch (e) {
@@ -150,62 +149,6 @@ class AuthStore {
     await this.startMatrixClient(/*startSyncing=*/ !softLogout);
     this.loggedIn = true; // originally this would be above startMatrixClient
     return client;
-  }
-
-  // https://github.com/matrix-org/matrix-react-sdk/blob/d0d56d4b4293498c07605c17e773b9071e048b0c/src/Lifecycle.ts#L376
-  private async abortLogin() {
-    const signOut = true; //await showStorageEvictedDialog();
-    if (signOut) {
-      await this.clearStorage();
-      // This error feels a bit clunky, but we want to make sure we don't go any
-      // further and instead head back to sign in.
-      throw new Error(
-        "Aborting login in progress because of storage inconsistency"
-      );
-    }
-  }
-
-  /**
-   * @param {object} opts Options for how to clear storage.
-   * @returns {Promise} promise which resolves once the stores have been cleared
-   *
-   * Source: https://github.com/matrix-org/matrix-react-sdk/blob/d0d56d4b4293498c07605c17e773b9071e048b0c/src/Lifecycle.ts#L843
-   */
-  private async clearStorage(opts?: {
-    deleteEverything?: boolean;
-  }): Promise<void> {
-    if (window.localStorage) {
-      // try to save any 3pid invites from being obliterated
-      // const pendingInvites = ThreepidInviteStore.instance.getWireInvites();
-
-      window.localStorage.clear();
-
-      try {
-        await StorageManager.idbDelete("account", "mx_access_token");
-      } catch (e) {}
-
-      // now restore those invites
-      if (!opts?.deleteEverything) {
-        // pendingInvites.forEach((i) => {
-        //   const roomId = i.roomId;
-        //   delete i.roomId; // delete to avoid confusing the store
-        //   ThreepidInviteStore.instance.storeInvite(roomId, i);
-        // });
-      }
-    }
-
-    if (window.sessionStorage) {
-      window.sessionStorage.clear();
-    }
-
-    // create a temporary client to clear out the persistent stores.
-    const cli = createMatrixClient({
-      // we'll never make any requests, so can pass a bogus HS URL
-      baseUrl: "",
-    });
-
-    // await EventIndexPeg.deleteEventIndex();
-    await cli.clearStores();
   }
 
   /**
@@ -230,7 +173,7 @@ class AuthStore {
     this.stopMatrixClient();
     const pickleKey =
       credentials.userId && credentials.deviceId
-        ? await this.createPickleKey(credentials.userId, credentials.deviceId)
+        ? await createPickleKey(credentials.userId, credentials.deviceId)
         : null;
 
     if (pickleKey) {
@@ -243,218 +186,6 @@ class AuthStore {
       Object.assign({}, credentials, { pickleKey }),
       true
     );
-  }
-
-  /**
-   * Get a previously stored pickle key.  The pickle key is used for
-   * encrypting libolm objects.
-   * @param {string} userId the user ID for the user that the pickle key is for.
-   * @param {string} userId the device ID that the pickle key is for.
-   * @returns {string|null} the previously stored pickle key, or null if no
-   *     pickle key has been stored.
-   */
-  async getPickleKey(
-    userId: string,
-    deviceId: string
-  ): Promise<string | undefined> {
-    if (!window.crypto || !window.crypto.subtle) {
-      return undefined;
-    }
-    let data;
-    try {
-      data = await idbLoad("pickleKey", [userId, deviceId]);
-    } catch (e) {}
-    if (!data) {
-      return undefined;
-    }
-    if (!data.encrypted || !data.iv || !data.cryptoKey) {
-      console.error("Badly formatted pickle key");
-      return undefined;
-    }
-
-    const additionalData = new Uint8Array(userId.length + deviceId.length + 1);
-    for (let i = 0; i < userId.length; i++) {
-      additionalData[i] = userId.charCodeAt(i);
-    }
-    additionalData[userId.length] = 124; // "|"
-    for (let i = 0; i < deviceId.length; i++) {
-      additionalData[userId.length + 1 + i] = deviceId.charCodeAt(i);
-    }
-
-    try {
-      const key = await crypto.subtle.decrypt(
-        { name: "AES-GCM", iv: data.iv, additionalData },
-        data.cryptoKey,
-        data.encrypted
-      );
-      return encodeUnpaddedBase64(key);
-    } catch (e) {
-      console.error("Error decrypting pickle key");
-      return undefined;
-    }
-  }
-
-  /**
-   * Create and store a pickle key for encrypting libolm objects.
-   * @param {string} userId the user ID for the user that the pickle key is for.
-   * @param {string} userId the device ID that the pickle key is for.
-   * @returns {string|null} the pickle key, or null if the platform does not
-   *     support storing pickle keys.
-   */
-  private async createPickleKey(
-    userId: string,
-    deviceId: string
-  ): Promise<string | null> {
-    if (!window.crypto || !window.crypto.subtle) {
-      return null;
-    }
-    const crypto = window.crypto;
-    const randomArray = new Uint8Array(32);
-    crypto.getRandomValues(randomArray);
-    const cryptoKey = await crypto.subtle.generateKey(
-      { name: "AES-GCM", length: 256 },
-      false,
-      ["encrypt", "decrypt"]
-    );
-    const iv = new Uint8Array(32);
-    crypto.getRandomValues(iv);
-
-    const additionalData = new Uint8Array(userId.length + deviceId.length + 1);
-    for (let i = 0; i < userId.length; i++) {
-      additionalData[i] = userId.charCodeAt(i);
-    }
-    additionalData[userId.length] = 124; // "|"
-    for (let i = 0; i < deviceId.length; i++) {
-      additionalData[userId.length + 1 + i] = deviceId.charCodeAt(i);
-    }
-
-    const encrypted = await crypto.subtle.encrypt(
-      { name: "AES-GCM", iv, additionalData },
-      cryptoKey,
-      randomArray
-    );
-
-    try {
-      await idbSave("pickleKey", [userId, deviceId], {
-        encrypted,
-        iv,
-        cryptoKey,
-      });
-    } catch (e) {
-      return null;
-    }
-    return encodeUnpaddedBase64(randomArray);
-  }
-
-  // The pickle key is a string of unspecified length and format.  For AES, we
-  // need a 256-bit Uint8Array.  So we HKDF the pickle key to generate the AES
-  // key.  The AES key should be zeroed after it is used.
-  private async pickleKeyToAesKey(pickleKey: string): Promise<Uint8Array> {
-    const pickleKeyBuffer = new Uint8Array(pickleKey.length);
-    for (let i = 0; i < pickleKey.length; i++) {
-      pickleKeyBuffer[i] = pickleKey.charCodeAt(i);
-    }
-    const hkdfKey = await window.crypto.subtle.importKey(
-      "raw",
-      pickleKeyBuffer,
-      "HKDF",
-      false,
-      ["deriveBits"]
-    );
-    pickleKeyBuffer.fill(0);
-    return new Uint8Array(
-      await window.crypto.subtle.deriveBits(
-        {
-          name: "HKDF",
-          hash: "SHA-256",
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore: https://github.com/microsoft/TypeScript-DOM-lib-generator/pull/879
-          salt: new Uint8Array(32),
-          info: new Uint8Array(0),
-        },
-        hkdfKey,
-        256
-      )
-    );
-  }
-
-  private async persistCredentials(
-    credentials: IMatrixClientCreds
-  ): Promise<void> {
-    localStorage.setItem(HOMESERVER_URL_KEY, credentials.homeserverUrl);
-    if (credentials.identityServerUrl) {
-      localStorage.setItem(ID_SERVER_URL_KEY, credentials.identityServerUrl);
-    }
-    localStorage.setItem("mx_user_id", credentials.userId);
-    localStorage.setItem("mx_is_guest", JSON.stringify(credentials.guest));
-
-    // store whether we expect to find an access token, to detect the case
-    // where IndexedDB is blown away
-    if (credentials.accessToken) {
-      localStorage.setItem("mx_has_access_token", "true");
-    } else {
-      localStorage.deleteItem("mx_has_access_token");
-    }
-
-    if (credentials.pickleKey) {
-      let encryptedAccessToken;
-      try {
-        // try to encrypt the access token using the pickle key
-        const encrKey = await this.pickleKeyToAesKey(credentials.pickleKey);
-        encryptedAccessToken = await encryptAES(
-          credentials.accessToken,
-          encrKey,
-          "access_token"
-        );
-        encrKey.fill(0);
-      } catch (e) {
-        console.warn("Could not encrypt access token", e);
-      }
-      try {
-        // save either the encrypted access token, or the plain access
-        // token if we were unable to encrypt (e.g. if the browser doesn't
-        // have WebCrypto).
-        await StorageManager.idbSave(
-          "account",
-          "mx_access_token",
-          encryptedAccessToken || credentials.accessToken
-        );
-      } catch (e) {
-        // if we couldn't save to indexedDB, fall back to localStorage.  We
-        // store the access token unencrypted since localStorage only saves
-        // strings.
-        localStorage.setItem("mx_access_token", credentials.accessToken);
-      }
-      localStorage.setItem("mx_has_pickle_key", String(true));
-    } else {
-      try {
-        await StorageManager.idbSave(
-          "account",
-          "mx_access_token",
-          credentials.accessToken
-        );
-      } catch (e) {
-        localStorage.setItem("mx_access_token", credentials.accessToken);
-      }
-      if (localStorage.getItem("mx_has_pickle_key")) {
-        console.error(
-          "Expected a pickle key, but none provided.  Encryption may not work."
-        );
-      }
-    }
-
-    // if we didn't get a deviceId from the login, leave mx_device_id unset,
-    // rather than setting it to "undefined".
-    //
-    // (in this case MatrixClient doesn't bother with the crypto stuff
-    // - that's fine for us).
-    if (credentials.deviceId) {
-      localStorage.setItem("mx_device_id", credentials.deviceId);
-    }
-
-    // SecurityCustomisations.persistCredentials?.(credentials);
-
-    console.log(`Session persisted for ${credentials.userId}`);
   }
 
   /**
@@ -573,6 +304,10 @@ class AuthStore {
     });
 
     cli.on("Session.logged_out", (errObj: any) => {
+      console.log("Session.logged_out");
+      runInAction(() => {
+        this.loggedIn = false;
+      });
       if (this._isLoggingOut) return;
 
       // A modal might have been open when we were logged out by the server
@@ -843,7 +578,7 @@ class AuthStore {
     //   dis.dispatch({action: 'client_started'});
     this.onClientStarted();
 
-    if (this.isSoftLogout()) {
+    if (isSoftLogout()) {
       this.softLogout();
     }
   }
@@ -969,10 +704,10 @@ class AuthStore {
       userId,
       deviceId,
       isGuest,
-    } = await this.getStoredSessionVars();
+    } = await getStoredSessionVars();
 
     if (hasAccessToken && !accessToken) {
-      this.abortLogin();
+      abortLogin();
     }
 
     if (accessToken && userId && hsUrl) {
@@ -982,11 +717,11 @@ class AuthStore {
       }
 
       let decryptedAccessToken = accessToken;
-      const pickleKey = await this.getPickleKey(userId, deviceId);
+      const pickleKey = await getPickleKey(userId, deviceId);
       if (pickleKey) {
         console.log("Got pickle key");
         if (typeof accessToken !== "string") {
-          const encrKey = await this.pickleKeyToAesKey(pickleKey);
+          const encrKey = await pickleKeyToAesKey(pickleKey);
           decryptedAccessToken = await decryptAES(
             accessToken,
             encrKey,
@@ -1020,74 +755,6 @@ class AuthStore {
       console.log("No previous session found.");
       return false;
     }
-  }
-
-  /**
-   * Retrieves information about the stored session from the browser's storage. The session
-   * may not be valid, as it is not tested for consistency here.
-   * @returns {Object} Information about the session - see implementation for variables.
-   */
-  private async getStoredSessionVars(): Promise<IStoredSession> {
-    const hsUrl = localStorage.getItem(HOMESERVER_URL_KEY);
-    const isUrl = localStorage.getItem(ID_SERVER_URL_KEY);
-    let accessToken;
-    try {
-      accessToken = await StorageManager.idbLoad("account", "mx_access_token");
-    } catch (e) {}
-    if (!accessToken) {
-      accessToken = localStorage.getItem("mx_access_token");
-      if (accessToken) {
-        try {
-          // try to migrate access token to IndexedDB if we can
-          await StorageManager.idbSave(
-            "account",
-            "mx_access_token",
-            accessToken
-          );
-          localStorage.removeItem("mx_access_token");
-        } catch (e) {}
-      }
-    }
-    // if we pre-date storing "mx_has_access_token", but we retrieved an access
-    // token, then we should say we have an access token
-    const hasAccessToken =
-      localStorage.getItem("mx_has_access_token") === "true" || !!accessToken;
-    const userId = localStorage.getItem("mx_user_id");
-    const deviceId = localStorage.getItem("mx_device_id");
-
-    let isGuest;
-    if (localStorage.getItem("mx_is_guest") !== null) {
-      isGuest = localStorage.getItem("mx_is_guest") === "true";
-    } else {
-      // legacy key name
-      isGuest = localStorage.getItem("matrix-is-guest") === "true";
-    }
-
-    return {
-      hsUrl: hsUrl!, // TODO: fix !
-      isUrl: isUrl!, // TODO: fix !
-      hasAccessToken,
-      accessToken,
-      userId: userId!, // TODO: fix !
-      deviceId: deviceId!, // TODO: fix !
-      isGuest,
-    };
-  }
-
-  /**
-   * Gets the user ID of the persisted session, if one exists. This does not validate
-   * that the user's credentials still work, just that they exist and that a user ID
-   * is associated with them. The session is not loaded.
-   * @returns {[String, bool]} The persisted session's owner and whether the stored
-   *     session is for a guest user, if an owner exists. If there is no stored session,
-   *     return undefined.
-   */
-  private async getStoredSessionOwner(): Promise<
-    [string, boolean] | undefined
-  > {
-    const { hsUrl, userId, hasAccessToken, isGuest } =
-      await this.getStoredSessionVars();
-    return hsUrl && userId && hasAccessToken ? [userId, isGuest] : undefined;
   }
 
   /**
@@ -1164,6 +831,45 @@ class AuthStore {
     this.pendingInitialSyncAndKeySync = false;
   };
 
+  /**
+   * Logs the current session out and transitions to the logged-out state
+   */
+  public logout = async () => {
+    if (!MatrixClientPeg.get()) return;
+
+    if (MatrixClientPeg.get().isGuest()) {
+      // logout doesn't work for guest sessions
+      // Also we sometimes want to re-log in a guest session if we abort the login.
+      // defer until next tick because it calls a synchronous dispatch and we are likely here from a dispatch.
+      setImmediate(() => this.onLoggedOut());
+      return;
+    }
+
+    this._isLoggingOut = true;
+    const client = MatrixClientPeg.get();
+
+    // TODO
+    // destroyPickleKey(
+    //   client.getUserId(),
+    //   client.getDeviceId()
+    // );
+
+    try {
+      await client.logout();
+    } catch (e) {
+      // Just throwing an error here is going to be very unhelpful
+      // if you're trying to log out because your server's down and
+      // you want to log into a different server, so just forget the
+      // access token. It's annoying that this will leave the access
+      // token still valid, but we should fix this by having access
+      // tokens expire (and if you really think you've been compromised,
+      // change your password).
+      console.log("Failed to call logout API: token will not be invalidated");
+    } finally {
+      this.onLoggedOut();
+    }
+  };
+
   // Source: https://github.com/matrix-org/matrix-react-sdk/blob/develop/src/Lifecycle.ts#L768
   private softLogout(): void {
     if (!MatrixClientPeg.get()) {
@@ -1185,8 +891,25 @@ class AuthStore {
     // dis.dispatch({ action: "on_client_not_viable" }); // generic version of on_logged_out
     // this.onSoftLogout();
     this.stopMatrixClient(/*unsetClient=*/ false);
+    this.loggedIn = false;
 
     // DO NOT CALL LOGOUT. A soft logout preserves data, logout does not.
+  }
+
+  /*
+   * Stops a running client and all related services, and clears persistent
+   * storage. Used after a session has been logged out.
+   */
+  public async onLoggedOut(): Promise<void> {
+    console.log("onLoggedOut");
+    this._isLoggingOut = false;
+    this.loggedIn = false;
+    // Ensure that we dispatch a view change **before** stopping the client so
+    // so that React components unmount first. This avoids React soft crashes
+    // that can occur when components try to use a null client.
+    // dis.dispatch({ action: "on_logged_out" }, true);
+    this.stopMatrixClient();
+    await clearStorage({ deleteEverything: true });
   }
 
   /**
@@ -1225,3 +948,4 @@ class AuthStore {
 }
 
 export const authStore = new AuthStore();
+authStore.loadSession();

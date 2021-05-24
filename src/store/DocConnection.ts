@@ -1,8 +1,8 @@
-import slug from "speakingurl";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
 import { observeDoc } from "../moby/doc";
+import { slug } from "../util/slug";
 import { BaseResource } from "./BaseResource";
 
 const cache = new Map<
@@ -43,11 +43,7 @@ export class DocConnection {
     // let initialTitleToSet: string | undefined;
 
     if (typeof identifier !== "string") {
-      const ownerSlug = slug(identifier.owner, {
-        custom: {
-          "@": "@", // tODO: necesary?
-        },
-      });
+      const ownerSlug = slug(identifier.owner);
       const documentSlug = slug(identifier.document);
       if (!ownerSlug || !documentSlug) {
         throw new Error("invalid identifier");
