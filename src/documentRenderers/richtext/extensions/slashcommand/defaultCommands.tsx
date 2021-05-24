@@ -1,13 +1,21 @@
 import { TextSelection } from "prosemirror-state";
 import { CommandGroup, SlashCommand } from "./SlashCommand";
-import { ReactComponent as UnorderedList } from "../../icons/list-unordered.svg";
+import { RiTableLine } from "react-icons/ri";
+
 import { ReactComponent as H1 } from "../../icons/h-1.svg";
 import { ReactComponent as H2 } from "../../icons/h-2.svg";
 import { ReactComponent as H3 } from "../../icons/h-3.svg";
 import { ReactComponent as H4 } from "../../icons/h-4.svg";
 import { ReactComponent as H5 } from "../../icons/h-5.svg";
 import { ReactComponent as H6 } from "../../icons/h-6.svg";
-import styles from "./test.module.css";
+import { ReactComponent as TextIcon } from "../../icons/text.svg";
+import { ReactComponent as CodeIcon } from "../../icons/code-text.svg";
+import { ReactComponent as UnorderedList } from "../../icons/list-unordered.svg";
+import { ReactComponent as OrderedList } from "../../icons/list-ordered.svg";
+import { ReactComponent as QuoteIcon } from "../../icons/quote.svg";
+import { ReactComponent as SeparatorIcon } from "../../icons/separator.svg";
+
+import styles from "../../prosemirrorPlugins/suggestions/SuggestionGroup.module.css";
 
 const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 1 heading
@@ -30,15 +38,12 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["h", "heading1", "h1"],
     (
-      <H1
-        width="40"
-        height="40"
-        viewBox="-5 -5 50 50"
-        enableBackground="white"
-        className={styles.icon}
-      />
+      <div className={styles.icon}>
+        <H1 />
+      </div>
     ),
-    "Big section heading"
+    "Used for a top-level heading",
+    "Ctrl+Alt+1"
   ),
 
   // Command for creating a level 2 heading
@@ -61,10 +66,12 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["h2", "heading2", "subheading"],
     (
-      <div className={styles.icon2}>
-        <H2 width="20" height="20" />
+      <div className={styles.icon}>
+        <H2 />
       </div>
-    )
+    ),
+    "Used for key sections",
+    "Ctrl+Alt+2"
   ),
 
   // Command for creating a level 3 heading
@@ -87,10 +94,12 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["h3", "heading3", "subsubheading"],
     (
-      <div className={styles.icon3}>
-        <H3 width="20" height="20" />
+      <div className={styles.icon}>
+        <H3 />
       </div>
-    )
+    ),
+    "Used for subsections and group headings",
+    "Ctrl+Alt+3"
   ),
 
   // Command for creating a level 4 heading
@@ -113,10 +122,12 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["h4", "heading4"],
     (
-      <div className={styles.icon4}>
-        <H4 width="20" height="20" />
+      <div className={styles.icon}>
+        <H4 />
       </div>
-    )
+    ),
+    "Used for deep headings",
+    "Ctrl+Alt+4"
   ),
 
   // Command for creating a level 5 heading
@@ -138,7 +149,13 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h5", "heading5"],
-    <H5 />
+    (
+      <div className={styles.icon}>
+        <H5 />
+      </div>
+    ),
+    "Used for grouping list items",
+    "Ctrl+Alt+5"
   ),
 
   // Command for creating a level 6 heading
@@ -160,7 +177,13 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h6", "heading6"],
-    <H6 />
+    (
+      <div className={styles.icon}>
+        <H6 />
+      </div>
+    ),
+    "Used for low-level headings",
+    "Ctrl+Alt+6"
   ),
 
   // Command for creating a paragraph (pretty useless)
@@ -179,7 +202,13 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["p"]
+    ["p"],
+    (
+      <div className={styles.icon}>
+        <TextIcon />
+      </div>
+    ),
+    "Used for the body of your document"
   ),
 
   // Command for creating a code block
@@ -198,7 +227,13 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["code", "codeblock"]
+    ["code", "codeblock"],
+    (
+      <div className={styles.icon}>
+        <CodeIcon />
+      </div>
+    ),
+    "Used to display formatted code that can't be run"
   ),
 
   // Command for creating a bullet list
@@ -219,7 +254,13 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["ul", "list", "bulletlist"]
+    ["ul", "list", "bulletlist"],
+    (
+      <div className={styles.icon}>
+        <UnorderedList />
+      </div>
+    ),
+    "Used to display an unordered list item"
   ),
 
   // Command for creating an ordered list
@@ -240,7 +281,13 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["ol", "orderedlist"]
+    ["ol", "orderedlist"],
+    (
+      <div className={styles.icon}>
+        <OrderedList />
+      </div>
+    ),
+    "Used to display an ordered (enumerated) list item"
   ),
 
   // Command for creating a blockquote
@@ -260,7 +307,14 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["quote", "blockquote"]
+    ["quote", "blockquote"],
+    (
+      <div className={styles.icon}>
+        <QuoteIcon />
+      </div>
+    ),
+    "Used to make a quote stand out",
+    "Ctrl+Shift+B"
   ),
 
   // Command for creating a horizontal rule
@@ -309,7 +363,13 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         .run();
       return true;
     },
-    ["hr", "horizontalrule"]
+    ["hr", "horizontalrule"],
+    (
+      <div className={styles.icon}>
+        <SeparatorIcon />
+      </div>
+    ),
+    "Used to separate sections with a horizontal line"
   ),
 
   // Command for creating a table
@@ -326,7 +386,12 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         .run();
       return true;
     },
-    ["table", "database"]
+    ["table", "database"],
+    (
+      <div className={styles.icon}>
+        <RiTableLine />
+      </div>
+    )
   ),
 };
 

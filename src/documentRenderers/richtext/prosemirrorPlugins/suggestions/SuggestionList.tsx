@@ -127,7 +127,7 @@ export class SuggestionList<T extends SuggestionItem> extends React.Component<
 
     return (
       <div className={styles.menuList}>
-        <PopupMenuGroup>
+        <PopupMenuGroup maxWidth="250px">
           {renderedGroups.length > 0 ? (
             renderedGroups
           ) : (

@@ -2,6 +2,7 @@ import { MenuGroup, Section, ButtonItem } from "@atlaskit/menu";
 
 import SuggestionItem from "./SuggestionItem";
 import styles from "./SuggestionGroup.module.css";
+import { SlashCommand } from "../../extensions/slashcommand/SlashCommand";
 
 type SuggestionGroupProps<T> = {
   /**
@@ -27,11 +28,22 @@ type SuggestionGroupProps<T> = {
 };
 
 function SuggestionContent<T extends SuggestionItem>(props: { item: T }) {
-  return (
-    <div className={styles.suggestionContent}>
-      <div className={styles.buttonName}>{props.item.name}</div>
-      <div className={styles.buttonHint}>{props.item.hint}</div>
+  return props.item instanceof SlashCommand ? (
+    <div className={styles.suggestionWrapper}>
+      <div>
+        <div className={styles.buttonName}>{props.item.name}</div>
+        <div className={styles.buttonHint}>{props.item.hint}</div>
+      </div>
+      {props.item.shortcut ? (
+        <div>
+          <div className={styles.buttonShortcut}>{props.item.shortcut}</div>
+        </div>
+      ) : (
+        <></>
+      )}
     </div>
+  ) : (
+    <div className={styles.buttonName}>{props.item.name}</div>
   );
 }
 
@@ -40,19 +52,22 @@ export function SuggestionGroup<T extends SuggestionItem>(
 ) {
   return (
     <Section title={props.name}>
-      {props.items.map((item, index) => (
-        <div className={styles.buttonItem}>
-          <ButtonItem
-            isSelected={
-              props.selectedIndex !== undefined && props.selectedIndex === index
-            } // This is needed to navigate with the keyboard
-            iconBefore={item.icon}
-            key={index}
-            onClick={() => props.clickItem(item)}>
-            <SuggestionContent item={item} />
-          </ButtonItem>
-        </div>
-      ))}
+      {props.items.map((item, index) => {
+        return (
+          <div className={styles.buttonItem}>
+            <ButtonItem
+              isSelected={
+                props.selectedIndex !== undefined &&
+                props.selectedIndex === index
+              } // This is needed to navigate with the keyboard
+              iconBefore={item.icon}
+              key={index}
+              onClick={() => props.clickItem(item)}>
+              <SuggestionContent item={item} />
+            </ButtonItem>
+          </div>
+        );
+      })}
     </Section>
   );
 }

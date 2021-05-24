@@ -39,7 +39,8 @@ export class SlashCommand implements SuggestionItem {
     public execute: SlashCommandCallback,
     aliases: string[],
     public icon?: JSX.Element,
-    public hint?: string
+    public hint?: string,
+    public shortcut?: string
   ) {
     this.aliases = aliases ?? [];
     this.groupName = group;
