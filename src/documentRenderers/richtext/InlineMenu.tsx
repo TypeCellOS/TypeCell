@@ -1,11 +1,18 @@
 import { BubbleMenu, Editor } from "@tiptap/react";
 import { NodeSelection } from "prosemirror-state";
-import React from "react";
+import React, { FunctionComponent, useEffect } from "react";
 import styles from "./InlineMenu.module.css";
 import Tippy from "@tippyjs/react";
 import { Underline } from "./extensions/marks/Underline";
 import Button from "@atlaskit/button";
 
+import { ReactComponent as BoldIcon } from "./icons/bold.svg";
+import { ReactComponent as ItalicIcon } from "./icons/italic.svg";
+import { ReactComponent as StrikeIcon } from "./icons/strikethrough.svg";
+// import { ReactComponent as CodeIcon } from "./icons/code-text.svg";
+import { RiCodeLine as CodeIcon } from "react-icons/ri";
+import { ReactComponent as UnderlineIcon } from "./icons/underline.svg";
+import { ReactComponent as LinkIcon } from "./icons/link.svg";
 import tableStyles from "./extensions/blocktypes/Table.module.css";
 
 type InlineMenuProps = { editor: Editor };
@@ -22,7 +29,7 @@ type StyleDetails = {
   name: string;
   mainTooltip: string;
   secondaryTooltip: string;
-  // When we implement icons they should also go here
+  icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
 };
 
 const bold: StyleDetails = {
@@ -30,30 +37,35 @@ const bold: StyleDetails = {
   mainTooltip: "Bold",
   // This will change to a variable if custom shortcuts are implemented
   secondaryTooltip: "Ctrl+B",
+  icon: BoldIcon,
 };
 
 const italic: StyleDetails = {
   name: "italic",
   mainTooltip: "Italic",
   secondaryTooltip: "Ctrl+I",
+  icon: ItalicIcon,
 };
 
 const strike: StyleDetails = {
   name: "strike",
   mainTooltip: "Strikethrough",
   secondaryTooltip: "Ctrl+Shift+X",
+  icon: StrikeIcon,
 };
 
 const code: StyleDetails = {
   name: "code",
   mainTooltip: "Inline Code",
   secondaryTooltip: "Ctrl+E",
+  icon: CodeIcon,
 };
 
 const underline: StyleDetails = {
   name: Underline.name,
   mainTooltip: "Underline",
   secondaryTooltip: "Ctrl+U",
+  icon: UnderlineIcon,
 };
 
 /**
@@ -76,15 +88,27 @@ class InlineMenuButton extends React.Component<MenuButtonProps> {
       </div>
     );
     const name = this.props.styleDetails.name;
+    let isButtonSelected = () => this.props.editor.isActive(name);
+    const ButtonIcon = this.props.styleDetails.icon;
 
     return (
       <Tippy content={tooltipContent}>
         <Button
           appearance="subtle"
           onClick={this.props.onClick}
-          isSelected={this.props.editor.isActive(name)}>
-          {name.toUpperCase()[0]}
-        </Button>
+          isSelected={isButtonSelected()}
+          iconBefore={
+            ButtonIcon ? (
+              <ButtonIcon
+                className={
+                  styles.icon +
+                  " " +
+                  (isButtonSelected() ? styles.isSelected : "")
+                }
+              />
+            ) : undefined
+          }
+        />
       </Tippy>
     );
   }
