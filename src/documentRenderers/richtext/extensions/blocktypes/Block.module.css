@@ -52,7 +52,7 @@
   z-index: 1;
 }
 
-select {
+.codeBlockLanguageSelector {
   position: absolute;
   outline: none;
   top: 0.25rem;
@@ -64,11 +64,11 @@ select {
   font-weight: bold;
 }
 
-select:hover {
+.codeBlockLanguageSelector:hover {
   cursor: pointer;
 }
 
-pre {
+.codeBlockPre {
   background: #0d0d0d;
   color: #fff;
   font-family: "JetBrainsMono", monospace;
@@ -76,7 +76,7 @@ pre {
   border-radius: 0.5rem;
 }
 
-code {
+.codeBlockCodeContent {
   color: inherit;
   padding: 0;
   background: none;
