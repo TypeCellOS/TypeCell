@@ -8,6 +8,7 @@ import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import Heading from "@tiptap/extension-heading";
 import Paragraph from "@tiptap/extension-paragraph";
 import { IndentItem } from "./IndentItem";
+import { CustomReactNodeViewRenderer } from "./CustomReactNodeViewRenderer";
 
 export function extendAsBlock(
   node: Node,
