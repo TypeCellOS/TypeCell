@@ -111,9 +111,35 @@ class TableMenu extends React.Component<TableMenuProps> {
             <button
               className={tableStyles.tableMenuOption}
               disabled={!this.props.editor.can().toggleHeaderRow()}
-              onClick={() =>
-                this.props.editor.chain().focus().toggleHeaderRow().run()
-              }>
+              onClick={() => {
+                // Due to the parculiarity of ProseMirror, see: https://github.com/ProseMirror/prosemirror-tables/blob/6b16ed3cf306886f2c169aebbe60701e1ac2deac/src/commands.js#L438
+                // We must select a TableCell to be able to toggle the entire row
+                // But currently with ParagraphBlock any cursor selection lives inside a paragraph
+                // A remedy is implemented as follows:
+
+                // current depth where the text in a paragraph block is located
+                const currentDepth = resolvedPos.depth;
+
+                // We cannot acquire where the position of the start of this block is
+                // So budge the cursor little by little until the depth changes
+                // Which means this cursor position is right before <p>
+                let shift;
+                for (shift = 0; ; shift++) {
+                  const newPos = this.props.editor.state.doc.resolve(
+                    this.props.editor.state.selection.from - shift
+                  );
+                  if (newPos.depth !== currentDepth) {
+                    break;
+                  }
+                }
+
+                // This position (<td>|<p>text...</p>) will be used for selection of a TableCell selection
+                this.props.editor.commands.setNodeSelection(
+                  this.props.editor.state.selection.from - shift
+                );
+
+                this.props.editor.chain().focus().toggleHeaderRow().run();
+              }}>
               <div className={tableStyles.optionIcon}>
                 <CgFormatHeading></CgFormatHeading>
               </div>

@@ -276,6 +276,23 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["hr", "horizontalrule"]
   ),
+
+  // Command for creating a table
+  table: new SlashCommand(
+    "Table",
+    CommandGroup.BASIC_BLOCKS,
+    (editor, range) => {
+      editor.chain().focus().deleteRange(range).run();
+      editor
+        .chain()
+        .focus()
+        .insertTable({ rows: 1, cols: 2 })
+        .scrollIntoView()
+        .run();
+      return true;
+    },
+    ["table", "database"]
+  ),
 };
 
 export default defaultCommands;
