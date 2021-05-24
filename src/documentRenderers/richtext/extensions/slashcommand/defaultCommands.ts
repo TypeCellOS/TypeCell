@@ -11,12 +11,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         level: 1,
       });
 
-      editor
-        .chain()
-        .replaceRangeCustom(range, node)
-        .focus()
-        .scrollIntoView()
-        .run();
+      editor.chain().replaceRangeCustom(range, node).scrollIntoView().run();
 
       return true;
     },
@@ -32,12 +27,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         level: 2,
       });
 
-      editor
-        .chain()
-        .replaceRangeCustom(range, node)
-        .focus()
-        .scrollIntoView()
-        .run();
+      editor.chain().replaceRangeCustom(range, node).scrollIntoView().run();
 
       return true;
     },
@@ -53,12 +43,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         level: 3,
       });
 
-      editor
-        .chain()
-        .replaceRangeCustom(range, node)
-        .focus()
-        .scrollIntoView()
-        .run();
+      editor.chain().replaceRangeCustom(range, node).scrollIntoView().run();
 
       return true;
     },
@@ -74,12 +59,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         level: 4,
       });
 
-      editor
-        .chain()
-        .replaceRangeCustom(range, node)
-        .focus()
-        .scrollIntoView()
-        .run();
+      editor.chain().replaceRangeCustom(range, node).scrollIntoView().run();
 
       return true;
     },
@@ -95,12 +75,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         level: 5,
       });
 
-      editor
-        .chain()
-        .replaceRangeCustom(range, node)
-        .focus()
-        .scrollIntoView()
-        .run();
+      editor.chain().replaceRangeCustom(range, node).scrollIntoView().run();
 
       return true;
     },
@@ -116,12 +91,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         level: 6,
       });
 
-      editor
-        .chain()
-        .replaceRangeCustom(range, node)
-        .focus()
-        .scrollIntoView()
-        .run();
+      editor.chain().replaceRangeCustom(range, node).scrollIntoView().run();
 
       return true;
     },
@@ -135,12 +105,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("paragraph");
 
-      editor
-        .chain()
-        .replaceRangeCustom(range, node)
-        .focus()
-        .scrollIntoView()
-        .run();
+      editor.chain().replaceRangeCustom(range, node).scrollIntoView().run();
 
       return true;
     },
@@ -154,12 +119,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("codeBlock");
 
-      editor
-        .chain()
-        .replaceRangeCustom(range, node)
-        .focus()
-        .scrollIntoView()
-        .run();
+      editor.chain().replaceRangeCustom(range, node).scrollIntoView().run();
 
       return true;
     },
@@ -175,12 +135,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       const listItem = editor.schema.node("listItem", {}, paragraph);
       const node = editor.schema.node("bulletList", {}, listItem);
 
-      editor
-        .chain()
-        .replaceRangeCustom(range, node)
-        .focus()
-        .scrollIntoView()
-        .run();
+      editor.chain().replaceRangeCustom(range, node).scrollIntoView().run();
 
       return true;
     },
@@ -196,12 +151,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       const listItem = editor.schema.node("listItem", {}, paragraph);
       const node = editor.schema.node("orderedList", {}, listItem);
 
-      editor
-        .chain()
-        .replaceRangeCustom(range, node)
-        .focus()
-        .scrollIntoView()
-        .run();
+      editor.chain().replaceRangeCustom(range, node).scrollIntoView().run();
 
       return true;
     },
@@ -216,12 +166,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       const paragraph = editor.schema.node("paragraph");
       const node = editor.schema.node("blockquote", {}, paragraph);
 
-      editor
-        .chain()
-        .replaceRangeCustom(range, node)
-        .focus()
-        .scrollIntoView()
-        .run();
+      editor.chain().replaceRangeCustom(range, node).scrollIntoView().run();
 
       return true;
     },
@@ -263,13 +208,13 @@ const defaultCommands: { [key: string]: SlashCommand } = {
             tr.doc.nodesBetween(cursorPos, cursorPos + 1, (node, pos) => {
               if (node.type.name !== "horizontalRule") {
                 tr.setSelection(TextSelection.create(tr.doc, pos));
+                return true;
               }
             });
           }
 
           return true;
         })
-        .focus()
         .scrollIntoView()
         .run();
       return true;
@@ -282,13 +227,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     "Table",
     CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
-      editor.chain().focus().deleteRange(range).run();
-      editor
-        .chain()
-        .focus()
-        .insertTable({ rows: 1, cols: 2 })
-        .scrollIntoView()
-        .run();
+      editor.chain().deleteRange(range).run();
+      editor.chain().insertTable({ rows: 1, cols: 2 }).scrollIntoView().run();
       return true;
     },
     ["table", "database"]

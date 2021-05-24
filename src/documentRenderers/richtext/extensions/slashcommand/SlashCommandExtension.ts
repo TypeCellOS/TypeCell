@@ -1,5 +1,5 @@
 import { Extension } from "@tiptap/core";
-import { Selection } from "prosemirror-state";
+import { TextSelection } from "prosemirror-state";
 import defaultCommands from "./defaultCommands";
 import { SlashCommand } from "./SlashCommand";
 import { SuggestionPlugin } from "../../prosemirrorPlugins/suggestions/SuggestionPlugin";
@@ -19,7 +19,7 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
     return {
       replaceRangeCustom:
         (range, node) =>
-        ({ tr, dispatch }) => {
+        ({ tr, dispatch, editor }) => {
           const { from, to } = range;
 
           if (dispatch) {
@@ -52,7 +52,7 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
               // Only comparing types, for example, is not sufficient, because the cursor might be
               // placed in a different node of the same type
               if (n.attrs["temp-id"] === node.attrs["temp-id"]) {
-                tr.setSelection(Selection.near(tr.doc.resolve(pos)));
+                tr.setSelection(TextSelection.create(tr.doc, pos));
                 placed = true;
 
                 // Stop recursing

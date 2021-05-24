@@ -4,7 +4,7 @@ import { Plugin, PluginKey, Selection } from "prosemirror-state";
 import { EditorView, Decoration, DecorationSet } from "prosemirror-view";
 import SuggestionItem from "./SuggestionItem";
 import createRenderer from "./SuggestionListReactRenderer";
-import { ReplaceStep } from "prosemirror-transform";
+import styles from "./SuggestionList.module.css";
 export interface SuggestionRenderer<T extends SuggestionItem> {
   onExit?: (props: SuggestionRendererProps<T>) => void;
   onUpdate?: (props: SuggestionRendererProps<T>) => void;
@@ -46,6 +46,16 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
   renderer?: SuggestionRenderer<T>;
   allow?: (props: { editor: Editor; range: Range }) => boolean;
 };
+
+function isElementWithinSuggestionList(element: HTMLElement | null): boolean {
+  if (!element) return false;
+
+  if (element.classList.contains(styles.suggestionList)) {
+    return true;
+  }
+
+  return isElementWithinSuggestionList(element.parentElement);
+}
 
 /**
  * Finds a command: a specified character (e.g. '/') followed by a string of letters and/or numbers.
@@ -200,14 +210,29 @@ export function SuggestionPlugin<T extends SuggestionItem>({
         const next = { ...prev };
         // We can only be suggesting if there is no selection
 
+        const focusMeta = transaction.getMeta("focus");
+        const blurMeta = transaction.getMeta("blur");
+        const pointerMeta = transaction.getMeta("focus");
+
+        let deactivate = false;
+
+        // deactivate if a mouse event occurs outside of the suggestion list
+        if (
+          (focusMeta &&
+            !isElementWithinSuggestionList(focusMeta.event.relatedTarget)) ||
+          (blurMeta &&
+            !isElementWithinSuggestionList(blurMeta.event.relatedTarget)) ||
+          (pointerMeta &&
+            !isElementWithinSuggestionList(pointerMeta.event.relatedTarget))
+        ) {
+          deactivate = true;
+        }
+
         if (
           selection.from === selection.to &&
           // deactivate popup from view (e.g.: choice has been made or esc has been pressed)
           !transaction.getMeta(PLUGIN_KEY)?.deactivate &&
-          // deactivate because a mouse event occurs (user clicks somewhere else in the document)
-          !transaction.getMeta("focus") &&
-          !transaction.getMeta("blur") &&
-          !transaction.getMeta("pointer")
+          !deactivate
         ) {
           // Reset active state if we just left the previous suggestion range (e.g.: key arrows moving before /)
           if (prev.active && selection.from <= prev.range.from) {
