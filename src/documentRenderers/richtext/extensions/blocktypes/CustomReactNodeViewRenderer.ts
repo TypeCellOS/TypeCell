@@ -7,7 +7,7 @@ export function CustomReactNodeViewRenderer(component: any, options?: any) {
     if (oldUpdate) {
       renderer.update = function () {
         let ret = oldUpdate.apply(this, arguments);
-        this.contentDOM; // trigger fix
+        let fix = this.contentDOM; // trigger fix
         return ret;
       };
     }

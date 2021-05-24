@@ -28,7 +28,9 @@ export function extendAsBlock(
     addNodeView() {
       // TODO? If we don't have a block-id, we don't really need the node-view wrapper with all corresponding <div>s
       // https://github.com/YousefED/typecell-next/issues/57
-      return ReactNodeViewRenderer(Block(this.type.spec.toDOM!, this.options));
+      return CustomReactNodeViewRenderer(
+        Block(this.type.spec.toDOM!, this.options)
+      );
     },
 
     addKeyboardShortcuts() {
