@@ -1,6 +1,6 @@
 # 🌐 TypeCell
 
-Welcome to TypeCell! Let's reimagine how we can make it easier to understand, build and share knowledge.
+Welcome to TypeCell. Let's reimagine how we can make it easier to understand, build and share knowledge.
 
 ## Getting started
 
