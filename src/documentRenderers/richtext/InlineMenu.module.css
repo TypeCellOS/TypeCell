@@ -15,10 +15,10 @@
   font-weight: 500;
   padding: 0.5rem 0.5rem;
   opacity: 0.6;
+  transition: 0.2s;
 }
 
-.BubbleMenu > button:hover,
-.BubbleMenu > button.isActive {
+.BubbleMenu > button:hover {
   opacity: 1;
 }
 

@@ -1,29 +1,33 @@
 .formContainer {
   position: relative;
-  width: 300px;
-  height: 30px;
+  width: 18.75rem;
+  height: 1.875rem;
 }
 
 .inputField {
   position: absolute;
   left: 0px;
   top: 50%;
-  bottom: 50%;
   transform: translate(0, -50%);
   width: 88%;
   height: 90%;
-  font-size: 12px;
-  border: 2px solid #fff;
+  font-size: 0.75rem;
+  border: solid #fff;
   padding: 0.3rem 0.4rem;
   border-radius: 0.1rem;
+  background-color: #fff;
   opacity: 0.8;
+  transition: 0.2s;
+}
+
+.inputField:focus {
+  opacity: 1;
 }
 
 .submitButton {
   position: absolute;
   right: 0px;
   top: 50%;
-  bottom: 50%;
   height: 90%;
   width: 10%;
   transform: translate(0, -50%);
@@ -32,12 +36,15 @@
   background: none;
   color: #fff;
   font-size: 0.85rem;
-  font-weight: 500;
   padding: 0 0.3rem 0 0.3rem;
   opacity: 0.6;
+  transition: 0.2s;
 }
 
-.submitButton:hover,
-.submitButtonn.isactive {
-  opacity:1;
+.submitButton:hover {
+  opacity: 1;
+}
+
+.submitButton:active {
+  opacity: 0.4;
 }
