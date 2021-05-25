@@ -6,7 +6,7 @@ import {
 } from "@atlaskit/dropdown-menu";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
-import { AuthStore } from "../../matrix/AuthStore";
+import { authStore, AuthStore } from "../../matrix/AuthStore";
 import { NavigationStore } from "../../store/local/navigationStore";
 
 const imgCSS = {
@@ -46,7 +46,7 @@ export const ProfilePopup = observer(
         <DropdownItem onClick={props.navigationStore.showNewPageDialog}>
           New page
         </DropdownItem>
-        <DropdownItemGroup title={`TODO`}>
+        <DropdownItemGroup title={authStore.loggedInUser!}>
           {" "}
           {/* @${props.authStore.user?.username} */}
           {/* <DropdownItem>Profile</DropdownItem> */}

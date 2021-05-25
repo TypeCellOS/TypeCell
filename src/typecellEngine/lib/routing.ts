@@ -18,8 +18,11 @@ export default function routing() {
     remainingParts.push(path);
   }
 
-  owner = owner || "@yousefed"; // TODO
-  document = document || "home"; // TODO
-
-  return { owner, document, remainingParts };
+  if (document && owner) {
+    return { page: "document" as "document", owner, document, remainingParts };
+  } else if (owner) {
+    return { page: "owner" as "owner", owner };
+  } else {
+    return { page: "root" as "root" };
+  }
 }

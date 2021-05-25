@@ -24,7 +24,7 @@ export const CustomRenderer = observer((props: Props) => {
   if (!props.document.type || props.document.type.startsWith("!")) {
     throw new Error("don't expect built-in document as renderer here");
   }
-  const [rendererDocument, setRendererDocument] = useState<BaseResource>();
+  const [rendererDocument, setRendererDocument] = useState<DocConnection>();
   const [engine, setEngine] = useState<EngineWithOutput>();
 
   const renderer = runtimeStore.customRenderers.get(props.document.type);
@@ -42,14 +42,17 @@ export const CustomRenderer = observer((props: Props) => {
 
   // TODO: also useMemo to get engine, instead of useEffect?
   useEffect(() => {
-    if (!rendererDocument?.doc) {
+    if (!rendererDocument?.tryDoc) {
       return;
     }
 
-    const newEngine = new EngineWithOutput(rendererDocument.id, false);
+    const newEngine = new EngineWithOutput(
+      rendererDocument.identifier.id,
+      false
+    );
     setEngine(newEngine);
 
-    const cells = rendererDocument.doc.cells;
+    const cells = rendererDocument.tryDoc.doc.cells;
     const models = cells.map((c) => getTypeCellCodeModel(c));
     models.forEach((m) => {
       newEngine.engine.registerModel(m.object);
@@ -60,16 +63,20 @@ export const CustomRenderer = observer((props: Props) => {
       newEngine.dispose();
     };
   }, [
-    rendererDocument?.id,
-    rendererDocument?.doc,
-    rendererDocument?.doc?.cells,
+    rendererDocument?.identifier,
+    rendererDocument?.tryDoc,
+    rendererDocument?.tryDoc?.doc.cells,
   ]); // TODO: does this create a new engine every time the doc changes?
 
   if (!renderer) {
     return <div>No renderer for this type found</div>;
   }
-  if (!rendererDocument || !engine || !rendererDocument.doc) {
+  if (!rendererDocument || !engine || rendererDocument.doc === "loading") {
     return <div>Loading</div>;
+  }
+
+  if (rendererDocument.doc === "not-found") {
+    return <div>Not found</div>;
   }
 
   if (rendererDocument.doc.type !== "!notebook") {

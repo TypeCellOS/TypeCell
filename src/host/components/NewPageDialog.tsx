@@ -1,26 +1,19 @@
-import React, { useCallback, useState } from "react";
-
-import Button from "@atlaskit/button/standard-button";
 import { ErrorMessage, Field } from "@atlaskit/form";
-import Textfield from "@atlaskit/textfield";
-
 import Modal, {
   ContainerComponentProps,
   ModalTransition,
 } from "@atlaskit/modal-dialog";
-import { observer } from "mobx-react-lite";
-import { createDocument } from "../../matrix/MatrixRoomManager";
+import Textfield from "@atlaskit/textfield";
+import React, { useCallback, useState } from "react";
+import { BaseResource } from "../../store/BaseResource";
+import { DocConnection } from "../../store/DocConnection";
+import { navigationStore } from "../../store/local/navigationStore";
 import { UnreachableCaseError } from "../../util/UnreachableCaseError";
-import InlineMessage from "@atlaskit/inline-message";
-import SectionMessage from "@atlaskit/section-message";
-
-import WarningIcon from "@atlaskit/icon/glyph/warning";
-
-import Banner from "@atlaskit/banner";
 
 export const NewPageDialog = (props: {
   isOpen: boolean;
   close: () => void;
+  ownerId: string;
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -42,24 +35,39 @@ export const NewPageDialog = (props: {
             setWarning("");
             setError("");
             setLoading(true);
-            const ret = await createDocument(obj.title);
+
+            const ret = await DocConnection.create({
+              owner: props.ownerId,
+              document: obj.title,
+            });
             setLoading(false);
 
             if (typeof ret === "string") {
               switch (ret) {
-                case "in-use":
+                case "already-exists":
                   setWarning("A page with this title already exists");
                   break;
-                case "invalid-title":
+                case "invalid-identifier":
                   setWarning("Invalid title");
-                  break;
-                case "ok":
-                  props.close();
                   break;
                 default:
                   throw new UnreachableCaseError(ret);
               }
+            } else if (ret instanceof BaseResource) {
+              navigationStore.navigateToDocument(ret);
+
+              // Bit hacky, dispose with timeout,
+              // because navigateToDocument will (indirectly) need the doc
+              // so it's nice to make sure we don't dispose it beforehand (and prevent a reload)
+              setTimeout(() => {
+                ret.dispose();
+              }, 500);
+
+              props.close();
             } else {
+              if (ret.status !== "error") {
+                throw new UnreachableCaseError(ret.status);
+              }
               console.error(ret);
               setError("Unknown error while creating new page.");
             }
@@ -70,7 +78,7 @@ export const NewPageDialog = (props: {
         </form>
       );
     },
-    [props.close]
+    [props.close, props.ownerId]
   );
 
   return (

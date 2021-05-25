@@ -3,17 +3,88 @@ import {
   AtlassianNavigation,
   PrimaryButton,
 } from "@atlaskit/atlassian-navigation";
-import Flag, { FlagGroup } from "@atlaskit/flag";
 import { observer } from "mobx-react-lite";
-import React, { useCallback } from "react";
-import { VscSignIn, VscWarning } from "react-icons/vsc";
+import React from "react";
+import { VscSignIn } from "react-icons/vsc";
+import App from "../App";
 import { authStore } from "../matrix/AuthStore";
 import { navigationStore } from "../store/local/navigationStore";
 import NewPageDialog from "./components/NewPageDialog";
 import { ProfilePopup } from "./components/ProfilePopup";
 
-// const notebookStore = new NotebookStore(userStore);
+const ProductHome = () => {
+  return (
+    <span style={{ fontFamily: "Open Sans, sans-serif" }}>
+      🌐&nbsp;&nbsp;TypeCell
+    </span>
+  );
+};
 
+const AN = AtlassianNavigation as any;
+const Navigation = observer(() => {
+  return (
+    <AN
+      renderProductHome={ProductHome}
+      primaryItems={[]}
+      renderProfile={observer(
+        () =>
+          (authStore._loggedIn && (
+            <ProfilePopup
+              navigationStore={navigationStore}
+              authStore={authStore}
+            />
+          )) ||
+          null
+      )}
+      renderSignIn={observer(
+        () =>
+          (!authStore._loggedIn && (
+            <PrimaryButton
+              onClick={navigationStore.showLoginScreen}
+              iconBefore={
+                <VscSignIn style={{ width: "16px", height: "16px" }} />
+              }>
+              {" "}
+              Sign in
+            </PrimaryButton>
+          )) ||
+          null
+      )}
+    />
+  );
+});
+
+// TODO: enable guest access
+const Host = observer(() => {
+  return (
+    <>
+      <Navigation />
+      {authStore.loggedInUser && <App />}
+      {authStore.loggedInUser && (
+        <NewPageDialog
+          ownerId={authStore.loggedInUser}
+          close={navigationStore.hideNewPageDialog}
+          isOpen={navigationStore.isNewPageDialogVisible}
+        />
+      )}
+      {/* <FlagGroup>
+        <>
+          {notebookStore.showFreezeAlert && (
+            <FreezeAlert
+              onDismiss={notebookStore.dismissFreezeAlert}
+              onLoadSafeMode={notebookStore.loadSafeMode}
+            />
+          )}
+        </>
+      </FlagGroup> */}
+    </>
+  );
+});
+
+export default Host;
+
+// const notebookStore = new NotebookStore(userStore);
+/*
 const FreezeAlert = (props: {
   onDismiss: () => void;
   onLoadSafeMode: () => void;
@@ -45,111 +116,4 @@ const FreezeAlert = (props: {
       ]}
     />
   );
-};
-
-const ProductHome = () => {
-  return (
-    <span style={{ fontFamily: "Open Sans, sans-serif" }}>
-      🌐&nbsp;&nbsp;TypeCell
-    </span>
-  );
-};
-
-const AN = AtlassianNavigation as any;
-const Navigation = observer(() => {
-  return (
-    <AN
-      renderProductHome={ProductHome}
-      primaryItems={[]}
-      renderProfile={observer(
-        () =>
-          (authStore.loggedIn && (
-            <ProfilePopup
-              navigationStore={navigationStore}
-              authStore={authStore}
-            />
-          )) ||
-          null
-      )}
-      renderSignIn={observer(
-        () =>
-          (!authStore.loggedIn && (
-            <PrimaryButton
-              onClick={navigationStore.showLoginScreen}
-              iconBefore={
-                <VscSignIn style={{ width: "16px", height: "16px" }} />
-              }>
-              {" "}
-              Sign in
-            </PrimaryButton>
-          )) ||
-          null
-      )}
-    />
-  );
-});
-
-const Frame = observer(() => {
-  //   const ref = useCallback(
-  //     (el) => {
-  //       if (el) {
-  //         // hostLogger.log("append iframe");
-  //         el.appendChild(iframe);
-  //       }
-  //     },
-  //     [notebookStore.bridge?.iframe, notebookStore.bridge?.key]
-  //   );
-
-  //   if (notebookStore.notebook === "loading") {
-  //     return <div>Loading...</div>;
-  //   }
-  //   if (notebookStore.notebook === "not-found") {
-  //     return <div>Page not found</div>;
-  //   }
-
-  //   if (!notebookStore.bridge) {
-  //     throw new Error("no bridge");
-  //   }
-
-  //   const iframe = notebookStore.bridge.iframe;
-  //   if (!iframe) {
-  //     return <div>Loading...</div>;
-  //   }
-
-  return (
-    <div>hello</div>
-    // <div
-    //   style={{ display: "contents" }}
-    //   key={notebookStore.bridge.key}
-    //   ref={ref}
-    // />
-  );
-});
-
-const Host = observer(() => {
-  return (
-    <>
-      <Navigation />
-      <Frame />
-      <div>
-        visible: {navigationStore.isNewPageDialogVisible ? "true" : "false"}
-      </div>
-      <NewPageDialog
-        close={navigationStore.hideNewPageDialog}
-        isOpen={navigationStore.isNewPageDialogVisible}
-      />
-      {/* <FlagGroup>
-        <>
-          {notebookStore.showFreezeAlert && (
-            <FreezeAlert
-              onDismiss={notebookStore.dismissFreezeAlert}
-              onLoadSafeMode={notebookStore.loadSafeMode}
-            />
-          )}
-        </>
-      </FlagGroup> */}
-    </>
-  );
-});
-
-export default Host;
+};*/

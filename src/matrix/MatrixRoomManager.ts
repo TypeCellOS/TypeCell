@@ -6,6 +6,7 @@ import * as _ from "lodash";
 import { encodeBase64, decodeBase64 } from "./unexported/olmlib";
 import { MatrixClientPeg } from "./MatrixClientPeg";
 import { slug } from "../util/slug";
+import { DocConnection } from "../store/DocConnection";
 
 export async function createMatrixDocument(parentId: string, id: string) {
   const matrixClient = MatrixClientPeg.get();
@@ -23,7 +24,7 @@ export async function createMatrixDocument(parentId: string, id: string) {
     // this.roomId = ret.room_id;
   } catch (e) {
     if (e.errcode === "M_ROOM_IN_USE") {
-      return "in-use" as "in-use";
+      return "already-exists" as "already-exists";
     }
     if (e.name === "ConnectionError") {
       return "offline";
@@ -37,40 +38,44 @@ export async function createMatrixDocument(parentId: string, id: string) {
   }
 }
 
-export async function createDocument(title: string) {
-  const matrixClient = MatrixClientPeg.get();
-  const currentUserId = matrixClient.getUserId() as string;
-  // const currentUser = matrixClient.getUser(currentUserId);
+// export async function createDocument(title: string) {
+//   const matrixClient = MatrixClientPeg.get();
+//   const currentUserId = matrixClient.getUserId() as string;
+//   // const currentUser = matrixClient.getUser(currentUserId);
 
-  const parts = currentUserId.split(":");
-  if (parts.length !== 2) {
-    throw new Error("unexpected");
-  }
-  const [user, host] = parts; // TODO: think out host for federation
+//   const parts = currentUserId.split(":");
+//   if (parts.length !== 2) {
+//     throw new Error("unexpected");
+//   }
+//   const [user, host] = parts; // TODO: think out host for federation
 
-  // TODO: get ownerSlug from userprofile
-  const ownerSlug = slug(user);
+//   // TODO: get ownerSlug from userprofile
+//   const ownerSlug = slug(user);
 
-  const titleSlug = slug(title);
+//   const titleSlug = slug(title);
 
-  if (
-    !user.startsWith("@") ||
-    !ownerSlug.length ||
-    titleSlug.includes("/") ||
-    ownerSlug.includes("/")
-  ) {
-    throw new Error("unexpected");
-  }
+//   if (
+//     !user.startsWith("@") ||
+//     !ownerSlug.length ||
+//     titleSlug.includes("/") ||
+//     ownerSlug.includes("/")
+//   ) {
+//     throw new Error("unexpected");
+//   }
 
-  if (!titleSlug.length) {
-    return "invalid-title" as "invalid-title";
-  }
+//   const titleSlug = slug(title);
+//   if (!titleSlug.length) {
+//     return "invalid-title" as "invalid-title";
+//   }
 
-  const id = ownerSlug + "/" + titleSlug;
+//   const id = ownerSlug + "/" + titleSlug;
 
-  const matrixResult = await createMatrixDocument(ownerSlug, id);
-  if (matrixResult === "offline") {
-    return "ok" as "ok";
-  }
-  return matrixResult;
-}
+//   const matrixResult = await createMatrixDocument(ownerSlug, id);
+
+//   if (matrixResult === "offline" || matrixResult === "ok") {
+//     const doc = DocConnection.load(id);
+//     return "ok" as "ok";
+//   }
+
+//   return matrixResult;
+// }

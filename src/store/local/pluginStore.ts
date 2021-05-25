@@ -4,7 +4,7 @@ import { DocConnection } from "../DocConnection";
 import PluginResource from "../PluginResource";
 
 class PluginStore {
-  private _plugins = observable.map<string, BaseResource>(undefined, {
+  private _plugins = observable.map<string, DocConnection>(undefined, {
     deep: false,
   });
 
@@ -23,9 +23,14 @@ class PluginStore {
   public get plugins() {
     const ret = new Set<PluginResource>();
     this._plugins.forEach((val) => {
-      if (val.type) {
-        if (val.type === "!plugin") {
-          ret.add(val.getSpecificType(PluginResource)!);
+      const doc = val.tryDoc;
+      if (!doc) {
+        // loading
+        return;
+      }
+      if (doc.type) {
+        if (doc.type === "!plugin") {
+          ret.add(doc.getSpecificType(PluginResource)!);
         } else {
           throw new Error("unexpected, loaded plugin document of wrong type");
         }

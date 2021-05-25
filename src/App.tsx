@@ -13,21 +13,29 @@ import routing from "./typecellEngine/lib/routing";
 import "./App.css";
 import "tippy.js/themes/material.css";
 import "tippy.js/dist/tippy.css";
+import { navigationStore } from "./store/local/navigationStore";
+import { observer } from "mobx-react-lite";
 
 setMonacoDefaults(monaco);
 setupTypecellTypeResolver();
 setupNpmTypeResolver();
 enablePluginSystem();
 
-const nav = routing();
+const nav = navigationStore;
 
-const App = () => {
+const App = observer(() => {
   return (
     <DndProvider backend={HTML5Backend}>
-      <DocumentView owner={nav.owner} document={nav.document} />
+      {nav.currentPage.page === "document" && (
+        <DocumentView id={nav.currentPage} />
+      )}
+      {nav.currentPage.page === "root" && <div>Welcome to Typecell</div>}
+      {nav.currentPage.page === "owner" && (
+        <div>Profile: {nav.currentPage.owner}</div>
+      )}
     </DndProvider>
   );
-};
+});
 
 (window as any).DocumentResource = DocumentResource; // TODO: hacky
 

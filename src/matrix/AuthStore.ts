@@ -1,5 +1,11 @@
 import { MatrixClient } from "matrix-js-sdk";
-import { action, makeObservable, observable, runInAction } from "mobx";
+import {
+  action,
+  computed,
+  makeObservable,
+  observable,
+  runInAction,
+} from "mobx";
 import { IMatrixClientCreds } from "./auth/util/matrix";
 import {
   abortLogin,
@@ -41,14 +47,35 @@ export class AuthStore {
   private firstSyncComplete: boolean = false;
   private _isLoggingOut = false;
   public pendingInitialSyncAndKeySync = true;
-  public loggedIn = false;
+  public _loggedIn = false;
+
   public needsCompleteSecurity = false;
   public needsE2ESetup = false;
 
+  // TODO: test with logout and then login
+  public get loggedInUser() {
+    if (!this._loggedIn) {
+      return undefined;
+    }
+    const currentUserId = MatrixClientPeg.get().getUserId() as string;
+
+    const parts = currentUserId.split(":");
+    if (parts.length !== 2) {
+      throw new Error("invalid user id");
+    }
+    const [user, host] = parts; // TODO: think out host for federation
+    if (!user.startsWith("@") || user.length < 2) {
+      throw new Error("invalid user id");
+    }
+
+    return user;
+  }
+
   constructor() {
     makeObservable(this, {
-      loggedIn: observable,
+      _loggedIn: observable,
       postLoginSetup: action,
+      loggedInUser: computed,
     });
   }
 
@@ -147,7 +174,7 @@ export class AuthStore {
     // dis.dispatch({ action: "on_logged_in" });
 
     await this.startMatrixClient(/*startSyncing=*/ !softLogout);
-    this.loggedIn = true; // originally this would be above startMatrixClient
+    this._loggedIn = true; // originally this would be above startMatrixClient
     return client;
   }
 
@@ -306,7 +333,7 @@ export class AuthStore {
     cli.on("Session.logged_out", (errObj: any) => {
       console.log("Session.logged_out");
       runInAction(() => {
-        this.loggedIn = false;
+        this._loggedIn = false;
       });
       if (this._isLoggingOut) return;
 
@@ -787,7 +814,7 @@ export class AuthStore {
     if (!cryptoEnabled) {
       // this.onLoggedIn();
       StorageManager.tryPersistStorage();
-      this.loggedIn = true;
+      this._loggedIn = true;
     }
 
     const promisesList = [this.firstSyncPromise!];
@@ -826,7 +853,7 @@ export class AuthStore {
     } else {
       // this.onLoggedIn();
       StorageManager.tryPersistStorage();
-      this.loggedIn = true;
+      this._loggedIn = true;
     }
     this.pendingInitialSyncAndKeySync = false;
   };
@@ -891,7 +918,7 @@ export class AuthStore {
     // dis.dispatch({ action: "on_client_not_viable" }); // generic version of on_logged_out
     // this.onSoftLogout();
     this.stopMatrixClient(/*unsetClient=*/ false);
-    this.loggedIn = false;
+    this._loggedIn = false;
 
     // DO NOT CALL LOGOUT. A soft logout preserves data, logout does not.
   }
@@ -903,7 +930,7 @@ export class AuthStore {
   public async onLoggedOut(): Promise<void> {
     console.log("onLoggedOut");
     this._isLoggingOut = false;
-    this.loggedIn = false;
+    this._loggedIn = false;
     // Ensure that we dispatch a view change **before** stopping the client so
     // so that React components unmount first. This avoids React soft crashes
     // that can occur when components try to use a null client.

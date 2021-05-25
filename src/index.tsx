@@ -29,14 +29,21 @@ const config = {
   },
 };
 
-verifyServerConfig(config).then((val: any) => {
+async function init() {
+  // TODO
+  const validatedConfig = await verifyServerConfig(config);
+  // await Olm.init({
+  //   locateFile: () => olmWasmPath,
+  // });
   ReactDOM.render(
     <React.StrictMode>
-      <MatrixApp config={val} />
+      <MatrixApp config={validatedConfig} />
     </React.StrictMode>,
     document.getElementById("root")
   );
-});
+}
+
+init();
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

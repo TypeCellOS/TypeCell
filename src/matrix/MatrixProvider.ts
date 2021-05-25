@@ -4,6 +4,8 @@ import * as encoding from "lib0/encoding";
 import * as decoding from "lib0/decoding";
 import * as _ from "lodash";
 import { encodeBase64, decodeBase64 } from "./unexported/olmlib";
+import { Emitter, Event } from "../util/vscode-common/event";
+import { Disposable } from "../util/vscode-common/lifecycle";
 
 const FLUSH_INTERVAL = 1000 * 5;
 
@@ -15,16 +17,29 @@ const FLUSH_INTERVAL = 1000 * 5;
  * (otherwise we have both local persistence logic in the matrix client, and in the Yjs doc that's stored via y-indexeddb)
  * We've also disabled "detached" pendingEventOrdering (use "chronological" instead) for the same reason
  */
-export default class MatrixProvider {
+export default class MatrixProvider extends Disposable {
   private pendingUpdates: any[] = [];
   private isSendingUpdates = false;
   private roomId: string | undefined;
+
+  private readonly _onDocumentAvailable: Emitter<void> = this._register(
+    new Emitter<void>()
+  );
+  public readonly onDocumentAvailable: Event<void> =
+    this._onDocumentAvailable.event;
+
+  private readonly _onDocumentUnavailable: Emitter<void> = this._register(
+    new Emitter<void>()
+  );
+  public readonly onDocumentUnavailable: Event<void> =
+    this._onDocumentUnavailable.event;
 
   public constructor(
     private doc: Y.Doc,
     private matrixClient: MatrixClient,
     private typecellId: string
   ) {
+    super();
     doc.on("update", async (update: any, origin: any) => {
       if (origin === this) {
         // these are updates that came in from MatrixProvider
@@ -41,6 +56,7 @@ export default class MatrixProvider {
       this.throttledFlushUpdatesToMatrix();
     });
 
+    // TODO: catch events for when room has been deleted or user has been kicked
     matrixClient.on(
       "Room.timeline",
       (event: any, room: any, toStartOfTimeline: boolean) => {
@@ -179,18 +195,26 @@ export default class MatrixProvider {
       );
       this.roomId = ret.room_id;
     } catch (e) {
+      let timeout = 5 * 1000;
       if (e.errcode === "M_NOT_FOUND") {
-        const ret = await this.matrixClient.createRoom({
-          room_alias_name: this.typecellId,
-          visibility: "private",
-          name: this.typecellId,
-          topic: "",
-        });
-        this.roomId = ret.room_id;
+        console.log("room not found", this.typecellId);
+        this._onDocumentUnavailable.fire();
+      } else if (e.name === "ConnectionError") {
+        console.log("room not found (offline)", this.typecellId);
       } else {
-        throw e;
+        console.error("error retrieving room", this.typecellId, e);
+        timeout = 30 * 1000;
+        this._onDocumentUnavailable.fire();
       }
+
+      // TODO: current implementation uses polling to get room availability, but should be possible to get a real-time solution
+      setTimeout(() => {
+        this.initialize();
+      }, timeout);
+      return;
     }
+
+    this._onDocumentAvailable.fire();
 
     let initialLocalState = Y.encodeStateAsUpdate(this.doc);
 
