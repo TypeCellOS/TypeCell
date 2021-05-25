@@ -131,7 +131,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           // (logic from https://react-dnd.github.io/react-dnd/examples/sortable/simple)
 
           // ProseMirror token positions just before and just after the target block
-          const posBeforeTargetNode = props.getPos() - 1;
+          const posBeforeTargetNode = props.getPos();
           const posAfterTargetNode = props.getPos() + props.node.nodeSize;
 
           // create a new transaction
