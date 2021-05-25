@@ -10,7 +10,7 @@ import OrderedList from "@tiptap/extension-ordered-list";
 import Placeholder from "@tiptap/extension-placeholder";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, getNodeType, useEditor } from "@tiptap/react";
 import React from "react";
 import { DocumentResource } from "../../store/DocumentResource";
 import { AutoId } from "./extensions/autoid/AutoId";
@@ -28,19 +28,64 @@ import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
 import SlashCommandExtension from "./extensions/slashcommand";
 import InlineMenu from "./InlineMenu";
+import MultiNodeSelection from "./MultiNodeSelection";
+import { findParentNode, mergeAttributes, Node } from "@tiptap/core";
 import "./RichTextRenderer.css";
+
+import { Selection, NodeSelection } from "prosemirror-state";
+import { NodeRange } from "prosemirror-model";
+import { findWrapping } from "prosemirror-transform";
+import { isList } from "./util/isList";
 
 type Props = {
   document: DocumentResource;
 };
 const RichTextRenderer: React.FC<Props> = (props) => {
+  const CustomNode = Node.create({
+    name: "customNode",
+    content: "paragraph*",
+
+    parseHTML() {
+      return [{ tag: "div" }];
+    },
+
+    renderHTML({ HTMLAttributes }) {
+      return ["div", HTMLAttributes, 0];
+    },
+  });
+
   const editor = useEditor({
     onUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
     },
     onSelectionUpdate: ({ editor }) => {
-      // console.log(editor.getJSON());
-      // console.log(editor.state.selection);
+      // const { selection } = editor.state;
+      // const { $from, $to } = selection;
+      // const range = $from.blockRange($to);
+      //
+      // if (!range) {
+      //   return false;
+      // }
+      //
+      // const parentList = findParentNode((node) => isList(node))(selection);
+      //
+      // if (
+      //   range.depth >= 1 &&
+      //   parentList &&
+      //   range.depth - parentList.depth <= 1
+      // ) {
+      //   return false;
+      // }
+      //
+      // let nodeType = getNodeType("customNode", editor.state.schema);
+      //
+      // let start = range.start;
+      // // let attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs;
+      // let tr = editor.state.tr; //.delete(start, range1.end);
+      // let wrapping = range && findWrapping(range, nodeType, {});
+      // console.log(wrapping);
+      // if (!wrapping) return false;
+      // tr.wrap(range, wrapping);
     },
     extensions: [
       CollaborationCursor.configure({
@@ -55,7 +100,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         placeholder: "Use '/' to insert a new block.",
         showOnlyCurrent: false,
       }),
-
+      CustomNode,
       AutoId,
       HardBreak,
 
@@ -109,7 +154,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
 
   return (
     <div>
-      {editor != null ? <InlineMenu editor={editor} /> : null}
+      {/*{editor != null ? <InlineMenu editor={editor} /> : null}*/}
       <EditorContent editor={editor} />
     </div>
   );

@@ -65,12 +65,6 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
     const outerRef = useRef<HTMLDivElement>(null);
     const [id] = useState(Math.random());
 
-    function deleteBlock(tr: Transaction, pos: number, node: Node) {
-      // use deleteRange
-      // https://discuss.prosemirror.net/t/defining-a-container-node-that-gets-removed-when-empty/762
-      return tr.deleteRange(pos, pos + node.nodeSize);
-    }
-
     const [{ isDragging }, dragRef, dragPreview] = useDrag<
       DnDItemType,
       any,
@@ -124,7 +118,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           const oldDocSize = tr.doc.nodeSize;
 
           // delete the old block
-          deleteBlock(tr, item.getPos(), item.node);
+          tr.deleteRange(item.getPos(), item.getPos() + item.node.nodeSize);
 
           let posToInsert =
             hoverClientY < hoverMiddleY
@@ -165,7 +159,10 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
         throw new Error("unexpected");
       }
       props.editor.view.dispatch(
-        deleteBlock(props.editor.state.tr, props.getPos(), props.node)
+        props.editor.state.tr.deleteRange(
+          props.getPos(),
+          props.getPos() + props.node.nodeSize
+        )
       );
     }
 
