@@ -15,12 +15,12 @@ limitations under the License.
 */
 
 import {
+  decodeRecoveryKey,
+  deriveKey,
   ICryptoCallbacks,
   IDeviceTrustLevel,
   ISecretStorageKeyInfo,
   MatrixClient,
-  deriveKey,
-  decodeRecoveryKey,
 } from "matrix-js-sdk";
 // import Modal from "./Modal";
 // import * as sdk from "./index";

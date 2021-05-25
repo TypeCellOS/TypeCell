@@ -1,12 +1,4 @@
-import { MatrixClient } from "matrix-js-sdk";
-import * as Y from "yjs";
-import * as encoding from "lib0/encoding";
-import * as decoding from "lib0/decoding";
-import * as _ from "lodash";
-import { encodeBase64, decodeBase64 } from "./unexported/olmlib";
 import { MatrixClientPeg } from "./MatrixClientPeg";
-import { slug } from "../util/slug";
-import { DocConnection } from "../store/DocConnection";
 
 export async function createMatrixDocument(parentId: string, id: string) {
   const matrixClient = MatrixClientPeg.get();

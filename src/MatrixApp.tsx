@@ -1,13 +1,10 @@
-import UAParser from "ua-parser-js";
-
-import * as sdk from "matrix-js-sdk";
+import { observer } from "mobx-react-lite";
 import React from "react";
+import Host from "./host/Host";
 import LoginComponent from "./matrix/auth/Login";
 import { ValidatedServerConfig } from "./matrix/auth/util/AutoDiscoveryUtils";
-import { navigationStore } from "./store/local/navigationStore";
-import Host from "./host/Host";
-import { observer } from "mobx-react-lite";
 import { authStore } from "./matrix/AuthStore";
+import { navigationStore } from "./store/local/navigationStore";
 
 export const MatrixApp = observer(
   (props: { config: ValidatedServerConfig }) => {

@@ -14,18 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React, { ReactNode } from "react";
 import classNames from "classnames";
-import { AuthPage } from "./views/AuthPage";
+import React, { ReactNode } from "react";
+import LoginHelper, { LoginFlow } from "./LoginHelper";
 import AutoDiscoveryUtils, {
   ValidatedServerConfig,
 } from "./util/AutoDiscoveryUtils";
-import PasswordLogin from "./views/PasswordLogin";
-import LoginHelper, { LoginFlow } from "./LoginHelper";
-import AuthHeader from "./views/AuthHeader";
-import AuthBody from "./views/AuthBody";
-import { messageForResourceLimitError } from "./util/messages";
 import { IMatrixClientCreds } from "./util/matrix";
+import { messageForResourceLimitError } from "./util/messages";
+import AuthBody from "./views/AuthBody";
+import AuthHeader from "./views/AuthHeader";
+import { AuthPage } from "./views/AuthPage";
+import PasswordLogin from "./views/PasswordLogin";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;

@@ -1,4 +1,4 @@
-import { Extension, Node } from "@tiptap/react";
+import { Extension } from "@tiptap/react";
 import { uniqueId } from "lodash";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { isList } from "../../util/isList";

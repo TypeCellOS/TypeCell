@@ -14,19 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React, {
-  ChangeEvent,
-  EventHandler,
-  FormEvent,
-  FormEventHandler,
-} from "react";
 import classNames from "classnames";
-import { ValidatedServerConfig } from "../util/AutoDiscoveryUtils";
-import withValidation, { IFieldState } from "../elements/Validation";
-import Field from "../elements/Field";
+import React, { FormEvent } from "react";
 import AccessibleButton, { ButtonEvent } from "../elements/AccessibleButton";
-import { Country } from "../util/phonenumber";
+import Field from "../elements/Field";
+import withValidation, { IFieldState } from "../elements/Validation";
+import { ValidatedServerConfig } from "../util/AutoDiscoveryUtils";
 import { looksValidEmail } from "../util/email";
+import { Country } from "../util/phonenumber";
 
 // For validating phone numbers without country codes
 const PHONE_NUMBER_REGEX = /^[0-9()\-\s]*$/;

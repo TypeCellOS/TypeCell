@@ -78,7 +78,7 @@ export const NewPageDialog = (props: {
         </form>
       );
     },
-    [props.close, props.ownerId]
+    [props]
   );
 
   return (

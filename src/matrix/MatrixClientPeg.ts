@@ -1,4 +1,3 @@
-import { utils } from "@jest/reporters/build";
 /*
 Copyright 2015, 2016 OpenMarket Ltd
 Copyright 2017 Vector Creations Ltd.
@@ -17,38 +16,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
-import {
-  MatrixClient,
-  MemoryStore,
-  EventTimeline,
-  EventTimelineSet,
-  // verificationMethods,
-  SHOW_QR_CODE_METHOD,
-} from "matrix-js-sdk";
-
-// import * as utils from "matrix-js-sdk/src/utils";
-// import { EventTimeline } from "matrix-js-sdk/src/models/event-timeline";
-// import { EventTimelineSet } from "matrix-js-sdk/src/models/event-timeline-set";
-// import * as sdk from "./index";
-
-// import SettingsStore from "./settings/SettingsStore";
-// import MatrixActionCreators from "./actions/MatrixActionCreators";
-// import Modal from "./Modal";
-// import { verificationMethods } from "matrix-js-sdk/src/crypto/index.js";
-
-// import MatrixClientBackedSettingsHandler from "./settings/handlers/MatrixClientBackedSettingsHandler";
-import * as StorageManager from "./StorageManager";
+import { ICreateClientOpts, MatrixClient, MemoryStore } from "matrix-js-sdk";
+// import { SHOW_QR_CODE_METHOD } from "matrix-js-sdk/src/crypto/verification/QRCode";
+// import SecurityCustomisations from "./customisations/Security";
+import createMatrixClient from "./createMatrixClient";
+import IdentityAuthClient from "./IdentityAuthClient";
 // import IdentityAuthClient from "./IdentityAuthClient";
 import {
   crossSigningCallbacks,
   tryToUnlockSecretStorageWithDehydrationKey,
 } from "./SecurityManager";
-// import { SHOW_QR_CODE_METHOD } from "matrix-js-sdk/src/crypto/verification/QRCode";
-// import SecurityCustomisations from "./customisations/Security";
-import createMatrixClient from "./createMatrixClient";
-import IdentityAuthClient from "./IdentityAuthClient";
-import { ICreateClientOpts } from "matrix-js-sdk";
+// import * as utils from "matrix-js-sdk/src/utils";
+// import { EventTimeline } from "matrix-js-sdk/src/models/event-timeline";
+// import { EventTimelineSet } from "matrix-js-sdk/src/models/event-timeline-set";
+// import * as sdk from "./index";
+// import SettingsStore from "./settings/SettingsStore";
+// import MatrixActionCreators from "./actions/MatrixActionCreators";
+// import Modal from "./Modal";
+// import { verificationMethods } from "matrix-js-sdk/src/crypto/index.js";
+// import MatrixClientBackedSettingsHandler from "./settings/handlers/MatrixClientBackedSettingsHandler";
+import * as StorageManager from "./StorageManager";
 import { deepCopy } from "./unexported/utils";
 import { verificationMethods } from "./unexported/verificationMethods";
 

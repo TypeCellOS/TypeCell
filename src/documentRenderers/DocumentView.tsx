@@ -1,10 +1,8 @@
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useState } from "react";
-import { BaseResource } from "../store/BaseResource";
 import { DocConnection } from "../store/DocConnection";
 import PluginResource from "../store/PluginResource";
-import CreateDocumentView from "./CreateDocumentView";
 import { CustomRenderer } from "./custom/CustomRenderer";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";

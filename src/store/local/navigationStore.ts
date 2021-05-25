@@ -2,7 +2,6 @@ import { action, makeObservable, observable, reaction } from "mobx";
 import { authStore } from "../../matrix/AuthStore";
 import routing from "../../typecellEngine/lib/routing";
 import { BaseResource } from "../BaseResource";
-import { DocConnection } from "../DocConnection";
 
 export class NavigationStore {
   public isLoginScreenVisible = false;

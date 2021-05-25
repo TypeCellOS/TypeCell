@@ -19,9 +19,8 @@ limitations under the License.
 import {
   createClient,
   IndexedDBCryptoStore,
-  WebStorageSessionStore,
-  IndexedDBStore,
   MemoryStore,
+  WebStorageSessionStore,
 } from "matrix-js-sdk";
 
 const localStorage = window.localStorage;

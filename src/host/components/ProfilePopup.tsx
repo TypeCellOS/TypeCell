@@ -24,9 +24,8 @@ export const ProfilePopup = observer(
       setIsOpen(!isOpen);
     };
 
-    {
-      /* TODO: props.authStore.user!.firebase.photoURL! */
-    }
+    /* TODO: props.authStore.user!.firebase.photoURL! */
+
     return (
       <DropdownMenuStateless
         // placement="bottom-start"

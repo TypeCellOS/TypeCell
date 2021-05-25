@@ -6,7 +6,6 @@ import { MatrixClientPeg } from "../matrix/MatrixClientPeg";
 import MatrixProvider from "../matrix/MatrixProvider";
 import { createMatrixDocument } from "../matrix/MatrixRoomManager";
 import { observeDoc } from "../moby/doc";
-import { slug } from "../util/slug";
 import { Disposable } from "../util/vscode-common/lifecycle";
 import { BaseResource } from "./BaseResource";
 import { Identifier, parseIdentifier, tryParseIdentifier } from "./Identifier";

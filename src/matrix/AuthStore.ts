@@ -63,7 +63,7 @@ export class AuthStore {
     if (parts.length !== 2) {
       throw new Error("invalid user id");
     }
-    const [user, host] = parts; // TODO: think out host for federation
+    const [user, _host] = parts; // TODO: think out host for federation
     if (!user.startsWith("@") || user.length < 2) {
       throw new Error("invalid user id");
     }
@@ -646,7 +646,7 @@ export class AuthStore {
       const guestHsUrl = opts.guestHsUrl;
       const guestIsUrl = opts.guestIsUrl;
       const fragmentQueryParams = opts.fragmentQueryParams || {};
-      const defaultDeviceDisplayName = opts.defaultDeviceDisplayName;
+      // const defaultDeviceDisplayName = opts.defaultDeviceDisplayName;
 
       if (enableGuest && !guestHsUrl) {
         console.warn(

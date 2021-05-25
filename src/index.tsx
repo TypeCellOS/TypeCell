@@ -1,11 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./index.css";
-import App from "./App";
-import reportWebVitals from "./reportWebVitals";
 import * as reo from "react-error-overlay";
-import MatrixApp from "./MatrixApp";
+import "./index.css";
 import { verifyServerConfig } from "./matrix/auth/util/verifyServerConfig";
+import MatrixApp from "./MatrixApp";
+import reportWebVitals from "./reportWebVitals";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays

@@ -1,11 +1,9 @@
+import * as _ from "lodash";
 import { MatrixClient } from "matrix-js-sdk";
 import * as Y from "yjs";
-import * as encoding from "lib0/encoding";
-import * as decoding from "lib0/decoding";
-import * as _ from "lodash";
-import { encodeBase64, decodeBase64 } from "./unexported/olmlib";
 import { Emitter, Event } from "../util/vscode-common/event";
 import { Disposable } from "../util/vscode-common/lifecycle";
+import { decodeBase64, encodeBase64 } from "./unexported/olmlib";
 
 const FLUSH_INTERVAL = 1000 * 5;
 

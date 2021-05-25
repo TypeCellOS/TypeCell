@@ -1,5 +1,4 @@
 import { observable } from "mobx";
-import { BaseResource } from "../BaseResource";
 import { DocConnection } from "../DocConnection";
 import PluginResource from "../PluginResource";
 
