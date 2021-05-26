@@ -21,12 +21,9 @@ import PropTypes from "prop-types";
 import classnames from "classnames";
 
 import * as sdk from "../../../index";
-import { _t } from "../../../languageHandler";
-import SettingsStore from "../../../settings/SettingsStore";
 import AccessibleButton from "../elements/AccessibleButton";
-import Spinner from "../elements/Spinner";
-import CountlyAnalytics from "../../../CountlyAnalytics";
-import { replaceableComponent } from "../../../utils/replaceableComponent";
+import CaptchaForm from "./CaptchaForm";
+import Field from "../elements/Field";
 
 /* This file contains a collection of components which are used by the
  * InteractiveAuth to prompt the user to enter the information needed
@@ -76,7 +73,6 @@ import { replaceableComponent } from "../../../utils/replaceableComponent";
 
 export const DEFAULT_PHASE = 0;
 
-@replaceableComponent("views.auth.PasswordAuthEntry")
 export class PasswordAuthEntry extends React.Component {
   static LOGIN_TYPE = "m.login.password";
 
@@ -151,13 +147,9 @@ export class PasswordAuthEntry extends React.Component {
       );
     }
 
-    const Field = sdk.getComponent("elements.Field");
-
     return (
       <div>
-        <p>
-          {_t("Confirm your identity by entering your account password below.")}
-        </p>
+        <p>Confirm your identity by entering your account password below.</p>
         <form
           onSubmit={this._onSubmit}
           className="mx_InteractiveAuthEntryComponents_passwordSection">
@@ -165,7 +157,7 @@ export class PasswordAuthEntry extends React.Component {
             className={passwordBoxClass}
             type="password"
             name="passwordField"
-            label={_t("Password")}
+            label={"Password"}
             autoFocus={true}
             value={this.state.password}
             onChange={this._onPasswordFieldChange}
@@ -178,7 +170,6 @@ export class PasswordAuthEntry extends React.Component {
   }
 }
 
-@replaceableComponent("views.auth.RecaptchaAuthEntry")
 export class RecaptchaAuthEntry extends React.Component {
   static LOGIN_TYPE = "m.login.recaptcha";
 
@@ -204,13 +195,11 @@ export class RecaptchaAuthEntry extends React.Component {
 
   render() {
     if (this.props.busy) {
-      const Loader = sdk.getComponent("elements.Spinner");
       return <Loader />;
     }
 
     let errorText = this.props.errorText;
 
-    const CaptchaForm = sdk.getComponent("views.auth.CaptchaForm");
     let sitePublicKey;
     if (!this.props.stageParams || !this.props.stageParams.public_key) {
       errorText = _t(
@@ -242,7 +231,6 @@ export class RecaptchaAuthEntry extends React.Component {
   }
 }
 
-@replaceableComponent("views.auth.TermsAuthEntry")
 export class TermsAuthEntry extends React.Component {
   static LOGIN_TYPE = "m.login.terms";
 
@@ -411,7 +399,6 @@ export class TermsAuthEntry extends React.Component {
   }
 }
 
-@replaceableComponent("views.auth.EmailIdentityAuthEntry")
 export class EmailIdentityAuthEntry extends React.Component {
   static LOGIN_TYPE = "m.login.email.identity";
 
@@ -460,7 +447,6 @@ export class EmailIdentityAuthEntry extends React.Component {
   }
 }
 
-@replaceableComponent("views.auth.MsisdnAuthEntry")
 export class MsisdnAuthEntry extends React.Component {
   static LOGIN_TYPE = "m.login.msisdn";
 
@@ -618,7 +604,6 @@ export class MsisdnAuthEntry extends React.Component {
   }
 }
 
-@replaceableComponent("views.auth.SSOAuthEntry")
 export class SSOAuthEntry extends React.Component {
   static propTypes = {
     matrixClient: PropTypes.object.isRequired,
@@ -763,7 +748,6 @@ export class SSOAuthEntry extends React.Component {
   }
 }
 
-@replaceableComponent("views.auth.FallbackAuthEntry")
 export class FallbackAuthEntry extends React.Component {
   static propTypes = {
     matrixClient: PropTypes.object.isRequired,

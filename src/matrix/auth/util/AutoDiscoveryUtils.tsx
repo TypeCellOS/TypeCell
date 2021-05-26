@@ -36,7 +36,7 @@ export type ValidatedServerConfig = {
   // when the server config is based on static URLs the hsName is not resolvable and things may wish to use hsUrl
   isNameResolvable: boolean;
 
-  warning: string;
+  warning: string | null;
 };
 
 export interface IAuthComponentState {

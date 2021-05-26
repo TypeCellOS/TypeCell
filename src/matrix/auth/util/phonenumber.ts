@@ -31,7 +31,7 @@ export type Country = {
  *     a national-format number.
  * @return True if the number could be a valid phone number, otherwise false.
  */
-export function looksValid(phoneNumber: string) {
+export function phoneNumberLooksValid(phoneNumber: string) {
   return PHONE_NUMBER_REGEXP.test(phoneNumber);
 }
 

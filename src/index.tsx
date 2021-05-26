@@ -16,27 +16,38 @@ if (process.env.NODE_ENV === "development") {
   (reo as any).stopReportingRuntimeErrors();
 }
 
-const config = {
-  default_server_config: {
-    "m.homeserver": {
-      base_url: "https://matrix-client.matrix.org",
-      server_name: "matrix.org",
-    },
-    "m.identity_server": {
-      base_url: "https://vector.im",
-    },
-  },
+// const config = {
+//   default_server_config: {
+//     "m.homeserver": {
+//       base_url: "https://matrix-client.matrix.org",
+//       server_name: "matrix.org",
+//     },
+//     "m.identity_server": {
+//       base_url: "https://vector.im",
+//     },
+//   },
+// };
+// const validatedConfig = await verifyServerConfig(config);
+
+const cachedValidatedConfig = {
+  hsName: "typecell.org",
+  hsNameIsDifferent: true,
+  hsUrl: "https://mx.typecell.org",
+  isDefault: true,
+  isNameResolvable: true,
+  isUrl: "https://vector.im",
+  warning: null,
 };
 
 async function init() {
   // TODO
-  const validatedConfig = await verifyServerConfig(config);
+
   // await Olm.init({
   //   locateFile: () => olmWasmPath,
   // });
   ReactDOM.render(
     <React.StrictMode>
-      <MatrixApp config={validatedConfig} />
+      <MatrixApp config={cachedValidatedConfig} />
     </React.StrictMode>,
     document.getElementById("root")
   );

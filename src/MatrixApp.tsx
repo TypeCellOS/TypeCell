@@ -8,6 +8,8 @@ import { navigationStore } from "./store/local/navigationStore";
 
 export const MatrixApp = observer(
   (props: { config: ValidatedServerConfig }) => {
+    // TODO: register
+    // TODO: view / edit as guest
     if (navigationStore.isLoginScreenVisible) {
       return (
         <div>
@@ -18,11 +20,30 @@ export const MatrixApp = observer(
               console.log("register");
             }}
             onServerConfigChange={() => {
+              // TODO
               console.log("config change");
             }}
           />
           {/* <button onClick={sendMessage}>click</button> */}
         </div>
+      );
+    } else {
+      const email = ThreepidInviteStore.instance.pickBestInvite()?.toEmail;
+      return (
+          <Registration
+              clientSecret={this.state.register_client_secret}
+              sessionId={this.state.register_session_id}
+              idSid={this.state.register_id_sid}
+              email={email}
+              brand={this.props.config.brand}
+              makeRegistrationUrl={this.makeRegistrationUrl}
+              onLoggedIn={this.onRegisterFlowComplete}
+              onLoginClick={this.onLoginClick}
+              onServerConfigChange={this.onServerConfigChange}
+              defaultDeviceDisplayName={this.props.defaultDeviceDisplayName}
+              fragmentAfterLogin={fragmentAfterLogin}
+              {...this.getServerProperties()}
+          />
       );
     } else {
       return <Host />;
