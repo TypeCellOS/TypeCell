@@ -54,17 +54,18 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       editor.state.doc.descendants(function (node, pos, parent) {
         let element = editor.view.domAtPos(pos + 1).node.parentElement!;
         if (element.className === "selected") {
-          console.log(element);
           element.className = "";
         }
       });
 
+      // Gets the start/end positions of the anchor/head nodes.
       const range = new NodeRange(
         editor.state.selection.$from,
         editor.state.selection.$to,
         0
       );
 
+      // Marks nodes between the anchor and head as selected and adds their IDs to an array.
       if (range.endIndex - range.startIndex > 1) {
         editor.state.doc.nodesBetween(
           range.start,
@@ -80,11 +81,21 @@ const RichTextRenderer: React.FC<Props> = (props) => {
           }
         );
 
-        const tr = editor.state.tr.setSelection(
-          TextSelection.create(editor.state.doc, range.start, range.end)
-        );
+        // Creates a new selection which covers the entire nodes the selection goes across.
+        const newSelection =
+          editor.state.selection.anchor < editor.state.selection.head
+            ? TextSelection.create(editor.state.doc, range.start, range.end)
+            : TextSelection.create(
+                editor.state.doc,
+                range.end - 1,
+                range.start
+              );
 
-        editor.view.dispatch(tr);
+        const tr = editor.state.tr.setSelection(newSelection);
+
+        if (!newSelection.eq(editor.state.selection)) {
+          editor.view.dispatch(tr);
+        }
       }
     },
     extensions: [
