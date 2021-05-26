@@ -1,3 +1,8 @@
+:root {
+  --N800: #172b4d;
+  --N40: #dfe1e6;
+}
+
 .collaboration-cursor__caret {
   position: relative;
   margin-left: -1px;

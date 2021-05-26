@@ -11,8 +11,6 @@ import { DocumentResource } from "./store/DocumentResource";
 import routing from "./typecellEngine/lib/routing";
 
 import "./App.css";
-import "tippy.js/themes/material.css";
-import "tippy.js/dist/tippy.css";
 
 setMonacoDefaults(monaco);
 setupTypecellTypeResolver();
