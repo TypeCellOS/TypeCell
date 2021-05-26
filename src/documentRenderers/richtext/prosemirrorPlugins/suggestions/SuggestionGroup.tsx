@@ -3,6 +3,7 @@ import { Section, ButtonItem } from "@atlaskit/menu";
 import SuggestionItem from "./SuggestionItem";
 import styles from "./SuggestionGroup.module.css";
 import { SlashCommand } from "../../extensions/slashcommand/SlashCommand";
+import React from "react";
 
 type SuggestionGroupProps<T> = {
   /**
@@ -24,6 +25,13 @@ type SuggestionGroupProps<T> = {
   /**
    * Callback for handling clicking on an item
    */
+  clickItem: (item: T) => void;
+};
+
+type SuggestionComponentProps<T> = {
+  item: T;
+  index: number;
+  selectedIndex?: number;
   clickItem: (item: T) => void;
 };
 
@@ -51,7 +59,7 @@ function getIcon<T extends SuggestionItem>(
   item: T,
   isButtonSelected: boolean
 ): JSX.Element | undefined {
-  const Icon = item.icon;
+  const Icon = item.icon; // Because it's used as a DOM element, it has to start with a capital letter
   return (
     Icon && ( // This is a null check
       <div className={styles.iconWrapper}>
@@ -65,25 +73,72 @@ function getIcon<T extends SuggestionItem>(
   );
 }
 
+function SuggestionComponent<T extends SuggestionItem>(
+  props: SuggestionComponentProps<T>
+) {
+  let isButtonSelected =
+    props.selectedIndex !== undefined && props.selectedIndex === props.index;
+
+  const buttonRef = React.useRef<HTMLInputElement>(null);
+  React.useEffect(() => {
+    if (isButtonSelected && buttonRef.current) {
+      buttonRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [isButtonSelected]);
+
+  return (
+    <div className={styles.buttonItem}>
+      <ButtonItem
+        isSelected={isButtonSelected} // This is needed to navigate with the keyboard
+        iconBefore={getIcon(props.item, isButtonSelected)}
+        key={props.index}
+        onClick={() => props.clickItem(props.item)}
+        ref={buttonRef}>
+        <SuggestionContent item={props.item} />
+      </ButtonItem>
+    </div>
+  );
+}
+
 export function SuggestionGroup<T extends SuggestionItem>(
   props: SuggestionGroupProps<T>
 ) {
   return (
     <Section title={props.name}>
       {props.items.map((item, index) => {
-        let isButtonSelected =
-          props.selectedIndex !== undefined && props.selectedIndex === index;
         return (
-          <div className={styles.buttonItem}>
-            <ButtonItem
-              isSelected={isButtonSelected} // This is needed to navigate with the keyboard
-              iconBefore={getIcon(item, isButtonSelected)}
-              key={index}
-              onClick={() => props.clickItem(item)}>
-              <SuggestionContent item={item} />
-            </ButtonItem>
-          </div>
+          <SuggestionComponent
+            item={item}
+            index={index}
+            selectedIndex={props.selectedIndex}
+            clickItem={props.clickItem}
+          />
         );
+        // let isButtonSelected =
+        //   props.selectedIndex !== undefined && props.selectedIndex === index;
+
+        // const buttonRef = React.useRef<HTMLInputElement>(null);
+        // React.useEffect(() => {
+        //   if (isButtonSelected && buttonRef.current) {
+        //     buttonRef.current.scrollIntoView();
+        //   }
+        // }, [isButtonSelected]);
+
+        // return (
+        //   <div className={styles.buttonItem}>
+        //     <ButtonItem
+        //       isSelected={isButtonSelected} // This is needed to navigate with the keyboard
+        //       iconBefore={getIcon(item, isButtonSelected)}
+        //       key={index}
+        //       onClick={() => props.clickItem(item)}
+        //       ref={buttonRef}>
+        //       <SuggestionContent item={item} />
+        //     </ButtonItem>
+        //   </div>
+        // );
       })}
     </Section>
   );
