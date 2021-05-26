@@ -11,6 +11,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { markPasteRule } from "@tiptap/core";
 import React from "react";
 import { DocumentResource } from "../../store/DocumentResource";
 import { AutoId } from "./extensions/autoid/AutoId";
@@ -34,6 +35,10 @@ import TableMenu from "./TableMenu";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
+import markdownPasteRuleHeadings from "./extensions/markdownPasteRules/Headings";
+import markdownPasteRuleHorizontal from "./extensions/markdownPasteRules/Horizontal";
+import markdownBlockQuote from "./extensions/markdownPasteRules/BlockQuote";
+import markdownCodeBlock from "./extensions/markdownPasteRules/CodeBlock";
 
 type Props = {
   document: DocumentResource;
@@ -72,15 +77,55 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Bold,
       Code,
       Italic,
-      Strike,
+      Strike.extend({
+        addPasteRules() {
+          const pasteRegex = /(?:^|\s)((?:~)((?:[^~]+))(?:~))/gm;
+          return [markPasteRule(pasteRegex, this.type)];
+        },
+      }),
       Underline,
 
       // custom blocks:
       ImageBlock,
-      BlockQuoteBlock,
-      CodeBlockBlock,
-      HeadingBlock,
-      HorizontalRuleBlock,
+      BlockQuoteBlock.extend({
+        addPasteRules() {
+          const editor = this.editor;
+          return [markdownBlockQuote(editor, new RegExp(`> `), this.type)];
+        },
+      }),
+      CodeBlockBlock.extend({
+        addPasteRules() {
+          const editor = this.editor;
+          return [
+            markdownCodeBlock(editor, new RegExp(`\\s{4}|\t`), "codeBlock"),
+          ];
+        },
+      }),
+      HeadingBlock.extend({
+        addPasteRules() {
+          const editor = this.editor;
+          console.log("heading paste rules");
+          return [
+            markdownPasteRuleHeadings(
+              editor,
+              new RegExp(`(#{1,6})\\s`),
+              this.type
+            ),
+          ];
+        },
+      }),
+      HorizontalRuleBlock.extend({
+        addPasteRules() {
+          const editor = this.editor;
+          return [
+            markdownPasteRuleHorizontal(
+              editor,
+              new RegExp(`( ?[-_*]){3,}\s*`),
+              "horizontalRule"
+            ),
+          ];
+        },
+      }),
       ParagraphBlock,
       ListItemBlock,
       TableBlock,
