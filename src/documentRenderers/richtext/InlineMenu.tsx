@@ -6,13 +6,13 @@ import Tippy from "@tippyjs/react";
 import { Underline } from "./extensions/marks/Underline";
 import Button from "@atlaskit/button";
 
-import { ReactComponent as BoldIcon } from "./icons/bold.svg";
-import { ReactComponent as ItalicIcon } from "./icons/italic.svg";
-import { ReactComponent as StrikeIcon } from "./icons/strikethrough.svg";
-// import { ReactComponent as CodeIcon } from "./icons/code-text.svg";
-import { RiCodeLine as CodeIcon } from "react-icons/ri";
-import { ReactComponent as UnderlineIcon } from "./icons/underline.svg";
-import { ReactComponent as LinkIcon } from "./icons/link.svg";
+import { RemixiconReactIconComponentType } from "remixicon-react";
+import BoldIcon from "remixicon-react/BoldIcon";
+import ItalicIcon from "remixicon-react/ItalicIcon";
+import StrikethroughIcon from "remixicon-react/StrikethroughIcon";
+import CodeLineIcon from "remixicon-react/CodeLineIcon";
+import UnderlineIcon from "remixicon-react/UnderlineIcon";
+
 import tableStyles from "./extensions/blocktypes/Table.module.css";
 
 type InlineMenuProps = { editor: Editor };
@@ -29,7 +29,8 @@ type StyleDetails = {
   name: string;
   mainTooltip: string;
   secondaryTooltip: string;
-  icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+  icon: RemixiconReactIconComponentType;
+  // icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
 };
 
 const bold: StyleDetails = {
@@ -51,14 +52,14 @@ const strike: StyleDetails = {
   name: "strike",
   mainTooltip: "Strikethrough",
   secondaryTooltip: "Ctrl+Shift+X",
-  icon: StrikeIcon,
+  icon: StrikethroughIcon,
 };
 
 const code: StyleDetails = {
   name: "code",
   mainTooltip: "Inline Code",
   secondaryTooltip: "Ctrl+E",
-  icon: CodeIcon,
+  icon: CodeLineIcon,
 };
 
 const underline: StyleDetails = {
