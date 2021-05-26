@@ -69,3 +69,12 @@ blockquote {
   position: relative;
   top: 0.5rem; /* half of handle height */
 }
+
+.selected > div {
+  background-color: lightskyblue;
+  outline: solid lightskyblue 0.4rem;
+}
+
+.selected > div::selection {
+  background-color: lightskyblue;
+}

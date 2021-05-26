@@ -32,7 +32,7 @@ import MultiNodeSelection from "./MultiNodeSelection";
 import { findParentNode, mergeAttributes, Node } from "@tiptap/core";
 import "./RichTextRenderer.css";
 
-import { Selection, NodeSelection } from "prosemirror-state";
+import { Selection, NodeSelection, TextSelection } from "prosemirror-state";
 import { NodeRange } from "prosemirror-model";
 import { findWrapping } from "prosemirror-transform";
 import { isList } from "./util/isList";
@@ -41,51 +41,51 @@ type Props = {
   document: DocumentResource;
 };
 const RichTextRenderer: React.FC<Props> = (props) => {
-  const CustomNode = Node.create({
-    name: "customNode",
-    content: "paragraph*",
-
-    parseHTML() {
-      return [{ tag: "div" }];
-    },
-
-    renderHTML({ HTMLAttributes }) {
-      return ["div", HTMLAttributes, 0];
-    },
-  });
+  let selectedIds: Array<number> = [];
 
   const editor = useEditor({
     onUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
+      editor.state.doc.resolve(editor.state.selection.from).node();
     },
     onSelectionUpdate: ({ editor }) => {
-      // const { selection } = editor.state;
-      // const { $from, $to } = selection;
-      // const range = $from.blockRange($to);
-      //
-      // if (!range) {
-      //   return false;
-      // }
-      //
-      // const parentList = findParentNode((node) => isList(node))(selection);
-      //
-      // if (
-      //   range.depth >= 1 &&
-      //   parentList &&
-      //   range.depth - parentList.depth <= 1
-      // ) {
-      //   return false;
-      // }
-      //
-      // let nodeType = getNodeType("customNode", editor.state.schema);
-      //
-      // let start = range.start;
-      // // let attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs;
-      // let tr = editor.state.tr; //.delete(start, range1.end);
-      // let wrapping = range && findWrapping(range, nodeType, {});
-      // console.log(wrapping);
-      // if (!wrapping) return false;
-      // tr.wrap(range, wrapping);
+      // Clears previous selection.
+      selectedIds = [];
+      editor.state.doc.descendants(function (node, pos, parent) {
+        let element = editor.view.domAtPos(pos + 1).node.parentElement!;
+        if (element.className === "selected") {
+          console.log(element);
+          element.className = "";
+        }
+      });
+
+      const range = new NodeRange(
+        editor.state.selection.$from,
+        editor.state.selection.$to,
+        0
+      );
+
+      if (range.endIndex - range.startIndex > 1) {
+        editor.state.doc.nodesBetween(
+          range.start,
+          range.end,
+          function (node, pos) {
+            if (node.attrs["block-id"]) {
+              selectedIds.push(node.attrs["block-id"]);
+              editor.view.domAtPos(pos + 1).node.parentElement!.className =
+                "selected";
+
+              return false;
+            }
+          }
+        );
+
+        const tr = editor.state.tr.setSelection(
+          TextSelection.create(editor.state.doc, range.start, range.end)
+        );
+
+        editor.view.dispatch(tr);
+      }
     },
     extensions: [
       CollaborationCursor.configure({
@@ -100,7 +100,6 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         placeholder: "Use '/' to insert a new block.",
         showOnlyCurrent: false,
       }),
-      CustomNode,
       AutoId,
       HardBreak,
 
