@@ -116,7 +116,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           const hoverClientY = clientOffset!.y - hoverBoundingRect.top;
 
           // ProseMirror token positions just before and just after the target block
-          const posBeforeTargetNode = props.getPos() - 1;
+          const posBeforeTargetNode = props.getPos();
           const posAfterTargetNode = props.getPos() + props.node.nodeSize;
 
           // create a new transaction
