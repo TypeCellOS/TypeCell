@@ -27,24 +27,24 @@ export const MatrixApp = observer(
           {/* <button onClick={sendMessage}>click</button> */}
         </div>
       );
-    } else {
-      const email = ThreepidInviteStore.instance.pickBestInvite()?.toEmail;
-      return (
-          <Registration
-              clientSecret={this.state.register_client_secret}
-              sessionId={this.state.register_session_id}
-              idSid={this.state.register_id_sid}
-              email={email}
-              brand={this.props.config.brand}
-              makeRegistrationUrl={this.makeRegistrationUrl}
-              onLoggedIn={this.onRegisterFlowComplete}
-              onLoginClick={this.onLoginClick}
-              onServerConfigChange={this.onServerConfigChange}
-              defaultDeviceDisplayName={this.props.defaultDeviceDisplayName}
-              fragmentAfterLogin={fragmentAfterLogin}
-              {...this.getServerProperties()}
-          />
-      );
+      // } else {
+      //   const email = ThreepidInviteStore.instance.pickBestInvite()?.toEmail;
+      //   return (
+      //       <Registration
+      //           clientSecret={this.state.register_client_secret}
+      //           sessionId={this.state.register_session_id}
+      //           idSid={this.state.register_id_sid}
+      //           email={email}
+      //           brand={this.props.config.brand}
+      //           makeRegistrationUrl={this.makeRegistrationUrl}
+      //           onLoggedIn={this.onRegisterFlowComplete}
+      //           onLoginClick={this.onLoginClick}
+      //           onServerConfigChange={this.onServerConfigChange}
+      //           defaultDeviceDisplayName={this.props.defaultDeviceDisplayName}
+      //           fragmentAfterLogin={fragmentAfterLogin}
+      //           {...this.getServerProperties()}
+      //       />
+      //   );
     } else {
       return <Host />;
     }

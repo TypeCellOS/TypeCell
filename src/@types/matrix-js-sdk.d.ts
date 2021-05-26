@@ -1,5 +1,6 @@
 declare module "matrix-js-sdk" {
   var x: any;
+  export const InteractiveAuth: any;
   export const AutoDiscovery: any;
   export const createClient: any;
   export const IndexedDBCryptoStore: any;
