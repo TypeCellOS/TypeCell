@@ -20,6 +20,10 @@ export function extendAsBlock(
           default: null,
           rendered: false,
         },
+        "block-selected": {
+          default: false,
+          rendered: false,
+        },
         ...this.parent?.(),
       };
     },

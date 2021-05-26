@@ -36,67 +36,29 @@ import { Selection, NodeSelection, TextSelection } from "prosemirror-state";
 import { NodeRange } from "prosemirror-model";
 import { findWrapping } from "prosemirror-transform";
 import { isList } from "./util/isList";
+import { start } from "repl";
+import "./MultiSelection";
+import { MultiSelection } from "./MultiSelection";
 
 type Props = {
   document: DocumentResource;
 };
 const RichTextRenderer: React.FC<Props> = (props) => {
-  let selectedIds: Array<number> = [];
-
   const editor = useEditor({
     onUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
       editor.state.doc.resolve(editor.state.selection.from).node();
     },
     onSelectionUpdate: ({ editor }) => {
-      // Clears previous selection.
-      selectedIds = [];
-      editor.state.doc.descendants(function (node, pos, parent) {
+      // Updates styling for multi block selection.
+      editor.state.doc.descendants(function (node, pos) {
         let element = editor.view.domAtPos(pos + 1).node.parentElement!;
-        if (element.className === "selected") {
+        if (!node.attrs["block-selected"] && element.className === "selected") {
           element.className = "";
+        } else if (node.attrs["block-selected"] && element.className === "") {
+          element.className = "selected";
         }
       });
-
-      // Gets the start/end positions of the anchor/head nodes.
-      const range = new NodeRange(
-        editor.state.selection.$from,
-        editor.state.selection.$to,
-        0
-      );
-
-      // Marks nodes between the anchor and head as selected and adds their IDs to an array.
-      if (range.endIndex - range.startIndex > 1) {
-        editor.state.doc.nodesBetween(
-          range.start,
-          range.end,
-          function (node, pos) {
-            if (node.attrs["block-id"]) {
-              selectedIds.push(node.attrs["block-id"]);
-              editor.view.domAtPos(pos + 1).node.parentElement!.className =
-                "selected";
-
-              return false;
-            }
-          }
-        );
-
-        // Creates a new selection which covers the entire nodes the selection goes across.
-        const newSelection =
-          editor.state.selection.anchor < editor.state.selection.head
-            ? TextSelection.create(editor.state.doc, range.start, range.end)
-            : TextSelection.create(
-                editor.state.doc,
-                range.end - 1,
-                range.start
-              );
-
-        const tr = editor.state.tr.setSelection(newSelection);
-
-        if (!newSelection.eq(editor.state.selection)) {
-          editor.view.dispatch(tr);
-        }
-      }
     },
     extensions: [
       CollaborationCursor.configure({
@@ -113,6 +75,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       }),
       AutoId,
       HardBreak,
+      MultiSelection,
 
       // basics:
       Text,
