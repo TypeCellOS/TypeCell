@@ -15,7 +15,7 @@ declare module "@tiptap/core" {
   }
 }
 
-export default Node.create({
+export const TypeCellNode = Node.create({
   // configuration …
   name: "typecell",
   group: "block",

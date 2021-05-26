@@ -1,0 +1,9 @@
+.menuList {
+  color: var(--N800);
+  border: 1px solid var(--N40);
+  box-shadow: 0px 4px 8px rgba(9, 30, 66, 0.25),
+    0px 0px 1px rgba(9, 30, 66, 0.31);
+  border-radius: 4;
+  max-width: 320;
+  margin: 16px auto;
+}

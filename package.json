@@ -3,14 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@atlaskit/button": "^15.1.6",
+    "@atlaskit/menu": "^1.0.0",
+    "@atlaskit/tooltip": "^17.2.1",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "@tippyjs/react": "^4.2.5",
+    "@tiptap/core": "^2.0.0-beta.60",
+    "@tiptap/extension-bubble-menu": "2.0.0-beta.7",
     "@tiptap/extension-collaboration": "^2.0.0-beta.15",
     "@tiptap/extension-collaboration-cursor": "^2.0.0-beta.17",
+    "@tiptap/extension-image": "^2.0.0-beta.11",
     "@tiptap/extension-placeholder": "^2.0.0-beta.15",
-    "@tiptap/react": "^2.0.0-beta.33",
-    "@tiptap/starter-kit": "^2.0.0-beta.50",
+    "@tiptap/extension-table": "^2.0.0-beta.18",
+    "@tiptap/extension-table-cell": "^2.0.0-beta.11",
+    "@tiptap/extension-table-header": "^2.0.0-beta.13",
+    "@tiptap/extension-table-row": "^2.0.0-beta.11",
+    "@tiptap/react": "^2.0.0-beta.37",
+    "@tiptap/starter-kit": "^2.0.0-beta.57",
     "@tiptap/suggestion": "^2.0.0-beta.53",
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
@@ -35,6 +46,7 @@
     "react-inspector": "^5.1.0",
     "react-scripts": "4.0.3",
     "speakingurl": "^14.0.1",
+    "styled-components": "^5.3.0",
     "tippy.js": "^6.3.1",
     "typescript": "^4.2.4",
     "web-vitals": "^1.0.1",
@@ -83,6 +95,6 @@
     "cross-env": "^7.0.3",
     "fake-indexeddb": "^3.1.2",
     "patch-package": "^6.4.7",
-    "prettier": "^2.2.1"
+    "prettier": "^2.3.0"
   }
 }

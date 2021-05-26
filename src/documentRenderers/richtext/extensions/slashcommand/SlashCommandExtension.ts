@@ -1,62 +1,8 @@
-import { Extension, Command, Range } from "@tiptap/core";
+import { Extension } from "@tiptap/core";
 import { Selection } from "prosemirror-state";
-import { Node } from "prosemirror-model";
 import defaultCommands from "./defaultCommands";
-import { matchSlashCommand, SlashCommand } from "./SlashCommand";
-import { Editor, ReactRenderer } from "@tiptap/react";
-import tippy from "tippy.js";
-import { CommandList } from "./CommandList";
-import { SlashCommandPlugin } from "./SlashCommandPlugin";
-
-declare module "@tiptap/core" {
-  interface Commands {
-    replaceRangeCustom: {
-      /**
-       * Replaces text with a node within a range.
-       */
-      replaceRangeCustom: (range: Range, node: Node) => Command;
-    };
-  }
-}
-
-/**
- * Finds a command: a '/' followed by a string of letters and/or numbers.
- * Returns the word following the '/' or undefined if no such word could be found.
- * Only works if the command is right before the cursor (without a space in between) and the cursor is in a paragraph node.
- *
- * @param selection the selection (only works if the selection is empty; i.e. is a cursor).
- * @returns the word following a '/' or undefined if no such word could be found.
- */
-export function findCommandBeforeCursor(
-  char: string,
-  selection: Selection<any>
-): { range: Range; query: string } | undefined {
-  if (!selection.empty) return undefined;
-
-  if (selection.$anchor.parent.type.name !== "paragraph") return undefined;
-
-  const node = selection.$anchor.nodeBefore;
-
-  if (!node || !node.text) return undefined;
-
-  const parts = node.text.split(" ");
-
-  if (parts.length < 1) return undefined;
-
-  const lastPart = parts[parts.length - 1];
-  // TODO: Make starting character dynamic
-  const match = lastPart.match(/\/(\w*)$/);
-
-  if (!match) return undefined;
-
-  return {
-    query: match[1],
-    range: {
-      from: selection.$anchor.pos - match[1].length - 1,
-      to: selection.$anchor.pos,
-    },
-  };
-}
+import { SlashCommand } from "./SlashCommand";
+import { SuggestionPlugin } from "../../prosemirrorPlugins/suggestions/SuggestionPlugin";
 
 export type SlashCommandOptions = {
   commands: { [key: string]: SlashCommand };
@@ -69,36 +15,69 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
     commands: defaultCommands,
   },
 
-  onCreate() {
-    // The editor is ready.
-  },
-  onUpdate() {},
-  onSelectionUpdate() {},
-  // addKeyboardShortcuts() {},
-  onTransaction({ transaction }) {},
-  onFocus({ event }) {},
-  onBlur({ event }) {},
-  onDestroy() {},
   addCommands() {
     return {
-      replaceRangeCustom: (range, node) => ({ tr, dispatch }) => {
-        const { from, to } = range;
+      replaceRangeCustom:
+        (range, node) =>
+        ({ tr, dispatch }) => {
+          const { from, to } = range;
 
-        if (dispatch) {
-          tr.replaceRangeWith(from, to, node);
-          const pos = tr.mapping.map(from, -1);
-          tr.setSelection(Selection.near(tr.doc.resolve(pos), 1));
-        }
+          if (dispatch) {
+            // Give the node a temporary id.
+            // This temporary id is used to keep track of the node, such that we can be 100% certain
+            // that  the cursor is placed in the right node (and not a different node of the same type for example)
+            // TODO: replace this temp-id "hack" with node-id's (once we have implemented the node-id system)
+            node.attrs["temp-id"] = `id_${Math.floor(
+              Math.random() * 0xffffffff
+            )}`;
+            // Replace range with node
+            tr.replaceRangeWith(from, to, node);
 
-        return true;
-      },
+            // These positions mark the lower and upper bound of the range for searching the position of the newly placed node
+            const mappedFrom = tr.mapping.map(from, -1);
+            const mappedTo = tr.mapping.map(to, 1);
+
+            // Keeps track of whether the node has been placed yet
+            let placed = false;
+
+            // Go over all nodes in the range
+            // Refer to https://discuss.prosemirror.net/t/find-new-node-instances-and-track-them/96
+            // for a discussion on how to find the position of a newly placed node in the document
+            tr.doc.nodesBetween(mappedFrom, mappedTo, (n, pos) => {
+              // If cursor is already placed, exit the callback and stop recursing
+              if (placed) return false;
+
+              // Check if this node is the node we just created, by comparing their temp-id
+              // IMPORTANT: this temp-id is used to ensure that we place the cursor in the correct node
+              // Only comparing types, for example, is not sufficient, because the cursor might be
+              // placed in a different node of the same type
+              if (n.attrs["temp-id"] === node.attrs["temp-id"]) {
+                tr.setSelection(Selection.near(tr.doc.resolve(pos)));
+                placed = true;
+
+                // Stop recursing
+                return false;
+              }
+
+              // In case of no success; keep on recursing
+              return true;
+            });
+
+            // Clear the temp-id (NOTE: this might not work correctly, since nodes are supposed to be immutable)
+            node.attrs["temp-id"] = undefined;
+          }
+
+          return true;
+        },
     };
   },
 
   addProseMirrorPlugins() {
     return [
-      SlashCommandPlugin({
+      SuggestionPlugin<SlashCommand>({
+        pluginName: "slash-commands",
         editor: this.editor,
+        char: "/",
         items: (query) => {
           const commands = [];
 
@@ -106,61 +85,10 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
             commands.push(this.options.commands[key]);
           }
 
-          return commands.filter((cmd: SlashCommand) =>
-            cmd.name.toLowerCase().startsWith(query.toLowerCase())
-          );
+          return commands.filter((cmd: SlashCommand) => cmd.match(query));
         },
-        render: () => {
-          let component: ReactRenderer;
-          let popup: any;
-
-          return {
-            onStart: (props) => {
-              console.log("start");
-              component = new ReactRenderer(CommandList as any, {
-                editor: this.editor as Editor,
-                props: {
-                  items: props.items,
-                  selectItemCallback: props.selectItemCallback,
-                },
-              });
-
-              popup = tippy("body", {
-                getReferenceClientRect: props.clientRect,
-                appendTo: () => document.body,
-                content: component.element,
-                showOnCreate: true,
-                interactive: true,
-                trigger: "manual",
-                placement: "bottom-start",
-              });
-            },
-
-            onUpdate: (props) => {
-              console.log("update");
-
-              component.updateProps(props);
-
-              popup[0].setProps({
-                getReferenceClientRect: props.clientRect,
-              });
-            },
-
-            onKeyDown: (props) => {
-              if (!component.ref) return false;
-              return (component.ref as CommandList).onKeyDown(props);
-            },
-
-            onExit: (props) => {
-              console.log("exit");
-
-              popup[0].destroy();
-              component.destroy();
-            },
-          };
-        },
-        selectItemCallback: ({ command, editor, range }) => {
-          command.execute(this.editor, range);
+        selectItemCallback: ({ item, editor, range }) => {
+          item.execute(editor, range);
         },
       }),
     ];

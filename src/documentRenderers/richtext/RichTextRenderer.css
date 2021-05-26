@@ -1,3 +1,10 @@
+/*For the text inside the Node View Content*/
+[data-node-view-content] > div {
+  display: block;
+  margin: 0;
+  /* background: #eeeeee;  */
+}
+
 .ProseMirror p.is-empty::before {
   content: attr(data-placeholder);
   float: left;
@@ -9,13 +16,11 @@
 .ProseMirror pre {
   padding: 8px;
   border-radius: 5px;
-  background-color: #333;
-  color: #eee;
+  background-color: #333 !important;
+  color: #eee !important;
 }
 
 .ProseMirror blockquote {
-  margin-left: 1rem;
-  padding-left: 1rem;
   border-left: 2px solid #262626;
   color: #262626;
 }
@@ -24,4 +29,50 @@
   border: 1px solid #262626;
   border-radius: 5px;
   background-color: #262626;
+}
+
+blockquote {
+  margin: 0;
+}
+
+.ProseMirror ul {
+  margin: 0;
+  padding: 0;
+}
+
+.ProseMirror li {
+  margin-left: 1.1rem;
+}
+
+.ProseMirror {
+  overflow-x: hidden;
+}
+
+.indent {
+  margin-left: 1.1rem;
+}
+
+.ProseMirror img {
+  display: block;
+  max-width: 100%;
+}
+
+.ProseMirror blockquote {
+  padding: 0.5rem 1rem;
+}
+
+.ProseMirror blockquote p {
+  padding: 0.5rem 0;
+}
+
+.ProseMirror hr {
+  position: relative;
+  top: 0.5rem; /* half of handle height */
+}
+
+.ProseMirror .mention {
+  color: #a975ff;
+  background-color: rgba(#a975ff, 0.1);
+  border-radius: 0.3rem;
+  padding: 0.1rem 0.3rem;
 }
