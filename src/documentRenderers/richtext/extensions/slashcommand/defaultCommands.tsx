@@ -1,21 +1,19 @@
 import { TextSelection } from "prosemirror-state";
 import { CommandGroup, SlashCommand } from "./SlashCommand";
-import { RiTableLine } from "react-icons/ri";
 
-import { ReactComponent as H1 } from "../../icons/h-1.svg";
-import { ReactComponent as H2 } from "../../icons/h-2.svg";
-import { ReactComponent as H3 } from "../../icons/h-3.svg";
-import { ReactComponent as H4 } from "../../icons/h-4.svg";
-import { ReactComponent as H5 } from "../../icons/h-5.svg";
-import { ReactComponent as H6 } from "../../icons/h-6.svg";
-import { ReactComponent as TextIcon } from "../../icons/text.svg";
-import { ReactComponent as CodeIcon } from "../../icons/code-text.svg";
-import { ReactComponent as UnorderedList } from "../../icons/list-unordered.svg";
-import { ReactComponent as OrderedList } from "../../icons/list-ordered.svg";
-import { ReactComponent as QuoteIcon } from "../../icons/quote.svg";
-import { ReactComponent as SeparatorIcon } from "../../icons/separator.svg";
-
-import styles from "../../prosemirrorPlugins/suggestions/SuggestionGroup.module.css";
+import H1Icon from "remixicon-react/H1Icon";
+import H2Icon from "remixicon-react/H2Icon";
+import H3Icon from "remixicon-react/H3Icon";
+import H4Icon from "remixicon-react/H4Icon";
+import H5Icon from "remixicon-react/H5Icon";
+import H6Icon from "remixicon-react/H6Icon";
+import TextIcon from "remixicon-react/TextIcon";
+import CodeIcon from "remixicon-react/CodeSSlashLineIcon";
+import UnorderedListIcon from "remixicon-react/ListUnorderedIcon";
+import OrderedListIcon from "remixicon-react/ListOrderedIcon";
+import QuoteIcon from "remixicon-react/DoubleQuotesRIcon";
+import SeparatorIcon from "remixicon-react/SeparatorIcon";
+import TableIcon from "remixicon-react/TableLineIcon";
 
 const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 1 heading
@@ -37,7 +35,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h", "heading1", "h1"],
-    H1,
+    H1Icon,
     "Used for a top-level heading",
     "Ctrl+Alt+1"
   ),
@@ -61,7 +59,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h2", "heading2", "subheading"],
-    H2,
+    H2Icon,
     "Used for key sections",
     "Ctrl+Alt+2"
   ),
@@ -85,7 +83,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h3", "heading3", "subsubheading"],
-    H3,
+    H3Icon,
     "Used for subsections and group headings",
     "Ctrl+Alt+3"
   ),
@@ -109,7 +107,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h4", "heading4"],
-    H4,
+    H4Icon,
     "Used for deep headings",
     "Ctrl+Alt+4"
   ),
@@ -133,7 +131,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h5", "heading5"],
-    H5,
+    H5Icon,
     "Used for grouping list items",
     "Ctrl+Alt+5"
   ),
@@ -157,7 +155,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["h6", "heading6"],
-    H6,
+    H6Icon,
     "Used for low-level headings",
     "Ctrl+Alt+6"
   ),
@@ -223,7 +221,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["ul", "list", "bulletlist"],
-    UnorderedList,
+    UnorderedListIcon,
     "Used to display an unordered list item"
   ),
 
@@ -246,7 +244,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["ol", "orderedlist"],
-    OrderedList,
+    OrderedListIcon,
     "Used to display an ordered (enumerated) list item"
   ),
 
@@ -339,7 +337,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["table", "database"],
-    RiTableLine,
+    TableIcon,
     "Used to create a simple table"
   ),
 };

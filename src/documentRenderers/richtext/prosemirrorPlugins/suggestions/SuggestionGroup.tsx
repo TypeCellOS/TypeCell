@@ -1,4 +1,4 @@
-import { MenuGroup, Section, ButtonItem } from "@atlaskit/menu";
+import { Section, ButtonItem } from "@atlaskit/menu";
 
 import SuggestionItem from "./SuggestionItem";
 import styles from "./SuggestionGroup.module.css";

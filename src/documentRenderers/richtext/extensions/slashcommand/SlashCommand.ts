@@ -1,5 +1,6 @@
 import { Editor, Range } from "@tiptap/core";
 import React from "react";
+import { RemixiconReactIconComponentType } from "remixicon-react";
 import SuggestionItem from "../../prosemirrorPlugins/suggestions/SuggestionItem";
 
 export type SlashCommandCallback = (editor: Editor, range: Range) => boolean;
@@ -38,7 +39,7 @@ export class SlashCommand implements SuggestionItem {
     public group: CommandGroup,
     public execute: SlashCommandCallback,
     aliases: string[],
-    public icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>,
+    public icon?: RemixiconReactIconComponentType,
     public hint?: string,
     public shortcut?: string
   ) {
