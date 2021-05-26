@@ -111,7 +111,7 @@ export default class RegistrationForm extends React.PureComponent<
   private onSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
     ev.persist();
-
+    debugger;
     if (!this.props.canSubmit) return;
 
     const allFieldsValid = await this.verifyFieldsBeforeSubmit();

@@ -20,10 +20,10 @@ import React, { createRef, FormEvent } from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames";
 
-import * as sdk from "../../../index";
 import AccessibleButton from "../elements/AccessibleButton";
 import CaptchaForm from "./CaptchaForm";
 import Field from "../elements/Field";
+import Spinner from "../elements/Spinner";
 
 /* This file contains a collection of components which are used by the
  * InteractiveAuth to prompt the user to enter the information needed
@@ -210,7 +210,7 @@ export class RecaptchaAuthEntry extends React.Component<RecaptchaAuthEntryProps>
 
   render() {
     if (this.props.busy) {
-      return <Loader />;
+      return <Spinner />;
     }
 
     let errorText = this.props.errorText;
@@ -381,7 +381,7 @@ export class TermsAuthEntry extends React.Component<
 
   render() {
     if (this.props.busy) {
-      return <Loader />;
+      return <Spinner />;
     }
 
     const checkboxes = [];
@@ -626,7 +626,7 @@ export class MsisdnAuthEntry extends React.Component<
 
   render() {
     if (this.state.requestingToken) {
-      return <Loader />;
+      return <Spinner />;
     } else {
       const enableSubmit = Boolean(this.state.token);
       const submitClasses = classnames({

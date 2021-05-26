@@ -14,14 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import classNames from "classnames";
+import { debounce } from "lodash";
 import React, {
   InputHTMLAttributes,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from "react";
-import classNames from "classnames";
-
-import { debounce } from "lodash";
 import { IFieldState, IValidationResult } from "./Validation";
 
 // Invoke validation from user input (when typing, etc.) at most once every N ms.
@@ -307,12 +306,16 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     // const Tooltip = sdk.getComponent("elements.Tooltip");
     // let fieldTooltip;
     // if (tooltipContent || this.state.feedback) {
-    //     fieldTooltip = <Tooltip
-    //         tooltipClassName={classNames("mx_Field_tooltip", tooltipClassName)}
-    //         visible={(this.state.focused && this.props.forceTooltipVisible) || this.state.feedbackVisible}
-    //         label={tooltipContent || this.state.feedback}
-    //         forceOnRight
-    //     />;
+    //   fieldTooltip = (
+    //     <Tooltip
+    //       tooltipClassName={classNames("mx_Field_tooltip", tooltipClassName)}
+    //       visible={
+    //         (this.state.focused && this.props.forceTooltipVisible) ||
+    //         this.state.feedbackVisible
+    //       }
+    //       label={tooltipContent || this.state.feedback}
+    //     />
+    //   );
     // }
 
     return (

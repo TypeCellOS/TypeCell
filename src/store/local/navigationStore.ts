@@ -4,16 +4,11 @@ import routing from "../../typecellEngine/lib/routing";
 import { BaseResource } from "../BaseResource";
 
 export class NavigationStore {
-  public isLoginScreenVisible = false;
   public isNewPageDialogVisible = false;
   public currentPage: ReturnType<typeof routing> = routing();
 
   constructor() {
     makeObservable(this, {
-      isLoginScreenVisible: observable,
-      showLoginScreen: action,
-      hideLoginScreen: action,
-
       isNewPageDialogVisible: observable,
       showNewPageDialog: action,
       hideNewPageDialog: action,
@@ -23,12 +18,23 @@ export class NavigationStore {
       onPopState: action,
     });
 
-    // hide login screen when logged in
+    // hide login / register screen when logged in
     reaction(
-      () => this.isLoginScreenVisible && authStore._loggedIn,
+      () =>
+        (this.currentPage.page === "login" ||
+          this.currentPage.page === "register") &&
+        authStore._loggedIn,
       (val) => {
         if (val) {
-          this.hideLoginScreen();
+          const prevUrl = window.history.state?.prevUrl || "/";
+          window.history.replaceState(
+            {
+              url: prevUrl,
+            },
+            "",
+            prevUrl
+          );
+          this.currentPage = routing();
         }
       }
     );
@@ -49,12 +55,38 @@ export class NavigationStore {
     this.currentPage = routing();
   };
 
-  hideLoginScreen = () => {
-    this.isLoginScreenVisible = false;
-  };
+  // hideLoginScreen = () => {
+  //   this.isLoginScreenVisible = false;
+  // };
 
   showLoginScreen = () => {
-    this.isLoginScreenVisible = true;
+    this.currentPage = {
+      page: "login",
+    };
+    const url = "/login";
+    window.history.pushState(
+      {
+        url,
+        prevUrl: window.history.state?.prevUrl || window.history.state?.url,
+      },
+      "",
+      url
+    );
+  };
+
+  showRegisterScreen = () => {
+    this.currentPage = {
+      page: "register",
+    };
+    const url = "/register";
+    window.history.pushState(
+      {
+        url,
+        prevUrl: window.history.state?.prevUrl || window.history.state?.url,
+      },
+      "",
+      url
+    );
   };
 
   showNewPageDialog = () => {

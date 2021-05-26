@@ -21,6 +21,7 @@ import PropTypes from "prop-types";
 
 import * as sdk from "../../index";
 import getEntryComponentForLoginType from "./views/InteractiveAuthEntryComponents";
+import Spinner from "./elements/Spinner";
 
 export const ERROR_USER_CANCELLED = new Error("User cancelled auth session");
 
@@ -30,7 +31,7 @@ type IProps = {
 
   // response from initial request. If not supplied, will do a request on
   // mount.
-  authData: {
+  authData?: {
     flows: any[];
     params: any;
     session: string;
@@ -75,16 +76,16 @@ type IProps = {
   // If true, components will be told that the 'Continue' button
   // is managed by some other party and should not be managed by
   // the component itself.
-  continueIsManaged: boolean;
+  continueIsManaged?: boolean;
 
   // Called when the stage changes, or the stage's phase changes. First
   // argument is the stage, second is the phase. Some stages do not have
   // phases and will be counted as 0 (numeric).
-  onStagePhaseChange: (stage: any, phase: number) => void;
+  onStagePhaseChange?: (stage: any, phase: number) => void;
 
   // continueText and continueKind are passed straight through to the AuthEntryComponent.
-  continueText: string;
-  continueKind: string;
+  continueText?: string;
+  continueKind?: string;
 };
 
 type State = {
@@ -267,13 +268,13 @@ export default class InteractiveAuthComponent extends React.Component<
     const stage = this.state.authStage;
     if (!stage) {
       if (this.state.busy) {
-        return <Loader />;
+        return <Spinner />;
       } else {
         return null;
       }
     }
 
-    const StageComponent = getEntryComponentForLoginType(stage);
+    const StageComponent = getEntryComponentForLoginType(stage) as any;
     return (
       <StageComponent
         ref={this._stageComponent}

@@ -2,49 +2,73 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import Host from "./host/Host";
 import LoginComponent from "./matrix/auth/Login";
+import Registration from "./matrix/auth/Registration";
 import { ValidatedServerConfig } from "./matrix/auth/util/AutoDiscoveryUtils";
 import { authStore } from "./matrix/AuthStore";
 import { navigationStore } from "./store/local/navigationStore";
+
+function makeRegistrationUrl(params: any) {
+  let url =
+    window.location.protocol + "//" + window.location.host + "/register";
+
+  const keys = Object.keys(params);
+  for (let i = 0; i < keys.length; ++i) {
+    if (i === 0) {
+      url += "?";
+    } else {
+      url += "&";
+    }
+    const k = keys[i];
+    url += k + "=" + encodeURIComponent(params[k]);
+  }
+  return url;
+}
 
 export const MatrixApp = observer(
   (props: { config: ValidatedServerConfig }) => {
     // TODO: register
     // TODO: view / edit as guest
-    if (navigationStore.isLoginScreenVisible) {
+    if (navigationStore.currentPage.page === "login") {
       return (
         <div>
           <LoginComponent
             serverConfig={props.config}
             onLoggedIn={authStore.onUserCompletedLoginFlow}
             onRegisterClick={() => {
-              console.log("register");
+              navigationStore.showRegisterScreen();
             }}
             onServerConfigChange={() => {
               // TODO
-              console.log("config change");
+              console.log("config change (not implemented)");
             }}
           />
           {/* <button onClick={sendMessage}>click</button> */}
         </div>
       );
-      // } else {
-      //   const email = ThreepidInviteStore.instance.pickBestInvite()?.toEmail;
-      //   return (
-      //       <Registration
-      //           clientSecret={this.state.register_client_secret}
-      //           sessionId={this.state.register_session_id}
-      //           idSid={this.state.register_id_sid}
-      //           email={email}
-      //           brand={this.props.config.brand}
-      //           makeRegistrationUrl={this.makeRegistrationUrl}
-      //           onLoggedIn={this.onRegisterFlowComplete}
-      //           onLoginClick={this.onLoginClick}
-      //           onServerConfigChange={this.onServerConfigChange}
-      //           defaultDeviceDisplayName={this.props.defaultDeviceDisplayName}
-      //           fragmentAfterLogin={fragmentAfterLogin}
-      //           {...this.getServerProperties()}
-      //       />
-      //   );
+    }
+    if (navigationStore.currentPage.page === "register") {
+      // const email = ThreepidInviteStore.instance.pickBestInvite()?.toEmail;
+      return (
+        <Registration
+          // clientSecret={this.state.register_client_secret}
+          // sessionId={this.state.register_session_id}
+          // idSid={this.state.register_id_sid}
+          email={undefined}
+          brand={"TypeCell"}
+          makeRegistrationUrl={makeRegistrationUrl}
+          onLoggedIn={authStore.onUserCompletedLoginFlow}
+          onLoginClick={() => {
+            navigationStore.showLoginScreen();
+          }}
+          onServerConfigChange={() => {
+            // TODO
+            console.log("config change (not implemented)");
+          }}
+          defaultDeviceDisplayName={"TypeCell web"}
+          // fragmentAfterLogin={fragmentAfterLogin}
+          serverConfig={props.config}
+        />
+      );
     } else {
       return <Host />;
     }

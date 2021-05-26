@@ -20,6 +20,7 @@ import React, { ReactNode } from "react";
 import { getStoredSessionOwner } from "../AuthStoreUtil";
 import { MatrixClientPeg } from "../MatrixClientPeg";
 import AccessibleButton from "./elements/AccessibleButton";
+import Spinner from "./elements/Spinner";
 import InteractiveAuth from "./InteractiveAuth";
 import Login, { ISSOFlow } from "./LoginHelper";
 import AutoDiscoveryUtils, {
@@ -51,7 +52,7 @@ interface IProps {
       userId: string;
       deviceId: string;
       homeserverUrl: string;
-      identityServerUrl?: string;
+      identityServerUrl: string;
       accessToken: string;
     },
     password: string
