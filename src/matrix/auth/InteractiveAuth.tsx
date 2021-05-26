@@ -20,6 +20,7 @@ import React, { createRef } from "react";
 import PropTypes from "prop-types";
 
 import * as sdk from "../../index";
+import getEntryComponentForLoginType from "./views/InteractiveAuthEntryComponents";
 
 export const ERROR_USER_CANCELLED = new Error("User cancelled auth session");
 
@@ -36,7 +37,7 @@ type IProps = {
   };
 
   // callback
-  makeRequest: PropTypes.func.isRequired;
+  makeRequest: (params: any) => any;
 
   // callback called when the auth process has finished,
   // successfully or unsuccessfully.
@@ -50,15 +51,19 @@ type IProps = {
   //            the auth session.
   //      * clientSecret {string} The client secret used in auth
   //            sessions with the ID server.
-  onAuthFinished: PropTypes.func.isRequired;
+  onAuthFinished: (
+    status: boolean,
+    result: any,
+    extra?: { emailSid?: string; clientSecret: string }
+  ) => void;
 
   // Inputs provided by the user to the auth process
   // and used by various stages. As passed to js-sdk
   // interactive-auth
-  inputs: PropTypes.object;
+  inputs: any;
 
   // As js-sdk interactive-auth
-  requestEmailToken: PropTypes.func;
+  requestEmailToken: (...args: any) => Promise<any>;
   sessionId?: string;
   clientSecret?: string;
   emailSid?: string;
@@ -75,23 +80,41 @@ type IProps = {
   // Called when the stage changes, or the stage's phase changes. First
   // argument is the stage, second is the phase. Some stages do not have
   // phases and will be counted as 0 (numeric).
-  onStagePhaseChange: PropTypes.func;
+  onStagePhaseChange: (stage: any, phase: number) => void;
 
   // continueText and continueKind are passed straight through to the AuthEntryComponent.
   continueText: string;
   continueKind: string;
 };
 
-export default class InteractiveAuthComponent extends React.Component<IProps> {
+type State = {
+  authStage: any;
+  busy: boolean;
+  errorText?: string;
+  stageErrorText?: string;
+  submitButtonEnabled: boolean;
+  stageState: any;
+};
+
+export default class InteractiveAuthComponent extends React.Component<
+  IProps,
+  State
+> {
+  private _unmounted = false;
+  private _authLogic: any;
+  private _intervalId: ReturnType<typeof setInterval> | undefined;
+  private _stageComponent: React.RefObject<any>;
+
   constructor(props: IProps) {
     super(props);
 
     this.state = {
       authStage: null,
       busy: false,
-      errorText: null,
-      stageErrorText: null,
+      errorText: undefined,
+      stageErrorText: undefined,
       submitButtonEnabled: false,
+      stageState: null,
     };
 
     this._unmounted = false;
@@ -108,7 +131,6 @@ export default class InteractiveAuthComponent extends React.Component<IProps> {
       requestEmailToken: this._requestEmailToken,
     });
 
-    this._intervalId = null;
     if (this.props.poll) {
       this._intervalId = setInterval(() => {
         this._authLogic.poll();
@@ -123,14 +145,14 @@ export default class InteractiveAuthComponent extends React.Component<IProps> {
     // eslint-disable-line camelcase
     this._authLogic
       .attemptAuth()
-      .then((result) => {
+      .then((result: any) => {
         const extra = {
           emailSid: this._authLogic.getEmailSid(),
           clientSecret: this._authLogic.getClientSecret(),
         };
         this.props.onAuthFinished(true, result, extra);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         this.props.onAuthFinished(false, error);
         console.error("Error during user-interactive auth:", error);
         if (this._unmounted) {
@@ -147,12 +169,12 @@ export default class InteractiveAuthComponent extends React.Component<IProps> {
   componentWillUnmount() {
     this._unmounted = true;
 
-    if (this._intervalId !== null) {
+    if (this._intervalId) {
       clearInterval(this._intervalId);
     }
   }
 
-  _requestEmailToken = async (...args) => {
+  _requestEmailToken = async (...args: any) => {
     this.setState({
       busy: true,
     });
@@ -174,7 +196,7 @@ export default class InteractiveAuthComponent extends React.Component<IProps> {
     }
   };
 
-  _authStateUpdated = (stageType, stageState) => {
+  _authStateUpdated = (stageType: any, stageState: any) => {
     const oldStage = this.state.authStage;
     this.setState(
       {
@@ -197,20 +219,20 @@ export default class InteractiveAuthComponent extends React.Component<IProps> {
     );
   };
 
-  _requestCallback = (auth) => {
+  _requestCallback = (auth: any) => {
     // This wrapper just exists because the js-sdk passes a second
     // 'busy' param for backwards compat. This throws the tests off
     // so discard it here.
     return this.props.makeRequest(auth);
   };
 
-  _onBusyChanged = (busy) => {
+  _onBusyChanged = (busy: any) => {
     // if we've started doing stuff, reset the error messages
     if (busy) {
       this.setState({
         busy: true,
-        errorText: null,
-        stageErrorText: null,
+        errorText: undefined,
+        stageErrorText: undefined,
       });
     }
     // The JS SDK eagerly reports itself as "not busy" right after any
@@ -227,11 +249,11 @@ export default class InteractiveAuthComponent extends React.Component<IProps> {
     }
   }
 
-  _submitAuthDict = (authData) => {
+  _submitAuthDict = (authData: any) => {
     this._authLogic.submitAuthDict(authData);
   };
 
-  _onPhaseChange = (newPhase) => {
+  _onPhaseChange = (newPhase: any) => {
     if (this.props.onStagePhaseChange) {
       this.props.onStagePhaseChange(this.state.authStage, newPhase || 0);
     }
@@ -245,7 +267,6 @@ export default class InteractiveAuthComponent extends React.Component<IProps> {
     const stage = this.state.authStage;
     if (!stage) {
       if (this.state.busy) {
-        const Loader = sdk.getComponent("elements.Spinner");
         return <Loader />;
       } else {
         return null;
@@ -277,11 +298,11 @@ export default class InteractiveAuthComponent extends React.Component<IProps> {
     );
   }
 
-  _onAuthStageFailed = (e) => {
+  _onAuthStageFailed = (e: any) => {
     this.props.onAuthFinished(false, e);
   };
 
-  _setEmailSid = (sid) => {
+  _setEmailSid = (sid: any) => {
     this._authLogic.setEmailSid(sid);
   };
 

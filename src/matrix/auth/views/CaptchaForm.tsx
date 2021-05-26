@@ -16,7 +16,7 @@ limitations under the License.
 
 import React, { createRef } from "react";
 
-export default () => {
+export default (props: { sitePublicKey: string; onCaptchaResponse: any }) => {
   throw new Error("not implemented");
 };
 // import PropTypes from 'prop-types';

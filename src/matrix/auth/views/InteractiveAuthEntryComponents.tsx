@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React, { createRef } from "react";
+import React, { createRef, FormEvent } from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames";
 
@@ -73,7 +73,16 @@ import Field from "../elements/Field";
 
 export const DEFAULT_PHASE = 0;
 
-export class PasswordAuthEntry extends React.Component {
+type PasswordAuthEntryProps = {
+  matrixClient: any;
+  submitAuthDict: (authDict: any) => void;
+  errorText: string;
+  // is the auth logic currently waiting for something to
+  // happen?
+  busy: boolean;
+  onPhaseChange: (phase: number) => void;
+};
+export class PasswordAuthEntry extends React.Component<PasswordAuthEntryProps> {
   static LOGIN_TYPE = "m.login.password";
 
   static propTypes = {
@@ -94,7 +103,7 @@ export class PasswordAuthEntry extends React.Component {
     password: "",
   };
 
-  _onSubmit = (e) => {
+  _onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (this.props.busy) return;
 
@@ -111,7 +120,7 @@ export class PasswordAuthEntry extends React.Component {
     });
   };
 
-  _onPasswordFieldChange = (ev) => {
+  _onPasswordFieldChange = (ev: React.ChangeEvent<any>) => {
     // enable the submit button iff the password is non-empty
     this.setState({
       password: ev.target.value,
@@ -125,15 +134,14 @@ export class PasswordAuthEntry extends React.Component {
 
     let submitButtonOrSpinner;
     if (this.props.busy) {
-      const Loader = sdk.getComponent("elements.Spinner");
-      submitButtonOrSpinner = <Loader />;
+      submitButtonOrSpinner = <Spinner />;
     } else {
       submitButtonOrSpinner = (
         <input
           type="submit"
           className="mx_Dialog_primary"
           disabled={!this.state.password}
-          value={_t("Continue")}
+          value={"Continue"}
         />
       );
     }
@@ -170,7 +178,15 @@ export class PasswordAuthEntry extends React.Component {
   }
 }
 
-export class RecaptchaAuthEntry extends React.Component {
+type RecaptchaAuthEntryProps = {
+  submitAuthDict: (authDict: any) => void;
+  stageParams: any;
+  errorText: string;
+  busy: boolean;
+  onPhaseChange: (phase: number) => void;
+};
+
+export class RecaptchaAuthEntry extends React.Component<RecaptchaAuthEntryProps> {
   static LOGIN_TYPE = "m.login.recaptcha";
 
   static propTypes = {
@@ -185,8 +201,7 @@ export class RecaptchaAuthEntry extends React.Component {
     this.props.onPhaseChange(DEFAULT_PHASE);
   }
 
-  _onCaptchaResponse = (response) => {
-    CountlyAnalytics.instance.track("onboarding_grecaptcha_submit");
+  _onCaptchaResponse = (response: any) => {
     this.props.submitAuthDict({
       type: RecaptchaAuthEntry.LOGIN_TYPE,
       response: response,
@@ -202,10 +217,9 @@ export class RecaptchaAuthEntry extends React.Component {
 
     let sitePublicKey;
     if (!this.props.stageParams || !this.props.stageParams.public_key) {
-      errorText = _t(
+      errorText =
         "Missing captcha public key in homeserver configuration. Please report " +
-          "this to your homeserver administrator."
-      );
+        "this to your homeserver administrator.";
     } else {
       sitePublicKey = this.props.stageParams.public_key;
     }
@@ -231,7 +245,40 @@ export class RecaptchaAuthEntry extends React.Component {
   }
 }
 
-export class TermsAuthEntry extends React.Component {
+type LangPolicy = {
+  name: string;
+  url: string;
+  id: string | undefined;
+};
+
+type Policy = {
+  [lang: string]: LangPolicy;
+};
+type TermsAuthEntryProps = {
+  submitAuthDict: (authDict: any) => void;
+  stageParams: {
+    policies: {
+      [policy: string]: Policy;
+    };
+  };
+  errorText: string;
+  busy: boolean;
+  showContinue: boolean;
+  onPhaseChange: (phase: number) => void;
+};
+
+type TermsAuthEntryState = {
+  toggledPolicies: {
+    [id: string]: boolean;
+  };
+  policies: LangPolicy[];
+  errorText?: string;
+};
+
+export class TermsAuthEntry extends React.Component<
+  TermsAuthEntryProps,
+  TermsAuthEntryState
+> {
   static LOGIN_TYPE = "m.login.terms";
 
   static propTypes = {
@@ -243,7 +290,7 @@ export class TermsAuthEntry extends React.Component {
     onPhaseChange: PropTypes.func.isRequired,
   };
 
-  constructor(props) {
+  constructor(props: TermsAuthEntryProps) {
     super(props);
 
     // example stageParams:
@@ -266,8 +313,8 @@ export class TermsAuthEntry extends React.Component {
     // }
 
     const allPolicies = this.props.stageParams.policies || {};
-    const prefLang = SettingsStore.getValue("language");
-    const initToggles = {};
+    const prefLang = "en"; // SettingsStore.getValue("language");
+    const initToggles: any = {};
     const pickedPolicies = [];
     for (const policyId of Object.keys(allPolicies)) {
       const policy = allPolicies[policyId];
@@ -280,7 +327,7 @@ export class TermsAuthEntry extends React.Component {
       if (!langPolicy) {
         // last resort
         const firstLang = Object.keys(policy).find((e) => e !== "version");
-        langPolicy = policy[firstLang];
+        langPolicy = policy[firstLang!];
       }
       if (!langPolicy)
         throw new Error("Failed to find a policy to show the user");
@@ -295,8 +342,6 @@ export class TermsAuthEntry extends React.Component {
       toggledPolicies: initToggles,
       policies: pickedPolicies,
     };
-
-    CountlyAnalytics.instance.track("onboarding_terms_begin");
   }
 
   componentDidMount() {
@@ -307,13 +352,13 @@ export class TermsAuthEntry extends React.Component {
     this._trySubmit();
   };
 
-  _togglePolicy(policyId) {
-    const newToggles = {};
+  _togglePolicy(policyId: string) {
+    const newToggles: TermsAuthEntryState["toggledPolicies"] = {};
     for (const policy of this.state.policies) {
-      let checked = this.state.toggledPolicies[policy.id];
+      let checked = this.state.toggledPolicies[policy.id!];
       if (policy.id === policyId) checked = !checked;
 
-      newToggles[policy.id] = checked;
+      newToggles[policy.id!] = checked;
     }
     this.setState({ toggledPolicies: newToggles });
   }
@@ -321,32 +366,28 @@ export class TermsAuthEntry extends React.Component {
   _trySubmit = () => {
     let allChecked = true;
     for (const policy of this.state.policies) {
-      const checked = this.state.toggledPolicies[policy.id];
+      const checked = this.state.toggledPolicies[policy.id!];
       allChecked = allChecked && checked;
     }
 
     if (allChecked) {
       this.props.submitAuthDict({ type: TermsAuthEntry.LOGIN_TYPE });
-      CountlyAnalytics.instance.track("onboarding_terms_complete");
     } else {
       this.setState({
-        errorText: _t(
-          "Please review and accept all of the homeserver's policies"
-        ),
+        errorText: "Please review and accept all of the homeserver's policies",
       });
     }
   };
 
   render() {
     if (this.props.busy) {
-      const Loader = sdk.getComponent("elements.Spinner");
       return <Loader />;
     }
 
     const checkboxes = [];
     let allChecked = true;
     for (const policy of this.state.policies) {
-      const checked = this.state.toggledPolicies[policy.id];
+      const checked = this.state.toggledPolicies[policy.id!];
       allChecked = allChecked && checked;
 
       checkboxes.push(
@@ -356,7 +397,7 @@ export class TermsAuthEntry extends React.Component {
           className="mx_InteractiveAuthEntryComponents_termsPolicy">
           <input
             type="checkbox"
-            onChange={() => this._togglePolicy(policy.id)}
+            onChange={() => this._togglePolicy(policy.id!)}
             checked={checked}
           />
           <a href={policy.url} target="_blank" rel="noreferrer noopener">
@@ -383,14 +424,14 @@ export class TermsAuthEntry extends React.Component {
           className="mx_InteractiveAuthEntryComponents_termsSubmit mx_GeneralButton"
           onClick={this._trySubmit}
           disabled={!allChecked}>
-          {_t("Accept")}
+          Accept
         </button>
       );
     }
 
     return (
       <div>
-        <p>{_t("Please review and accept the policies of this homeserver:")}</p>
+        <p>Please review and accept the policies of this homeserver:</p>
         {checkboxes}
         {errorSection}
         {submitButton}
@@ -399,7 +440,13 @@ export class TermsAuthEntry extends React.Component {
   }
 }
 
-export class EmailIdentityAuthEntry extends React.Component {
+type EmailIdentityAuthEntryProps = {
+  submitAuthDict: (authDict: any) => void;
+  onPhaseChange: (phase: number) => void;
+  inputs: any;
+  stageState: any;
+};
+export class EmailIdentityAuthEntry extends React.Component<EmailIdentityAuthEntryProps> {
   static LOGIN_TYPE = "m.login.email.identity";
 
   static propTypes = {
@@ -436,18 +483,41 @@ export class EmailIdentityAuthEntry extends React.Component {
       return (
         <div className="mx_InteractiveAuthEntryComponents_emailWrapper">
           <p>
-            {_t("A confirmation email has been sent to %(emailAddress)s", {
-              emailAddress: (sub) => <b>{this.props.inputs.emailAddress}</b>,
-            })}
+            A confirmation email has been sent to{" "}
+            <b>{this.props.inputs.emailAddress}</b>
           </p>
-          <p>{_t("Open the link in the email to continue registration.")}</p>
+          <p>Open the link in the email to continue registration.</p>
         </div>
       );
     }
   }
 }
 
-export class MsisdnAuthEntry extends React.Component {
+type MsisdnAuthEntryProps = {
+  submitAuthDict: (authDict: any) => void;
+  onPhaseChange: (phase: number) => void;
+  inputs: any;
+  stageState: any;
+  matrixClient: any;
+  clientSecret: string;
+  fail: (e: any) => void;
+};
+
+type MsisdnAuthEntryState = {
+  errorText?: string;
+  token: string;
+  requestingToken: boolean;
+};
+
+export class MsisdnAuthEntry extends React.Component<
+  MsisdnAuthEntryProps,
+  MsisdnAuthEntryState
+> {
+  private _submitUrl: string | null = null;
+  private _sid: string | null = null;
+  private _msisdn: string | null = null;
+  private _tokenBox: string | null = null;
+
   static LOGIN_TYPE = "m.login.msisdn";
 
   static propTypes = {
@@ -465,6 +535,7 @@ export class MsisdnAuthEntry extends React.Component {
   state = {
     token: "",
     requestingToken: false,
+    errorText: undefined,
   };
 
   componentDidMount() {
@@ -477,7 +548,7 @@ export class MsisdnAuthEntry extends React.Component {
 
     this.setState({ requestingToken: true });
     this._requestMsisdnToken()
-      .catch((e) => {
+      .catch((e: any) => {
         this.props.fail(e);
       })
       .finally(() => {
@@ -496,25 +567,25 @@ export class MsisdnAuthEntry extends React.Component {
         this.props.clientSecret,
         1 // TODO: Multiple send attempts?
       )
-      .then((result) => {
+      .then((result: any) => {
         this._submitUrl = result.submit_url;
         this._sid = result.sid;
         this._msisdn = result.msisdn;
       });
   }
 
-  _onTokenChange = (e) => {
+  _onTokenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       token: e.target.value,
     });
   };
 
-  _onFormSubmit = async (e) => {
+  _onFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (this.state.token == "") return;
 
     this.setState({
-      errorText: null,
+      errorText: undefined,
     });
 
     try {
@@ -544,7 +615,7 @@ export class MsisdnAuthEntry extends React.Component {
         });
       } else {
         this.setState({
-          errorText: _t("Token incorrect"),
+          errorText: "Token incorrect",
         });
       }
     } catch (e) {
@@ -555,7 +626,6 @@ export class MsisdnAuthEntry extends React.Component {
 
   render() {
     if (this.state.requestingToken) {
-      const Loader = sdk.getComponent("elements.Spinner");
       return <Loader />;
     } else {
       const enableSubmit = Boolean(this.state.token);
@@ -574,11 +644,9 @@ export class MsisdnAuthEntry extends React.Component {
       return (
         <div>
           <p>
-            {_t("A text message has been sent to %(msisdn)s", {
-              msisdn: <i>{this._msisdn}</i>,
-            })}
+            A text message has been sent to <i>{this._msisdn}</i>
           </p>
-          <p>{_t("Please enter the code it contains:")}</p>
+          <p>Please enter the code it contains:</p>
           <div className="mx_InteractiveAuthEntryComponents_msisdnWrapper">
             <form onSubmit={this._onFormSubmit}>
               <input
@@ -586,12 +654,12 @@ export class MsisdnAuthEntry extends React.Component {
                 className="mx_InteractiveAuthEntryComponents_msisdnEntry"
                 value={this.state.token}
                 onChange={this._onTokenChange}
-                aria-label={_t("Code")}
+                aria-label={"Code"}
               />
               <br />
               <input
                 type="submit"
-                value={_t("Submit")}
+                value={"Submit"}
                 className={submitClasses}
                 disabled={!enableSubmit}
               />
@@ -604,7 +672,28 @@ export class MsisdnAuthEntry extends React.Component {
   }
 }
 
-export class SSOAuthEntry extends React.Component {
+type SSOAuthEntryProps = {
+  submitAuthDict: (authDict: any) => void;
+  onPhaseChange: (phase: number) => void;
+  stageState: any;
+  matrixClient: any;
+  loginType: string;
+  authSessionId: string;
+  continueKind?: string;
+  continueText?: string;
+  errorText?: string;
+  onCancel: () => void;
+};
+
+type SSOAuthEntryState = {
+  phase: number;
+  attemptFailed: boolean;
+};
+
+export class SSOAuthEntry extends React.Component<
+  SSOAuthEntryProps,
+  SSOAuthEntryState
+> {
   static propTypes = {
     matrixClient: PropTypes.object.isRequired,
     authSessionId: PropTypes.string.isRequired,
@@ -623,9 +712,10 @@ export class SSOAuthEntry extends React.Component {
   static PHASE_PREAUTH = 1; // button to start SSO
   static PHASE_POSTAUTH = 2; // button to confirm SSO completed
 
+  private _popupWindow: Window | undefined;
   _ssoUrl: string;
 
-  constructor(props) {
+  constructor(props: SSOAuthEntryProps) {
     super(props);
 
     // We actually send the user through fallback auth so we don't have to
@@ -635,7 +725,7 @@ export class SSOAuthEntry extends React.Component {
       this.props.authSessionId
     );
 
-    this._popupWindow = null;
+    this._popupWindow = undefined;
     window.addEventListener("message", this._onReceiveMessage);
 
     this.state = {
@@ -652,7 +742,7 @@ export class SSOAuthEntry extends React.Component {
     window.removeEventListener("message", this._onReceiveMessage);
     if (this._popupWindow) {
       this._popupWindow.close();
-      this._popupWindow = null;
+      this._popupWindow = undefined;
     }
   }
 
@@ -662,14 +752,14 @@ export class SSOAuthEntry extends React.Component {
     });
   };
 
-  _onReceiveMessage = (event) => {
+  _onReceiveMessage = (event: { data: string; origin: string }) => {
     if (
       event.data === "authDone" &&
       event.origin === this.props.matrixClient.getHomeserverUrl()
     ) {
       if (this._popupWindow) {
         this._popupWindow.close();
-        this._popupWindow = null;
+        this._popupWindow = undefined;
       }
     }
   };
@@ -679,7 +769,7 @@ export class SSOAuthEntry extends React.Component {
     // certainly will need to open the thing in a new tab to avoid losing application
     // context.
 
-    this._popupWindow = window.open(this._ssoUrl, "_blank");
+    this._popupWindow = window.open(this._ssoUrl, "_blank") || undefined;
     this.setState({ phase: SSOAuthEntry.PHASE_POSTAUTH });
     this.props.onPhaseChange(SSOAuthEntry.PHASE_POSTAUTH);
   };
@@ -698,7 +788,7 @@ export class SSOAuthEntry extends React.Component {
             ? this.props.continueKind + "_outline"
             : "primary_outline"
         }>
-        {_t("Cancel")}
+        Cancel
       </AccessibleButton>
     );
     if (this.state.phase === SSOAuthEntry.PHASE_PREAUTH) {
@@ -706,7 +796,7 @@ export class SSOAuthEntry extends React.Component {
         <AccessibleButton
           onClick={this.onStartAuthClick}
           kind={this.props.continueKind || "primary"}>
-          {this.props.continueText || _t("Single Sign On")}
+          {this.props.continueText || "Single Sign On"}
         </AccessibleButton>
       );
     } else {
@@ -714,7 +804,7 @@ export class SSOAuthEntry extends React.Component {
         <AccessibleButton
           onClick={this.onConfirmClick}
           kind={this.props.continueKind || "primary"}>
-          {this.props.continueText || _t("Confirm")}
+          {this.props.continueText || "Confirm"}
         </AccessibleButton>
       );
     }
@@ -729,9 +819,8 @@ export class SSOAuthEntry extends React.Component {
     } else if (this.state.attemptFailed) {
       errorSection = (
         <div className="error" role="alert">
-          {_t(
-            "Something went wrong in confirming your identity. Cancel and try again."
-          )}
+          Something went wrong in confirming your identity. Cancel and try
+          again.
         </div>
       );
     }
@@ -748,7 +837,16 @@ export class SSOAuthEntry extends React.Component {
   }
 }
 
-export class FallbackAuthEntry extends React.Component {
+type FallbackAuthEntryProps = {
+  matrixClient: any;
+  authSessionId: string;
+  loginType: string;
+  submitAuthDict: (dict: any) => void;
+  errorText: string;
+  onPhaseChange: (phase: number) => void;
+};
+
+export class FallbackAuthEntry extends React.Component<FallbackAuthEntryProps> {
   static propTypes = {
     matrixClient: PropTypes.object.isRequired,
     authSessionId: PropTypes.string.isRequired,
@@ -758,15 +856,14 @@ export class FallbackAuthEntry extends React.Component {
     onPhaseChange: PropTypes.func.isRequired,
   };
 
-  constructor(props) {
+  // we have to make the user click a button, as browsers will block
+  // the popup if we open it immediately.
+  private _popupWindow: Window | undefined;
+  private _fallbackButton = createRef<HTMLAnchorElement>();
+  constructor(props: FallbackAuthEntryProps) {
     super(props);
 
-    // we have to make the user click a button, as browsers will block
-    // the popup if we open it immediately.
-    this._popupWindow = null;
     window.addEventListener("message", this._onReceiveMessage);
-
-    this._fallbackButton = createRef();
   }
 
   componentDidMount() {
@@ -786,7 +883,7 @@ export class FallbackAuthEntry extends React.Component {
     }
   };
 
-  _onShowFallbackClick = (e) => {
+  _onShowFallbackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -794,10 +891,10 @@ export class FallbackAuthEntry extends React.Component {
       this.props.loginType,
       this.props.authSessionId
     );
-    this._popupWindow = window.open(url, "_blank");
+    this._popupWindow = window.open(url, "_blank") || undefined;
   };
 
-  _onReceiveMessage = (event) => {
+  _onReceiveMessage = (event: { data: string; origin: string }) => {
     if (
       event.data === "authDone" &&
       event.origin === this.props.matrixClient.getHomeserverUrl()
@@ -821,7 +918,7 @@ export class FallbackAuthEntry extends React.Component {
           href=""
           ref={this._fallbackButton}
           onClick={this._onShowFallbackClick}>
-          {_t("Start authentication")}
+          {"Start authentication"}
         </a>
         {errorSection}
       </div>
@@ -838,9 +935,12 @@ const AuthEntryComponents = [
   SSOAuthEntry,
 ];
 
-export default function getEntryComponentForLoginType(loginType) {
+export default function getEntryComponentForLoginType(loginType: string) {
   for (const c of AuthEntryComponents) {
-    if (c.LOGIN_TYPE === loginType || c.UNSTABLE_LOGIN_TYPE === loginType) {
+    if (
+      c.LOGIN_TYPE === loginType ||
+      (c as any).UNSTABLE_LOGIN_TYPE === loginType
+    ) {
       return c;
     }
   }
