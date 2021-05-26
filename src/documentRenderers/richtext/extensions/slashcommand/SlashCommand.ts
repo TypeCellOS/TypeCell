@@ -21,7 +21,6 @@ export enum CommandGroup {
  * Not to be confused with ProseMirror commands nor TipTap commands.
  */
 export class SlashCommand implements SuggestionItem {
-  aliases: string[];
   groupName: string;
   // other parameters initialized in the constructor
 
@@ -33,17 +32,17 @@ export class SlashCommand implements SuggestionItem {
    * @param execute The callback for creating a new node
    * @param aliases Aliases for this command
    * @param icon To be shown next to the name in the menu
+   * @param shortcut Info about keyboard shortcut that would activate this command
    */
   constructor(
-    public name: string,
-    public group: CommandGroup,
-    public execute: SlashCommandCallback,
-    aliases: string[],
-    public icon?: RemixiconReactIconComponentType,
-    public hint?: string,
-    public shortcut?: string
+    public readonly name: string,
+    public readonly group: CommandGroup,
+    public readonly execute: SlashCommandCallback,
+    public readonly aliases: string[] = [],
+    public readonly icon?: RemixiconReactIconComponentType,
+    public readonly hint?: string,
+    public readonly shortcut?: string
   ) {
-    this.aliases = aliases ?? [];
     this.groupName = group;
   }
 

@@ -117,28 +117,6 @@ export function SuggestionGroup<T extends SuggestionItem>(
             clickItem={props.clickItem}
           />
         );
-        // let isButtonSelected =
-        //   props.selectedIndex !== undefined && props.selectedIndex === index;
-
-        // const buttonRef = React.useRef<HTMLInputElement>(null);
-        // React.useEffect(() => {
-        //   if (isButtonSelected && buttonRef.current) {
-        //     buttonRef.current.scrollIntoView();
-        //   }
-        // }, [isButtonSelected]);
-
-        // return (
-        //   <div className={styles.buttonItem}>
-        //     <ButtonItem
-        //       isSelected={isButtonSelected} // This is needed to navigate with the keyboard
-        //       iconBefore={getIcon(item, isButtonSelected)}
-        //       key={index}
-        //       onClick={() => props.clickItem(item)}
-        //       ref={buttonRef}>
-        //       <SuggestionContent item={item} />
-        //     </ButtonItem>
-        //   </div>
-        // );
       })}
     </Section>
   );
