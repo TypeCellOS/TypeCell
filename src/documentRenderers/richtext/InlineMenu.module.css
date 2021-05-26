@@ -10,9 +10,8 @@
 .buttonTooltip {
   color: var(--N40);
   background-color: var(--N800);
-  box-shadow: 4px 4px 8px rgba(253, 254, 255, 0.75),
-    -4px -4px 8px rgba(253, 254, 255, 0.75),
-    0px 0px 3px rgba(253, 254, 255, 0.4);
+  box-shadow: 0 0 10px rgba(253, 254, 255, 0.8),
+    0 0 3px rgba(253, 254, 255, 0.4);
   border-radius: 2px;
   font-size: smaller;
   text-align: center;

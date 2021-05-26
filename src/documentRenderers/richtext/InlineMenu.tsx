@@ -76,7 +76,7 @@ const underline: StyleDetails = {
  * - add the mark name to the constants above
  * - and provide tooltip text
  */
-class InlineMenuButton extends React.Component<MenuButtonProps> {
+class BubbleMenuButton extends React.Component<MenuButtonProps> {
   render() {
     const tooltipContent = (
       <div className={styles.buttonTooltip}>
@@ -145,27 +145,27 @@ class InlineMenu extends React.Component<InlineMenuProps> {
 
     return (
       <BubbleMenu className={styles.inlineMenu} editor={this.props.editor}>
-        <InlineMenuButton
+        <BubbleMenuButton
           editor={this.props.editor}
           onClick={() => this.props.editor.chain().focus().toggleBold().run()}
           styleDetails={bold}
         />
-        <InlineMenuButton
+        <BubbleMenuButton
           editor={this.props.editor}
           onClick={() => this.props.editor.chain().focus().toggleItalic().run()}
           styleDetails={italic}
         />
-        <InlineMenuButton
+        <BubbleMenuButton
           editor={this.props.editor}
           onClick={() => this.props.editor.chain().focus().toggleStrike().run()}
           styleDetails={strike}
         />
-        <InlineMenuButton
+        <BubbleMenuButton
           editor={this.props.editor}
           onClick={() => this.props.editor.chain().focus().toggleCode().run()}
           styleDetails={code}
         />
-        <InlineMenuButton
+        <BubbleMenuButton
           editor={this.props.editor}
           onClick={() =>
             this.props.editor.chain().focus().toggleUnderline().run()
@@ -177,4 +177,4 @@ class InlineMenu extends React.Component<InlineMenuProps> {
   }
 }
 
-export default InlineMenu;
+export { InlineMenu, BubbleMenuButton };

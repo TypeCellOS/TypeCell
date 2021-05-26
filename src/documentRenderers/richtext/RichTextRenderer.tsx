@@ -28,7 +28,7 @@ import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
 import SlashCommandExtension from "./extensions/slashcommand";
-import InlineMenu from "./InlineMenu";
+import { InlineMenu } from "./InlineMenu";
 import "./RichTextRenderer.css";
 import TableMenu from "./TableMenu";
 import TableCell from "@tiptap/extension-table-cell";
