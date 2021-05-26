@@ -23,6 +23,7 @@ import {
   ListItemBlock,
   ParagraphBlock,
 } from "./extensions/blocktypes";
+import { TableBlock } from "./extensions/blocktypes/TableBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
@@ -31,6 +32,10 @@ import { MentionsExtension } from "./extensions/mentions/MentionsExtension";
 import SlashCommandExtension from "./extensions/slashcommand";
 import InlineMenu from "./InlineMenu";
 import "./RichTextRenderer.css";
+import TableMenu from "./TableMenu";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import TableRow from "@tiptap/extension-table-row";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -90,6 +95,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       HorizontalRuleBlock,
       ParagraphBlock,
       ListItemBlock,
+      TableBlock,
       IndentItemBlock.configure({
         HTMLAttributes: {
           className: "indent",
@@ -102,6 +108,9 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       // from tiptap (unmodified)
       BulletList,
       OrderedList,
+      TableCell,
+      TableHeader,
+      TableRow,
 
       // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
       // should be handled before Enter handlers in other components like splitListItem
@@ -130,6 +139,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
   return (
     <div>
       {editor != null ? <InlineMenu editor={editor} /> : null}
+      {editor != null ? <TableMenu editor={editor} /> : null}
       <EditorContent editor={editor} />
     </div>
   );
