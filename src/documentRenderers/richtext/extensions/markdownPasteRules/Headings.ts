@@ -2,7 +2,7 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { Slice, Fragment, NodeType } from "prosemirror-model";
 import { Editor } from "@tiptap/core";
 
-const markdownPasteRuleHeadings = function (
+const markdownHeadings = function (
   editor: Editor,
   regexp: RegExp,
   type: NodeType,
@@ -58,4 +58,4 @@ const markdownPasteRuleHeadings = function (
   });
 };
 
-export default markdownPasteRuleHeadings;
+export default markdownHeadings;

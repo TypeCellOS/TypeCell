@@ -35,10 +35,11 @@ import TableMenu from "./TableMenu";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import markdownPasteRuleHeadings from "./extensions/markdownPasteRules/Headings";
+import markdownHeadings from "./extensions/markdownPasteRules/Headings";
 import markdownPasteRuleHorizontal from "./extensions/markdownPasteRules/Horizontal";
 import markdownBlockQuote from "./extensions/markdownPasteRules/BlockQuote";
 import markdownCodeBlock from "./extensions/markdownPasteRules/CodeBlock";
+import markdownBulletList from "./extensions/markdownPasteRules/BulletList";
 
 type Props = {
   document: DocumentResource;
@@ -106,11 +107,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
           const editor = this.editor;
           console.log("heading paste rules");
           return [
-            markdownPasteRuleHeadings(
-              editor,
-              new RegExp(`(#{1,6})\\s`),
-              this.type
-            ),
+            markdownHeadings(editor, new RegExp(`(#{1,6})\\s`), this.type),
           ];
         },
       }),
@@ -139,7 +136,12 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       IndentGroup,
 
       // from tiptap (unmodified)
-      BulletList,
+      BulletList.extend({
+        addPasteRules() {
+          const editor = this.editor;
+          return [markdownBulletList(editor, new RegExp(` *[\-\+\*] `))];
+        },
+      }),
       OrderedList,
       TableCell,
       TableHeader,

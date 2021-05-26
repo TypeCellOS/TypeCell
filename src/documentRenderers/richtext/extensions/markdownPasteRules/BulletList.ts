@@ -2,14 +2,7 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { Slice, Fragment, NodeType } from "prosemirror-model";
 import { Editor } from "@tiptap/core";
 
-const markdownBlockQuote = (
-  editor: Editor,
-  regexp: RegExp,
-  type: NodeType,
-  getAttributes?:
-    | Record<string, any>
-    | ((match: RegExpExecArray) => Record<string, any>)
-): Plugin => {
+const markdownBulletList = (editor: Editor, regexp: RegExp): Plugin => {
   const markdown = (fragment: Fragment): Fragment => {
     const convertedNodes: any[] = [];
     const EMPTY = "";
@@ -23,12 +16,12 @@ const markdownBlockQuote = (
 
     let accumulatedText: string[] = [];
     const mergeTextsIntoQuote = () => {
-      const fragContent = editor.schema.node(
-        "paragraph",
-        {},
-        editor.schema.text(accumulatedText.join(" "))
-      );
-      const convertedNode = editor.schema.node("blockquote", {}, [fragContent]);
+      const items = accumulatedText.map((listContent) => {
+        const paragraphText = editor.schema.text(listContent);
+        const paragraph = editor.schema.node("paragraph", {}, paragraphText);
+        return editor.schema.node("item", {}, [paragraph]);
+      });
+      const convertedNode = editor.schema.node("bulletList", {}, items);
       convertedNodes.push(convertedNode);
       accumulatedText = [];
     };
@@ -37,7 +30,7 @@ const markdownBlockQuote = (
       const rawTextContent = texts[index];
       let match = regexp.exec(rawTextContent);
 
-      // starting with > text...
+      // starting with 4 spaces or tab?
       if (match !== null) {
         const markdownSymbols = match[0];
         const textContent = rawTextContent.slice(markdownSymbols.length);
@@ -60,7 +53,7 @@ const markdownBlockQuote = (
     return Fragment.fromArray(convertedNodes);
   };
   return new Plugin({
-    key: new PluginKey(`markdownPasteRuleBlockQuote`),
+    key: new PluginKey(`markdownPasteRuleBulletList`),
     props: {
       transformPasted: (slice) => {
         return new Slice(
@@ -73,4 +66,4 @@ const markdownBlockQuote = (
   });
 };
 
-export default markdownBlockQuote;
+export default markdownBulletList;
