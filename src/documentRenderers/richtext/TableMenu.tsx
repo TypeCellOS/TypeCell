@@ -8,12 +8,111 @@ import {
   AiOutlineInsertRowRight,
   AiOutlineDeleteColumn,
 } from "react-icons/ai";
+
+import InsertColumnLeftIcon from "remixicon-react/InsertColumnLeftIcon";
+import InsertColumnRightIcon from "remixicon-react/InsertColumnRightIcon";
+import InsertRowBottomIcon from "remixicon-react/InsertRowBottomIcon";
+import InsertRowTopIcon from "remixicon-react/InsertRowTopIcon";
+import DeleteColumnIcon from "remixicon-react/DeleteColumnIcon";
+import DeleteRowIcon from "remixicon-react/DeleteRowIcon";
+import HeaderRowIcon from "remixicon-react/LayoutRowFillIcon";
+
 import { CgFormatHeading } from "react-icons/cg";
 
-import tableStyles from "./TableMenu.module.css";
+import styles from "./TableMenu.module.css";
 import { TableBubbleMenu } from "./extensions/table/TableBubbleMenu";
+import { RemixiconReactIconComponentType } from "remixicon-react";
+import Tippy from "@tippyjs/react";
+import Button from "@atlaskit/button";
+// import { BubbleMenuButton } from "./InlineMenu";
 
 type TableMenuProps = { editor: Editor };
+type MenuButtonProps = {
+  // editor: Editor;
+  styleDetails: StyleDetails;
+  isDisabled: boolean;
+  onClick: () => void;
+};
+
+type StyleDetails = {
+  mainTooltip: string;
+  secondaryTooltip?: string;
+  icon: RemixiconReactIconComponentType;
+  // icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+};
+
+const addRowBefore: StyleDetails = {
+  mainTooltip: "Insert row above the selection",
+  icon: InsertRowTopIcon,
+};
+
+const addRowAfter: StyleDetails = {
+  mainTooltip: "Insert row below the selection",
+  icon: InsertRowBottomIcon,
+};
+
+const deleteRow: StyleDetails = {
+  mainTooltip: "Delete selected row(s)",
+  icon: DeleteRowIcon,
+};
+
+const addColumnBefore: StyleDetails = {
+  mainTooltip: "Insert column left of the selection",
+  icon: InsertColumnLeftIcon,
+};
+
+const addColumnAfter: StyleDetails = {
+  mainTooltip: "Insert column right of the selection",
+  icon: InsertColumnRightIcon,
+};
+
+const deleteColumn: StyleDetails = {
+  mainTooltip: "Delete selected column(s)",
+  icon: DeleteColumnIcon,
+};
+
+const toggleHeaderRow: StyleDetails = {
+  mainTooltip: "Toggle this as a header row",
+  icon: HeaderRowIcon,
+};
+
+const BubbleMenuButton = (props: MenuButtonProps) => {
+  const tooltipContent = (
+    <div className={styles.buttonTooltip}>
+      <div className={styles.mainText}>{props.styleDetails.mainTooltip}</div>
+      <div className={styles.secondaryText}>
+        {props.styleDetails.secondaryTooltip}
+      </div>
+    </div>
+  );
+
+  // const name = props.styleDetails.name;
+  // let isButtonSelected = () => props.editor.isActive(name);
+  const ButtonIcon = props.styleDetails.icon;
+
+  return (
+    <Tippy content={tooltipContent}>
+      <Button
+        appearance="subtle"
+        isDisabled={props.isDisabled}
+        onClick={props.onClick}
+        // isSelected={isButtonSelected()}
+        iconBefore={
+          ButtonIcon ? (
+            <ButtonIcon
+              className={
+                styles.icon
+                // +
+                // " " +
+                // (isButtonSelected() ? styles.isSelected : "")
+              }
+            />
+          ) : undefined
+        }
+      />
+    </Tippy>
+  );
+};
 
 /**
  * This component is an adapted version of inline menu. This menu will only show itself when the
@@ -44,71 +143,53 @@ class TableMenu extends React.Component<TableMenuProps> {
       ) {
         return (
           <TableBubbleMenu
-            className={tableStyles.TableMenu}
+            className={styles.tableMenu}
             editor={this.props.editor}>
-            <button
-              className={tableStyles.tableMenuOption}
-              disabled={!this.props.editor.can().addRowBefore()}
+            <BubbleMenuButton
+              styleDetails={addRowBefore}
+              isDisabled={!this.props.editor.can().addRowBefore()}
               onClick={() =>
                 this.props.editor.chain().focus().addRowBefore().run()
-              }>
-              <div className={tableStyles.optionIcon}>
-                <AiOutlineInsertRowAbove></AiOutlineInsertRowAbove>
-              </div>
-            </button>
-            <button
-              className={tableStyles.tableMenuOption}
-              disabled={!this.props.editor.can().addRowAfter()}
+              }
+            />
+            <BubbleMenuButton
+              styleDetails={addRowAfter}
+              isDisabled={!this.props.editor.can().addRowAfter()}
               onClick={() =>
                 this.props.editor.chain().focus().addRowAfter().run()
-              }>
-              <div className={tableStyles.optionIcon}>
-                <AiOutlineInsertRowBelow></AiOutlineInsertRowBelow>
-              </div>
-            </button>
-            <button
-              className={tableStyles.tableMenuOption}
-              disabled={!this.props.editor.can().deleteRow()}
+              }
+            />
+            <BubbleMenuButton
+              styleDetails={deleteRow}
+              isDisabled={!this.props.editor.can().deleteRow()}
               onClick={() =>
                 this.props.editor.chain().focus().deleteRow().run()
-              }>
-              <div className={tableStyles.optionIcon}>
-                <AiOutlineDeleteRow></AiOutlineDeleteRow>
-              </div>
-            </button>
-            <button
-              className={tableStyles.tableMenuOption}
-              disabled={!this.props.editor.can().addColumnBefore()}
+              }
+            />
+            <BubbleMenuButton
+              styleDetails={addColumnBefore}
+              isDisabled={!this.props.editor.can().addColumnBefore()}
               onClick={() =>
                 this.props.editor.chain().focus().addColumnBefore().run()
-              }>
-              <div className={tableStyles.optionIcon}>
-                <AiOutlineInsertRowLeft></AiOutlineInsertRowLeft>
-              </div>
-            </button>
-            <button
-              className={tableStyles.tableMenuOption}
-              disabled={!this.props.editor.can().addColumnAfter()}
+              }
+            />
+            <BubbleMenuButton
+              styleDetails={addColumnAfter}
+              isDisabled={!this.props.editor.can().addColumnAfter()}
               onClick={() =>
                 this.props.editor.chain().focus().addColumnAfter().run()
-              }>
-              <div className={tableStyles.optionIcon}>
-                <AiOutlineInsertRowRight></AiOutlineInsertRowRight>
-              </div>
-            </button>
-            <button
-              className={tableStyles.tableMenuOption}
-              disabled={!this.props.editor.can().deleteColumn()}
+              }
+            />
+            <BubbleMenuButton
+              styleDetails={deleteColumn}
+              isDisabled={!this.props.editor.can().deleteColumn()}
               onClick={() =>
                 this.props.editor.chain().focus().deleteColumn().run()
-              }>
-              <div className={tableStyles.optionIcon}>
-                <AiOutlineDeleteColumn></AiOutlineDeleteColumn>
-              </div>
-            </button>
-            <button
-              className={tableStyles.tableMenuOption}
-              disabled={!this.props.editor.can().toggleHeaderRow()}
+              }
+            />
+            <BubbleMenuButton
+              styleDetails={toggleHeaderRow}
+              isDisabled={!this.props.editor.can().toggleHeaderRow()}
               onClick={() => {
                 // Due to the parculiarity of ProseMirror, see: https://github.com/ProseMirror/prosemirror-tables/blob/6b16ed3cf306886f2c169aebbe60701e1ac2deac/src/commands.js#L438
                 // We must select a TableCell to be able to toggle the entire row
@@ -137,11 +218,8 @@ class TableMenu extends React.Component<TableMenuProps> {
                 );
 
                 this.props.editor.chain().focus().toggleHeaderRow().run();
-              }}>
-              <div className={tableStyles.optionIcon}>
-                <CgFormatHeading></CgFormatHeading>
-              </div>
-            </button>
+              }}
+            />
           </TableBubbleMenu>
         );
       }
