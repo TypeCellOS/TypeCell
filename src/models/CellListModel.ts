@@ -30,10 +30,10 @@ export class CellListModel {
 
     this._previousChildren = children;
     this._previousCells = children.map((el) => {
-      const id = el.getAttribute("id");
+      debugger;
+      const id = el.getAttribute("block-id");
       if (!id) {
-        el.setAttribute("id", Math.random() + "");
-        // throw new Error("no id specified");
+        throw new Error("no id specified");
       }
       const path = "!@" + this.documentId.substr(1) + "/" + id + ".cell.tsx";
 
@@ -54,7 +54,8 @@ export class CellListModel {
 
   public addCell(i: number) {
     const element = new Y.XmlElement("typecell");
-    element.setAttribute("id", Math.random() + "");
+    // TODO: change block-id generation
+    element.setAttribute("block-id", Math.random() + "");
     element.insert(0, [new Y.XmlText("// hello")]);
     this.fragment.insert(i, [element]);
   }

@@ -24,6 +24,7 @@ import {
   IndentItemBlock,
   ListItemBlock,
   ParagraphBlock,
+  TypeCellNodeBlock,
 } from "./extensions/blocktypes";
 import { TableBlock } from "./extensions/blocktypes/TableBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
@@ -40,7 +41,6 @@ import TableMenu from "./TableMenu";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import { TypeCellNode } from "./extensions/typecellnode";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -102,7 +102,6 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         showOnlyCurrent: false,
       }),
 
-      TypeCellNode,
       AutoId,
       HardBreak,
 
@@ -141,6 +140,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       TableCell,
       TableHeader,
       TableRow,
+      TypeCellNodeBlock,
 
       // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
       // should be handled before Enter handlers in other components like splitListItem
@@ -155,7 +155,6 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
           },
         },
       }),
-      // TypeCellNode,
     ],
     enableInputRules: true,
     enablePasteRules: true,

@@ -17,6 +17,7 @@ import {
 } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import SideMenu from "../../SideMenu";
+import TypeCellComponent from "../typecellnode/TypeCellComponent";
 import styles from "./Block.module.css";
 
 /**
@@ -44,7 +45,8 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
     props: PropsWithChildren<NodeViewRendererProps>
   ) {
     const domOutput = toDOM(props.node);
-    let domType: ElementType;
+    // NOTE: we might want to extend ElementType itself instead of declaring it like this
+    let domType: ElementType | "typecell";
     let domAttrs: { [attr: string]: string | null | undefined } = {};
 
     if (Array.isArray(domOutput)) {
@@ -213,15 +215,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
                 />
               </Tippy>
             </div>
-            {domType === "code" ? ( // Wraps content in "pre" tags if the content is code.
-              <pre>
-                <NodeViewContent as={domType} {...domAttrs} />
-              </pre>
-            ) : (
-              <div>
-                <NodeViewContent as={domType} {...domAttrs} />
-              </div>
-            )}
+            {renderContentBasedOnDOMType(domType, domAttrs, props.node)}
           </div>
           <div
             className={styles.mouseCapture}
@@ -235,3 +229,31 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
 }
 
 export default Block;
+function renderContentBasedOnDOMType(
+  // NOTE: we might want to extend ElementType itself instead of declaring it like this
+  domType: ElementType | "typecell",
+  domAttrs: { [attr: string]: string | null | undefined },
+  node?: Node
+): JSX.Element | null | undefined {
+  if (domType === "code") {
+    // Wraps in "pre" tags if the content is code.
+    return (
+      <pre>
+        <NodeViewContent as={domType} {...domAttrs} />
+      </pre>
+    );
+  } else if (domType === "typecell") {
+    console.log(domAttrs);
+    return (
+      <div>
+        <TypeCellComponent node={node}></TypeCellComponent>
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        <NodeViewContent as={domType} {...domAttrs} />
+      </div>
+    );
+  }
+}

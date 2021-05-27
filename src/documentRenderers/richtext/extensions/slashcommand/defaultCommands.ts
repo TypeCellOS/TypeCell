@@ -165,8 +165,9 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     },
     ["code", "codeblock"]
   ),
+
   typecell: new SlashCommand(
-    "typecell",
+    "TypeCell",
     CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
       const node = editor.schema.node("typecell");
@@ -180,7 +181,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["typecell", "code", "codeblock", "code block", "cell"]
+    ["code", "codeblock", "code block", "cell"]
   ),
 
   // Command for creating a bullet list
