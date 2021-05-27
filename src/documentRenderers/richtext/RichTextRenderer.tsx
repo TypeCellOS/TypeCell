@@ -35,7 +35,7 @@ import TableMenu from "./TableMenu";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import { Placeholder } from "./extensions/placeholder/Placeholder";
+import { Placeholder } from "@tiptap/extension-placeholder";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -68,9 +68,12 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         fragment: props.document.data,
       }),
       // DropCursor,
+      // Even though we implement our own placeholder logic in Blocks, we
+      // still need the placeholder extension to make sure nodeviews
+      // are re-rendered when they're empty or when the anchor changes.
       Placeholder.configure({
-        placeholder: "Use '/' to insert a new block.",
-        showOnlyCurrent: false,
+        placeholder: "", // actual placeholders are defined per block
+        showOnlyCurrent: true, // use showOnlyCurrent to make sure the nodeviews are rerendered when cursor moves
       }),
 
       AutoId,
@@ -89,16 +92,19 @@ const RichTextRenderer: React.FC<Props> = (props) => {
 
       // custom blocks:
       ImageBlock,
-      BlockQuoteBlock,
+      BlockQuoteBlock.configure({ placeholder: "Empty quote" }),
       CodeBlockBlock,
-      HeadingBlock,
+      HeadingBlock.configure({ placeholder: "Heading" }),
       HorizontalRuleBlock,
-      ParagraphBlock,
-      ListItemBlock,
+      ParagraphBlock.configure({
+        placeholder: "Enter text or type '/' for commands",
+        placeholderOnlyWhenSelected: true,
+      }),
+      ListItemBlock.configure({ placeholder: "List item" }),
       TableBlock,
       IndentItemBlock.configure({
         HTMLAttributes: {
-          className: "indent",
+          class: "indent",
         },
       }),
 
