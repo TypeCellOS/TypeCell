@@ -1,28 +1,22 @@
-.BubbleMenu {
-  display: flex;
-  background-color: transparent;
-  margin: -0.3rem -0.5rem;
-  padding: -0.1rem;
-  border-radius: 0.5rem;
-}
-
-.BubbleMenu > button {
-  border: 1px dotted #aaaaaa20;
-  background: none;
-  color: #fff;
-  font-size: 0.85rem;
-  font-weight: 500;
-  padding: 0.5rem 0.5rem;
-  opacity: 0.6;
-}
-
-.BubbleMenu > button:hover,
-.BubbleMenu > button.isActive {
-  opacity: 1;
+.inlineMenu {
+  color: var(--N800);
+  background-color: white;
+  border: 1px solid var(--N40);
+  box-shadow: 0px 4px 8px rgba(9, 30, 66, 0.15),
+    0px 0px 1px rgba(9, 30, 66, 0.21);
+  border-radius: 4px;
 }
 
 .buttonTooltip {
+  color: var(--N40);
+  background-color: var(--N800);
+  box-shadow: 4px 4px 8px rgba(253, 254, 255, 0.75),
+    -4px -4px 8px rgba(253, 254, 255, 0.75),
+    0px 0px 3px rgba(253, 254, 255, 0.4);
+  border-radius: 2px;
+  font-size: smaller;
   text-align: center;
+  padding: 4px;
 }
 
 .secondaryText {
@@ -33,4 +27,14 @@
 .hidden {
   display: none;
   visibility: hidden;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--N800);
+}
+
+.isSelected {
+  fill: white;
 }

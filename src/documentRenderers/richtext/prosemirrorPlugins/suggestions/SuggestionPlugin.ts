@@ -35,6 +35,8 @@ export type SuggestionRendererProps<T extends SuggestionItem> = {
 };
 
 export type SuggestionPluginOptions<T extends SuggestionItem> = {
+  // Used for ensuring that the plugin key is unique when more than one instance of the SuggestionPlugin is used.
+  pluginName: string;
   editor: Editor;
   char: string;
   selectItemCallback?: (props: {
@@ -81,8 +83,6 @@ export function findCommandBeforeCursor(
   };
 }
 
-const PLUGIN_KEY = new PluginKey("suggestion");
-
 /**
  * A ProseMirror plugin for suggestions, designed to make '/'-commands possible as well as mentions.
  *
@@ -96,6 +96,7 @@ const PLUGIN_KEY = new PluginKey("suggestion");
  * @returns the prosemirror plugin
  */
 export function SuggestionPlugin<T extends SuggestionItem>({
+  pluginName,
   editor,
   char,
   selectItemCallback = () => {},
@@ -105,6 +106,9 @@ export function SuggestionPlugin<T extends SuggestionItem>({
   // Use react renderer by default
   // This will fail if the editor is not a @tiptap/react editor
   if (!renderer) renderer = createRenderer(editor);
+
+  // Create a random plugin key (since this plugin might be instantiated multiple times)
+  const PLUGIN_KEY = new PluginKey(`suggestions-${pluginName}`);
 
   return new Plugin({
     key: PLUGIN_KEY,
@@ -213,7 +217,7 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           if (prev.active && selection.from <= prev.range.from) {
             next.active = false;
           } else if (transaction.getMeta(PLUGIN_KEY)?.activate) {
-            // Start showing suggestions. activate has been set after typing a "/", so let's create the decoration and initialize
+            // Start showing suggestions. activate has been set after typing a "/" (or whatever the specified character is), so let's create the decoration and initialize
             const newDecorationId = `id_${Math.floor(
               Math.random() * 0xffffffff
             )}`;
@@ -280,11 +284,11 @@ export function SuggestionPlugin<T extends SuggestionItem>({
         const { active, range } = this.getState(view.state);
 
         if (!active) {
-          // activate the popup on / keypress
-          if (event.key === "/") {
+          // activate the popup on 'char' keypress (e.g. '/')
+          if (event.key === char) {
             view.dispatch(
               view.state.tr
-                .insertText("/")
+                .insertText(char)
                 .scrollIntoView()
                 .setMeta(PLUGIN_KEY, { activate: true })
             );
