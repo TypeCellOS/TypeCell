@@ -1,14 +1,15 @@
 import { CellModel } from "../models/CellModel";
-import { BaseResource } from "./BaseResource";
-import { DocConnection } from "./DocConnection";
+import { BaseResource, BaseResourceConnection } from "./BaseResource";
+import type * as Y from "yjs";
 
 /**
  * A Resource defining a plugin. Plugins have a description and a single cell with code,
  * which is responsible for registering the plugin hooks.
  */
 export default class PluginResource extends BaseResource {
-  constructor(connection: DocConnection) {
-    super(connection);
+  /** @internal */
+  constructor(ydoc: Y.Doc, connection: BaseResourceConnection) {
+    super(ydoc, connection);
     if (this.type !== "!plugin") {
       throw new Error("invalid type for PluginResource");
     }

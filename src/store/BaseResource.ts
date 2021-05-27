@@ -9,9 +9,15 @@ import {
   reverseReferenceDefinition,
 } from "./Ref";
 
-import * as Y from "yjs";
+import type * as Y from "yjs";
 import { DocumentResource } from "./DocumentResource";
+import { Identifier } from "./Identifier";
 
+export type BaseResourceConnection = {
+  identifier: Identifier;
+  dispose: () => void;
+  webrtcProvider: any; // TODO
+};
 /**
  * A resource is an entity definied by a unique id.
  * All entities extend from BaseResource, which provides support for id, type, and references
@@ -19,17 +25,18 @@ import { DocumentResource } from "./DocumentResource";
 export class BaseResource {
   /** @internal */
   public constructor(
-    /** @internal */ protected readonly connection: DocConnection
+    /** @internal */ protected readonly ydoc: Y.Doc,
+    protected readonly connection: BaseResourceConnection
   ) {}
 
-  /** @internal */
-  protected get ydoc() {
-    return this.connection._ydoc;
+  public get identifier() {
+    return this.connection.identifier;
   }
 
   public get id() {
-    return this.connection.id;
+    return this.connection.identifier.id;
   }
+
   public get type(): string {
     return this.ydoc.getMap("meta").get("type");
   }
@@ -54,17 +61,14 @@ export class BaseResource {
 
   /** @internal */
   public getSpecificType<T extends BaseResource>(
-    constructor: new (connection: DocConnection) => T
-  ): T | undefined {
+    constructor: new (doc: Y.Doc, connection: BaseResourceConnection) => T
+  ): T {
     if (this._specificType && !(this._specificType instanceof constructor)) {
       throw new Error("already has different specifictype");
     }
 
-    if (!this.type) {
-      return undefined;
-    }
-
-    this._specificType = this._specificType || new constructor(this.connection);
+    this._specificType =
+      this._specificType || new constructor(this.ydoc, this.connection);
 
     return this._specificType;
   }
@@ -161,7 +165,9 @@ export class BaseResource {
       if (existing.target !== targetId) {
         // The relationship that exists is different, remove the reverse relationship
         const doc = DocConnection.load(existing.target); // TODO: unload document
-        doc.removeRef(reverseReferenceDefinition(definition), this.id);
+
+        // TODO !
+        doc.tryDoc!.removeRef(reverseReferenceDefinition(definition), this.id);
       }
     }
     // Add the relationship
@@ -193,7 +199,8 @@ export class BaseResource {
     if (checkReverse) {
       // Add the reverse relationship
       const reverseDoc = DocConnection.load(targetId); // TODO: unload document
-      reverseDoc.ensureRef(
+      // TODO !
+      reverseDoc.tryDoc!.ensureRef(
         reverseReferenceDefinition(definition),
         this.id,
         undefined,

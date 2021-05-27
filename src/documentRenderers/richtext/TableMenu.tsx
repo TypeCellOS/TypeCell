@@ -1,7 +1,5 @@
 import { Editor } from "@tiptap/react";
 import React from "react";
-import "tippy.js/themes/material.css";
-import "tippy.js/dist/tippy.css";
 import {
   AiOutlineInsertRowAbove,
   AiOutlineInsertRowBelow,

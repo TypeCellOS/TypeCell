@@ -1,6 +1,20 @@
 import { TextSelection } from "prosemirror-state";
 import { CommandGroup, SlashCommand } from "./SlashCommand";
 
+import H1Icon from "remixicon-react/H1Icon";
+import H2Icon from "remixicon-react/H2Icon";
+import H3Icon from "remixicon-react/H3Icon";
+import H4Icon from "remixicon-react/H4Icon";
+import H5Icon from "remixicon-react/H5Icon";
+import H6Icon from "remixicon-react/H6Icon";
+import TextIcon from "remixicon-react/TextIcon";
+import CodeIcon from "remixicon-react/CodeSSlashLineIcon";
+import UnorderedListIcon from "remixicon-react/ListUnorderedIcon";
+import OrderedListIcon from "remixicon-react/ListOrderedIcon";
+import QuoteIcon from "remixicon-react/DoubleQuotesRIcon";
+import SeparatorIcon from "remixicon-react/SeparatorIcon";
+import TableIcon from "remixicon-react/TableLineIcon";
+
 const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 1 heading
   heading: new SlashCommand(
@@ -20,7 +34,10 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["h", "heading1", "h1"]
+    ["h", "heading1", "h1"],
+    H1Icon,
+    "Used for a top-level heading",
+    "Ctrl+Alt+1"
   ),
 
   // Command for creating a level 2 heading
@@ -41,7 +58,10 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["h2", "heading2", "subheading"]
+    ["h2", "heading2", "subheading"],
+    H2Icon,
+    "Used for key sections",
+    "Ctrl+Alt+2"
   ),
 
   // Command for creating a level 3 heading
@@ -62,7 +82,10 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["h3", "heading3", "subsubheading"]
+    ["h3", "heading3", "subsubheading"],
+    H3Icon,
+    "Used for subsections and group headings",
+    "Ctrl+Alt+3"
   ),
 
   // Command for creating a level 4 heading
@@ -83,7 +106,10 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["h4", "heading4"]
+    ["h4", "heading4"],
+    H4Icon,
+    "Used for deep headings",
+    "Ctrl+Alt+4"
   ),
 
   // Command for creating a level 5 heading
@@ -104,7 +130,10 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["h5", "heading5"]
+    ["h5", "heading5"],
+    H5Icon,
+    "Used for grouping list items",
+    "Ctrl+Alt+5"
   ),
 
   // Command for creating a level 6 heading
@@ -125,7 +154,10 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["h6", "heading6"]
+    ["h6", "heading6"],
+    H6Icon,
+    "Used for low-level headings",
+    "Ctrl+Alt+6"
   ),
 
   // Command for creating a paragraph (pretty useless)
@@ -144,7 +176,9 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["p"]
+    ["p"],
+    TextIcon,
+    "Used for the body of your document"
   ),
 
   // Command for creating a code block
@@ -163,7 +197,9 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["code", "codeblock"]
+    ["code", "codeblock"],
+    CodeIcon,
+    "Used to display formatted code that can't be run"
   ),
 
   typecell: new SlashCommand(
@@ -202,7 +238,9 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["ul", "list", "bulletlist"]
+    ["ul", "list", "bulletlist"],
+    UnorderedListIcon,
+    "Used to display an unordered list item"
   ),
 
   // Command for creating an ordered list
@@ -223,7 +261,9 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["ol", "orderedlist"]
+    ["ol", "orderedlist"],
+    OrderedListIcon,
+    "Used to display an ordered (enumerated) list item"
   ),
 
   // Command for creating a blockquote
@@ -243,7 +283,10 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["quote", "blockquote"]
+    ["quote", "blockquote"],
+    QuoteIcon,
+    "Used to make a quote stand out",
+    "Ctrl+Shift+B"
   ),
 
   // Command for creating a horizontal rule
@@ -292,7 +335,9 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         .run();
       return true;
     },
-    ["hr", "horizontalrule"]
+    ["hr", "horizontalrule"],
+    SeparatorIcon,
+    "Used to separate sections with a horizontal line"
   ),
 
   // Command for creating a table
@@ -309,7 +354,9 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         .run();
       return true;
     },
-    ["table", "database"]
+    ["table", "database"],
+    TableIcon,
+    "Used to create a simple table"
   ),
 };
 
