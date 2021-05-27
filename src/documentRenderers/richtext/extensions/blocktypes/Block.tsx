@@ -16,7 +16,7 @@ import {
   useState,
 } from "react";
 import { useDrag, useDrop } from "react-dnd";
-import SideMenu from "../../SideMenu";
+import SideMenu from "../../menus/SideMenu";
 import styles from "./Block.module.css";
 
 /**

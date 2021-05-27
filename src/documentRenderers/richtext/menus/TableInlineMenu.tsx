@@ -7,12 +7,11 @@ import InsertRowTopIcon from "remixicon-react/InsertRowTopIcon";
 import DeleteColumnIcon from "remixicon-react/DeleteColumnIcon";
 import DeleteRowIcon from "remixicon-react/DeleteRowIcon";
 
-import styles from "./TableMenu.module.css";
-import { TableBubbleMenu } from "./extensions/table/TableBubbleMenu";
+import styles from "./InlineMenu.module.css";
+import { TableBubbleMenu } from "../extensions/table/TableBubbleMenu";
 import { RemixiconReactIconComponentType } from "remixicon-react";
 import Tippy from "@tippyjs/react";
 import Button from "@atlaskit/button";
-// import { BubbleMenuButton } from "./InlineMenu";
 
 type TableMenuProps = { editor: Editor };
 type MenuButtonProps = {
@@ -110,7 +109,7 @@ class TableMenu extends React.Component<TableMenuProps> {
       ) {
         return (
           <TableBubbleMenu
-            className={styles.tableMenu}
+            className={styles.bubbleMenu}
             editor={this.props.editor}>
             <BubbleMenuButton
               styleDetails={addRowBefore}

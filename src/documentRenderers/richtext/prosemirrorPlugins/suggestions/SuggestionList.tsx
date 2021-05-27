@@ -1,7 +1,7 @@
 import React from "react";
 import SuggestionItem from "./SuggestionItem";
 import { SuggestionGroup } from "./SuggestionGroup";
-import styles from "../../SideMenu.module.css";
+import styles from "../../menus/SideMenu.module.css";
 import { SuggestionRendererKeyDownProps } from "./SuggestionPlugin";
 import { PopupMenuGroup, Section } from "@atlaskit/menu";
 type SuggestionListProps<T> = {

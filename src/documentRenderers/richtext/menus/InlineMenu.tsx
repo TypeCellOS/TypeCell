@@ -1,11 +1,11 @@
 import { BubbleMenu, Editor } from "@tiptap/react";
 import { NodeSelection } from "prosemirror-state";
 import React, { FunctionComponent, useEffect } from "react";
-import styles from "./InlineMenu.module.css";
 import Tippy from "@tippyjs/react";
-import { Underline } from "./extensions/marks/Underline";
+import { Underline } from "../extensions/marks/Underline";
 import Button from "@atlaskit/button";
 
+import styles from "./InlineMenu.module.css";
 import { RemixiconReactIconComponentType } from "remixicon-react";
 import BoldIcon from "remixicon-react/BoldIcon";
 import ItalicIcon from "remixicon-react/ItalicIcon";
@@ -13,13 +13,11 @@ import StrikethroughIcon from "remixicon-react/StrikethroughIcon";
 import CodeLineIcon from "remixicon-react/CodeLineIcon";
 import UnderlineIcon from "remixicon-react/UnderlineIcon";
 
-import tableStyles from "./extensions/blocktypes/Table.module.css";
-
 type InlineMenuProps = { editor: Editor };
 type MenuButtonProps = {
-  editor: Editor;
   styleDetails: StyleDetails;
   onClick: () => void;
+  editor?: Editor;
 };
 
 /**
@@ -30,7 +28,6 @@ type StyleDetails = {
   mainTooltip: string;
   secondaryTooltip: string;
   icon: RemixiconReactIconComponentType;
-  // icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
 };
 
 const bold: StyleDetails = {
@@ -88,8 +85,12 @@ class BubbleMenuButton extends React.Component<MenuButtonProps> {
         </div>
       </div>
     );
-    let isButtonSelected = () =>
-      this.props.editor.isActive(this.props.styleDetails.name);
+
+    let isButtonSelected = () => {
+      if (this.props.editor) {
+        return this.props.editor.isActive(this.props.styleDetails.name);
+      } else return false;
+    };
 
     // To be used in DOM, it needs to be with capital letter
     const ButtonIcon = this.props.styleDetails.icon;
@@ -146,7 +147,7 @@ class InlineMenu extends React.Component<InlineMenuProps> {
     }
 
     return (
-      <BubbleMenu className={styles.inlineMenu} editor={this.props.editor}>
+      <BubbleMenu className={styles.bubbleMenu} editor={this.props.editor}>
         <BubbleMenuButton
           editor={this.props.editor}
           onClick={() => this.props.editor.chain().focus().toggleBold().run()}
