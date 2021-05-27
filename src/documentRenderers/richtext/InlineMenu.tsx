@@ -1,40 +1,73 @@
 import { BubbleMenu, Editor } from "@tiptap/react";
-import { Selection, NodeSelection} from "prosemirror-state";
-import React, { MouseEventHandler } from "react";
+import { NodeSelection } from "prosemirror-state";
+import React, { FunctionComponent, useEffect } from "react";
 import styles from "./InlineMenu.module.css";
 import Tippy from "@tippyjs/react";
-import "tippy.js/themes/material.css";
-import "tippy.js/dist/tippy.css";
+import { Underline } from "./extensions/marks/Underline";
+import Button from "@atlaskit/button";
+
+import { RemixiconReactIconComponentType } from "remixicon-react";
+import BoldIcon from "remixicon-react/BoldIcon";
+import ItalicIcon from "remixicon-react/ItalicIcon";
+import StrikethroughIcon from "remixicon-react/StrikethroughIcon";
+import CodeLineIcon from "remixicon-react/CodeLineIcon";
+import UnderlineIcon from "remixicon-react/UnderlineIcon";
+
+import tableStyles from "./extensions/blocktypes/Table.module.css";
 
 type InlineMenuProps = { editor: Editor };
 type MenuButtonProps = {
   editor: Editor;
+  styleDetails: StyleDetails;
+  onClick: () => void;
+};
+
+/**
+ * [name] has to be the same as the name in the defining Mark (see underline below)
+ */
+type StyleDetails = {
   name: string;
-  onClick: MouseEventHandler;
+  mainTooltip: string;
+  secondaryTooltip: string;
+  icon: RemixiconReactIconComponentType;
+  // icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
 };
 
-const boldName = "bold";
-const italicName = "italic";
-const strikeName = "strike";
-const codeName = "code";
-const underlineName = "underline";
-
-const tooltips: { [key: string]: JSX.Element } = {
-  [boldName]: styledTooltip("Bold", "Ctrl+B"),
-  [italicName]: styledTooltip("Italic", "Ctrl+I"),
-  [strikeName]: styledTooltip("Strikethrough", "Ctrl+Shift+X"),
-  [codeName]: styledTooltip("Inline Code", "Ctrl+E"),
-  [underlineName]: styledTooltip("Underline", "Ctrl+U"),
+const bold: StyleDetails = {
+  name: "bold",
+  mainTooltip: "Bold",
+  // This will change to a variable if custom shortcuts are implemented
+  secondaryTooltip: "Ctrl+B",
+  icon: BoldIcon,
 };
 
-function styledTooltip(mainText: string, secondaryText?: string) {
-  return (
-    <div className={styles.buttonTooltip}>
-      <div className={styles.mainText}>{mainText}</div>
-      <div className={styles.secondaryText}>{secondaryText}</div>
-    </div>
-  );
-}
+const italic: StyleDetails = {
+  name: "italic",
+  mainTooltip: "Italic",
+  secondaryTooltip: "Ctrl+I",
+  icon: ItalicIcon,
+};
+
+const strike: StyleDetails = {
+  name: "strike",
+  mainTooltip: "Strikethrough",
+  secondaryTooltip: "Ctrl+Shift+X",
+  icon: StrikethroughIcon,
+};
+
+const code: StyleDetails = {
+  name: "code",
+  mainTooltip: "Inline Code",
+  secondaryTooltip: "Ctrl+E",
+  icon: CodeLineIcon,
+};
+
+const underline: StyleDetails = {
+  name: Underline.name,
+  mainTooltip: "Underline",
+  secondaryTooltip: "Ctrl+U",
+  icon: UnderlineIcon,
+};
 
 /**
  * The button that shows in the inline menu.
@@ -45,15 +78,38 @@ function styledTooltip(mainText: string, secondaryText?: string) {
  */
 class InlineMenuButton extends React.Component<MenuButtonProps> {
   render() {
-    const name = this.props.name;
+    const tooltipContent = (
+      <div className={styles.buttonTooltip}>
+        <div className={styles.mainText}>
+          {this.props.styleDetails.mainTooltip}
+        </div>
+        <div className={styles.secondaryText}>
+          {this.props.styleDetails.secondaryTooltip}
+        </div>
+      </div>
+    );
+    const name = this.props.styleDetails.name;
+    let isButtonSelected = () => this.props.editor.isActive(name);
+    const ButtonIcon = this.props.styleDetails.icon;
+
     return (
-      <Tippy content={tooltips[name]} theme="material">
-        <button
+      <Tippy content={tooltipContent}>
+        <Button
+          appearance="subtle"
           onClick={this.props.onClick}
-          className={this.props.editor.isActive(name) ? styles.isActive : ""}
-          id={"inlineMenuButton-" + name}>
-          {name}
-        </button>
+          isSelected={isButtonSelected()}
+          iconBefore={
+            ButtonIcon ? (
+              <ButtonIcon
+                className={
+                  styles.icon +
+                  " " +
+                  (isButtonSelected() ? styles.isSelected : "")
+                }
+              />
+            ) : undefined
+          }
+        />
       </Tippy>
     );
   }
@@ -61,39 +117,60 @@ class InlineMenuButton extends React.Component<MenuButtonProps> {
 
 class InlineMenu extends React.Component<InlineMenuProps> {
   render() {
+    const TOP_DEPTH = 1;
+
+    const resolvedPos = this.props.editor.state.doc.resolve(
+      this.props.editor.state.selection.from
+    );
+
+    if (resolvedPos.depth > TOP_DEPTH) {
+      const grandParent = resolvedPos.node(resolvedPos.depth - 1);
+      // console.log(`the grandpa.type.name is ${grandParent.type.name}`);
+      if (
+        grandParent &&
+        grandParent.type.name.toLowerCase().startsWith("table")
+      ) {
+        return (
+          <BubbleMenu className={styles.hidden} editor={this.props.editor} />
+        );
+      }
+    }
+
     // Renders an empty menu if a block is selected.
     if (this.props.editor.state.selection instanceof NodeSelection) {
-      return (<BubbleMenu className={styles.hidden} editor={this.props.editor}/>);
+      return (
+        <BubbleMenu className={styles.hidden} editor={this.props.editor} />
+      );
     }
 
     return (
-      <BubbleMenu className={styles.BubbleMenu} editor={this.props.editor}>
+      <BubbleMenu className={styles.inlineMenu} editor={this.props.editor}>
         <InlineMenuButton
           editor={this.props.editor}
           onClick={() => this.props.editor.chain().focus().toggleBold().run()}
-          name={boldName}
+          styleDetails={bold}
         />
         <InlineMenuButton
           editor={this.props.editor}
           onClick={() => this.props.editor.chain().focus().toggleItalic().run()}
-          name={italicName}
+          styleDetails={italic}
         />
         <InlineMenuButton
           editor={this.props.editor}
           onClick={() => this.props.editor.chain().focus().toggleStrike().run()}
-          name={strikeName}
+          styleDetails={strike}
         />
         <InlineMenuButton
           editor={this.props.editor}
           onClick={() => this.props.editor.chain().focus().toggleCode().run()}
-          name={codeName}
+          styleDetails={code}
         />
         <InlineMenuButton
           editor={this.props.editor}
           onClick={() =>
             this.props.editor.chain().focus().toggleUnderline().run()
           }
-          name={underlineName}
+          styleDetails={underline}
         />
       </BubbleMenu>
     );

@@ -60,7 +60,7 @@ export class Indexer extends Disposable {
 
     let doc = this.documentCache.get(documentId);
     if (!doc) {
-      doc = DocConnection.loadConnection(documentId);
+      doc = DocConnection.load(documentId);
       this.documentCache.set(documentId, doc);
     }
 
@@ -92,7 +92,7 @@ export class Indexer extends Disposable {
     const xmlRoot = doc._ydoc.getXmlFragment("doc");
     if (xmlRoot) {
       const searchDoc: SearchableDoc = {
-        id: doc.id,
+        id: doc.identifier.id,
         title: "",
         version: currentStateVector,
         blocks: xmlRoot.toArray().map((element) => {
@@ -103,11 +103,11 @@ export class Indexer extends Disposable {
           };
         }),
       };
-      this.fuse.remove((d) => d.id === doc.id);
+      this.fuse.remove((d) => d.id === doc.identifier.id);
       this.fuse.add(searchDoc);
     }
-    this.indexState[doc.id] = currentStateVector;
-    this.documentsToUpdate.delete(doc.id);
+    this.indexState[doc.identifier.id] = currentStateVector;
+    this.documentsToUpdate.delete(doc.identifier.id);
   };
 
   public dispose() {

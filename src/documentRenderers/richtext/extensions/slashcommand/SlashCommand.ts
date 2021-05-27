@@ -1,28 +1,18 @@
 import { Editor, Range } from "@tiptap/core";
+import React from "react";
+import { RemixiconReactIconComponentType } from "remixicon-react";
+import SuggestionItem from "../../prosemirrorPlugins/suggestions/SuggestionItem";
 
-export type SlashCommandCallback = (
-  editor: Editor,
-  range: Range,
-  args?: any[]
-) => boolean;
+export type SlashCommandCallback = (editor: Editor, range: Range) => boolean;
 
-export function matchSlashCommand(
-  commandMap: { [key: string]: SlashCommand },
-  command: string
-): { command: SlashCommand; args: any[] } | undefined {
-  const commandName = command.toLowerCase();
+export enum CommandGroup {
+  HEADINGS = "Headings",
+  BASIC_BLOCKS = "Basic Blocks",
 
-  for (const key in commandMap) {
-    const cmd = commandMap[key];
-
-    const match = commandName.match(cmd.regex);
-
-    if (match) {
-      return { command: cmd, args: match.slice(2) };
-    }
-  }
-
-  return undefined;
+  // Just some examples, that are not currently in use
+  INLINE = "Inline",
+  EMBED = "Embed",
+  PLUGIN = "Plugin",
 }
 
 /**
@@ -30,52 +20,38 @@ export function matchSlashCommand(
  *
  * Not to be confused with ProseMirror commands nor TipTap commands.
  */
-export class SlashCommand {
-  name: string;
-  aliases?: string[];
-  regex: RegExp;
-
-  execute: SlashCommandCallback;
+export class SlashCommand implements SuggestionItem {
+  groupName: string;
+  // other parameters initialized in the constructor
 
   /**
-   * Constructs a new slash-command. One can either supply a name and aliases,
-   * the constructor will then automatically generate a regular expression,
-   * or one can supply a name combined with a custom regex,
-   * this custom regex will then be used for matching this command.
-   *
-   * An example of a custom regex could look like: `\(heading|h)([1-6?])\`.
-   * The matched groups (bits between parentheses) are passed as arguments in the command's callback function.
+   * Constructs a new slash-command.
    *
    * @param name The name of the command
+   * @param group Used to organize the menu
    * @param execute The callback for creating a new node
-   * @param aliases
-   * @param regex A regex for matching this command. This regex fully determines matching behaviour when supplied.
+   * @param aliases Aliases for this command
+   * @param icon To be shown next to the name in the menu
+   * @param shortcut Info about keyboard shortcut that would activate this command
    */
   constructor(
-    name: string,
-    execute: SlashCommandCallback,
-    aliases?: string[],
-    regex?: RegExp
+    public readonly name: string,
+    public readonly group: CommandGroup,
+    public readonly execute: SlashCommandCallback,
+    public readonly aliases: string[] = [],
+    public readonly icon?: RemixiconReactIconComponentType,
+    public readonly hint?: string,
+    public readonly shortcut?: string
   ) {
-    this.name = name.toLowerCase();
-    this.aliases = aliases?.map((val) => val.toLowerCase());
-    this.execute = execute;
+    this.groupName = group;
+  }
 
-    if (regex) {
-      const newRegex = `\\b(${regex.source})\\b`;
-
-      console.log(newRegex);
-      this.regex = new RegExp(newRegex);
-    } else {
-      let rawRegex = `\\b(${this.name}`;
-
-      rawRegex = this.aliases
-        ? this.aliases.reduce((acc, alias) => acc + "|" + alias, rawRegex)
-        : rawRegex;
-
-      rawRegex += ")\\b";
-
-      this.regex = new RegExp(rawRegex);
-    }
+  match(query: string): boolean {
+    return (
+      this.name.toLowerCase().startsWith(query.toLowerCase()) ||
+      this.aliases.filter((alias) =>
+        alias.toLowerCase().startsWith(query.toLowerCase())
+      ).length !== 0
+    );
   }
 }

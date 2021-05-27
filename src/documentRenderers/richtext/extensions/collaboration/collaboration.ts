@@ -64,38 +64,44 @@ export const Collaboration = Extension.create<CollaborationOptions>({
 
   addCommands() {
     return {
-      undo: () => ({ tr, state, dispatch }) => {
-        tr.setMeta("preventDispatch", true);
+      undo:
+        () =>
+        ({ tr, state, dispatch }) => {
+          tr.setMeta("preventDispatch", true);
 
-        const undoManager: UndoManager = yUndoPluginKey.getState(state as any)
-          .undoManager;
+          const undoManager: UndoManager = yUndoPluginKey.getState(
+            state as any
+          ).undoManager;
 
-        if (undoManager.undoStack.length === 0) {
-          return false;
-        }
+          if (undoManager.undoStack.length === 0) {
+            return false;
+          }
 
-        if (!dispatch) {
-          return true;
-        }
+          if (!dispatch) {
+            return true;
+          }
 
-        return undo(state);
-      },
-      redo: () => ({ tr, state, dispatch }) => {
-        tr.setMeta("preventDispatch", true);
+          return undo(state);
+        },
+      redo:
+        () =>
+        ({ tr, state, dispatch }) => {
+          tr.setMeta("preventDispatch", true);
 
-        const undoManager: UndoManager = yUndoPluginKey.getState(state as any)
-          .undoManager;
+          const undoManager: UndoManager = yUndoPluginKey.getState(
+            state as any
+          ).undoManager;
 
-        if (undoManager.redoStack.length === 0) {
-          return false;
-        }
+          if (undoManager.redoStack.length === 0) {
+            return false;
+          }
 
-        if (!dispatch) {
-          return true;
-        }
+          if (!dispatch) {
+            return true;
+          }
 
-        return redo(state);
-      },
+          return redo(state);
+        },
     };
   },
 
@@ -119,10 +125,10 @@ export const Collaboration = Extension.create<CollaborationOptions>({
       });
       return new Promise((resolve) => {
         const handle = autorun(() => {
-          let type = resource.type;
-          if (type === "!richtext") {
+          let doc = resource.doc;
+          if (typeof doc !== "string" && doc.doc.type === "!richtext") {
             handle();
-            const source = resource.doc?.data.firstChild;
+            const source = doc.doc.data.firstChild;
             resolve(source);
           }
         });

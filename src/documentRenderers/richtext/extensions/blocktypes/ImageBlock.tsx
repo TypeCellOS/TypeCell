@@ -3,9 +3,10 @@ import { Node as ProsemirrorNode } from "prosemirror-model";
 import { EditorView } from "prosemirror-view";
 import Image from "@tiptap/extension-image";
 import "./Block.module.css";
+import { extendAsBlock } from ".";
 
-const ImageBlock = Image.extend({
-  draggable: true,
+const ImageBlock = extendAsBlock(Image, {
+  draggable: false,
   inline: false,
   atom: true,
 
@@ -52,9 +53,9 @@ const ImageBlock = Image.extend({
                 return false;
               }
 
-              const images = Array.from(
-                event.dataTransfer!.files
-              ).filter((file) => /image/i.test(file.type));
+              const images = Array.from(event.dataTransfer!.files).filter(
+                (file) => /image/i.test(file.type)
+              );
 
               if (images.length === 0) {
                 return false;

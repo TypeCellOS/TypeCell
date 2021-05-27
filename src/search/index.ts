@@ -25,7 +25,7 @@ const fuse = new Fuse<SearchableDoc>([], {
   keys: ["title", "id", "blocks.content"],
 });
 
-const changeFeedDoc = DocConnection.loadConnection(".changefeed");
+const changeFeedDoc = DocConnection.load("@internal/.changefeed");
 
 let indexer: Indexer | undefined;
 
@@ -56,7 +56,7 @@ export async function setupSearch() {
 
           changeFeedDoc._ydoc
             .getMap("documentUpdates")
-            .set(docConnection.id, state);
+            .set(docConnection.identifier.id, state);
         }
       }
     );

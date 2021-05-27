@@ -1,58 +1,61 @@
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useState } from "react";
-import { BaseResource } from "../store/BaseResource";
 import { DocConnection } from "../store/DocConnection";
 import PluginResource from "../store/PluginResource";
-import CreateDocumentView from "./CreateDocumentView";
 import { CustomRenderer } from "./custom/CustomRenderer";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
-import RichTextRenderer from "./richtext/RichTextRenderer"
+import RichTextRenderer from "./richtext/RichTextRenderer";
 
 type Props = {
-  owner: string;
-  document: string;
+  id: string | { owner: string; document: string };
 };
 
 const DocumentView = observer((props: Props) => {
-  if (!props.owner || !props.document) {
-    // return <div></div>
-    throw new Error(
-      "DocumentView expects both owner and document to be specified"
-    );
-  }
-  const [loader, setLoader] = useState<BaseResource>();
+  const [connection, setConnection] = useState<DocConnection>();
 
   React.useEffect(() => {
-    const newLoader = DocConnection.load({
-      owner: props.owner,
-      document: props.document,
-    });
+    const newConnection = DocConnection.load(props.id);
 
-    setLoader(newLoader);
+    setConnection(newConnection);
     return () => {
-      newLoader.dispose();
-      setLoader(undefined);
+      newConnection.dispose();
+      setConnection(undefined);
     };
-  }, [props.owner, props.document]);
+  }, [props.id]);
 
-  if (!loader) {
+  if (!connection) {
     return null;
   }
-  if (!loader.type) {
-    return <CreateDocumentView resource={loader} />;
+  if (connection.doc === "loading") {
+    return <div>Loading</div>;
+  } else if (connection.doc === "not-found") {
+    return <div>Not found</div>;
   }
-  if (loader.type === "!notebook") {
-    return <NotebookRenderer document={loader.doc!} />;
-  } else if (loader.type === "!richtext") {
-    return <RichTextRenderer document={loader.doc!} />;
-  } else if (loader.type === "!plugin") {
-    return <PluginRenderer plugin={loader.getSpecificType(PluginResource)!} />;
-  } else if (loader.type.startsWith("!")) {
+  if (!connection.doc.type) {
+    console.warn("possibly corrupt document");
+    return <div>Loading</div>;
+  }
+  if (connection.doc.type === "!notebook") {
+    return (
+      <NotebookRenderer key={connection.doc.id} document={connection.doc.doc} />
+    );
+  } else if (connection.doc.type === "!richtext") {
+    return (
+      <RichTextRenderer key={connection.doc.id} document={connection.doc.doc} />
+    );
+  } else if (connection.doc.type === "!plugin") {
+    return (
+      <PluginRenderer
+        key={connection.doc.id}
+        plugin={connection.doc.getSpecificType(PluginResource)!}
+      />
+    );
+  } else if (connection.doc.type.startsWith("!")) {
     throw new Error("invalid built in type");
   } else {
-    return <CustomRenderer document={loader} />;
+    return <CustomRenderer key={connection.doc.id} document={connection.doc} />;
   }
 });
 
