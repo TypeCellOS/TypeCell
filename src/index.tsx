@@ -1,9 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./index.css";
-import App from "./App";
-import reportWebVitals from "./reportWebVitals";
 import * as reo from "react-error-overlay";
+import "./index.css";
+import MatrixApp from "./MatrixApp";
+import reportWebVitals from "./reportWebVitals";
+import { setupDocConnectionManager } from "./store/DocConnection";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays
@@ -15,12 +16,47 @@ if (process.env.NODE_ENV === "development") {
   (reo as any).stopReportingRuntimeErrors();
 }
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById("root")
-);
+// const config = {
+//   default_server_config: {
+//     "m.homeserver": {
+//       base_url: "https://matrix-client.matrix.org",
+//       server_name: "matrix.org",
+//     },
+//     "m.identity_server": {
+//       base_url: "https://vector.im",
+//     },
+//   },
+// };
+// const validatedConfig = await verifyServerConfig(config);
+
+const cachedValidatedConfig = {
+  hsName: "typecell.org",
+  hsNameIsDifferent: true,
+  hsUrl: "https://mx.typecell.org",
+  isDefault: true,
+  isNameResolvable: true,
+  isUrl: "https://vector.im",
+  warning: null,
+};
+
+async function init() {
+  // TODO
+
+  // await Olm.init({
+  //   locateFile: () => olmWasmPath,
+  // });
+
+  setupDocConnectionManager();
+
+  ReactDOM.render(
+    <React.StrictMode>
+      <MatrixApp config={cachedValidatedConfig} />
+    </React.StrictMode>,
+    document.getElementById("root")
+  );
+}
+
+init();
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
