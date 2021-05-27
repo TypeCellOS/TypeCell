@@ -3,8 +3,6 @@ import * as monaco from "monaco-editor";
 import React from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import "tippy.js/dist/tippy.css";
-import "tippy.js/themes/material.css";
 import "./App.css";
 import DocumentView from "./documentRenderers/DocumentView";
 import { enablePluginSystem } from "./pluginEngine/pluginSystem";
@@ -13,7 +11,6 @@ import setupNpmTypeResolver from "./sandbox/setupNpmTypeResolver";
 import setupTypecellTypeResolver from "./sandbox/setupTypecellTypeResolver";
 import { DocumentResource } from "./store/DocumentResource";
 import { navigationStore } from "./store/local/stores";
-
 
 setMonacoDefaults(monaco);
 setupTypecellTypeResolver();
