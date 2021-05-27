@@ -2,7 +2,7 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { Slice, Fragment, NodeType } from "prosemirror-model";
 import { Editor } from "@tiptap/core";
 
-const markdownBulletList = (editor: Editor, regexp: RegExp): Plugin => {
+const markdownOrderedList = (editor: Editor, regexp: RegExp): Plugin => {
   const markdown = (fragment: Fragment): Fragment => {
     const convertedNodes: any[] = [];
     const EMPTY = "";
@@ -21,7 +21,7 @@ const markdownBulletList = (editor: Editor, regexp: RegExp): Plugin => {
         const paragraph = editor.schema.node("paragraph", {}, paragraphText);
         return editor.schema.node("listItem", {}, [paragraph]);
       });
-      const convertedNode = editor.schema.node("bulletList", {}, items);
+      const convertedNode = editor.schema.node("orderedList", {}, items);
       convertedNodes.push(convertedNode);
       accumulatedText = [];
     };
@@ -53,7 +53,7 @@ const markdownBulletList = (editor: Editor, regexp: RegExp): Plugin => {
     return Fragment.fromArray(convertedNodes);
   };
   return new Plugin({
-    key: new PluginKey(`markdownPasteRuleBulletList`),
+    key: new PluginKey(`markdownPasteRuleOrderedList`),
     props: {
       transformPasted: (slice) => {
         return new Slice(
@@ -66,4 +66,4 @@ const markdownBulletList = (editor: Editor, regexp: RegExp): Plugin => {
   });
 };
 
-export default markdownBulletList;
+export default markdownOrderedList;
