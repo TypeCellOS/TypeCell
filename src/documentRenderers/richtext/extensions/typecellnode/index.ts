@@ -25,9 +25,11 @@ export const TypeCellNode = Node.create({
   //    content: 'inline*', al
   defining: true,
   atom: true,
-  addNodeView() {
-    return ReactNodeViewRenderer(TypeCellComponent);
-  },
+
+  // The node view is added in ../blocktypes/index.ts
+  // addNodeView() {
+  //   return ReactNodeViewRenderer(TypeCellComponent);
+  // },
 
   addAttributes() {
     return {

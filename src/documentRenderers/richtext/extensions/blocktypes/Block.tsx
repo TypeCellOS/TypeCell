@@ -296,7 +296,6 @@ function renderContentBasedOnDOMType(
       </pre>
     );
   } else if (domType === "typecell") {
-    console.log(domAttrs);
     return (
       <div>
         <TypeCellComponent node={node}></TypeCellComponent>

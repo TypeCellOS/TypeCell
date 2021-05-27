@@ -30,7 +30,6 @@ export class CellListModel {
 
     this._previousChildren = children;
     this._previousCells = children.map((el) => {
-      debugger;
       const id = el.getAttribute("block-id");
       if (!id) {
         throw new Error("no id specified");

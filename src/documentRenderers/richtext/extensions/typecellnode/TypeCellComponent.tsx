@@ -1,6 +1,5 @@
-import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
-import React, { useContext, useEffect, useState } from "react";
-import { CellModel } from "../../../../models/CellModel";
+import { NodeViewWrapper } from "@tiptap/react";
+import { useContext } from "react";
 import NotebookCell from "../../../notebook/NotebookCell";
 import { EngineContext } from "./EngineContext";
 
@@ -12,7 +11,7 @@ export default function TypeCellComponent(props: any) {
   const cell = ctx.document!.cells.find((c) => c.id === id)!;
 
   if (!cell) {
-    return <div>loading</div>;
+    return <div>Loading...</div>;
   }
 
   return (
