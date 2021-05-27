@@ -313,7 +313,6 @@ export class MatrixAuthStore {
       //   return;
       // }
 
-      // debugger;
       this.firstSyncComplete = true;
       resolveFirstSyncPromise();
 

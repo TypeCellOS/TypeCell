@@ -12,25 +12,28 @@ import React, {
   ElementType,
   MouseEvent,
   PropsWithChildren,
+  RefObject,
   useRef,
   useState,
 } from "react";
-import { useDrag, useDrop } from "react-dnd";
+import { useDrag, useDrop, XYCoord } from "react-dnd";
 import SideMenu from "../../SideMenu";
 import styles from "./Block.module.css";
-
 /**
  * A global store that keeps track of which block is being hovered over
  */
 let globalState = makeAutoObservable({
   activeBlocks: {} as any, // using this pattern to prevent multiple rerenders
   activeBlock: 0,
+  aboveCenterLine: false, // True if mouse cursor lies above this block's center line
 });
 
 type DnDItemType = {
   getPos: () => number;
   node: Node;
 };
+
+let aboveCenterLine = false;
 
 /**
  * This function creates a React component that represents a block in the editor. This is so that editor blocks can be
@@ -64,6 +67,8 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
     const innerRef = useRef<HTMLDivElement>(null);
     const outerRef = useRef<HTMLDivElement>(null);
     const [id] = useState(Math.random());
+    // if activeBlocks[id] is set, this block is being hovered over
+    let hover = globalState.activeBlocks[id];
 
     function deleteBlock(tr: Transaction, pos: number, node: Node) {
       // use deleteRange
@@ -81,16 +86,40 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
       }
       return {
         type: "block",
-        item: { getPos: props.getPos, node: props.node },
+        item: {
+          getPos: props.getPos,
+          node: props.node,
+        },
       };
     }, [props.getPos, props.node]);
 
-    const [{}, drop] = useDrop<DnDItemType, any, any>(
+    const [{ isOver, canDrop, clientOffset }, drop] = useDrop<
+      DnDItemType,
+      any,
+      any
+    >(
       () => ({
         accept: "block",
         hover(item, monitor) {
-          // TODO: show drop line
-          // https://github.com/YousefED/typecell-next/issues/53
+          // Prevents constant re-renders when hovering over nested blocks.
+          if (!monitor.isOver({ shallow: true })) {
+            return;
+          }
+
+          // Checks if cursor is above the center line of the hovered node.
+          const hoverBoundingRect =
+            mouseCaptureRef!.current!.getBoundingClientRect();
+
+          runInAction(() => {
+            globalState.aboveCenterLine = cursorInUpperHalf(
+              monitor.getClientOffset()!.y,
+              hoverBoundingRect
+            );
+          });
+
+          if (globalState.activeBlock !== id) {
+            updateHover();
+          }
         },
         drop(item, monitor) {
           if (typeof props.getPos === "boolean") {
@@ -100,20 +129,6 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           // We're dropping item.node (source) to props.node (target)
           // Should we move source to the top of bottom of target? Let's find out
           // (logic from https://react-dnd.github.io/react-dnd/examples/sortable/simple)
-
-          // Determine rectangle on screen
-          const hoverBoundingRect =
-            mouseCaptureRef.current!.getBoundingClientRect();
-
-          // Get vertical middle
-          const hoverMiddleY =
-            (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-
-          // Determine mouse position
-          const clientOffset = monitor.getClientOffset();
-
-          // Get pixels to the top
-          const hoverClientY = clientOffset!.y - hoverBoundingRect.top;
 
           // ProseMirror token positions just before and just after the target block
           const posBeforeTargetNode = props.getPos();
@@ -126,10 +141,16 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           // delete the old block
           deleteBlock(tr, item.getPos(), item.node);
 
-          let posToInsert =
-            hoverClientY < hoverMiddleY
-              ? posBeforeTargetNode
-              : posAfterTargetNode;
+          // Determine rectangle on screen
+          const hoverBoundingRect =
+            mouseCaptureRef!.current!.getBoundingClientRect();
+
+          let posToInsert = cursorInUpperHalf(
+            monitor.getClientOffset()!.y,
+            hoverBoundingRect
+          )
+            ? posBeforeTargetNode
+            : posAfterTargetNode;
 
           if (item.getPos() < posToInsert) {
             // we're moving an item downwards. As "delete" happens before "insert",
@@ -146,6 +167,11 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           // execute transaction
           props.editor.view.dispatch(tr);
         },
+        collect: (monitor) => ({
+          isOver: monitor.isOver(),
+          canDrop: monitor.canDrop(),
+          clientOffset: monitor.getClientOffset(),
+        }),
       }),
       [props.getPos, props.node]
     );
@@ -180,7 +206,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
      *    (the div is absolutely positioned, and this could cause other issues with contenteditable selections, etc. We might
      *    want to move away from this solution later, and for example capture a global mousemove and calculate hover from that)
      */
-    function onMouseOver(e: MouseEvent) {
+    function updateHover() {
       if (globalState.activeBlock !== id) {
         runInAction(() => {
           delete globalState.activeBlocks[globalState.activeBlock];
@@ -190,15 +216,35 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
       }
     }
 
-    // if activeBlocks[id] is set, this block is being hovered over
-    let hover = globalState.activeBlocks[id];
+    function onMouseOver(e: MouseEvent) {
+      // Prevents any accidental re-renders when dragging.
+      if (!canDrop) {
+        updateHover();
+      }
+    }
+
+    /**
+     * Checks if the mouse cursor lies above the vertical center line of the bounding rectangle of a HTML element.
+     * @param rect      The bounding rectangle of the HTML element.
+     * @param mouseYPos The mouse position Y coordinate.
+     * @returns True if cursor is above the center line of the element, false otherwise.
+     */
+    function cursorInUpperHalf(mouseYPos: number, rect: DOMRect) {
+      // Get vertical middle
+      const hoverMiddleY = (rect.bottom - rect.top) / 2;
+
+      // Get pixels to the top
+      const hoverClientY = mouseYPos - rect.top;
+      // console.log(hoverClientY, hoverMiddleY);
+      return hoverClientY < hoverMiddleY;
+    }
 
     // setup react DnD
     drop(outerRef);
     dragPreview(innerRef);
 
     return (
-      <NodeViewWrapper className={styles.block}>
+      <NodeViewWrapper className={`${styles.block}`}>
         <div ref={outerRef}>
           <div className={styles.inner + " inner"} ref={innerRef}>
             <div className={styles.handleContainer} ref={dragRef}>
@@ -253,7 +299,14 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
             )}
           </div>
           <div
-            className={styles.mouseCapture}
+            className={`${styles.mouseCapture} ${
+              hover && canDrop
+                ? " " +
+                  (globalState.aboveCenterLine
+                    ? styles.topIndicator
+                    : styles.bottomIndicator)
+                : ""
+            }`}
             onMouseOver={onMouseOver}
             ref={mouseCaptureRef}
             contentEditable={false}></div>
