@@ -1,5 +1,5 @@
 import { IMatrixClientCreds } from "./auth/util/matrix";
-import { IStoredSession } from "./AuthStore";
+import { IStoredSession } from "./MatrixAuthStore";
 import createMatrixClient from "./createMatrixClient";
 import * as StorageManager from "./StorageManager";
 import { idbLoad, idbSave } from "./StorageManager";

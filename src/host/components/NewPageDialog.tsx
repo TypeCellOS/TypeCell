@@ -5,9 +5,11 @@ import Modal, {
 } from "@atlaskit/modal-dialog";
 import Textfield from "@atlaskit/textfield";
 import React, { useCallback, useState } from "react";
+
 import { BaseResource } from "../../store/BaseResource";
 import { DocConnection } from "../../store/DocConnection";
-import { navigationStore } from "../../store/local/navigationStore";
+import { navigationStore } from "../../store/local/stores";
+
 import { UnreachableCaseError } from "../../util/UnreachableCaseError";
 
 export const NewPageDialog = (props: {

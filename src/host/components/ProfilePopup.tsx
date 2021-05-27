@@ -6,7 +6,8 @@ import {
 } from "@atlaskit/dropdown-menu";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
-import { authStore, AuthStore } from "../../matrix/AuthStore";
+
+import { SessionStore } from "../../matrix/SessionStore";
 import { NavigationStore } from "../../store/local/navigationStore";
 
 const imgCSS = {
@@ -17,7 +18,7 @@ const imgCSS = {
 };
 
 export const ProfilePopup = observer(
-  (props: { authStore: AuthStore; navigationStore: NavigationStore }) => {
+  (props: { sessionStore: SessionStore; navigationStore: NavigationStore }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const onClick = () => {
@@ -45,12 +46,14 @@ export const ProfilePopup = observer(
         <DropdownItem onClick={props.navigationStore.showNewPageDialog}>
           New page
         </DropdownItem>
-        <DropdownItemGroup title={authStore.loggedInUser!}>
+        <DropdownItemGroup title={props.sessionStore.loggedInUser!}>
           {" "}
           {/* @${props.authStore.user?.username} */}
           {/* <DropdownItem>Profile</DropdownItem> */}
           {/* <DropdownItem>Account settings</DropdownItem> */}
-          <DropdownItem onClick={props.authStore.logout}>Sign out</DropdownItem>
+          <DropdownItem onClick={props.sessionStore.logout}>
+            Sign out
+          </DropdownItem>
         </DropdownItemGroup>
       </DropdownMenuStateless>
     );

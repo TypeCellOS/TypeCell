@@ -40,7 +40,7 @@ export interface IStoredSession {
   isGuest: boolean;
 }
 
-export class AuthStore {
+export class MatrixAuthStore {
   private accountPassword: string | undefined;
   private accountPasswordTimer: ReturnType<typeof setTimeout> | undefined;
   private firstSyncPromise: Promise<void> | undefined;
@@ -680,7 +680,8 @@ export class AuthStore {
       }
 
       if (enableGuest) {
-        throw new Error("not implemented");
+        // We handle this manually in SessionStore
+        // throw new Error("not implemented");
         // if (!guestHsUrl || !guestIsUrl || !defaultDeviceDisplayName) {
         //   throw new Error("enable guest with invalid params");
         // }
@@ -973,6 +974,3 @@ export class AuthStore {
     }
   }
 }
-
-export const authStore = new AuthStore();
-authStore.loadSession();

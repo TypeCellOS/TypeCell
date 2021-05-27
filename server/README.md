@@ -11,6 +11,7 @@ Modify `homeserver.yaml`
 - Add postgres database
 - set enable_registration: true
 - set enable_search: false
+- set allow_guest_access: true
 
 # setup server
 

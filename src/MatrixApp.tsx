@@ -4,8 +4,11 @@ import Host from "./host/Host";
 import LoginComponent from "./matrix/auth/Login";
 import Registration from "./matrix/auth/Registration";
 import { ValidatedServerConfig } from "./matrix/auth/util/AutoDiscoveryUtils";
-import { authStore } from "./matrix/AuthStore";
-import { navigationStore } from "./store/local/navigationStore";
+import {
+  matrixAuthStore,
+  navigationStore,
+  sessionStore,
+} from "./store/local/stores";
 
 function makeRegistrationUrl(params: any) {
   let url =
@@ -28,12 +31,14 @@ export const MatrixApp = observer(
   (props: { config: ValidatedServerConfig }) => {
     // TODO: register
     // TODO: view / edit as guest
-    if (navigationStore.currentPage.page === "login") {
+    if (sessionStore.user === "loading") {
+      return <div>Loading.</div>;
+    } else if (navigationStore.currentPage.page === "login") {
       return (
         <div>
           <LoginComponent
             serverConfig={props.config}
-            onLoggedIn={authStore.onUserCompletedLoginFlow}
+            onLoggedIn={matrixAuthStore.onUserCompletedLoginFlow}
             onRegisterClick={() => {
               navigationStore.showRegisterScreen();
             }}
@@ -56,7 +61,7 @@ export const MatrixApp = observer(
           email={undefined}
           brand={"TypeCell"}
           makeRegistrationUrl={makeRegistrationUrl}
-          onLoggedIn={authStore.onUserCompletedLoginFlow}
+          onLoggedIn={matrixAuthStore.onUserCompletedLoginFlow}
           onLoginClick={() => {
             navigationStore.showLoginScreen();
           }}

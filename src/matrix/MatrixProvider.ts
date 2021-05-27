@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { MatrixClient } from "matrix-js-sdk";
+import { createClient, MatrixClient } from "matrix-js-sdk";
 import * as Y from "yjs";
 import { Emitter, Event } from "../util/vscode-common/event";
 import { Disposable } from "../util/vscode-common/lifecycle";
@@ -10,10 +10,14 @@ const FLUSH_INTERVAL = 1000 * 5;
 /**
  * Syncs a Matrix room with a Yjs document.
  *
- * In our implementation we take care of all the syncing with Matrix. Therefor, we've disabled
- * the Matrix IndexedDB store and use a MemoryStore instead.
- * (otherwise we have both local persistence logic in the matrix client, and in the Yjs doc that's stored via y-indexeddb)
- * We've also disabled "detached" pendingEventOrdering (use "chronological" instead) for the same reason
+ * Note that when the MatrixClient is a guest-account, we don't receive updates via MatrixProvider, so in that case MatrixProvider
+ * is only used to fetch the initial document state.
+ *
+ * A couple of notes on our MatrixClient:
+ * - TypeCell takes care itself of local caching of yjs documents. So all localstorage caches of MatrixClient should be disabled.
+ *    so, we've disabled the Matrix IndexedDB store and use a MemoryStore instead.
+ *    (otherwise we have both local persistence logic in the matrix client, and in the Yjs doc that's stored via y-indexeddb)
+ * - We've also disabled "detached" pendingEventOrdering (use "chronological" instead) for the same reason
  */
 export default class MatrixProvider extends Disposable {
   private pendingUpdates: any[] = [];
@@ -35,53 +39,66 @@ export default class MatrixProvider extends Disposable {
   public constructor(
     private doc: Y.Doc,
     private matrixClient: MatrixClient,
-    private typecellId: string
+    private typecellId: string,
+    private readOnlyAccess: boolean
   ) {
     super();
-    doc.on("update", async (update: any, origin: any) => {
-      if (origin === this) {
-        // these are updates that came in from MatrixProvider
-        return;
-      }
-      if (origin?.provider) {
-        // update from peer (e.g.: webrtc / websockets). Peer is responsible for sending to Matrix
-        return;
-      }
-      this.pendingUpdates.push(update);
-      if ((window as any).disable) {
-        return;
-      }
-      this.throttledFlushUpdatesToMatrix();
-    });
+
+    doc.on("update", this.documentUpdateListener);
 
     // TODO: catch events for when room has been deleted or user has been kicked
-    matrixClient.on(
-      "Room.timeline",
-      (event: any, room: any, toStartOfTimeline: boolean) => {
-        if (room.roomId !== this.roomId) {
-          return;
-        }
-        if (event.getType() !== "m.room.message") {
-          return; // only use messages
-        }
-        if (!event.event.content?.body) {
-          return; // redacted / deleted?
-        }
-        if (event.status === "sending") {
-          return; // event we're sending ourselves
-        }
-
-        const update = decodeBase64(event.event.content.body);
-        Y.applyUpdate(this.doc, update, this);
-      }
-    );
+    this.matrixClient.on("Room.timeline", this.matrixRoomListener);
 
     this.initialize();
   }
 
+  private documentUpdateListener = async (update: any, origin: any) => {
+    if (origin === this) {
+      // these are updates that came in from MatrixProvider
+      return;
+    }
+    if (origin?.provider) {
+      // update from peer (e.g.: webrtc / websockets). Peer is responsible for sending to Matrix
+      return;
+    }
+
+    if (this.readOnlyAccess) {
+      console.error("received update on readonly doc");
+      return;
+    }
+    this.pendingUpdates.push(update);
+    this.throttledFlushUpdatesToMatrix();
+  };
+
+  private matrixRoomListener = (
+    event: any,
+    room: any,
+    toStartOfTimeline: boolean
+  ) => {
+    if (room.roomId !== this.roomId) {
+      return;
+    }
+    if (event.getType() !== "m.room.message") {
+      return; // only use messages
+    }
+    if (!event.event.content?.body) {
+      return; // redacted / deleted?
+    }
+    if (event.status === "sending") {
+      return; // event we're sending ourselves
+    }
+
+    const update = decodeBase64(event.event.content.body);
+    Y.applyUpdate(this.doc, update, this);
+  };
+
   private flushUpdatesToMatrix = async () => {
-    if (this.isSendingUpdates || !this.pendingUpdates.length || !this.roomId) {
-      // TODO: call when roomid is set
+    if (this.isSendingUpdates || !this.pendingUpdates.length) {
+      return;
+    }
+
+    if (!this.roomId) {
+      // we're still initializing. We'll flush updates again once we're initialized
       return;
     }
     this.isSendingUpdates = true;
@@ -167,12 +184,9 @@ export default class MatrixProvider extends Disposable {
     const updates = events.updates.map(this.getUpdateFromEvent);
     const update = Y.mergeUpdates(updates);
     return update;
-    // applyupdates (events)
   }
 
   private getUpdateFromEvent(event: any) {
-    // const base64;
-    // const decoder = decoding.createDecoder(buf);
     const update = new Uint8Array(decodeBase64(event.content.body));
     return update;
   }
@@ -189,9 +203,15 @@ export default class MatrixProvider extends Disposable {
   private async initializeNoCatch() {
     try {
       const ret = await this.matrixClient.getRoomIdForAlias(
-        "#" + this.typecellId + ":matrix.org" // TODO
+        "#" + this.typecellId + ":mx.typecell.org" // TODO
       );
       this.roomId = ret.room_id;
+
+      if (!this.matrixClient.isGuest()) {
+        // make sure we're in the room, so we keep receiving updates
+        // guests can't / won't join, so MatrixProvider won't send updates for this room
+        await this.matrixClient.joinRoom(this.roomId);
+      }
     } catch (e) {
       let timeout = 5 * 1000;
       if (e.errcode === "M_NOT_FOUND") {
@@ -212,28 +232,36 @@ export default class MatrixProvider extends Disposable {
       return;
     }
 
-    this._onDocumentAvailable.fire();
-
     let initialLocalState = Y.encodeStateAsUpdate(this.doc);
 
+    // This can fail because of no access to room. Because the room history should always be available,
+    // we don't catch this event here
     const update = await this.getExistingStateFromRoom();
 
     // Apply latest state from server
     Y.applyUpdate(this.doc, update, this);
+
+    this._onDocumentAvailable.fire();
 
     // Next, find if there are local changes that haven't been synced to the server
     const remoteStateVector = Y.encodeStateVectorFromUpdate(update);
 
     const missingOnServer = Y.diffUpdate(initialLocalState, remoteStateVector);
 
-    if (missingOnServer.length < 3) {
-      // no differences
-      return;
+    if (missingOnServer.length > 2) {
+      // TODO: missingOnServer will always send the entire deleteSet on startup.
+      // Unfortunately diffUpdate doesn't work well with deletes. Can we improve this?
+      this.pendingUpdates.push(missingOnServer);
     }
 
-    // TODO: missingOnServer will always send the entire deleteSet on startup.
-    // Unfortunately diffUpdate doesn't work well with deletes. Can we improve this?
-    this.pendingUpdates.push(missingOnServer);
+    // Flush updates that have been made to the yjs document in the mean time,
+    // and / or the missingOnServer message from above
     this.throttledFlushUpdatesToMatrix();
+  }
+
+  public dispose() {
+    super.dispose();
+    this.doc.off("update", this.documentUpdateListener);
+    this.matrixClient.off("Room.timeline", this.matrixRoomListener);
   }
 }

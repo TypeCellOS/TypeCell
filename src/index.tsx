@@ -2,9 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom";
 import * as reo from "react-error-overlay";
 import "./index.css";
-import { verifyServerConfig } from "./matrix/auth/util/verifyServerConfig";
 import MatrixApp from "./MatrixApp";
 import reportWebVitals from "./reportWebVitals";
+import { setupDocConnectionManager } from "./store/DocConnection";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays
@@ -45,6 +45,9 @@ async function init() {
   // await Olm.init({
   //   locateFile: () => olmWasmPath,
   // });
+
+  setupDocConnectionManager();
+
   ReactDOM.render(
     <React.StrictMode>
       <MatrixApp config={cachedValidatedConfig} />

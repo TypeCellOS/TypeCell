@@ -7,12 +7,13 @@ import "tippy.js/dist/tippy.css";
 import "tippy.js/themes/material.css";
 import "./App.css";
 import DocumentView from "./documentRenderers/DocumentView";
+
 import { enablePluginSystem } from "./pluginEngine/pluginSystem";
 import { setMonacoDefaults } from "./sandbox";
 import setupNpmTypeResolver from "./sandbox/setupNpmTypeResolver";
 import setupTypecellTypeResolver from "./sandbox/setupTypecellTypeResolver";
 import { DocumentResource } from "./store/DocumentResource";
-import { navigationStore } from "./store/local/navigationStore";
+import { navigationStore } from "./store/local/stores";
 
 setMonacoDefaults(monaco);
 setupTypecellTypeResolver();

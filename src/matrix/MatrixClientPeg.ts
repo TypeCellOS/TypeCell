@@ -263,7 +263,7 @@ class _MatrixClientPeg implements IMatrixClientPeg {
 
   public async start(): Promise<any> {
     const opts = await this.assign();
-
+    this.get()._supportsVoip = false; // TC added
     console.log(`MatrixClientPeg: really starting MatrixClient`);
     await this.get().startClient(opts);
     console.log(`MatrixClientPeg: MatrixClient started`);

@@ -7,8 +7,8 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { VscSignIn } from "react-icons/vsc";
 import App from "../App";
-import { authStore } from "../matrix/AuthStore";
-import { navigationStore } from "../store/local/navigationStore";
+import { sessionStore, navigationStore } from "../store/local/stores";
+
 import NewPageDialog from "./components/NewPageDialog";
 import { ProfilePopup } from "./components/ProfilePopup";
 
@@ -28,17 +28,17 @@ const Navigation = observer(() => {
       primaryItems={[]}
       renderProfile={observer(
         () =>
-          (authStore._loggedIn && (
+          (sessionStore.isLoggedIn && (
             <ProfilePopup
               navigationStore={navigationStore}
-              authStore={authStore}
+              sessionStore={sessionStore}
             />
           )) ||
           null
       )}
       renderSignIn={observer(
         () =>
-          (!authStore._loggedIn && (
+          (!sessionStore.isLoggedIn && (
             <PrimaryButton
               onClick={navigationStore.showLoginScreen}
               iconBefore={
@@ -59,10 +59,16 @@ const Host = observer(() => {
   return (
     <>
       <Navigation />
-      {authStore.loggedInUser && <App />}
-      {authStore.loggedInUser && (
+      {sessionStore.user === "loading" ? (
+        <div>Loading</div>
+      ) : sessionStore.user === "offlineNoUser" ? (
+        <div>Offline</div>
+      ) : (
+        <App />
+      )}
+      {sessionStore.loggedInUser && (
         <NewPageDialog
-          ownerId={authStore.loggedInUser}
+          ownerId={sessionStore.loggedInUser}
           close={navigationStore.hideNewPageDialog}
           isOpen={navigationStore.isNewPageDialogVisible}
         />

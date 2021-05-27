@@ -1,16 +1,52 @@
-import { computed, makeObservable, observable, runInAction, when } from "mobx";
+import {
+  computed,
+  makeObservable,
+  observable,
+  reaction,
+  runInAction,
+  when,
+} from "mobx";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
-import { MatrixClientPeg } from "../matrix/MatrixClientPeg";
 import MatrixProvider from "../matrix/MatrixProvider";
 import { createMatrixDocument } from "../matrix/MatrixRoomManager";
+
 import { observeDoc } from "../moby/doc";
 import { Disposable } from "../util/vscode-common/lifecycle";
 import { BaseResource } from "./BaseResource";
 import { Identifier, parseIdentifier, tryParseIdentifier } from "./Identifier";
+import { sessionStore } from "./local/stores";
 
+// TODO, extract cache + global function to Manager object / class
 const cache = new Map<string, DocConnection>();
+
+export function reloadDocuments() {
+  if (cache.size) {
+    console.log("reloading documents");
+  }
+  for (let doc of cache.values()) {
+    doc.reinitialize().catch((e) => {
+      console.error("error reinitializing document", e);
+    });
+  }
+}
+
+export function readOnlyAccess() {
+  if (typeof sessionStore.user === "string") {
+    return false;
+  }
+  return sessionStore.user.type === "guest-user";
+}
+
+export function setupDocConnectionManager() {
+  reaction(
+    () => readOnlyAccess(),
+    () => {
+      reloadDocuments();
+    }
+  );
+}
 
 /**
  * Encapsulates a Y.Doc and exposes the Resource the Y.Doc represents
@@ -70,6 +106,7 @@ export class DocConnection extends Disposable {
 
     console.log("new docconnection", this.identifier.id);
     this._ydoc = new Y.Doc({ guid: this.identifier.id });
+
     observeDoc(this._ydoc);
 
     makeObservable(this, {
@@ -77,6 +114,20 @@ export class DocConnection extends Disposable {
       tryDoc: computed,
     });
     this.initialize();
+  }
+
+  public async reinitialize() {
+    console.log("reinitialize", this.identifier.id);
+    runInAction(() => {
+      this.doc = "loading";
+    });
+    this.webrtcProvider?.destroy();
+    this.indexedDBProvider?.destroy();
+    this.webrtcProvider = undefined;
+    this.indexedDBProvider = undefined;
+    this.matrixProvider?.dispose();
+    this.matrixProvider = undefined;
+    await this.initializeNoCatch();
   }
 
   private async initialize() {
@@ -89,7 +140,12 @@ export class DocConnection extends Disposable {
   }
 
   private async initializeNoCatch() {
-    const alreadyLocal = await existsLocally(this.identifier.id);
+    if (typeof sessionStore.user === "string") {
+      throw new Error("no matrix client available");
+    }
+    const mxClient = sessionStore.user.matrixClient;
+    const readonly = readOnlyAccess();
+    const alreadyLocal = !readonly && (await existsLocally(this.identifier.id));
 
     const initLocalProviders = async () => {
       if (typeof this.doc !== "string") {
@@ -97,20 +153,23 @@ export class DocConnection extends Disposable {
         return;
       }
 
-      await new Promise<void>((resolve, reject) => {
-        try {
-          this.indexedDBProvider = new IndexeddbPersistence(
-            "yjs-" + this.identifier.id,
-            this._ydoc
-          );
+      if (!readonly) {
+        await new Promise<void>((resolve, reject) => {
+          try {
+            // TODO: add user id to indexeddb id?
+            this.indexedDBProvider = new IndexeddbPersistence(
+              "yjs-" + this.identifier.id,
+              this._ydoc
+            );
 
-          this.indexedDBProvider.on("synced", () => {
-            resolve();
-          });
-        } catch (e) {
-          reject(e);
-        }
-      });
+            this.indexedDBProvider.on("synced", () => {
+              resolve();
+            });
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
 
       this.webrtcProvider = new WebrtcProvider(this.identifier.id, this._ydoc);
       runInAction(() => {
@@ -126,7 +185,7 @@ export class DocConnection extends Disposable {
     }
 
     this.matrixProvider = this._register(
-      new MatrixProvider(this._ydoc, MatrixClientPeg.get(), this.identifier.id)
+      new MatrixProvider(this._ydoc, mxClient, this.identifier.id, readonly)
     );
 
     this._register(
@@ -137,6 +196,7 @@ export class DocConnection extends Disposable {
 
     this._register(
       this.matrixProvider.onDocumentUnavailable(() => {
+        // TODO: tombstone?
         runInAction(() => {
           this.doc = "not-found";
         });
@@ -203,8 +263,11 @@ export class DocConnection extends Disposable {
     console.log("dispose", this.identifier.id, this._refCount);
     if (this._refCount === 0) {
       super.dispose();
+
       this.webrtcProvider?.destroy();
       this.indexedDBProvider?.destroy();
+      this.webrtcProvider = undefined;
+      this.indexedDBProvider = undefined;
       cache.delete(this.identifier.id);
       this.disposed = true;
     }

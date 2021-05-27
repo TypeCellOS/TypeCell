@@ -1,7 +1,8 @@
 import { action, makeObservable, observable, reaction } from "mobx";
-import { authStore } from "../../matrix/AuthStore";
+
 import routing from "../../typecellEngine/lib/routing";
 import { BaseResource } from "../BaseResource";
+import { sessionStore } from "./stores";
 
 export class NavigationStore {
   public isNewPageDialogVisible = false;
@@ -23,7 +24,7 @@ export class NavigationStore {
       () =>
         (this.currentPage.page === "login" ||
           this.currentPage.page === "register") &&
-        authStore._loggedIn,
+        sessionStore.loggedInUser,
       (val) => {
         if (val) {
           const prevUrl = window.history.state?.prevUrl || "/";
@@ -40,7 +41,7 @@ export class NavigationStore {
     );
 
     reaction(
-      () => authStore._loggedIn,
+      () => !!sessionStore.loggedInUser,
       (val) => {
         if (!val) {
           this.isNewPageDialogVisible = false;
@@ -108,5 +109,3 @@ export class NavigationStore {
     window.history.pushState({ url }, "", url);
   };
 }
-
-export const navigationStore = new NavigationStore();

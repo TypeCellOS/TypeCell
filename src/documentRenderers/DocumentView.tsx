@@ -33,6 +33,10 @@ const DocumentView = observer((props: Props) => {
   } else if (connection.doc === "not-found") {
     return <div>Not found</div>;
   }
+  if (!connection.doc.type) {
+    console.warn("possibly corrupt document");
+    return <div>Loading</div>;
+  }
   if (connection.doc.type === "!notebook") {
     return (
       <NotebookRenderer key={connection.doc.id} document={connection.doc.doc} />

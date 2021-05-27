@@ -40,4 +40,4 @@ class PluginStore {
 }
 
 export const pluginStore = new PluginStore();
-pluginStore.loadPlugin("@yousefed/projectplugin");
+// pluginStore.loadPlugin("@yousefed/projectplugin");

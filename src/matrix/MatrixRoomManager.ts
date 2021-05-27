@@ -10,10 +10,37 @@ export async function createMatrixDocument(parentId: string, id: string) {
       topic: "",
     });
 
+    // The history of a (publicly accessible) room should be readable by everyone,
+    // so that all users can get all yjs updates
+    await matrixClient.sendStateEvent(
+      ret.room_id,
+      "m.room.history_visibility",
+      {
+        history_visibility: "world_readable",
+      },
+      ""
+    );
+
+    // all registered users can join
+    await matrixClient.sendStateEvent(
+      ret.room_id,
+      "m.room.join_rules",
+      { join_rule: "public" },
+      ""
+    );
+
+    // guests should not be able to actually join the room,
+    // because we don't want guests to be able to write
+    await matrixClient.sendStateEvent(
+      ret.room_id,
+      "m.room.guest_access",
+      { guest_access: "forbidden" },
+      ""
+    );
+
     // TODO: add room to space
 
     return "ok" as "ok";
-    // this.roomId = ret.room_id;
   } catch (e) {
     if (e.errcode === "M_ROOM_IN_USE") {
       return "already-exists" as "already-exists";
