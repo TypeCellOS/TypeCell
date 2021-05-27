@@ -13,6 +13,7 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import React from "react";
 import { DocumentResource } from "../../store/DocumentResource";
 import { AutoId } from "./extensions/autoid/AutoId";
+import { TrailingNode } from "./extensions/trailingnode";
 import {
   BlockQuoteBlock,
   CodeBlockBlock,
@@ -131,6 +132,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
           },
         },
       }),
+      TrailingNode,
       // TypeCellNode,
     ],
     enableInputRules: true,
