@@ -1,17 +1,10 @@
 .menuList {
-  list-style: none;
-  border: solid 0.1em gray;
-  border-radius: 0.25em;
-  padding: 0.2em;
-}
-
-.menuOption {
-  text-align: center;
-  display: block;
-  padding: 0.1em;
-}
-
-.menuOption:hover {
-  cursor: pointer;
-  color: blue;
+  color: var(--N800);
+  background-color: white;
+  border: 1px solid var(--N40);
+  box-shadow: 0px 4px 8px rgba(9, 30, 66, 0.25),
+    0px 0px 1px rgba(9, 30, 66, 0.31);
+  border-radius: 4px;
+  max-width: 320;
+  margin: 16px auto;
 }

@@ -13,6 +13,9 @@
     "@atlaskit/modal-dialog": "^11.5.0",
     "@atlaskit/section-message": "^6.0.0",
     "@atlaskit/textfield": "^5.0.1",
+    "@atlaskit/button": "^15.1.6",
+    "@atlaskit/menu": "^1.0.0",
+    "@atlaskit/tooltip": "^17.2.1",
     "@emotion/react": "^11.4.0",
     "@matrix-org/olm": "^3.2.2",
     "@testing-library/jest-dom": "^5.11.4",
@@ -56,6 +59,7 @@
     "react-icons": "^4.2.0",
     "react-inspector": "^5.1.0",
     "react-scripts": "4.0.3",
+    "remixicon-react": "^1.0.0",
     "speakingurl": "^14.0.1",
     "styled-components": "3.2.6",
     "tippy.js": "^6.3.1",
@@ -101,6 +105,7 @@
     ]
   },
   "devDependencies": {
+    "@svgr/webpack": "^5.5.0",
     "@types/jest": "^26.0.22",
     "@types/lodash": "^4.14.168",
     "@types/react-inspector": "^4.0.1",

@@ -45,7 +45,8 @@ blockquote {
 }
 
 .ProseMirror {
-  overflow-x: hidden;
+  overflow-y: visible;
+  overflow-x: clip;
 }
 
 .indent {
@@ -68,4 +69,11 @@ blockquote {
 .ProseMirror hr {
   position: relative;
   top: 0.5rem; /* half of handle height */
+}
+
+.ProseMirror .mention {
+  color: #a975ff;
+  background-color: rgba(#a975ff, 0.1);
+  border-radius: 0.3rem;
+  padding: 0.1rem 0.3rem;
 }
