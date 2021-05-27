@@ -101,7 +101,10 @@ export class DocConnection extends Disposable {
     return doc;
   }
 
-  protected constructor(public readonly identifier: Identifier) {
+  protected constructor(
+    public readonly identifier: Identifier,
+    offline = false
+  ) {
     super();
 
     console.log("new docconnection", this.identifier.id);
@@ -113,7 +116,7 @@ export class DocConnection extends Disposable {
       doc: observable.ref,
       tryDoc: computed,
     });
-    this.initialize();
+    this.initialize(offline);
   }
 
   public async reinitialize() {
@@ -130,22 +133,26 @@ export class DocConnection extends Disposable {
     await this.initializeNoCatch();
   }
 
-  private async initialize() {
+  private async initialize(offline = false) {
     try {
-      await this.initializeNoCatch();
+      await this.initializeNoCatch(offline);
     } catch (e) {
       console.error(e);
       throw e;
     }
   }
 
-  private async initializeNoCatch() {
+  private async initializeNoCatch(offline = false) {
     if (typeof sessionStore.user === "string") {
       throw new Error("no matrix client available");
     }
     const mxClient = sessionStore.user.matrixClient;
     const readonly = readOnlyAccess();
     const alreadyLocal = !readonly && (await existsLocally(this.identifier.id));
+
+    if (readonly && offline) {
+      throw new Error("unexpected; both readonly and offline");
+    }
 
     const initLocalProviders = async () => {
       if (typeof this.doc !== "string") {
@@ -177,10 +184,14 @@ export class DocConnection extends Disposable {
       });
     };
 
-    if (alreadyLocal) {
+    if (alreadyLocal || offline) {
+      // For alreadyLocal,
       // we await here to first load indexeddb, and then later sync with remote providers
       // This way, when we set up MatrixProvider, we also have an initial state
       // and can detect whether any local changes need to be synced to the remote (matrix)
+
+      // for offline, make sure we create the local document, because onDocumentAvailable
+      // won't resolve until we become online
       await initLocalProviders();
     }
 
@@ -225,31 +236,35 @@ export class DocConnection extends Disposable {
 
     if (remoteResult === "offline" || remoteResult === "ok") {
       // TODO: add to pending if "offline"
-      const connection = await DocConnection.load(id);
+      const connection = await DocConnection.load(
+        id,
+        remoteResult === "offline"
+      );
+
       const doc = await connection.waitForDoc();
       doc.create("!richtext");
       return doc;
     }
 
     return remoteResult;
-    // check local existence
-    // create remote
-    // create local
   }
 
-  public static load(id: string | { owner: string; document: string }) {
+  public static load(
+    id: string | { owner: string; document: string },
+    offline = false
+  ) {
     const identifier = parseIdentifier(id);
 
     let connection = cache.get(identifier.id);
     if (!connection) {
-      connection = new DocConnection(identifier);
+      connection = new DocConnection(identifier, offline);
       cache.set(identifier.id, connection);
     }
     connection.addRef();
     return connection;
   }
 
-  // DELETE
+  // TODO: DELETE
 
   public addRef() {
     this._refCount++;
@@ -280,17 +295,3 @@ async function existsLocally(id: string) {
     .includes("yjs-" + id);
   return exists;
 }
-
-/*
-
-Use cases to test:
-
-- completely working offline, then syncing on server (both editing old and new documents)
-- fake creation of other user's doc, should result in tombstone after coming online
-- working offline and then a same document has been created on other device. should also result in tombstone (or it should be synced)
-- handle events when document is removed from server
-
-- TODO: think about yjs webrtc signalling
-
-
-*/
