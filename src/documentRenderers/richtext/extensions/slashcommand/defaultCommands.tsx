@@ -181,30 +181,9 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     "Used for the body of your document"
   ),
 
-  // Command for creating a code block
-  codeblock: new SlashCommand(
-    "Code Block",
-    CommandGroup.BASIC_BLOCKS,
-    (editor, range) => {
-      const node = editor.schema.node("codeBlock");
-
-      editor
-        .chain()
-        .replaceRangeCustom(range, node)
-        .focus()
-        .scrollIntoView()
-        .run();
-
-      return true;
-    },
-    ["code", "codeblock"],
-    CodeIcon,
-    "Used to display formatted code that can't be run"
-  ),
-
   typecell: new SlashCommand(
     "TypeCell",
-    CommandGroup.BASIC_BLOCKS,
+    CommandGroup.CODE,
     (editor, range) => {
       const node = editor.schema.node("typecell");
 
@@ -217,7 +196,30 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       return true;
     },
-    ["code", "codeblock", "code block", "cell"]
+    ["code", "codeblock", "code block", "cell"],
+    undefined, // TODO: add icon
+    "A TypeCell editor block, for writing code that is automatically run"
+  ),
+
+  // Command for creating a code block
+  codeblock: new SlashCommand(
+    "Code Block",
+    CommandGroup.CODE,
+    (editor, range) => {
+      const node = editor.schema.node("codeBlock");
+
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
+
+      return true;
+    },
+    ["code", "codeblock", "pseudo-code", "pseudocode", "pseudo code"],
+    CodeIcon,
+    "Used to display syntax-highlighted code that can't be run"
   ),
 
   // Command for creating a bullet list
