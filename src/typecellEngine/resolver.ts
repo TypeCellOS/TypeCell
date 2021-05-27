@@ -67,14 +67,17 @@ export default async function resolveImport(
     // use string identifier directly instead of passing { owner, document},
     // because in code, we should use the correct slug at all times
     // (i.e.: don't allow import "@YousefED/hello world", but "@yousefed/hello-world") for consistency
-    const doc = DocConnection.load(owner + "/" + document);
+    const connection = DocConnection.load(owner + "/" + document);
 
-    const engine = new EngineWithOutput(doc.id, needsTypesInMonaco);
+    const engine = new EngineWithOutput(
+      connection.identifier.id,
+      needsTypesInMonaco
+    );
 
     let releasePreviousModels = () => {};
     // TODO: refactor, and releaseModel()
     const disposeAutorun = autorun(() => {
-      const cells = doc.doc?.cells;
+      const cells = connection.tryDoc?.doc.cells;
       if (!cells) {
         return;
       }
@@ -110,7 +113,7 @@ export default async function resolveImport(
         disposed = true;
         disposeAutorun();
         engine.dispose();
-        doc.dispose();
+        connection.dispose();
         releasePreviousModels();
       },
     };
