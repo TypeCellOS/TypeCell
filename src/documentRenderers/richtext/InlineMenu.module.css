@@ -1,28 +1,17 @@
 .BubbleMenu {
-  display: flex;
-  background-color: transparent;
-  margin: -0.3rem -0.5rem;
-  padding: -0.1rem;
-  border-radius: 0.5rem;
-}
-
-.BubbleMenu > button {
-  border: 1px dotted #aaaaaa20;
-  background: none;
-  color: #fff;
-  font-size: 0.85rem;
-  font-weight: 500;
-  padding: 0.5rem 0.5rem;
-  opacity: 0.6;
-}
-
-.BubbleMenu > button:hover,
-.BubbleMenu > button.isActive {
-  opacity: 1;
+  color: var(--N800);
+  border: 1px solid var(--N40);
+  background-color: white;
+  border-radius: 4px;
 }
 
 .buttonTooltip {
   text-align: center;
+  background-color: var(--N800);
+  color: var(--N40);
+  opacity: 0.6;
+  border-radius: 5px;
+  padding: 10px;
 }
 
 .secondaryText {

@@ -69,3 +69,10 @@ blockquote {
   position: relative;
   top: 0.5rem; /* half of handle height */
 }
+
+.ProseMirror .mention {
+  color: #a975ff;
+  background-color: rgba(#a975ff, 0.1);
+  border-radius: 0.3rem;
+  padding: 0.1rem 0.3rem;
+}
