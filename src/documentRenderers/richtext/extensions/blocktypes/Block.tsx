@@ -7,7 +7,7 @@ import {
 import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { Node, DOMOutputSpec } from "prosemirror-model";
-import { Transaction } from "prosemirror-state";
+import { TextSelection, Transaction } from "prosemirror-state";
 import {
   ElementType,
   MouseEvent,
@@ -95,6 +95,9 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           // Should we move source to the top of bottom of target? Let's find out
           // (logic from https://react-dnd.github.io/react-dnd/examples/sortable/simple)
 
+          // Get all selected blocks, empty if there's only a basic text selection
+          const nodes = getSelectedBlocks();
+
           // Determine rectangle on screen
           const hoverBoundingRect =
             mouseCaptureRef.current!.getBoundingClientRect();
@@ -113,12 +116,19 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           const posBeforeTargetNode = props.getPos();
           const posAfterTargetNode = props.getPos() + props.node.nodeSize;
 
-          // create a new transaction
+          // Create a new transaction
           const tr = props.editor.state.tr;
           const oldDocSize = tr.doc.nodeSize;
 
-          // delete the old block
-          tr.deleteRange(item.getPos(), item.getPos() + item.node.nodeSize);
+          // Get range of selected blocks
+          const selectedRange = getSelectedRange();
+
+          // delete the old block/s
+          if (selectedRange[0] !== -1 && selectedRange[1] !== -1) {
+            tr.deleteRange(selectedRange[0], selectedRange[1]);
+          } else {
+            tr.deleteRange(item.getPos(), item.getPos() + item.node.nodeSize);
+          }
 
           let posToInsert =
             hoverClientY < hoverMiddleY
@@ -135,10 +145,30 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
             const deletedLength = oldDocSize - tr.doc.nodeSize;
             posToInsert -= deletedLength;
           }
-          // insert the block at new position
-          tr.insert(posToInsert, item.node);
-          // execute transaction
+          // insert the block/s at new position
+          const selectedBlocks = getSelectedBlocks();
+          if (selectedBlocks.length > 0) {
+            let nextPos = posToInsert;
+            for (let node of selectedBlocks) {
+              tr.insert(nextPos, node);
+              nextPos += node.nodeSize;
+            }
+          } else {
+            tr.insert(posToInsert, item.node);
+          }
+          // Execute transaction
           props.editor.view.dispatch(tr);
+
+          // Set new selection
+          // Must be a new transaction since the document changes
+          const newSelection = props.editor.state.tr.setSelection(
+            TextSelection.create(
+              props.editor.state.doc,
+              posToInsert + 1,
+              posToInsert + (selectedRange[1] - selectedRange[0])
+            )
+          );
+          props.editor.view.dispatch(newSelection);
         },
       }),
       [props.getPos, props.node]
@@ -185,6 +215,32 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           globalState.activeBlock = id;
         });
       }
+    }
+
+    function getSelectedBlocks(): Array<Node> {
+      const selectedBlocks: Array<Node> = [];
+      props.editor.state.doc.descendants(function (node) {
+        if (node.attrs["block-selected"]) {
+          selectedBlocks.push(node);
+        }
+      });
+      return selectedBlocks;
+    }
+
+    function getSelectedRange(): Array<number> {
+      let start = Number.MAX_VALUE;
+      let end = -1;
+      props.editor.state.doc.descendants(function (node, offset) {
+        if (node.attrs["block-selected"]) {
+          if (offset < start) {
+            start = offset;
+          }
+          if (offset + node.nodeSize > end) {
+            end = offset + node.nodeSize;
+          }
+        }
+      });
+      return [start, end];
     }
 
     // if activeBlocks[id] is set, this block is being hovered over

@@ -18,7 +18,6 @@ export const MultiSelection = Extension.create({
 
         appendTransaction: (transactions, oldState, newState) => {
           const tr = transactions[transactions.length - 1];
-          // console.log("TR:", tr, "\nOLD:", oldState, "\nNEW:", newState);
           if (tr.selectionSet) {
             // Clears previously selected nodes.
             newState.doc.descendants(function (node) {
@@ -46,19 +45,21 @@ export const MultiSelection = Extension.create({
                 }
               );
 
-              // Creates a new selection which covers the entire nodes the selection goes across.
-              const newSelection =
-                newState.selection.anchor < newState.selection.head
-                  ? TextSelection.create(newState.doc, range.start, range.end)
-                  : TextSelection.create(
-                      newState.doc,
-                      range.end - 1,
-                      range.start
-                    );
-
-              if (!newSelection.eq(newState.selection)) {
-                return newState.tr.setSelection(newSelection);
-              }
+              // FORCES SELECTION TO SPAN BLOCKS - NO PARTIAL SELECTION ACROSS BLOCKS
+              // // Creates a new selection which spans the entire blocks the selection goes across.
+              // const newSelection =
+              //   newState.selection.anchor < newState.selection.head
+              //     ? TextSelection.create(newState.doc, range.start, range.end)
+              //     : TextSelection.create(
+              //         newState.doc,
+              //         range.end - 1,
+              //         range.start
+              //       );
+              //
+              // // Sets selection to snap to node blocks.
+              // if (!newSelection.eq(newState.selection)) {
+              //   return newState.tr.setSelection(newSelection);
+              // }
             }
           }
           return;

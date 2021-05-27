@@ -71,10 +71,10 @@ blockquote {
 }
 
 .selected > div {
-  background-color: lightskyblue;
-  outline: solid lightskyblue 0.4rem;
+  background-color: #DDEEFF;
+  outline: solid #DDEEFF 0.4rem;
 }
 
 .selected > div::selection {
-  background-color: lightskyblue;
+  background-color: #AAD2FF;
 }
