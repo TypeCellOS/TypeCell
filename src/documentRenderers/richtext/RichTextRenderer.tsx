@@ -7,7 +7,6 @@ import Document from "@tiptap/extension-document";
 import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
 import OrderedList from "@tiptap/extension-ordered-list";
-import Placeholder from "@tiptap/extension-placeholder";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -34,6 +33,7 @@ import TableMenu from "./TableMenu";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
+import { Placeholder } from "./extensions/placeholder/Placeholder";
 
 type Props = {
   document: DocumentResource;

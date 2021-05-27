@@ -197,6 +197,11 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
     drop(outerRef);
     dragPreview(innerRef);
 
+    const rootDecoration: any = props.decorations.find(
+      (decoration) => decoration.from === 0
+    );
+    const domDecorationAttrs = rootDecoration?.type.attrs || {};
+
     return (
       <NodeViewWrapper className={styles.block}>
         <div ref={outerRef}>
@@ -219,7 +224,11 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
               </pre>
             ) : (
               <div>
-                <NodeViewContent as={domType} {...domAttrs} />
+                <NodeViewContent
+                  as={domType}
+                  {...domDecorationAttrs}
+                  {...domAttrs}
+                />
               </div>
             )}
           </div>
