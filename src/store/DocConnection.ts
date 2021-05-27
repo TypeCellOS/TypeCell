@@ -55,7 +55,7 @@ const docConnectionCache = new Map<string, DocConnection>();
  * Encapsulates a Y.Doc and exposes the Resource the Y.Doc represents
  */
 export class DocConnection extends Disposable {
-  private disposed: boolean = false;
+  public disposed: boolean = false;
   private _refCount = 0;
   /** @internal */
   public _ydoc: Y.Doc; // TODO: make private

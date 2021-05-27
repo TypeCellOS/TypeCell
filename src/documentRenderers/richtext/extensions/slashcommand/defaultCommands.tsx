@@ -340,6 +340,26 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     TableIcon,
     "Used to create a simple table"
   ),
+
+  ref: new SlashCommand(
+    "Reference",
+    CommandGroup.EMBED,
+    (editor, range) => {
+      const node = editor.schema.node("ref");
+
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
+
+      return true;
+    },
+    ["ref", "reference"],
+    QuoteIcon,
+    "Embed another block"
+  ),
 };
 
 export default defaultCommands;

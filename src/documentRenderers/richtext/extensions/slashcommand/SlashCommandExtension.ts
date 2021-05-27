@@ -1,8 +1,9 @@
 import { Extension } from "@tiptap/core";
 import { Selection } from "prosemirror-state";
 import defaultCommands from "./defaultCommands";
-import { SlashCommand } from "./SlashCommand";
+import { CommandGroup, SlashCommand } from "./SlashCommand";
 import { SuggestionPlugin } from "../../prosemirrorPlugins/suggestions/SuggestionPlugin";
+import { searchBlocks } from "../../../../search";
 
 export type SlashCommandOptions = {
   commands: { [key: string]: SlashCommand };
@@ -85,7 +86,19 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
             commands.push(this.options.commands[key]);
           }
 
-          return commands.filter((cmd: SlashCommand) => cmd.match(query));
+          const results = commands.filter((cmd: SlashCommand) =>
+            cmd.match(query)
+          );
+
+          const searchResults = searchBlocks(query);
+          if (searchResults.length) {
+            searchResults.forEach((r) => {
+              results.push(
+                new SlashCommand(r.value!, CommandGroup.SEARCH, () => true, [])
+              );
+            });
+          }
+          return results;
         },
         selectItemCallback: ({ item, editor, range }) => {
           item.execute(editor, range);

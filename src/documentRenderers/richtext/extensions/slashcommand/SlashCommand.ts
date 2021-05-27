@@ -13,6 +13,7 @@ export enum CommandGroup {
   INLINE = "Inline",
   EMBED = "Embed",
   PLUGIN = "Plugin",
+  SEARCH = "Search",
 }
 
 /**

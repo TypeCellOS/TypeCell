@@ -32,13 +32,17 @@ export class Indexer extends Disposable {
       dispose: () => clearInterval(handle),
     });
 
-    changeFeedDoc._ydoc
-      .getMap("documentUpdates")
-      .observe((event, transaction) => {
-        event.keysChanged.forEach((key) => {
-          this.documentsToUpdate.add(key);
-        });
+    const map = changeFeedDoc._ydoc.getMap("documentUpdates");
+
+    map.forEach((val, key) => {
+      this.documentsToUpdate.add(key);
+    });
+
+    map.observe((event, transaction) => {
+      event.keysChanged.forEach((key) => {
+        this.documentsToUpdate.add(key);
       });
+    });
   }
 
   private reIndexPending = () => {
@@ -64,6 +68,10 @@ export class Indexer extends Disposable {
       this.documentCache.set(documentId, doc);
     }
 
+    if (doc.disposed) {
+      throw new Error("retrieved a disposed document!");
+    }
+
     const timeout = this.staleDocumentTimeouts.get(documentId);
     if (timeout) {
       clearTimeout(timeout);
@@ -76,9 +84,11 @@ export class Indexer extends Disposable {
 
       // keep document alive so we don't reload documents all the time when users are editing
       const timeout = setTimeout(() => {
-        doc?.dispose();
-        this.staleDocumentTimeouts.delete(documentId);
-        this.documentCache.delete(documentId);
+        if (!this.documentsToUpdate.has(documentId)) {
+          doc?.dispose();
+          this.staleDocumentTimeouts.delete(documentId);
+          this.documentCache.delete(documentId);
+        }
       }, 30000) as any as number;
       this.staleDocumentTimeouts.set(documentId, timeout);
     } else {

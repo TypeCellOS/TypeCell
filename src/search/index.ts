@@ -21,16 +21,36 @@ export type SearchableDoc = {
   version: IndexedDocumentState;
 };
 
+// TODO: load index from storage
 const fuse = new Fuse<SearchableDoc>([], {
   keys: ["title", "id", "blocks.content"],
+  includeMatches: true,
 });
 
 const changeFeedDoc = DocConnection.load("@internal/.changefeed");
 
 let indexer: Indexer | undefined;
 
+export function searchBlocks(query: string) {
+  if (query.length < 3) {
+    return [];
+  }
+  const results = fuse.search(query);
+
+  const blockResults: Fuse.FuseResultMatch[] = [];
+  results.forEach((r) => {
+    r.matches?.forEach((m) => {
+      if (m.key === "blocks.content") {
+        blockResults.push(m);
+      }
+    });
+  });
+
+  return blockResults;
+}
+
 export async function setupSearch() {
-  // const db = await idb.openDB("search");
+  // TODO: debounce
   DocConnection.onDocConnectionAdded((docConnection) => {
     docConnection._ydoc.on(
       "afterAllTransactions",
