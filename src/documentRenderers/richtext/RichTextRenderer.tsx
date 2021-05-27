@@ -135,25 +135,21 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         addPasteRules() {
           // any consecutive lines that start with > and a space
           const editor = this.editor;
-          return [markdownBlockQuote(editor, new RegExp(`^> `), this.type)];
+          return [markdownBlockQuote(editor, new RegExp(`^> `))];
         },
       }),
       CodeBlockBlock.extend({
         addPasteRules() {
           // any consecutive lines that start with a tab or 4 spaces
           const editor = this.editor;
-          return [
-            markdownCodeBlock(editor, new RegExp(`^\\s{4}|\t`), "codeBlock"),
-          ];
+          return [markdownCodeBlock(editor, new RegExp(`^\\s{4}|\t`))];
         },
       }),
       HeadingBlock.extend({
         addPasteRules() {
           // any consecutive lines that start with 1-6 # and a space
           const editor = this.editor;
-          return [
-            markdownHeadings(editor, new RegExp(`^(#{1,6})\\s`), this.type),
-          ];
+          return [markdownHeadings(editor, new RegExp(`^(#{1,6})\\s`))];
         },
       }),
       HorizontalRuleBlock.extend({
@@ -163,8 +159,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
           return [
             markdownPasteRuleHorizontal(
               editor,
-              new RegExp(`^( ?[-_*]){3,}\s*`),
-              "horizontalRule"
+              new RegExp(`^( ?[-_*]){3,}\\s*`)
             ),
           ];
         },
