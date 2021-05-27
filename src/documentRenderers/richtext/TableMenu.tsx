@@ -1,23 +1,11 @@
 import { Editor } from "@tiptap/react";
 import React from "react";
-import {
-  AiOutlineInsertRowAbove,
-  AiOutlineInsertRowBelow,
-  AiOutlineDeleteRow,
-  AiOutlineInsertRowLeft,
-  AiOutlineInsertRowRight,
-  AiOutlineDeleteColumn,
-} from "react-icons/ai";
-
 import InsertColumnLeftIcon from "remixicon-react/InsertColumnLeftIcon";
 import InsertColumnRightIcon from "remixicon-react/InsertColumnRightIcon";
 import InsertRowBottomIcon from "remixicon-react/InsertRowBottomIcon";
 import InsertRowTopIcon from "remixicon-react/InsertRowTopIcon";
 import DeleteColumnIcon from "remixicon-react/DeleteColumnIcon";
 import DeleteRowIcon from "remixicon-react/DeleteRowIcon";
-import HeaderRowIcon from "remixicon-react/LayoutRowFillIcon";
-
-import { CgFormatHeading } from "react-icons/cg";
 
 import styles from "./TableMenu.module.css";
 import { TableBubbleMenu } from "./extensions/table/TableBubbleMenu";
@@ -28,9 +16,7 @@ import Button from "@atlaskit/button";
 
 type TableMenuProps = { editor: Editor };
 type MenuButtonProps = {
-  // editor: Editor;
   styleDetails: StyleDetails;
-  isDisabled: boolean;
   onClick: () => void;
 };
 
@@ -38,7 +24,6 @@ type StyleDetails = {
   mainTooltip: string;
   secondaryTooltip?: string;
   icon: RemixiconReactIconComponentType;
-  // icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
 };
 
 const addRowBefore: StyleDetails = {
@@ -71,11 +56,6 @@ const deleteColumn: StyleDetails = {
   icon: DeleteColumnIcon,
 };
 
-const toggleHeaderRow: StyleDetails = {
-  mainTooltip: "Toggle this as a header row",
-  icon: HeaderRowIcon,
-};
-
 const BubbleMenuButton = (props: MenuButtonProps) => {
   const tooltipContent = (
     <div className={styles.buttonTooltip}>
@@ -86,28 +66,15 @@ const BubbleMenuButton = (props: MenuButtonProps) => {
     </div>
   );
 
-  // const name = props.styleDetails.name;
-  // let isButtonSelected = () => props.editor.isActive(name);
   const ButtonIcon = props.styleDetails.icon;
 
   return (
     <Tippy content={tooltipContent}>
       <Button
         appearance="subtle"
-        isDisabled={props.isDisabled}
         onClick={props.onClick}
-        // isSelected={isButtonSelected()}
         iconBefore={
-          ButtonIcon ? (
-            <ButtonIcon
-              className={
-                styles.icon
-                // +
-                // " " +
-                // (isButtonSelected() ? styles.isSelected : "")
-              }
-            />
-          ) : undefined
+          ButtonIcon ? <ButtonIcon className={styles.icon} /> : undefined
         }
       />
     </Tippy>
@@ -147,85 +114,49 @@ class TableMenu extends React.Component<TableMenuProps> {
             editor={this.props.editor}>
             <BubbleMenuButton
               styleDetails={addRowBefore}
-              isDisabled={!this.props.editor.can().addRowBefore()}
               onClick={() =>
                 this.props.editor.chain().focus().addRowBefore().run()
               }
             />
             <BubbleMenuButton
               styleDetails={addRowAfter}
-              isDisabled={!this.props.editor.can().addRowAfter()}
               onClick={() =>
                 this.props.editor.chain().focus().addRowAfter().run()
               }
             />
             <BubbleMenuButton
               styleDetails={deleteRow}
-              isDisabled={!this.props.editor.can().deleteRow()}
               onClick={() =>
                 this.props.editor.chain().focus().deleteRow().run()
               }
             />
             <BubbleMenuButton
               styleDetails={addColumnBefore}
-              isDisabled={!this.props.editor.can().addColumnBefore()}
               onClick={() =>
                 this.props.editor.chain().focus().addColumnBefore().run()
               }
             />
             <BubbleMenuButton
               styleDetails={addColumnAfter}
-              isDisabled={!this.props.editor.can().addColumnAfter()}
               onClick={() =>
                 this.props.editor.chain().focus().addColumnAfter().run()
               }
             />
             <BubbleMenuButton
               styleDetails={deleteColumn}
-              isDisabled={!this.props.editor.can().deleteColumn()}
               onClick={() =>
                 this.props.editor.chain().focus().deleteColumn().run()
               }
-            />
-            <BubbleMenuButton
-              styleDetails={toggleHeaderRow}
-              isDisabled={!this.props.editor.can().toggleHeaderRow()}
-              onClick={() => {
-                // Due to the parculiarity of ProseMirror, see: https://github.com/ProseMirror/prosemirror-tables/blob/6b16ed3cf306886f2c169aebbe60701e1ac2deac/src/commands.js#L438
-                // We must select a TableCell to be able to toggle the entire row
-                // But currently with ParagraphBlock any cursor selection lives inside a paragraph
-                // A remedy is implemented as follows:
-
-                // current depth where the text in a paragraph block is located
-                const currentDepth = resolvedPos.depth;
-
-                // We cannot acquire where the position of the start of this block is
-                // So budge the cursor little by little until the depth changes
-                // Which means this cursor position is right before <p>
-                let shift;
-                for (shift = 0; ; shift++) {
-                  const newPos = this.props.editor.state.doc.resolve(
-                    this.props.editor.state.selection.from - shift
-                  );
-                  if (newPos.depth !== currentDepth) {
-                    break;
-                  }
-                }
-
-                // This position (<td>|<p>text...</p>) will be used for selection of a TableCell selection
-                this.props.editor.commands.setNodeSelection(
-                  this.props.editor.state.selection.from - shift
-                );
-
-                this.props.editor.chain().focus().toggleHeaderRow().run();
-              }}
             />
           </TableBubbleMenu>
         );
       }
     }
-
-    return <TableBubbleMenu className={"hidden"} editor={this.props.editor} />;
+    // If not inside a table, don't show the TableBubbleMenu
+    else
+      return (
+        <TableBubbleMenu className={"hidden"} editor={this.props.editor} />
+      );
   }
 }
 

@@ -88,8 +88,10 @@ class BubbleMenuButton extends React.Component<MenuButtonProps> {
         </div>
       </div>
     );
-    const name = this.props.styleDetails.name;
-    let isButtonSelected = () => this.props.editor.isActive(name);
+    let isButtonSelected = () =>
+      this.props.editor.isActive(this.props.styleDetails.name);
+
+    // To be used in DOM, it needs to be with capital letter
     const ButtonIcon = this.props.styleDetails.icon;
 
     return (
