@@ -29,10 +29,8 @@ function makeRegistrationUrl(params: any) {
 
 export const MatrixApp = observer(
   (props: { config: ValidatedServerConfig }) => {
-    // TODO: register
-    // TODO: view / edit as guest
     if (sessionStore.user === "loading") {
-      return <div>Loading.</div>;
+      return <div>Loading</div>;
     } else if (navigationStore.currentPage.page === "login") {
       return (
         <div>

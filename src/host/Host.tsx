@@ -54,7 +54,6 @@ const Navigation = observer(() => {
   );
 });
 
-// TODO: enable guest access
 const Host = observer(() => {
   return (
     <>
