@@ -7,7 +7,7 @@ import {
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 
-import { SessionStore } from "../../matrix/SessionStore";
+import { SessionStore } from "../../store/local/SessionStore";
 import { NavigationStore } from "../../store/local/navigationStore";
 
 const imgCSS = {

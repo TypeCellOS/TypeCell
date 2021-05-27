@@ -1,5 +1,5 @@
-import { MatrixAuthStore } from "../../matrix/MatrixAuthStore";
-import { SessionStore } from "../../matrix/SessionStore";
+import { MatrixAuthStore } from "../../matrix-auth/MatrixAuthStore";
+import { SessionStore } from "./SessionStore";
 import { NavigationStore } from "./navigationStore";
 
 export const matrixAuthStore = new MatrixAuthStore();

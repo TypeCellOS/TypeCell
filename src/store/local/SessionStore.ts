@@ -6,8 +6,8 @@ import {
   reaction,
   runInAction,
 } from "mobx";
-import { MatrixAuthStore } from "./MatrixAuthStore";
-import { MatrixClientPeg } from "./MatrixClientPeg";
+import { MatrixAuthStore } from "../../matrix-auth/MatrixAuthStore";
+import { MatrixClientPeg } from "../../matrix-auth/MatrixClientPeg";
 
 export class SessionStore {
   public user:

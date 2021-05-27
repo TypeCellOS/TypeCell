@@ -9,8 +9,8 @@ import {
 import { IndexeddbPersistence } from "y-indexeddb";
 import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
-import MatrixProvider from "../matrix/MatrixProvider";
-import { createMatrixDocument } from "../matrix/MatrixRoomManager";
+import MatrixProvider from "../matrix-yjs/MatrixProvider";
+import { createMatrixDocument } from "../matrix-yjs/MatrixRoomManager";
 
 import { observeDoc } from "../moby/doc";
 import { Disposable } from "../util/vscode-common/lifecycle";

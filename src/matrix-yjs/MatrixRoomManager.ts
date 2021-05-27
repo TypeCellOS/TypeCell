@@ -1,4 +1,4 @@
-import { MatrixClientPeg } from "./MatrixClientPeg";
+import { MatrixClientPeg } from "../matrix-auth/MatrixClientPeg";
 
 export async function createMatrixDocument(parentId: string, id: string) {
   const matrixClient = MatrixClientPeg.get();
