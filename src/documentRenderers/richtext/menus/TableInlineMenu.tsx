@@ -7,77 +7,40 @@ import InsertRowTopIcon from "remixicon-react/InsertRowTopIcon";
 import DeleteColumnIcon from "remixicon-react/DeleteColumnIcon";
 import DeleteRowIcon from "remixicon-react/DeleteRowIcon";
 
-import styles from "./InlineMenu.module.css";
 import { TableBubbleMenu } from "../extensions/table/TableBubbleMenu";
-import { RemixiconReactIconComponentType } from "remixicon-react";
-import Tippy from "@tippyjs/react";
-import Button from "@atlaskit/button";
+import BubbleMenuButton, { ButtonStyleDetails } from "./BubbleMenuButton";
+import styles from "./InlineMenu.module.css";
 
 type TableMenuProps = { editor: Editor };
-type MenuButtonProps = {
-  styleDetails: StyleDetails;
-  onClick: () => void;
-};
 
-type StyleDetails = {
-  mainTooltip: string;
-  secondaryTooltip?: string;
-  icon: RemixiconReactIconComponentType;
-};
-
-const addRowBefore: StyleDetails = {
+const addRowBefore: ButtonStyleDetails = {
   mainTooltip: "Insert row above the selection",
   icon: InsertRowTopIcon,
 };
 
-const addRowAfter: StyleDetails = {
+const addRowAfter: ButtonStyleDetails = {
   mainTooltip: "Insert row below the selection",
   icon: InsertRowBottomIcon,
 };
 
-const deleteRow: StyleDetails = {
+const deleteRow: ButtonStyleDetails = {
   mainTooltip: "Delete selected row(s)",
   icon: DeleteRowIcon,
 };
 
-const addColumnBefore: StyleDetails = {
+const addColumnBefore: ButtonStyleDetails = {
   mainTooltip: "Insert column left of the selection",
   icon: InsertColumnLeftIcon,
 };
 
-const addColumnAfter: StyleDetails = {
+const addColumnAfter: ButtonStyleDetails = {
   mainTooltip: "Insert column right of the selection",
   icon: InsertColumnRightIcon,
 };
 
-const deleteColumn: StyleDetails = {
+const deleteColumn: ButtonStyleDetails = {
   mainTooltip: "Delete selected column(s)",
   icon: DeleteColumnIcon,
-};
-
-const BubbleMenuButton = (props: MenuButtonProps) => {
-  const tooltipContent = (
-    <div className={styles.buttonTooltip}>
-      <div className={styles.mainText}>{props.styleDetails.mainTooltip}</div>
-      <div className={styles.secondaryText}>
-        {props.styleDetails.secondaryTooltip}
-      </div>
-    </div>
-  );
-
-  const ButtonIcon = props.styleDetails.icon;
-
-  return (
-    <Tippy content={tooltipContent}>
-      <Button
-        appearance="subtle"
-        onClick={props.onClick}
-        iconBefore={
-          ButtonIcon ? <ButtonIcon className={styles.icon} /> : undefined
-        }
-      />
-    </Tippy>
-  );
 };
 
 /**

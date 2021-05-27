@@ -1,122 +1,53 @@
 import { BubbleMenu, Editor } from "@tiptap/react";
 import { NodeSelection } from "prosemirror-state";
-import React, { FunctionComponent, useEffect } from "react";
-import Tippy from "@tippyjs/react";
-import { Underline } from "../extensions/marks/Underline";
-import Button from "@atlaskit/button";
-
-import styles from "./InlineMenu.module.css";
-import { RemixiconReactIconComponentType } from "remixicon-react";
+import React from "react";
 import BoldIcon from "remixicon-react/BoldIcon";
 import ItalicIcon from "remixicon-react/ItalicIcon";
 import StrikethroughIcon from "remixicon-react/StrikethroughIcon";
 import CodeLineIcon from "remixicon-react/CodeLineIcon";
 import UnderlineIcon from "remixicon-react/UnderlineIcon";
 
+import { Underline } from "../extensions/marks/Underline";
+import BubbleMenuButton, { ButtonStyleDetails } from "./BubbleMenuButton";
+import styles from "./InlineMenu.module.css";
+
 type InlineMenuProps = { editor: Editor };
-type MenuButtonProps = {
-  styleDetails: StyleDetails;
-  onClick: () => void;
-  editor?: Editor;
-};
 
-/**
- * [name] has to be the same as the name in the defining Mark (see underline below)
- */
-type StyleDetails = {
-  name: string;
-  mainTooltip: string;
-  secondaryTooltip: string;
-  icon: RemixiconReactIconComponentType;
-};
-
-const bold: StyleDetails = {
-  name: "bold",
+const bold: ButtonStyleDetails = {
+  markName: "bold",
   mainTooltip: "Bold",
   // This will change to a variable if custom shortcuts are implemented
   secondaryTooltip: "Ctrl+B",
   icon: BoldIcon,
 };
 
-const italic: StyleDetails = {
-  name: "italic",
+const italic: ButtonStyleDetails = {
+  markName: "italic",
   mainTooltip: "Italic",
   secondaryTooltip: "Ctrl+I",
   icon: ItalicIcon,
 };
 
-const strike: StyleDetails = {
-  name: "strike",
+const strike: ButtonStyleDetails = {
+  markName: "strike",
   mainTooltip: "Strikethrough",
   secondaryTooltip: "Ctrl+Shift+X",
   icon: StrikethroughIcon,
 };
 
-const code: StyleDetails = {
-  name: "code",
+const code: ButtonStyleDetails = {
+  markName: "code",
   mainTooltip: "Inline Code",
   secondaryTooltip: "Ctrl+E",
   icon: CodeLineIcon,
 };
 
-const underline: StyleDetails = {
-  name: Underline.name,
+const underline: ButtonStyleDetails = {
+  markName: Underline.name,
   mainTooltip: "Underline",
   secondaryTooltip: "Ctrl+U",
   icon: UnderlineIcon,
 };
-
-/**
- * The button that shows in the inline menu.
- *
- * __When adding new marks(menu items)__
- * - add the mark name to the constants above
- * - and provide tooltip text
- */
-class BubbleMenuButton extends React.Component<MenuButtonProps> {
-  render() {
-    const tooltipContent = (
-      <div className={styles.buttonTooltip}>
-        <div className={styles.mainText}>
-          {this.props.styleDetails.mainTooltip}
-        </div>
-        <div className={styles.secondaryText}>
-          {this.props.styleDetails.secondaryTooltip}
-        </div>
-      </div>
-    );
-
-    let isButtonSelected = () => {
-      if (this.props.editor) {
-        return this.props.editor.isActive(this.props.styleDetails.name);
-      } else return false;
-    };
-
-    // To be used in DOM, it needs to be with capital letter
-    const ButtonIcon = this.props.styleDetails.icon;
-
-    return (
-      <Tippy content={tooltipContent}>
-        <Button
-          appearance="subtle"
-          onClick={this.props.onClick}
-          isSelected={isButtonSelected()}
-          iconBefore={
-            ButtonIcon ? (
-              <ButtonIcon
-                className={
-                  styles.icon +
-                  " " +
-                  (isButtonSelected() ? styles.isSelected : "")
-                }
-              />
-            ) : undefined
-          }
-        />
-      </Tippy>
-    );
-  }
-}
 
 class InlineMenu extends React.Component<InlineMenuProps> {
   render() {
@@ -180,4 +111,4 @@ class InlineMenu extends React.Component<InlineMenuProps> {
   }
 }
 
-export { InlineMenu, BubbleMenuButton };
+export default InlineMenu;
