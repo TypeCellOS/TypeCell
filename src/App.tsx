@@ -13,7 +13,6 @@ import { setupSearch } from "./search";
 import { DocumentResource } from "./store/DocumentResource";
 import { navigationStore } from "./store/local/stores";
 
-setupSearch();
 setMonacoDefaults(monaco);
 setupTypecellTypeResolver();
 setupNpmTypeResolver();

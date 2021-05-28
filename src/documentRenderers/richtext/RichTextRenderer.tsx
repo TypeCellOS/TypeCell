@@ -22,6 +22,7 @@ import {
   IndentItemBlock,
   ListItemBlock,
   ParagraphBlock,
+  RefBlock,
 } from "./extensions/blocktypes";
 import { TableBlock } from "./extensions/blocktypes/TableBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
@@ -32,7 +33,6 @@ import { MentionsExtension } from "./extensions/mentions/MentionsExtension";
 import SlashCommandExtension from "./extensions/slashcommand";
 import InlineMenu from "./InlineMenu";
 import "./RichTextRenderer.css";
-import RefBlock from "./extensions/blocktypes/RefBlock";
 import TableMenu from "./TableMenu";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";

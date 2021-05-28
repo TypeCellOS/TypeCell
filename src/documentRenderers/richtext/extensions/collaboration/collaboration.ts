@@ -118,21 +118,35 @@ export const Collaboration = Extension.create<CollaborationOptions>({
       ? this.options.fragment
       : this.options.document.getXmlFragment(this.options.field);
 
-    const resolveRef = (el: XmlElement) => {
-      const resource = DocConnection.load({
-        owner: "@yousefed",
-        document: "refsource",
-      });
-      return new Promise((resolve) => {
-        const handle = autorun(() => {
-          let doc = resource.doc;
-          if (typeof doc !== "string" && doc.doc.type === "!richtext") {
-            handle();
-            const source = doc.doc.data.firstChild;
-            resolve(source);
-          }
+    const resolveRef = (el: XmlElement, attrs: any) => {
+      const docId = el.getAttribute("documentId") || attrs.documentId;
+      if (!docId) {
+        throw new Error("no documentId on ref");
+      }
+      const resource = DocConnection.load(docId);
+
+      const getElement = () => {
+        let doc = resource.doc;
+        if (typeof doc !== "string" && doc.doc.type === "!richtext") {
+          return doc.doc.data.firstChild;
+        }
+        return undefined;
+      };
+      const element = getElement();
+      if (element) {
+        return Promise.resolve(element);
+      } else {
+        // Maybe use when()?
+        return new Promise((resolve) => {
+          const disposeAutorun = autorun(() => {
+            const element = getElement();
+            if (element) {
+              disposeAutorun();
+              resolve(element);
+            }
+          });
         });
-      });
+      }
     };
     return [ySyncPlugin(fragment, resolveRef), yUndoPlugin()];
   },

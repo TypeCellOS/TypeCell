@@ -1,8 +1,9 @@
 import Fuse from "fuse.js";
-import { SearchableDoc } from ".";
+import { SearchableBlock, SearchableDoc } from ".";
 import { DocConnection } from "../store/DocConnection";
 import { Disposable } from "../util/vscode-common/lifecycle";
 import { getStateVector } from "./util";
+import * as Y from "yjs";
 
 export type IndexedDocumentState = {
   [client: string]: number;
@@ -105,13 +106,23 @@ export class Indexer extends Disposable {
         id: doc.identifier.id,
         title: "",
         version: currentStateVector,
-        blocks: xmlRoot.toArray().map((element) => {
-          return {
-            id: "",
-            content:
-              element.toDOM().textContent?.replace(/(<([^>]+)>)/gi, "") || "", // regexp can be removed after https://github.com/yjs/yjs/issues/300 is fixed
-          };
-        }),
+        blocks: xmlRoot
+          .toArray()
+          .map((element) => {
+            if (!(element instanceof Y.XmlElement)) {
+              return undefined;
+            }
+            const id = element.getAttribute("block-id");
+            if (!id) {
+              console.warn("indexing element without block-id");
+            }
+            return {
+              id,
+              content:
+                element.toDOM().textContent?.replace(/(<([^>]+)>)/gi, "") || "", // regexp can be removed after https://github.com/yjs/yjs/issues/300 is fixed
+            };
+          })
+          .filter((b) => !!b) as SearchableBlock[],
       };
       this.fuse.remove((d) => d.id === doc.identifier.id);
       this.fuse.add(searchDoc);

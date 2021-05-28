@@ -37,8 +37,7 @@ export const AutoId = Extension.create<AutoIdOptions>({
                 });
               }
             } else {
-              // remove id
-              if (node.attrs["block-id"]) {
+              if (node.attrs["block-id"] && parent.type.name !== "ref") {
                 tr.setNodeMarkup(pos, undefined, {
                   ...node.attrs,
                   "block-id": undefined,

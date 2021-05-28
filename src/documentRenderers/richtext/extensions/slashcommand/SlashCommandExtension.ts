@@ -94,7 +94,23 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
           if (searchResults.length) {
             searchResults.forEach((r) => {
               results.push(
-                new SlashCommand(r.value!, CommandGroup.SEARCH, () => true, [])
+                new SlashCommand(
+                  r.match.value!,
+                  CommandGroup.SEARCH,
+                  (editor, range) => {
+                    const node = editor.schema.node("ref", {
+                      documentId: r.document.id,
+                      blockId: r.block.id,
+                    });
+                    return editor
+                      .chain()
+                      .replaceRangeCustom(range, node)
+                      .focus()
+                      .scrollIntoView()
+                      .run();
+                  },
+                  []
+                )
               );
             });
           }

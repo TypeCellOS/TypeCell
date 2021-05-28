@@ -27,9 +27,15 @@ const fuse = new Fuse<SearchableDoc>([], {
   includeMatches: true,
 });
 
-const changeFeedDoc = DocConnection.load("@internal/.changefeed", true);
+let changeFeedDoc: DocConnection | undefined;
 
 let indexer: Indexer | undefined;
+
+type SearchResult = {
+  document: Omit<SearchableDoc, "blocks">;
+  block: SearchableBlock;
+  match: Fuse.FuseResultMatch;
+};
 
 export function searchBlocks(query: string) {
   if (query.length < 3) {
@@ -37,11 +43,19 @@ export function searchBlocks(query: string) {
   }
   const results = fuse.search(query);
 
-  const blockResults: Fuse.FuseResultMatch[] = [];
+  const blockResults: SearchResult[] = [];
   results.forEach((r) => {
     r.matches?.forEach((m) => {
       if (m.key === "blocks.content") {
-        blockResults.push(m);
+        blockResults.push({
+          match: m,
+          block: r.item.blocks[m.refIndex!],
+          document: {
+            id: r.item.id,
+            title: r.item.title,
+            version: r.item.version,
+          },
+        });
       }
     });
   });
@@ -50,6 +64,7 @@ export function searchBlocks(query: string) {
 }
 
 export async function setupSearch() {
+  changeFeedDoc = DocConnection.load("@internal/.changefeed", true);
   // TODO: debounce
   DocConnection.onDocConnectionAdded((docConnection) => {
     docConnection._ydoc.on(
@@ -74,7 +89,7 @@ export async function setupSearch() {
             clock: stateVector,
           };
 
-          changeFeedDoc._ydoc
+          changeFeedDoc!._ydoc
             .getMap("documentUpdates")
             .set(docConnection.identifier.id, state);
         }
@@ -83,7 +98,7 @@ export async function setupSearch() {
   });
 
   elector.awaitLeadership().then(() => {
-    indexer = new Indexer(changeFeedDoc, fuse);
+    indexer = new Indexer(changeFeedDoc!, fuse);
   });
   elector.onduplicate = () => {
     if (elector.isLeader) {
