@@ -8,7 +8,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { Node, DOMOutputSpec } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
-import {
+import React, {
   ElementType,
   MouseEvent,
   PropsWithChildren,
@@ -289,9 +289,38 @@ function Block(
                 />
               </Tippy>
             </div>
-            {domType === "code" ? ( // Wraps content in "pre" tags if the content is code.
-              <pre>
-                <NodeViewContent as={domType} {...domAttrs} />
+            {domType === "pre" ? ( // Wraps content in "pre" tags if the content is code.
+              <pre className={styles.codeBlockPre}>
+                <select
+                  className={styles.codeBlockLanguageSelector}
+                  value={props.node.attrs["language"]}
+                  onChange={(event) => {
+                    // @ts-ignore
+                    props.updateAttributes({
+                      language: event.target.value,
+                    });
+                  }}>
+                  <option value="null">auto</option>
+                  <option disabled>—</option>
+                  {props.extension.options.lowlight
+                    .listLanguages()
+                    // @ts-ignore
+                    .map((lang, index) => {
+                      return (
+                        <option
+                          key={props.node.attrs["block-id"] + index}
+                          value={lang}>
+                          {lang}
+                        </option>
+                      );
+                    })}
+                </select>
+
+                <NodeViewContent
+                  as={"code"}
+                  {...domAttrs}
+                  className={styles.codeBlockCodeContent}
+                />
               </pre>
             ) : (
               <div>
