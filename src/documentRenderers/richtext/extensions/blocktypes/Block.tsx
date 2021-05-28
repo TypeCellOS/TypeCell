@@ -47,6 +47,10 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
     let domType: ElementType;
     let domAttrs: { [attr: string]: string | null | undefined } = {};
 
+    // Used to store multi-selection data
+    let selectedBlocks: Array<Node> = [];
+    let selectedRange: Array<number> = [];
+
     if (Array.isArray(domOutput)) {
       // We assume here that domOutput[0] is indeed a valid HTML tag
       domType = domOutput[0] as ElementType;
@@ -121,7 +125,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           const oldDocSize = tr.doc.nodeSize;
 
           // Get range of selected blocks
-          const selectedRange = getSelectedRange();
+          selectedRange = getSelectedRange();
 
           // delete the old block/s
           if (selectedRange[0] !== -1 && selectedRange[1] !== -1) {
@@ -146,7 +150,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
             posToInsert -= deletedLength;
           }
           // insert the block/s at new position
-          const selectedBlocks = getSelectedBlocks();
+          selectedBlocks = getSelectedBlocks();
           if (selectedBlocks.length > 0) {
             let nextPos = posToInsert;
             for (let node of selectedBlocks) {
@@ -159,16 +163,18 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           // Execute transaction
           props.editor.view.dispatch(tr);
 
-          // Set new selection
+          // Set new selection if dragging multiple blocks
           // Must be a new transaction since the document changes
-          const newSelection = props.editor.state.tr.setSelection(
-            TextSelection.create(
-              props.editor.state.doc,
-              posToInsert + 1,
-              posToInsert + (selectedRange[1] - selectedRange[0])
-            )
-          );
-          props.editor.view.dispatch(newSelection);
+          if (selectedBlocks.length > 0) {
+            const newSelection = props.editor.state.tr.setSelection(
+              TextSelection.create(
+                props.editor.state.doc,
+                posToInsert + 1,
+                posToInsert + (selectedRange[1] - selectedRange[0])
+              )
+            );
+            props.editor.view.dispatch(newSelection);
+          }
         },
       }),
       [props.getPos, props.node]
@@ -188,12 +194,19 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
       if (typeof props.getPos === "boolean") {
         throw new Error("unexpected");
       }
-      props.editor.view.dispatch(
-        props.editor.state.tr.deleteRange(
-          props.getPos(),
-          props.getPos() + props.node.nodeSize
-        )
-      );
+
+      if (selectedBlocks.length > 0) {
+        props.editor.view.dispatch(
+          props.editor.state.tr.deleteRange(selectedRange[0], selectedRange[1])
+        );
+      } else {
+        props.editor.view.dispatch(
+          props.editor.state.tr.deleteRange(
+            props.getPos(),
+            props.getPos() + props.node.nodeSize
+          )
+        );
+      }
     }
 
     /**
@@ -217,6 +230,40 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
       }
     }
 
+    /**
+     * Updates the multi-block selection. If this block is outside this selection, the selection is cancelled and the
+     * cursor is moved to the start of this block. Runs every time the drag-handle/side-menu button is clicked, as all
+     * operations which utilize multi-block selections are triggered from the drag-handle in some way.
+     */
+    function updateSelection() {
+      if (typeof props.getPos === "boolean") {
+        throw new Error("unexpected");
+      }
+
+      selectedBlocks = getSelectedBlocks();
+      selectedRange = getSelectedRange();
+
+      // Checks if block position is not within the multi-block selection and a multi-block selection exists.
+      if (
+        (props.getPos() < selectedRange[0] ||
+          props.getPos() >= selectedRange[1]) &&
+        selectedBlocks.length > 0
+      ) {
+        // Sets the selection to the start of the block
+        props.editor.view.dispatch(
+          props.editor.state.tr.setSelection(
+            TextSelection.create(props.editor.state.doc, props.getPos() + 1)
+          )
+        );
+        // selectedBlocks = getSelectedBlocks();
+        // selectedRange = getSelectedRange();
+      }
+    }
+
+    /**
+     * Gets all selected blocks.
+     * @returns An array of nodes, each corresponding to a selected block. Empty if selection is within a single block.
+     */
     function getSelectedBlocks(): Array<Node> {
       const selectedBlocks: Array<Node> = [];
       props.editor.state.doc.descendants(function (node) {
@@ -227,6 +274,11 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
       return selectedBlocks;
     }
 
+    /**
+     * Gets the start and end positions of the multi-block selection.
+     * @returns A 2-element array containing the start and end positions of the multi-block selection. Both values are
+     * -1 if selection is within a single block.
+     */
     function getSelectedRange(): Array<number> {
       let start = Number.MAX_VALUE;
       let end = -1;
@@ -263,6 +315,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
                 <div
                   contentEditable={false} // This is needed because otherwise pressing key up when positioned just after draghandle doesn't work
                   className={styles.handle + (hover ? " " + styles.hover : "")}
+                  onClick={updateSelection}
                 />
               </Tippy>
             </div>
