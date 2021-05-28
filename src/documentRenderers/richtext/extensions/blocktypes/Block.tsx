@@ -18,6 +18,7 @@ import React, {
 } from "react";
 import { useDrag, useDrop, XYCoord } from "react-dnd";
 import SideMenu from "../../SideMenu";
+import mergeAttributesReact from "../../util/mergeAttributesReact";
 import styles from "./Block.module.css";
 /**
  * A global store that keeps track of which block is being hovered over
@@ -42,7 +43,13 @@ let aboveCenterLine = false;
  * @param type	The type of HTML element to be rendered as a block.
  * @returns			A React component, to be used in a TipTap node view.
  */
-function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
+function Block(
+  toDOM: (node: Node<any>) => DOMOutputSpec,
+  options: {
+    placeholder?: string;
+    placeholderOnlyWhenSelected?: boolean;
+  }
+) {
   return observer(function Component(
     props: PropsWithChildren<NodeViewRendererProps>
   ) {
@@ -243,6 +250,29 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
     drop(outerRef);
     dragPreview(innerRef);
 
+    /*
+    Our custom Placeholder logic. We have to do this ourselves because:
+    a) official Placeholder extension doesn't work well on nodeviews
+    b) We want to have some Blocks use placeholderOnlyWhenSelected, and some not
+    */
+    const getPos = props.getPos;
+    if (typeof getPos === "boolean") {
+      throw new Error("unexpected boolean getPos");
+    }
+    const pos = getPos();
+    const anchor = props.editor.state.selection.anchor;
+    const hasAnchor = anchor >= pos && anchor <= pos + props.node.nodeSize;
+    const isEmpty = !props.node.isLeaf && !props.node.textContent;
+    const placeholder =
+      (isEmpty &&
+        (!options.placeholderOnlyWhenSelected || hasAnchor) &&
+        options.placeholder) ||
+      undefined;
+
+    const placeholderAttrs = placeholder
+      ? { "data-placeholder": placeholder, class: "is-empty" }
+      : {};
+
     return (
       <NodeViewWrapper className={`${styles.block}`}>
         <div ref={outerRef}>
@@ -294,7 +324,10 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
               </pre>
             ) : (
               <div>
-                <NodeViewContent as={domType} {...domAttrs} />
+                <NodeViewContent
+                  as={domType}
+                  {...mergeAttributesReact(placeholderAttrs, domAttrs)}
+                />
               </div>
             )}
           </div>

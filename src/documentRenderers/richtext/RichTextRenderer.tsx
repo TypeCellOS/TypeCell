@@ -7,7 +7,6 @@ import Document from "@tiptap/extension-document";
 import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
 import OrderedList from "@tiptap/extension-ordered-list";
-import Placeholder from "@tiptap/extension-placeholder";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
 import Typography from "@tiptap/extension-typography";
@@ -16,6 +15,7 @@ import { markPasteRule } from "@tiptap/core";
 import React from "react";
 import { DocumentResource } from "../../store/DocumentResource";
 import { AutoId } from "./extensions/autoid/AutoId";
+import { TrailingNode } from "./extensions/trailingnode";
 import {
   BlockQuoteBlock,
   HeadingBlock,
@@ -44,6 +44,7 @@ import markdownBlockQuote from "./extensions/markdownPasteRules/BlockQuote";
 import markdownCodeBlock from "./extensions/markdownPasteRules/CodeBlock";
 import markdownBulletList from "./extensions/markdownPasteRules/BulletList";
 import markdownOrderedList from "./extensions/markdownPasteRules/OrderedList";
+import { Placeholder } from "@tiptap/extension-placeholder";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -76,9 +77,12 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         fragment: props.document.data,
       }),
       // DropCursor,
+      // Even though we implement our own placeholder logic in Blocks, we
+      // still need the placeholder extension to make sure nodeviews
+      // are re-rendered when they're empty or when the anchor changes.
       Placeholder.configure({
-        placeholder: "Use '/' to insert a new block.",
-        showOnlyCurrent: false,
+        placeholder: "", // actual placeholders are defined per block
+        showOnlyCurrent: true, // use showOnlyCurrent to make sure the nodeviews are rerendered when cursor moves
       }),
 
       AutoId,
@@ -137,7 +141,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
           const editor = this.editor;
           return [markdownBlockQuote(editor, new RegExp(`^> `))];
         },
-      }),
+      }).configure({ placeholder: "Empty quote" }),
       CodeBlockBlock.extend({
         addPasteRules() {
           // any consecutive lines that start with a tab or 4 spaces
@@ -151,7 +155,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
           const editor = this.editor;
           return [markdownHeadings(editor, new RegExp(`^(#{1,6})\\s`))];
         },
-      }),
+      }).configure({ placeholder: "Heading" }),
       HorizontalRuleBlock.extend({
         addPasteRules() {
           // any consecutive lines that start with 3 or more - _ or *
@@ -164,12 +168,15 @@ const RichTextRenderer: React.FC<Props> = (props) => {
           ];
         },
       }),
-      ParagraphBlock,
-      ListItemBlock,
+      ParagraphBlock.configure({
+        placeholder: "Enter text or type '/' for commands",
+        placeholderOnlyWhenSelected: true,
+      }),
+      ListItemBlock.configure({ placeholder: "List item" }),
       TableBlock,
       IndentItemBlock.configure({
         HTMLAttributes: {
-          className: "indent",
+          class: "indent",
         },
       }),
 
@@ -209,6 +216,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
           },
         },
       }),
+      TrailingNode,
       // TypeCellNode,
     ],
     enableInputRules: true,
