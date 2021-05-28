@@ -55,6 +55,7 @@ export class SessionStore {
   }
 
   private async updateStateFromAuthStore() {
+    // TODO: dispose old matrixClient if we get a new one
     if (this.matrixAuthStore.loggedInUser) {
       // signed in as a real user
       const userId = this.matrixAuthStore.loggedInUser;

@@ -23,6 +23,7 @@ export default class MatrixProvider extends Disposable {
   private pendingUpdates: any[] = [];
   private isSendingUpdates = false;
   private roomId: string | undefined;
+  private pollInitializeTimeoutID: ReturnType<typeof setTimeout> | undefined;
 
   private readonly _onDocumentAvailable: Emitter<void> = this._register(
     new Emitter<void>()
@@ -226,7 +227,7 @@ export default class MatrixProvider extends Disposable {
       }
 
       // TODO: current implementation uses polling to get room availability, but should be possible to get a real-time solution
-      setTimeout(() => {
+      this.pollInitializeTimeoutID = setTimeout(() => {
         this.initialize();
       }, timeout);
       return;
@@ -263,5 +264,8 @@ export default class MatrixProvider extends Disposable {
     super.dispose();
     this.doc.off("update", this.documentUpdateListener);
     this.matrixClient.off("Room.timeline", this.matrixRoomListener);
+    if (this.pollInitializeTimeoutID) {
+      clearTimeout(this.pollInitializeTimeoutID);
+    }
   }
 }

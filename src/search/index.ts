@@ -27,7 +27,7 @@ const fuse = new Fuse<SearchableDoc>([], {
   includeMatches: true,
 });
 
-const changeFeedDoc = DocConnection.load("@internal/.changefeed");
+const changeFeedDoc = DocConnection.load("@internal/.changefeed", true);
 
 let indexer: Indexer | undefined;
 
