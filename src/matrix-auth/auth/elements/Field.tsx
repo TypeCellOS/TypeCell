@@ -351,7 +351,6 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
         )}
       </AtlaskitField>
     );
-    return <>{fieldInput}</>;
 
     // Old native matrix version, replaced by AtlasKit
 
