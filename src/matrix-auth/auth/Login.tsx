@@ -26,6 +26,20 @@ import AuthBody from "./views/AuthBody";
 import AuthHeader from "./views/AuthHeader";
 import { AuthPage } from "./views/AuthPage";
 import PasswordLogin from "./views/PasswordLogin";
+import { PageLayout, Main, Content, Banner } from "@atlaskit/page-layout";
+import { ButtonItem, HeadingItem, MenuGroup, Section } from "@atlaskit/menu";
+import { N40, N800, N10 } from "@atlaskit/theme/colors";
+import { CgEnter } from "react-icons/cg";
+import Form, {
+  CheckboxField,
+  ErrorMessage,
+  Field,
+  FormFooter,
+  HelperMessage,
+  ValidMessage,
+} from "@atlaskit/form";
+import TextField from "@atlaskit/textfield";
+import Button from "@atlaskit/button";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -620,25 +634,159 @@ export default class LoginComponent extends React.PureComponent<
       );
     }
 
+    // UI components
+
+    const HeaderContextWrapper = ({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) => {
+      return (
+        <div
+          style={{
+            margin: "auto",
+            width: "200px",
+            height: "100%",
+            display: "flex",
+          }}>
+          {children}
+        </div>
+      );
+    };
+
+    // could turn into function component if that is more preferable
+    const BodyContextWrapper = ({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) => {
+      return (
+        <div
+          style={{
+            border: `1px solid ${N40}`,
+            boxShadow:
+              "0px 4px 8px rgba(9, 30, 66, 0.25), 0px 0px 1px rgba(9, 30, 66, 0.31)",
+            borderRadius: 4,
+            maxWidth: 400,
+            margin: "16px auto",
+          }}>
+          {children}
+        </div>
+      );
+    };
+
+    const MainMenu: React.FC = () => {
+      return (
+        <BodyContextWrapper>
+          <MenuGroup>
+            <Section>
+              <HeadingItem>Sign In</HeadingItem>
+
+              {/*
+                Placeholder form, will either be turned into react component
+                or not used at all and instead stylize Matrix' component.
+              */}
+              <div
+                style={{
+                  maxWidth: 350,
+                  margin: "0 auto",
+                }}>
+                <Form onSubmit={(data) => console.log("form data", data)}>
+                  {({ formProps }) => (
+                    <form {...formProps}>
+                      <Field
+                        name="username"
+                        defaultValue=""
+                        label="User name"
+                        isRequired>
+                        {({ fieldProps }) => <TextField {...fieldProps} />}
+                      </Field>
+                      <Field
+                        name="password"
+                        defaultValue=""
+                        label="name"
+                        isRequired>
+                        {({ fieldProps }) => <TextField {...fieldProps} />}
+                      </Field>
+                      <Button
+                        style={{ margin: "20px 0" }}
+                        type="submit"
+                        appearance="primary">
+                        Submit
+                      </Button>
+                    </form>
+                  )}
+                </Form>
+              </div>
+
+              {/*
+              ButtonItem is the appropriate button to use within a MenuGroup
+              <ButtonItem>Sign in</ButtonItem>
+              */}
+            </Section>
+          </MenuGroup>
+        </BodyContextWrapper>
+      );
+    };
+
+    const Footer: React.FC = () => {
+      return (
+        <a href="https://matrix.org" target="_blank" rel="noreferrer noopener">
+          "powered by Matrix"
+        </a>
+      );
+    };
+
     return (
-      <AuthPage>
-        <AuthHeader />
-        <AuthBody>
-          <h2>
-            Sign in
-            {loader}
-          </h2>
-          {errorTextSection}
-          {serverDeadSection}
-          {/* <ServerPicker
-            serverConfig={this.props.serverConfig}
-            onServerConfigChange={this.props.onServerConfigChange}
-          /> */}
-          (TODO: pick server)
-          {this.renderLoginComponentForFlows()}
-          {footer}
-        </AuthBody>
-      </AuthPage>
+      // TODO: change background color with style={{ BackgroundColor: N10 }}
+      <PageLayout>
+        <Banner isFixed={true} height={100}>
+          <HeaderContextWrapper>
+            <span
+              style={{
+                color: N800,
+                fontSize: "32px",
+                //display: "inline-block",
+                margin: "auto",
+              }}>
+              🌐TypeCell
+            </span>
+          </HeaderContextWrapper>
+        </Banner>
+        <Content>
+          <Main isFixed={true} width={650}>
+            <MainMenu />
+            <Footer />
+          </Main>
+        </Content>
+      </PageLayout>
     );
   }
+  /**
+   * Old structure. Cannot reuse as Atlaskit components
+   * are used by component name, and wrapping them also does not work
+   * as the way it is being segmented is different. Left here
+   * as reference to extract functional contents correctly.
+   * 
+            <AuthPage>
+              <AuthHeader />
+              <AuthBody>
+                <h2>
+                  Sign in
+                  {loader}
+                </h2>
+                {errorTextSection}
+                {serverDeadSection}
+                /*
+                { <ServerPicker
+                  serverConfig={this.props.serverConfig}
+                  onServerConfigChange={this.props.onServerConfigChange}
+                /> }
+                *\/
+                (TODO: pick server)
+                {this.renderLoginComponentForFlows()}
+                {footer}
+              </AuthBody>
+            </AuthPage>
+  */
 }
