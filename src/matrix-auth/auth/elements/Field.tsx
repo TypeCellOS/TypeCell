@@ -14,15 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import classNames from "classnames";
+// import classNames from "classnames";
 import { debounce } from "lodash";
 import React, {
+  Fragment,
   InputHTMLAttributes,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from "react";
 import { IFieldState, IValidationResult } from "./Validation";
 
+import TextField from "@atlaskit/textfield";
+import { HelperMessage, Field as AtlaskitField } from "@atlaskit/form";
 // Invoke validation from user input (when typing, etc.) at most once every N ms.
 const VALIDATION_THROTTLE_MS = 200;
 
@@ -106,11 +109,11 @@ interface IState {
 
 export default class Field extends React.PureComponent<PropShapes, IState> {
   private id: string;
-  private input:
-    | HTMLInputElement
-    | HTMLTextAreaElement
-    | HTMLSelectElement
-    | undefined;
+  private input: any;
+  // | HTMLInputElement
+  // | HTMLTextAreaElement
+  // | HTMLSelectElement
+  // | undefined;
 
   public static readonly defaultProps = {
     element: "input",
@@ -250,9 +253,7 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     } = this.props;
 
     // Set some defaults for the <input> element
-    const ref = (
-      input: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    ) => (this.input = input);
+    const ref = (input: any) => (this.input = input);
     inputProps.placeholder = inputProps.placeholder || inputProps.label;
     inputProps.id = this.id; // this overwrites the id from props
 
@@ -263,44 +264,58 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     // Appease typescript's inference
     const inputProps_ = { ...inputProps, ref, list };
 
-    const fieldInput = React.createElement(
-      this.props.element!,
-      inputProps_ as any,
-      children
-    );
+    // OLD:
+    // const fieldInput = React.createElement(
+    //   this.props.element!,
+    //   inputProps_ as any,
+    //   children
+    // );
 
-    let prefixContainer = null;
-    if (prefixComponent) {
-      prefixContainer = (
-        <span className="mx_Field_prefix">{prefixComponent}</span>
-      );
-    }
-    let postfixContainer = null;
-    if (postfixComponent) {
-      postfixContainer = (
-        <span className="mx_Field_postfix">{postfixComponent}</span>
-      );
-    }
+    // NEW:
+    const fieldInput =
+      element === "input" ? (
+        <TextField {...(inputProps_ as any)} />
+      ) : element === "textarea" ? (
+        // TODO: should be textarea (but can do later, not used for now)
+        <TextField {...(inputProps_ as any)} />
+      ) : element === "select" ? (
+        // TODO: should be atlaskit <Select> or similar, I can help with this later
+        <TextField {...(inputProps_ as any)}></TextField>
+      ) : undefined;
 
-    const hasValidationFlag =
-      forceValidity !== null && forceValidity !== undefined;
-    const fieldClasses = classNames(
-      "mx_Field",
-      `mx_Field_${this.props.element}`,
-      className,
-      {
-        // If we have a prefix element, leave the label always at the top left and
-        // don't animate it, as it looks a bit clunky and would add complexity to do
-        // properly.
-        mx_Field_labelAlwaysTopLeft: prefixComponent,
-        mx_Field_valid: hasValidationFlag
-          ? forceValidity
-          : onValidate && this.state.valid === true,
-        mx_Field_invalid: hasValidationFlag
-          ? !forceValidity
-          : onValidate && this.state.valid === false,
-      }
-    );
+    // I don't think prefix / postfix components are used, so for now we can skip this
+    // let prefixContainer = null;
+    // if (prefixComponent) {
+    //   prefixContainer = (
+    //     <span className="mx_Field_prefix">{prefixComponent}</span>
+    //   );
+    // }
+    // let postfixContainer = null;
+    // if (postfixComponent) {
+    //   postfixContainer = (
+    //     <span className="mx_Field_postfix">{postfixComponent}</span>
+    //   );
+    // }
+
+    // const hasValidationFlag =
+    //   forceValidity !== null && forceValidity !== undefined;
+    // const fieldClasses = classNames(
+    //   "mx_Field",
+    //   `mx_Field_${this.props.element}`,
+    //   className,
+    //   {
+    //     // If we have a prefix element, leave the label always at the top left and
+    //     // don't animate it, as it looks a bit clunky and would add complexity to do
+    //     // properly.
+    //     mx_Field_labelAlwaysTopLeft: prefixComponent,
+    //     mx_Field_valid: hasValidationFlag
+    //       ? forceValidity
+    //       : onValidate && this.state.valid === true,
+    //     mx_Field_invalid: hasValidationFlag
+    //       ? !forceValidity
+    //       : onValidate && this.state.valid === false,
+    //   }
+    // );
 
     // Handle displaying feedback on validity
     // const Tooltip = sdk.getComponent("elements.Tooltip");
@@ -319,13 +334,35 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     // }
 
     return (
-      <div className={fieldClasses}>
-        {prefixContainer}
-        {fieldInput}
-        <label htmlFor={this.id}>{this.props.label}</label>
-        {postfixContainer}
-        {/* {fieldTooltip} */}
-      </div>
+      <AtlaskitField label="TODO Field label" name="TODO example-text">
+        {({ fieldProps }: any) => (
+          <Fragment>
+            {element === "input" ? (
+              <TextField {...(inputProps_ as any)} {...fieldProps} />
+            ) : element === "textarea" ? (
+              // TODO: should be textarea (but can do later, not used for now)
+              <TextField {...(inputProps_ as any)} {...fieldProps} />
+            ) : element === "select" ? (
+              // TODO: should be atlaskit <Select> or similar, I can help with this later
+              <TextField {...(inputProps_ as any)} {...fieldProps}></TextField>
+            ) : undefined}
+            <HelperMessage>Help or instruction text goes here</HelperMessage>
+          </Fragment>
+        )}
+      </AtlaskitField>
     );
+    return <>{fieldInput}</>;
+
+    // Old native matrix version, replaced by AtlasKit
+
+    // return (
+    //   <div className={fieldClasses}>
+    //     {prefixContainer}
+    //     {fieldInput}
+    //     <label htmlFor={this.id}>{this.props.label}</label>
+    //     {postfixContainer}
+    //     {/* {fieldTooltip} */}
+    //   </div>
+    // );
   }
 }

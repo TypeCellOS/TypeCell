@@ -675,59 +675,59 @@ export default class LoginComponent extends React.PureComponent<
       );
     };
 
-    const MainMenu: React.FC = () => {
-      return (
-        <BodyContextWrapper>
-          <MenuGroup>
-            <Section>
-              <HeadingItem>Sign In</HeadingItem>
+    // const MainMenu: React.FC = () => {
+    //   return (
+    //     <BodyContextWrapper>
+    //       <MenuGroup>
+    //         <Section>
+    //           <HeadingItem>Sign In</HeadingItem>
 
-              {/*
-                Placeholder form, will either be turned into react component
-                or not used at all and instead stylize Matrix' component.
-              */}
-              <div
-                style={{
-                  maxWidth: 350,
-                  margin: "0 auto",
-                }}>
-                <Form onSubmit={(data) => console.log("form data", data)}>
-                  {({ formProps }) => (
-                    <form {...formProps}>
-                      <Field
-                        name="username"
-                        defaultValue=""
-                        label="User name"
-                        isRequired>
-                        {({ fieldProps }) => <TextField {...fieldProps} />}
-                      </Field>
-                      <Field
-                        name="password"
-                        defaultValue=""
-                        label="name"
-                        isRequired>
-                        {({ fieldProps }) => <TextField {...fieldProps} />}
-                      </Field>
-                      <Button
-                        style={{ margin: "20px 0" }}
-                        type="submit"
-                        appearance="primary">
-                        Submit
-                      </Button>
-                    </form>
-                  )}
-                </Form>
-              </div>
+    //           {/*
+    //             Placeholder form, will either be turned into react component
+    //             or not used at all and instead stylize Matrix' component.
+    //           */}
+    //           <div
+    //             style={{
+    //               maxWidth: 350,
+    //               margin: "0 auto",
+    //             }}>
+    //             <Form onSubmit={(data) => console.log("form data", data)}>
+    //               {({ formProps }) => (
+    //                 <form {...formProps}>
+    //                   <Field
+    //                     name="username"
+    //                     defaultValue=""
+    //                     label="User name"
+    //                     isRequired>
+    //                     {({ fieldProps }) => <TextField {...fieldProps} />}
+    //                   </Field>
+    //                   <Field
+    //                     name="password"
+    //                     defaultValue=""
+    //                     label="name"
+    //                     isRequired>
+    //                     {({ fieldProps }) => <TextField {...fieldProps} />}
+    //                   </Field>
+    //                   <Button
+    //                     style={{ margin: "20px 0" }}
+    //                     type="submit"
+    //                     appearance="primary">
+    //                     Submit
+    //                   </Button>
+    //                 </form>
+    //               )}
+    //             </Form>
+    //           </div>
 
-              {/*
-              ButtonItem is the appropriate button to use within a MenuGroup
-              <ButtonItem>Sign in</ButtonItem>
-              */}
-            </Section>
-          </MenuGroup>
-        </BodyContextWrapper>
-      );
-    };
+    //           {/*
+    //           ButtonItem is the appropriate button to use within a MenuGroup
+    //           <ButtonItem>Sign in</ButtonItem>
+    //           */}
+    //         </Section>
+    //       </MenuGroup>
+    //     </BodyContextWrapper>
+    //   );
+    // };
 
     const Footer: React.FC = () => {
       return (
@@ -755,7 +755,16 @@ export default class LoginComponent extends React.PureComponent<
         </Banner>
         <Content>
           <Main isFixed={true} width={650}>
-            <MainMenu />
+            {/* <MainMenu /> */}
+
+            <div
+              style={{
+                maxWidth: 350,
+                margin: "0 auto",
+              }}>
+              <Section>{this.renderLoginComponentForFlows()}</Section>
+            </div>
+
             <Footer />
           </Main>
         </Content>

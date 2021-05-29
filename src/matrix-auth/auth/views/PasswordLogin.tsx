@@ -23,6 +23,15 @@ import { ValidatedServerConfig } from "../util/AutoDiscoveryUtils";
 import { looksValidEmail } from "../util/email";
 import { Country } from "../util/phonenumber";
 
+import Form, {
+  CheckboxField,
+  ErrorMessage,
+  FormFooter,
+  HelperMessage,
+  ValidMessage,
+} from "@atlaskit/form";
+import TextField from "@atlaskit/textfield";
+import Button from "@atlaskit/button";
 // For validating phone numbers without country codes
 const PHONE_NUMBER_REGEX = /^[0-9()\-\s]*$/;
 
@@ -415,7 +424,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
   }
 
   render() {
-    let forgotPasswordJsx;
+    let forgotPasswordJsx: any;
 
     if (this.props.onForgotPasswordClick) {
       forgotPasswordJsx = (
@@ -441,8 +450,8 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
       !autoFocusPassword
     );
 
-    let loginType;
-    // if (!SdkConfig.get().disable_3pid_login) {
+    let loginType: any;
+    //!SdkConfig.get().disable_3pid_login) {
     if (true) {
       loginType = (
         <div className="mx_Login_type_container">
@@ -467,33 +476,65 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     }
 
     return (
-      <div>
-        <form onSubmit={this.onSubmitForm}>
-          {loginType}
-          {loginField}
-          <Field
-            className={pwFieldClass}
-            type="password"
-            name="password"
-            label={"Password"}
-            value={this.state.password}
-            onChange={this.onPasswordChanged}
-            disabled={this.props.disableSubmit}
-            autoFocus={autoFocusPassword}
-            onValidate={this.onPasswordValidate}
-            ref={(field) => (this[LoginField.Password] = field)}
-          />
-          {forgotPasswordJsx}
-          {!this.props.busy && (
-            <input
-              className="mx_Login_submit"
-              type="submit"
-              value={"Sign in"}
+      <Form onSubmit={this.onSubmitForm}>
+        {({ formProps }) => (
+          <form {...formProps}>
+            {loginType}
+            {loginField}
+            <Field
+              className={pwFieldClass}
+              type="password"
+              name="password"
+              label={"Password"}
+              value={this.state.password}
+              onChange={this.onPasswordChanged}
               disabled={this.props.disableSubmit}
+              autoFocus={autoFocusPassword}
+              onValidate={this.onPasswordValidate}
+              ref={(field) => (this[LoginField.Password] = field)}
             />
-          )}
-        </form>
-      </div>
+            {forgotPasswordJsx}
+            {!this.props.busy && (
+              <Button
+                type="submit"
+                appearance="primary"
+                isDisabled={this.props.disableSubmit}>
+                Sign in
+              </Button>
+            )}
+          </form>
+        )}
+      </Form>
     );
+
+    // return (
+    //   <div>
+    //     <form onSubmit={this.onSubmitForm}>
+    //       {loginType}
+    //       {loginField}
+    //       <Field
+    //         className={pwFieldClass}
+    //         type="password"
+    //         name="password"
+    //         label={"Password"}
+    //         value={this.state.password}
+    //         onChange={this.onPasswordChanged}
+    //         disabled={this.props.disableSubmit}
+    //         autoFocus={autoFocusPassword}
+    //         onValidate={this.onPasswordValidate}
+    //         ref={(field) => (this[LoginField.Password] = field)}
+    //       />
+    //       {forgotPasswordJsx}
+    //       {!this.props.busy && (
+    //         <input
+    //           className="mx_Login_submit"
+    //           type="submit"
+    //           value={"Sign in"}
+    //           disabled={this.props.disableSubmit}
+    //         />
+    //       )}
+    //     </form>
+    //   </div>
+    // );
   }
 }
