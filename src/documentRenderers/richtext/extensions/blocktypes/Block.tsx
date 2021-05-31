@@ -8,7 +8,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { Node, DOMOutputSpec } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
-import {
+import React, {
   ElementType,
   MouseEvent,
   PropsWithChildren,
@@ -18,6 +18,7 @@ import {
 } from "react";
 import { useDrag, useDrop, XYCoord } from "react-dnd";
 import SideMenu from "../../menus/SideMenu";
+import mergeAttributesReact from "../../util/mergeAttributesReact";
 import styles from "./Block.module.css";
 /**
  * A global store that keeps track of which block is being hovered over
@@ -42,7 +43,13 @@ let aboveCenterLine = false;
  * @param type	The type of HTML element to be rendered as a block.
  * @returns			A React component, to be used in a TipTap node view.
  */
-function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
+function Block(
+  toDOM: (node: Node<any>) => DOMOutputSpec,
+  options: {
+    placeholder?: string;
+    placeholderOnlyWhenSelected?: boolean;
+  }
+) {
   return observer(function Component(
     props: PropsWithChildren<NodeViewRendererProps>
   ) {
@@ -243,6 +250,29 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
     drop(outerRef);
     dragPreview(innerRef);
 
+    /*
+    Our custom Placeholder logic. We have to do this ourselves because:
+    a) official Placeholder extension doesn't work well on nodeviews
+    b) We want to have some Blocks use placeholderOnlyWhenSelected, and some not
+    */
+    const getPos = props.getPos;
+    if (typeof getPos === "boolean") {
+      throw new Error("unexpected boolean getPos");
+    }
+    const pos = getPos();
+    const anchor = props.editor.state.selection.anchor;
+    const hasAnchor = anchor >= pos && anchor <= pos + props.node.nodeSize;
+    const isEmpty = !props.node.isLeaf && !props.node.textContent;
+    const placeholder =
+      (isEmpty &&
+        (!options.placeholderOnlyWhenSelected || hasAnchor) &&
+        options.placeholder) ||
+      undefined;
+
+    const placeholderAttrs = placeholder
+      ? { "data-placeholder": placeholder, class: "is-empty" }
+      : {};
+
     return (
       <NodeViewWrapper className={`${styles.block}`}>
         <div ref={outerRef}>
@@ -259,13 +289,45 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
                 />
               </Tippy>
             </div>
-            {domType === "code" ? ( // Wraps content in "pre" tags if the content is code.
-              <pre>
-                <NodeViewContent as={domType} {...domAttrs} />
+            {domType === "pre" ? ( // Wraps content in "pre" tags if the content is code.
+              <pre className={styles.codeBlockPre}>
+                <select
+                  className={styles.codeBlockLanguageSelector}
+                  value={props.node.attrs["language"]}
+                  onChange={(event) => {
+                    // @ts-ignore
+                    props.updateAttributes({
+                      language: event.target.value,
+                    });
+                  }}>
+                  <option value="null">auto</option>
+                  <option disabled>—</option>
+                  {props.extension.options.lowlight
+                    .listLanguages()
+                    // @ts-ignore
+                    .map((lang, index) => {
+                      return (
+                        <option
+                          key={props.node.attrs["block-id"] + index}
+                          value={lang}>
+                          {lang}
+                        </option>
+                      );
+                    })}
+                </select>
+
+                <NodeViewContent
+                  as={"code"}
+                  {...domAttrs}
+                  className={styles.codeBlockCodeContent}
+                />
               </pre>
             ) : (
               <div>
-                <NodeViewContent as={domType} {...domAttrs} />
+                <NodeViewContent
+                  as={domType}
+                  {...mergeAttributesReact(placeholderAttrs, domAttrs)}
+                />
               </div>
             )}
           </div>
