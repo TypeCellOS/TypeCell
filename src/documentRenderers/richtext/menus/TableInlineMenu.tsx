@@ -115,10 +115,7 @@ class TableMenu extends React.Component<TableMenuProps> {
       }
     }
     // If not inside a table, don't show the TableBubbleMenu
-    else
-      return (
-        <TableBubbleMenu className={"hidden"} editor={this.props.editor} />
-      );
+    return <TableBubbleMenu className={"hidden"} editor={this.props.editor} />;
   }
 }
 
