@@ -8,6 +8,7 @@ import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
 import OrderedList from "@tiptap/extension-ordered-list";
 import Strike from "@tiptap/extension-strike";
+import Link from "@tiptap/extension-link";
 import Text from "@tiptap/extension-text";
 import { EditorContent, useEditor } from "@tiptap/react";
 import React from "react";
@@ -27,7 +28,6 @@ import { CodeBlockBlock } from "./extensions/blocktypes/CodeBlockBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
-import { CustomLink } from "./extensions/marks/CustomLink";
 import { Mention, MentionType } from "./extensions/mentions/Mention";
 import { MentionsExtension } from "./extensions/mentions/MentionsExtension";
 import SlashCommandExtension from "./extensions/slashcommand";
@@ -91,9 +91,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Italic,
       Strike,
       Underline,
-      CustomLink.configure({
-        openOnClick: false,
-      }),
+      Link,
 
       // custom blocks:
       ImageBlock,
