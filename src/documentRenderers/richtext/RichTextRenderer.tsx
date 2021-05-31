@@ -1,17 +1,13 @@
 import Bold from "@tiptap/extension-bold";
-import BulletList from "@tiptap/extension-bullet-list";
 import Code from "@tiptap/extension-code";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import Document from "@tiptap/extension-document";
 import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
-import OrderedList from "@tiptap/extension-ordered-list";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
-import Typography from "@tiptap/extension-typography";
 import { EditorContent, useEditor } from "@tiptap/react";
-import { markPasteRule } from "@tiptap/core";
 import React from "react";
 import { DocumentResource } from "../../store/DocumentResource";
 import { AutoId } from "./extensions/autoid/AutoId";
@@ -23,9 +19,11 @@ import {
   IndentItemBlock,
   ListItemBlock,
   ParagraphBlock,
+  BulletList,
+  OrderedList,
+  CodeBlockBlock,
 } from "./extensions/blocktypes";
 import { TableBlock } from "./extensions/blocktypes/TableBlock";
-import { CodeBlockBlock } from "./extensions/blocktypes/CodeBlockBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
@@ -38,13 +36,8 @@ import TableMenu from "./TableMenu";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import markdownHeadings from "./extensions/markdownPasteRules/Headings";
-import markdownPasteRuleHorizontal from "./extensions/markdownPasteRules/Horizontal";
-import markdownBlockQuote from "./extensions/markdownPasteRules/BlockQuote";
-import markdownCodeBlock from "./extensions/markdownPasteRules/CodeBlock";
-import markdownBulletList from "./extensions/markdownPasteRules/BulletList";
-import markdownOrderedList from "./extensions/markdownPasteRules/OrderedList";
 import { Placeholder } from "@tiptap/extension-placeholder";
+import multipleLineMarkdownRuleBuilder from "./extensions/markdownPasteRules/multiple/markdownMultipleLines";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -93,81 +86,18 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Document,
 
       // marks:
-      Bold.extend({
-        addPasteRules() {
-          // this is **bold** text
-          // this is __bold__ text
-          const pasteRegexAsterisk = /(?:^|\s)((?:\*\*)((?:[^\*]+))(?:\*\*))/gm;
-          const pasteRegexUnderscore = /(?:^|\s)((?:__)((?:[^_]+))(?:__))/gm;
-          return [
-            markPasteRule(pasteRegexAsterisk, this.type),
-            markPasteRule(pasteRegexUnderscore, this.type),
-          ];
-        },
-      }),
-      Code.extend({
-        addPasteRules() {
-          // this is `code` text
-          const pasteRegex = /(?:^|\s)((?:\`)((?:[^\`]+))(?:\`))/gm;
-          return [markPasteRule(pasteRegex, this.type)];
-        },
-      }),
-      Italic.extend({
-        addPasteRules() {
-          // this is *bold* text
-          // this is _bold_ text
-          const pasteRegexAsterisk = /(?:^|\s)((?:\*)((?:[^\*]+))(?:\*))/gm;
-          const pasteRegexUnderscore = /(?:^|\s)((?:_)((?:[^_]+))(?:_))/gm;
-          return [
-            markPasteRule(pasteRegexAsterisk, this.type),
-            markPasteRule(pasteRegexUnderscore, this.type),
-          ];
-        },
-      }),
-      Strike.extend({
-        addPasteRules() {
-          // this is ~~strike~~ text
-          const pasteRegex = /^(?:^|\s)((?:~~)((?:[^~]+))(?:~~))/gm;
-          return [markPasteRule(pasteRegex, this.type)];
-        },
-      }),
+      Bold,
+      Code,
+      Italic,
+      Strike,
       Underline,
 
       // custom blocks:
       ImageBlock,
-      BlockQuoteBlock.extend({
-        addPasteRules() {
-          // any consecutive lines that start with > and a space
-          const editor = this.editor;
-          return [markdownBlockQuote(editor, new RegExp(`^> `))];
-        },
-      }).configure({ placeholder: "Empty quote" }),
-      CodeBlockBlock.extend({
-        addPasteRules() {
-          // any consecutive lines that start with a tab or 4 spaces
-          const editor = this.editor;
-          return [markdownCodeBlock(editor, new RegExp(`^\\s{4}|\t`))];
-        },
-      }),
-      HeadingBlock.extend({
-        addPasteRules() {
-          // any consecutive lines that start with 1-6 # and a space
-          const editor = this.editor;
-          return [markdownHeadings(editor, new RegExp(`^(#{1,6})\\s`))];
-        },
-      }).configure({ placeholder: "Heading" }),
-      HorizontalRuleBlock.extend({
-        addPasteRules() {
-          // any consecutive lines that start with 3 or more - _ or *
-          const editor = this.editor;
-          return [
-            markdownPasteRuleHorizontal(
-              editor,
-              new RegExp(`^( ?[-_*]){3,}\\s*`)
-            ),
-          ];
-        },
-      }),
+      BlockQuoteBlock.configure({ placeholder: "Empty quote" }),
+      CodeBlockBlock,
+      HeadingBlock.configure({ placeholder: "Heading" }),
+      HorizontalRuleBlock,
       ParagraphBlock.configure({
         placeholder: "Enter text or type '/' for commands",
         placeholderOnlyWhenSelected: true,
@@ -179,29 +109,16 @@ const RichTextRenderer: React.FC<Props> = (props) => {
           class: "indent",
         },
       }),
+      BulletList,
+      OrderedList,
 
       // custom containers:
       IndentGroup,
 
       // from tiptap (unmodified)
-      BulletList.extend({
-        addPasteRules() {
-          // any consecutive lines that start with - + or * and a space
-          const editor = this.editor;
-          return [markdownBulletList(editor, new RegExp(`^\\s?[\-\+\*] `))];
-        },
-      }),
-      OrderedList.extend({
-        addPasteRules() {
-          // any consecutive lines that start with a number, a period and a space
-          const editor = this.editor;
-          return [markdownOrderedList(editor, new RegExp(`^\\d+. `))];
-        },
-      }),
       TableCell,
       TableHeader,
       TableRow,
-      Typography,
 
       // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
       // should be handled before Enter handlers in other components like splitListItem
