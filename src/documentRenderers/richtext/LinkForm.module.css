@@ -1,4 +1,9 @@
 .formContainer {
+  /* placeholder for visability, to be replaced by Atlaskit */
+  border: solid #172b4d;
+  border-radius: 0.2rem;
+  background-color: #172b4d;
+  /* ------- */
   position: relative;
   width: 18.75rem;
   height: 1.875rem;
