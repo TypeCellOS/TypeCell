@@ -151,6 +151,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           }
           // insert the block/s at new position
           selectedBlocks = getSelectedBlocks();
+          console.log(selectedBlocks);
           if (selectedBlocks.length > 0) {
             let nextPos = posToInsert;
             for (let node of selectedBlocks) {
@@ -243,6 +244,8 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
       selectedBlocks = getSelectedBlocks();
       selectedRange = getSelectedRange();
 
+      console.log(selectedBlocks, selectedRange, props.getPos());
+
       // Checks if block position is not within the multi-block selection and a multi-block selection exists.
       if (
         (props.getPos() < selectedRange[0] ||
@@ -255,8 +258,10 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
             TextSelection.create(props.editor.state.doc, props.getPos() + 1)
           )
         );
-        // selectedBlocks = getSelectedBlocks();
-        // selectedRange = getSelectedRange();
+
+        // Updates the multi-block selection since the selection was reset.
+        selectedBlocks = getSelectedBlocks();
+        selectedRange = getSelectedRange();
       }
     }
 
@@ -266,8 +271,8 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
      */
     function getSelectedBlocks(): Array<Node> {
       const selectedBlocks: Array<Node> = [];
-      props.editor.state.doc.descendants(function (node) {
-        if (node.attrs["block-selected"]) {
+      props.editor.state.doc.descendants(function (node, offset, parent) {
+        if (node.attrs["block-selected"] && !parent.attrs["block-selected"]) {
           selectedBlocks.push(node);
         }
       });

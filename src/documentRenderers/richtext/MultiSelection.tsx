@@ -20,46 +20,68 @@ export const MultiSelection = Extension.create({
           const tr = transactions[transactions.length - 1];
           if (tr.selectionSet) {
             // Clears previously selected nodes.
-            newState.doc.descendants(function (node) {
+            newState.doc.descendants(function (node, offset) {
               if (node.attrs["block-selected"]) {
                 node.attrs["block-selected"] = false;
               }
             });
 
-            // Gets the start/end positions of the anchor/head nodes.
+            // Depth values between resolved positions and node ranges represent different actual depths.
+            // 0 1 2 3 4... Actual depths
+            // 1 3 5 7 9... ResolvedPos depths
+            // 0 1 3 5 7... NodeRange depths
+
+            const anchorDepth =
+              newState.selection.$anchor.depth > 1
+                ? newState.selection.$anchor.depth - 2
+                : 0;
+
+            const headDepth =
+              newState.selection.$head.depth > 1
+                ? newState.selection.$head.depth - 2
+                : 0;
+
+            // Ensures that selection across multiple block depths stays consistent.
+            const depth = Math.min(anchorDepth, headDepth);
+
+            // Used to get the start/end positions of the anchor/head nodes of the whole selection.
             const range = new NodeRange(
               newState.selection.$from,
               newState.selection.$to,
-              0
+              depth
             );
 
+            // Start and end positions of the node the selection anchor is in.
+            const nodeStartPos = newState.doc
+              .resolve(newState.selection.anchor)
+              .start();
+            const nodeEndPos = newState.doc
+              .resolve(newState.selection.anchor)
+              .end();
+
             // Marks nodes between the anchor and head as selected.
-            if (range.endIndex - range.startIndex > 1) {
-              newState.doc.nodesBetween(
-                range.start,
-                range.end,
-                function (node, pos) {
-                  if (node.attrs["block-id"]) {
+            if (
+              (newState.selection.head <= nodeStartPos ||
+                newState.selection.head >= nodeEndPos) &&
+              newState.selection.head !== newState.selection.anchor
+            ) {
+              newState.doc.descendants(function (node, offset) {
+                // Checks if node lies within selection.
+                if (offset >= range.start && offset < range.end) {
+                  // These node types are redundant for Notion-like selection.
+                  if (
+                    node.type.name !== "bulletList" &&
+                    node.type.name !== "orderedList" &&
+                    node.type.name !== "text"
+                  ) {
                     node.attrs["block-selected"] = true;
                   }
+                  // Children should not be selected if entire item is selected.
+                  if (node.type.name === "listItem") {
+                    return false;
+                  }
                 }
-              );
-
-              // FORCES SELECTION TO SPAN BLOCKS - NO PARTIAL SELECTION ACROSS BLOCKS
-              // // Creates a new selection which spans the entire blocks the selection goes across.
-              // const newSelection =
-              //   newState.selection.anchor < newState.selection.head
-              //     ? TextSelection.create(newState.doc, range.start, range.end)
-              //     : TextSelection.create(
-              //         newState.doc,
-              //         range.end - 1,
-              //         range.start
-              //       );
-              //
-              // // Sets selection to snap to node blocks.
-              // if (!newSelection.eq(newState.selection)) {
-              //   return newState.tr.setSelection(newSelection);
-              // }
+              });
             }
           }
           return;

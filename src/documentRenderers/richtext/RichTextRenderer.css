@@ -75,6 +75,6 @@ blockquote {
   outline: solid #DDEEFF 0.4rem;
 }
 
-.selected > div::selection {
+::selection {
   background-color: #AAD2FF;
 }
