@@ -15,6 +15,26 @@
   color: #aeb8c2;
   pointer-events: none;
   height: 0;
+  font-style: italic;
+}
+
+.ProseMirror li.is-empty::before,
+.ProseMirror h1.is-empty::before,
+.ProseMirror h2.is-empty::before,
+.ProseMirror h3.is-empty::before,
+.ProseMirror h4.is-empty::before,
+.ProseMirror h5.is-empty::before,
+.ProseMirror h6.is-empty::before,
+.ProseMirror blockquote.is-empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #aeb8c2;
+  pointer-events: none;
+  height: 0;
+}
+
+.ProseMirror blockquote.is-empty::before {
+  margin-top: 0.5rem; /* same margin as paragraph, because we want to show it in the exact same position as child paragraph */
 }
 
 .ProseMirror pre {
