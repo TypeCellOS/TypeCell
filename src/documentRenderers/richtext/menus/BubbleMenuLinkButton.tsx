@@ -1,4 +1,3 @@
-import { Editor } from "@tiptap/core";
 import React from "react";
 import Tippy from "@tippyjs/react";
 import Button from "@atlaskit/button";
@@ -7,20 +6,12 @@ import LinkForm from "./LinkForm";
 
 import styles from "./InlineMenu.module.css";
 import LinkIcon from "remixicon-react/LinkIcon";
-
-/**
- * [markName] has to be the same as the name in the defining Mark (see underline in InlineMenu)
- */
-export type ButtonStyleDetails = {
-  icon: RemixiconReactIconComponentType;
-  mainTooltip: string;
-  secondaryTooltip?: string;
-  markName?: string;
-};
+import { ButtonStyleDetails } from "./BubbleMenuButton";
+import { Editor } from "@tiptap/react";
 
 export type LinkMenuButtonProps = {
   styleDetails: ButtonStyleDetails;
-  editor?: Editor;
+  editor: Editor;
 };
 
 /**
@@ -51,7 +42,7 @@ const BubbleMenuLinkButton = (props: LinkMenuButtonProps) => {
   return (
     <Tippy content={tooltipContent}>
       <Tippy
-        // content={<LinkForm editor={this?.editor} />}
+        content={<LinkForm editor={props.editor} />}
         trigger={"click"}
         interactive={true}
         maxWidth={500}>

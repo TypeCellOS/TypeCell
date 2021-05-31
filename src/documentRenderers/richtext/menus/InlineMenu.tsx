@@ -52,6 +52,13 @@ const underline: ButtonStyleDetails = {
   icon: UnderlineIcon,
 };
 
+const link: ButtonStyleDetails = {
+  markName: "link",
+  mainTooltip: "Link",
+  secondaryTooltip: "Ctrl+K",
+  icon: LinkIcon,
+};
+
 class InlineMenu extends React.Component<InlineMenuProps> {
   render() {
     const TOP_DEPTH = 1;
@@ -109,7 +116,7 @@ class InlineMenu extends React.Component<InlineMenuProps> {
           }
           styleDetails={underline}
         />
-        {/* <BubbleMenuLinkButton editor={this.props.editor} styleDetails={link} /> */}
+        <BubbleMenuLinkButton editor={this.props.editor} styleDetails={link} />
       </BubbleMenu>
     );
   }
