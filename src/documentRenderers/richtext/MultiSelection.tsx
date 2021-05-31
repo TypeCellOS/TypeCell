@@ -19,6 +19,7 @@ export const MultiSelection = Extension.create({
         appendTransaction: (transactions, oldState, newState) => {
           const tr = transactions[transactions.length - 1];
           if (tr.selectionSet) {
+            console.log(newState.selection.anchor, newState.selection.head);
             // Clears previously selected nodes.
             newState.doc.descendants(function (node, offset) {
               if (node.attrs["block-selected"]) {
@@ -67,7 +68,7 @@ export const MultiSelection = Extension.create({
             ) {
               newState.doc.descendants(function (node, offset) {
                 // Checks if node lies within selection.
-                if (offset >= range.start && offset < range.end) {
+                if (offset >= range.start && offset < range.end - 1) {
                   // These node types are redundant for Notion-like selection.
                   if (
                     node.type.name !== "bulletList" &&

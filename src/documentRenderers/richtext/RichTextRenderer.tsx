@@ -10,10 +10,11 @@ import OrderedList from "@tiptap/extension-ordered-list";
 import Placeholder from "@tiptap/extension-placeholder";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
-import { EditorContent, getNodeType, useEditor } from "@tiptap/react";
+import { EditorContent, useEditor } from "@tiptap/react";
 import React from "react";
 import { DocumentResource } from "../../store/DocumentResource";
 import { AutoId } from "./extensions/autoid/AutoId";
+import { MultiSelection } from "./MultiSelection";
 import {
   BlockQuoteBlock,
   CodeBlockBlock,
@@ -28,17 +29,7 @@ import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
 import SlashCommandExtension from "./extensions/slashcommand";
 import InlineMenu from "./InlineMenu";
-import MultiNodeSelection from "./MultiNodeSelection";
-import { findParentNode, mergeAttributes, Node } from "@tiptap/core";
 import "./RichTextRenderer.css";
-
-import { Selection, NodeSelection, TextSelection } from "prosemirror-state";
-import { NodeRange } from "prosemirror-model";
-import { findWrapping } from "prosemirror-transform";
-import { isList } from "./util/isList";
-import { start } from "repl";
-import "./MultiSelection";
-import { MultiSelection } from "./MultiSelection";
 
 type Props = {
   document: DocumentResource;

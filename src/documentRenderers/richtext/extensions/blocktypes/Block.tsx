@@ -47,7 +47,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
     let domType: ElementType;
     let domAttrs: { [attr: string]: string | null | undefined } = {};
 
-    // Used to store multi-selection data
+    // Used to store temporary multi-selection data
     let selectedBlocks: Array<Node> = [];
     let selectedRange: Array<number> = [];
 
@@ -151,7 +151,6 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           }
           // insert the block/s at new position
           selectedBlocks = getSelectedBlocks();
-          console.log(selectedBlocks);
           if (selectedBlocks.length > 0) {
             let nextPos = posToInsert;
             for (let node of selectedBlocks) {
@@ -170,8 +169,13 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
             const newSelection = props.editor.state.tr.setSelection(
               TextSelection.create(
                 props.editor.state.doc,
-                posToInsert + 1,
-                posToInsert + (selectedRange[1] - selectedRange[0])
+                // List
+                posToInsert + (selectedBlocks[0].isTextblock ? 1 : 2),
+                posToInsert +
+                  (selectedRange[1] - selectedRange[0]) -
+                  (selectedBlocks[selectedBlocks.length - 1].isTextblock
+                    ? 1
+                    : 2)
               )
             );
             props.editor.view.dispatch(newSelection);
