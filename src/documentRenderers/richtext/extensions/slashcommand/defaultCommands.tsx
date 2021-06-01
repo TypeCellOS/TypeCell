@@ -351,7 +351,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .insertTable({ rows: 1, cols: 2 })
+        .insertTable({ rows: 1, cols: 2, withHeaderRow: false })
         .scrollIntoView()
         .run();
       return true;

@@ -36,6 +36,24 @@ export class NavigationStore {
             prevUrl
           );
           this.currentPage = routing();
+          if (
+            this.currentPage.page === "login" ||
+            this.currentPage.page === "register"
+          ) {
+            // This case might happen when user has opened browser directly to login page, and then registers?
+            console.warn(
+              "shouldn't happen, restored to login / register after being loggedin"
+            );
+            // force going to home
+            window.history.replaceState(
+              {
+                url: "/",
+              },
+              "",
+              "/"
+            );
+            this.currentPage = routing();
+          }
         }
       }
     );
@@ -68,7 +86,10 @@ export class NavigationStore {
     window.history.pushState(
       {
         url,
-        prevUrl: window.history.state?.prevUrl || window.history.state?.url,
+        prevUrl:
+          window.history.state?.prevUrl ||
+          window.history.state?.url ||
+          window.location.href,
       },
       "",
       url
@@ -83,7 +104,10 @@ export class NavigationStore {
     window.history.pushState(
       {
         url,
-        prevUrl: window.history.state?.prevUrl || window.history.state?.url,
+        prevUrl:
+          window.history.state?.prevUrl ||
+          window.history.state?.url ||
+          window.location.href,
       },
       "",
       url
