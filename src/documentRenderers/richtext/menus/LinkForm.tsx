@@ -22,6 +22,8 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
   useEffect(() => {
     if (props.editor.isFocused) {
       if (props.editor.isActive("link")) {
+        console.log("side effect??!! this means LinkForm is rendered again");
+        const link = props.editor.getAttributes("link");
         setUrl(props.editor.getAttributes("link").href.substring(2));
       } else {
         setUrl("");

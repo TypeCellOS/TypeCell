@@ -38,6 +38,9 @@ import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
+import { Plugin, PluginKey } from "prosemirror-state";
+import { Editor } from "@atlaskit/editor-core";
+import CustomLink from "./extensions/marks/Link";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -91,7 +94,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Italic,
       Strike,
       Underline,
-      Link,
+      CustomLink,
 
       // custom blocks:
       ImageBlock,
