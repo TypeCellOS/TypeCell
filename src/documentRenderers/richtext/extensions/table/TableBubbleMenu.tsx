@@ -3,10 +3,10 @@ import {
   TableBubbleMenuPluginProps,
   TableBubbleMenuPlugin,
   TableBubbleMenuPluginKey,
-} from "./tableMenuModified/TableMenuPlugin";
+} from "./modifiedBubbleMenuPlugin/TableMenuPlugin";
 
 // Code adapted from https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/BubbleMenu.tsx
-// This is needed to provide a similar implementation for TableBubbleMenu. Names are changed accordingly.
+// This is needed to provide a BubbleMenu that can be activated without selecting text. Names are changed accordingly.
 export type TableBubbleMenuProps = Omit<
   TableBubbleMenuPluginProps,
   "element"

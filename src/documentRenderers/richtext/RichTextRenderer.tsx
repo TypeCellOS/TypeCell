@@ -6,6 +6,7 @@ import Document from "@tiptap/extension-document";
 import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
+import Link from "@tiptap/extension-link";
 import Text from "@tiptap/extension-text";
 import { EditorContent, useEditor } from "@tiptap/react";
 import React from "react";
@@ -30,9 +31,9 @@ import { Underline } from "./extensions/marks/Underline";
 import { Mention, MentionType } from "./extensions/mentions/Mention";
 import { MentionsExtension } from "./extensions/mentions/MentionsExtension";
 import SlashCommandExtension from "./extensions/slashcommand";
-import InlineMenu from "./InlineMenu";
 import "./RichTextRenderer.css";
-import TableMenu from "./TableMenu";
+import InlineMenu from "./menus/InlineMenu";
+import TableMenu from "./menus/TableInlineMenu";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
@@ -91,6 +92,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Italic,
       Strike,
       Underline,
+      Link,
 
       // custom blocks:
       ImageBlock,
