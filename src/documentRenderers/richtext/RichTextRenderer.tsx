@@ -8,6 +8,7 @@ import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
 import OrderedList from "@tiptap/extension-ordered-list";
 import Strike from "@tiptap/extension-strike";
+import Link from "@tiptap/extension-link";
 import Text from "@tiptap/extension-text";
 import { EditorContent, useEditor } from "@tiptap/react";
 import React from "react";
@@ -90,6 +91,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Italic,
       Strike,
       Underline,
+      Link,
 
       // custom blocks:
       ImageBlock,

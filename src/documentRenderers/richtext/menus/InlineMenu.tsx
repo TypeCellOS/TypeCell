@@ -1,15 +1,18 @@
 import { BubbleMenu, Editor } from "@tiptap/react";
 import { NodeSelection } from "prosemirror-state";
+
 import React from "react";
 import BoldIcon from "remixicon-react/BoldIcon";
 import ItalicIcon from "remixicon-react/ItalicIcon";
 import StrikethroughIcon from "remixicon-react/StrikethroughIcon";
 import CodeLineIcon from "remixicon-react/CodeLineIcon";
 import UnderlineIcon from "remixicon-react/UnderlineIcon";
+import LinkIcon from "remixicon-react/LinkIcon";
 
 import { Underline } from "../extensions/marks/Underline";
 import BubbleMenuButton, { ButtonStyleDetails } from "./BubbleMenuButton";
 import styles from "./InlineMenu.module.css";
+import BubbleMenuLinkButton from "./BubbleMenuLinkButton";
 
 type InlineMenuProps = { editor: Editor };
 
@@ -47,6 +50,13 @@ const underline: ButtonStyleDetails = {
   mainTooltip: "Underline",
   secondaryTooltip: "Ctrl+U",
   icon: UnderlineIcon,
+};
+
+const link: ButtonStyleDetails = {
+  markName: "link",
+  mainTooltip: "Link",
+  secondaryTooltip: "Ctrl+K",
+  icon: LinkIcon,
 };
 
 class InlineMenu extends React.Component<InlineMenuProps> {
@@ -106,6 +116,7 @@ class InlineMenu extends React.Component<InlineMenuProps> {
           }
           styleDetails={underline}
         />
+        <BubbleMenuLinkButton editor={this.props.editor} styleDetails={link} />
       </BubbleMenu>
     );
   }
