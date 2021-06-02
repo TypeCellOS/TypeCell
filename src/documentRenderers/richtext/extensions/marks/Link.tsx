@@ -3,7 +3,8 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import Tippy from "@tippyjs/react";
 import tippy from "tippy.js";
 import ReactDOM from "react-dom";
-import "./Link.module.css";
+import styles from "./Link.module.css";
+import menuStyles from "../../menus/InlineMenu.module.css";
 
 const linkEditMenu = (target: Element) => {
   return (
@@ -13,24 +14,33 @@ const linkEditMenu = (target: Element) => {
   );
 };
 
-const floater = (removeHandler: () => void) => {
+const floater = (removeHandler: () => void, href: string) => {
   const div = document.createElement("div");
   div.setAttribute("id", "linker");
   div.style.zIndex = "9999";
   div.style.display = "none";
-  const edit = document.createElement("button");
+  div.classList.add(styles.linkerWrapper, menuStyles.bubbleMenu);
+  const edit = document.createElement("div");
   edit.innerHTML = "edit";
-  edit.addEventListener("click", (ev) => {
-    window.alert("clicked");
-  });
-  const open = document.createElement("button");
-  open.innerHTML = "open";
-  const remove = document.createElement("button");
+  edit.classList.add(styles.operationButton);
+
+  const open = document.createElement("div");
+  const target = document.createElement("a");
+  target.href = "//" + href;
+  target.target = "_blank";
+  target.innerHTML = "open";
+  target.classList.add(styles.open);
+  open.appendChild(target);
+  open.classList.add(styles.operationButton);
+
+  const remove = document.createElement("div");
   remove.innerHTML = "remove";
+  remove.classList.add(styles.operationButton);
   remove.addEventListener("click", removeHandler);
 
   div.appendChild(edit);
   div.appendChild(remove);
+  div.appendChild(open);
 
   const parent = document.querySelector(".ProseMirror.editor")?.parentElement;
   parent?.append(div);
@@ -48,9 +58,12 @@ const generateTippyEditor = (
   pre?: string
 ) => {
   const editingDiv = document.createElement("div");
+
   const input = document.createElement("input");
   input.type = "text";
   input.value = pre ?? "";
+  input.classList.add(styles.input);
+
   const submit = document.createElement("button");
   submit.type = "submit";
   submit.innerHTML = "OK";
@@ -61,10 +74,14 @@ const generateTippyEditor = (
       const value = val.value;
       editHandler("//" + value);
     }
+    clearLinker();
   });
+  submit.classList.add(styles.ok);
+
   editingDiv.appendChild(input);
   editingDiv.appendChild(submit);
   editingDiv.style.width = "fit-content";
+  editingDiv.classList.add(styles.editingWrapper);
 
   return editingDiv;
 };
@@ -103,14 +120,17 @@ const CustomLink = Link.extend({
                   this.editor.chain().focus().setLink({ href }).run();
                 };
 
-                const menu = floater(removeHandler);
+                const href = this.editor
+                  .getAttributes("link")
+                  ?.href.substring(2);
+                const menu = floater(removeHandler, href);
                 const editButton = menu.firstElementChild;
-                if (editButton instanceof HTMLButtonElement) {
+                if (editButton instanceof HTMLElement) {
                   editButton.addEventListener(
                     "mouseenter",
                     (ev) => {
                       const tip = tippy(editButton, {
-                        content: generateTippyEditor(editHandler),
+                        content: generateTippyEditor(editHandler, href),
                         placement: "top",
                         interactive: true,
                       });
@@ -123,13 +143,13 @@ const CustomLink = Link.extend({
                 const rect = anchor.getBoundingClientRect();
                 menu.style.display = "block";
                 menu.style.position = "absolute";
-                menu.style.width = "5em";
+                menu.style.width = "max-content";
                 menu.style.left = `${
                   rect.left - menu.scrollWidth / 2 + rect.width / 2
                 }px `;
-                menu.style.top = `${
-                  window.pageYOffset + rect.top - 2 * menu.scrollHeight
-                }px`;
+                menu.style.top = `calc(${
+                  window.pageYOffset + rect.top - menu.scrollHeight
+                }px - 0.5rem)`;
                 // ---------------showing the 3 buttons------------------
 
                 /*

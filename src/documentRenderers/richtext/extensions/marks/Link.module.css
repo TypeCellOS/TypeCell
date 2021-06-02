@@ -1,3 +1,63 @@
 .linkerWrapper {
-  border: solid 0.1em red;
+  display: flex !important;
+  border-radius: 0.2rem;
+}
+
+.operationButton {
+  display: block;
+  outline: none;
+  flex-grow: 1;
+  background-color: white;
+  border-radius: 0.2rem;
+  padding: 0.25rem;
+}
+
+.operationButton:hover {
+  cursor: pointer;
+  background-color: var(--N40);
+}
+
+.open {
+  color: inherit;
+  text-decoration: none;
+}
+
+.editingWrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: #172b4d;
+  border-radius: 0.2rem;
+}
+
+.editingWrapper > * {
+  padding: 0.2rem;
+  margin: 0.25rem;
+}
+
+.input {
+  font-size: 0.75rem;
+  width: 10rem;
+  border-radius: 0.2rem;
+  opacity: 0.8;
+  outline: none;
+  border: none;
+}
+
+.input:focus {
+  opacity: 1;
+}
+
+.ok {
+  font-size: 0.75rem;
+  color: #ffffff;
+  outline: none;
+  border: none;
+  background-color: #172b4d;
+  opacity: 0.5;
+}
+
+.ok:hover {
+  cursor: pointer;
+  opacity: 1;
 }

@@ -80,6 +80,12 @@ class InlineMenu extends React.Component<InlineMenuProps> {
       }
     }
 
+    if (this.props.editor.isActive("link")) {
+      return (
+        <BubbleMenu className={styles.hidden} editor={this.props.editor} />
+      );
+    }
+
     // Renders an empty menu if a block is selected.
     if (this.props.editor.state.selection instanceof NodeSelection) {
       return (
