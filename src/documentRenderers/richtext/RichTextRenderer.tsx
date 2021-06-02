@@ -12,6 +12,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useMemo, useRef } from "react";
 import Strike from "@tiptap/extension-strike";
+import Link from "@tiptap/extension-link";
 import Text from "@tiptap/extension-text";
 import { DocumentResource } from "../../store/DocumentResource";
 import { AutoId } from "./extensions/autoid/AutoId";
@@ -118,6 +119,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       Italic,
       Strike,
       Underline,
+      Link,
 
       // custom blocks:
       ImageBlock,
