@@ -1,12 +1,10 @@
 import Bold from "@tiptap/extension-bold";
-import BulletList from "@tiptap/extension-bullet-list";
 import Code from "@tiptap/extension-code";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import Document from "@tiptap/extension-document";
 import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
-import OrderedList from "@tiptap/extension-ordered-list";
 import Strike from "@tiptap/extension-strike";
 import Link from "@tiptap/extension-link";
 import Text from "@tiptap/extension-text";
@@ -22,9 +20,11 @@ import {
   IndentItemBlock,
   ListItemBlock,
   ParagraphBlock,
+  BulletList,
+  OrderedList,
+  CodeBlockBlock,
 } from "./extensions/blocktypes";
 import { TableBlock } from "./extensions/blocktypes/TableBlock";
-import { CodeBlockBlock } from "./extensions/blocktypes/CodeBlockBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
@@ -38,6 +38,7 @@ import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
+import multipleLineMarkdownRuleBuilder from "./extensions/markdownPasteRules/multiple/markdownMultipleLines";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -110,13 +111,13 @@ const RichTextRenderer: React.FC<Props> = (props) => {
           class: "indent",
         },
       }),
+      BulletList,
+      OrderedList,
 
       // custom containers:
       IndentGroup,
 
       // from tiptap (unmodified)
-      BulletList,
-      OrderedList,
       TableCell,
       TableHeader,
       TableRow,
