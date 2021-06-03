@@ -3,7 +3,7 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { Node } from "prosemirror-model";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { forSelectedBlocks } from "./forSelectedBlocks";
-import styles from "../extensions/blocktypes/Block.module.css";
+import styles from "../blocktypes/Block.module.css";
 
 // This plugin adds styling to blocks whenever the selection spans more than one block to indicate they're selected.
 export const MultiSelection = Extension.create({

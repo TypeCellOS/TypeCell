@@ -19,7 +19,7 @@ import React, {
 import { useDrag, useDrop, XYCoord } from "react-dnd";
 import SideMenu from "../../menus/SideMenu";
 import mergeAttributesReact from "../../util/mergeAttributesReact";
-import { forSelectedBlocks } from "../../multiselection/forSelectedBlocks";
+import { forSelectedBlocks } from "../multiselection/forSelectedBlocks";
 import styles from "./Block.module.css";
 /**
  * A global store that keeps track of which block is being hovered over
