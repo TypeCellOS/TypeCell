@@ -9,11 +9,16 @@ import Heading from "@tiptap/extension-heading";
 import Paragraph from "@tiptap/extension-paragraph";
 import { IndentItem } from "./IndentItem";
 
-export function extendAsBlock(
-  node: Node,
-  extendedConfig?: Partial<NodeConfig<any>>
+type PlaceholderOptions = {
+  placeholder?: string;
+  placeholderOnlyWhenSelected?: boolean;
+};
+
+export function extendAsBlock<NodeOptions>(
+  node: Node<NodeOptions>,
+  extendedConfig?: Partial<NodeConfig<NodeOptions & PlaceholderOptions>>
 ) {
-  return node.extend({
+  return node.extend<NodeOptions & PlaceholderOptions>({
     addAttributes() {
       return {
         "block-id": {
@@ -60,7 +65,7 @@ export const BlockQuoteBlock = extendAsBlock(BlockQuote, {
   content: "paragraph+",
 });
 
-export const CodeBlockBlock = extendAsBlock(CodeBlock);
+export const CodeBlockBlock = extendAsBlock(CodeBlock, {});
 export const ListItemBlock = extendAsBlock(ListItem, {
   // TODO: the tiptap default is "paragraph block*"
   // It would be nicer to have paragraph list?, but that breaks backspace behavior
@@ -69,4 +74,5 @@ export const ListItemBlock = extendAsBlock(ListItem, {
 export const HorizontalRuleBlock = extendAsBlock(HorizontalRule);
 export const HeadingBlock = extendAsBlock(Heading);
 export const ParagraphBlock = extendAsBlock(Paragraph);
+
 export const IndentItemBlock = extendAsBlock(IndentItem);

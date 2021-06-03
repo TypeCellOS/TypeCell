@@ -1,3 +1,10 @@
+/* Define a set of colors to be used throughout the app for consistency
+see https://atlassian.design/foundations/color for more info */
+:root {
+  --N800: #172b4d; /* Dark neutral used for tooltips and text on light background */
+  --N40: #dfe1e6; /* Light neutral used for subtle borders and text on dark background */
+}
+
 .collaboration-cursor__caret {
   position: relative;
   margin-left: -1px;

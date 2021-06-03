@@ -2,7 +2,8 @@ import { Extension } from "@tiptap/react";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Node } from "prosemirror-model";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { forSelectedBlocks } from "./util/forSelectedBlocks";
+import { forSelectedBlocks } from "./forSelectedBlocks";
+import styles from "../extensions/blocktypes/Block.module.css";
 
 // This plugin adds styling to blocks whenever the selection spans more than one block to indicate they're selected.
 export const MultiSelection = Extension.create({
@@ -23,7 +24,7 @@ export const MultiSelection = Extension.create({
               if (offset !== undefined) {
                 set = set.add(state.doc, [
                   Decoration.node(offset, offset + node.nodeSize, {
-                    class: "selected",
+                    class: styles.selected,
                   }),
                 ]);
               }

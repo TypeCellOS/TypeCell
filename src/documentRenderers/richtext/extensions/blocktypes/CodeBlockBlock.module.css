@@ -1,0 +1,51 @@
+:global(.hljs-comment),
+:global(.hljs-quote) {
+  color: #616161;
+}
+
+:global(.hljs-variable),
+:global(.hljs-template-variable),
+:global(.hljs-attribute),
+:global(.hljs-tag),
+:global(.hljs-name),
+:global(.hljs-regexp),
+:global(.hljs-link),
+:global(.hljs-name),
+:global(.hljs-selector-id),
+:global(.hljs-selector-class) {
+  color: #f98181;
+}
+
+:global(.hljs-number),
+:global(.hljs-meta),
+:global(.hljs-built_in),
+:global(.hljs-builtin-name),
+:global(.hljs-literal),
+:global(.hljs-type),
+:global(.hljs-params) {
+  color: #fbbc88;
+}
+
+:global(.hljs-string),
+:global(.hljs-symbol),
+:global(.hljs-bullet) {
+  color: #b9f18d;
+}
+
+:global(.hljs-title),
+:global(.hljs-section) {
+  color: #faf594;
+}
+
+:global(.hljs-keyword),
+:global(.hljs-selector-tag) {
+  color: #70cff8;
+}
+
+:global(.hljs-emphasis) {
+  font-style: italic;
+}
+
+:global(.hljs-strong) {
+  font-weight: 700;
+}

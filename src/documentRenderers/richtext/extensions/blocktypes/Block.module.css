@@ -43,11 +43,79 @@
   display: block;
 }
 
-.mouseCapture {
+.block .mouseCapture {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -50vw;
-  width: 200vw;
+  width: 100vw;
   z-index: 1;
+}
+
+.codeBlockLanguageSelector {
+  position: absolute;
+  outline: none;
+  top: 0.25rem;
+  right: 0.25rem;
+  border: none;
+  border-radius: 0.2rem;
+  padding: 0.1rem;
+  background-color: lightgrey;
+  font-weight: bold;
+}
+
+.codeBlockLanguageSelector:hover {
+  cursor: pointer;
+}
+
+.codeBlockPre {
+  background: #0d0d0d;
+  color: #fff;
+  font-family: "JetBrainsMono", monospace;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+}
+
+.codeBlockCodeContent {
+  color: inherit;
+  padding: 0;
+  background: none;
+  font-size: 0.8rem;
+}
+
+/*CSS hack for centering nested mouseCaptures*/
+.block .block .mouseCapture {
+  margin-left: -13.6rem;
+}
+
+.block .block .block .mouseCapture {
+  margin-left: -14.7rem;
+}
+
+.topIndicator::before,
+.bottomIndicator::after {
+  content: "";
+  width: 40rem;
+  height: 0.1rem;
+  background-color: #0d0d0d;
+  border-radius: 0.1rem;
+
+  /*Centering relative to page*/
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+}
+
+.bottomIndicator::after {
+  /*Display below block*/
+  bottom: -0.1rem; /*Negative height value*/
+}
+
+.selected {
+  background-color: #DDEEFF;
+}
+
+::selection {
+  background-color: #AAD2FF;
 }

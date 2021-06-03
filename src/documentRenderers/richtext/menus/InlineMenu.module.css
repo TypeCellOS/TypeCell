@@ -1,0 +1,39 @@
+.bubbleMenu {
+  color: var(--N800);
+  background-color: white;
+  border: 1px solid var(--N40);
+  box-shadow: 0px 4px 8px rgba(9, 30, 66, 0.15),
+    0px 0px 1px rgba(9, 30, 66, 0.21);
+  border-radius: 4px;
+}
+
+.buttonTooltip {
+  color: var(--N40);
+  background-color: var(--N800);
+  box-shadow: 0 0 10px rgba(253, 254, 255, 0.8),
+    0 0 3px rgba(253, 254, 255, 0.4);
+  border-radius: 2px;
+  font-size: smaller;
+  text-align: center;
+  padding: 4px;
+}
+
+.secondaryText {
+  font-weight: 400;
+  opacity: 0.6;
+}
+
+.hidden {
+  display: none;
+  visibility: hidden;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--N800);
+}
+
+.isSelected {
+  fill: white;
+}

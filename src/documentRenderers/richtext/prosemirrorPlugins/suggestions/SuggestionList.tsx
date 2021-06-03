@@ -1,10 +1,9 @@
 import React from "react";
 import SuggestionItem from "./SuggestionItem";
 import { SuggestionGroup } from "./SuggestionGroup";
-import styles from "./SuggestionList.module.css";
+import styles from "../../menus/SideMenu.module.css";
 import { SuggestionRendererKeyDownProps } from "./SuggestionPlugin";
-import { spawn } from "child_process";
-
+import { PopupMenuGroup, Section } from "@atlaskit/menu";
 type SuggestionListProps<T> = {
   groups: {
     [groupName: string]: T[];
@@ -127,12 +126,14 @@ export class SuggestionList<T extends SuggestionItem> extends React.Component<
     }
 
     return (
-      <div className={styles.suggestionList}>
-        {renderedGroups.length > 0 ? (
-          renderedGroups
-        ) : (
-          <span className={styles.notFoundText}>No match found</span>
-        )}
+      <div className={styles.menuList}>
+        <PopupMenuGroup maxWidth="250px" maxHeight="400px">
+          {renderedGroups.length > 0 ? (
+            renderedGroups
+          ) : (
+            <Section title={"No match found"}> </Section>
+          )}
+        </PopupMenuGroup>
       </div>
     );
   }

@@ -8,24 +8,26 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { Node, DOMOutputSpec } from "prosemirror-model";
 import { TextSelection, Transaction } from "prosemirror-state";
-import {
+import React, {
   ElementType,
   MouseEvent,
   PropsWithChildren,
+  RefObject,
   useRef,
   useState,
 } from "react";
-import { useDrag, useDrop } from "react-dnd";
-import { forSelectedBlocks } from "../../util/forSelectedBlocks";
-import SideMenu from "../../SideMenu";
+import { useDrag, useDrop, XYCoord } from "react-dnd";
+import SideMenu from "../../menus/SideMenu";
+import mergeAttributesReact from "../../util/mergeAttributesReact";
+import { forSelectedBlocks } from "../../multiselection/forSelectedBlocks";
 import styles from "./Block.module.css";
-
 /**
  * A global store that keeps track of which block is being hovered over
  */
 let globalState = makeAutoObservable({
   activeBlocks: {} as any, // using this pattern to prevent multiple rerenders
   activeBlock: 0,
+  aboveCenterLine: false, // True if mouse cursor lies above this block's center line
 });
 
 type DnDItemType = {
@@ -44,7 +46,13 @@ let selectedRange: Array<number> = [];
  * @param type	The type of HTML element to be rendered as a block.
  * @returns			A React component, to be used in a TipTap node view.
  */
-function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
+function Block(
+  toDOM: (node: Node<any>) => DOMOutputSpec,
+  options: {
+    placeholder?: string;
+    placeholderOnlyWhenSelected?: boolean;
+  }
+) {
   return observer(function Component(
     props: PropsWithChildren<NodeViewRendererProps>
   ) {
@@ -69,6 +77,8 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
     const innerRef = useRef<HTMLDivElement>(null);
     const outerRef = useRef<HTMLDivElement>(null);
     const [id] = useState(Math.random());
+    // if activeBlocks[id] is set, this block is being hovered over
+    let hover = globalState.activeBlocks[id];
 
     const [{ isDragging }, dragRef, dragPreview] = useDrag<
       DnDItemType,
@@ -80,16 +90,40 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
       }
       return {
         type: "block",
-        item: { getPos: props.getPos, node: props.node },
+        item: {
+          getPos: props.getPos,
+          node: props.node,
+        },
       };
     }, [props.getPos, props.node]);
 
-    const [{}, drop] = useDrop<DnDItemType, any, any>(
+    const [{ isOver, canDrop, clientOffset }, drop] = useDrop<
+      DnDItemType,
+      any,
+      any
+    >(
       () => ({
         accept: "block",
         hover(item, monitor) {
-          // TODO: show drop line
-          // https://github.com/YousefED/typecell-next/issues/53
+          // Prevents constant re-renders when hovering over nested blocks.
+          if (!monitor.isOver({ shallow: true })) {
+            return;
+          }
+
+          // Checks if cursor is above the center line of the hovered node.
+          const hoverBoundingRect =
+            mouseCaptureRef!.current!.getBoundingClientRect();
+
+          runInAction(() => {
+            globalState.aboveCenterLine = cursorInUpperHalf(
+              monitor.getClientOffset()!.y,
+              hoverBoundingRect
+            );
+          });
+
+          if (globalState.activeBlock !== id) {
+            updateHover();
+          }
         },
         drop(item, monitor) {
           if (typeof props.getPos === "boolean") {
@@ -106,16 +140,6 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
           // Determine rectangle on screen
           const hoverBoundingRect =
             mouseCaptureRef.current!.getBoundingClientRect();
-
-          // Get vertical middle
-          const hoverMiddleY =
-            (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-
-          // Determine mouse position
-          const clientOffset = monitor.getClientOffset();
-
-          // Get pixels to the top
-          const hoverClientY = clientOffset!.y - hoverBoundingRect.top;
 
           // ProseMirror token positions just before and just after the target block
           const posBeforeTargetNode = props.getPos();
@@ -135,10 +159,12 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
             tr.deleteRange(item.getPos(), item.getPos() + item.node.nodeSize);
           }
 
-          let posToInsert =
-            hoverClientY < hoverMiddleY
-              ? posBeforeTargetNode
-              : posAfterTargetNode;
+          let posToInsert = cursorInUpperHalf(
+            monitor.getClientOffset()!.y,
+            hoverBoundingRect
+          )
+            ? posBeforeTargetNode
+            : posAfterTargetNode;
 
           if (item.getPos() < posToInsert) {
             // we're moving an item downwards. As "delete" happens before "insert",
@@ -182,6 +208,11 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
             props.editor.view.dispatch(newSelection);
           }
         },
+        collect: (monitor) => ({
+          isOver: monitor.isOver(),
+          canDrop: monitor.canDrop(),
+          clientOffset: monitor.getClientOffset(),
+        }),
       }),
       [props.getPos, props.node]
     );
@@ -226,7 +257,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
      *    (the div is absolutely positioned, and this could cause other issues with contenteditable selections, etc. We might
      *    want to move away from this solution later, and for example capture a global mousemove and calculate hover from that)
      */
-    function onMouseOver(e: MouseEvent) {
+    function updateHover() {
       if (globalState.activeBlock !== id) {
         runInAction(() => {
           delete globalState.activeBlocks[globalState.activeBlock];
@@ -265,6 +296,13 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
         // Updates the multi-block selection since the selection was reset.
         selectedBlocks = getSelectedBlocks();
         selectedRange = getSelectedRange();
+      }
+    }
+
+    function onMouseOver(e: MouseEvent) {
+      // Prevents any accidental re-renders when dragging.
+      if (!canDrop) {
+        updateHover();
       }
     }
 
@@ -308,15 +346,51 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
       return [start, end];
     }
 
-    // if activeBlocks[id] is set, this block is being hovered over
-    let hover = globalState.activeBlocks[id];
+    /**
+     * Checks if the mouse cursor lies above the vertical center line of the bounding rectangle of a HTML element.
+     * @param rect      The bounding rectangle of the HTML element.
+     * @param mouseYPos The mouse position Y coordinate.
+     * @returns True if cursor is above the center line of the element, false otherwise.
+     */
+    function cursorInUpperHalf(mouseYPos: number, rect: DOMRect) {
+      // Get vertical middle
+      const hoverMiddleY = (rect.bottom - rect.top) / 2;
+
+      // Get pixels to the top
+      const hoverClientY = mouseYPos - rect.top;
+      // console.log(hoverClientY, hoverMiddleY);
+      return hoverClientY < hoverMiddleY;
+    }
 
     // setup react DnD
     drop(outerRef);
     dragPreview(innerRef);
 
+    /*
+    Our custom Placeholder logic. We have to do this ourselves because:
+    a) official Placeholder extension doesn't work well on nodeviews
+    b) We want to have some Blocks use placeholderOnlyWhenSelected, and some not
+    */
+    const getPos = props.getPos;
+    if (typeof getPos === "boolean") {
+      throw new Error("unexpected boolean getPos");
+    }
+    const pos = getPos();
+    const anchor = props.editor.state.selection.anchor;
+    const hasAnchor = anchor >= pos && anchor <= pos + props.node.nodeSize;
+    const isEmpty = !props.node.isLeaf && !props.node.textContent;
+    const placeholder =
+      (isEmpty &&
+        (!options.placeholderOnlyWhenSelected || hasAnchor) &&
+        options.placeholder) ||
+      undefined;
+
+    const placeholderAttrs = placeholder
+      ? { "data-placeholder": placeholder, class: "is-empty" }
+      : {};
+
     return (
-      <NodeViewWrapper className={styles.block}>
+      <NodeViewWrapper className={`${styles.block}`}>
         <div ref={outerRef}>
           <div className={styles.inner + " inner"} ref={innerRef}>
             <div className={styles.handleContainer} ref={dragRef}>
@@ -332,18 +406,57 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
                 />
               </Tippy>
             </div>
-            {domType === "code" ? ( // Wraps content in "pre" tags if the content is code.
-              <pre>
-                <NodeViewContent as={domType} {...domAttrs} />
+            {domType === "pre" ? ( // Wraps content in "pre" tags if the content is code.
+              <pre className={styles.codeBlockPre}>
+                <select
+                  className={styles.codeBlockLanguageSelector}
+                  value={props.node.attrs["language"]}
+                  onChange={(event) => {
+                    // @ts-ignore
+                    props.updateAttributes({
+                      language: event.target.value,
+                    });
+                  }}>
+                  <option value="null">auto</option>
+                  <option disabled>—</option>
+                  {props.extension.options.lowlight
+                    .listLanguages()
+                    // @ts-ignore
+                    .map((lang, index) => {
+                      return (
+                        <option
+                          key={props.node.attrs["block-id"] + index}
+                          value={lang}>
+                          {lang}
+                        </option>
+                      );
+                    })}
+                </select>
+
+                <NodeViewContent
+                  as={"code"}
+                  {...domAttrs}
+                  className={styles.codeBlockCodeContent}
+                />
               </pre>
             ) : (
               <div>
-                <NodeViewContent as={domType} {...domAttrs} />
+                <NodeViewContent
+                  as={domType}
+                  {...mergeAttributesReact(placeholderAttrs, domAttrs)}
+                />
               </div>
             )}
           </div>
           <div
-            className={styles.mouseCapture}
+            className={`${styles.mouseCapture} ${
+              hover && canDrop
+                ? " " +
+                  (globalState.aboveCenterLine
+                    ? styles.topIndicator
+                    : styles.bottomIndicator)
+                : ""
+            }`}
             onMouseOver={onMouseOver}
             ref={mouseCaptureRef}
             contentEditable={false}></div>
