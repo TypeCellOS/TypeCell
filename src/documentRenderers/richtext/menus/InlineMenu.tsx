@@ -8,10 +8,14 @@ import CodeLineIcon from "remixicon-react/CodeLineIcon";
 import UnderlineIcon from "remixicon-react/UnderlineIcon";
 
 import { Underline } from "../extensions/marks/Underline";
+import { Comment } from "../extensions/marks/Comment";
 import BubbleMenuButton, { ButtonStyleDetails } from "./BubbleMenuButton";
 import styles from "./InlineMenu.module.css";
+import Chat2LineIcon from "remixicon-react/Chat2LineIcon";
 
-type InlineMenuProps = { editor: Editor };
+type InlineMenuProps = { editor: Editor; comments: Map<number, string> };
+
+let commentID = 0;
 
 const bold: ButtonStyleDetails = {
   markName: "bold",
@@ -47,6 +51,13 @@ const underline: ButtonStyleDetails = {
   mainTooltip: "Underline",
   secondaryTooltip: "Ctrl+U",
   icon: UnderlineIcon,
+};
+
+const comment: ButtonStyleDetails = {
+  markName: Comment.name,
+  mainTooltip: "Comment",
+  secondaryTooltip: "",
+  icon: Chat2LineIcon,
 };
 
 class InlineMenu extends React.Component<InlineMenuProps> {
@@ -105,6 +116,16 @@ class InlineMenu extends React.Component<InlineMenuProps> {
             this.props.editor.chain().focus().toggleUnderline().run()
           }
           styleDetails={underline}
+        />
+        <BubbleMenuButton
+          editor={this.props.editor}
+          onClick={() => {
+            commentID++;
+            const comment = prompt("Enter a comment", "");
+            this.props.comments.set(commentID, comment!);
+            this.props.editor.chain().focus().setComment(commentID).run();
+          }}
+          styleDetails={comment}
         />
       </BubbleMenu>
     );

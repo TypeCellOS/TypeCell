@@ -27,6 +27,7 @@ import { CodeBlockBlock } from "./extensions/blocktypes/CodeBlockBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
+import { Comment } from "./extensions/marks/Comment";
 import { Mention, MentionType } from "./extensions/mentions/Mention";
 import { MentionsExtension } from "./extensions/mentions/MentionsExtension";
 import SlashCommandExtension from "./extensions/slashcommand";
@@ -48,13 +49,16 @@ const PEOPLE = [
   new Mention("Nikolay Zhlebinkov", MentionType.PEOPLE),
 ];
 
+const comments = new Map();
+
 type Props = {
   document: DocumentResource;
 };
 const RichTextRenderer: React.FC<Props> = (props) => {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
-      // console.log(editor.getJSON());
+      console.log(editor.getJSON());
+      console.log(editor.state.doc);
     },
     onSelectionUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
@@ -90,6 +94,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Italic,
       Strike,
       Underline,
+      Comment,
 
       // custom blocks:
       ImageBlock,
@@ -146,7 +151,9 @@ const RichTextRenderer: React.FC<Props> = (props) => {
 
   return (
     <div>
-      {editor != null ? <InlineMenu editor={editor} /> : null}
+      {editor != null ? (
+        <InlineMenu editor={editor} comments={comments} />
+      ) : null}
       {editor != null ? <TableMenu editor={editor} /> : null}
       <EditorContent editor={editor} />
     </div>
