@@ -10,3 +10,7 @@ Welcome to TypeCell! Let's reimagine how we can make it easier to understand, bu
 ## Create react app
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+- no concept of "users" yet.
+- p2p
+- explain architecture of engine vs typecellengine / pluginengine
