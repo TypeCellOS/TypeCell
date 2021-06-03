@@ -38,18 +38,6 @@ const RichTextRenderer: React.FC<Props> = (props) => {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
-      editor.state.doc.resolve(editor.state.selection.from).node();
-    },
-    onSelectionUpdate: ({ editor }) => {
-      // Updates styling for multi block selection.
-      editor.state.doc.descendants(function (node, pos) {
-        let element = editor.view.domAtPos(pos + 1).node.parentElement!;
-        if (!node.attrs["block-selected"] && element.className === "selected") {
-          element.className = "";
-        } else if (node.attrs["block-selected"] && element.className === "") {
-          element.className = "selected";
-        }
-      });
     },
     extensions: [
       CollaborationCursor.configure({

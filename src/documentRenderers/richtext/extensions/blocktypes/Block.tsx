@@ -16,6 +16,7 @@ import {
   useState,
 } from "react";
 import { useDrag, useDrop } from "react-dnd";
+import { forSelectedBlocks } from "../../util/forSelectedBlocks";
 import SideMenu from "../../SideMenu";
 import styles from "./Block.module.css";
 
@@ -32,6 +33,10 @@ type DnDItemType = {
   node: Node;
 };
 
+// Used to store temporary multi-selection data
+let selectedBlocks: Array<Node> = [];
+let selectedRange: Array<number> = [];
+
 /**
  * This function creates a React component that represents a block in the editor. This is so that editor blocks can be
  * rendered with a functional drag handle next to them. The pop-up menu that appears after clicking a drag handle is
@@ -46,10 +51,6 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
     const domOutput = toDOM(props.node);
     let domType: ElementType;
     let domAttrs: { [attr: string]: string | null | undefined } = {};
-
-    // Used to store temporary multi-selection data
-    let selectedBlocks: Array<Node> = [];
-    let selectedRange: Array<number> = [];
 
     if (Array.isArray(domOutput)) {
       // We assume here that domOutput[0] is indeed a valid HTML tag
@@ -248,9 +249,7 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
       selectedBlocks = getSelectedBlocks();
       selectedRange = getSelectedRange();
 
-      console.log(selectedBlocks, selectedRange, props.getPos());
-
-      // Checks if block position is not within the multi-block selection and a multi-block selection exists.
+      // Checks if block position is outside the multi-block selection and a multi-block selection exists.
       if (
         (props.getPos() < selectedRange[0] ||
           props.getPos() >= selectedRange[1]) &&
@@ -275,24 +274,26 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
      */
     function getSelectedBlocks(): Array<Node> {
       const selectedBlocks: Array<Node> = [];
-      props.editor.state.doc.descendants(function (node, offset, parent) {
-        if (node.attrs["block-selected"] && !parent.attrs["block-selected"]) {
-          selectedBlocks.push(node);
-        }
-      });
+      function getBlocks(node: Node) {
+        selectedBlocks.push(node);
+      }
+
+      forSelectedBlocks(props.editor.state, getBlocks);
+
       return selectedBlocks;
     }
 
     /**
      * Gets the start and end positions of the multi-block selection.
-     * @returns A 2-element array containing the start and end positions of the multi-block selection. Both values are
-     * -1 if selection is within a single block.
+     * @returns A 2-element array containing the start and end positions of the multi-block selection. If the selection
+     * is within a single block, the first array value equals Number.MAX_VALUE while the second element equals -1.
+     * However, it is better to check for this if getSelectedBlocks() returns an empty array.
      */
     function getSelectedRange(): Array<number> {
       let start = Number.MAX_VALUE;
       let end = -1;
-      props.editor.state.doc.descendants(function (node, offset) {
-        if (node.attrs["block-selected"]) {
+      function getRange(node: Node, offset?: number) {
+        if (offset !== undefined) {
           if (offset < start) {
             start = offset;
           }
@@ -300,7 +301,10 @@ function Block(toDOM: (node: Node<any>) => DOMOutputSpec, options: any) {
             end = offset + node.nodeSize;
           }
         }
-      });
+      }
+
+      forSelectedBlocks(props.editor.state, getRange);
+
       return [start, end];
     }
 

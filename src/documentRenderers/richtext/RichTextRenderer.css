@@ -70,9 +70,9 @@ blockquote {
   top: 0.5rem; /* half of handle height */
 }
 
-.selected > div {
+.selected {
   background-color: #DDEEFF;
-  outline: solid #DDEEFF 0.4rem;
+  /*outline: solid #DDEEFF 0.4rem;*/
 }
 
 ::selection {
