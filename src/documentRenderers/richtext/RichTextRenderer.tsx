@@ -41,6 +41,7 @@ import { Placeholder } from "@tiptap/extension-placeholder";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Editor } from "@atlaskit/editor-core";
 import CustomLink from "./extensions/marks/Link";
+import Hyperlink from "./extensions/marks/LinkReact";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -94,7 +95,12 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Italic,
       Strike,
       Underline,
-      CustomLink,
+
+      // !!! Choose one of these two:
+      // 1. Hyperlink is the React and Tippy version, currently not working
+      Hyperlink,
+      // 2. CustomLink is written in browser native API, fully functional
+      // CustomLink,
 
       // custom blocks:
       ImageBlock,

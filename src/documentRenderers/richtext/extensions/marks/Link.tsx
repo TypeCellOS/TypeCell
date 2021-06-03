@@ -2,7 +2,6 @@ import { Link } from "@tiptap/extension-link";
 import { Plugin, PluginKey } from "prosemirror-state";
 import Tippy from "@tippyjs/react";
 import tippy from "tippy.js";
-import ReactDOM from "react-dom";
 import styles from "./Link.module.css";
 import menuStyles from "../../menus/InlineMenu.module.css";
 
@@ -14,6 +13,7 @@ const linkEditMenu = (target: Element) => {
   );
 };
 
+// This generates a structure that looks like Floater in ./LinkReact.tsx
 const floater = (removeHandler: () => void, href: string) => {
   const div = document.createElement("div");
   div.setAttribute("id", "linker");
@@ -53,6 +53,7 @@ const clearLinker = () => {
   if (menu) menu.remove();
 };
 
+// This returns an element that looks like HyperlinkEditor in ./LinkReact.tsx
 const generateTippyEditor = (
   editHandler: (href: string) => void,
   pre?: string
@@ -105,8 +106,8 @@ const CustomLink = Link.extend({
                 anchor.nodeName === "A"
               ) {
                 clearLinker();
-                const from = view.posAtDOM(anchor, -1);
-                const to = from + anchor.innerHTML.length;
+                const from = view.posAtDOM(anchor, -1) + 1;
+                const to = from;
                 this.editor
                   .chain()
                   .focus()
@@ -115,6 +116,7 @@ const CustomLink = Link.extend({
 
                 const removeHandler = () => {
                   this.editor.chain().focus().unsetLink().run();
+                  clearLinker();
                 };
                 const editHandler = (href: string) => {
                   this.editor.chain().focus().setLink({ href }).run();
@@ -139,6 +141,8 @@ const CustomLink = Link.extend({
                     { once: true }
                   );
                 }
+
+                // manual positioning works
                 // --------------showing the 3 buttons------------
                 const rect = anchor.getBoundingClientRect();
                 menu.style.display = "block";
