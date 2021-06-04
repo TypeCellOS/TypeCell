@@ -136,7 +136,7 @@ class InlineMenu extends React.Component<InlineMenuProps> {
             const newStringMap: string = JSON.stringify(
               Array.from(comments.entries())
             );
-            console.log(comments);
+
             // Saves updated comments in browser cache.
             localStorage.setItem("comments", newStringMap);
 
