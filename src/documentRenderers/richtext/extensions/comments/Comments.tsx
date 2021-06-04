@@ -71,7 +71,10 @@ export const Comments = Extension.create({
                     dom.innerHTML = comments.get(mark.attrs["id"])!;
                     dom.className = styles.comment;
                     set = set.add(state.doc, [
-                      Decoration.widget(state.selection.head, dom),
+                      Decoration.widget(
+                        state.doc.resolve(state.selection.head).before(),
+                        dom
+                      ),
                     ]);
                   }
                 }

@@ -1,6 +1,5 @@
 .comment {
     display: block;
-    position: absolute;
-    margin-top: -1rem;
-    margin-left: -10rem;
+    position: fixed;
+    margin-left: 50rem;
 }
