@@ -38,10 +38,7 @@ import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
-import { Plugin, PluginKey } from "prosemirror-state";
-import { Editor } from "@atlaskit/editor-core";
 import Hyperlink from "./extensions/marks/Hyperlink";
-import multipleLineMarkdownRuleBuilder from "./extensions/markdownPasteRules/multiple/markdownMultipleLines";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [

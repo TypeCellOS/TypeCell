@@ -22,8 +22,8 @@
 }
 
 .input {
-  font-size: 0.8rem;
-  width: 10rem;
+  font-size: 1rem;
+  width: 12rem;
   border-radius: 0.2rem;
   opacity: 0.8;
   outline: none;
@@ -35,7 +35,7 @@
 }
 
 .ok {
-  font-size: 0.8rem;
+  font-size: 1rem;
   color: #ffffff;
   outline: none;
   border: none;
