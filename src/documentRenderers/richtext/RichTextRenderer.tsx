@@ -40,8 +40,7 @@ import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Editor } from "@atlaskit/editor-core";
-import CustomLink from "./extensions/marks/Link";
-import Hyperlink from "./extensions/marks/LinkReact";
+import Hyperlink from "./extensions/marks/Hyperlink";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -58,6 +57,13 @@ type Props = {
 };
 const RichTextRenderer: React.FC<Props> = (props) => {
   const editor = useEditor({
+    onCreate: ({ editor }) => {
+      const prosemirror = document.querySelector(".ProseMirror");
+      // Add an invisible element to render Tippy Component
+      const div = document.createElement("div");
+      div.id = "hyperlinkMenu";
+      prosemirror?.parentElement?.appendChild(div);
+    },
     onUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
     },
@@ -96,11 +102,8 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Strike,
       Underline,
 
-      // !!! Choose one of these two:
-      // 1. Hyperlink is the React and Tippy version, currently not working
+      // custom marks:
       Hyperlink,
-      // 2. CustomLink is written in browser native API, fully functional
-      // CustomLink,
 
       // custom blocks:
       ImageBlock,

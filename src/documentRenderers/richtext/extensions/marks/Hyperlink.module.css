@@ -3,20 +3,6 @@
   border-radius: 0.2rem;
 }
 
-.operationButton {
-  display: block;
-  outline: none;
-  flex-grow: 1;
-  background-color: white;
-  border-radius: 0.2rem;
-  padding: 0.25rem;
-}
-
-.operationButton:hover {
-  cursor: pointer;
-  background-color: var(--N40);
-}
-
 .open {
   color: inherit;
   text-decoration: none;
@@ -31,12 +17,12 @@
 }
 
 .editingWrapper > * {
-  padding: 0.2rem;
+  padding: 0.25rem;
   margin: 0.25rem;
 }
 
 .input {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   width: 10rem;
   border-radius: 0.2rem;
   opacity: 0.8;
@@ -49,7 +35,7 @@
 }
 
 .ok {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #ffffff;
   outline: none;
   border: none;
