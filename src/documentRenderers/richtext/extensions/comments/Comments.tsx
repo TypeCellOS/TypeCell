@@ -38,18 +38,8 @@ export const Comments = Extension.create({
               }
             });
 
-            console.log(comments);
-
             // Removes any comments that no longer have corresponding highlighted text in the document.
             comments.forEach(function (value, key) {
-              console.log(
-                "Key:",
-                key,
-                "\nType of Key:",
-                typeof key,
-                "\nMark Ids:",
-                markIDs
-              );
               if (!markIDs.includes(key)) {
                 comments.delete(key);
               }
@@ -58,28 +48,51 @@ export const Comments = Extension.create({
             // Creates an empty set of decorations.
             let set = DecorationSet.create(state.doc, []);
 
-            // Gets node that the cursor is in. This node does not hold mark information.
-            const parent = state.doc.resolve(state.selection.head).node();
+            // DOM wrapper for all comments that should be displayed.
+            const commentBlock = document.createElement("div");
+            commentBlock.className = styles.commentBlock;
 
-            // Finds the child node/s which have comment marks.
-            parent.descendants(function (node) {
-              if (node.marks.length > 0) {
-                for (let mark of node.marks) {
-                  if (mark.attrs["id"]) {
-                    // Creates a DOM element with comment.
-                    const dom = document.createElement("div");
-                    dom.innerHTML = comments.get(mark.attrs["id"])!;
-                    dom.className = styles.comment;
-                    set = set.add(state.doc, [
-                      Decoration.widget(
-                        state.doc.resolve(state.selection.head).before(),
-                        dom
-                      ),
-                    ]);
-                  }
+            // Resolved cursor position.
+            const resolvedPos = state.doc.resolve(state.selection.head);
+
+            // Finds the child node the cursor is in which also has comment marks.
+            resolvedPos.node().descendants(function (node, offset) {
+              for (let mark of node.marks.filter(
+                (mark) => mark.attrs["id"] !== null
+              )) {
+                console.log(
+                  "Node:",
+                  node,
+                  "\nStart:",
+                  offset,
+                  "\nEnd:",
+                  offset + node.nodeSize,
+                  "\n Cursor:",
+                  state.selection.head,
+                  "\n Parent Start:",
+                  state.doc.resolve(state.selection.head).start()
+                );
+                if (
+                  offset <= state.selection.head - resolvedPos.start() &&
+                  state.selection.head - resolvedPos.start() <=
+                    offset + node.nodeSize
+                ) {
+                  // Creates a DOM element with comment inside the wrapper.
+                  const comment = document.createElement("p");
+                  comment.innerHTML = comments.get(mark.attrs["id"])!;
+                  comment.className = styles.comment;
+                  commentBlock.appendChild(comment);
                 }
               }
             });
+
+            // Creates widget with all comments to render.
+            set = set.add(state.doc, [
+              Decoration.widget(
+                state.doc.resolve(state.selection.head).before(),
+                commentBlock
+              ),
+            ]);
 
             // Serializes the updated comments and saves them in browser cache.
             localStorage.setItem(

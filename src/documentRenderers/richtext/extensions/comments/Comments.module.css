@@ -1,5 +1,9 @@
-.comment {
+.commentBlock {
     display: block;
     position: fixed;
-    margin-left: 50rem;
+    right: 0;
+}
+
+.comment {
+    position: relative
 }
