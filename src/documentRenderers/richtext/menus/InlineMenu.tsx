@@ -13,7 +13,7 @@ import BubbleMenuButton, { ButtonStyleDetails } from "./BubbleMenuButton";
 import styles from "./InlineMenu.module.css";
 import Chat2LineIcon from "remixicon-react/Chat2LineIcon";
 
-type InlineMenuProps = { editor: Editor; comments: Map<number, string> };
+type InlineMenuProps = { editor: Editor };
 
 let commentID = 0;
 
@@ -122,7 +122,25 @@ class InlineMenu extends React.Component<InlineMenuProps> {
           onClick={() => {
             commentID++;
             const comment = prompt("Enter a comment", "");
-            this.props.comments.set(commentID, comment!);
+
+            // Gets comments from browser cache.
+            const oldStringMap: string = localStorage.getItem("comments")!;
+
+            // Deserializes comments into a map.
+            const comments = new Map(JSON.parse(oldStringMap));
+
+            // Adds comment to map.
+            comments.set(commentID.toString(), comment!);
+
+            // Serializes the updated comments.
+            const newStringMap: string = JSON.stringify(
+              Array.from(comments.entries())
+            );
+            console.log(comments);
+            // Saves updated comments in browser cache.
+            localStorage.setItem("comments", newStringMap);
+
+            // Adds highlighting to text.
             this.props.editor.chain().focus().setComment(commentID).run();
           }}
           styleDetails={comment}
