@@ -15,8 +15,6 @@ import Chat2LineIcon from "remixicon-react/Chat2LineIcon";
 
 type InlineMenuProps = { editor: Editor };
 
-let commentID = 0;
-
 const bold: ButtonStyleDetails = {
   markName: "bold",
   mainTooltip: "Bold",
@@ -120,28 +118,31 @@ class InlineMenu extends React.Component<InlineMenuProps> {
         <BubbleMenuButton
           editor={this.props.editor}
           onClick={() => {
-            commentID++;
+            // Prompts user for comment.
             const comment = prompt("Enter a comment", "");
 
-            // Gets comments from browser cache.
-            const oldStringMap: string = localStorage.getItem("comments")!;
+            // Gets unique ID and converts it into a number.
+            const id = parseInt(localStorage.getItem("commentID")!);
 
-            // Deserializes comments into a map.
-            const comments = new Map(JSON.parse(oldStringMap));
-
-            // Adds comment to map.
-            comments.set(commentID.toString(), comment!);
-
-            // Serializes the updated comments.
-            const newStringMap: string = JSON.stringify(
-              Array.from(comments.entries())
+            // Gets comments from browser cache and deserializes them into a map.
+            const comments: Map<number, string> = new Map<number, string>(
+              JSON.parse(localStorage.getItem("comments")!)
             );
 
-            // Saves updated comments in browser cache.
-            localStorage.setItem("comments", newStringMap);
+            // Adds comment to map.
+            comments.set(id, comment!);
+
+            // Creates a new unique ID for the next comment and saves it in browser cache.
+            localStorage.setItem("commentID", (id + 1).toString());
+
+            // Serializes the updated comments and saves them in browser cache.
+            localStorage.setItem(
+              "comments",
+              JSON.stringify(Array.from(comments.entries()))
+            );
 
             // Adds highlighting to text.
-            this.props.editor.chain().focus().setComment(commentID).run();
+            this.props.editor.chain().focus().setComment(id).run();
           }}
           styleDetails={comment}
         />

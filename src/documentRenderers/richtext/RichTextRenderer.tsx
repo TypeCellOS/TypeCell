@@ -59,6 +59,12 @@ if (!localStorage.getItem("comments")) {
   );
 }
 
+// Initializes comment ID field to assign unique IDs to comments, if it does not already exist.
+if (!localStorage.getItem("commentID")) {
+  // Starting ID, represented as a string to confine to localStorage data type.
+  localStorage.setItem("commentID", "0");
+}
+
 type Props = {
   document: DocumentResource;
 };
@@ -66,8 +72,8 @@ const RichTextRenderer: React.FC<Props> = (props) => {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
-      const stringMap: string = localStorage.getItem("comments")!;
-      console.log(new Map(JSON.parse(stringMap)));
+      // const stringMap: string = localStorage.getItem("comments")!;
+      // console.log(new Map(JSON.parse(stringMap)));
     },
     onSelectionUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
