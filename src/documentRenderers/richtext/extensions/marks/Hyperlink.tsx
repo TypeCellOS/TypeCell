@@ -8,10 +8,12 @@ import menuStyles from "../../menus/InlineMenu.module.css";
 import Edit from "remixicon-react/EditBoxLineIcon";
 import Remove from "remixicon-react/CloseLineIcon";
 import Open from "remixicon-react/ShareBoxLineIcon";
+import React from "react";
 
 // ids to search for the active anchor link and its menu
 const ACTIVE = "activeLink";
 const HYPERLINKMENU = "hyperlinkMenu";
+const EDITINGMENU = "editingHyperlinkMenu";
 
 type HyperlinkMenuProps = {
   href: string;
@@ -25,37 +27,70 @@ type HyperlinkMenuProps = {
  * @returns a menu for editing/removing/opening the link
  */
 const HyperLinkMenu = (props: HyperlinkMenuProps) => {
+  const [value, setValue] = React.useState(props.href);
+
+  React.useEffect(() => {
+    const anchor = document.getElementById(ACTIVE);
+    if (anchor) {
+      const href = anchor.getAttribute("href");
+      if (href) setValue(href.substring(2));
+    }
+  }, [props.href]);
+
   return (
     <div className={`${styles.linkerWrapper} ${menuStyles.bubbleMenu}`}>
       <Tippy
         content={
-          <HyperlinkEditor
-            pre={props.href}
-            editHandler={props.editHandler}></HyperlinkEditor>
-        }
-        trigger="click"
-        interactive={true}>
-        <Button
-          appearance="subtle"
-          iconBefore={<Edit className={menuStyles.icon}></Edit>}></Button>
+          <div className={menuStyles.buttonTooltip}>
+            <div className={menuStyles.mainText}>Edit</div>
+          </div>
+        }>
+        <Tippy
+          content={
+            <HyperlinkEditor
+              pre={value}
+              setter={setValue}
+              editHandler={props.editHandler}></HyperlinkEditor>
+          }
+          trigger="click"
+          interactive={true}
+          interactiveBorder={30}>
+          <Button
+            appearance="subtle"
+            iconBefore={<Edit className={menuStyles.icon}></Edit>}></Button>
+        </Tippy>
       </Tippy>
 
-      <Button
-        appearance="subtle"
-        onClick={props.removeHandler}
-        iconBefore={<Remove className={menuStyles.icon}></Remove>}></Button>
+      <Tippy
+        content={
+          <div className={menuStyles.buttonTooltip}>
+            <div className={menuStyles.mainText}>Remove</div>
+          </div>
+        }>
+        <Button
+          appearance="subtle"
+          onClick={props.removeHandler}
+          iconBefore={<Remove className={menuStyles.icon}></Remove>}></Button>
+      </Tippy>
 
-      <Button
-        appearance="subtle"
-        iconBefore={
-          <a
-            href={"//" + props.href}
-            className={styles.open}
-            target="_blank"
-            rel="noreferrer">
-            <Open className={menuStyles.icon}></Open>
-          </a>
-        }></Button>
+      <Tippy
+        content={
+          <div className={menuStyles.buttonTooltip}>
+            <div className={menuStyles.mainText}>Open</div>
+          </div>
+        }>
+        <Button
+          appearance="subtle"
+          iconBefore={
+            <a
+              href={"//" + props.href}
+              className={styles.open}
+              target="_blank"
+              rel="noreferrer">
+              <Open className={menuStyles.icon}></Open>
+            </a>
+          }></Button>
+      </Tippy>
     </div>
   );
 };
@@ -63,6 +98,7 @@ const HyperLinkMenu = (props: HyperlinkMenuProps) => {
 type HyperlinkEditorProps = {
   pre: string;
   editHandler: (href: string) => void;
+  setter: (href: string) => void;
 };
 
 /**
@@ -72,10 +108,11 @@ type HyperlinkEditorProps = {
  */
 const HyperlinkEditor = (props: HyperlinkEditorProps) => {
   return (
-    <div className={styles.editingWrapper}>
+    <div className={styles.editingWrapper} id={EDITINGMENU}>
       <input
         type="text"
-        defaultValue={props.pre}
+        value={props.pre}
+        onChange={(ev) => props.setter(ev.target.value)}
         className={styles.input}></input>
       <button
         type="submit"
@@ -106,13 +143,14 @@ const Hyperlink = Link.extend({
           handleDOMEvents: {
             mouseover: (view, event) => {
               const anchor = event.target;
-
               // this only handles an <a> element
               if (
                 anchor &&
                 anchor instanceof Element &&
-                anchor.nodeName === "A"
+                anchor.nodeName === "A" &&
+                !document.getElementById(EDITINGMENU)
               ) {
+                document.getElementById(ACTIVE)?.removeAttribute("id");
                 anchor.id = ACTIVE;
                 const href = anchor.getAttribute("href")?.substring(2);
 
@@ -160,6 +198,7 @@ const Hyperlink = Link.extend({
                         href={href ?? ""}></HyperLinkMenu>
                     }
                     interactive={true}
+                    interactiveBorder={30}
                     triggerTarget={document.getElementById(ACTIVE)}
                     appendTo={() => document.body}>
                     <div>&nbsp;</div>
