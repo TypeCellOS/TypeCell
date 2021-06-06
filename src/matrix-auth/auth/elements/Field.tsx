@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 // import classNames from "classnames";
+// import { debounce, reduce } from "lodash";
 import { debounce } from "lodash";
 import React, {
   Fragment,
@@ -25,7 +26,9 @@ import React, {
 import { IFieldState, IValidationResult } from "./Validation";
 
 import TextField from "@atlaskit/textfield";
-import { HelperMessage, Field as AtlaskitField } from "@atlaskit/form";
+//import { HelperMessage, Field as AtlaskitField } from "@atlaskit/form";
+import { Field as AtlaskitField } from "@atlaskit/form";
+import Select from "@atlaskit/select";
 // Invoke validation from user input (when typing, etc.) at most once every N ms.
 const VALIDATION_THROTTLE_MS = 200;
 
@@ -356,10 +359,23 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
               // TODO: should be textarea (but can do later, not used for now)
               <TextField {...(inputProps_ as any)} {...fieldProps} />
             ) : element === "select" ? (
-              // TODO: should be atlaskit <Select> or similar, I can help with this later
-              <TextField {...(inputProps_ as any)} {...fieldProps}></TextField>
+              // TODO: should move into ISelectProps
+              <Select
+                {...(inputProps_ as any)}
+                {...fieldProps}
+                defaultValue={{
+                  label: "Username",
+                  value: this.props.value,
+                }}
+                onChange={this.props.onChange}
+                options={[
+                  // TODO: use loginField type
+                  { label: "Username", value: "login_field_mxid" },
+                  { label: "Email address", value: "login_field_email" },
+                  { label: "Phone", value: "login_field_phone" },
+                ]}
+              />
             ) : undefined}
-            <HelperMessage>Help or instruction text goes here</HelperMessage>
           </Fragment>
         )}
       </AtlaskitField>

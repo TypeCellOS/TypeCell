@@ -121,7 +121,12 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
         break;
     }
 
-    this.props.onSubmit?.(username, phoneCountry, phoneNumber, data.password);
+    return this.props.onSubmit?.(
+      username,
+      phoneCountry,
+      phoneNumber,
+      data.password
+    );
   };
 
   private onUsernameChanged = (ev: React.ChangeEvent<any>) => {
@@ -145,8 +150,9 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     this.props.onUsernameBlur?.(ev.target.value);
   };
 
-  private onLoginTypeChange = (ev: React.ChangeEvent<any>) => {
-    const loginType = ev.target.value;
+  private onLoginTypeChange = (data: any) => {
+    console.log("data of select on change is ", data);
+    const loginType = data.value;
     this.setState({ loginType });
     this.props.onUsernameChanged?.(""); // Reset because email and username use the same state
     // CountlyAnalytics.instance.track("onboarding_login_type_changed", {
@@ -458,6 +464,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
           <label className="mx_Login_type_label">{"Sign in with"}</label>
           <Field
             element="select"
+            name="select"
             value={this.state.loginType}
             onChange={this.onLoginTypeChange}
             disabled={this.props.disableSubmit}>
@@ -497,6 +504,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             {forgotPasswordJsx}
             {!this.props.busy && (
               <Button
+                style={{ margin: "20px 0" }}
                 type="submit"
                 appearance="primary"
                 isDisabled={this.props.disableSubmit}>
