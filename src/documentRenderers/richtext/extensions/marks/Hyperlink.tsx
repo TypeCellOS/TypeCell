@@ -179,7 +179,11 @@ const Hyperlink = Link.extend({
                   const exist = marks.some((mark) => {
                     if (mark.type.name.startsWith("link")) {
                       from = resPos.pos;
-                      const parent = view.domAtPos(from, 1).node.parentElement;
+                      console.log(`pos is ${pos} and respos is ${resPos.pos}`);
+                      const domNode = view.domAtPos(from, 1);
+                      console.log(`the offset is ${domNode.offset}`);
+                      const parent = domNode.node.parentElement;
+                      from -= domNode.offset;
                       if (!parent) return false;
                       anchor = parent;
                       // sometimes parent is not an <a> element
@@ -215,12 +219,12 @@ const Hyperlink = Link.extend({
                   // @ts-ignore
                   if (anchor) {
                     if (document.getElementById(KEYBORAD_MENU)) {
-                      if (ACTIVE === anchor.id) {
-                        // when the keyboard menu <div> is present
-                        // and the active link is the same as last one
-                        // do not render again
-                        return false;
-                      }
+                      // if (ACTIVE === anchor.id) {
+                      //   // when the keyboard menu <div> is present
+                      //   // and the active link is the same as last one
+                      //   // do not render again
+                      //   return false;
+                      // }
                       clearMenu();
                     }
 
@@ -235,9 +239,7 @@ const Hyperlink = Link.extend({
                         if (mark.type.name.startsWith("link")) {
                           this.editor.chain().unsetLink().run();
                           mark.attrs = { ...mark.attrs, href };
-                          view.dispatch(
-                            view.state.tr.addMark(from - 1, to - 1, mark)
-                          );
+                          view.dispatch(view.state.tr.addMark(from, to, mark));
                         }
                       });
                     };
