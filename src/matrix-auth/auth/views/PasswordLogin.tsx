@@ -97,8 +97,9 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     this.props.onForgotPasswordClick?.();
   };
 
-  private onSubmitForm = async (ev: FormEvent<HTMLFormElement>) => {
-    ev.preventDefault();
+  // TODO: figure type for event data from AtlasKitForm
+  private onSubmitForm = async (data: any) => {
+    console.log("form data", data);
 
     const allFieldsValid = await this.verifyFieldsBeforeSubmit();
     if (!allFieldsValid) {
@@ -112,7 +113,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     switch (this.state.loginType) {
       case LoginField.Email:
       case LoginField.MatrixId:
-        username = this.props.username;
+        username = data.username;
         break;
       case LoginField.Phone:
         phoneCountry = this.props.phoneCountry;
@@ -120,11 +121,11 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
         break;
     }
 
-    this.props.onSubmit?.(
+    return this.props.onSubmit?.(
       username,
       phoneCountry,
       phoneNumber,
-      this.state.password
+      data.password
     );
   };
 
@@ -149,8 +150,9 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     this.props.onUsernameBlur?.(ev.target.value);
   };
 
-  private onLoginTypeChange = (ev: React.ChangeEvent<any>) => {
-    const loginType = ev.target.value;
+  private onLoginTypeChange = (data: any) => {
+    console.log("data of select on change is ", data);
+    const loginType = data.value;
     this.setState({ loginType });
     this.props.onUsernameChanged?.(""); // Reset because email and username use the same state
     // CountlyAnalytics.instance.track("onboarding_login_type_changed", {
@@ -183,10 +185,13 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     // which is less strict than the pass we're about to do below for all fields.
     const activeElement = document.activeElement as HTMLElement;
     if (activeElement) {
+      // TODO: remove this
+      console.log("found active element");
       activeElement.blur();
     }
 
     const fieldIDsInDisplayOrder = [this.state.loginType, LoginField.Password];
+    console.log("fieldIDsInDisplayOrder is ", fieldIDsInDisplayOrder);
 
     // Run all fields with stricter validation that no longer allows empty
     // values for required fields.
@@ -207,6 +212,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     await new Promise<void>((resolve) => this.setState({}, resolve));
 
     if (this.allFieldsValid()) {
+      console.log("all fields are valid");
       return true;
     }
 
@@ -345,7 +351,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
           <Field
             className={classNames(classes)}
             name="username" // make it a little easier for browser's remember-password
-            key="email_input"
+            key={"email_input"}
             type="text"
             label={"Email"}
             placeholder="joe@example.com"
@@ -365,7 +371,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
           <Field
             className={classNames(classes)}
             name="username" // make it a little easier for browser's remember-password
-            key="username_input"
+            key={"username_input"}
             type="text"
             label={"Username"}
             placeholder={"Username".toLocaleLowerCase()}
@@ -395,7 +401,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
           <Field
             className={classNames(classes)}
             name="phoneNumber"
-            key="phone_input"
+            key={"phone_input"}
             type="text"
             label={"Phone"}
             value={this.props.phoneNumber}
@@ -458,6 +464,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
           <label className="mx_Login_type_label">{"Sign in with"}</label>
           <Field
             element="select"
+            name="select"
             value={this.state.loginType}
             onChange={this.onLoginTypeChange}
             disabled={this.props.disableSubmit}>
@@ -485,6 +492,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
               className={pwFieldClass}
               type="password"
               name="password"
+              key={"password_input"}
               label={"Password"}
               value={this.state.password}
               onChange={this.onPasswordChanged}
@@ -496,6 +504,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             {forgotPasswordJsx}
             {!this.props.busy && (
               <Button
+                style={{ margin: "20px 0" }}
                 type="submit"
                 appearance="primary"
                 isDisabled={this.props.disableSubmit}>

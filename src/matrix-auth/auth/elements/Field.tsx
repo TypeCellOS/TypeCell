@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 // import classNames from "classnames";
+// import { debounce, reduce } from "lodash";
 import { debounce } from "lodash";
 import React, {
   Fragment,
@@ -25,7 +26,9 @@ import React, {
 import { IFieldState, IValidationResult } from "./Validation";
 
 import TextField from "@atlaskit/textfield";
-import { HelperMessage, Field as AtlaskitField } from "@atlaskit/form";
+//import { HelperMessage, Field as AtlaskitField } from "@atlaskit/form";
+import { Field as AtlaskitField } from "@atlaskit/form";
+import Select from "@atlaskit/select";
 // Invoke validation from user input (when typing, etc.) at most once every N ms.
 const VALIDATION_THROTTLE_MS = 200;
 
@@ -36,6 +39,8 @@ function getId() {
 }
 
 interface IProps {
+  // The field's key, passed down to the AtlasKitField's name, which is used as a key by the Atlaskit Form
+  key?: string;
   // The field's ID, which binds the input and label together. Immutable.
   id?: string;
   // The field's type (when used as an <input>). Defaults to "text".
@@ -283,6 +288,8 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
         <TextField {...(inputProps_ as any)}></TextField>
       ) : undefined;
 
+    console.log(fieldInput);
+
     // I don't think prefix / postfix components are used, so for now we can skip this
     // let prefixContainer = null;
     // if (prefixComponent) {
@@ -334,19 +341,41 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     // }
 
     return (
-      <AtlaskitField label="TODO Field label" name="TODO example-text">
+      <AtlaskitField
+        label={this.props.label}
+        // TODO: change name to key(somehow its always undefined when doing so)
+        name={this.props.name || "undefined name"}>
         {({ fieldProps }: any) => (
           <Fragment>
+            {console.log(
+              "value of ",
+              this.props.name,
+              " is ",
+              fieldProps.value
+            )}
             {element === "input" ? (
               <TextField {...(inputProps_ as any)} {...fieldProps} />
             ) : element === "textarea" ? (
               // TODO: should be textarea (but can do later, not used for now)
               <TextField {...(inputProps_ as any)} {...fieldProps} />
             ) : element === "select" ? (
-              // TODO: should be atlaskit <Select> or similar, I can help with this later
-              <TextField {...(inputProps_ as any)} {...fieldProps}></TextField>
+              // TODO: should move into ISelectProps
+              <Select
+                {...(inputProps_ as any)}
+                {...fieldProps}
+                defaultValue={{
+                  label: "Username",
+                  value: this.props.value,
+                }}
+                onChange={this.props.onChange}
+                options={[
+                  // TODO: use loginField type
+                  { label: "Username", value: "login_field_mxid" },
+                  { label: "Email address", value: "login_field_email" },
+                  { label: "Phone", value: "login_field_phone" },
+                ]}
+              />
             ) : undefined}
-            <HelperMessage>Help or instruction text goes here</HelperMessage>
           </Fragment>
         )}
       </AtlaskitField>

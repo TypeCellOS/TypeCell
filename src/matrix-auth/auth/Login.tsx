@@ -165,6 +165,16 @@ export default class LoginComponent extends React.PureComponent<
     phoneNumber: string | undefined,
     password: string
   ) => {
+    console.log(
+      "trying to log in with username ",
+      username,
+      "phoneCountry ",
+      phoneCountry,
+      "phoneNumber",
+      phoneNumber,
+      "password ",
+      password
+    );
     if (!this.state.serverIsAlive) {
       this.setState({ busy: true });
       // Do a quick liveliness check on the URLs
@@ -756,12 +766,12 @@ export default class LoginComponent extends React.PureComponent<
         <Content>
           <Main isFixed={true} width={650}>
             {/* <MainMenu /> */}
-
             <div
               style={{
                 maxWidth: 350,
                 margin: "0 auto",
               }}>
+              {errorTextSection}
               <Section>{this.renderLoginComponentForFlows()}</Section>
             </div>
 
