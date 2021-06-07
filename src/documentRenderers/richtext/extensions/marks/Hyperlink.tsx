@@ -179,13 +179,14 @@ const Hyperlink = Link.extend({
                   const exist = marks.some((mark) => {
                     if (mark.type.name.startsWith("link")) {
                       from = resPos.pos;
-                      console.log(`pos is ${pos} and respos is ${resPos.pos}`);
-                      const domNode = view.domAtPos(from, 1);
-                      console.log(`the offset is ${domNode.offset}`);
-                      const parent = domNode.node.parentElement;
+                      let domNode = view.domAtPos(from, 1);
+
+                      // must be subtracted to make sure position is correct
                       from -= domNode.offset;
+                      const parent = domNode.node.parentElement;
                       if (!parent) return false;
                       anchor = parent;
+
                       // sometimes parent is not an <a> element
                       // but the anchor is at most its 4th order parent
                       for (let i = 0; i < 4; i++) {
@@ -196,6 +197,7 @@ const Hyperlink = Link.extend({
                           anchor = anchor.parentElement;
                         }
                       }
+
                       href = mark.attrs.href;
                       to = from + anchor.innerText.length;
 
