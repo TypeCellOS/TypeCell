@@ -12,7 +12,7 @@ import React from "react";
 
 // ids to search for the active anchor link and its menu
 const ACTIVE = "activeLink";
-const HYPERLINK_MENU = "hyperlinkMenu";
+export const HYPERLINK_MENU = "hyperlinkMenu";
 const EDITING_MENU = "editingHyperlinkMenu";
 const KEYBORAD_MENU = "keyboardTriggeredMenu";
 const MOUSE_MENU = "mousehoverTriggeredMenu";
@@ -178,7 +178,7 @@ const Hyperlink = Link.extend({
                   // is there any Link Mark?
                   const exist = marks.some((mark) => {
                     if (mark.type.name.startsWith("link")) {
-                      from = resPos.pos;
+                      from = pos;
                       let domNode = view.domAtPos(from, 1);
 
                       // must be subtracted to make sure position is correct
@@ -221,12 +221,6 @@ const Hyperlink = Link.extend({
                   // @ts-ignore
                   if (anchor) {
                     if (document.getElementById(KEYBORAD_MENU)) {
-                      // if (ACTIVE === anchor.id) {
-                      //   // when the keyboard menu <div> is present
-                      //   // and the active link is the same as last one
-                      //   // do not render again
-                      //   return false;
-                      // }
                       clearMenu();
                     }
 

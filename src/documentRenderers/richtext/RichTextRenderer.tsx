@@ -37,7 +37,7 @@ import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
-import Hyperlink from "./extensions/marks/Hyperlink";
+import Hyperlink, { HYPERLINK_MENU } from "./extensions/marks/Hyperlink";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -58,7 +58,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       const prosemirror = document.querySelector(".ProseMirror");
       // Add an invisible element to render Tippy Component
       const div = document.createElement("div");
-      div.id = "hyperlinkMenu";
+      div.id = HYPERLINK_MENU;
       prosemirror?.parentElement?.appendChild(div);
     },
     onUpdate: ({ editor }) => {
