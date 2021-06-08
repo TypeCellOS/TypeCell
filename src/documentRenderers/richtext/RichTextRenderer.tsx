@@ -39,6 +39,7 @@ import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import { Comments } from "./extensions/comments/Comments";
+import { getMarkRange, getMarkType } from "@tiptap/core";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -71,13 +72,18 @@ type Props = {
 const RichTextRenderer: React.FC<Props> = (props) => {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
-      // console.log(editor.getJSON());
-      // const stringMap: string = localStorage.getItem("comments")!;
-      // console.log(new Map(JSON.parse(stringMap)));
+      console.log(editor.getJSON());
     },
     onSelectionUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
-      // console.log(editor.state.selection);
+      const comments: Map<number, string> = new Map<number, string>(
+        JSON.parse(localStorage.getItem("comments")!)
+      );
+      // localStorage.setItem(
+      //   "comments",
+      //   JSON.stringify(Array.from(new Map().entries()))
+      // );
+      console.log(comments);
     },
     extensions: [
       CollaborationCursor.configure({
@@ -98,7 +104,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
 
       AutoId,
       HardBreak,
-      Comments,
+      // Comments,
 
       // basics:
       Text,

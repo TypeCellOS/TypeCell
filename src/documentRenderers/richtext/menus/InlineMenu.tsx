@@ -12,6 +12,8 @@ import { Comment } from "../extensions/marks/Comment";
 import BubbleMenuButton, { ButtonStyleDetails } from "./BubbleMenuButton";
 import styles from "./InlineMenu.module.css";
 import Chat2LineIcon from "remixicon-react/Chat2LineIcon";
+import { Mark } from "@tiptap/core";
+import Bold from "@tiptap/extension-bold";
 
 type InlineMenuProps = { editor: Editor };
 
@@ -132,8 +134,8 @@ class InlineMenu extends React.Component<InlineMenuProps> {
             // Adds comment to map.
             comments.set(id, comment!);
 
-            // Creates a new unique ID for the next comment and saves it in browser cache.
-            localStorage.setItem("commentID", (id + 1).toString());
+            // Adds highlighting to text.
+            this.props.editor.chain().focus().setComment(id).run();
 
             // Serializes the updated comments and saves them in browser cache.
             localStorage.setItem(
@@ -141,8 +143,8 @@ class InlineMenu extends React.Component<InlineMenuProps> {
               JSON.stringify(Array.from(comments.entries()))
             );
 
-            // Adds highlighting to text.
-            this.props.editor.chain().focus().setComment(id).run();
+            // Creates a new unique ID for the next comment and saves it in browser cache.
+            localStorage.setItem("commentID", (id + 1).toString());
           }}
           styleDetails={comment}
         />

@@ -31,6 +31,8 @@ declare module "@tiptap/core" {
 export const Comment = Mark.create<CommentOptions>({
   name: "comment",
 
+  excludes: "",
+
   addAttributes() {
     // Return an object with attribute configuration
     return {

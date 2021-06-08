@@ -1,9 +1,15 @@
 .commentBlock {
-    display: block;
-    position: fixed;
+    /*display: block;*/
+    /*position: absolute;*/
     right: 0;
+    z-index: -1;
 }
 
 .comment {
-    position: relative
+    /*position: relative*/
+}
+
+.deleteButton {
+    /*position: relative;*/
+    z-index: -1;
 }
