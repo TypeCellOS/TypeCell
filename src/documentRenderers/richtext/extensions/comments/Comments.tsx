@@ -4,6 +4,12 @@ import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import styles from "./Comments.module.css";
 import { type } from "os";
 import { Editor, getMarkRange, getMarkType, Mark } from "@tiptap/core";
+import ReactDOM from "react-dom";
+import { commentComponent } from "./CommentComponent";
+
+const button = () => {
+  return <button>Apowjdpadok</button>;
+};
 
 // This plugin adds styling to blocks whenever the selection spans more than one block to indicate they're selected.
 export const Comments = Extension.create({
@@ -108,33 +114,16 @@ export const Comments = Extension.create({
                   node.marks[i].attrs["id"] !== null
                 ) {
                   // Creates a DOM element with comment inside the wrapper.
-                  const comment = document.createElement("p");
-                  comment.innerHTML = comments.get(node.marks[i].attrs["id"])!;
-                  comment.className = styles.comment;
-                  commentBlock.appendChild(comment);
-
-                  const deleteButton = document.createElement("button");
-                  deleteButton.innerHTML = "Delete";
-                  comment.className = styles.deleteButton;
-                  deleteButton.onclick = function () {
-                    const id = node.marks[i].attrs["id"];
-                    // Gets comments from browser cache and deserializes them into a map.
-                    console.log("delete");
-                    const newComments: Map<number, string> = new Map<
-                      number,
-                      string
-                    >(JSON.parse(localStorage.getItem("comments")!));
-                    newComments.delete(id);
-                    localStorage.setItem(
-                      "comments",
-                      JSON.stringify(Array.from(newComments.entries()))
-                    );
-                  };
-
-                  comment.appendChild(deleteButton);
+                  const component = commentComponent(
+                    node.marks[i].attrs["id"],
+                    comments.get(node.marks[i].attrs["id"])!
+                  );
+                  ReactDOM.render(component, commentBlock);
                 }
               }
             });
+
+            // ReactDOM.render(button(), commentBlock);
 
             // Creates widget with all comments to render.
             set = set.add(state.doc, [

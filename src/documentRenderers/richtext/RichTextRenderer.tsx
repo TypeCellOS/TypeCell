@@ -104,7 +104,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
 
       AutoId,
       HardBreak,
-      // Comments,
+      Comments,
 
       // basics:
       Text,

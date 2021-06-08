@@ -40,6 +40,9 @@ const BubbleMenuButton = (props: MenuButtonProps) => {
   const markName = props.styleDetails.markName;
   let isButtonSelected = () => {
     if (props.editor && markName) {
+      if (markName === "comment") {
+        return false;
+      }
       return props.editor.isActive(markName);
     } else return false;
   };
