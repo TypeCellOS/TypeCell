@@ -151,7 +151,6 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
   };
 
   private onLoginTypeChange = (data: any) => {
-    console.log("data of select on change is ", data);
     const loginType = data.value;
     this.setState({ loginType });
     this.props.onUsernameChanged?.(""); // Reset because email and username use the same state
@@ -185,13 +184,10 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     // which is less strict than the pass we're about to do below for all fields.
     const activeElement = document.activeElement as HTMLElement;
     if (activeElement) {
-      // TODO: remove this
-      console.log("found active element");
       activeElement.blur();
     }
 
     const fieldIDsInDisplayOrder = [this.state.loginType, LoginField.Password];
-    console.log("fieldIDsInDisplayOrder is ", fieldIDsInDisplayOrder);
 
     // Run all fields with stricter validation that no longer allows empty
     // values for required fields.
@@ -212,7 +208,6 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     await new Promise<void>((resolve) => this.setState({}, resolve));
 
     if (this.allFieldsValid()) {
-      console.log("all fields are valid");
       return true;
     }
 

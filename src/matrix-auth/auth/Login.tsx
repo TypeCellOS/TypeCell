@@ -633,7 +633,6 @@ export default class LoginComponent extends React.PureComponent<
         </div>
       );
       // } else if (SettingsStore.getValue(UIFeature.Registration)) {
-    } else {
       footer = (
         <span className="mx_AuthBody_changeFlow">
           New?{" "}
@@ -771,6 +770,12 @@ export default class LoginComponent extends React.PureComponent<
                 maxWidth: 350,
                 margin: "0 auto",
               }}>
+              {/* Aside from Field-level validation, Atlaskit has Form-level validation,
+                  however this works by returning validation per field on the Form's onSubmit.
+                  The default Matrix code only provides the error 
+                  "incorrect username and/or password"(see onPasswordLogin), 
+                  so we cannot return individual errors to the AtlasKit Form(yet). Therefore
+                  the existing errorTextSection is still used.*/}
               {errorTextSection}
               <Section>{this.renderLoginComponentForFlows()}</Section>
             </div>

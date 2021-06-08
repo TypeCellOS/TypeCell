@@ -276,19 +276,19 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     //   children
     // );
 
+    // I added changes directly into the render, but can move it here
+    // later for clarity. If not, this is not needed anymore.
     // NEW:
-    const fieldInput =
-      element === "input" ? (
-        <TextField {...(inputProps_ as any)} />
-      ) : element === "textarea" ? (
-        // TODO: should be textarea (but can do later, not used for now)
-        <TextField {...(inputProps_ as any)} />
-      ) : element === "select" ? (
-        // TODO: should be atlaskit <Select> or similar, I can help with this later
-        <TextField {...(inputProps_ as any)}></TextField>
-      ) : undefined;
-
-    console.log(fieldInput);
+    // const fieldInput =
+    //   element === "input" ? (
+    //     <TextField {...(inputProps_ as any)} />
+    //   ) : element === "textarea" ? (
+    //     // TODO: should be textarea (but can do later, not used for now)
+    //     <TextField {...(inputProps_ as any)} />
+    //   ) : element === "select" ? (
+    //     // TODO: should be atlaskit <Select> or similar, I can help with this later
+    //     <TextField {...(inputProps_ as any)}></TextField>
+    //   ) : undefined;
 
     // I don't think prefix / postfix components are used, so for now we can skip this
     // let prefixContainer = null;
@@ -343,10 +343,11 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     return (
       <AtlaskitField
         label={this.props.label}
-        // TODO: change name to key(somehow its always undefined when doing so)
+        // TODO: change "name" to "key"(somehow its always undefined when doing so)
         name={this.props.name || "undefined name"}>
         {({ fieldProps }: any) => (
           <Fragment>
+            {/* debug printing */}
             {console.log(
               "value of ",
               this.props.name,
@@ -359,7 +360,9 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
               // TODO: should be textarea (but can do later, not used for now)
               <TextField {...(inputProps_ as any)} {...fieldProps} />
             ) : element === "select" ? (
-              // TODO: should move into ISelectProps
+              // TODO: should move props into ISelectProps and let caller
+              // define these props. I attempted this once but since ISelectProps
+              // extends HTMLSelectElement I was not able to redefine "defaultValue".
               <Select
                 {...(inputProps_ as any)}
                 {...fieldProps}
@@ -369,7 +372,7 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
                 }}
                 onChange={this.props.onChange}
                 options={[
-                  // TODO: use loginField type
+                  // TODO: use loginField type instead of manual String if possible
                   { label: "Username", value: "login_field_mxid" },
                   { label: "Email address", value: "login_field_email" },
                   { label: "Phone", value: "login_field_phone" },
