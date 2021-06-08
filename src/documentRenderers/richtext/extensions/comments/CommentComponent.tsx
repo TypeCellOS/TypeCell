@@ -1,17 +1,14 @@
 import React from "react";
 import styles from "./Comments.module.css";
+import { CommentStorage } from "./CommentStorage";
+
+const commentStorage = new CommentStorage();
 
 export const commentComponent = (id: number, comment: string) => {
   function removeComment() {
-    // Gets comments from browser cache and deserializes them into a map.
-    const newComments: Map<number, string> = new Map<number, string>(
-      JSON.parse(localStorage.getItem("comments")!)
-    );
-    newComments.delete(id);
-    localStorage.setItem(
-      "comments",
-      JSON.stringify(Array.from(newComments.entries()))
-    );
+    const comments = commentStorage.getComments();
+    comments.delete(id);
+    commentStorage.setComments(comments);
   }
 
   return (

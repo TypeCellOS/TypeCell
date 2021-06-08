@@ -5,11 +5,10 @@ import styles from "./Comments.module.css";
 import { type } from "os";
 import { Editor, getMarkRange, getMarkType, Mark } from "@tiptap/core";
 import ReactDOM from "react-dom";
+import { CommentStorage } from "./CommentStorage";
 import { commentComponent } from "./CommentComponent";
 
-const button = () => {
-  return <button>Apowjdpadok</button>;
-};
+const commentStorage = new CommentStorage();
 
 // This plugin adds styling to blocks whenever the selection spans more than one block to indicate they're selected.
 export const Comments = Extension.create({
@@ -25,15 +24,15 @@ export const Comments = Extension.create({
             // This pretty much just ensures that comment marks are consistent with the comments in cache.
             // i.e. marks without corresponding comments are removed and vice versa.
             update: (view: EditorView, prevState: EditorState) => {
-              let marksRemoved = false;
+              // When refreshing, the editor content doesn't load immediately which would otherwise break things.
               if (prevState.doc.textContent === "") {
                 return;
               }
-              const comments: Map<number, string> = new Map<number, string>(
-                JSON.parse(localStorage.getItem("comments")!)
-              );
 
+              const comments = commentStorage.getComments();
               const markIDs: Array<number> = [];
+
+              let marksRemoved = false;
 
               // Removes marks with no corresponding comments.
               const tr = prevState.tr;
@@ -74,10 +73,7 @@ export const Comments = Extension.create({
                 }
               });
 
-              localStorage.setItem(
-                "comments",
-                JSON.stringify(Array.from(comments.entries()))
-              );
+              commentStorage.setComments(comments);
             },
           };
         },
@@ -85,21 +81,18 @@ export const Comments = Extension.create({
         props: {
           // Shows comments next to the cursor as decorations.
           decorations(state) {
-            if (state.doc.textContent === "") {
-              return;
-            }
-
-            // Gets comments from browser cache and deserializes them into a map.
-            const comments: Map<number, string> = new Map<number, string>(
-              JSON.parse(localStorage.getItem("comments")!)
-            );
+            // Gets comments from browser cache.
+            const comments = commentStorage.getComments();
 
             // Creates an empty set of decorations.
             let set = DecorationSet.create(state.doc, []);
 
-            // DOM wrapper for all comments that should be displayed.
+            // Wrapper for all comments that should be displayed.
             const commentBlock = document.createElement("div");
             commentBlock.className = styles.commentBlock;
+
+            // List of comment React components.
+            const commentElements: Array<JSX.Element> = [];
 
             // Resolved cursor position.
             const resolvedPos = state.doc.resolve(state.selection.head);
@@ -113,17 +106,19 @@ export const Comments = Extension.create({
                     offset + node.nodeSize &&
                   node.marks[i].attrs["id"] !== null
                 ) {
-                  // Creates a DOM element with comment inside the wrapper.
-                  const component = commentComponent(
-                    node.marks[i].attrs["id"],
-                    comments.get(node.marks[i].attrs["id"])!
+                  // Creates a React component for the comment and adds it to the list.
+                  commentElements.push(
+                    commentComponent(
+                      node.marks[i].attrs["id"],
+                      comments.get(node.marks[i].attrs["id"])!
+                    )
                   );
-                  ReactDOM.render(component, commentBlock);
                 }
               }
             });
 
-            // ReactDOM.render(button(), commentBlock);
+            // Converts React components into DOM elements inside the wrapper.
+            ReactDOM.render(commentElements, commentBlock);
 
             // Creates widget with all comments to render.
             set = set.add(state.doc, [
@@ -133,11 +128,8 @@ export const Comments = Extension.create({
               ),
             ]);
 
-            // Serializes the updated comments and saves them in browser cache.
-            localStorage.setItem(
-              "comments",
-              JSON.stringify(Array.from(comments.entries()))
-            );
+            // Saves updated comments to browser cache.
+            commentStorage.setComments(comments);
 
             return set;
           },

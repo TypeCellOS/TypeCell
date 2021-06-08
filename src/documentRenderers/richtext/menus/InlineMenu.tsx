@@ -14,8 +14,11 @@ import styles from "./InlineMenu.module.css";
 import Chat2LineIcon from "remixicon-react/Chat2LineIcon";
 import { Mark } from "@tiptap/core";
 import Bold from "@tiptap/extension-bold";
+import { CommentStorage } from "../extensions/comments/CommentStorage";
 
 type InlineMenuProps = { editor: Editor };
+
+const commentStorage = new CommentStorage();
 
 const bold: ButtonStyleDetails = {
   markName: "bold",
@@ -123,28 +126,20 @@ class InlineMenu extends React.Component<InlineMenuProps> {
             // Prompts user for comment.
             const comment = prompt("Enter a comment", "");
 
-            // Gets unique ID and converts it into a number.
-            const id = parseInt(localStorage.getItem("commentID")!);
+            // Gets unique ID.
+            const id = commentStorage.getId();
 
-            // Gets comments from browser cache and deserializes them into a map.
-            const comments: Map<number, string> = new Map<number, string>(
-              JSON.parse(localStorage.getItem("comments")!)
-            );
+            // Gets comments from browser cache.
+            const comments = commentStorage.getComments();
 
-            // Adds comment to map.
+            // Adds comment.
             comments.set(id, comment!);
 
             // Adds highlighting to text.
             this.props.editor.chain().focus().setComment(id).run();
 
-            // Serializes the updated comments and saves them in browser cache.
-            localStorage.setItem(
-              "comments",
-              JSON.stringify(Array.from(comments.entries()))
-            );
-
-            // Creates a new unique ID for the next comment and saves it in browser cache.
-            localStorage.setItem("commentID", (id + 1).toString());
+            // Saves updated comments to browser cache.
+            commentStorage.setComments(comments);
           }}
           styleDetails={comment}
         />

@@ -40,6 +40,9 @@ import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import { Comments } from "./extensions/comments/Comments";
 import { getMarkRange, getMarkType } from "@tiptap/core";
+import { CommentStorage } from "./extensions/comments/CommentStorage";
+
+const commentStorage = new CommentStorage();
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -51,19 +54,9 @@ const PEOPLE = [
   new Mention("Nikolay Zhlebinkov", MentionType.PEOPLE),
 ];
 
-// Initializes new comments map if one does not already exist.
-if (!localStorage.getItem("comments")) {
-  // String representation of document comments stored in browser cache.
-  localStorage.setItem(
-    "comments",
-    JSON.stringify(Array.from(new Map().entries()))
-  );
-}
-
-// Initializes comment ID field to assign unique IDs to comments, if it does not already exist.
-if (!localStorage.getItem("commentID")) {
-  // Starting ID, represented as a string to confine to localStorage data type.
-  localStorage.setItem("commentID", "0");
+// Initializes comments map if not already done.
+if (!commentStorage.isInitialized()) {
+  commentStorage.initialize();
 }
 
 type Props = {
@@ -76,14 +69,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
     },
     onSelectionUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
-      const comments: Map<number, string> = new Map<number, string>(
-        JSON.parse(localStorage.getItem("comments")!)
-      );
-      // localStorage.setItem(
-      //   "comments",
-      //   JSON.stringify(Array.from(new Map().entries()))
-      // );
-      console.log(comments);
+      console.log(commentStorage.getComments());
     },
     extensions: [
       CollaborationCursor.configure({
