@@ -129,9 +129,11 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     );
   };
 
-  private onUsernameChanged = (ev: React.ChangeEvent<any>) => {
-    this.props.onUsernameChanged?.(ev.target.value);
-  };
+  // The input is not controlled by Field anymore. The validation
+  // function gets called directly from AtlasKitField instead.
+  // private onUsernameChanged = (ev: React.ChangeEvent<any>) => {
+  //   this.props.onUsernameChanged?.(ev.target.value);
+  // };
 
   private onUsernameFocus = () => {
     if (this.state.loginType === LoginField.MatrixId) {
@@ -175,9 +177,11 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     // CountlyAnalytics.instance.track("onboarding_login_phone_number_blur");
   };
 
-  private onPasswordChanged = (ev: React.ChangeEvent<any>) => {
-    this.setState({ password: ev.target.value });
-  };
+  // The input is not controlled by Field anymore. It's controlled internally
+  // and the values get propgated within AtlasKit Components
+  // private onPasswordChanged = (ev: React.ChangeEvent<any>) => {
+  //   this.setState({ password: ev.target.value });
+  // };
 
   private async verifyFieldsBeforeSubmit() {
     // Blur the active element if any, so we first run its blur validation,
@@ -351,7 +355,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             label={"Email"}
             placeholder="joe@example.com"
             value={this.props.username}
-            onChange={this.onUsernameChanged}
+            //onChange={this.onUsernameChanged}
             onFocus={this.onUsernameFocus}
             onBlur={this.onUsernameBlur}
             disabled={this.props.disableSubmit}
@@ -371,7 +375,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             label={"Username"}
             placeholder={"Username".toLocaleLowerCase()}
             value={this.props.username}
-            onChange={this.onUsernameChanged}
+            //onChange={this.onUsernameChanged}
             onFocus={this.onUsernameFocus}
             onBlur={this.onUsernameBlur}
             disabled={this.props.disableSubmit}
@@ -490,7 +494,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
               key={"password_input"}
               label={"Password"}
               value={this.state.password}
-              onChange={this.onPasswordChanged}
+              //onChange={this.onPasswordChanged}
               disabled={this.props.disableSubmit}
               autoFocus={autoFocusPassword}
               onValidate={this.onPasswordValidate}

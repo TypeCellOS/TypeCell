@@ -15,8 +15,7 @@ limitations under the License.
 */
 
 // import classNames from "classnames";
-// import { debounce, reduce } from "lodash";
-import { debounce } from "lodash";
+// import { debounce } from "lodash";
 import React, {
   Fragment,
   InputHTMLAttributes,
@@ -26,11 +25,11 @@ import React, {
 import { IFieldState, IValidationResult } from "./Validation";
 
 import TextField from "@atlaskit/textfield";
-//import { HelperMessage, Field as AtlaskitField } from "@atlaskit/form";
+// import { ValidMessage, Field as AtlaskitField } from "@atlaskit/form";
 import { Field as AtlaskitField } from "@atlaskit/form";
 import Select from "@atlaskit/select";
 // Invoke validation from user input (when typing, etc.) at most once every N ms.
-const VALIDATION_THROTTLE_MS = 200;
+// const VALIDATION_THROTTLE_MS = 200;
 
 const BASE_ID = "mx_Field";
 let count = 1;
@@ -128,6 +127,7 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     validateOnChange: true,
   };
 
+  // This is not used anymore as the validation is called by AtlasKitForm
   /*
    * This was changed from throttle to debounce: this is more traditional for
    * form validation since it means that the validation doesn't happen at all
@@ -136,12 +136,12 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
    * incentive to prevent validating input that's very unlikely to be valid.
    * We may find that we actually want different behaviour for registration
    * fields, in which case we can add some options to control it.
-   */
-  private validateOnChange = debounce(() => {
-    this.validate({
-      focused: true,
-    });
-  }, VALIDATION_THROTTLE_MS);
+  //  */
+  // private validateOnChange = debounce(() => {
+  //   this.validate({
+  //     focused: true,
+  //   });
+  // }, VALIDATION_THROTTLE_MS);
 
   constructor(props: PropShapes) {
     super(props);
@@ -174,15 +174,17 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     }
   };
 
-  private onChange = (ev: React.ChangeEvent<any>) => {
-    if (this.props.validateOnChange) {
-      this.validateOnChange();
-    }
-    // Parent component may have supplied its own `onChange` as well
-    if (this.props.onChange) {
-      this.props.onChange(ev);
-    }
-  };
+  // The input is not controlled by Field anymore. The validation
+  // function gets called directly from AtlasKitField instead.
+  // private onChange = (ev: React.ChangeEvent<any>) => {
+  //   if (this.props.validateOnChange) {
+  //     this.validateOnChange();
+  //   }
+  //   // Parent component may have supplied its own `onChange` as well
+  //   if (this.props.onChange) {
+  //     this.props.onChange(ev);
+  //   }
+  // };
 
   private onBlur = (ev: React.FocusEvent<any>) => {
     this.setState({
@@ -262,8 +264,9 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     inputProps.placeholder = inputProps.placeholder || inputProps.label;
     inputProps.id = this.id; // this overwrites the id from props
 
+    // These will be handled by AtlasKit
     inputProps.onFocus = this.onFocus;
-    inputProps.onChange = this.onChange;
+    // inputProps.onChange = this.onChange;
     inputProps.onBlur = this.onBlur;
 
     // Appease typescript's inference
@@ -344,7 +347,10 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
       <AtlaskitField
         label={this.props.label}
         // TODO: change "name" to "key"(somehow its always undefined when doing so)
-        name={this.props.name || "undefined name"}>
+        name={this.props.name || "undefined name"}
+        // TODO: transform validate to fit the validate function requirement for AtlasKitField
+        //validate={this.validate}
+      >
         {({ fieldProps }: any) => (
           <Fragment>
             {/* debug printing */}
