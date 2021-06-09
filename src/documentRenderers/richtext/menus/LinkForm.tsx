@@ -1,6 +1,7 @@
 import { Editor } from "@tiptap/react";
 import React, { useEffect, useState } from "react";
-import styles from "./LinkForm.module.css";
+import menuStyles from "../menus/InlineMenu.module.css";
+import hyperlinkMenuStyles from "../extensions/marks/Hyperlink.module.css";
 
 export type LinkFormProps = { editor: Editor };
 
@@ -59,20 +60,22 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
   return (
     // TODO replace this placeholder wrapper by AtlasKit styling
     // solely exist to be able to see the form
-    <div className={styles.placeHolderWrapper}>
-      <div className={styles.formContainer}>
-        <form onSubmit={handleSubmit}>
-          <input
-            autoFocus
-            className={styles.inputField}
-            type="text"
-            placeholder="URL"
-            value={url}
-            onChange={handleChange}
-          />
-          <input className={styles.submitButton} type="submit" value="OK" />
-        </form>
-      </div>
+    <div className={menuStyles.bubbleMenu}>
+      <form
+        onSubmit={handleSubmit}
+        className={hyperlinkMenuStyles.editingWrapper}>
+        <input
+          autoFocus
+          className={hyperlinkMenuStyles.input}
+          type="text"
+          placeholder="URL"
+          value={url}
+          onChange={handleChange}
+        />
+        <button className={hyperlinkMenuStyles.ok} type="submit" value="OK">
+          OK
+        </button>
+      </form>
     </div>
   );
 };
