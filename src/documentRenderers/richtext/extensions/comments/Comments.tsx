@@ -51,7 +51,8 @@ export const Comments = Extension.create({
                       const type = getMarkType("comment", prevState.schema);
                       const range = getMarkRange(
                         prevState.doc.resolve(offset),
-                        type
+                        type,
+                        { id: mark.attrs["id"] }
                       );
                       if (typeof range !== "undefined") {
                         tr.removeMark(range.from, range.to, mark);
@@ -96,26 +97,40 @@ export const Comments = Extension.create({
 
             // Resolved cursor position.
             const resolvedPos = state.doc.resolve(state.selection.head);
+            const commentType = getMarkType("comment", state.schema);
+            const commentRange = getMarkRange(resolvedPos, commentType);
 
-            // Finds the child node the cursor is in which also has comment marks.
-            resolvedPos.node().descendants(function (node, offset) {
-              for (let i = 0; i < node.marks.length; i++) {
-                if (
-                  offset <= state.selection.head - resolvedPos.start() &&
-                  state.selection.head - resolvedPos.start() <
-                    offset + node.nodeSize &&
-                  node.marks[i].attrs["id"] !== null
-                ) {
-                  // Creates a React component for the comment and adds it to the list.
-                  commentElements.push(
-                    commentComponent(
-                      node.marks[i].attrs["id"],
-                      comments.get(node.marks[i].attrs["id"])!
-                    )
-                  );
+            if (typeof commentRange !== "undefined") {
+              // Finds the child node the cursor is in which also has comment marks.
+              state.doc.descendants(function (node, offset) {
+                for (let i = 0; i < node.marks.length; i++) {
+                  if (
+                    offset >= commentRange.from &&
+                    offset + node.nodeSize <= commentRange.to &&
+                    node.marks[i].attrs["id"] !== null
+                  ) {
+                    const commentRangeWithId = getMarkRange(
+                      state.doc.resolve(offset),
+                      commentType,
+                      { id: node.marks[i].attrs["id"] }
+                    );
+                    if (typeof commentRangeWithId !== "undefined") {
+                      // Creates a React component for the comment and adds it to the list.
+                      commentElements.push(
+                        commentComponent(
+                          node.marks[i].attrs["id"],
+                          comments.get(node.marks[i].attrs["id"])!,
+                          state.doc.cut(
+                            commentRangeWithId.from,
+                            commentRangeWithId.to
+                          ).textContent
+                        )
+                      );
+                    }
+                  }
                 }
-              }
-            });
+              });
+            }
 
             // Converts React components into DOM elements inside the wrapper.
             ReactDOM.render(commentElements, commentBlock);

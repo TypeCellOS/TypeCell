@@ -70,6 +70,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
     onSelectionUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
       console.log(commentStorage.getComments());
+      // editor.commands.extendMarkRange("comment");
     },
     extensions: [
       CollaborationCursor.configure({
