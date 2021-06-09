@@ -14,8 +14,7 @@ import React from "react";
 const ACTIVE = "activeLink";
 export const HYPERLINK_MENU = "hyperlinkMenu";
 const EDITING_MENU = "editingHyperlinkMenu";
-const KEYBORAD_MENU = "keyboardTriggeredMenu";
-const MOUSE_MENU = "mousehoverTriggeredMenu";
+const MENU = "hyperlinkMenuDiv";
 
 const EMPTY_MENU = <div></div>;
 
@@ -155,142 +154,134 @@ const Hyperlink = Link.extend({
         key: new PluginKey("customLinkMark"),
         props: {
           handleClick: (view, event) => {
-            if (document.getElementById(KEYBORAD_MENU)) {
-              clearMenu();
-            }
+            clearMenu();
             return false;
           },
           handleDOMEvents: {
             keyup: (view, event) => {
               const key = event.key;
+
               // only when using arrow keys
-              if (key.toLowerCase().startsWith("arrow")) {
-                const selection = view.state.selection;
-                // when there is no selection
-                if (selection.from === selection.to) {
-                  let pos = selection.from;
-                  const resPos = view.state.doc.resolve(pos);
-                  const marks = resPos.marks();
-                  let from = -1,
-                    to = -1,
-                    href = "";
-                  let anchor: HTMLElement;
-                  // is there any Link Mark?
-                  const exist = marks.some((mark) => {
-                    if (mark.type.name.startsWith("link")) {
-                      from = pos;
-                      let domNode = view.domAtPos(from, 1);
-
-                      // must be subtracted to make sure position is correct
-                      from -= domNode.offset;
-                      const parent = domNode.node.parentElement;
-                      if (!parent) return false;
-                      anchor = parent;
-
-                      // sometimes parent is not an <a> element
-                      // but the anchor is at most its 4th order parent
-                      for (let i = 0; i < 4; i++) {
-                        if (anchor instanceof HTMLAnchorElement) {
-                          break;
-                        }
-                        if (anchor.parentElement) {
-                          anchor = anchor.parentElement;
-                        }
-                      }
-
-                      href = mark.attrs.href;
-                      to = from + anchor.innerText.length;
-
-                      return true;
-                    }
-                    return false;
-                  });
-                  if (document.getElementById(MOUSE_MENU)) {
-                    clearMenu();
-                  }
-
-                  // if there is no Link mark adjacent to selection
-                  if (!exist) {
-                    // caret is changed, so the previous keyboard menu must be deleted
-                    if (document.getElementById(KEYBORAD_MENU)) {
-                      clearMenu();
-                    }
-                    return false;
-                  }
-
-                  // @ts-ignore
-                  if (anchor) {
-                    if (document.getElementById(KEYBORAD_MENU)) {
-                      clearMenu();
-                    }
-
-                    document.getElementById(ACTIVE)?.removeAttribute("id");
-                    anchor.id = ACTIVE;
-
-                    const removeHandler = () => {
-                      this.editor.chain().unsetLink().run();
-                    };
-                    const editHandler = (href: string) => {
-                      marks.forEach((mark) => {
-                        if (mark.type.name.startsWith("link")) {
-                          this.editor.chain().unsetLink().run();
-                          mark.attrs = { ...mark.attrs, href };
-                          view.dispatch(view.state.tr.addMark(from, to, mark));
-                        }
-                      });
-                    };
-
-                    // this rect position is used for Tippy as reference
-                    const rect = anchor.getBoundingClientRect();
-                    const anchorPos = {
-                      height: rect.height,
-                      width: rect.width,
-                      left: rect.left,
-                      right: rect.right,
-                      top: rect.top,
-                      bottom: rect.bottom,
-                    };
-
-                    const hyperlinkMenu = (
-                      <Tippy
-                        getReferenceClientRect={() => anchorPos}
-                        content={
-                          <HyperLinkMenu
-                            removeHandler={removeHandler}
-                            editHandler={editHandler}
-                            href={href ?? ""}></HyperLinkMenu>
-                        }
-                        interactive={true}
-                        interactiveBorder={30}
-                        showOnCreate={true}
-                        // the trigger is no longer mouse enter
-                        trigger={`keyup keydown`}
-                        onTrigger={(instance, event) => {
-                          if (event instanceof KeyboardEvent) {
-                            if (event.key.startsWith("arrow")) {
-                              instance.show();
-                            }
-                            instance.hide();
-                          }
-                          instance.hide();
-                        }}
-                        triggerTarget={document.getElementById(ACTIVE)}
-                        appendTo={() => document.body}>
-                        <div id={KEYBORAD_MENU}></div>
-                      </Tippy>
-                    );
-
-                    ReactDOM.render(
-                      hyperlinkMenu,
-                      document.getElementById(HYPERLINK_MENU)
-                    );
-                    return true;
-                  }
-                  return false;
-                }
+              if (!key.toLowerCase().startsWith("arrow")) {
                 return false;
               }
-              return false;
+
+              const selection = view.state.selection;
+              // when there is no selection
+              if (selection.from !== selection.to) {
+                return false;
+              }
+
+              let pos = selection.from;
+              const resPos = view.state.doc.resolve(pos);
+              const marks = resPos.marks();
+              let from = -1,
+                to = -1,
+                href = "";
+              let anchor: HTMLElement;
+              // is there any Link Mark?
+              const exist = marks.some((mark) => {
+                if (mark.type.name.startsWith("link")) {
+                  from = pos;
+                  let domNode = view.domAtPos(from, 1);
+
+                  // must be subtracted to make sure position is correct
+                  from -= domNode.offset;
+                  const parent = domNode.node.parentElement;
+                  if (!parent) return false;
+                  anchor = parent;
+
+                  // sometimes parent is not an <a> element
+                  // but the anchor is at most its 4th order parent
+                  for (let i = 0; i < 4; i++) {
+                    if (anchor instanceof HTMLAnchorElement) {
+                      break;
+                    }
+                    if (anchor.parentElement) {
+                      anchor = anchor.parentElement;
+                    }
+                  }
+
+                  href = mark.attrs.href;
+                  to = from + anchor.innerText.length;
+
+                  return true;
+                }
+                return false;
+              });
+              clearMenu();
+
+              // if there is no Link mark adjacent to selection
+              if (!exist) {
+                return false;
+              }
+
+              // @ts-ignore
+              if (!anchor) {
+                return false;
+              }
+
+              document.getElementById(ACTIVE)?.removeAttribute("id");
+              anchor.id = ACTIVE;
+
+              const removeHandler = () => {
+                this.editor.chain().unsetLink().run();
+              };
+              const editHandler = (href: string) => {
+                marks.forEach((mark) => {
+                  if (mark.type.name.startsWith("link")) {
+                    this.editor.chain().unsetLink().run();
+                    mark.attrs = { ...mark.attrs, href };
+                    view.dispatch(view.state.tr.addMark(from, to, mark));
+                  }
+                });
+              };
+
+              // this rect position is used for Tippy as reference
+              const rect = anchor.getBoundingClientRect();
+              const anchorPos = {
+                height: rect.height,
+                width: rect.width,
+                left: rect.left,
+                right: rect.right,
+                top: rect.top,
+                bottom: rect.bottom,
+              };
+
+              const hyperlinkMenu = (
+                <Tippy
+                  getReferenceClientRect={() => anchorPos}
+                  content={
+                    <HyperLinkMenu
+                      removeHandler={removeHandler}
+                      editHandler={editHandler}
+                      href={href ?? ""}></HyperLinkMenu>
+                  }
+                  interactive={true}
+                  interactiveBorder={30}
+                  showOnCreate={true}
+                  // the trigger is no longer mouse enter
+                  trigger={`keyup keydown`}
+                  onTrigger={(instance, event) => {
+                    if (event instanceof KeyboardEvent) {
+                      if (event.key.startsWith("arrow")) {
+                        instance.show();
+                      }
+                      instance.hide();
+                    }
+                    instance.hide();
+                  }}
+                  triggerTarget={document.getElementById(ACTIVE)}
+                  appendTo={() => document.body}>
+                  <div id={MENU}></div>
+                </Tippy>
+              );
+
+              ReactDOM.render(
+                hyperlinkMenu,
+                document.getElementById(HYPERLINK_MENU)
+              );
+              return true;
             },
             mouseover: (view, event) => {
               const anchor = event.target;
@@ -301,7 +292,7 @@ const Hyperlink = Link.extend({
                 anchor.nodeName === "A" &&
                 !document.getElementById(EDITING_MENU)
               ) {
-                if (document.getElementById(MOUSE_MENU)) clearMenu();
+                clearMenu();
                 document.getElementById(ACTIVE)?.removeAttribute("id");
                 anchor.id = ACTIVE;
                 const href = anchor.getAttribute("href")?.substring(2);
@@ -314,7 +305,6 @@ const Hyperlink = Link.extend({
                 const removeHandler = () => {
                   marks.forEach((mark) => {
                     if (mark.type.name.startsWith("link")) {
-                      mark.attrs = { ...mark.attrs, href };
                       view.dispatch(view.state.tr.removeMark(from, to, mark));
                     }
                   });
@@ -353,7 +343,7 @@ const Hyperlink = Link.extend({
                     interactiveBorder={30}
                     triggerTarget={document.getElementById(ACTIVE)}
                     appendTo={() => document.body}>
-                    <div id={MOUSE_MENU}></div>
+                    <div id={MENU}></div>
                   </Tippy>
                 );
 
