@@ -1,4 +1,4 @@
-import { Node, NodeConfig } from "@tiptap/core";
+import { Node, NodeConfig, NodeViewRendererProps } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import Block from "./Block";
 import ListItem from "@tiptap/extension-list-item";
@@ -35,7 +35,22 @@ export function extendAsBlock<NodeOptions>(
     addNodeView() {
       // TODO? If we don't have a block-id, we don't really need the node-view wrapper with all corresponding <div>s
       // https://github.com/YousefED/typecell-next/issues/57
-      return ReactNodeViewRenderer(Block(this.type.spec.toDOM!, this.options));
+      return (props: NodeViewRendererProps) => {
+        const renderer = ReactNodeViewRenderer(
+          Block(this.type.spec.toDOM!, this.options),
+          {
+            stopEvent:
+              props.node.type.name === "typecell" ? (event) => true : undefined,
+          }
+        )(props);
+        if (props.node.type.name === "typecell") {
+          (renderer as any).ignoreMutation = () => {
+            return true;
+          };
+          (renderer as any).contentDOMElement = null;
+        }
+        return renderer;
+      };
     },
 
     addKeyboardShortcuts() {
