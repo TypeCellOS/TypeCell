@@ -1,5 +1,8 @@
 import { Node, mergeAttributes, Command } from "@tiptap/core";
+import { useState } from "react";
 import { extendAsBlock } from ".";
+
+// const [codeVisible, setCodeVisible] = useState(false);
 
 export interface CollapseOptions {
   HTMLAttributes: Record<string, any>;

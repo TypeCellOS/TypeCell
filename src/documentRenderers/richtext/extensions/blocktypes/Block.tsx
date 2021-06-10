@@ -24,6 +24,7 @@ import mergeAttributesReact from "../../util/mergeAttributesReact";
 import { Underline } from "../marks/Underline";
 import { Italic } from "@tiptap/extension-italic";
 import styles from "./Block.module.css";
+import { CollapseContent } from "./CollapseContent";
 /**
  * A global store that keeps track of which block is being hovered over
  */
@@ -60,6 +61,9 @@ function Block(
   ) {
     const domOutput = toDOM(props.node);
     let domType: ElementType;
+    // if (props.node.type.name === "collapse") {
+    //   debugger;
+    // }
     let domAttrs: { [attr: string]: string | null | undefined } = {};
 
     if (Array.isArray(domOutput)) {
@@ -451,6 +455,11 @@ function Block(
                   className={styles.codeBlockCodeContent}
                 />
               </pre>
+            ) : props.node.type.name === "collapse" ? (
+              <CollapseContent
+                attrs={[placeholderAttrs, toggleAttrs, domAttrs]}
+                domType={domType}
+              />
             ) : (
               <div>
                 <NodeViewContent
