@@ -16,6 +16,28 @@ import SeparatorIcon from "remixicon-react/SeparatorIcon";
 import TableIcon from "remixicon-react/TableLineIcon";
 
 const defaultCommands: { [key: string]: SlashCommand } = {
+  collapse: new SlashCommand(
+    "Collapse",
+    CommandGroup.BASIC_BLOCKS,
+    (editor, range) => {
+      const paragraph = editor.schema.node("paragraph");
+      const node = editor.schema.node("collapse", {}, paragraph);
+
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
+
+      return true;
+    },
+    ["collapse"],
+    QuoteIcon,
+    "Used to make a quote stand out",
+    "Ctrl+Shift+C"
+  ),
+
   // Command for creating a level 1 heading
   heading: new SlashCommand(
     "Heading",

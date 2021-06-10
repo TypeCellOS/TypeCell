@@ -1,5 +1,6 @@
 import Tippy from "@tippyjs/react";
 import {
+  getNodeType,
   NodeViewContent,
   NodeViewRendererProps,
   NodeViewWrapper,
@@ -202,6 +203,21 @@ function Block(
       );
     }
 
+    function onCollapse() {
+      if (typeof props.getPos === "boolean") {
+        throw new Error("unexpected");
+      }
+      const from = props.getPos() + 1;
+      const to = props.getPos() + props.node.nodeSize;
+      const tr = props.editor.state.tr.insertText("Hello", from, to);
+      const type = getNodeType("collapse", props.editor.state.schema);
+      debugger;
+      // const tr2 = props.editor.state.tr.setBlockType(from, to, type);
+      const tr3 = props.editor.state.tr.setNodeMarkup(from, type);
+      // const tr3 = props.editor.commands.toggleCollapse();
+      props.editor.view.dispatch(tr3);
+      // props.editor.view.setProps
+    }
     /**
      * We use a special div and a mouse-over event handled in Javascript to determine the hovered element.
      * Why not just handle this in CSS using :hover? Two reasons:
@@ -279,7 +295,9 @@ function Block(
           <div className={styles.inner + " inner"} ref={innerRef}>
             <div className={styles.handleContainer} ref={dragRef}>
               <Tippy
-                content={<SideMenu onDelete={onDelete}></SideMenu>}
+                content={
+                  <SideMenu onDelete={onDelete} onCollapse={onCollapse} />
+                }
                 trigger={"click"}
                 placement={"left"}
                 interactive={true}>
