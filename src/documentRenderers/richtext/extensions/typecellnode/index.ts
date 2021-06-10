@@ -16,11 +16,11 @@ declare module "@tiptap/core" {
   }
 }
 
-type TypeCellNodePluginState = {
-  active: boolean;
-  startPos?: ResolvedPos<any>;
-  endPos?: ResolvedPos<any>;
-};
+// type TypeCellNodePluginState = {
+//   active: boolean;
+//   startPos?: ResolvedPos<any>;
+//   endPos?: ResolvedPos<any>;
+// };
 
 export const TypeCellNode = Node.create({
   // configuration …
