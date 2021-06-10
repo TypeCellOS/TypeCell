@@ -245,7 +245,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
               style={{ height: "100%" }}></div>
           </div>
         )}
-        <div className="output">
+        <div className="output" contentEditable={false}>
           {/* <CellContext.Provider value={{ cell: props.cell }}> */}
           {/* <div>hello</div> */}
           {model && <Output outputs={props.engine.outputs} model={model} />}
