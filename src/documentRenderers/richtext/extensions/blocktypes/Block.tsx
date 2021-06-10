@@ -35,8 +35,6 @@ type DnDItemType = {
   node: Node;
 };
 
-let aboveCenterLine = false;
-
 /**
  * This function creates a React component that represents a block in the editor. This is so that editor blocks can be
  * rendered with a functional drag handle next to them. The pop-up menu that appears after clicking a drag handle is
@@ -141,7 +139,7 @@ function Block(
 
           // ProseMirror token positions just before and just after the target block
           const posBeforeTargetNode = props.getPos();
-          const posAfterTargetNode = props.getPos() + props.node.nodeSize;
+          let posAfterTargetNode = props.getPos() + props.node.nodeSize;
 
           // create a new transaction
           const tr = props.editor.state.tr;

@@ -94,8 +94,6 @@ class InlineMenu extends React.Component<InlineMenuProps> {
 
     // Either render an empty hidden menu or the actual inline menu
     if (!shouldRender) {
-      console.log("Dont render");
-
       return (
         <BubbleMenu className={styles.hidden} editor={this.props.editor} />
       );
