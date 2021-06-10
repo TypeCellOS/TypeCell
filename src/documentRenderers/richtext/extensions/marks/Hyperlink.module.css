@@ -13,6 +13,7 @@
   flex-direction: row;
   justify-content: center;
   border-radius: 0.2rem;
+  width: min-content !important;
 }
 
 .editingWrapper > * {
@@ -22,7 +23,7 @@
 
 .input {
   font-size: 1rem;
-  width: 12rem;
+  width: 9rem;
   border-radius: 0.2rem;
   opacity: 0.8;
   border: solid 0.1rem var(--N40);
@@ -37,6 +38,7 @@
   color: var(--N800);
   outline: none;
   border: none;
+  border-radius: 0.2rem;
   background-color: transparent;
   opacity: 0.5;
 }

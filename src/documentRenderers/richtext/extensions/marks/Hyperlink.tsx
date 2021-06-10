@@ -14,14 +14,17 @@ import React from "react";
 const ACTIVE = "activeLink";
 export const HYPERLINK_MENU = "hyperlinkMenu";
 const EDITING_MENU = "editingHyperlinkMenu";
+const EDITING_MENU_LINK = EDITING_MENU + "Link";
+const EDITING_MENU_TEXT = EDITING_MENU + "Text";
 const MENU = "hyperlinkMenuDiv";
 
 const EMPTY_MENU = <div></div>;
 
 type HyperlinkMenuProps = {
   href: string;
+  text: string;
   removeHandler: () => void;
-  editHandler: (href: string) => void;
+  editHandler: (href: string, text: string) => void;
 };
 
 /**
@@ -30,15 +33,15 @@ type HyperlinkMenuProps = {
  * @returns a menu for editing/removing/opening the link
  */
 const HyperLinkMenu = (props: HyperlinkMenuProps) => {
-  const [value, setValue] = React.useState(props.href);
+  const [value, setValue] = React.useState([props.href, props.text]);
 
   React.useEffect(() => {
     const anchor = document.getElementById(ACTIVE);
     if (anchor) {
       const href = anchor.getAttribute("href");
-      if (href) setValue(href.substring(2));
+      if (href) setValue([href.substring(2), anchor.innerText]);
     }
-  }, [props.href]);
+  }, [props.href, props.text]);
 
   return (
     <div className={`${styles.linkerWrapper} ${menuStyles.bubbleMenu}`}>
@@ -51,7 +54,8 @@ const HyperLinkMenu = (props: HyperlinkMenuProps) => {
         <Tippy
           content={
             <HyperlinkEditor
-              pre={value}
+              previousLink={value[0]}
+              previousText={value[1]}
               setter={setValue}
               editHandler={props.editHandler}></HyperlinkEditor>
           }
@@ -99,9 +103,10 @@ const HyperLinkMenu = (props: HyperlinkMenuProps) => {
 };
 
 type HyperlinkEditorProps = {
-  pre: string;
-  editHandler: (href: string) => void;
-  setter: (href: string) => void;
+  previousLink: string;
+  previousText: string;
+  editHandler: (href: string, text: string) => void;
+  setter: (arr: [href: string, text: string]) => void;
 };
 
 /**
@@ -115,22 +120,43 @@ const HyperlinkEditor = (props: HyperlinkEditorProps) => {
       className={`${styles.editingWrapper} ${menuStyles.bubbleMenu}`}
       id={EDITING_MENU}>
       <input
+        id={EDITING_MENU_LINK}
         type="text"
-        value={props.pre}
-        onChange={(ev) => props.setter(ev.target.value)}
+        value={props.previousLink}
+        onChange={(ev) => {
+          const title = document.getElementById(EDITING_MENU_TEXT);
+          if (title && title instanceof HTMLInputElement) {
+            props.setter([ev.target.value, title.value]);
+          }
+        }}
+        className={styles.input}></input>
+      <input
+        id={EDITING_MENU_TEXT}
+        type="text"
+        value={props.previousText}
+        onChange={(ev) => {
+          const hyperlink = document.getElementById(EDITING_MENU_LINK);
+          if (hyperlink && hyperlink instanceof HTMLInputElement) {
+            props.setter([hyperlink.value, ev.target.value]);
+          }
+        }}
         className={styles.input}></input>
       <button
         type="submit"
         className={styles.ok}
         onClick={(ev) => {
           ev.preventDefault();
-          const target = ev.target;
-          if (target instanceof HTMLElement) {
-            const val = target.previousElementSibling;
-            if (val instanceof HTMLInputElement) {
-              const value = val.value;
-              props.editHandler("//" + value);
-            }
+          const hyperlink = document.getElementById(EDITING_MENU_LINK);
+          const title = document.getElementById(EDITING_MENU_TEXT);
+          if (
+            hyperlink &&
+            title &&
+            hyperlink instanceof HTMLInputElement &&
+            title instanceof HTMLInputElement
+          ) {
+            const link = hyperlink.value;
+            const text = title.value;
+            props.editHandler("//" + link, text);
           }
         }}>
         OK
@@ -144,6 +170,23 @@ const HyperlinkEditor = (props: HyperlinkEditorProps) => {
  */
 const clearMenu = () => {
   ReactDOM.render(EMPTY_MENU, document.getElementById(HYPERLINK_MENU));
+};
+
+/**
+ * A helper function that generates the position object fromm the input element
+ * @param anchor the anchor element used as position target
+ * @returns a position object for Tippy
+ */
+const generateAnchorPos = (anchor: Element) => {
+  const rect = anchor.getBoundingClientRect();
+  return {
+    height: rect.height,
+    width: rect.width,
+    left: rect.left,
+    right: rect.right,
+    top: rect.top,
+    bottom: rect.bottom,
+  };
 };
 
 const Hyperlink = Link.extend({
@@ -227,26 +270,24 @@ const Hyperlink = Link.extend({
               const removeHandler = () => {
                 this.editor.chain().unsetLink().run();
               };
-              const editHandler = (href: string) => {
+
+              // Delete mark first, then replace the text, mark that piece of text with the new link
+              const editHandler = (href: string, text: string) => {
                 marks.forEach((mark) => {
                   if (mark.type.name.startsWith("link")) {
                     this.editor.chain().unsetLink().run();
                     mark.attrs = { ...mark.attrs, href };
-                    view.dispatch(view.state.tr.addMark(from, to, mark));
+                    view.dispatch(
+                      view.state.tr
+                        .insertText(text, from, to)
+                        .addMark(from, from + text.length, mark)
+                    );
                   }
                 });
               };
 
               // this rect position is used for Tippy as reference
-              const rect = anchor.getBoundingClientRect();
-              const anchorPos = {
-                height: rect.height,
-                width: rect.width,
-                left: rect.left,
-                right: rect.right,
-                top: rect.top,
-                bottom: rect.bottom,
-              };
+              const anchorPos = generateAnchorPos(anchor);
 
               const hyperlinkMenu = (
                 <Tippy
@@ -255,7 +296,8 @@ const Hyperlink = Link.extend({
                     <HyperLinkMenu
                       removeHandler={removeHandler}
                       editHandler={editHandler}
-                      href={href ?? ""}></HyperLinkMenu>
+                      href={href ?? ""}
+                      text={anchor.innerText}></HyperLinkMenu>
                   }
                   interactive={true}
                   interactiveBorder={30}
@@ -309,26 +351,23 @@ const Hyperlink = Link.extend({
                     }
                   });
                 };
-                const editHandler = (href: string) => {
+                // Delete mark first, then replace the text, mark that piece of text with the new link
+                const editHandler = (href: string, text: string) => {
                   marks.forEach((mark) => {
                     if (mark.type.name.startsWith("link")) {
                       view.dispatch(view.state.tr.removeMark(from, to, mark));
                       mark.attrs = { ...mark.attrs, href };
-                      view.dispatch(view.state.tr.addMark(from, to, mark));
+                      view.dispatch(
+                        view.state.tr
+                          .insertText(text, from, to)
+                          .addMark(from, from + text.length, mark)
+                      );
                     }
                   });
                 };
 
                 // this rect position is used for Tippy as reference
-                const rect = anchor.getBoundingClientRect();
-                const anchorPos = {
-                  height: rect.height,
-                  width: rect.width,
-                  left: rect.left,
-                  right: rect.right,
-                  top: rect.top,
-                  bottom: rect.bottom,
-                };
+                const anchorPos = generateAnchorPos(anchor);
 
                 const hyperlinkMenu = (
                   <Tippy
@@ -337,7 +376,8 @@ const Hyperlink = Link.extend({
                       <HyperLinkMenu
                         removeHandler={removeHandler}
                         editHandler={editHandler}
-                        href={href ?? ""}></HyperLinkMenu>
+                        href={href ?? ""}
+                        text={anchor.innerHTML}></HyperLinkMenu>
                     }
                     interactive={true}
                     interactiveBorder={30}
