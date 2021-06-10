@@ -319,7 +319,7 @@ function Block(
 export default Block;
 function renderContentBasedOnDOMType(
   // NOTE: we might want to extend ElementType itself instead of declaring it like this
-  domType: ElementType | "typecell",
+  domType: ElementType,
   domAttrs: { [attr: string]: string | null | undefined },
   placeholderAttrs: { [attr: string]: string | null | undefined },
   props: React.PropsWithChildren<NodeViewRendererProps>
@@ -358,7 +358,7 @@ function renderContentBasedOnDOMType(
         />
       </pre>
     );
-  } else if (domType === "typecell") {
+  } else if (props.node.type.name === "typecell") {
     return (
       <div>
         <TypeCellComponent node={props.node}></TypeCellComponent>
