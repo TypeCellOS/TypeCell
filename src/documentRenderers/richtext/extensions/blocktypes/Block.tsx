@@ -9,6 +9,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { Node, DOMOutputSpec } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
+import { Decoration } from "prosemirror-view";
 import React, {
   ElementType,
   MouseEvent,
@@ -20,6 +21,8 @@ import React, {
 import { useDrag, useDrop, XYCoord } from "react-dnd";
 import SideMenu from "../../menus/SideMenu";
 import mergeAttributesReact from "../../util/mergeAttributesReact";
+import { Underline } from "../marks/Underline";
+import { Italic } from "@tiptap/extension-italic";
 import styles from "./Block.module.css";
 /**
  * A global store that keeps track of which block is being hovered over
@@ -49,6 +52,7 @@ function Block(
   options: {
     placeholder?: string;
     placeholderOnlyWhenSelected?: boolean;
+    isToggled: boolean;
   }
 ) {
   return observer(function Component(
@@ -218,6 +222,51 @@ function Block(
       props.editor.view.dispatch(tr3);
       // props.editor.view.setProps
     }
+    function onToggle() {
+      console.log("Entered onToggle");
+      if (typeof props.getPos === "boolean") {
+        throw new Error("unexpected");
+      }
+      const nodeResPos = props.editor.state.doc.resolve(props.getPos() + 1);
+      // const tr = props.editor.view.state.tr.insertText(
+      //   "Hello",
+      //   nodeResPos.start(),
+      //   nodeResPos.end()
+      // );
+      const tr = props.editor.view.state.tr.setNodeMarkup(
+        nodeResPos.start(),
+        undefined,
+        {
+          ...props.node.attrs,
+          "is-toggled": true,
+        }
+      );
+      // setNodeMarkup(
+      //   props.getPos(),
+      //   undefined,
+      //   {
+      //     ...props.node.attrs,
+      //     "is-toggled": true,
+      //   }
+      // );
+      debugger;
+      props.editor.view.dispatch(tr);
+      // if (props.node.type.name === "listItem") {
+      //   options.isToggled = !options.isToggled;
+      // blocks.forEach((nestedNode) => {
+      //   const pos = nestedNode.resolve(0);
+      //   // console.log(pos);
+      //   const decoration = Decoration.node(pos.parentOffset, pos.end(), {
+      //     class: "hidden",
+      //   });
+      //   props.decorations.push(decoration);
+
+      //   // nestedNode.attrs["hidden"] = true;
+      //   debugger;
+      // });
+      // }
+    }
+
     /**
      * We use a special div and a mouse-over event handled in Javascript to determine the hovered element.
      * Why not just handle this in CSS using :hover? Two reasons:
@@ -289,6 +338,65 @@ function Block(
       ? { "data-placeholder": placeholder, class: "is-empty" }
       : {};
 
+    const toggleAttrs = { "is-toggled": options.isToggled ? "true" : null };
+
+    function toggleNestedBlocks(): Array<Node> {
+      const nestedBlocks: Array<Node> = [];
+      const thisBlockPos = props.getPos;
+
+      // This is the same logic as 20 lines above (placeholder logic)
+      if (typeof thisBlockPos !== "boolean") {
+        props.node.descendants((nestedNode, pos, parent) => {
+          if (
+            parent != props.node &&
+            nestedNode.type.name !== "text" &&
+            nestedNode.type.name !== "mention"
+          ) {
+            // const nodeStartPos = thisBlockPos() + pos;
+            // const nodeEndPos = thisBlockPos() + pos + nestedNode.nodeSize;
+            // const nodeEndPos = props.editor.state.doc.resolve(
+            //   pos + nestedNode.nodeSize
+            // );
+            // const decoration = Decoration.node(nodeStartPos, nodeEndPos, {
+            //   class: "hiddenToggledBlock",
+            // });
+
+            const nodePos = props.editor.state.doc.resolve(
+              thisBlockPos() + pos + 1
+            );
+            debugger;
+            const decoration = Decoration.node(
+              nodePos.before(),
+              nodePos.after(),
+              {
+                class: styles.hiddenToggledBlock,
+              }
+            );
+            props.decorations.push(decoration);
+            // debugger;
+
+            nestedNode.attrs["is-toggled"] = true;
+            nestedBlocks.push(nestedNode);
+            return false;
+          }
+        });
+      }
+      console.log(nestedBlocks);
+      return nestedBlocks;
+    }
+
+    // function hideNestedBlocks(): Set<Node> {
+    //   const nestedBlocks: Set<Node> = new Set();
+    //   props.node.descendants((nestedNode, pos, parent) => {
+    //     // debugger;
+    //     if (nestedNode != props.node) {
+    //       nestedBlocks.add(nestedNode);
+    //     }
+    //   });
+    //   // debugger;
+    //   return nestedBlocks;
+    // }
+
     return (
       <NodeViewWrapper className={`${styles.block}`}>
         <div ref={outerRef}>
@@ -296,7 +404,10 @@ function Block(
             <div className={styles.handleContainer} ref={dragRef}>
               <Tippy
                 content={
-                  <SideMenu onDelete={onDelete} onCollapse={onCollapse} />
+                  <SideMenu
+                    onDelete={onDelete}
+                    onCollapse={toggleNestedBlocks}
+                  />
                 }
                 trigger={"click"}
                 placement={"left"}
@@ -344,7 +455,11 @@ function Block(
               <div>
                 <NodeViewContent
                   as={domType}
-                  {...mergeAttributesReact(placeholderAttrs, domAttrs)}
+                  {...mergeAttributesReact(
+                    placeholderAttrs,
+                    toggleAttrs,
+                    domAttrs
+                  )}
                 />
               </div>
             )}

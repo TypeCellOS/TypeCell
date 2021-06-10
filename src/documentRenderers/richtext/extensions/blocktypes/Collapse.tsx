@@ -1,5 +1,4 @@
 import { Node, mergeAttributes, Command } from "@tiptap/core";
-import { wrappingInputRule } from "prosemirror-inputrules";
 import { extendAsBlock } from ".";
 
 export interface CollapseOptions {

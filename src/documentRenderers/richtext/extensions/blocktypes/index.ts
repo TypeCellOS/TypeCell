@@ -9,16 +9,17 @@ import Heading from "@tiptap/extension-heading";
 import Paragraph from "@tiptap/extension-paragraph";
 import { IndentItem } from "./IndentItem";
 
-type PlaceholderOptions = {
+type CustomOptions = {
   placeholder?: string;
   placeholderOnlyWhenSelected?: boolean;
+  isToggled: boolean;
 };
 
 export function extendAsBlock<NodeOptions>(
   node: Node<NodeOptions>,
-  extendedConfig?: Partial<NodeConfig<NodeOptions & PlaceholderOptions>>
+  extendedConfig?: Partial<NodeConfig<NodeOptions & CustomOptions>>
 ) {
-  return node.extend<NodeOptions & PlaceholderOptions>({
+  return node.extend<NodeOptions & CustomOptions>({
     addAttributes() {
       return {
         "block-id": {

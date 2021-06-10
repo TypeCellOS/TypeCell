@@ -39,6 +39,7 @@ import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import { CollapseBlock } from "./extensions/blocktypes/Collapse";
+import { HideBlocks } from "./prosemirrorPlugins/hideBlocksPlugin";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -79,6 +80,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         showOnlyCurrent: true, // use showOnlyCurrent to make sure the nodeviews are rerendered when cursor moves
       }),
 
+      HideBlocks,
       AutoId,
       HardBreak,
 

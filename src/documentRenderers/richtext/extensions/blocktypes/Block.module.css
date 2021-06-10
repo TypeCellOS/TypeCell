@@ -1,3 +1,8 @@
+.hiddenToggledBlock {
+  background-color: green;
+  color: purple;
+}
+
 .block {
   display: block;
   /* use padding instead of margin. 

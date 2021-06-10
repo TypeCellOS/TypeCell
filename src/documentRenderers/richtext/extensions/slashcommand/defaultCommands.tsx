@@ -35,7 +35,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     ["collapse"],
     QuoteIcon,
     "Used to make a quote stand out",
-    "Ctrl+Shift+C"
+    "Ctrl+Shift+Q"
   ),
 
   // Command for creating a level 1 heading
