@@ -10,21 +10,18 @@ import { observer } from "mobx-react-lite";
 import { Node, DOMOutputSpec } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
 import { Decoration } from "prosemirror-view";
-import React, {
+import {
   ElementType,
   MouseEvent,
   PropsWithChildren,
-  RefObject,
   useRef,
   useState,
 } from "react";
 import { useDrag, useDrop, XYCoord } from "react-dnd";
 import SideMenu from "../../menus/SideMenu";
 import mergeAttributesReact from "../../util/mergeAttributesReact";
-import { Underline } from "../marks/Underline";
-import { Italic } from "@tiptap/extension-italic";
 import styles from "./Block.module.css";
-import { CollapseContent } from "./CollapseContent";
+import { CollapseWrapper } from "./CollapseWrapper";
 /**
  * A global store that keeps track of which block is being hovered over
  */
@@ -451,12 +448,13 @@ function Block(
 
                 <NodeViewContent
                   as={"code"}
-                  {...domAttrs}
+                  // {...domAttrs}
+                  {...mergeAttributesReact(placeholderAttrs, domAttrs)}
                   className={styles.codeBlockCodeContent}
                 />
               </pre>
-            ) : props.node.type.name === "collapse" ? (
-              <CollapseContent
+            ) : props.node.type.name === "collapse" ? ( // Adds a collapse button if the node type is collapse
+              <CollapseWrapper
                 attrs={[placeholderAttrs, toggleAttrs, domAttrs]}
                 domType={domType}
               />

@@ -5,4 +5,5 @@ import "./CodeBlockBlock.module.css";
 
 export const CodeBlockBlock = extendAsBlock(CodeBlockLowlight).configure({
   lowlight,
+  placeholder: "Code", // Doesn't seem to work
 });

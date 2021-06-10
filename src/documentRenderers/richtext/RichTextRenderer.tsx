@@ -17,6 +17,7 @@ import { AutoId } from "./extensions/autoid/AutoId";
 import { TrailingNode } from "./extensions/trailingnode";
 import {
   BlockQuoteBlock,
+  CollapseBlock,
   HeadingBlock,
   HorizontalRuleBlock,
   IndentItemBlock,
@@ -38,7 +39,6 @@ import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
-import { CollapseBlock } from "./extensions/blocktypes/Collapse";
 import { HideBlocks } from "./prosemirrorPlugins/hideBlocksPlugin";
 
 // This is a temporary array to show off mentions

@@ -62,20 +62,17 @@ export const BlockQuoteBlock = extendAsBlock(BlockQuote, {
   content: "paragraph+",
 });
 
+export const CollapseBlock = BlockQuoteBlock.extend({
+  name: "collapse",
+}).configure({
+  placeholder: "Collapse",
+});
+
 export const CodeBlockBlock = extendAsBlock(CodeBlock, {});
 export const ListItemBlock = extendAsBlock(ListItem, {
   // TODO: the tiptap default is "paragraph block*"
   // It would be nicer to have paragraph list?, but that breaks backspace behavior
   //   content: "paragraph list?",
-  addAttributes() {
-    return {
-      "block-id": {
-        default: null,
-        rendered: false,
-      },
-      // collapsible: {},
-    };
-  },
 });
 export const HorizontalRuleBlock = extendAsBlock(HorizontalRule);
 export const HeadingBlock = extendAsBlock(Heading);
