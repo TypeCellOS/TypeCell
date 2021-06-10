@@ -15,6 +15,7 @@ import { AutoId } from "./extensions/autoid/AutoId";
 import { TrailingNode } from "./extensions/trailingnode";
 import {
   BlockQuoteBlock,
+  CollapseBlock,
   HeadingBlock,
   HorizontalRuleBlock,
   IndentItemBlock,
@@ -97,6 +98,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       // custom blocks:
       ImageBlock,
       BlockQuoteBlock.configure({ placeholder: "Empty quote" }),
+      CollapseBlock.configure({ placeholder: "Collapse with arrow" }),
       CodeBlockBlock,
       HeadingBlock.configure({ placeholder: "Heading" }),
       HorizontalRuleBlock,

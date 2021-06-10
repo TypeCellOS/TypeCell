@@ -20,6 +20,7 @@ import { useDrag, useDrop, XYCoord } from "react-dnd";
 import SideMenu from "../../menus/SideMenu";
 import mergeAttributesReact from "../../util/mergeAttributesReact";
 import styles from "./Block.module.css";
+import { CollapseWrapper } from "./CollapseWrapper";
 /**
  * A global store that keeps track of which block is being hovered over
  */
@@ -322,6 +323,11 @@ function Block(
                   className={styles.codeBlockCodeContent}
                 />
               </pre>
+            ) : props.node.type.name === "collapse" ? ( // Adds a collapse button if the node type is collapse
+              <CollapseWrapper
+                attrs={[placeholderAttrs, domAttrs]}
+                domType={domType}
+              />
             ) : (
               <div>
                 <NodeViewContent

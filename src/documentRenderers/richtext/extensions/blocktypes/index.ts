@@ -63,6 +63,10 @@ export const BlockQuoteBlock = extendAsBlock(MarkdownBlockquote, {
   content: "paragraph+",
 });
 
+export const CollapseBlock = BlockQuoteBlock.extend({
+  name: "collapse",
+});
+
 export const ListItemBlock = extendAsBlock(ListItem, {
   // TODO: the tiptap default is "paragraph block*"
   // It would be nicer to have paragraph list?, but that breaks backspace behavior

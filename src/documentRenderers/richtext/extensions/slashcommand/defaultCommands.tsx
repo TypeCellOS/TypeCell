@@ -12,6 +12,7 @@ import CodeIcon from "remixicon-react/CodeSSlashLineIcon";
 import UnorderedListIcon from "remixicon-react/ListUnorderedIcon";
 import OrderedListIcon from "remixicon-react/ListOrderedIcon";
 import QuoteIcon from "remixicon-react/DoubleQuotesRIcon";
+import CollapseIcon from "remixicon-react/ArrowDropRightLineIcon";
 import SeparatorIcon from "remixicon-react/SeparatorIcon";
 import TableIcon from "remixicon-react/TableLineIcon";
 
@@ -269,6 +270,27 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     QuoteIcon,
     "Used to make a quote stand out",
     "Ctrl+Shift+B"
+  ),
+
+  collapse: new SlashCommand(
+    "Collapse",
+    CommandGroup.BASIC_BLOCKS,
+    (editor, range) => {
+      const paragraph = editor.schema.node("paragraph");
+      const node = editor.schema.node("collapse", {}, paragraph);
+
+      editor
+        .chain()
+        .replaceRangeCustom(range, node)
+        .focus()
+        .scrollIntoView()
+        .run();
+
+      return true;
+    },
+    ["collapse"],
+    CollapseIcon,
+    "Used to make a section that can be collapsed and expanded"
   ),
 
   // Command for creating a horizontal rule
