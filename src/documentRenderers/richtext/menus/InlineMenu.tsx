@@ -14,11 +14,16 @@ import styles from "./InlineMenu.module.css";
 import Chat2LineIcon from "remixicon-react/Chat2LineIcon";
 import { Mark } from "@tiptap/core";
 import Bold from "@tiptap/extension-bold";
-import { CommentStorage } from "../extensions/comments/CommentStorage";
+import {
+  CommentStorage,
+  CommentType,
+} from "../extensions/comments/CommentStorage";
+import { sessionStore } from "../../../store/local/stores";
 
 type InlineMenuProps = { editor: Editor };
 
 const commentStorage = new CommentStorage();
+const session = sessionStore;
 
 const bold: ButtonStyleDetails = {
   markName: "bold",
@@ -123,17 +128,20 @@ class InlineMenu extends React.Component<InlineMenuProps> {
         <BubbleMenuButton
           editor={this.props.editor}
           onClick={() => {
-            // Prompts user for comment.
-            const comment = prompt("Enter a comment", "");
-
             // Gets unique ID.
-            const id = commentStorage.getId();
+            const id: number = commentStorage.getId();
 
             // Gets comments from browser cache.
-            const comments = commentStorage.getComments();
+            const comments: Array<CommentType> = commentStorage.getComments();
 
-            // Adds comment.
-            comments.set(id, comment!);
+            // Adds new editable comment.
+            comments.push({
+              id: id,
+              editable: true,
+              comment: "",
+              user: session.loggedInUser!,
+              date: new Date().toLocaleDateString("en-US"),
+            });
 
             // Adds highlighting to text.
             this.props.editor.chain().focus().setComment(id).run();

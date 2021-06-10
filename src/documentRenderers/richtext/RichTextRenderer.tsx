@@ -32,6 +32,7 @@ import { Mention, MentionType } from "./extensions/mentions/Mention";
 import { MentionsExtension } from "./extensions/mentions/MentionsExtension";
 import SlashCommandExtension from "./extensions/slashcommand";
 import "./RichTextRenderer.css";
+import styles from "./extensions/comments/Comments.module.css";
 import InlineMenu from "./menus/InlineMenu";
 import TableMenu from "./menus/TableInlineMenu";
 import TableCell from "@tiptap/extension-table-cell";
@@ -39,7 +40,6 @@ import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import { Comments } from "./extensions/comments/Comments";
-import { getMarkRange, getMarkType } from "@tiptap/core";
 import { CommentStorage } from "./extensions/comments/CommentStorage";
 
 const commentStorage = new CommentStorage();
@@ -65,12 +65,10 @@ type Props = {
 const RichTextRenderer: React.FC<Props> = (props) => {
   const editor = useEditor({
     onUpdate: ({ editor }) => {
-      console.log(editor.getJSON());
+      // console.log(editor.getJSON());
     },
     onSelectionUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
-      console.log(commentStorage.getComments());
-      // editor.commands.extendMarkRange("comment");
     },
     extensions: [
       CollaborationCursor.configure({
@@ -163,6 +161,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       {editor != null ? <InlineMenu editor={editor} /> : null}
       {editor != null ? <TableMenu editor={editor} /> : null}
       <EditorContent editor={editor} />
+      <div className={styles.comments}>Comments go here</div>
     </div>
   );
 };

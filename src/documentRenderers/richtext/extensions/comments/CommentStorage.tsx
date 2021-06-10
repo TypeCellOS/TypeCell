@@ -1,10 +1,15 @@
+export type CommentType = {
+  id: number;
+  editable: boolean;
+  comment: string;
+  user: string;
+  date: string;
+};
+
 export class CommentStorage {
   public initialize() {
     // Initializes comments into a new map in browser cache, serialized into a string.
-    localStorage.setItem(
-      "comments",
-      JSON.stringify(Array.from(new Map().entries()))
-    );
+    localStorage.setItem("comments", JSON.stringify(new Array<CommentType>()));
     // Initializes unique comment ID in browser cache.
     localStorage.setItem("commentID", "0");
   }
@@ -22,15 +27,10 @@ export class CommentStorage {
   }
 
   public getComments() {
-    return new Map<number, string>(
-      JSON.parse(localStorage.getItem("comments")!)
-    );
+    return JSON.parse(localStorage.getItem("comments")!);
   }
 
-  public setComments(comments: Map<number, string>) {
-    localStorage.setItem(
-      "comments",
-      JSON.stringify(Array.from(comments.entries()))
-    );
+  public setComments(comments: Array<CommentType>) {
+    localStorage.setItem("comments", JSON.stringify(comments));
   }
 }

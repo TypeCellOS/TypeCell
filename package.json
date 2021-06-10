@@ -16,6 +16,7 @@
     "@atlaskit/menu": "^1.0.0",
     "@atlaskit/modal-dialog": "^11.5.0",
     "@atlaskit/section-message": "^6.0.0",
+    "@atlaskit/textarea": "^4.1.0",
     "@atlaskit/textfield": "^5.0.1",
     "@atlaskit/tooltip": "^17.2.1",
     "@emotion/react": "^11.4.0",

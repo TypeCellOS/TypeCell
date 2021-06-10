@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 import { getMarkRange, getMarkType } from "@tiptap/core";
 import { EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
@@ -8,6 +8,7 @@ import Comment, {
   CommentAuthor,
   CommentTime,
 } from "@atlaskit/comment";
+import TextArea from "@atlaskit/textarea";
 import { CommentStorage, CommentType } from "./CommentStorage";
 import { navigationStore, sessionStore } from "../../../../store/local/stores";
 import styles from "./Comments.module.css";
@@ -16,29 +17,46 @@ import avatarImg from "./defualtAvatar.png";
 const commentStorage = new CommentStorage();
 const nav = navigationStore;
 
-export const commentComponent = (
+export const editableCommentComponent = (
   id: number,
   state: EditorState,
   view: EditorView
 ) => {
+  let updatedComment = getComment().comment;
+
   function getComment() {
     const comments: Array<CommentType> = commentStorage.getComments();
     return comments.filter((comment) => comment.id === id)[0];
   }
 
-  function editComment() {
+  function updateComment(event: ChangeEvent<HTMLTextAreaElement>) {
+    event.preventDefault();
+    updatedComment = event.target.value;
+  }
+
+  function saveComment() {
     const oldComments: Array<CommentType> = commentStorage.getComments();
     const oldComment = oldComments.filter((comment) => comment.id === id)[0];
     const newComments = oldComments.filter((comment) => comment.id !== id);
-    const newComment: CommentType = {
-      id: oldComment.id,
-      editable: true,
-      comment: oldComment.comment,
-      user: oldComment.user,
-      date: oldComment.date,
-    };
-    newComments.push(newComment);
+    if (updatedComment !== "") {
+      const newComment: CommentType = {
+        id: oldComment.id,
+        editable: false,
+        comment: updatedComment,
+        user: oldComment.user,
+        date: oldComment.date,
+      };
+      newComments.push(newComment);
+    }
     commentStorage.setComments(newComments);
+  }
+
+  function cancelEdit() {
+    if (updatedComment === "") {
+      removeComment();
+    } else {
+      saveComment();
+    }
   }
 
   function removeComment() {
@@ -47,7 +65,7 @@ export const commentComponent = (
     comments = comments.filter((comment) => comment.id !== id);
     commentStorage.setComments(comments);
 
-    // Removing corresponding comment mark.
+    // Removes corresponding comment mark.
     const tr = state.tr;
     // Iterates over each node.
     state.doc.descendants(function (node, offset) {
@@ -90,13 +108,20 @@ export const commentComponent = (
         time={<CommentTime>{getComment().date}</CommentTime>}
         content={
           <div>
-            <p>{getComment().comment}</p>
+            <div className={styles.commentForm}>
+              <TextArea
+                resize="smart"
+                name="commentInput"
+                defaultValue={getComment().comment}
+                onChange={updateComment}
+              />
+            </div>
             <p className={styles.commentReference}>{getReference()}</p>
           </div>
         }
         actions={[
-          <CommentAction onClick={editComment}>Edit</CommentAction>,
-          <CommentAction onClick={removeComment}>Delete</CommentAction>,
+          <CommentAction onClick={saveComment}>Submit</CommentAction>,
+          <CommentAction onClick={cancelEdit}>Cancel</CommentAction>,
         ]}
       />
     </div>
