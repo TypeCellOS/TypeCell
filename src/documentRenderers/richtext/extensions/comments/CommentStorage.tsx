@@ -1,6 +1,5 @@
 export type CommentType = {
   id: number;
-
   editable: boolean;
   comment: string;
   user: string;

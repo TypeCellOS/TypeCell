@@ -5,7 +5,6 @@ import { Plugin, PluginKey, EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { CommentStorage, CommentType } from "./CommentStorage";
 import { CommentComponent } from "./CommentComponent";
-import { editableCommentComponent } from "./EditableCommentComponent";
 import styles from "./Comments.module.css";
 
 const commentStorage = new CommentStorage();
@@ -31,45 +30,19 @@ export const Comments = Extension.create({
 
               let comments: Array<CommentType> = commentStorage.getComments();
               const markIDs: Array<number> = [];
-              let marksRemoved = false;
 
-              // Removing marks with no corresponding comments.
-              const tr = state.tr;
-              // Iterates over each node.
+              // Fills markIDs array with all comment marks in the document.
               state.doc.descendants(function (node, offset) {
                 // Iterates over each mark in node.
                 for (let mark of node.marks) {
                   // Checks that mark is of comment type.
                   if (mark.attrs["id"] !== null) {
                     markIDs.push(mark.attrs["id"]);
-                    // Checks that mark has no corresponding comment.
-                    if (
-                      comments.filter(
-                        (comment) => comment.id === mark.attrs["id"]
-                      ).length === 0
-                    ) {
-                      marksRemoved = true;
-                      // Removes comment mark.
-                      const type = getMarkType("comment", state.schema);
-                      const range = getMarkRange(
-                        state.doc.resolve(offset),
-                        type,
-                        { id: mark.attrs["id"] }
-                      );
-                      if (typeof range !== "undefined") {
-                        tr.removeMark(range.from, range.to, mark);
-                      }
-                    }
                   }
                 }
               });
 
-              // Dispatching a transaction triggers update(), so this stops infinite loops from happening.
-              if (marksRemoved) {
-                view.dispatch(tr);
-              }
-
-              // Removing comments with no corresponding marks.
+              // Removes comments with no corresponding marks.
               for (let comment of comments) {
                 if (!markIDs.includes(comment.id)) {
                   comments = comments.filter((com) => com.id !== comment.id);
@@ -86,7 +59,7 @@ export const Comments = Extension.create({
                 )[0]! as HTMLElement;
 
               // Removes all displayed comments from inside the wrapper.
-              // ReactDOM.unmountComponentAtNode(commentWrapper);
+              ReactDOM.unmountComponentAtNode(commentWrapper);
 
               // New list of comments to be displayed in the wrapper.
               const commentElements: Array<JSX.Element> = [];
@@ -113,7 +86,11 @@ export const Comments = Extension.create({
                     ) {
                       // Creates a React component for the comment and adds it to the list.
                       commentElements.push(
-                        CommentComponent(node.marks[i].attrs["id"], state, view)
+                        <CommentComponent
+                          id={node.marks[i].attrs["id"]}
+                          state={state}
+                          view={view}
+                        />
                       );
                     }
                   }
