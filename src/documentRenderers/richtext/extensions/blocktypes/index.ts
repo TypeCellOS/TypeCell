@@ -1,19 +1,26 @@
 import { Node, NodeConfig } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import Block from "./Block";
-import BlockQuote from "@tiptap/extension-blockquote";
-import CodeBlock from "@tiptap/extension-code-block";
 import ListItem from "@tiptap/extension-list-item";
-import HorizontalRule from "@tiptap/extension-horizontal-rule";
-import Heading from "@tiptap/extension-heading";
 import Paragraph from "@tiptap/extension-paragraph";
 import { IndentItem } from "./IndentItem";
+import MarkdownHeading from "../markdownPasteRules/single/Heading";
+import MarkdownHorizontalRule from "../markdownPasteRules/single/Horizontal";
+import MarkdownBlockquote from "../markdownPasteRules/multiple/BlockQuote";
+import MarkdownBulletList from "../markdownPasteRules/multiple/BulletList";
+import MarkdownOrderedList from "../markdownPasteRules/multiple/OrderedList";
+import MarkdownCodeBlock from "../markdownPasteRules/multiple/CodeBlock";
 
-export function extendAsBlock(
-  node: Node,
-  extendedConfig?: Partial<NodeConfig<any>>
+type PlaceholderOptions = {
+  placeholder?: string;
+  placeholderOnlyWhenSelected?: boolean;
+};
+
+export function extendAsBlock<NodeOptions>(
+  node: Node<NodeOptions>,
+  extendedConfig?: Partial<NodeConfig<NodeOptions & PlaceholderOptions>>
 ) {
-  return node.extend({
+  return node.extend<NodeOptions & PlaceholderOptions>({
     addAttributes() {
       return {
         "block-id": {
@@ -51,18 +58,21 @@ export function extendAsBlock(
   });
 }
 
-export const BlockQuoteBlock = extendAsBlock(BlockQuote, {
+export const BlockQuoteBlock = extendAsBlock(MarkdownBlockquote, {
   // only allow paragraphs in blockquote elements
   content: "paragraph+",
 });
 
-export const CodeBlockBlock = extendAsBlock(CodeBlock);
 export const ListItemBlock = extendAsBlock(ListItem, {
   // TODO: the tiptap default is "paragraph block*"
   // It would be nicer to have paragraph list?, but that breaks backspace behavior
   //   content: "paragraph list?",
 });
-export const HorizontalRuleBlock = extendAsBlock(HorizontalRule);
-export const HeadingBlock = extendAsBlock(Heading);
+export const CodeBlockBlock = extendAsBlock(MarkdownCodeBlock);
+export const HorizontalRuleBlock = extendAsBlock(MarkdownHorizontalRule);
+export const HeadingBlock = extendAsBlock(MarkdownHeading);
 export const ParagraphBlock = extendAsBlock(Paragraph);
+
 export const IndentItemBlock = extendAsBlock(IndentItem);
+export const BulletList = extendAsBlock(MarkdownBulletList);
+export const OrderedList = extendAsBlock(MarkdownOrderedList);

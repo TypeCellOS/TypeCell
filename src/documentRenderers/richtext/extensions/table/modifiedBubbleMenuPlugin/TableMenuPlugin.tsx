@@ -105,7 +105,7 @@ export class TableBubbleMenuView {
         resolvedPos.depth === 1 ||
         !resolvedPos
           .node(resolvedPos.depth - 1)
-          .type.name.toLowerCase()
+          ?.type?.name.toLowerCase()
           .startsWith("table")
       ) {
         this.hide();

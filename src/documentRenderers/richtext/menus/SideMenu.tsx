@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./SideMenu.module.css";
-import { MenuGroup, Section, ButtonItem } from "@atlaskit/menu";
+import { MenuGroup, ButtonItem } from "@atlaskit/menu";
 
 type Props = {
   onDelete: () => void;
