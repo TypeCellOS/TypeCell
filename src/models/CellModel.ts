@@ -3,6 +3,7 @@ import * as Y from "yjs";
 export class CellModel {
   /** @internal */
   constructor(
+    public readonly id: string,
     public readonly path: string,
     /** @internal */
     public readonly code: Y.Text

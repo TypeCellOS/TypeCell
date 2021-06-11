@@ -4,6 +4,7 @@ import Block from "./Block";
 import ListItem from "@tiptap/extension-list-item";
 import Paragraph from "@tiptap/extension-paragraph";
 import { IndentItem } from "./IndentItem";
+import { TypeCellNode } from "../typecellnode";
 import MarkdownHeading from "../markdownPasteRules/single/Heading";
 import MarkdownHorizontalRule from "../markdownPasteRules/single/Horizontal";
 import MarkdownBlockquote from "../markdownPasteRules/multiple/BlockQuote";
@@ -74,5 +75,6 @@ export const HeadingBlock = extendAsBlock(MarkdownHeading);
 export const ParagraphBlock = extendAsBlock(Paragraph);
 
 export const IndentItemBlock = extendAsBlock(IndentItem);
+export const TypeCellNodeBlock = extendAsBlock(TypeCellNode);
 export const BulletList = extendAsBlock(MarkdownBulletList);
 export const OrderedList = extendAsBlock(MarkdownOrderedList);
