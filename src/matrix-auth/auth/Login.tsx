@@ -25,7 +25,7 @@ import { messageForResourceLimitError } from "./util/messages";
 import AuthBody from "./views/AuthBody";
 import AuthHeader from "./views/AuthHeader";
 import { AuthPage } from "./views/AuthPage";
-import PasswordLogin from "./views/PasswordLogin";
+import PasswordLogin, { formInputs } from "./views/PasswordLogin";
 import { PageLayout, Main, Content, Banner } from "@atlaskit/page-layout";
 import { ButtonItem, HeadingItem, MenuGroup, Section } from "@atlaskit/menu";
 import { N40, N800, N10 } from "@atlaskit/theme/colors";
@@ -159,22 +159,13 @@ export default class LoginComponent extends React.PureComponent<
 
   isBusy = () => this.state.busy || this.props.busy;
 
-  onPasswordLogin = async (
-    username: string,
-    phoneCountry: string | undefined,
-    phoneNumber: string | undefined,
-    password: string
-  ) => {
-    console.log(
-      "trying to log in with username ",
-      username,
-      "phoneCountry ",
-      phoneCountry,
-      "phoneNumber",
-      phoneNumber,
-      "password ",
-      password
-    );
+  onPasswordLogin = async (formData: formInputs) => {
+    console.log("formData: ", formData);
+    // TODO: If AtlasKit always does reliable per-field validation check
+    // and doesn't do validation on the initial state of the forms(empty),
+    // then consider doing this submission check in the per-field validation
+    // instead.
+
     if (!this.state.serverIsAlive) {
       this.setState({ busy: true });
       // Do a quick liveliness check on the URLs
@@ -209,14 +200,15 @@ export default class LoginComponent extends React.PureComponent<
     });
 
     this.loginLogic!.loginViaPassword(
-      username,
-      phoneCountry,
-      phoneNumber,
-      password
+      formData.username,
+      // phoneCountry does not yet get passed to formData
+      formData.phoneNumber,
+      formData.phoneNumber,
+      formData.password
     ).then(
       (data) => {
         this.setState({ serverIsAlive: true }); // it must be, we logged in.
-        this.props.onLoggedIn(data, password);
+        this.props.onLoggedIn(data, formData.password);
       },
       (error) => {
         if (this.unmounted) {
@@ -225,7 +217,7 @@ export default class LoginComponent extends React.PureComponent<
         let errorText;
 
         // Some error strings only apply for logging in
-        const usingEmail = username.indexOf("@") > 0;
+        const usingEmail = formData.username.indexOf("@") > 0;
         if (error.httpStatus === 400 && usingEmail) {
           errorText =
             "This homeserver does not support login using email address.";

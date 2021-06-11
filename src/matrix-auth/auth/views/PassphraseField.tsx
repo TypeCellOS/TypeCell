@@ -119,7 +119,8 @@ class PassphraseField extends PureComponent<IProps> {
         label={this.props.label}
         value={this.props.value}
         onChange={this.props.onChange}
-        onValidate={this.onValidate}
+        // temp disabled
+        //onValidate={this.onValidate}
       />
     );
   }

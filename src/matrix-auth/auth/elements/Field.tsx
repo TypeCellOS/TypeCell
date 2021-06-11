@@ -22,7 +22,9 @@ import React, {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from "react";
-import { IFieldState, IValidationResult } from "./Validation";
+// TODO: likely not needed anymore, but consider if
+// their logical importance is substituted
+//import { IFieldState, IValidationResult } from "./Validation";
 
 import TextField from "@atlaskit/textfield";
 // import { ValidMessage, Field as AtlaskitField } from "@atlaskit/form";
@@ -58,7 +60,7 @@ interface IProps {
   // changes.  Returns an object with `valid` boolean field
   // and a `feedback` react component field to provide feedback
   // to the user.
-  onValidate?: (input: IFieldState) => Promise<IValidationResult>;
+  onValidate?: (value?: string) => string | undefined;
   // If specified, overrides the value returned by onValidate.
   forceValidity?: boolean;
   // If specified, contents will appear as a tooltip on the element and
@@ -159,20 +161,22 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     this.input!.focus();
   }
 
-  private onFocus = (ev: React.FocusEvent<any>) => {
-    this.setState({
-      focused: true,
-    });
-    if (this.props.validateOnFocus) {
-      this.validate({
-        focused: true,
-      });
-    }
-    // Parent component may have supplied its own `onFocus` as well
-    if (this.props.onFocus) {
-      this.props.onFocus(ev);
-    }
-  };
+  // The input is not controlled by Field anymore. The validation
+  // function gets called directly from AtlasKitField instead.
+  // private onFocus = (ev: React.FocusEvent<any>) => {
+  //   this.setState({
+  //     focused: true,
+  //   });
+  //   if (this.props.validateOnFocus) {
+  //     this.validate({
+  //       focused: true,
+  //     });
+  //   }
+  //   // Parent component may have supplied its own `onFocus` as well
+  //   if (this.props.onFocus) {
+  //     this.props.onFocus(ev);
+  //   }
+  // };
 
   // The input is not controlled by Field anymore. The validation
   // function gets called directly from AtlasKitField instead.
@@ -186,14 +190,13 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
   //   }
   // };
 
+  // TODO: likely remove this
   private onBlur = (ev: React.FocusEvent<any>) => {
     this.setState({
       focused: false,
     });
     if (this.props.validateOnBlur) {
-      this.validate({
-        focused: false,
-      });
+      this.validate();
     }
     // Parent component may have supplied its own `onBlur` as well
     if (this.props.onBlur) {
@@ -201,44 +204,52 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     }
   };
 
-  public async validate({
-    focused,
-    allowEmpty = true,
-  }: {
-    focused?: boolean;
-    allowEmpty?: boolean;
-  }) {
+  public async validate(value?: string) {
     if (!this.props.onValidate) {
-      return;
-    }
-    const value = this.input ? this.input.value : undefined;
-    const { valid, feedback } = await this.props.onValidate({
-      value: value,
-      focused: !!focused,
-      allowEmpty,
-    });
-
-    // this method is async and so we may have been blurred since the method was called
-    // if we have then hide the feedback as withValidation does
-    if (this.state.focused && feedback) {
-      this.setState({
-        valid: !!valid,
-        feedback,
-        feedbackVisible: true,
-      });
-    } else {
-      // When we receive null `feedback`, we want to hide the tooltip.
-      // We leave the previous `feedback` content in state without updating it,
-      // so that we can hide the tooltip containing the most recent feedback
-      // via CSS animation.
-      this.setState({
-        valid: !!valid,
-        feedbackVisible: false,
-      });
+      return undefined;
     }
 
-    return valid;
+    return await this.props.onValidate(value);
   }
+
+  // public async validate({
+  //   focused,
+  //   allowEmpty = true,
+  // }: {
+  //   focused?: boolean;
+  //   allowEmpty?: boolean;
+  // }) {
+  //   if (!this.props.onValidate) {
+  //     return;
+  //   }
+  //   const value = this.input ? this.input.value : undefined;
+  //   const { valid, feedback } = await this.props.onValidate({
+  //     value: value,
+  //     focused: !!focused,
+  //     allowEmpty,
+  //   });
+
+  //   // this method is async and so we may have been blurred since the method was called
+  //   // if we have then hide the feedback as withValidation does
+  //   if (this.state.focused && feedback) {
+  //     this.setState({
+  //       valid: !!valid,
+  //       feedback,
+  //       feedbackVisible: true,
+  //     });
+  //   } else {
+  //     // When we receive null `feedback`, we want to hide the tooltip.
+  //     // We leave the previous `feedback` content in state without updating it,
+  //     // so that we can hide the tooltip containing the most recent feedback
+  //     // via CSS animation.
+  //     this.setState({
+  //       valid: !!valid,
+  //       feedbackVisible: false,
+  //     });
+  //   }
+
+  //   return valid;
+  // }
 
   public render() {
     /* eslint @typescript-eslint/no-unused-vars: ["error", { "ignoreRestSiblings": true }] */
@@ -265,9 +276,9 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     inputProps.id = this.id; // this overwrites the id from props
 
     // These will be handled by AtlasKit
-    inputProps.onFocus = this.onFocus;
+    // inputProps.onFocus = this.onFocus;
     // inputProps.onChange = this.onChange;
-    inputProps.onBlur = this.onBlur;
+    // inputProps.onBlur = this.onBlur;
 
     // Appease typescript's inference
     const inputProps_ = { ...inputProps, ref, list };

@@ -196,7 +196,7 @@ export default class RegistrationForm extends React.PureComponent<
       // up the setState below so our setState goes in the queue after
       // all the setStates from these validate calls (that's how we
       // know they've finished).
-      await field.validate({ allowEmpty: false });
+      await field.validate();
     }
 
     // Validation and state updates are async, so we need to wait for them to complete
@@ -216,7 +216,7 @@ export default class RegistrationForm extends React.PureComponent<
     // Focus the first invalid field and show feedback in the stricter mode
     // that no longer allows empty values for required fields.
     invalidField.focus();
-    invalidField.validate({ allowEmpty: false, focused: true });
+    invalidField.validate();
     return false;
   }
 
@@ -449,7 +449,8 @@ export default class RegistrationForm extends React.PureComponent<
         label={emailPlaceholder}
         value={this.state.email}
         onChange={this.onEmailChange}
-        onValidate={this.onEmailValidate}
+        // temp disabled
+        //onValidate={this.onEmailValidate}
       />
     );
   }
@@ -477,7 +478,8 @@ export default class RegistrationForm extends React.PureComponent<
         label={"Confirm password"}
         value={this.state.passwordConfirm}
         onChange={this.onPasswordConfirmChange}
-        onValidate={this.onPasswordConfirmValidate}
+        // temp disabled
+        //onValidate={this.onPasswordConfirmValidate}
       />
     );
   }
@@ -523,7 +525,8 @@ export default class RegistrationForm extends React.PureComponent<
         placeholder={"Username".toLocaleLowerCase()}
         value={this.state.username}
         onChange={this.onUsernameChange}
-        onValidate={this.onUsernameValidate}
+        // temp disabled
+        //onValidate={this.onUsernameValidate}
       />
     );
   }

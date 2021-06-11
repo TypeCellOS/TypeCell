@@ -45,12 +45,8 @@ interface IProps {
   disableSubmit?: boolean;
   busy?: boolean;
 
-  onSubmit(
-    username: string,
-    phoneCountry: string | undefined,
-    phoneNumber: string | undefined,
-    password: string
-  ): void;
+  //onSubmit(data: formInputs): formInputs | undefined;
+  onSubmit(data: formInputs): void;
   onUsernameChanged?(username: string): void;
   onUsernameBlur?(username: string): void;
   onPhoneCountryChanged?(phoneCountry: string): void;
@@ -70,6 +66,13 @@ enum LoginField {
   Phone = "login_field_phone",
   Password = "login_field_phone",
 }
+
+export type formInputs = {
+  username: string;
+  email: string | undefined;
+  phoneNumber: string | undefined;
+  password: string;
+};
 
 /*
  * A pure UI component which displays a username/password form.
@@ -98,35 +101,22 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
   };
 
   // TODO: figure type for event data from AtlasKitForm
-  private onSubmitForm = async (data: any) => {
+  private onSubmitForm = async (data: formInputs) => {
     console.log("form data", data);
 
-    const allFieldsValid = await this.verifyFieldsBeforeSubmit();
-    if (!allFieldsValid) {
-      return;
-    }
+    // AtlasKit handles this now
+    // const allFieldsValid = await this.verifyFieldsBeforeSubmit();
+    // if (!allFieldsValid) {
+    //   return;
+    // }
 
-    let username = ""; // XXX: Synapse breaks if you send null here:
-    let phoneCountry: string | undefined;
-    let phoneNumber: string | undefined;
+    console.log("checkpoint");
 
-    switch (this.state.loginType) {
-      case LoginField.Email:
-      case LoginField.MatrixId:
-        username = data.username;
-        break;
-      case LoginField.Phone:
-        phoneCountry = this.props.phoneCountry;
-        phoneNumber = this.props.phoneNumber;
-        break;
-    }
+    const submissionData = this.props.onSubmit?.(data);
 
-    return this.props.onSubmit?.(
-      username,
-      phoneCountry,
-      phoneNumber,
-      data.password
-    );
+    console.log("submission data: ", submissionData);
+
+    return submissionData;
   };
 
   // The input is not controlled by Field anymore. The validation
@@ -183,50 +173,53 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
   //   this.setState({ password: ev.target.value });
   // };
 
-  private async verifyFieldsBeforeSubmit() {
-    // Blur the active element if any, so we first run its blur validation,
-    // which is less strict than the pass we're about to do below for all fields.
-    const activeElement = document.activeElement as HTMLElement;
-    if (activeElement) {
-      activeElement.blur();
-    }
+  // AtlasKit handles initiates validations now
+  // private async verifyFieldsBeforeSubmit() {
+  //   // Blur the active element if any, so we first run its blur validation,
+  //   // which is less strict than the pass we're about to do below for all fields.
+  //   const activeElement = document.activeElement as HTMLElement;
+  //   if (activeElement) {
+  //     activeElement.blur();
+  //   }
 
-    const fieldIDsInDisplayOrder = [this.state.loginType, LoginField.Password];
+  //   const fieldIDsInDisplayOrder = [this.state.loginType, LoginField.Password];
 
-    // Run all fields with stricter validation that no longer allows empty
-    // values for required fields.
-    for (const fieldID of fieldIDsInDisplayOrder) {
-      const field = this[fieldID];
-      if (!field) {
-        continue;
-      }
-      // We must wait for these validations to finish before queueing
-      // up the setState below so our setState goes in the queue after
-      // all the setStates from these validate calls (that's how we
-      // know they've finished).
-      await field.validate({ allowEmpty: false });
-    }
+  //   // Run all fields with stricter validation that no longer allows empty
+  //   // values for required fields.
+  //   for (const fieldID of fieldIDsInDisplayOrder) {
+  //     const field = this[fieldID];
+  //     if (!field) {
+  //       continue;
+  //     }
+  //     // We must wait for these validations to finish before queueing
+  //     // up the setState below so our setState goes in the queue after
+  //     // all the setStates from these validate calls (that's how we
+  //     // know they've finished).
 
-    // Validation and state updates are async, so we need to wait for them to complete
-    // first. Queue a `setState` callback and wait for it to resolve.
-    await new Promise<void>((resolve) => this.setState({}, resolve));
+  //     // We don't call the initial validate handler anymore
+  //     //await field.validate();
+  //   }
 
-    if (this.allFieldsValid()) {
-      return true;
-    }
+  //   // Validation and state updates are async, so we need to wait for them to complete
+  //   // first. Queue a `setState` callback and wait for it to resolve.
+  //   await new Promise<void>((resolve) => this.setState({}, resolve));
 
-    const invalidField = this.findFirstInvalidField(fieldIDsInDisplayOrder);
+  //   if (this.allFieldsValid()) {
+  //     return true;
+  //   }
 
-    if (!invalidField) {
-      return true;
-    }
+  //   const invalidField = this.findFirstInvalidField(fieldIDsInDisplayOrder);
 
-    // Focus the first invalid field and show feedback in the stricter mode
-    // that no longer allows empty values for required fields.
-    invalidField.focus();
-    invalidField.validate({ allowEmpty: false, focused: true });
-    return false;
-  }
+  //   if (!invalidField) {
+  //     return true;
+  //   }
+
+  //   // Focus the first invalid field and show feedback in the stricter mode
+  //   // that no longer allows empty values for required fields.
+  //   invalidField.focus();
+  //   invalidField.validate();
+  //   return false;
+  // }
 
   private allFieldsValid() {
     const keys = Object.keys(this.state.fieldValid);
@@ -267,11 +260,14 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     ],
   });
 
-  private onUsernameValidate = async (fieldState: IFieldState) => {
-    const result = await this.validateUsernameRules(fieldState);
-    this.markFieldValid(LoginField.MatrixId, !!result.valid);
-    return result;
-  };
+  // username on login has no validation
+  // onSubmitForm handles empty submission
+  // private onUsernameValidate = async (value?: string) => {
+  //   // TODO: consider alternative to this, probably not needed entirely
+  //   //const result = await this.validateUsernameRules(fieldState);
+  //   //this.markFieldValid(LoginField.MatrixId, !!result.valid);
+  //   return undefined;
+  // };
 
   private validateEmailRules = withValidation<this, void>({
     rules: [
@@ -290,10 +286,15 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     ],
   });
 
-  private onEmailValidate = async (fieldState: IFieldState) => {
-    const result = await this.validateEmailRules(fieldState);
-    this.markFieldValid(LoginField.Email, !!result.valid);
-    return result;
+  // TODO: reconsider if removing asynchronicity is a good idea.
+  private onEmailValidate = (value?: string) => {
+    if (!value) {
+      return undefined;
+    }
+    if (!looksValidEmail(value)) {
+      return "INVALID_EMAIL";
+    }
+    return undefined;
   };
 
   private validatePhoneNumberRules = withValidation<this, void>({
@@ -332,11 +333,13 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     ],
   });
 
-  private onPasswordValidate = async (fieldState: IFieldState) => {
-    const result = await this.validatePasswordRules(fieldState);
-    this.markFieldValid(LoginField.Password, !!result.valid);
-    return result;
-  };
+  // password on login has no validation
+  // onSubmitForm handles empty submission
+  // private onPasswordValidate = async (fieldState: IFieldState) => {
+  //   const result = await this.validatePasswordRules(fieldState);
+  //   this.markFieldValid(LoginField.Password, !!result.valid);
+  //   return result;
+  // };
 
   private renderLoginField(loginType: IState["loginType"], autoFocus: boolean) {
     const classes = {
@@ -349,15 +352,15 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
         return (
           <Field
             className={classNames(classes)}
-            name="username" // make it a little easier for browser's remember-password
-            key={"email_input"}
+            name="email" // make it a little easier for browser's remember-password
+            key={"email"}
             type="text"
             label={"Email"}
             placeholder="joe@example.com"
             value={this.props.username}
             //onChange={this.onUsernameChanged}
-            onFocus={this.onUsernameFocus}
-            onBlur={this.onUsernameBlur}
+            //onFocus={this.onUsernameFocus}
+            //onBlur={this.onUsernameBlur}
             disabled={this.props.disableSubmit}
             autoFocus={autoFocus}
             onValidate={this.onEmailValidate}
@@ -376,11 +379,11 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             placeholder={"Username".toLocaleLowerCase()}
             value={this.props.username}
             //onChange={this.onUsernameChanged}
-            onFocus={this.onUsernameFocus}
-            onBlur={this.onUsernameBlur}
+            //onFocus={this.onUsernameFocus}
+            //onBlur={this.onUsernameBlur}
             disabled={this.props.disableSubmit}
             autoFocus={autoFocus}
-            onValidate={this.onUsernameValidate}
+            //onValidate={this.onUsernameValidate}
             ref={(field) => (this[LoginField.MatrixId] = field)}
           />
         );
@@ -410,7 +413,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             onBlur={this.onPhoneNumberBlur}
             disabled={this.props.disableSubmit}
             autoFocus={autoFocus}
-            onValidate={this.onPhoneNumberValidate}
+            //onValidate={this.onPhoneNumberValidate}
             ref={(field) => (this[LoginField.Password] = field)}
           />
         );
@@ -497,7 +500,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
               //onChange={this.onPasswordChanged}
               disabled={this.props.disableSubmit}
               autoFocus={autoFocusPassword}
-              onValidate={this.onPasswordValidate}
+              //onValidate={this.onPasswordValidate}
               ref={(field) => (this[LoginField.Password] = field)}
             />
             {forgotPasswordJsx}
