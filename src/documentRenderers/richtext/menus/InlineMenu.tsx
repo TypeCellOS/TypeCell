@@ -19,6 +19,7 @@ import {
   CommentType,
 } from "../extensions/comments/CommentStorage";
 import { sessionStore } from "../../../store/local/stores";
+import { setTextSelection } from "@tiptap/core/dist/packages/core/src/extensions/commands";
 
 type InlineMenuProps = { editor: Editor };
 

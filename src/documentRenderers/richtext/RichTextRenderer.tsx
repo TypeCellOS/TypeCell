@@ -41,6 +41,7 @@ import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import { Comments } from "./extensions/comments/Comments";
 import { CommentStorage } from "./extensions/comments/CommentStorage";
+import { CommentWrapper } from "./extensions/comments/CommentWrapper";
 
 const commentStorage = new CommentStorage();
 
@@ -160,8 +161,8 @@ const RichTextRenderer: React.FC<Props> = (props) => {
     <div>
       {editor != null ? <InlineMenu editor={editor} /> : null}
       {editor != null ? <TableMenu editor={editor} /> : null}
+      {editor != null ? <CommentWrapper editor={editor} /> : null}
       <EditorContent editor={editor} />
-      <div className={styles.comments}>Comments go here</div>
     </div>
   );
 };

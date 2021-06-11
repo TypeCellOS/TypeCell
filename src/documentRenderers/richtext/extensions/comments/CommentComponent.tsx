@@ -17,7 +17,7 @@ import avatarImg from "./defualtAvatar.png";
 const commentStorage = new CommentStorage();
 const nav = navigationStore;
 
-export type CommentProps = {
+export type CommentComponentProps = {
   id: number;
   state: EditorState;
   view: EditorView;
@@ -30,27 +30,25 @@ export type CommentProps = {
  * @prop state  The editor state, used in deletion and finding comment reference text.
  * @prop view   The editor view, used in deletion.
  */
-export const CommentComponent: React.FC<CommentProps> = (props) => {
+export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
   // commentData is used to store comment changes before writing them to browser cache.
   const [commentData, setCommentData] = useState(getCommentData);
 
   // Retrieves comment data with the corresponding ID from cache. Returns null if a comment with that ID doesn't exist.
   function getCommentData() {
     const comments: Array<CommentType> = commentStorage.getComments();
-    return comments.length > 0
-      ? comments.filter((comment) => comment.id === props.id)[0]
-      : null;
+    return comments.filter((comment) => comment.id === props.id)[0];
   }
 
   // Updates comment text from user input but does not save it to cache.
   function updateCommentData(event: ChangeEvent<HTMLTextAreaElement>) {
     event.preventDefault();
     setCommentData({
-      id: commentData!.id,
-      editable: commentData!.editable,
+      id: commentData.id,
+      editable: commentData.editable,
       comment: event.target.value,
-      user: commentData!.user,
-      date: commentData!.date,
+      user: commentData.user,
+      date: commentData.date,
     });
   }
 
@@ -61,11 +59,11 @@ export const CommentComponent: React.FC<CommentProps> = (props) => {
       (comment) => comment.id !== props.id
     );
     const newComment = {
-      id: commentData!.id,
-      editable: !commentData!.editable,
-      comment: commentData!.comment,
-      user: commentData!.user,
-      date: commentData!.date,
+      id: commentData.id,
+      editable: !commentData.editable,
+      comment: commentData.comment,
+      user: commentData.user,
+      date: commentData.date,
     };
     newComments.push(newComment);
     commentStorage.setComments(newComments);
@@ -81,11 +79,11 @@ export const CommentComponent: React.FC<CommentProps> = (props) => {
     // True if comment is only being created rather than edited.
     const remove = getCommentData()!.comment === "";
     const newComment = {
-      id: commentData!.id,
+      id: commentData.id,
       editable: false,
-      comment: getCommentData()!.comment,
-      user: commentData!.user,
-      date: commentData!.date,
+      comment: getCommentData().comment,
+      user: commentData.user,
+      date: commentData.date,
     };
     newComments.push(newComment);
     commentStorage.setComments(newComments);
@@ -125,24 +123,44 @@ export const CommentComponent: React.FC<CommentProps> = (props) => {
 
   // Gets the highlighted text that the comment refers to in the editor.
   function getReference() {
-    const resolvedPos = props.state.doc.resolve(props.state.selection.head);
+    let reference: string = "";
+    const resolvedPos = props.state.doc.resolve(props.state.selection.anchor);
     const commentType = getMarkType("comment", props.state.schema);
-    const commentRangeWithId = getMarkRange(resolvedPos, commentType, {
-      id: props.id,
-    });
-    if (typeof commentRangeWithId !== "undefined") {
-      return props.state.doc.cut(commentRangeWithId.from, commentRangeWithId.to)
-        .textContent;
-    }
-  }
+    // All comments with marks adjacent/overlapping the one the cursor is in get rendered, so we have to make sure
+    // we can get references for these too.
+    const commentRange = getMarkRange(resolvedPos, commentType);
 
-  // Bit of a hack.
-  // In Comments.tsx, every time the editor updates, it re-evaluates which comments to render. However, removing a
-  // comment from browser cache obviously doesn't trigger an editor update, but it does trigger an update of the
-  // individual comment. This means that the Comments plugin will still try to render a comment that's just been
-  // deleted, that that the comment's commentData state will be null. Therefore, we just render nothing here instead.
-  if (commentData == null) {
-    return <></>;
+    // Checks if cursor is within a comment mark.
+    if (typeof commentRange !== "undefined") {
+      // Finds the child node the cursor is in which also has comment marks.
+      props.state.doc.descendants(function (node, offset) {
+        for (let i = 0; i < node.marks.length; i++) {
+          // Checks if the mark is a comment in range with the correct ID.
+          if (
+            offset >= commentRange.from &&
+            offset + node.nodeSize <= commentRange.to &&
+            node.marks[i].attrs["id"] === props.id
+          ) {
+            // Finds span of just the mark with the given ID.
+            const commentRangeWithId = getMarkRange(
+              props.state.doc.resolve(offset),
+              commentType,
+              {
+                id: props.id,
+              }
+            );
+            if (typeof commentRangeWithId !== "undefined") {
+              // Gets all text in that span.
+              reference = props.state.doc.cut(
+                commentRangeWithId.from,
+                commentRangeWithId.to
+              ).textContent;
+            }
+          }
+        }
+      });
+    }
+    return reference;
   }
 
   return (
