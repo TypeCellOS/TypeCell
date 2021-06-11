@@ -20,31 +20,3 @@
   padding: 0.25rem;
   margin: 0.25rem;
 }
-
-.input {
-  font-size: 1rem;
-  width: 9rem;
-  border-radius: 0.2rem;
-  opacity: 0.8;
-  border: solid 0.1rem var(--N40);
-}
-
-.input:focus {
-  opacity: 1;
-}
-
-.ok {
-  font-size: 1rem;
-  color: var(--N800);
-  outline: none;
-  border: none;
-  border-radius: 0.2rem;
-  background-color: transparent;
-  opacity: 0.5;
-}
-
-.ok:hover {
-  background-color: rgba(9, 30, 66, 0.08);
-  cursor: pointer;
-  opacity: 1;
-}

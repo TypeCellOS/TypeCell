@@ -9,6 +9,17 @@ import Edit from "remixicon-react/EditBoxLineIcon";
 import Remove from "remixicon-react/CloseLineIcon";
 import Open from "remixicon-react/ShareBoxLineIcon";
 import React from "react";
+import PanelTextInput from "./AtlaskitHyperlink/PanelTextInput";
+import {
+  Container,
+  ContainerWrapper,
+  IconWrapper,
+  TextInputWrapper,
+  UrlInputWrapper,
+} from "./AtlaskitHyperlink/ToolbarComponent";
+import Tooltip from "@atlaskit/tooltip";
+import LinkIcon from "@atlaskit/icon/glyph/link";
+import EditorAlignLeftIcon from "@atlaskit/icon/glyph/editor/align-left";
 
 // ids to search for the active anchor link and its menu
 const ACTIVE = "activeLink";
@@ -53,11 +64,11 @@ const HyperLinkMenu = (props: HyperlinkMenuProps) => {
         }>
         <Tippy
           content={
-            <HyperlinkEditor
+            <HyperlinkEditorAtlaskit
               previousLink={value[0]}
               previousText={value[1]}
               setter={setValue}
-              editHandler={props.editHandler}></HyperlinkEditor>
+              editHandler={props.editHandler}></HyperlinkEditorAtlaskit>
           }
           trigger="click"
           interactive={true}
@@ -110,58 +121,73 @@ type HyperlinkEditorProps = {
 };
 
 /**
+ * the function that handles the input submit event
+ * @param props the props from a hyperlink editor menu
+ */
+const submit = (props: HyperlinkEditorProps) => {
+  const hyperlink = document.getElementById(EDITING_MENU_LINK);
+  const title = document.getElementById(EDITING_MENU_TEXT);
+  if (
+    hyperlink &&
+    title &&
+    hyperlink instanceof HTMLInputElement &&
+    title instanceof HTMLInputElement
+  ) {
+    const link = hyperlink.value;
+    const text = title.value;
+    props.editHandler("//" + link, text);
+  }
+};
+
+/**
  * The sub menu for editing an anchor element
  * @param props props of menu for editing
  * @returns a menu for the edit operation of a hyperlink
  */
-const HyperlinkEditor = (props: HyperlinkEditorProps) => {
+const HyperlinkEditorAtlaskit = (props: HyperlinkEditorProps) => {
   return (
-    <div
-      className={`${styles.editingWrapper} ${menuStyles.bubbleMenu}`}
-      id={EDITING_MENU}>
-      <input
-        id={EDITING_MENU_LINK}
-        type="text"
-        value={props.previousLink}
-        onChange={(ev) => {
-          const title = document.getElementById(EDITING_MENU_TEXT);
-          if (title && title instanceof HTMLInputElement) {
-            props.setter([ev.target.value, title.value]);
-          }
-        }}
-        className={styles.input}></input>
-      <input
-        id={EDITING_MENU_TEXT}
-        type="text"
-        value={props.previousText}
-        onChange={(ev) => {
-          const hyperlink = document.getElementById(EDITING_MENU_LINK);
-          if (hyperlink && hyperlink instanceof HTMLInputElement) {
-            props.setter([hyperlink.value, ev.target.value]);
-          }
-        }}
-        className={styles.input}></input>
-      <button
-        type="submit"
-        className={styles.ok}
-        onClick={(ev) => {
-          ev.preventDefault();
-          const hyperlink = document.getElementById(EDITING_MENU_LINK);
-          const title = document.getElementById(EDITING_MENU_TEXT);
-          if (
-            hyperlink &&
-            title &&
-            hyperlink instanceof HTMLInputElement &&
-            title instanceof HTMLInputElement
-          ) {
-            const link = hyperlink.value;
-            const text = title.value;
-            props.editHandler("//" + link, text);
-          }
-        }}>
-        OK
-      </button>
-    </div>
+    <ContainerWrapper>
+      <Container provider={false} id={EDITING_MENU}>
+        <UrlInputWrapper>
+          <IconWrapper>
+            <Tooltip content={"tooltip"}>
+              <LinkIcon label={"link icon"}></LinkIcon>
+            </Tooltip>
+          </IconWrapper>
+          <PanelTextInput
+            id={EDITING_MENU_LINK}
+            defaultValue={props.previousLink}
+            onSubmit={(linkValue) => {
+              submit(props);
+            }}
+            onChange={(value) => {
+              const title = document.getElementById(EDITING_MENU_TEXT);
+              if (title && title instanceof HTMLInputElement) {
+                props.setter([value, title.value]);
+              }
+            }}></PanelTextInput>
+        </UrlInputWrapper>
+        <TextInputWrapper>
+          <IconWrapper>
+            <Tooltip content={"tooltip"}>
+              <EditorAlignLeftIcon label={"title icon"}></EditorAlignLeftIcon>
+            </Tooltip>
+          </IconWrapper>
+          <PanelTextInput
+            id={EDITING_MENU_TEXT}
+            defaultValue={props.previousText}
+            onSubmit={(textValue) => {
+              submit(props);
+            }}
+            onChange={(value) => {
+              const hyperlink = document.getElementById(EDITING_MENU_LINK);
+              if (hyperlink && hyperlink instanceof HTMLInputElement) {
+                props.setter([hyperlink.value, value]);
+              }
+            }}></PanelTextInput>
+        </TextInputWrapper>
+      </Container>
+    </ContainerWrapper>
   );
 };
 
@@ -189,6 +215,11 @@ const generateAnchorPos = (anchor: Element) => {
   };
 };
 
+/**
+ * This customed link includes a special menu for editing/deleting/opening the link.
+ * The menu will be triggered by hovering over the link with the mouse,
+ * or by moving the cursor inside the link text
+ */
 const Hyperlink = Link.extend({
   priority: 500,
   addProseMirrorPlugins() {
@@ -282,6 +313,7 @@ const Hyperlink = Link.extend({
                         .insertText(text, from, to)
                         .addMark(from, from + text.length, mark)
                     );
+                    to = from + text.length;
                   }
                 });
               };
@@ -341,7 +373,7 @@ const Hyperlink = Link.extend({
 
                 // find the position of this <a> and construct handlers accordingly
                 const from = view.posAtDOM(anchor, -1);
-                const to = from + anchor.innerHTML.length;
+                let to = from + anchor.innerHTML.length;
                 const resPos = view.state.doc.resolve(from + 1);
                 const marks = resPos.marks();
                 const removeHandler = () => {
@@ -362,6 +394,7 @@ const Hyperlink = Link.extend({
                           .insertText(text, from, to)
                           .addMark(from, from + text.length, mark)
                       );
+                      to = from + text.length;
                     }
                   });
                 };

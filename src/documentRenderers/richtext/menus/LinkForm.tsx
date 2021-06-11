@@ -1,7 +1,15 @@
 import { Editor } from "@tiptap/react";
 import React, { useEffect, useState } from "react";
-import menuStyles from "../menus/InlineMenu.module.css";
-import hyperlinkMenuStyles from "../extensions/marks/Hyperlink.module.css";
+import styles from "../extensions/marks/Hyperlink.module.css";
+import {
+  Container,
+  ContainerWrapper,
+  IconWrapper,
+  UrlInputWrapper,
+} from "../extensions/marks/AtlaskitHyperlink/ToolbarComponent";
+import Tooltip from "@atlaskit/tooltip";
+import LinkIcon from "@atlaskit/icon/glyph/link";
+import PanelTextInput from "../extensions/marks/AtlaskitHyperlink/PanelTextInput";
 
 export type LinkFormProps = { editor: Editor };
 
@@ -41,8 +49,7 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
   const handleSubmit = (e: any) => {
     const absoluteUrl = "//" + url;
 
-    e.preventDefault();
-    if (url == "") {
+    if (url === "") {
       props.editor.chain().focus().unsetLink().run();
     } else {
       props.editor.chain().focus().setLink({ href: absoluteUrl }).run();
@@ -53,30 +60,27 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
   /**
    * Updates the url state
    */
-  const handleChange = (e: any) => {
-    setUrl(e.target.value);
+  const handleChange = (val: string) => {
+    setUrl(val);
   };
 
   return (
-    // TODO replace this placeholder wrapper by AtlasKit styling
-    // solely exist to be able to see the form
-    <div className={menuStyles.bubbleMenu}>
-      <form
-        onSubmit={handleSubmit}
-        className={hyperlinkMenuStyles.editingWrapper}>
-        <input
-          autoFocus
-          className={hyperlinkMenuStyles.input}
-          type="text"
-          placeholder="URL"
-          value={url}
-          onChange={handleChange}
-        />
-        <button className={hyperlinkMenuStyles.ok} type="submit" value="OK">
-          OK
-        </button>
-      </form>
-    </div>
+    <ContainerWrapper>
+      <Container provider={false}>
+        <UrlInputWrapper>
+          <IconWrapper>
+            <Tooltip content={"tooltip"}>
+              <LinkIcon label={"link icon"}></LinkIcon>
+            </Tooltip>
+          </IconWrapper>
+          <PanelTextInput
+            placeholder={"URL"}
+            defaultValue={url}
+            onChange={handleChange}
+            onSubmit={handleSubmit}></PanelTextInput>
+        </UrlInputWrapper>
+      </Container>
+    </ContainerWrapper>
   );
 };
 
