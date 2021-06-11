@@ -2,7 +2,7 @@ import { Editor as ReactEditor, ReactRenderer } from "@tiptap/react";
 import { Editor } from "@tiptap/core";
 import tippy from "tippy.js";
 import SuggestionItem from "./SuggestionItem";
-import { SuggestionList } from "./SuggestionList";
+import { SuggestionList, SuggestionListProps } from "./SuggestionList";
 import { SuggestionRenderer } from "./SuggestionPlugin";
 
 // If we do major work on this, consider exploring a cleaner approach: https://github.com/YousefED/typecell-next/issues/59
@@ -12,44 +12,60 @@ export default function createRenderer<T extends SuggestionItem>(
   let component: ReactRenderer;
   let popup: any;
   let componentsDisposedOrDisposing = true;
+  let selectedIndex = 0;
 
   return {
     onStart: (props) => {
       componentsDisposedOrDisposing = false;
+
+      const componentProps: SuggestionListProps<T> = {
+        groups: props.groups,
+        count: props.count,
+        selectItemCallback: props.selectItemCallback,
+        selectedIndex,
+        onClose: props.onClose,
+      };
+
       component = new ReactRenderer(SuggestionList as any, {
         editor: editor as ReactEditor,
-        props: {
-          groups: props.groups,
-          count: props.count,
-          selectItemCallback: props.selectItemCallback,
-          onClose: props.onClose,
-        },
+        props: componentProps,
       });
-
-      popup = tippy("body", {
-        getReferenceClientRect: props.clientRect,
-        appendTo: () => document.body,
-        content: component.element,
-        showOnCreate: true,
-        interactive: true,
-        trigger: "manual",
-        placement: "bottom-start",
-      });
+      props.decorationNode?.appendChild(component.element);
+      console.log("rect", props.clientRect!());
+      // popup = tippy("body", {
+      //   getReferenceClientRect: props.clientRect,
+      //   appendTo: () => document.body,
+      //   content: component.element,
+      //   showOnCreate: true,
+      //   interactive: true,
+      //   trigger: "manual",
+      //   placement: "bottom-start",
+      // });
     },
 
     onUpdate: (props) => {
-      component.updateProps(props);
+      console.log("rect", props.clientRect!());
+      const componentProps: SuggestionListProps<T> = {
+        groups: props.groups,
+        count: props.count,
+        selectItemCallback: props.selectItemCallback,
+        selectedIndex,
+        onClose: props.onClose,
+      };
+      component.updateProps(componentProps);
 
-      popup[0].setProps({
-        getReferenceClientRect: props.clientRect,
-      });
+      // popup[0].setProps({
+      //   getReferenceClientRect: props.clientRect,
+      // });
     },
 
     onKeyDown: (props) => {
-      if (!component.ref) {
-        return false;
+      if (
+        ["ArrowUp", "ArrowDown", "Enter", "Escape"].includes(props.event.key)
+      ) {
+        return true;
       }
-      return (component.ref as SuggestionList<T>).onKeyDown(props);
+      return false;
     },
 
     onExit: (props) => {
