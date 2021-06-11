@@ -1,5 +1,6 @@
 export type CommentType = {
   id: number;
+
   editable: boolean;
   comment: string;
   user: string;
@@ -13,7 +14,6 @@ export class CommentStorage {
     // Initializes unique comment ID in browser cache.
     localStorage.setItem("commentID", "0");
   }
-
   public isInitialized() {
     return !!(
       localStorage.getItem("comments") && localStorage.getItem("commentID")

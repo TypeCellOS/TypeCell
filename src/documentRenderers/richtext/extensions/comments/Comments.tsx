@@ -1,17 +1,14 @@
-import { Extension } from "@tiptap/react";
-import { Plugin, PluginKey, Selection, EditorState } from "prosemirror-state";
-import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
-import styles from "./Comments.module.css";
-import { type } from "os";
-import { Editor, getMarkRange, getMarkType, Mark } from "@tiptap/core";
 import ReactDOM from "react-dom";
+import { Extension } from "@tiptap/react";
+import { getMarkRange, getMarkType } from "@tiptap/core";
+import { Plugin, PluginKey, EditorState } from "prosemirror-state";
+import { EditorView } from "prosemirror-view";
 import { CommentStorage, CommentType } from "./CommentStorage";
-import { commentComponent } from "./CommentComponent";
+import { CommentComponent } from "./CommentComponent";
 import { editableCommentComponent } from "./EditableCommentComponent";
-import { sessionStore } from "../../../../store/local/stores";
+import styles from "./Comments.module.css";
 
 const commentStorage = new CommentStorage();
-const session = sessionStore;
 
 // This plugin adds styling to blocks whenever the selection spans more than one block to indicate they're selected.
 export const Comments = Extension.create({
@@ -89,7 +86,7 @@ export const Comments = Extension.create({
                 )[0]! as HTMLElement;
 
               // Removes all displayed comments from inside the wrapper.
-              ReactDOM.unmountComponentAtNode(commentWrapper);
+              // ReactDOM.unmountComponentAtNode(commentWrapper);
 
               // New list of comments to be displayed in the wrapper.
               const commentElements: Array<JSX.Element> = [];
@@ -115,26 +112,9 @@ export const Comments = Extension.create({
                       node.marks[i].attrs["id"] !== null
                     ) {
                       // Creates a React component for the comment and adds it to the list.
-                      const comment = comments.filter(
-                        (comment) => comment.id === node.marks[i].attrs["id"]
-                      )[0];
-                      if (comment.editable) {
-                        commentElements.push(
-                          editableCommentComponent(
-                            node.marks[i].attrs["id"],
-                            state,
-                            view
-                          )
-                        );
-                      } else {
-                        commentElements.push(
-                          commentComponent(
-                            node.marks[i].attrs["id"],
-                            state,
-                            view
-                          )
-                        );
-                      }
+                      commentElements.push(
+                        CommentComponent(node.marks[i].attrs["id"], state, view)
+                      );
                     }
                   }
                 });
