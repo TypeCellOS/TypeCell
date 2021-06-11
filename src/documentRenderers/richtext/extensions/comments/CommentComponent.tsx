@@ -197,10 +197,12 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
                 </CommentAction>,
                 <CommentAction onClick={cancelEdit}>Cancel</CommentAction>,
               ]
-            : [
+            : nav.currentPage.owner === commentData.user
+            ? [
                 <CommentAction onClick={toggleEditable}>Edit</CommentAction>,
                 <CommentAction onClick={removeComment}>Delete</CommentAction>,
               ]
+            : []
         }
       />
     </div>
