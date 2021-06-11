@@ -126,7 +126,9 @@ export class SuggestionList<T extends SuggestionItem> extends React.Component<
     }
 
     return (
-      <div className={styles.menuList}>
+      // The suggestionList class is important and should NOT be removed
+      // as it is used in SuggestionPlugin.ts
+      <div className={`${styles.menuList} suggestionList`}>
         <PopupMenuGroup maxWidth="250px" maxHeight="400px">
           {renderedGroups.length > 0 ? (
             renderedGroups

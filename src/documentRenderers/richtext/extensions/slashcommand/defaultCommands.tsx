@@ -1,4 +1,4 @@
-import { TextSelection } from "prosemirror-state";
+import { TextSelection, Selection } from "prosemirror-state";
 import { CommandGroup, SlashCommand } from "./SlashCommand";
 
 import H1Icon from "remixicon-react/H1Icon";
@@ -248,31 +248,52 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .replaceRangeCustom(range, node)
-        .command(({ tr, dispatch }) => {
+        .command(({ tr, dispatch, view }) => {
           if (dispatch) {
-            // the node immediately after the cursor
-            const nodeAfter = tr.selection.$to.nodeAfter;
+            // the position after the horizontal rule
+            const posAfterHorizontalRule = tr.doc.resolve(
+              tr.selection.$to.pos + 1
+            );
+            // the node after the horizontal rule
+            const nodeAfter = posAfterHorizontalRule.nodeAfter;
 
-            // the position of the cursor
-            const cursorPos = tr.selection.$to.pos;
+            const pos = posAfterHorizontalRule.pos;
+
+            console.log(pos, nodeAfter);
 
             // check if there is no node after the cursor (end of document)
             if (!nodeAfter) {
+              console.log("Creating new paragraph...");
               // create a new block of the default type (probably paragraph) after the cursor
               const { parent } = tr.selection.$to;
               const node = parent.type.contentMatch.defaultType?.create();
 
               if (node) {
-                tr.insert(cursorPos, node);
+                tr.insert(pos, node);
               }
             }
 
-            // try to put the cursor at the start of the node directly after the inserted horizontal rule
-            tr.doc.nodesBetween(cursorPos, cursorPos + 1, (node, pos) => {
-              if (node.type.name !== "horizontalRule") {
+            // Keeps track of whether the node has been placed yet
+            let placed = false;
+
+            // Go over all nodes in the range
+            // Refer to https://discuss.prosemirror.net/t/find-new-node-instances-and-track-them/96
+            // for a discussion on how to find the position of a newly placed node in the document
+            tr.doc.nodesBetween(pos, pos + 1, (n, pos) => {
+              // If cursor is already placed, exit the callback and stop recursing
+              if (placed) return false;
+
+              // Check if this node is the node is not a horizontal rule
+              if (n.type.name !== "horizontalRule") {
                 tr.setSelection(TextSelection.create(tr.doc, pos));
-                return true;
+                placed = true;
+
+                // Stop recursing
+                return false;
               }
+
+              // In case of no success; keep on recursing
+              return true;
             });
           }
 

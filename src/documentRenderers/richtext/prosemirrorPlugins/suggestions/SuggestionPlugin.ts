@@ -4,7 +4,7 @@ import { Plugin, PluginKey, Selection } from "prosemirror-state";
 import { EditorView, Decoration, DecorationSet } from "prosemirror-view";
 import SuggestionItem from "./SuggestionItem";
 import createRenderer from "./SuggestionListReactRenderer";
-import styles from "./SuggestionList.module.css";
+
 export interface SuggestionRenderer<T extends SuggestionItem> {
   onExit?: (props: SuggestionRendererProps<T>) => void;
   onUpdate?: (props: SuggestionRendererProps<T>) => void;
@@ -52,7 +52,7 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
 function isElementWithinSuggestionList(element: HTMLElement | null): boolean {
   if (!element) return false;
 
-  if (element.classList.contains(styles.suggestionList)) {
+  if (element.classList.contains("suggestionList")) {
     return true;
   }
 
