@@ -14,8 +14,7 @@ type Props = {
 
 /**
  * Load a Resource based on a URL (owner/document).
- * When a resource doesn't have a type, show create window
- * When a resource has a type, load the corresponding renderer
+ * When a resource is loaded and has a supported type, load the corresponding renderer
  */
 const DocumentView = observer((props: Props) => {
   const [connection, setConnection] = useState<DocConnection>();
