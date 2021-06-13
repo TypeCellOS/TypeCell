@@ -5,6 +5,7 @@ import { EditorView, Decoration, DecorationSet } from "prosemirror-view";
 import SuggestionItem from "./SuggestionItem";
 import createRenderer from "./SuggestionListReactRenderer";
 import { ReplaceStep } from "prosemirror-transform";
+import { Search } from "@atlaskit/atlassian-navigation";
 export interface SuggestionRenderer<T extends SuggestionItem> {
   onExit?: (props: SuggestionRendererProps<T>) => void;
   onUpdate?: (props: SuggestionRendererProps<T>) => void;
@@ -44,7 +45,7 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
     editor: Editor;
     range: Range;
   }) => void;
-  items?: (filter: string) => T[];
+  items: (filter: string) => Promise<T[]>;
   renderer?: SuggestionRenderer<T>;
   allow?: (props: { editor: Editor; range: Range }) => boolean;
 };
@@ -99,8 +100,8 @@ export function SuggestionPlugin<T extends SuggestionItem>({
   pluginName,
   editor,
   char,
+  items,
   selectItemCallback = () => {},
-  items = () => [],
   renderer = undefined,
 }: SuggestionPluginOptions<T>) {
   // Use react renderer by default
@@ -122,7 +123,10 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           // See how the state changed
           const started = !prev.active && next.active;
           const stopped = prev.active && !next.active;
-          const changed = !started && !stopped && prev.query !== next.query;
+          const changed =
+            !started &&
+            !stopped &&
+            (prev.query !== next.query || prev.items !== next.items);
 
           // Cancel when suggestion isn't active
           if (!started && !changed && !stopped) {
@@ -150,7 +154,7 @@ export function SuggestionPlugin<T extends SuggestionItem>({
             range: state.range,
             query: state.query,
             groups: changed || started ? groups : {},
-            count: state.items.length,
+            count: state.items?.length || 0,
             selectItemCallback: (item: T) => {
               deactivate();
               selectItemCallback({
@@ -182,6 +186,24 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           if (started) {
             renderer?.onStart?.(rendererProps);
           }
+
+          if (prev.query !== next.query || !state.items) {
+            // this must be part of view() because it's async
+            const newResults = await items(state.query);
+            if (!newResults.length && next.range.to > prev.range.to) {
+              // Text has been entered (selection moved to right), but still no items found, update Count
+
+              view.dispatch(
+                view.state.tr.setMeta(PLUGIN_KEY, { noResults: true })
+              );
+            } else {
+              // Results have been found, or no text was entered in this tr, keep not found count
+              // (e.g.: user hits backspace after no results)
+              view.dispatch(
+                view.state.tr.setMeta(PLUGIN_KEY, { results: newResults })
+              );
+            }
+          }
         },
       };
     },
@@ -194,7 +216,7 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           range: {},
           query: null,
           notFoundCount: 0,
-          items: [],
+          items: undefined,
         };
       },
 
@@ -216,6 +238,17 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           // Reset active state if we just left the previous suggestion range (e.g.: key arrows moving before /)
           if (prev.active && selection.from <= prev.range.from) {
             next.active = false;
+          } else if (transaction.getMeta(PLUGIN_KEY)?.noResults) {
+            // TODO: make sure results are from active query
+            next.notFoundCount = prev.notFoundCount + 1;
+            next.items = [];
+          } else if (transaction.getMeta(PLUGIN_KEY)?.results) {
+            // TODO: make sure results are from active query
+            const results = transaction.getMeta(PLUGIN_KEY)?.results;
+            if (results.length) {
+              next.notFoundCount = 0;
+            }
+            next.items = results;
           } else if (transaction.getMeta(PLUGIN_KEY)?.activate) {
             // Start showing suggestions. activate has been set after typing a "/" (or whatever the specified character is), so let's create the decoration and initialize
             const newDecorationId = `id_${Math.floor(
@@ -245,22 +278,6 @@ export function SuggestionPlugin<T extends SuggestionItem>({
         }
 
         if (next.active) {
-          next.items = items(next.query);
-          if (next.items.length) {
-            next.notFoundCount = 0;
-          } else {
-            // Update the "notFoundCount",
-            // which indicates how many characters have been typed after showing no results
-            if (next.range.to > prev.range.to) {
-              // Text has been entered (selection moved to right), but still no items found, update Count
-              next.notFoundCount = prev.notFoundCount + 1;
-            } else {
-              // No text has been entered in this tr, keep not found count
-              // (e.g.: user hits backspace after no results)
-              next.notFoundCount = prev.notFoundCount;
-            }
-          }
-
           if (next.notFoundCount > 3) {
             next.active = false;
           }
@@ -272,7 +289,7 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           next.range = {};
           next.query = null;
           next.notFoundCount = 0;
-          next.items = [];
+          next.items = undefined;
         }
 
         return next;

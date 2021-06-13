@@ -1,9 +1,10 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { SuggestionPlugin } from "../../prosemirrorPlugins/suggestions/SuggestionPlugin";
 import { Mention } from "./Mention";
+import * as _ from "lodash";
 
 export type MentionsOptions = {
-  providers: { [key: string]: (query: string) => Mention[] };
+  providers: Array<(query: string) => Promise<Mention[]>>;
 };
 
 /**
@@ -21,7 +22,7 @@ export const MentionsExtension = Node.create<MentionsOptions>({
   name: "mention",
 
   defaultOptions: {
-    providers: {},
+    providers: [],
   },
 
   group: "inline",
@@ -80,15 +81,11 @@ export const MentionsExtension = Node.create<MentionsOptions>({
         pluginName: "mentions",
         editor: this.editor,
         char: "@",
-        items: (query) => {
-          const mentions: Mention[] = [];
-
-          for (const key in this.options.providers) {
-            const provider = this.options.providers[key];
-            mentions.push(...provider(query));
-          }
-
-          return mentions;
+        items: async (query) => {
+          const results = await Promise.all(
+            this.options.providers.map((p) => p(query))
+          );
+          return results.flatMap((r) => r);
         },
         selectItemCallback: ({ item, editor, range }) => {
           editor

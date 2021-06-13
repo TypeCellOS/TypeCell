@@ -78,7 +78,7 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
         pluginName: "slash-commands",
         editor: this.editor,
         char: "/",
-        items: (query) => {
+        items: async (query) => {
           const commands = [];
 
           for (const key in this.options.commands) {

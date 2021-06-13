@@ -39,16 +39,7 @@ import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import multipleLineMarkdownRuleBuilder from "./extensions/markdownPasteRules/multiple/markdownMultipleLines";
-
-// This is a temporary array to show off mentions
-const PEOPLE = [
-  new Mention("Pepijn Vunderink", MentionType.PEOPLE),
-  new Mention("Yousef El-Dardiri", MentionType.PEOPLE),
-  new Mention("Chong Zhao", MentionType.PEOPLE),
-  new Mention("Matthew Lipski", MentionType.PEOPLE),
-  new Mention("Emre Agca", MentionType.PEOPLE),
-  new Mention("Nikolay Zhlebinkov", MentionType.PEOPLE),
-];
+import { MatrixClientPeg } from "../../matrix-auth/MatrixClientPeg";
 
 type Props = {
   document: DocumentResource;
@@ -129,11 +120,29 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         commands: {},
       }),
       MentionsExtension.configure({
-        providers: {
-          people: (query) => {
-            return PEOPLE.filter((mention) => mention.match(query));
+        providers: [
+          async (query) => {
+            const peg = MatrixClientPeg.get();
+            if (!peg) {
+              return [];
+            }
+            const ret = await peg.searchUserDirectory({
+              term: query || "mx", // mx is a trick to return all users on mx.typecell.org
+              limit: 10,
+            });
+            if (ret.results.length) {
+              const results: Mention[] = ret.results.map(
+                (r: any) => new Mention(r.display_name, MentionType.PEOPLE)
+              );
+              if (!query) {
+                // if searching all users, sort ourselves
+                return results.sort((a, b) => a.name.localeCompare(b.name));
+              }
+              return results;
+            }
+            return [];
           },
-        },
+        ],
       }),
       TrailingNode,
       // TypeCellNode,
