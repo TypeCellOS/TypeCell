@@ -1,28 +1,23 @@
 import Tippy from "@tippyjs/react";
-import {
-  NodeViewContent,
-  NodeViewRendererProps,
-  NodeViewWrapper,
-} from "@tiptap/react";
+import { NodeViewRendererProps, NodeViewWrapper } from "@tiptap/react";
 import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
-import { Node, DOMOutputSpec } from "prosemirror-model";
+import { DOMOutputSpec, Node } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
 import React, {
   ElementType,
   MouseEvent,
   PropsWithChildren,
-  RefObject,
   useRef,
   useState,
 } from "react";
-import { useDrag, useDrop, XYCoord } from "react-dnd";
-import TypeCellComponent from "../typecellnode/TypeCellComponent";
+import { useDrag, useDrop } from "react-dnd";
 import SideMenu from "../../menus/SideMenu";
 import mergeAttributesReact from "../../util/mergeAttributesReact";
+import TypeCellComponent from "../typecellnode/TypeCellComponent";
 import styles from "./Block.module.css";
-import { CustomNodeViewWrapper } from "./CustomNodeViewWrapper";
 import { CustomNodeViewContent } from "./CustomNodeViewContent";
+import { CustomNodeViewWrapper } from "./CustomNodeViewWrapper";
 /**
  * A global store that keeps track of which block is being hovered over
  */
@@ -359,10 +354,11 @@ function renderContentBasedOnDOMType(
             })}
         </select>
 
-        <NodeViewContent
+        <CustomNodeViewContent
           as={"code"}
           {...domAttrs}
           className={styles.codeBlockCodeContent}
+          ref={(props as any).contentWrapperRef}
         />
       </pre>
     );
