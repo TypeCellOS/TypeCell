@@ -103,9 +103,12 @@ function SuggestionComponent<T extends SuggestionItem>(
         isSelected={isButtonSelected} // This is needed to navigate with the keyboard
         iconBefore={getIcon(props.item, isButtonSelected)}
         onClick={(e) => {
-          props.clickItem(props.item);
-          e.stopPropagation();
-          e.preventDefault();
+          setTimeout(() => {
+            props.clickItem(props.item);
+          }, 0);
+
+          // e.stopPropagation();
+          // e.preventDefault();
         }}
         ref={buttonRef}>
         <SuggestionContent item={props.item} />
