@@ -1,16 +1,24 @@
-import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
-import React from "react";
+import { NodeViewWrapper } from "@tiptap/react";
+import { useContext } from "react";
+import NotebookCell from "../../../notebook/NotebookCell";
+import { EngineContext } from "./EngineContext";
 
 export default function TypeCellComponent(props: any) {
+  let id = props.node.attrs["block-id"];
+
+  const ctx = useContext(EngineContext);
+
+  const cell = ctx.document!.cells.find((c) => c.id === id)!;
+
+  if (!cell) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <NodeViewWrapper as="div" className="react-component">
-      <div>
-        {/* <div {...attributes} className={classNames.root}> */}
-        <div style={{ background: "gray" }}>
-          <div>hello</div>
-          <NodeViewContent as="div" />
-        </div>
-      </div>
-    </NodeViewWrapper>
+    <NotebookCell
+      cell={cell}
+      engine={ctx.engine!}
+      awareness={ctx.document?.webrtcProvider.awareness!}
+    />
   );
 }

@@ -49,6 +49,9 @@
   bottom: 0;
   width: 100vw;
   z-index: 1;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 
 .codeBlockLanguageSelector {
