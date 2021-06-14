@@ -33,35 +33,34 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
 
             // unfortunately, we need a forceUpdate, to make sure the React lifecycle has been flushed and NodeViews have been rendered completely
             const blockId = node.attrs["block-id"];
-            (this.editor as any).contentComponent.forceUpdate(() => {
-              // Keeps track of whether the node has been placed yet
-              let placed = false;
-              // Go over all nodes in the range
-              // Refer to https://discuss.prosemirror.net/t/find-new-node-instances-and-track-them/96
-              // for a discussion on how to find the position of a newly placed node in the document
-              this.editor.state.doc.descendants((n, pos) => {
-                // If cursor is already placed, exit the callback and stop recursing
-                if (placed) return false;
+            // (this.editor as any).contentComponent.forceUpdate(() => {
+            // Keeps track of whether the node has been placed yet
+            let placed = false;
+            // Go over all nodes in the range
+            // Refer to https://discuss.prosemirror.net/t/find-new-node-instances-and-track-them/96
+            // for a discussion on how to find the position of a newly placed node in the document
+            tr.doc.descendants((n, pos) => {
+              // If cursor is already placed, exit the callback and stop recursing
+              if (placed) return false;
 
-                // Check if this node is the node we just created, by comparing their block-id
-                if (n.attrs["block-id"] === blockId) {
-                  this.editor.view.focus();
-                  this.editor.view.dispatch(
-                    this.editor.state.tr.setSelection(
-                      Selection.near(this.editor.state.doc.resolve(pos))
-                    )
-                  );
-                  this.editor.view.focus();
+              // Check if this node is the node we just created, by comparing their block-id
+              if (n.attrs["block-id"] === blockId) {
+                // this.editor.view.focus();
+                // this.editor.view.dispatch(
+                tr.setSelection(Selection.near(tr.doc.resolve(pos)));
+                // );
+                // this.editor.view.focus();
 
-                  placed = true;
-                  // Stop recursing
-                  return false;
-                }
-              });
-              if (!placed) {
-                console.error("couldn't find node after /command insertion");
+                placed = true;
+                // Stop recursing
+                return false;
               }
             });
+
+            if (!placed) {
+              console.error("couldn't find node after /command insertion");
+            }
+            // });
           }
 
           return true;

@@ -29,8 +29,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -54,8 +54,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -79,8 +79,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -104,8 +104,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -129,8 +129,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -154,8 +154,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -176,8 +176,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -196,8 +196,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -217,8 +217,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -248,8 +248,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -279,8 +279,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -305,8 +305,8 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -331,6 +331,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       // and put the cursor in the block after the horizontal rule.
       editor
         .chain()
+        .focus()
         .replaceRangeCustom(range, node)
         .command(({ tr, dispatch }) => {
           if (dispatch) {
@@ -361,7 +362,6 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
           return true;
         })
-        .focus()
         .scrollIntoView()
         .run();
       return true;
