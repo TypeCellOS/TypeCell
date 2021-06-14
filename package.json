@@ -13,6 +13,7 @@
     "@atlaskit/inline-message": "^11.0.8",
     "@atlaskit/menu": "^1.0.0",
     "@atlaskit/modal-dialog": "^11.5.0",
+    "@atlaskit/page-header": "^10.0.10",
     "@atlaskit/page-layout": "^1.0.1",
     "@atlaskit/section-message": "^6.0.0",
     "@atlaskit/select": "^14.0.0",

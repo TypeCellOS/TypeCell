@@ -417,7 +417,6 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             type="text"
             label={"Username"}
             placeholder={"Username".toLocaleLowerCase()}
-            value={this.props.username}
             //onChange={this.onUsernameChanged}
             //onFocus={this.onUsernameFocus}
             //onBlur={this.onUsernameBlur}

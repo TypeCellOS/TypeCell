@@ -30,6 +30,7 @@ import { PageLayout, Main, Content, Banner } from "@atlaskit/page-layout";
 import { ErrorMessage, HelperMessage } from "@atlaskit/form";
 import Button from "@atlaskit/button";
 import Spinner from "@atlaskit/spinner";
+import PageHeader from "@atlaskit/page-header";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -690,12 +691,13 @@ export default class LoginComponent extends React.PureComponent<
     return (
       // TODO: change background color with style={{ BackgroundColor: N10 }}
       <PageLayout>
-        <Banner isFixed={true} height={100}>
+        <Banner height={100}>
           <AuthHeader />
         </Banner>
         <Content>
-          <Main isFixed={true} width={650}>
+          <Main width={650}>
             <AuthBodyContextWrapper>
+              {/* <PageHeader disableTitleStyles>Sign in</PageHeader> */}
               {/* {loader} */}
               {this.renderLoginComponentForFlows()}
               <ExtraContextWrapper>

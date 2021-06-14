@@ -29,8 +29,9 @@ import AutoDiscoveryUtils, {
 import { messageForResourceLimitError } from "./util/messages";
 import AuthBodyContextWrapper from "./views/AuthBodyContextWrapper";
 import AuthHeader from "./views/AuthHeader";
-import AuthPage from "./views/AuthPage";
 import RegistrationForm from "./views/RegistrationForm";
+import { PageLayout, Main, Content, Banner } from "@atlaskit/page-layout";
+import PageHeader from "@atlaskit/page-header";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -653,7 +654,7 @@ export default class Registration extends React.Component<IProps, IState> {
     } else {
       body = (
         <div>
-          <h2>Create account</h2>
+          {/* <PageHeader>Create account</PageHeader> */}
           {errorText}
           {serverDeadSection}
           {/* <ServerPicker
@@ -674,10 +675,16 @@ export default class Registration extends React.Component<IProps, IState> {
     }
 
     return (
-      <AuthPage>
-        <AuthHeader />
-        <AuthBodyContextWrapper>{body}</AuthBodyContextWrapper>
-      </AuthPage>
+      <PageLayout>
+        <Banner height={100}>
+          <AuthHeader />
+        </Banner>
+        <Content>
+          <Main width={650}>
+            <AuthBodyContextWrapper>{body}</AuthBodyContextWrapper>
+          </Main>
+        </Content>
+      </PageLayout>
     );
   }
 }

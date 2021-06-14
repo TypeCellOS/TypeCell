@@ -87,23 +87,17 @@ export interface IInputProps
     InputHTMLAttributes<HTMLInputElement> {
   // The element to create. Defaults to "input".
   element?: "input";
-  // The input's value. This is a controlled component, so the value is required.
-  value: string;
 }
 
 interface ISelectProps extends IProps, SelectHTMLAttributes<HTMLSelectElement> {
   // To define options for a select, use <Field><option ... /></Field>
   element: "select";
-  // The select's value. This is a controlled component, so the value is required.
-  value: string;
 }
 
 interface ITextareaProps
   extends IProps,
     TextareaHTMLAttributes<HTMLTextAreaElement> {
   element: "textarea";
-  // The textarea's value. This is a controlled component, so the value is required.
-  value: string;
 }
 
 type PropShapes = IInputProps | ISelectProps | ITextareaProps;

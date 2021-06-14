@@ -27,6 +27,7 @@ import Field from "../elements/Field";
 import { ValidatedServerConfig } from "../util/AutoDiscoveryUtils";
 import { looksValidEmail } from "../util/email";
 import { phoneNumberLooksValid } from "../util/phonenumber";
+import Form from "@atlaskit/form";
 
 enum RegistrationField {
   Email = "field_email",
@@ -437,6 +438,7 @@ export default class RegistrationForm extends React.PureComponent<
 
   private renderEmail() {
     if (!this.showEmail()) {
+      console.log("failed");
       return null;
     }
     const emailPlaceholder = this.authStepIsRequired("m.login.email.identity")
@@ -517,16 +519,18 @@ export default class RegistrationForm extends React.PureComponent<
   renderUsername() {
     return (
       <Field
-        id="mx_RegistrationForm_username"
-        ref={(field) => (this[RegistrationField.Username] = field)}
+        name="username"
+        key="username_input"
         type="text"
-        autoFocus={true}
         label={"Username"}
         placeholder={"Username".toLocaleLowerCase()}
-        value={this.state.username}
-        onChange={this.onUsernameChange}
+        isRequired={true}
+        //value={this.state.username}
+        //onChange={this.onUsernameChange}
         // temp disabled
         //onValidate={this.onUsernameValidate}
+        autoFocus={true}
+        ref={(field) => (this[RegistrationField.Username] = field)}
       />
     );
   }
@@ -541,7 +545,7 @@ export default class RegistrationForm extends React.PureComponent<
       />
     );
 
-    let emailHelperText = null;
+    let emailHelperText: JSX.Element = <></>;
     if (this.showEmail()) {
       if (this.showPhoneNumber()) {
         emailHelperText = (
@@ -561,21 +565,19 @@ export default class RegistrationForm extends React.PureComponent<
     }
 
     return (
-      <div>
-        <form onSubmit={this.onSubmit}>
-          <div className="mx_AuthBody_fieldRow">{this.renderUsername()}</div>
-          <div className="mx_AuthBody_fieldRow">
+      <Form onSubmit={this.onSubmit}>
+        {({ formProps }) => (
+          <form {...formProps}>
+            {this.renderUsername()}
             {this.renderPassword()}
             {this.renderPasswordConfirm()}
-          </div>
-          <div className="mx_AuthBody_fieldRow">
             {this.renderEmail()}
             {/* {this.renderPhoneNumber()} */}
-          </div>
-          {emailHelperText}
-          {registerButton}
-        </form>
-      </div>
+            {emailHelperText}
+            {registerButton}
+          </form>
+        )}
+      </Form>
     );
   }
 }
