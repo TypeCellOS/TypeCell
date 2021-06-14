@@ -123,7 +123,7 @@ export function SuggestionGroup<T extends SuggestionItem>(
         return (
           <SuggestionComponent
             item={item}
-            key={index}
+            key={index} // TODO: using index as key is not ideal for performance, better have ids on suggestionItems
             index={index}
             selectedIndex={props.selectedIndex}
             clickItem={props.clickItem}
