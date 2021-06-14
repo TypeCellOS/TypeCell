@@ -1,0 +1,67 @@
+diff --git a/node_modules/@tiptap/react/dist/tiptap-react.esm.js b/node_modules/@tiptap/react/dist/tiptap-react.esm.js
+index 490c24b..0c13eaa 100644
+--- a/node_modules/@tiptap/react/dist/tiptap-react.esm.js
++++ b/node_modules/@tiptap/react/dist/tiptap-react.esm.js
+@@ -129,6 +129,18 @@ class ReactNodeView extends NodeView {
+             getPos: () => this.getPos(),
+             updateAttributes: (attributes = {}) => this.updateAttributes(attributes),
+             deleteNode: () => this.deleteNode(),
++            contentWrapperRef: (element) => {
++                // this.contentDOMElement = element
++                // const { state } = this.editor.view
++                // const pos = this.getPos()
++                // const transaction = state.tr.setMeta("rerender", {})
++        
++                // this.editor.view.dispatch(transaction)
++                debugger;
++                if (element && element.firstChild !== this.contentDOMElement) {
++                    element.appendChild(this.contentDOMElement);
++                }
++              }
+         };
+         if (!this.component.displayName) {
+             const capitalizeFirstChar = (string) => {
+@@ -152,6 +164,7 @@ class ReactNodeView extends NodeView {
+             // See: https://github.com/ueberdosis/tiptap/issues/1197
+             this.contentDOMElement.style.whiteSpace = 'inherit';
+         }
++        
+         this.renderer = new ReactRenderer(ReactNodeViewProvider, {
+             editor: this.editor,
+             props,
+@@ -172,17 +185,17 @@ class ReactNodeView extends NodeView {
+         if (this.node.isLeaf) {
+             return null;
+         }
+-        this.maybeMoveContentDOM();
++        // this.maybeMoveContentDOM();
+         return this.contentDOMElement;
+     }
+-    maybeMoveContentDOM() {
+-        const contentElement = this.dom.querySelector('[data-node-view-content]');
+-        if (this.contentDOMElement
+-            && contentElement
+-            && !contentElement.contains(this.contentDOMElement)) {
+-            contentElement.appendChild(this.contentDOMElement);
+-        }
+-    }
++    // maybeMoveContentDOM() {
++    //     const contentElement = this.dom.querySelector('[data-node-view-content]');
++    //     if (this.contentDOMElement
++    //         && contentElement
++    //         && !contentElement.contains(this.contentDOMElement)) {
++    //         contentElement.appendChild(this.contentDOMElement);
++    //     }
++    // }
+     update(node, decorations) {
+         if (typeof this.options.update === 'function') {
+             return this.options.update(node, decorations);
+@@ -196,7 +209,7 @@ class ReactNodeView extends NodeView {
+         this.node = node;
+         this.decorations = decorations;
+         this.renderer.updateProps({ node, decorations });
+-        this.maybeMoveContentDOM();
++        // this.maybeMoveContentDOM();
+         return true;
+     }
+     selectNode() {

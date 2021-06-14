@@ -22,6 +22,7 @@ import SideMenu from "../../menus/SideMenu";
 import mergeAttributesReact from "../../util/mergeAttributesReact";
 import styles from "./Block.module.css";
 import { CustomNodeViewWrapper } from "./CustomNodeViewWrapper";
+import { CustomNodeViewContent } from "./CustomNodeViewContent";
 /**
  * A global store that keeps track of which block is being hovered over
  */
@@ -189,7 +190,11 @@ function Block(
     if (!props.node.attrs["block-id"]) {
       return (
         <NodeViewWrapper>
-          <NodeViewContent as={domType} {...domAttrs} />
+          <CustomNodeViewContent
+            as={domType}
+            {...domAttrs}
+            ref={(props as any).contentWrapperRef}
+          />
         </NodeViewWrapper>
       );
     }
@@ -365,9 +370,10 @@ function renderContentBasedOnDOMType(
     return <TypeCellComponent node={props.node}></TypeCellComponent>;
   } else {
     return (
-      <NodeViewContent
+      <CustomNodeViewContent
         as={domType}
         {...mergeAttributesReact(placeholderAttrs, domAttrs)}
+        ref={(props as any).contentWrapperRef}
       />
     );
   }
