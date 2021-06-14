@@ -21,6 +21,7 @@ import TypeCellComponent from "../typecellnode/TypeCellComponent";
 import SideMenu from "../../menus/SideMenu";
 import mergeAttributesReact from "../../util/mergeAttributesReact";
 import styles from "./Block.module.css";
+import { CustomNodeViewWrapper } from "./CustomNodeViewWrapper";
 /**
  * A global store that keeps track of which block is being hovered over
  */
@@ -274,42 +275,46 @@ function Block(
       : {};
 
     return (
-      <NodeViewWrapper className={`${styles.block}`}>
-        <div ref={outerRef}>
-          <div className={styles.inner + " inner"} ref={innerRef}>
-            <div className={styles.handleContainer} ref={dragRef}>
-              <Tippy
-                content={<SideMenu onDelete={onDelete}></SideMenu>}
-                trigger={"click"}
-                placement={"left"}
-                interactive={true}>
-                <div
-                  contentEditable={false} // This is needed because otherwise pressing key up when positioned just after draghandle doesn't work
-                  className={styles.handle + (hover ? " " + styles.hover : "")}
-                />
-              </Tippy>
-            </div>
-            {renderContentBasedOnDOMType(
-              domType,
-              domAttrs,
-              placeholderAttrs,
-              props
-            )}
-          </div>
+      <CustomNodeViewWrapper className={`${styles.block}`} ref={outerRef}>
+        <div className={styles.inner + " inner"} ref={innerRef}>
           <div
-            className={`${styles.mouseCapture} ${
-              hover && canDrop
-                ? " " +
-                  (globalState.aboveCenterLine
-                    ? styles.topIndicator
-                    : styles.bottomIndicator)
-                : ""
-            }`}
-            onMouseOver={onMouseOver}
-            ref={mouseCaptureRef}
-            contentEditable={false}></div>
+            className={styles.handleContainer}
+            ref={dragRef}
+            // This is needed because otherwise pressing key up when positioned just after draghandle doesn't work
+            contentEditable={false}>
+            <Tippy
+              content={<SideMenu onDelete={onDelete}></SideMenu>}
+              trigger={"click"}
+              placement={"left"}
+              interactive={true}>
+              <div
+                className={
+                  styles.handle + (hover ? " " + styles.hover : "")
+                }></div>
+            </Tippy>
+          </div>
+          {renderContentBasedOnDOMType(
+            domType,
+            domAttrs,
+            placeholderAttrs,
+            props
+          )}
         </div>
-      </NodeViewWrapper>
+        <div
+          className={`${styles.mouseCapture} ${
+            hover && canDrop
+              ? " " +
+                (globalState.aboveCenterLine
+                  ? styles.topIndicator
+                  : styles.bottomIndicator)
+              : ""
+          }`}
+          onMouseOver={onMouseOver}
+          ref={mouseCaptureRef}
+          contentEditable={false}>
+          {/* space content is needed because otherwise keyboard navigation doesn't work well */}{" "}
+        </div>
+      </CustomNodeViewWrapper>
     );
   });
 }
@@ -357,19 +362,13 @@ function renderContentBasedOnDOMType(
       </pre>
     );
   } else if (props.node.type.name === "typecell") {
-    return (
-      <div>
-        <TypeCellComponent node={props.node}></TypeCellComponent>
-      </div>
-    );
+    return <TypeCellComponent node={props.node}></TypeCellComponent>;
   } else {
     return (
-      <div>
-        <NodeViewContent
-          as={domType}
-          {...mergeAttributesReact(placeholderAttrs, domAttrs)}
-        />
-      </div>
+      <NodeViewContent
+        as={domType}
+        {...mergeAttributesReact(placeholderAttrs, domAttrs)}
+      />
     );
   }
 }
