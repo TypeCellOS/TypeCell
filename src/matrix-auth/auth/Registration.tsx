@@ -27,7 +27,7 @@ import AutoDiscoveryUtils, {
   ValidatedServerConfig,
 } from "./util/AutoDiscoveryUtils";
 import { messageForResourceLimitError } from "./util/messages";
-import AuthBody from "./views/AuthBody";
+import AuthBodyContextWrapper from "./views/AuthBodyContextWrapper";
 import AuthHeader from "./views/AuthHeader";
 import AuthPage from "./views/AuthPage";
 import RegistrationForm from "./views/RegistrationForm";
@@ -676,7 +676,7 @@ export default class Registration extends React.Component<IProps, IState> {
     return (
       <AuthPage>
         <AuthHeader />
-        <AuthBody>{body}</AuthBody>
+        <AuthBodyContextWrapper>{body}</AuthBodyContextWrapper>
       </AuthPage>
     );
   }

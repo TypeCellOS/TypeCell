@@ -17,14 +17,22 @@ limitations under the License.
 */
 
 import React from "react";
+import { HelperMessage } from "@atlaskit/form";
 
-export const AuthFooter = () => {
-  return (
-    <div className="mx_AuthFooter">
-      <a href="https://matrix.org" target="_blank" rel="noreferrer noopener">
-        "powered by Matrix"
-      </a>
-    </div>
-  );
-};
-export default AuthFooter;
+export default class AuthFooter extends React.Component {
+  render() {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          transform: "translateX(-50%)",
+        }}>
+        <HelperMessage>Powered by Matrix</HelperMessage>
+      </div>
+      // <a href="https://matrix.org" target="_blank" rel="noreferrer noopener">
+      //   "powered by Matrix"
+      // </a>
+    );
+  }
+}

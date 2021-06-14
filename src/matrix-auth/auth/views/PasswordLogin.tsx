@@ -20,7 +20,7 @@ limitations under the License.
 // instead.
 
 import classNames from "classnames";
-import React, { FormEvent } from "react";
+import React from "react";
 import AccessibleButton, { ButtonEvent } from "../elements/AccessibleButton";
 import Field from "../elements/Field";
 import withValidation, { IFieldState } from "../elements/Validation";
@@ -28,14 +28,7 @@ import { ValidatedServerConfig } from "../util/AutoDiscoveryUtils";
 import { looksValidEmail } from "../util/email";
 import { Country } from "../util/phonenumber";
 
-import Form, {
-  CheckboxField,
-  ErrorMessage,
-  FormFooter,
-  HelperMessage,
-  ValidMessage,
-} from "@atlaskit/form";
-import TextField from "@atlaskit/textfield";
+import Form from "@atlaskit/form";
 import Button from "@atlaskit/button";
 // For validating phone numbers without country codes
 const PHONE_NUMBER_REGEX = /^[0-9()\-\s]*$/;
@@ -77,11 +70,11 @@ enum LoginField {
   Password = "login_field_phone",
 }
 
-export type formInputs = {
-  username: string;
+type formInputs = {
+  username: string | undefined;
   email: string | undefined;
   phoneNumber: string | undefined;
-  password: string;
+  password: string | undefined;
 };
 
 /*
@@ -128,47 +121,40 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
       password: data.password ? undefined : "Enter a password",
     };
 
+    // TODO: remove placeholder
+    let username: string | undefined = "";
+    let phoneCountry: string | undefined;
+    let phoneNumber: string | undefined;
+
     switch (login) {
       case LoginField.MatrixId:
+        username = data.username;
         if (error.username !== undefined || error.password !== undefined) {
+          console.log("empty uname found");
           return error;
         }
-        console.log("empty uname found");
         break;
       case LoginField.Email:
+        username = data.email;
         if (error.email !== undefined || error.password !== undefined) {
           return error;
         }
         break;
       default:
-        console.log("empty password found");
         if (error.password !== undefined) {
+          console.log("empty password found");
           return error;
         }
         break;
     }
 
     console.log("checkpoint to send to onSubmit");
-    // let error = {};
-
-    // if(data.username) {
-    //   error.
-    // }
-
-    //(login === LoginField.MatrixId && !data.username) ? error.push(username: "Enter a username");
-
-    // const username = data.username ? data.username : "";
-    // const password = data.password ? data.password : "";
-
-    // TODO: remove placeholder
-    let phoneCountry: string | undefined;
-    let phoneNumber: string | undefined;
 
     this.props.onSubmit?.(
-      data.username,
+      data.username!,
       phoneCountry,
       phoneNumber,
-      data.password
+      data.password!
     );
   };
 
@@ -573,35 +559,5 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
         )}
       </Form>
     );
-
-    // return (
-    //   <div>
-    //     <form onSubmit={this.onSubmitForm}>
-    //       {loginType}
-    //       {loginField}
-    //       <Field
-    //         className={pwFieldClass}
-    //         type="password"
-    //         name="password"
-    //         label={"Password"}
-    //         value={this.state.password}
-    //         onChange={this.onPasswordChanged}
-    //         disabled={this.props.disableSubmit}
-    //         autoFocus={autoFocusPassword}
-    //         onValidate={this.onPasswordValidate}
-    //         ref={(field) => (this[LoginField.Password] = field)}
-    //       />
-    //       {forgotPasswordJsx}
-    //       {!this.props.busy && (
-    //         <input
-    //           className="mx_Login_submit"
-    //           type="submit"
-    //           value={"Sign in"}
-    //           disabled={this.props.disableSubmit}
-    //         />
-    //       )}
-    //     </form>
-    //   </div>
-    // );
   }
 }

@@ -15,34 +15,21 @@ limitations under the License.
 */
 
 import classNames from "classnames";
-import React, { ReactNode } from "react";
+import React, { Fragment, ReactNode } from "react";
 import LoginHelper, { LoginFlow } from "./LoginHelper";
 import AutoDiscoveryUtils, {
   ValidatedServerConfig,
 } from "./util/AutoDiscoveryUtils";
 import { IMatrixClientCreds } from "./util/matrix";
 import { messageForResourceLimitError } from "./util/messages";
-import AuthBody from "./views/AuthBody";
+import AuthBodyContextWrapper from "./views/AuthBodyContextWrapper";
 import AuthHeader from "./views/AuthHeader";
-import { AuthPage } from "./views/AuthPage";
-import PasswordLogin, { formInputs } from "./views/PasswordLogin";
+import AuthFooter from "./views/AuthFooter";
+import PasswordLogin from "./views/PasswordLogin";
 import { PageLayout, Main, Content, Banner } from "@atlaskit/page-layout";
-import { ButtonItem, HeadingItem, MenuGroup, Section } from "@atlaskit/menu";
-import { N40, N800, N10, R400 } from "@atlaskit/theme/colors";
-import { CgEnter } from "react-icons/cg";
-import Form, {
-  CheckboxField,
-  ErrorMessage,
-  Field,
-  FormFooter,
-  HelperMessage,
-  ValidMessage,
-} from "@atlaskit/form";
-import TextField from "@atlaskit/textfield";
+import { ErrorMessage, HelperMessage } from "@atlaskit/form";
 import Button from "@atlaskit/button";
-import Flag from "@atlaskit/flag";
-// open source?
-import ErrorIcon from "@atlaskit/icon/glyph/error";
+import Spinner from "@atlaskit/spinner";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -586,7 +573,7 @@ export default class LoginComponent extends React.PureComponent<
     const loader =
       this.isBusy() && !this.state.busyLoggingIn ? (
         <div className="mx_Login_loader">
-          {/* <Spinner /> */}
+          <Spinner />
           Loading
         </div>
       ) : null;
@@ -621,24 +608,17 @@ export default class LoginComponent extends React.PureComponent<
       );
     }
 
-    let footer;
+    let register;
     if (this.props.isSyncing || this.state.busyLoggingIn) {
-      footer = (
-        <div className="mx_AuthBody_paddedFooter">
-          <div className="mx_AuthBody_paddedFooter_title">
-            {/* <InlineSpinner w={20} h={20} /> */}
-            {this.props.isSyncing ? "Syncing..." : "Signing In..."}
-          </div>
-          {this.props.isSyncing && (
-            <div className="mx_AuthBody_paddedFooter_subtitle">
-              If you've joined lots of rooms, this might take a while
-            </div>
-          )}
-        </div>
+      register = (
+        <Fragment>
+          {/* <Spinner />
+          {this.props.isSyncing ? "Syncing..." : "Signing In..."} */}
+        </Fragment>
       );
       // } else if (SettingsStore.getValue(UIFeature.Registration)) {
     } else {
-      footer = (
+      register = (
         <Button
           appearance="subtle"
           onClick={(e, analyticsEvent) => this.onTryRegisterClick(e)}
@@ -650,61 +630,7 @@ export default class LoginComponent extends React.PureComponent<
 
     // UI components
 
-    const HeaderContextWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => {
-      return (
-        <div
-          style={{
-            margin: "auto",
-            width: "200px",
-            height: "100%",
-            display: "flex",
-          }}>
-          {children}
-        </div>
-      );
-    };
-
-    // could turn into function component if that is more preferable
-    const BodyContextWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => {
-      return (
-        <div
-          style={{
-            position: "relative",
-            border: `1px solid ${N40}`,
-            boxShadow:
-              "0px 4px 8px rgba(9, 30, 66, 0.25), 0px 0px 1px rgba(9, 30, 66, 0.31)",
-            borderRadius: 4,
-            maxWidth: 500,
-            margin: "16px auto",
-            padding: "16px",
-          }}>
-          {children}
-        </div>
-      );
-    };
-
-    // const FormWrapper = ({ children }: { children: React.ReactNode }) => {
-    //   return (
-    //     <div
-    //       style={{
-    //         margin: "auto",
-    //         width: "90%",
-    //       }}>
-    //       {children}
-    //       {/* <ErrorTextSectionWrapper /> */}
-    //     </div>
-    //   );
-    // };
-
-    const MoreContextWrapper = ({
+    const ExtraContextWrapper = ({
       children,
     }: {
       children: React.ReactNode;
@@ -745,11 +671,19 @@ export default class LoginComponent extends React.PureComponent<
       );
     };
 
-    const Footer: React.FC = () => {
+    const Footer = () => {
       return (
-        <a href="https://matrix.org" target="_blank" rel="noreferrer noopener">
-          "powered by Matrix"
-        </a>
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            transform: "translateX(-50%)",
+          }}>
+          <HelperMessage>Powered by Matrix</HelperMessage>
+        </div>
+        // <a href="https://matrix.org" target="_blank" rel="noreferrer noopener">
+        //   "powered by Matrix"
+        // </a>
       );
     };
 
@@ -757,65 +691,24 @@ export default class LoginComponent extends React.PureComponent<
       // TODO: change background color with style={{ BackgroundColor: N10 }}
       <PageLayout>
         <Banner isFixed={true} height={100}>
-          <HeaderContextWrapper>
-            <span
-              style={{
-                color: N800,
-                fontSize: "32px",
-                margin: "auto",
-              }}>
-              🌐TypeCell
-            </span>
-          </HeaderContextWrapper>
+          <AuthHeader />
         </Banner>
         <Content>
           <Main isFixed={true} width={650}>
-            <BodyContextWrapper>
-              {/* Aside from Field-level validation, Atlaskit has Form-level validation,
-                  however this works by returning validation per field on the Form's onSubmit.
-                  The default Matrix code only provides the error 
-                  "incorrect username and/or password"(see onPasswordLogin), 
-                  so we cannot return individual errors to the AtlasKit Form(yet). Therefore
-                  the existing errorTextSection is still used.*/}
+            <AuthBodyContextWrapper>
+              {/* {loader} */}
               {this.renderLoginComponentForFlows()}
-              <MoreContextWrapper>
-                {footer}
+              <ExtraContextWrapper>
+                {register}
                 <ErrorTextSectionWrapper>
                   {errorTextSection}
                 </ErrorTextSectionWrapper>
-              </MoreContextWrapper>
-            </BodyContextWrapper>
-            <Footer />
+              </ExtraContextWrapper>
+            </AuthBodyContextWrapper>
+            <AuthFooter />
           </Main>
         </Content>
       </PageLayout>
     );
   }
-  /**
-   * Old structure. Cannot reuse as Atlaskit components
-   * are used by component name, and wrapping them also does not work
-   * as the way it is being segmented is different. Left here
-   * as reference to extract functional contents correctly.
-   * 
-            <AuthPage>
-              <AuthHeader />
-              <AuthBody>
-                <h2>
-                  Sign in
-                  {loader}
-                </h2>
-                {errorTextSection}
-                {serverDeadSection}
-                /*
-                { <ServerPicker
-                  serverConfig={this.props.serverConfig}
-                  onServerConfigChange={this.props.onServerConfigChange}
-                /> }
-                *\/
-                (TODO: pick server)
-                {this.renderLoginComponentForFlows()}
-                {footer}
-              </AuthBody>
-            </AuthPage>
-  */
 }
