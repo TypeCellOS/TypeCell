@@ -8,6 +8,7 @@ export interface SuggestionRenderer<T extends SuggestionItem> {
   onUpdate?: (props: SuggestionRendererProps<T>) => void;
   onStart?: (props: SuggestionRendererProps<T>) => void;
   onKeyDown?: (event: KeyboardEvent) => boolean;
+  getComponent: () => Element;
 }
 
 export type SuggestionRendererProps<T extends SuggestionItem> = {
@@ -54,6 +55,9 @@ export default function createRenderer<T extends SuggestionItem>(
   };
 
   return {
+    getComponent: () => {
+      return component?.element;
+    },
     onStart: (newProps) => {
       props = newProps;
       componentsDisposedOrDisposing = false;

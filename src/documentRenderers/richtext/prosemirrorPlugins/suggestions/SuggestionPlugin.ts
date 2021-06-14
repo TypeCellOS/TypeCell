@@ -3,8 +3,9 @@ import { escapeRegExp, groupBy } from "lodash";
 import { Plugin, PluginKey, Selection } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import SuggestionItem from "./SuggestionItem";
+
+import { ReplaceStep } from "prosemirror-transform";
 import createRenderer, {
-  SuggestionRenderer,
   SuggestionRendererProps,
 } from "./SuggestionListReactRenderer";
 
@@ -19,7 +20,6 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
     range: Range;
   }) => void;
   items?: (filter: string) => T[];
-  renderer?: SuggestionRenderer<T>;
   allow?: (props: { editor: Editor; range: Range }) => boolean;
 };
 
@@ -75,17 +75,26 @@ export function SuggestionPlugin<T extends SuggestionItem>({
   char,
   selectItemCallback = () => {},
   items = () => [],
-  renderer = undefined,
 }: SuggestionPluginOptions<T>) {
-  // Use react renderer by default
-  // This will fail if the editor is not a @tiptap/react editor
-  if (!renderer) renderer = createRenderer(editor);
+  const renderer = createRenderer<T>(editor);
 
   // Create a random plugin key (since this plugin might be instantiated multiple times)
   const PLUGIN_KEY = new PluginKey(`suggestions-${pluginName}`);
 
   return new Plugin({
     key: PLUGIN_KEY,
+
+    filterTransaction(transaction) {
+      // prevent blurring when clicking with the mouse inside the popup menu
+      const blurMeta = transaction.getMeta("blur");
+      if (blurMeta?.event.relatedTarget) {
+        const c = renderer.getComponent();
+        if (c?.contains(blurMeta.event.relatedTarget)) {
+          return false;
+        }
+      }
+      return true;
+    },
 
     view() {
       return {
@@ -141,20 +150,20 @@ export function SuggestionPlugin<T extends SuggestionItem>({
               : null,
             onClose: () => {
               deactivate();
-              renderer?.onExit?.(rendererProps);
+              renderer.onExit?.(rendererProps);
             },
           };
 
           if (stopped) {
-            renderer?.onExit?.(rendererProps);
+            renderer.onExit?.(rendererProps);
           }
 
           if (changed) {
-            renderer?.onUpdate?.(rendererProps);
+            renderer.onUpdate?.(rendererProps);
           }
 
           if (started) {
-            renderer?.onStart?.(rendererProps);
+            renderer.onStart?.(rendererProps);
           }
         },
       };
@@ -272,7 +281,7 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           return false;
         }
 
-        return renderer?.onKeyDown?.(event) || false;
+        return renderer.onKeyDown?.(event) || false;
       },
 
       // Setup decorator on the currently active suggestion.
