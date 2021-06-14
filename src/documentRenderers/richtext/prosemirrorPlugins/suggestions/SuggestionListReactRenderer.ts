@@ -2,8 +2,29 @@ import { Editor as ReactEditor, ReactRenderer } from "@tiptap/react";
 import { Editor } from "@tiptap/core";
 import tippy from "tippy.js";
 import SuggestionItem from "./SuggestionItem";
-import { SuggestionList } from "./SuggestionList";
-import { SuggestionRenderer } from "./SuggestionPlugin";
+import { SuggestionList, SuggestionListProps } from "./SuggestionList";
+export interface SuggestionRenderer<T extends SuggestionItem> {
+  onExit?: (props: SuggestionRendererProps<T>) => void;
+  onUpdate?: (props: SuggestionRendererProps<T>) => void;
+  onStart?: (props: SuggestionRendererProps<T>) => void;
+  onKeyDown?: (event: KeyboardEvent) => boolean;
+}
+
+export type SuggestionRendererProps<T extends SuggestionItem> = {
+  editor: Editor;
+  range: Range;
+  query: string;
+  groups: {
+    [groupName: string]: T[];
+  };
+  count: number;
+  selectItemCallback: (item: T) => void;
+  decorationNode: Element | null;
+  // virtual node for popper.js or tippy.js
+  // this can be used for building popups without a DOM node
+  clientRect: (() => DOMRect) | null;
+  onClose: () => void;
+};
 
 // If we do major work on this, consider exploring a cleaner approach: https://github.com/YousefED/typecell-next/issues/59
 export default function createRenderer<T extends SuggestionItem>(
@@ -12,22 +33,45 @@ export default function createRenderer<T extends SuggestionItem>(
   let component: ReactRenderer;
   let popup: any;
   let componentsDisposedOrDisposing = true;
+  let selectedIndex = 0;
+  let props: SuggestionRendererProps<T> | undefined;
+
+  const itemByIndex = (index: number): T => {
+    if (!props) {
+      throw new Error("props not set");
+    }
+    let currentIndex = 0;
+    for (const groupName in props.groups) {
+      const items = props.groups[groupName];
+      const groupSize = items.length;
+      // Check if index lies within this group
+      if (index < currentIndex + groupSize) {
+        return items[index - currentIndex];
+      }
+      currentIndex += groupSize;
+    }
+    throw Error("item not found");
+  };
 
   return {
-    onStart: (props) => {
+    onStart: (newProps) => {
+      props = newProps;
       componentsDisposedOrDisposing = false;
+      selectedIndex = 0;
+      const componentProps: SuggestionListProps<T> = {
+        groups: newProps.groups,
+        count: newProps.count,
+        selectItemCallback: newProps.selectItemCallback,
+        selectedIndex,
+      };
+
       component = new ReactRenderer(SuggestionList as any, {
         editor: editor as ReactEditor,
-        props: {
-          groups: props.groups,
-          count: props.count,
-          selectItemCallback: props.selectItemCallback,
-          onClose: props.onClose,
-        },
+        props: componentProps,
       });
 
       popup = tippy("body", {
-        getReferenceClientRect: props.clientRect,
+        getReferenceClientRect: newProps.clientRect,
         appendTo: () => document.body,
         content: component.element,
         showOnCreate: true,
@@ -37,19 +81,56 @@ export default function createRenderer<T extends SuggestionItem>(
       });
     },
 
-    onUpdate: (props) => {
-      component.updateProps(props);
+    onUpdate: (newProps) => {
+      props = newProps;
+      if (props.groups !== component.props.groups) {
+        // if the set of items is different (e.g.: by typing / searching), reset the selectedIndex to 0
+        selectedIndex = 0;
+      }
+      const componentProps: SuggestionListProps<T> = {
+        groups: props.groups,
+        count: props.count,
+        selectItemCallback: props.selectItemCallback,
+        selectedIndex,
+      };
+      component.updateProps(componentProps);
 
       popup[0].setProps({
         getReferenceClientRect: props.clientRect,
       });
     },
 
-    onKeyDown: (props) => {
-      if (!component.ref) {
+    onKeyDown: (event) => {
+      if (!props) {
         return false;
       }
-      return (component.ref as SuggestionList<T>).onKeyDown(props);
+      if (event.key === "ArrowUp") {
+        selectedIndex = (selectedIndex + props.count - 1) % props.count;
+        component.updateProps({
+          selectedIndex,
+        });
+        return true;
+      }
+
+      if (event.key === "ArrowDown") {
+        selectedIndex = (selectedIndex + 1) % props.count;
+        component.updateProps({
+          selectedIndex,
+        });
+        return true;
+      }
+
+      if (event.key === "Enter") {
+        const item = itemByIndex(selectedIndex);
+        props.selectItemCallback(item);
+        return true;
+      }
+
+      if (event.key === "Escape") {
+        props.onClose();
+        return true;
+      }
+      return false;
     },
 
     onExit: (props) => {
