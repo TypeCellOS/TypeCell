@@ -417,6 +417,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             disabled={this.props.disableSubmit}
             autoFocus={autoFocus}
             onValidate={this.onEmailValidate}
+            isRequired={true}
             ref={(field) => (this[LoginField.Email] = field)}
           />
         );
@@ -437,6 +438,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             disabled={this.props.disableSubmit}
             autoFocus={autoFocus}
             //onValidate={this.onUsernameValidate}
+            isRequired={true}
             ref={(field) => (this[LoginField.MatrixId] = field)}
           />
         );
@@ -486,7 +488,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
 
   render() {
     let forgotPasswordJsx: any;
-
+    console.log("forgotPasswordclick: ", this.props.onForgotPasswordClick);
     if (this.props.onForgotPasswordClick) {
       forgotPasswordJsx = (
         <AccessibleButton
@@ -516,13 +518,14 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     if (true) {
       loginType = (
         <div className="mx_Login_type_container">
-          <label className="mx_Login_type_label">{"Sign in with"}</label>
+          {/* <label className="mx_Login_type_label">{"Sign in with"}</label> */}
           <Field
             element="select"
             name="select"
             value={this.state.loginType}
             onChange={this.onLoginTypeChange}
-            disabled={this.props.disableSubmit}>
+            disabled={this.props.disableSubmit}
+            label={"Sign in with"}>
             <option key={LoginField.MatrixId} value={LoginField.MatrixId}>
               {"Username"}
             </option>
@@ -559,7 +562,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             {forgotPasswordJsx}
             {!this.props.busy && (
               <Button
-                style={{ margin: "20px 0" }}
+                style={{ margin: "16px 0 0 0" }}
                 type="submit"
                 appearance="primary"
                 isDisabled={this.props.disableSubmit}>

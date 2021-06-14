@@ -28,7 +28,8 @@ import React, {
 
 import TextField from "@atlaskit/textfield";
 // import { ValidMessage, Field as AtlaskitField } from "@atlaskit/form";
-import { ErrorMessage, Field as AtlaskitField } from "@atlaskit/form";
+// import { ErrorMessage, Field as AtlaskitField } from "@atlaskit/form";
+import { Field as AtlaskitField } from "@atlaskit/form";
 import Select from "@atlaskit/select";
 // Invoke validation from user input (when typing, etc.) at most once every N ms.
 // const VALIDATION_THROTTLE_MS = 200;
@@ -74,6 +75,7 @@ interface IProps {
   // If specified, an additional class name to apply to the field container
   className?: string;
   // On what events should validation occur; by default on all
+  isRequired?: boolean;
   validateOnFocus?: boolean;
   validateOnBlur?: boolean;
   validateOnChange?: boolean;
@@ -362,7 +364,8 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
         // TODO: transform validate to fit the validate function requirement for AtlasKitField
         //validate={this.validate}
       >
-        {({ fieldProps, error }: any) => (
+        {/* {({ fieldProps, error }: any) => ( */}
+        {({ fieldProps }: any) => (
           <Fragment>
             {/* debug printing */}
             {console.log(
@@ -374,7 +377,8 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
             {element === "input" ? (
               <Fragment>
                 <TextField {...(inputProps_ as any)} {...fieldProps} />
-                {error && <ErrorMessage>{error}</ErrorMessage>}
+                {/* likely not needed as the isRequired prop handles this */}
+                {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
               </Fragment>
             ) : element === "textarea" ? (
               // TODO: should be textarea (but can do later, not used for now)

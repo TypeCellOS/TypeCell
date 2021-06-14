@@ -28,7 +28,7 @@ import { AuthPage } from "./views/AuthPage";
 import PasswordLogin, { formInputs } from "./views/PasswordLogin";
 import { PageLayout, Main, Content, Banner } from "@atlaskit/page-layout";
 import { ButtonItem, HeadingItem, MenuGroup, Section } from "@atlaskit/menu";
-import { N40, N800, N10 } from "@atlaskit/theme/colors";
+import { N40, N800, N10, R400 } from "@atlaskit/theme/colors";
 import { CgEnter } from "react-icons/cg";
 import Form, {
   CheckboxField,
@@ -40,6 +40,9 @@ import Form, {
 } from "@atlaskit/form";
 import TextField from "@atlaskit/textfield";
 import Button from "@atlaskit/button";
+import Flag from "@atlaskit/flag";
+// open source?
+import ErrorIcon from "@atlaskit/icon/glyph/error";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -339,13 +342,13 @@ export default class LoginComponent extends React.PureComponent<
     });
   };
 
-  onRegisterClick = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+  onRegisterClick = (ev: React.MouseEvent<HTMLElement>) => {
     ev.preventDefault();
     ev.stopPropagation();
     this.props.onRegisterClick();
   };
 
-  onTryRegisterClick = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+  onTryRegisterClick = (ev: React.MouseEvent<HTMLElement>) => {
     const hasPasswordFlow = this.state.flows?.find(
       (flow) => flow.type === "m.login.password"
     );
@@ -590,9 +593,20 @@ export default class LoginComponent extends React.PureComponent<
 
     const errorText = this.state.errorText;
 
+    //let errorTextSection: JSX.Element;
     let errorTextSection;
     if (errorText) {
-      errorTextSection = <div className="mx_Login_error">{errorText}</div>;
+      // errorTextSection = <div className="mx_Login_error">{errorText}</div>;
+      errorTextSection = (
+        // <Flag
+        //   appearance="error"
+        //   icon={<ErrorIcon label="Error" secondaryColor={R400} />}
+        //   id="error"
+        //   key="error"
+        //   title={errorText}
+        // />
+        <ErrorMessage>{errorText}</ErrorMessage>
+      );
     }
 
     let serverDeadSection;
@@ -623,13 +637,14 @@ export default class LoginComponent extends React.PureComponent<
         </div>
       );
       // } else if (SettingsStore.getValue(UIFeature.Registration)) {
+    } else {
       footer = (
-        <span className="mx_AuthBody_changeFlow">
-          New?{" "}
-          <a onClick={this.onTryRegisterClick} href="#">
-            Create account
-          </a>
-        </span>
+        <Button
+          appearance="subtle"
+          onClick={(e, analyticsEvent) => this.onTryRegisterClick(e)}
+          href="#">
+          Register
+        </Button>
       );
     }
 
@@ -662,71 +677,73 @@ export default class LoginComponent extends React.PureComponent<
       return (
         <div
           style={{
+            position: "relative",
             border: `1px solid ${N40}`,
             boxShadow:
               "0px 4px 8px rgba(9, 30, 66, 0.25), 0px 0px 1px rgba(9, 30, 66, 0.31)",
             borderRadius: 4,
-            maxWidth: 400,
+            maxWidth: 500,
             margin: "16px auto",
+            padding: "16px",
           }}>
           {children}
         </div>
       );
     };
 
-    // const MainMenu: React.FC = () => {
+    // const FormWrapper = ({ children }: { children: React.ReactNode }) => {
     //   return (
-    //     <BodyContextWrapper>
-    //       <MenuGroup>
-    //         <Section>
-    //           <HeadingItem>Sign In</HeadingItem>
-
-    //           {/*
-    //             Placeholder form, will either be turned into react component
-    //             or not used at all and instead stylize Matrix' component.
-    //           */}
-    //           <div
-    //             style={{
-    //               maxWidth: 350,
-    //               margin: "0 auto",
-    //             }}>
-    //             <Form onSubmit={(data) => console.log("form data", data)}>
-    //               {({ formProps }) => (
-    //                 <form {...formProps}>
-    //                   <Field
-    //                     name="username"
-    //                     defaultValue=""
-    //                     label="User name"
-    //                     isRequired>
-    //                     {({ fieldProps }) => <TextField {...fieldProps} />}
-    //                   </Field>
-    //                   <Field
-    //                     name="password"
-    //                     defaultValue=""
-    //                     label="name"
-    //                     isRequired>
-    //                     {({ fieldProps }) => <TextField {...fieldProps} />}
-    //                   </Field>
-    //                   <Button
-    //                     style={{ margin: "20px 0" }}
-    //                     type="submit"
-    //                     appearance="primary">
-    //                     Submit
-    //                   </Button>
-    //                 </form>
-    //               )}
-    //             </Form>
-    //           </div>
-
-    //           {/*
-    //           ButtonItem is the appropriate button to use within a MenuGroup
-    //           <ButtonItem>Sign in</ButtonItem>
-    //           */}
-    //         </Section>
-    //       </MenuGroup>
-    //     </BodyContextWrapper>
+    //     <div
+    //       style={{
+    //         margin: "auto",
+    //         width: "90%",
+    //       }}>
+    //       {children}
+    //       {/* <ErrorTextSectionWrapper /> */}
+    //     </div>
     //   );
     // };
+
+    const MoreContextWrapper = ({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) => {
+      return (
+        <div
+          style={{
+            // margin: "auto",
+            position: "absolute",
+            // backgroundColor: "grey",
+            display: "inline-block",
+            width: "76%",
+            height: "36px",
+            bottom: "16px",
+            right: "16px",
+            textAlign: "left",
+          }}>
+          {children}
+        </div>
+      );
+    };
+
+    const ErrorTextSectionWrapper = ({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) => {
+      return (
+        <div
+          style={{
+            float: "right",
+            height: "36px",
+            backgroundColor: "light-grey",
+            padding: "4px 8px 0 0",
+          }}>
+          {children}
+        </div>
+      );
+    };
 
     const Footer: React.FC = () => {
       return (
@@ -745,7 +762,6 @@ export default class LoginComponent extends React.PureComponent<
               style={{
                 color: N800,
                 fontSize: "32px",
-                //display: "inline-block",
                 margin: "auto",
               }}>
               🌐TypeCell
@@ -754,22 +770,21 @@ export default class LoginComponent extends React.PureComponent<
         </Banner>
         <Content>
           <Main isFixed={true} width={650}>
-            {/* <MainMenu /> */}
-            <div
-              style={{
-                maxWidth: 350,
-                margin: "0 auto",
-              }}>
+            <BodyContextWrapper>
               {/* Aside from Field-level validation, Atlaskit has Form-level validation,
                   however this works by returning validation per field on the Form's onSubmit.
                   The default Matrix code only provides the error 
                   "incorrect username and/or password"(see onPasswordLogin), 
                   so we cannot return individual errors to the AtlasKit Form(yet). Therefore
                   the existing errorTextSection is still used.*/}
-              {errorTextSection}
-              <Section>{this.renderLoginComponentForFlows()}</Section>
-            </div>
-
+              {this.renderLoginComponentForFlows()}
+              <MoreContextWrapper>
+                {footer}
+                <ErrorTextSectionWrapper>
+                  {errorTextSection}
+                </ErrorTextSectionWrapper>
+              </MoreContextWrapper>
+            </BodyContextWrapper>
             <Footer />
           </Main>
         </Content>
