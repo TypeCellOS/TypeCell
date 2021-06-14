@@ -40,6 +40,8 @@ import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import multipleLineMarkdownRuleBuilder from "./extensions/markdownPasteRules/multiple/markdownMultipleLines";
 import { MatrixClientPeg } from "../../matrix-auth/MatrixClientPeg";
+import { searchUsersViaMatrix } from "../../matrix-providers/userProvider";
+import { searchDocumentsViaMatrix } from "../../matrix-providers/documentProvider";
 
 type Props = {
   document: DocumentResource;
@@ -120,29 +122,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         commands: {},
       }),
       MentionsExtension.configure({
-        providers: [
-          async (query) => {
-            const peg = MatrixClientPeg.get();
-            if (!peg) {
-              return [];
-            }
-            const ret = await peg.searchUserDirectory({
-              term: query || "mx", // mx is a trick to return all users on mx.typecell.org
-              limit: 10,
-            });
-            if (ret.results.length) {
-              const results: Mention[] = ret.results.map(
-                (r: any) => new Mention(r.display_name, MentionType.PEOPLE)
-              );
-              if (!query) {
-                // if searching all users, sort ourselves
-                return results.sort((a, b) => a.name.localeCompare(b.name));
-              }
-              return results;
-            }
-            return [];
-          },
-        ],
+        providers: [searchUsersViaMatrix, searchDocumentsViaMatrix],
       }),
       TrailingNode,
       // TypeCellNode,
