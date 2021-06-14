@@ -14,6 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// TODO: If AtlasKit always does reliable per-field validation check
+// and doesn't do validation on the initial state of the forms(empty),
+// then consider doing this submission check in the per-field validation
+// instead.
+
 import classNames from "classnames";
 import React, { FormEvent } from "react";
 import AccessibleButton, { ButtonEvent } from "../elements/AccessibleButton";
@@ -46,7 +51,12 @@ interface IProps {
   busy?: boolean;
 
   //onSubmit(data: formInputs): formInputs | undefined;
-  onSubmit(data: formInputs): void;
+  onSubmit(
+    username: string,
+    phoneCountry: string | undefined,
+    phoneNumber: string | undefined,
+    password: string
+  ): void;
   onUsernameChanged?(username: string): void;
   onUsernameBlur?(username: string): void;
   onPhoneCountryChanged?(phoneCountry: string): void;
@@ -104,19 +114,62 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
   private onSubmitForm = async (data: formInputs) => {
     console.log("form data", data);
 
-    // AtlasKit handles this now
-    // const allFieldsValid = await this.verifyFieldsBeforeSubmit();
-    // if (!allFieldsValid) {
-    //   return;
+    const login = this.state.loginType;
+    console.log(login);
+
+    // TODO: add phonenumber empty case
+    const error = {
+      username:
+        login === LoginField.MatrixId && data.username
+          ? undefined
+          : "Enter a username",
+      email:
+        login === LoginField.Email && data.email ? undefined : "Enter an email",
+      password: data.password ? undefined : "Enter a password",
+    };
+
+    switch (login) {
+      case LoginField.MatrixId:
+        if (error.username !== undefined || error.password !== undefined) {
+          return error;
+        }
+        console.log("empty uname found");
+        break;
+      case LoginField.Email:
+        if (error.email !== undefined || error.password !== undefined) {
+          return error;
+        }
+        break;
+      default:
+        console.log("empty password found");
+        if (error.password !== undefined) {
+          return error;
+        }
+        break;
+    }
+
+    console.log("checkpoint to send to onSubmit");
+    // let error = {};
+
+    // if(data.username) {
+    //   error.
     // }
 
-    console.log("checkpoint");
+    //(login === LoginField.MatrixId && !data.username) ? error.push(username: "Enter a username");
 
-    const submissionData = this.props.onSubmit?.(data);
+    // const username = data.username ? data.username : "";
+    // const password = data.password ? data.password : "";
 
-    console.log("submission data: ", submissionData);
+    // TODO: remove placeholder
+    let phoneCountry: string | undefined;
+    let phoneNumber: string | undefined;
 
-    return submissionData;
+    this.props.onSubmit?.(
+      data.username,
+      phoneCountry,
+      phoneNumber,
+      data.password
+    );
   };
 
   // The input is not controlled by Field anymore. The validation

@@ -28,7 +28,7 @@ import React, {
 
 import TextField from "@atlaskit/textfield";
 // import { ValidMessage, Field as AtlaskitField } from "@atlaskit/form";
-import { Field as AtlaskitField } from "@atlaskit/form";
+import { ErrorMessage, Field as AtlaskitField } from "@atlaskit/form";
 import Select from "@atlaskit/select";
 // Invoke validation from user input (when typing, etc.) at most once every N ms.
 // const VALIDATION_THROTTLE_MS = 200;
@@ -362,7 +362,7 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
         // TODO: transform validate to fit the validate function requirement for AtlasKitField
         //validate={this.validate}
       >
-        {({ fieldProps }: any) => (
+        {({ fieldProps, error }: any) => (
           <Fragment>
             {/* debug printing */}
             {console.log(
@@ -372,7 +372,10 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
               fieldProps.value
             )}
             {element === "input" ? (
-              <TextField {...(inputProps_ as any)} {...fieldProps} />
+              <Fragment>
+                <TextField {...(inputProps_ as any)} {...fieldProps} />
+                {error && <ErrorMessage>{error}</ErrorMessage>}
+              </Fragment>
             ) : element === "textarea" ? (
               // TODO: should be textarea (but can do later, not used for now)
               <TextField {...(inputProps_ as any)} {...fieldProps} />

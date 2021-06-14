@@ -159,13 +159,12 @@ export default class LoginComponent extends React.PureComponent<
 
   isBusy = () => this.state.busy || this.props.busy;
 
-  onPasswordLogin = async (formData: formInputs) => {
-    console.log("formData: ", formData);
-    // TODO: If AtlasKit always does reliable per-field validation check
-    // and doesn't do validation on the initial state of the forms(empty),
-    // then consider doing this submission check in the per-field validation
-    // instead.
-
+  onPasswordLogin = async (
+    username: string,
+    phoneCountry: string | undefined,
+    phoneNumber: string | undefined,
+    password: string
+  ) => {
     if (!this.state.serverIsAlive) {
       this.setState({ busy: true });
       // Do a quick liveliness check on the URLs
@@ -200,15 +199,14 @@ export default class LoginComponent extends React.PureComponent<
     });
 
     this.loginLogic!.loginViaPassword(
-      formData.username,
-      // phoneCountry does not yet get passed to formData
-      formData.phoneNumber,
-      formData.phoneNumber,
-      formData.password
+      username,
+      phoneCountry,
+      phoneNumber,
+      password
     ).then(
       (data) => {
         this.setState({ serverIsAlive: true }); // it must be, we logged in.
-        this.props.onLoggedIn(data, formData.password);
+        this.props.onLoggedIn(data, password);
       },
       (error) => {
         if (this.unmounted) {
@@ -217,7 +215,7 @@ export default class LoginComponent extends React.PureComponent<
         let errorText;
 
         // Some error strings only apply for logging in
-        const usingEmail = formData.username.indexOf("@") > 0;
+        const usingEmail = username.indexOf("@") > 0;
         if (error.httpStatus === 400 && usingEmail) {
           errorText =
             "This homeserver does not support login using email address.";
