@@ -35,7 +35,12 @@ export function extendAsBlock<NodeOptions>(
     addNodeView() {
       // TODO? If we don't have a block-id, we don't really need the node-view wrapper with all corresponding <div>s
       // https://github.com/YousefED/typecell-next/issues/57
-      return ReactNodeViewRenderer(Block(this.type.spec.toDOM!, this.options));
+      return ReactNodeViewRenderer(Block(this.type.spec.toDOM!, this.options), {
+        // don't use the built-in stopEvent from TipTap
+        // because it blocks drag events that we handle ourselves
+        // (we don't use tiptap / PM draggable)
+        stopEvent: (event) => false,
+      });
     },
 
     addKeyboardShortcuts() {
