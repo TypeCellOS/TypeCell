@@ -47,7 +47,7 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
                 if (n.attrs["block-id"] === node.attrs["block-id"]) {
                   this.editor.view.dispatch(
                     this.editor.state.tr.setSelection(
-                      Selection.near(tr.doc.resolve(pos))
+                      Selection.near(this.editor.state.doc.resolve(pos))
                     )
                   );
 
