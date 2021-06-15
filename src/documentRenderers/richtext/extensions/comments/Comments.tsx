@@ -1,8 +1,9 @@
 import { Extension } from "@tiptap/react";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { commentStore, CommentType } from "./CommentStore";
+import { getMarkRange, getMarksBetween, getMarkType } from "@tiptap/core";
 
-// This plugin ensures that comment marks are consistent with the comments in cache.
+// This plugin removes comments when their marks are deleted and handles how comment marks get extended.
 export const Comments = Extension.create({
   name: "comments",
 
@@ -20,6 +21,48 @@ export const Comments = Extension.create({
               if (state.doc.textContent === "") {
                 return;
               }
+
+              // WIP
+              // const commentType = getMarkType("comment", state.schema);
+              // const commentRange = getMarkRange(
+              //   state.selection.$from,
+              //   commentType
+              // );
+              //
+              // if (typeof commentRange !== "undefined") {
+              //   const marks = getMarksBetween(
+              //     commentRange.from,
+              //     commentRange.to,
+              //     state
+              //   ).filter((mark) => state.selection.from - mark.from >= 0);
+              //
+              //   const uniqueIds = [
+              //     ...new Set(marks.map((mark) => mark.mark.attrs["id"])),
+              //   ];
+              //
+              //   const combinedMarks = [];
+              //
+              //   for (let id of uniqueIds) {
+              //     const from: number = Math.min(
+              //       ...marks
+              //         .filter((mark) => mark.mark.attrs["id"] === id)
+              //         .map((mark) => mark.from)
+              //     );
+              //     const to: number = Math.max(
+              //       ...marks
+              //         .filter((mark) => mark.mark.attrs["id"] === id)
+              //         .map((mark) => mark.to)
+              //     );
+              //     combinedMarks.push({
+              //       id: id,
+              //       from: from,
+              //       to: to,
+              //     });
+              //   }
+              //
+              //   console.log(marks);
+              //   console.log(state.selection.from);
+              // }
 
               let comments: Array<CommentType> = commentStore.getComments();
               const markIDs: Set<string> = new Set<string>();

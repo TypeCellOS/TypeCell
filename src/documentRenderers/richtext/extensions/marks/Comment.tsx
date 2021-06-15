@@ -26,6 +26,8 @@ export const Comment = Mark.create<CommentOptions>({
 
   excludes: "",
 
+  inclusive: false,
+
   addAttributes() {
     // Return an object with attribute configuration
     return {

@@ -1,39 +1,40 @@
 import React from "react";
-import { Editor, getMarkRange, getMarkType } from "@tiptap/core";
+import {
+  Editor,
+  getMarkRange,
+  getMarkType,
+  getMarksBetween,
+} from "@tiptap/core";
 import { CommentComponent } from "./CommentComponent";
 import styles from "./Comments.module.css";
 
 export type CommentWrapperProps = { editor: Editor };
 
 export const CommentWrapper: React.FC<CommentWrapperProps> = (props) => {
-  const commentIds = new Array<string>();
-
-  // Resolved cursor position.
-  const resolvedPos = props.editor.state.doc.resolve(
-    props.editor.state.selection.from
-  );
+  let commentIds: Array<string> = [];
   const commentType = getMarkType("comment", props.editor.state.schema);
+
   // Range includes all adjacent/overlapping comment marks so that the comments for these are also rendered.
-  const commentRange = getMarkRange(resolvedPos, commentType);
+  const commentRange = getMarkRange(
+    props.editor.state.selection.$from,
+    commentType
+  );
 
   // Positions comments to start at same height as cursor.
-  const fromTop = props.editor.view.coordsAtPos(resolvedPos.pos).top + "px";
+  const fromTop =
+    props.editor.view.coordsAtPos(props.editor.state.selection.from).top + "px";
 
-  // Checks if cursor is within a comment mark.
+  // Finds IDs of all comments to be rendered.
   if (typeof commentRange !== "undefined") {
-    // Finds the child node the cursor is in which also has comment marks.
-    props.editor.state.doc.descendants(function (node, offset) {
-      for (let i = 0; i < node.marks.length; i++) {
-        if (
-          offset >= commentRange.from &&
-          offset + node.nodeSize <= commentRange.to &&
-          node.marks[i].type.name === "comment" &&
-          !commentIds.includes(node.marks[i].attrs["id"])
-        ) {
-          commentIds.push(node.marks[i].attrs["id"]);
-        }
-      }
-    });
+    commentIds = [
+      ...new Set(
+        getMarksBetween(
+          commentRange.from,
+          commentRange.to,
+          props.editor.state
+        ).map((mark) => mark.mark.attrs["id"])
+      ),
+    ];
   }
 
   return (

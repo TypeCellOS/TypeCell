@@ -35,9 +35,7 @@ class CommentStore {
     const comments: Array<CommentType> = JSON.parse(
       localStorage.getItem("comments")!
     );
-    const comment = comments.filter((comment) => comment.id === id)[0];
-    console.log(this.getComments());
-    return comment;
+    return comments.filter((comment) => comment.id === id)[0];
   }
 
   public getComments() {
