@@ -14,6 +14,7 @@ import OrderedListIcon from "remixicon-react/ListOrderedIcon";
 import QuoteIcon from "remixicon-react/DoubleQuotesRIcon";
 import SeparatorIcon from "remixicon-react/SeparatorIcon";
 import TableIcon from "remixicon-react/TableLineIcon";
+import { v4 as uuidv4 } from "uuid";
 
 const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 1 heading
@@ -23,12 +24,13 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 1,
+        "block-id": uuidv4(),
       });
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -47,12 +49,13 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 2,
+        "block-id": uuidv4(),
       });
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -71,12 +74,13 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 3,
+        "block-id": uuidv4(),
       });
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -95,12 +99,13 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 4,
+        "block-id": uuidv4(),
       });
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -119,12 +124,13 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 5,
+        "block-id": uuidv4(),
       });
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -143,12 +149,13 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 6,
+        "block-id": uuidv4(),
       });
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -165,12 +172,12 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     "Paragraph",
     CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
-      const node = editor.schema.node("paragraph");
+      const node = editor.schema.node("paragraph", { "block-id": uuidv4() });
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -181,25 +188,49 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     "Used for the body of your document"
   ),
 
-  // Command for creating a code block
-  codeblock: new SlashCommand(
-    "Code Block",
-    CommandGroup.BASIC_BLOCKS,
+  typecell: new SlashCommand(
+    "TypeCell",
+    CommandGroup.CODE,
     (editor, range) => {
-      const node = editor.schema.node("codeBlock");
+      const node = editor.schema.node(
+        "typecell",
+        { "block-id": uuidv4() },
+        editor.schema.text("// Enter code here :)")
+      );
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
       return true;
     },
-    ["code", "codeblock"],
+    ["code", "codeblock", "code block", "cell"],
+    undefined, // TODO: add icon
+    "A TypeCell editor block, for writing code that is automatically run"
+  ),
+
+  // Command for creating a code block
+  codeblock: new SlashCommand(
+    "Code Block",
+    CommandGroup.CODE,
+    (editor, range) => {
+      const node = editor.schema.node("codeBlock", { "block-id": uuidv4() });
+
+      editor
+        .chain()
+        .focus()
+        .replaceRangeCustom(range, node)
+        .scrollIntoView()
+        .run();
+
+      return true;
+    },
+    ["code", "codeblock", "pseudo-code", "pseudocode", "pseudo code"],
     CodeIcon,
-    "Used to display formatted code that can't be run"
+    "Used to display syntax-highlighted code that can't be run"
   ),
 
   // Command for creating a bullet list
@@ -208,13 +239,21 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
       const paragraph = editor.schema.node("paragraph");
-      const listItem = editor.schema.node("listItem", {}, paragraph);
-      const node = editor.schema.node("bulletList", {}, listItem);
+      const listItem = editor.schema.node(
+        "listItem",
+        { "block-id": uuidv4() },
+        paragraph
+      );
+      const node = editor.schema.node(
+        "bulletList",
+        { "block-id": uuidv4() },
+        listItem
+      );
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -231,13 +270,21 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
       const paragraph = editor.schema.node("paragraph");
-      const listItem = editor.schema.node("listItem", {}, paragraph);
-      const node = editor.schema.node("orderedList", {}, listItem);
+      const listItem = editor.schema.node(
+        "listItem",
+        { "block-id": uuidv4() },
+        paragraph
+      );
+      const node = editor.schema.node(
+        "orderedList",
+        { "block-id": uuidv4() },
+        listItem
+      );
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -254,12 +301,16 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
       const paragraph = editor.schema.node("paragraph");
-      const node = editor.schema.node("blockquote", {}, paragraph);
+      const node = editor.schema.node(
+        "blockquote",
+        { "block-id": uuidv4() },
+        paragraph
+      );
 
       editor
         .chain()
-        .replaceRangeCustom(range, node)
         .focus()
+        .replaceRangeCustom(range, node)
         .scrollIntoView()
         .run();
 
@@ -276,12 +327,15 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     "Horizontal Rule",
     CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
-      const node = editor.schema.node("horizontalRule");
+      const node = editor.schema.node("horizontalRule", {
+        "block-id": uuidv4(),
+      });
 
       // insert horizontal rule, create a new block after the horizontal rule if applicable
       // and put the cursor in the block after the horizontal rule.
       editor
         .chain()
+        .focus()
         .replaceRangeCustom(range, node)
         .command(({ tr, dispatch }) => {
           if (dispatch) {
@@ -312,7 +366,6 @@ const defaultCommands: { [key: string]: SlashCommand } = {
 
           return true;
         })
-        .focus()
         .scrollIntoView()
         .run();
       return true;
@@ -328,6 +381,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
       editor.chain().focus().deleteRange(range).run();
+      // TODO: add blockid, pending https://github.com/ueberdosis/tiptap/pull/1469
       editor
         .chain()
         .focus()

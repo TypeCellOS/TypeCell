@@ -3,6 +3,7 @@ import React from "react";
 import styles from "../../menus/SideMenu.module.css";
 import { SuggestionGroup } from "./SuggestionGroup";
 import SuggestionItem from "./SuggestionItem";
+
 export type SuggestionListProps<T> = {
   groups: {
     [groupName: string]: T[];
@@ -11,6 +12,7 @@ export type SuggestionListProps<T> = {
   selectItemCallback: (item: T) => void;
   selectedIndex: number;
 };
+
 /**
  * Stateless component that renders the suggestion list
  */
