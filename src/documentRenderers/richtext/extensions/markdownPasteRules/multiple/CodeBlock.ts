@@ -1,4 +1,4 @@
-import CodeBlockLowlight from "../../lowlight-highlight";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import lowlight from "lowlight";
 import multipleLineMarkdownRuleBuilder from "./markdownMultipleLines";
 import "./CodeBlock.module.css";
