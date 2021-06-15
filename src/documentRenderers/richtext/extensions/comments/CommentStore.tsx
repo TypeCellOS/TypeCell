@@ -1,3 +1,4 @@
+import { v4 } from "uuid";
 import { sessionStore } from "../../../../store/local/stores";
 
 export type CommentType = {
@@ -17,15 +18,17 @@ class CommentStore {
     return !!localStorage.getItem("comments");
   }
 
-  public createComment(id: string) {
+  public createComment() {
     const comments: Array<CommentType> = commentStore.getComments();
-    comments.push({
-      id: id,
+    const comment = {
+      id: v4(),
       comment: "",
       user: sessionStore.loggedInUser!,
       date: new Date().toLocaleDateString("en-US"),
-    });
+    };
+    comments.push(comment);
     commentStore.setComments(comments);
+    return comment;
   }
 
   public getComment(id: string) {

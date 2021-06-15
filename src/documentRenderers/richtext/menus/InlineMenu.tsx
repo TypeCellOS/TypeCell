@@ -13,7 +13,6 @@ import BubbleMenuButton, { ButtonStyleDetails } from "./BubbleMenuButton";
 import styles from "./InlineMenu.module.css";
 import Chat2LineIcon from "remixicon-react/Chat2LineIcon";
 import Bold from "@tiptap/extension-bold";
-import { v4 } from "uuid";
 import { commentStore } from "../extensions/comments/CommentStore";
 
 type InlineMenuProps = { editor: Editor };
@@ -121,9 +120,8 @@ class InlineMenu extends React.Component<InlineMenuProps> {
         <BubbleMenuButton
           editor={this.props.editor}
           onClick={() => {
-            const id: string = v4();
-            this.props.editor.chain().focus().setComment(id).run();
-            commentStore.createComment(id);
+            const comment = commentStore.createComment();
+            this.props.editor.chain().focus().setComment(comment.id).run();
           }}
           styleDetails={comment}
         />
