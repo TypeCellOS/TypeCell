@@ -1,26 +1,23 @@
 import Tippy from "@tippyjs/react";
-import {
-  NodeViewContent,
-  NodeViewRendererProps,
-  NodeViewWrapper,
-} from "@tiptap/react";
+import { NodeViewRendererProps, NodeViewWrapper } from "@tiptap/react";
 import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
-import { Node, DOMOutputSpec } from "prosemirror-model";
+import { DOMOutputSpec, Node } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
 import React, {
   ElementType,
   MouseEvent,
   PropsWithChildren,
-  RefObject,
   useRef,
   useState,
 } from "react";
-import { useDrag, useDrop, XYCoord } from "react-dnd";
-import TypeCellComponent from "../typecellnode/TypeCellComponent";
+import { useDrag, useDrop } from "react-dnd";
 import SideMenu from "../../menus/SideMenu";
 import mergeAttributesReact from "../../util/mergeAttributesReact";
+import TypeCellComponent from "../typecellnode/TypeCellComponent";
 import styles from "./Block.module.css";
+import { CustomNodeViewContent } from "./CustomNodeViewContent";
+import { CustomNodeViewWrapper } from "./CustomNodeViewWrapper";
 /**
  * A global store that keeps track of which block is being hovered over
  */
@@ -188,7 +185,11 @@ function Block(
     if (!props.node.attrs["block-id"]) {
       return (
         <NodeViewWrapper>
-          <NodeViewContent as={domType} {...domAttrs} />
+          <CustomNodeViewContent
+            as={domType}
+            {...domAttrs}
+            ref={(props as any).contentWrapperRef}
+          />
         </NodeViewWrapper>
       );
     }
@@ -274,42 +275,46 @@ function Block(
       : {};
 
     return (
-      <NodeViewWrapper className={`${styles.block}`}>
-        <div ref={outerRef}>
-          <div className={styles.inner + " inner"} ref={innerRef}>
-            <div className={styles.handleContainer} ref={dragRef}>
-              <Tippy
-                content={<SideMenu onDelete={onDelete}></SideMenu>}
-                trigger={"click"}
-                placement={"left"}
-                interactive={true}>
-                <div
-                  contentEditable={false} // This is needed because otherwise pressing key up when positioned just after draghandle doesn't work
-                  className={styles.handle + (hover ? " " + styles.hover : "")}
-                />
-              </Tippy>
-            </div>
-            {renderContentBasedOnDOMType(
-              domType,
-              domAttrs,
-              placeholderAttrs,
-              props
-            )}
-          </div>
+      <CustomNodeViewWrapper className={`${styles.block}`} ref={outerRef}>
+        <div className={styles.inner + " inner"} ref={innerRef}>
           <div
-            className={`${styles.mouseCapture} ${
-              hover && canDrop
-                ? " " +
-                  (globalState.aboveCenterLine
-                    ? styles.topIndicator
-                    : styles.bottomIndicator)
-                : ""
-            }`}
-            onMouseOver={onMouseOver}
-            ref={mouseCaptureRef}
-            contentEditable={false}></div>
+            className={styles.handleContainer}
+            ref={dragRef}
+            // This is needed because otherwise pressing key up when positioned just after draghandle doesn't work
+            contentEditable={false}>
+            <Tippy
+              content={<SideMenu onDelete={onDelete}></SideMenu>}
+              trigger={"click"}
+              placement={"left"}
+              interactive={true}>
+              <div
+                className={
+                  styles.handle + (hover ? " " + styles.hover : "")
+                }></div>
+            </Tippy>
+          </div>
+          {renderContentBasedOnDOMType(
+            domType,
+            domAttrs,
+            placeholderAttrs,
+            props
+          )}
         </div>
-      </NodeViewWrapper>
+        <div
+          className={`${styles.mouseCapture} ${
+            hover && canDrop
+              ? " " +
+                (globalState.aboveCenterLine
+                  ? styles.topIndicator
+                  : styles.bottomIndicator)
+              : ""
+          }`}
+          onMouseOver={onMouseOver}
+          ref={mouseCaptureRef}
+          contentEditable={false}>
+          {/* space content is needed because otherwise keyboard navigation doesn't work well */}{" "}
+        </div>
+      </CustomNodeViewWrapper>
     );
   });
 }
@@ -317,7 +322,7 @@ function Block(
 export default Block;
 function renderContentBasedOnDOMType(
   // NOTE: we might want to extend ElementType itself instead of declaring it like this
-  domType: ElementType | "typecell",
+  domType: ElementType,
   domAttrs: { [attr: string]: string | null | undefined },
   placeholderAttrs: { [attr: string]: string | null | undefined },
   props: React.PropsWithChildren<NodeViewRendererProps>
@@ -349,27 +354,23 @@ function renderContentBasedOnDOMType(
             })}
         </select>
 
-        <NodeViewContent
+        <CustomNodeViewContent
           as={"code"}
           {...domAttrs}
           className={styles.codeBlockCodeContent}
+          ref={(props as any).contentWrapperRef}
         />
       </pre>
     );
-  } else if (domType === "typecell") {
-    return (
-      <div>
-        <TypeCellComponent node={props.node}></TypeCellComponent>
-      </div>
-    );
+  } else if (props.node.type.name === "typecell") {
+    return <TypeCellComponent node={props.node}></TypeCellComponent>;
   } else {
     return (
-      <div>
-        <NodeViewContent
-          as={domType}
-          {...mergeAttributesReact(placeholderAttrs, domAttrs)}
-        />
-      </div>
+      <CustomNodeViewContent
+        as={domType}
+        {...mergeAttributesReact(placeholderAttrs, domAttrs)}
+        ref={(props as any).contentWrapperRef}
+      />
     );
   }
 }

@@ -110,7 +110,6 @@ const NotebookCell: React.FC<Props> = observer((props) => {
     editor.setModel(monacoModel);
     setModel(newModel.object);
 
-    // TODO: optimization: new MonacoBinding now calls model.setValue with same content it already has, causing listeners to fire twice
     const monacoBinding = new MonacoBinding(
       props.cell.code,
       monacoModel,

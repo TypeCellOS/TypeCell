@@ -15,12 +15,10 @@ export default function TypeCellComponent(props: any) {
   }
 
   return (
-    <NodeViewWrapper as="div" className="react-component">
-      <NotebookCell
-        cell={cell}
-        engine={ctx.engine!}
-        awareness={ctx.document?.webrtcProvider.awareness!}
-      />
-    </NodeViewWrapper>
+    <NotebookCell
+      cell={cell}
+      engine={ctx.engine!}
+      awareness={ctx.document?.webrtcProvider.awareness!}
+    />
   );
 }
