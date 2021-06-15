@@ -31,6 +31,10 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
             // Replace range with node
             tr.replaceRangeWith(from, to, node);
 
+            // These positions mark the lower and upper bound of the range for searching the position of the newly placed node
+            const mappedFrom = tr.mapping.map(from, -1);
+            const mappedTo = tr.mapping.map(to, 1);
+
             // unfortunately, we need a forceUpdate, to make sure the React lifecycle has been flushed and NodeViews have been rendered completely
             const blockId = node.attrs["block-id"];
             // (this.editor as any).contentComponent.forceUpdate(() => {
@@ -39,17 +43,13 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
             // Go over all nodes in the range
             // Refer to https://discuss.prosemirror.net/t/find-new-node-instances-and-track-them/96
             // for a discussion on how to find the position of a newly placed node in the document
-            tr.doc.descendants((n, pos) => {
+            tr.doc.nodesBetween(mappedFrom, mappedTo, (n, pos) => {
               // If cursor is already placed, exit the callback and stop recursing
               if (placed) return false;
 
               // Check if this node is the node we just created, by comparing their block-id
               if (n.attrs["block-id"] === blockId) {
-                // this.editor.view.focus();
-                // this.editor.view.dispatch(
                 tr.setSelection(Selection.near(tr.doc.resolve(pos)));
-                // );
-                // this.editor.view.focus();
 
                 placed = true;
                 // Stop recursing
@@ -60,7 +60,6 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
             if (!placed) {
               console.error("couldn't find node after /command insertion");
             }
-            // });
           }
 
           return true;
