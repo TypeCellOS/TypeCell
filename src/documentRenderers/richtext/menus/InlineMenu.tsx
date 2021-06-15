@@ -12,19 +12,11 @@ import { Comment } from "../extensions/marks/Comment";
 import BubbleMenuButton, { ButtonStyleDetails } from "./BubbleMenuButton";
 import styles from "./InlineMenu.module.css";
 import Chat2LineIcon from "remixicon-react/Chat2LineIcon";
-import { Mark } from "@tiptap/core";
 import Bold from "@tiptap/extension-bold";
-import {
-  CommentStorage,
-  CommentType,
-} from "../extensions/comments/CommentStorage";
-import { sessionStore } from "../../../store/local/stores";
-import { setTextSelection } from "@tiptap/core/dist/packages/core/src/extensions/commands";
+import { v4 } from "uuid";
+import { commentStore } from "../extensions/comments/CommentStore";
 
 type InlineMenuProps = { editor: Editor };
-
-const commentStorage = new CommentStorage();
-const session = sessionStore;
 
 const bold: ButtonStyleDetails = {
   markName: "bold",
@@ -129,26 +121,9 @@ class InlineMenu extends React.Component<InlineMenuProps> {
         <BubbleMenuButton
           editor={this.props.editor}
           onClick={() => {
-            // Gets unique ID.
-            const id: number = commentStorage.getId();
-
-            // Gets comments from browser cache.
-            const comments: Array<CommentType> = commentStorage.getComments();
-
-            // Adds new editable comment.
-            comments.push({
-              id: id,
-              editable: true,
-              comment: "",
-              user: session.loggedInUser!,
-              date: new Date().toLocaleDateString("en-US"),
-            });
-
-            // Adds highlighting to text.
+            const id: string = v4();
             this.props.editor.chain().focus().setComment(id).run();
-
-            // Saves updated comments to browser cache.
-            commentStorage.setComments(comments);
+            commentStore.createComment(id);
           }}
           styleDetails={comment}
         />

@@ -1,4 +1,5 @@
 import { Command, Mark, mergeAttributes } from "@tiptap/core";
+import styles from "../comments/Comments.module.css";
 
 /**
  * This file structure is copied from the TipTap code for bold and italic
@@ -15,13 +16,13 @@ declare module "@tiptap/core" {
       /**
        * Set a comment mark
        */
-      setComment: (id: number) => Command;
+      setComment: (id: string) => Command;
       /**
-       * Toggle a comment mark
+       * Toggle an comment mark
        */
       toggleComment: () => Command;
       /**
-       * Unset a comment mark
+       * Unset an comment mark
        */
       unsetComment: () => Command;
     };
@@ -49,15 +50,15 @@ export const Comment = Mark.create<CommentOptions>({
   parseHTML() {
     return [
       {
-        tag: "c",
+        tag: "span[class=" + styles.commentHighlight + "]",
       },
     ];
   },
 
   renderHTML({ HTMLAttributes }) {
     return [
-      "c",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      "span",
+      mergeAttributes(HTMLAttributes, { class: styles.commentHighlight }),
       0,
     ];
   },
@@ -68,16 +69,6 @@ export const Comment = Mark.create<CommentOptions>({
         (id) =>
         ({ commands }) => {
           return commands.setMark("comment", { id: id });
-        },
-      toggleComment:
-        () =>
-        ({ commands }) => {
-          return commands.toggleMark("comment");
-        },
-      unsetComment:
-        () =>
-        ({ commands }) => {
-          return commands.unsetMark("comment");
         },
     };
   },

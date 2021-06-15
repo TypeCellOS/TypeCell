@@ -9,16 +9,13 @@ import Comment, {
   CommentTime,
 } from "@atlaskit/comment";
 import TextArea from "@atlaskit/textarea";
-import { CommentStorage, CommentType } from "./CommentStorage";
+import { commentStore, CommentType } from "./CommentStore";
 import { navigationStore } from "../../../../store/local/stores";
 import styles from "./Comments.module.css";
 import avatarImg from "./defualtAvatar.png";
 
-const commentStorage = new CommentStorage();
-const nav = navigationStore;
-
 export type CommentComponentProps = {
-  id: number;
+  id: string;
   state: EditorState;
   view: EditorView;
 };
@@ -31,84 +28,62 @@ export type CommentComponentProps = {
  * @prop view   The editor view, used in deletion.
  */
 export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
-  // commentData is used to store comment changes before writing them to browser cache.
-  const [commentData, setCommentData] = useState(getCommentData);
-
-  // Retrieves comment data with the corresponding ID from cache. Returns null if a comment with that ID doesn't exist.
-  function getCommentData() {
-    const comments: Array<CommentType> = commentStorage.getComments();
-    return comments.filter((comment) => comment.id === props.id)[0];
-  }
+  const [comment, setComment] = useState(
+    commentStore.getComment(props.id).comment
+  );
+  const [commentEditable, setCommentEditable] = useState(
+    commentStore.getComment(props.id).comment === ""
+  );
 
   // Updates comment text from user input but does not save it to cache.
-  function updateCommentData(event: ChangeEvent<HTMLTextAreaElement>) {
+  function updateComment(event: ChangeEvent<HTMLTextAreaElement>) {
     event.preventDefault();
-    setCommentData({
-      id: commentData.id,
-      editable: commentData.editable,
-      comment: event.target.value,
-      user: commentData.user,
-      date: commentData.date,
-    });
+    setComment(event.target.value);
   }
 
   // Toggles the user's ability to edit a comment. Only updates the "editable" field of the comment in cache.
   function toggleEditable() {
-    const oldComments: Array<CommentType> = commentStorage.getComments();
+    setCommentEditable(!commentEditable);
+    const oldComments: Array<CommentType> = commentStore.getComments();
     const newComments = oldComments.filter(
       (comment) => comment.id !== props.id
     );
     const newComment = {
-      id: commentData.id,
-      editable: !commentData.editable,
-      comment: commentData.comment,
-      user: commentData.user,
-      date: commentData.date,
+      id: commentStore.getComment(props.id).id,
+      comment: comment,
+      user: commentStore.getComment(props.id).user,
+      date: commentStore.getComment(props.id).date,
     };
     newComments.push(newComment);
-    commentStorage.setComments(newComments);
-    setCommentData(getCommentData);
+    commentStore.setComments(newComments);
   }
 
   // Reverts an editable comment to its previous state. This either deletes it or re-creates it from data in cache.
   function cancelEdit() {
-    const oldComments: Array<CommentType> = commentStorage.getComments();
-    const newComments = oldComments.filter(
-      (comment) => comment.id !== props.id
-    );
     // True if comment is only being created rather than edited.
-    const remove = getCommentData()!.comment === "";
-    const newComment = {
-      id: commentData.id,
-      editable: false,
-      comment: getCommentData().comment,
-      user: commentData.user,
-      date: commentData.date,
-    };
-    newComments.push(newComment);
-    commentStorage.setComments(newComments);
-    // Removes comments if it was being created, reverts it if it was being edited.
+    const remove = commentStore.getComment(props.id).comment === "";
+    // Removes comment if it was being created, reverts it if it was being edited.
     if (remove) {
       removeComment();
     } else {
-      setCommentData(getCommentData);
+      setComment(commentStore.getComment(props.id).comment);
+      setCommentEditable(false);
     }
   }
 
   // Removes the comment from browser cache as well as its corresponding mark.
   function removeComment() {
     // Removes comment from browser cache.
-    let comments: Array<CommentType> = commentStorage.getComments();
+    let comments: Array<CommentType> = commentStore.getComments();
     comments = comments.filter((comment) => comment.id !== props.id);
-    commentStorage.setComments(comments);
-    setCommentData(getCommentData);
+    commentStore.setComments(comments);
 
     // Removes corresponding comment mark.
     const tr = props.state.tr;
     props.state.doc.descendants(function (node, offset) {
       for (let mark of node.marks) {
-        if (mark.attrs["id"] !== null && mark.attrs["id"] === props.id) {
-          const type = getMarkType("comment", props.state.schema);
+        if (mark.type.name === "comment" && mark.attrs["id"] === props.id) {
+          const type = getMarkType(mark.type.name, props.state.schema);
           const range = getMarkRange(props.state.doc.resolve(offset), type, {
             id: mark.attrs["id"],
           });
@@ -139,6 +114,7 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
           if (
             offset >= commentRange.from &&
             offset + node.nodeSize <= commentRange.to &&
+            node.marks[i].type.name === "comment" &&
             node.marks[i].attrs["id"] === props.id
           ) {
             // Finds span of just the mark with the given ID.
@@ -167,37 +143,49 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
     <div className={styles.comment}>
       <Comment
         avatar={<Avatar src={avatarImg} size="medium" />}
-        author={<CommentAuthor>{commentData.user}</CommentAuthor>}
-        type={nav.currentPage.owner === commentData.user ? "author" : ""}
-        time={<CommentTime>{commentData.date}</CommentTime>}
+        author={
+          <CommentAuthor>
+            {commentStore.getComment(props.id).user}
+          </CommentAuthor>
+        }
+        type={
+          navigationStore.currentPage.owner ===
+          commentStore.getComment(props.id).user
+            ? "author"
+            : ""
+        }
+        time={
+          <CommentTime>{commentStore.getComment(props.id).date}</CommentTime>
+        }
         content={
           <div>
-            {commentData.editable ? (
+            {commentEditable ? (
               <div className={styles.commentForm}>
                 <TextArea
                   resize="smart"
                   name="commentInput"
-                  defaultValue={getCommentData()!.comment}
-                  onChange={updateCommentData}
+                  defaultValue={commentStore.getComment(props.id).comment}
+                  onChange={updateComment}
                 />
               </div>
             ) : (
-              <p>{commentData.comment}</p>
+              <p>{comment}</p>
             )}
             <p className={styles.commentReference}>{getReference()}</p>
           </div>
         }
         actions={
-          commentData.editable
+          commentEditable
             ? [
                 <CommentAction
-                  isDisabled={commentData!.comment === ""}
+                  isDisabled={comment === ""}
                   onClick={toggleEditable}>
                   Submit
                 </CommentAction>,
                 <CommentAction onClick={cancelEdit}>Cancel</CommentAction>,
               ]
-            : nav.currentPage.owner === commentData.user
+            : navigationStore.currentPage.owner ===
+              commentStore.getComment(props.id).user
             ? [
                 <CommentAction onClick={toggleEditable}>Edit</CommentAction>,
                 <CommentAction onClick={removeComment}>Delete</CommentAction>,

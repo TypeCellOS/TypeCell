@@ -1,16 +1,8 @@
-import { ReactElement } from "react";
-import ReactDOM from "react-dom";
 import { Extension } from "@tiptap/react";
-import { getMarkRange, getMarkType } from "@tiptap/core";
-import { Plugin, PluginKey, EditorState } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
-import { CommentStorage, CommentType } from "./CommentStorage";
-import { CommentComponent } from "./CommentComponent";
-import styles from "./Comments.module.css";
+import { Plugin, PluginKey } from "prosemirror-state";
+import { commentStore, CommentType } from "./CommentStore";
 
-const commentStorage = new CommentStorage();
-
-// This plugin adds styling to blocks whenever the selection spans more than one block to indicate they're selected.
+// This plugin ensures that comment marks are consistent with the comments in cache.
 export const Comments = Extension.create({
   name: "comments",
 
@@ -21,7 +13,6 @@ export const Comments = Extension.create({
 
         view: () => {
           return {
-            // This pretty much just ensures that comment marks are consistent with the comments in cache.
             update: () => {
               const state = this.editor.state;
 
@@ -30,30 +21,25 @@ export const Comments = Extension.create({
                 return;
               }
 
-              let comments: Array<CommentType> = commentStorage.getComments();
-              const markIDs: Set<number> = new Set<number>();
+              let comments: Array<CommentType> = commentStore.getComments();
+              const markIDs: Set<string> = new Set<string>();
 
               // Fills markIDs array with all comment marks in the document.
               state.doc.descendants(function (node) {
                 // Iterates over each mark in node.
                 for (let mark of node.marks) {
                   // Checks that mark is of comment type.
-                  if (mark.attrs["id"] !== null) {
+                  if (mark.type.name === "comment") {
                     markIDs.add(mark.attrs["id"]);
                   }
                 }
               });
-              console.log(markIDs);
 
               // Removes comments with no corresponding marks.
-              for (let comment of comments) {
-                if (!markIDs.has(comment.id)) {
-                  comments = comments.filter((com) => com.id !== comment.id);
-                }
-              }
+              comments = comments.filter((comment) => markIDs.has(comment.id));
 
               // Saves updated comments to browser cache.
-              commentStorage.setComments(comments);
+              commentStore.setComments(comments);
             },
           };
         },

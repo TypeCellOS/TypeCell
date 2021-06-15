@@ -6,11 +6,11 @@ import styles from "./Comments.module.css";
 export type CommentWrapperProps = { editor: Editor };
 
 export const CommentWrapper: React.FC<CommentWrapperProps> = (props) => {
-  const commentIds = new Array<number>();
+  const commentIds = new Array<string>();
 
   // Resolved cursor position.
   const resolvedPos = props.editor.state.doc.resolve(
-    props.editor.state.selection.anchor
+    props.editor.state.selection.from
   );
   const commentType = getMarkType("comment", props.editor.state.schema);
   // Range includes all adjacent/overlapping comment marks so that the comments for these are also rendered.
@@ -27,10 +27,9 @@ export const CommentWrapper: React.FC<CommentWrapperProps> = (props) => {
         if (
           offset >= commentRange.from &&
           offset + node.nodeSize <= commentRange.to &&
-          node.marks[i].attrs["id"] !== null &&
+          node.marks[i].type.name === "comment" &&
           !commentIds.includes(node.marks[i].attrs["id"])
         ) {
-          // Creates a React component for the comment and adds it to the list.
           commentIds.push(node.marks[i].attrs["id"]);
         }
       }
@@ -44,6 +43,7 @@ export const CommentWrapper: React.FC<CommentWrapperProps> = (props) => {
           id={id}
           state={props.editor.state}
           view={props.editor.view}
+          key={id}
         />
       ))}
     </div>

@@ -40,10 +40,8 @@ import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import { Comments } from "./extensions/comments/Comments";
-import { CommentStorage } from "./extensions/comments/CommentStorage";
+import { commentStore } from "./extensions/comments/CommentStore";
 import { CommentWrapper } from "./extensions/comments/CommentWrapper";
-
-const commentStorage = new CommentStorage();
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -56,8 +54,8 @@ const PEOPLE = [
 ];
 
 // Initializes comments map if not already done.
-if (!commentStorage.isInitialized()) {
-  commentStorage.initialize();
+if (!commentStore.isInitialized()) {
+  commentStore.initialize();
 }
 
 type Props = {

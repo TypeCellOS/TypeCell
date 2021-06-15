@@ -1,10 +1,8 @@
 .comments {
-    /*display: block;*/
     position: fixed;
-    /*right: 0;*/
-    /*top: 4rem;*/
-    margin-left: 70rem;
-    width: 22rem;
+    /*margin-left: 70rem;*/
+    /*width: 22rem;*/
+    right: 0.5rem;
     z-index: 1;
 }
 
@@ -28,4 +26,8 @@
 
 .commentForm {
     z-index: 5;
+}
+
+.commentHighlight {
+    background-color: #FFF0B3;
 }
