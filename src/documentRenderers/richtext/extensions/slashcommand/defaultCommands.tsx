@@ -192,7 +192,11 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     "TypeCell",
     CommandGroup.CODE,
     (editor, range) => {
-      const node = editor.schema.node("typecell", { "block-id": uuidv4() });
+      const node = editor.schema.node(
+        "typecell",
+        { "block-id": uuidv4() },
+        editor.schema.text("// Enter code here :)")
+      );
 
       editor
         .chain()
