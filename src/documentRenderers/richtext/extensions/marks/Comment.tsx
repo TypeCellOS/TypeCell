@@ -17,14 +17,6 @@ declare module "@tiptap/core" {
        * Set a comment mark
        */
       setComment: (id: string) => Command;
-      /**
-       * Toggle an comment mark
-       */
-      toggleComment: () => Command;
-      /**
-       * Unset an comment mark
-       */
-      unsetComment: () => Command;
     };
   }
 }
