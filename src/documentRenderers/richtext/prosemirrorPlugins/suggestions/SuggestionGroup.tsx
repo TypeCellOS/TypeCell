@@ -81,7 +81,7 @@ function SuggestionComponent<T extends SuggestionItem>(
   let isButtonSelected =
     props.selectedIndex !== undefined && props.selectedIndex === props.index;
 
-  const buttonRef = React.useRef<HTMLInputElement>(null);
+  const buttonRef = React.useRef<HTMLElement>(null);
   React.useEffect(() => {
     if (
       isButtonSelected &&
@@ -102,8 +102,14 @@ function SuggestionComponent<T extends SuggestionItem>(
       <ButtonItem
         isSelected={isButtonSelected} // This is needed to navigate with the keyboard
         iconBefore={getIcon(props.item, isButtonSelected)}
-        key={props.index}
-        onClick={() => props.clickItem(props.item)}
+        onClick={(e) => {
+          setTimeout(() => {
+            props.clickItem(props.item);
+          }, 0);
+
+          // e.stopPropagation();
+          // e.preventDefault();
+        }}
         ref={buttonRef}>
         <SuggestionContent item={props.item} />
       </ButtonItem>
@@ -120,6 +126,7 @@ export function SuggestionGroup<T extends SuggestionItem>(
         return (
           <SuggestionComponent
             item={item}
+            key={index} // TODO: using index as key is not ideal for performance, better have ids on suggestionItems
             index={index}
             selectedIndex={props.selectedIndex}
             clickItem={props.clickItem}
