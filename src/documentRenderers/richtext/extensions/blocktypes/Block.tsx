@@ -1,5 +1,9 @@
 import Tippy from "@tippyjs/react";
-import { NodeViewRendererProps, NodeViewWrapper } from "@tiptap/react";
+import {
+  NodeViewContent,
+  NodeViewRendererProps,
+  NodeViewWrapper,
+} from "@tiptap/react";
 import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { DOMOutputSpec, Node } from "prosemirror-model";
@@ -16,8 +20,6 @@ import SideMenu from "../../menus/SideMenu";
 import mergeAttributesReact from "../../util/mergeAttributesReact";
 import TypeCellComponent from "../typecellnode/TypeCellComponent";
 import styles from "./Block.module.css";
-import { CustomNodeViewContent } from "./CustomNodeViewContent";
-import { CustomNodeViewWrapper } from "./CustomNodeViewWrapper";
 /**
  * A global store that keeps track of which block is being hovered over
  */
@@ -185,7 +187,7 @@ function Block(
     if (!props.node.attrs["block-id"]) {
       return (
         <NodeViewWrapper>
-          <CustomNodeViewContent
+          <NodeViewContent
             as={domType}
             {...domAttrs}
             ref={(props as any).contentWrapperRef}
@@ -275,7 +277,7 @@ function Block(
       : {};
 
     return (
-      <CustomNodeViewWrapper className={`${styles.block}`} ref={outerRef}>
+      <NodeViewWrapper className={`${styles.block}`} ref={outerRef}>
         <div className={styles.inner + " inner"} ref={innerRef}>
           <div
             className={styles.handleContainer}
@@ -314,7 +316,7 @@ function Block(
           contentEditable={false}>
           {/* space content is needed because otherwise keyboard navigation doesn't work well */}{" "}
         </div>
-      </CustomNodeViewWrapper>
+      </NodeViewWrapper>
     );
   });
 }
@@ -354,7 +356,7 @@ function renderContentBasedOnDOMType(
             })}
         </select>
 
-        <CustomNodeViewContent
+        <NodeViewContent
           as={"code"}
           {...domAttrs}
           className={styles.codeBlockCodeContent}
@@ -366,7 +368,7 @@ function renderContentBasedOnDOMType(
     return <TypeCellComponent node={props.node}></TypeCellComponent>;
   } else {
     return (
-      <CustomNodeViewContent
+      <NodeViewContent
         as={domType}
         {...mergeAttributesReact(placeholderAttrs, domAttrs)}
         ref={(props as any).contentWrapperRef}
