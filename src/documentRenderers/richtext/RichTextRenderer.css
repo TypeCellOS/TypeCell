@@ -101,24 +101,3 @@ blockquote {
   border-radius: 0.3rem;
   padding: 0.1rem 0.3rem;
 }
-
-/*Highlight color for comments at 5 nesting levels.*/
-c {
-  background-color: #FFF0B3;
-}
-
-c > c {
-  background-color: #FFE380;
-}
-
-c > c > c {
-  background-color: #FFC400;
-}
-
-c > c > c > c {
-  background-color: #FFAB00;
-}
-
-c > c > c > c > c {
-  background-color: #FF991F;
-}

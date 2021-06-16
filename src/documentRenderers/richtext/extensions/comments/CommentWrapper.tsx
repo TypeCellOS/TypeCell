@@ -7,9 +7,15 @@ import {
 } from "@tiptap/core";
 import { CommentComponent } from "./CommentComponent";
 import styles from "./Comments.module.css";
+import { commentStore } from "./CommentStore";
 
 export type CommentWrapperProps = { editor: Editor };
 
+/**
+ * This component is a wrapper for all comments that are displayed at any given time.
+ * @param props The component props.
+ * @prop editor The editor to render comments for.
+ */
 export const CommentWrapper: React.FC<CommentWrapperProps> = (props) => {
   let commentIds: Array<string> = [];
   const commentType = getMarkType("comment", props.editor.state.schema);
@@ -36,6 +42,16 @@ export const CommentWrapper: React.FC<CommentWrapperProps> = (props) => {
       ),
     ];
   }
+
+  const commentDates = new Map();
+  commentIds.map((id) =>
+    commentDates.set(id, commentStore.getComment(id).date)
+  );
+
+  // IDs sorted by the chronological order their comments were created in.
+  commentIds = Array.from(
+    new Map([...commentDates.entries()].sort((a, b) => a[1] - b[1])).keys()
+  );
 
   return (
     <div className={styles.comments} style={{ top: fromTop }}>

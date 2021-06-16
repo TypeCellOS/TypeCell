@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useState } from "react";
-import { getMarkRange, getMarkType } from "@tiptap/core";
+import { getMarkRange, getMarksBetween, getMarkType } from "@tiptap/core";
 import { EditorState } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
+import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import Avatar from "@atlaskit/avatar";
 import Comment, {
   CommentAction,
@@ -13,6 +13,7 @@ import { commentStore, CommentType } from "./CommentStore";
 import { navigationStore } from "../../../../store/local/stores";
 import styles from "./Comments.module.css";
 import avatarImg from "./defualtAvatar.png";
+import { getNearestComment } from "./GetNearestComment";
 
 export type CommentComponentProps = {
   id: string;
@@ -24,7 +25,7 @@ export type CommentComponentProps = {
  * This component renders a single comment based on comment information that is stored in browser cache.
  * @param props The component props.
  * @prop id     The ID if the comment to render. Used to fetch the appropriate comment data from cache.
- * @prop state  The editor state, used in deletion and finding comment reference text.
+ * @prop state  The editor state, used in deletion.
  * @prop view   The editor view, used in deletion.
  */
 export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
@@ -96,51 +97,15 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
     props.view.dispatch(tr);
   }
 
-  // Gets the highlighted text that the comment refers to in the editor.
-  function getReference() {
-    let reference: string = "";
-    const resolvedPos = props.state.doc.resolve(props.state.selection.anchor);
-    const commentType = getMarkType("comment", props.state.schema);
-    // All comments with marks adjacent/overlapping the one the cursor is in get rendered, so we have to make sure
-    // we can get references for these too.
-    const commentRange = getMarkRange(resolvedPos, commentType);
-
-    // Checks if cursor is within a comment mark.
-    if (typeof commentRange !== "undefined") {
-      // Finds the child node the cursor is in which also has comment marks.
-      props.state.doc.descendants(function (node, offset) {
-        for (let i = 0; i < node.marks.length; i++) {
-          // Checks if the mark is a comment in range with the correct ID.
-          if (
-            offset >= commentRange.from &&
-            offset + node.nodeSize <= commentRange.to &&
-            node.marks[i].type.name === "comment" &&
-            node.marks[i].attrs["id"] === props.id
-          ) {
-            // Finds span of just the mark with the given ID.
-            const commentRangeWithId = getMarkRange(
-              props.state.doc.resolve(offset),
-              commentType,
-              {
-                id: props.id,
-              }
-            );
-            if (typeof commentRangeWithId !== "undefined") {
-              // Gets all text in that span.
-              reference = props.state.doc.cut(
-                commentRangeWithId.from,
-                commentRangeWithId.to
-              ).textContent;
-            }
-          }
-        }
-      });
-    }
-    return reference;
+  // Checks if this comment is closest to the cursor.
+  function checkHighlighted() {
+    return getNearestComment(props.state)?.id === props.id;
   }
 
   return (
-    <div className={styles.comment}>
+    <div
+      className={styles.comment}
+      style={{ background: checkHighlighted() ? "#FFF0B3" : "white" }}>
       <Comment
         avatar={<Avatar src={avatarImg} size="medium" />}
         author={
@@ -155,7 +120,11 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
             : ""
         }
         time={
-          <CommentTime>{commentStore.getComment(props.id).date}</CommentTime>
+          <CommentTime>
+            {new Date(
+              commentStore.getComment(props.id).date
+            ).toLocaleDateString()}
+          </CommentTime>
         }
         content={
           <div>
@@ -171,7 +140,6 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
             ) : (
               <p>{comment}</p>
             )}
-            <p className={styles.commentReference}>{getReference()}</p>
           </div>
         }
         actions={
