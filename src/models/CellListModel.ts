@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import * as Y from "yjs";
 import { CellModel } from "./CellModel";
-
+import { v4 as uuidv4 } from "uuid";
 export class CellListModel {
   /** @internal */
   constructor(private documentId: string, private fragment: Y.XmlFragment) {}
@@ -30,25 +30,30 @@ export class CellListModel {
 
     this._previousChildren = children;
     this._previousCells = children.map((el) => {
-      const path =
-        "!@" +
-        this.documentId.substr(1) +
-        "/" +
-        el.getAttribute("id") +
-        ".cell.tsx";
+      const id = el.getAttribute("block-id");
+      if (!id) {
+        throw new Error("no id specified");
+      }
+      const path = "!@" + this.documentId.substr(1) + "/" + id + ".cell.tsx";
+
+      if (!el.firstChild) {
+        throw new Error("unexpected");
+      }
 
       const code = el.firstChild;
+
       if (!(code instanceof Y.XmlText)) {
         throw new Error("should be text");
       }
-      return new CellModel(path, code);
+
+      return new CellModel(id, path, code);
     });
     return this._previousCells;
   }
 
   public addCell(i: number) {
     const element = new Y.XmlElement("typecell");
-    element.setAttribute("id", Math.random() + "");
+    element.setAttribute("block-id", uuidv4());
     element.insert(0, [new Y.XmlText("// hello")]);
     this.fragment.insert(i, [element]);
   }

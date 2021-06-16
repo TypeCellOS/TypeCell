@@ -3,7 +3,13 @@ import { observer } from "mobx-react-lite";
 // import useCellModel from "./useCellModel.ts.bak";
 import type * as Monaco from "monaco-editor";
 import * as monaco from "monaco-editor";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   VscChevronDown,
   VscChevronRight,
@@ -29,7 +35,7 @@ type Props = {
   classList?: string;
   defaultCollapsed?: boolean;
   initialFocus?: boolean;
-  awareness: Awareness;
+  awareness: Awareness | null;
 };
 
 const NotebookCell: React.FC<Props> = observer((props) => {
@@ -104,7 +110,6 @@ const NotebookCell: React.FC<Props> = observer((props) => {
     editor.setModel(monacoModel);
     setModel(newModel.object);
 
-    // TODO: optimization: new MonacoBinding now calls model.setValue with same content it already has, causing listeners to fire twice
     const monacoBinding = new MonacoBinding(
       props.cell.code,
       monacoModel,
@@ -132,7 +137,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
       try {
         editor.layout({
           height: contentHeight,
-          width: editor.getDomNode()!.offsetWidth,
+          width: editor.getContainerDomNode()!.offsetWidth,
         });
       } finally {
       }
@@ -240,7 +245,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
               style={{ height: "100%" }}></div>
           </div>
         )}
-        <div className="output">
+        <div className="output" contentEditable={false}>
           {/* <CellContext.Provider value={{ cell: props.cell }}> */}
           {/* <div>hello</div> */}
           {model && <Output outputs={props.engine.outputs} model={model} />}

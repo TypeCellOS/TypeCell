@@ -5,12 +5,12 @@ import "./Block.module.css";
 import { getNodeType } from "@tiptap/react";
 
 declare module "@tiptap/core" {
-  interface Commands {
+  interface Commands<ReturnType> {
     toggleIndentGroup: {
       /**
        * Create an indent group from a root-level node
        */
-      createIndentGroup: () => Command;
+      createIndentGroup: () => ReturnType;
     };
   }
 }

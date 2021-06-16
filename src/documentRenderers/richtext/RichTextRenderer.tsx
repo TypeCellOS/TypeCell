@@ -5,10 +5,12 @@ import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import Document from "@tiptap/extension-document";
 import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
+import Placeholder from "@tiptap/extension-placeholder";
+import { useEditor, EditorContent } from "@tiptap/react";
+import { observer } from "mobx-react-lite";
+import React, { useEffect, useMemo, useRef } from "react";
 import Strike from "@tiptap/extension-strike";
 import Text from "@tiptap/extension-text";
-import { EditorContent, useEditor } from "@tiptap/react";
-import React from "react";
 import { DocumentResource } from "../../store/DocumentResource";
 import { AutoId } from "./extensions/autoid/AutoId";
 import { TrailingNode } from "./extensions/trailingnode";
@@ -19,6 +21,7 @@ import {
   IndentItemBlock,
   ListItemBlock,
   ParagraphBlock,
+  TypeCellNodeBlock,
   BulletList,
   OrderedList,
   CodeBlockBlock,
@@ -31,13 +34,15 @@ import { Mention, MentionType } from "./extensions/mentions/Mention";
 import { MentionsExtension } from "./extensions/mentions/MentionsExtension";
 import SlashCommandExtension from "./extensions/slashcommand";
 import "./RichTextRenderer.css";
+import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
+import { EngineContext } from "./extensions/typecellnode/EngineContext";
 import InlineMenu from "./menus/InlineMenu";
 import TableMenu from "./menus/TableInlineMenu";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import { Placeholder } from "@tiptap/extension-placeholder";
 import Hyperlink, { HYPERLINK_MENU } from "./extensions/marks/Hyperlink";
+import multipleLineMarkdownRuleBuilder from "./extensions/markdownPasteRules/multiple/markdownMultipleLines";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -52,7 +57,31 @@ const PEOPLE = [
 type Props = {
   document: DocumentResource;
 };
-const RichTextRenderer: React.FC<Props> = (props) => {
+const RichTextRenderer: React.FC<Props> = observer((props) => {
+  const disposer = useRef<() => void>();
+
+  const engine = useMemo(() => {
+    if (disposer.current) {
+      disposer.current();
+      disposer.current = undefined;
+    }
+    const newEngine = new EngineWithOutput(props.document.id, true);
+    disposer.current = () => {
+      newEngine.dispose();
+    };
+
+    return newEngine;
+  }, [props.document.id]);
+
+  useEffect(() => {
+    return () => {
+      if (disposer.current) {
+        disposer.current();
+        disposer.current = undefined;
+      }
+    };
+  }, []);
+
   const editor = useEditor({
     onCreate: ({ editor }) => {
       const prosemirror = document.querySelector(".ProseMirror");
@@ -62,7 +91,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       prosemirror?.parentElement?.appendChild(div);
     },
     onUpdate: ({ editor }) => {
-      // console.log(editor.getJSON());
+      console.log(editor.getJSON());
     },
     onSelectionUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
@@ -129,6 +158,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       TableCell,
       TableHeader,
       TableRow,
+      TypeCellNodeBlock,
 
       // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
       // should be handled before Enter handlers in other components like splitListItem
@@ -144,7 +174,6 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         },
       }),
       TrailingNode,
-      // TypeCellNode,
     ],
     enableInputRules: true,
     enablePasteRules: true,
@@ -159,9 +188,11 @@ const RichTextRenderer: React.FC<Props> = (props) => {
     <div>
       {editor != null ? <InlineMenu editor={editor} /> : null}
       {editor != null ? <TableMenu editor={editor} /> : null}
-      <EditorContent editor={editor} />
+      <EngineContext.Provider value={{ engine, document: props.document }}>
+        <EditorContent editor={editor} />
+      </EngineContext.Provider>
     </div>
   );
-};
+});
 
 export default RichTextRenderer;
