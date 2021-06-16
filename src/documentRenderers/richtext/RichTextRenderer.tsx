@@ -22,7 +22,7 @@ import {
   IndentItemBlock,
   ListItemBlock,
   ParagraphBlock,
-  TypeCellNodeBlock,
+  // TypeCellNodeBlock,
   BulletList,
   OrderedList,
   CodeBlockBlock,
@@ -35,14 +35,11 @@ import { Mention, MentionType } from "./extensions/mentions/Mention";
 import { MentionsExtension } from "./extensions/mentions/MentionsExtension";
 import SlashCommandExtension from "./extensions/slashcommand";
 import "./RichTextRenderer.css";
-import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
-import { EngineContext } from "./extensions/typecellnode/EngineContext";
 import InlineMenu from "./menus/InlineMenu";
 import TableMenu from "./menus/TableInlineMenu";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import multipleLineMarkdownRuleBuilder from "./extensions/markdownPasteRules/multiple/markdownMultipleLines";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -55,23 +52,24 @@ const PEOPLE = [
 ];
 
 type Props = {
-  document: DocumentResource;
+  // document: DocumentResource;
+  content?: string;
 };
 const RichTextRenderer: React.FC<Props> = observer((props) => {
   const disposer = useRef<() => void>();
 
-  const engine = useMemo(() => {
-    if (disposer.current) {
-      disposer.current();
-      disposer.current = undefined;
-    }
-    const newEngine = new EngineWithOutput(props.document.id, true);
-    disposer.current = () => {
-      newEngine.dispose();
-    };
+  // const engine = useMemo(() => {
+  //   if (disposer.current) {
+  //     disposer.current();
+  //     disposer.current = undefined;
+  //   }
+  //   const newEngine = new EngineWithOutput(props.document.id, true);
+  //   disposer.current = () => {
+  //     newEngine.dispose();
+  //   };
 
-    return newEngine;
-  }, [props.document.id]);
+  //   return newEngine;
+  // }, [props.document.id]);
 
   useEffect(() => {
     return () => {
@@ -83,6 +81,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
   }, []);
 
   const editor = useEditor({
+    content: props.content,
     onUpdate: ({ editor }) => {
       console.log(editor.getJSON());
     },
@@ -91,13 +90,14 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       // console.log(editor.state.selection);
     },
     extensions: [
-      CollaborationCursor.configure({
-        provider: props.document.webrtcProvider,
-        user: { name: "Hello", color: "#f783ac" },
-      }),
-      Collaboration.configure({
-        fragment: props.document.data,
-      }),
+      // CollaborationCursor.configure({
+      //   provider: props.document.webrtcProvider,
+      //   user: { name: "Hello", color: "#f783ac" },
+      // }),
+      // Collaboration.configure({
+      //   fragment: props.document.data,
+      // }),
+
       // DropCursor,
       // Even though we implement our own placeholder logic in Blocks, we
       // still need the placeholder extension to make sure nodeviews
@@ -149,7 +149,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       TableCell,
       TableHeader,
       TableRow,
-      TypeCellNodeBlock,
+      // TypeCellNodeBlock,
 
       // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
       // should be handled before Enter handlers in other components like splitListItem
@@ -179,9 +179,9 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     <div>
       {editor != null ? <InlineMenu editor={editor} /> : null}
       {editor != null ? <TableMenu editor={editor} /> : null}
-      <EngineContext.Provider value={{ engine, document: props.document }}>
-        <EditorContent editor={editor} />
-      </EngineContext.Provider>
+      {/* <EngineContext.Provider value={{ engine, document: props.document }}> */}
+      <EditorContent editor={editor} />
+      {/* </EngineContext.Provider> */}
     </div>
   );
 });

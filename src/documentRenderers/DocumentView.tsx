@@ -43,7 +43,10 @@ const DocumentView = observer((props: Props) => {
     );
   } else if (connection.doc.type === "!richtext") {
     return (
-      <RichTextRenderer key={connection.doc.id} document={connection.doc.doc} />
+      <RichTextRenderer
+        key={connection.doc.id}
+        // document={connection.doc.doc}
+      />
     );
   } else if (connection.doc.type === "!plugin") {
     return (
