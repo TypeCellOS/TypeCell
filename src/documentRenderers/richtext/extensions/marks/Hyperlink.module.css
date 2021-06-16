@@ -8,6 +8,10 @@
   text-decoration: none;
 }
 
+.open:hover {
+  cursor: pointer;
+}
+
 .editingWrapper {
   display: flex;
   flex-direction: row;
@@ -19,4 +23,18 @@
 .editingWrapper > * {
   padding: 0.25rem;
   margin: 0.25rem;
+}
+
+.separator {
+  padding-left: 0.1em !important;
+  padding-right: 0.1em !important;
+}
+.separator::before {
+  content: "|";
+  color: lightgray;
+}
+
+.separator:hover {
+  cursor: auto !important;
+  background: white !important;
 }

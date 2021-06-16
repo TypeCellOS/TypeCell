@@ -1,6 +1,5 @@
 import { Editor } from "@tiptap/react";
 import React, { useEffect, useState } from "react";
-import styles from "../extensions/marks/Hyperlink.module.css";
 import {
   Container,
   ContainerWrapper,
@@ -8,8 +7,9 @@ import {
   UrlInputWrapper,
 } from "../extensions/marks/AtlaskitHyperlink/ToolbarComponent";
 import Tooltip from "@atlaskit/tooltip";
-import LinkIcon from "@atlaskit/icon/glyph/link";
+import LinkIcon from "remixicon-react/LinkIcon";
 import PanelTextInput from "../extensions/marks/AtlaskitHyperlink/PanelTextInput";
+import { EDITING_MENU_LINK } from "../extensions/marks/Hyperlink";
 
 export type LinkFormProps = { editor: Editor };
 
@@ -69,11 +69,12 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
       <Container provider={false}>
         <UrlInputWrapper>
           <IconWrapper>
-            <Tooltip content={"tooltip"}>
-              <LinkIcon label={"link icon"}></LinkIcon>
+            <Tooltip content={"Add a hyperlink"}>
+              <LinkIcon></LinkIcon>
             </Tooltip>
           </IconWrapper>
           <PanelTextInput
+            id={EDITING_MENU_LINK}
             placeholder={"URL"}
             defaultValue={url}
             onChange={handleChange}

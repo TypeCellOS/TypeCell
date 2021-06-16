@@ -1,195 +1,19 @@
 import ReactDOM from "react-dom";
 import { Link } from "@tiptap/extension-link";
 import { Plugin, PluginKey } from "prosemirror-state";
-import Button from "@atlaskit/button";
 import Tippy from "@tippyjs/react";
-import styles from "./Hyperlink.module.css";
-import menuStyles from "../../menus/InlineMenu.module.css";
-import Edit from "remixicon-react/EditBoxLineIcon";
-import Remove from "remixicon-react/CloseLineIcon";
-import Open from "remixicon-react/ShareBoxLineIcon";
-import React from "react";
-import PanelTextInput from "./AtlaskitHyperlink/PanelTextInput";
-import {
-  Container,
-  ContainerWrapper,
-  IconWrapper,
-  TextInputWrapper,
-  UrlInputWrapper,
-} from "./AtlaskitHyperlink/ToolbarComponent";
-import Tooltip from "@atlaskit/tooltip";
-import LinkIcon from "@atlaskit/icon/glyph/link";
-import EditorAlignLeftIcon from "@atlaskit/icon/glyph/editor/align-left";
+import { HyperlinkBasicMenu } from "./hyperlinkMenus/HyperlinkBasicMenu";
+import { HyperlinkEditMenu } from "./hyperlinkMenus/HyperlinkEditMenu";
+import { Plugin as TippyPlugin } from "tippy.js";
 
 // ids to search for the active anchor link and its menu
-const ACTIVE = "activeLink";
+export const ACTIVE = "activeLink";
 export const HYPERLINK_MENU = "hyperlinkMenu";
-const EDITING_MENU = "editingHyperlinkMenu";
-const EDITING_MENU_LINK = EDITING_MENU + "Link";
-const EDITING_MENU_TEXT = EDITING_MENU + "Text";
-const MENU = "hyperlinkMenuDiv";
+export const EDITING_MENU = "editingHyperlinkMenu";
+export const EDITING_MENU_LINK = EDITING_MENU + "Link";
+export const MENU = "hyperlinkMenuDiv";
 
-const EMPTY_MENU = <div></div>;
-
-type HyperlinkMenuProps = {
-  href: string;
-  text: string;
-  removeHandler: () => void;
-  editHandler: (href: string, text: string) => void;
-};
-
-/**
- * A hyperlink menu shown when an anchor is hovered over.
- * @param props props of a hyperlink menu
- * @returns a menu for editing/removing/opening the link
- */
-const HyperLinkMenu = (props: HyperlinkMenuProps) => {
-  const [value, setValue] = React.useState([props.href, props.text]);
-
-  React.useEffect(() => {
-    const anchor = document.getElementById(ACTIVE);
-    if (anchor) {
-      const href = anchor.getAttribute("href");
-      if (href) setValue([href.substring(2), anchor.innerText]);
-    }
-  }, [props.href, props.text]);
-
-  return (
-    <div className={`${styles.linkerWrapper} ${menuStyles.bubbleMenu}`}>
-      <Tippy
-        content={
-          <div className={menuStyles.buttonTooltip}>
-            <div className={menuStyles.mainText}>Edit</div>
-          </div>
-        }>
-        <Tippy
-          content={
-            <HyperlinkEditorAtlaskit
-              previousLink={value[0]}
-              previousText={value[1]}
-              setter={setValue}
-              editHandler={props.editHandler}></HyperlinkEditorAtlaskit>
-          }
-          trigger="click"
-          interactive={true}
-          interactiveBorder={30}>
-          <Button
-            appearance="subtle"
-            iconBefore={<Edit className={menuStyles.icon}></Edit>}></Button>
-        </Tippy>
-      </Tippy>
-
-      <Tippy
-        content={
-          <div className={menuStyles.buttonTooltip}>
-            <div className={menuStyles.mainText}>Remove</div>
-          </div>
-        }>
-        <Button
-          appearance="subtle"
-          onClick={props.removeHandler}
-          iconBefore={<Remove className={menuStyles.icon}></Remove>}></Button>
-      </Tippy>
-
-      <Tippy
-        content={
-          <div className={menuStyles.buttonTooltip}>
-            <div className={menuStyles.mainText}>Open</div>
-          </div>
-        }>
-        <Button
-          appearance="subtle"
-          iconBefore={
-            <a
-              href={"//" + props.href}
-              className={styles.open}
-              target="_blank"
-              rel="noreferrer">
-              <Open className={menuStyles.icon}></Open>
-            </a>
-          }></Button>
-      </Tippy>
-    </div>
-  );
-};
-
-type HyperlinkEditorProps = {
-  previousLink: string;
-  previousText: string;
-  editHandler: (href: string, text: string) => void;
-  setter: (arr: [href: string, text: string]) => void;
-};
-
-/**
- * the function that handles the input submit event
- * @param props the props from a hyperlink editor menu
- */
-const submit = (props: HyperlinkEditorProps) => {
-  const hyperlink = document.getElementById(EDITING_MENU_LINK);
-  const title = document.getElementById(EDITING_MENU_TEXT);
-  if (
-    hyperlink &&
-    title &&
-    hyperlink instanceof HTMLInputElement &&
-    title instanceof HTMLInputElement
-  ) {
-    const link = hyperlink.value;
-    const text = title.value;
-    props.editHandler("//" + link, text);
-  }
-};
-
-/**
- * The sub menu for editing an anchor element
- * @param props props of menu for editing
- * @returns a menu for the edit operation of a hyperlink
- */
-const HyperlinkEditorAtlaskit = (props: HyperlinkEditorProps) => {
-  return (
-    <ContainerWrapper>
-      <Container provider={false} id={EDITING_MENU}>
-        <UrlInputWrapper>
-          <IconWrapper>
-            <Tooltip content={"tooltip"}>
-              <LinkIcon label={"link icon"}></LinkIcon>
-            </Tooltip>
-          </IconWrapper>
-          <PanelTextInput
-            id={EDITING_MENU_LINK}
-            defaultValue={props.previousLink}
-            onSubmit={(linkValue) => {
-              submit(props);
-            }}
-            onChange={(value) => {
-              const title = document.getElementById(EDITING_MENU_TEXT);
-              if (title && title instanceof HTMLInputElement) {
-                props.setter([value, title.value]);
-              }
-            }}></PanelTextInput>
-        </UrlInputWrapper>
-        <TextInputWrapper>
-          <IconWrapper>
-            <Tooltip content={"tooltip"}>
-              <EditorAlignLeftIcon label={"title icon"}></EditorAlignLeftIcon>
-            </Tooltip>
-          </IconWrapper>
-          <PanelTextInput
-            id={EDITING_MENU_TEXT}
-            defaultValue={props.previousText}
-            onSubmit={(textValue) => {
-              submit(props);
-            }}
-            onChange={(value) => {
-              const hyperlink = document.getElementById(EDITING_MENU_LINK);
-              if (hyperlink && hyperlink instanceof HTMLInputElement) {
-                props.setter([hyperlink.value, value]);
-              }
-            }}></PanelTextInput>
-        </TextInputWrapper>
-      </Container>
-    </ContainerWrapper>
-  );
-};
+export const EMPTY_MENU = <div></div>;
 
 /**
  * Used to clear the previous tippy menu.
@@ -216,6 +40,78 @@ const generateAnchorPos = (anchor: Element) => {
 };
 
 /**
+ * a helper function that wraps a Tippy around a HyperlinkEditMenu
+ * @param anchorPos an Pos object from generateAnchorPos
+ * @param anchor the anchor element
+ * @param editHandler the handler for submission
+ * @returns a Tippy that shows when the Edit Link button is clicked
+ */
+const tippyWrapperHyperlinkEditMenu = (
+  anchorPos: any,
+  anchor: HTMLAnchorElement,
+  editHandler: (href: string, text: string) => void
+) => {
+  return (
+    <Tippy
+      getReferenceClientRect={() => anchorPos}
+      content={
+        <HyperlinkEditMenu
+          anchor={anchor}
+          editHandler={editHandler}></HyperlinkEditMenu>
+      }
+      interactive={true}
+      interactiveBorder={30}
+      triggerTarget={document.getElementById(ACTIVE)}
+      appendTo={() => document.body}>
+      {EMPTY_MENU}
+    </Tippy>
+  );
+};
+
+/**
+ * Generate a Tippy plugin that hides the main menu when its sub menu is shown
+ * @param hyperlinkEditMenu a HyperlinkEditMenu component
+ * @returns a plugin for Tippy
+ */
+const hideOnClickPlugin: (hyperlinkEditMenu: JSX.Element) => TippyPlugin = (
+  hyperlinkEditMenu
+) => {
+  return {
+    name: "hideOnClick",
+    defaultValue: true,
+    fn(instance) {
+      return {
+        onCreate() {
+          instance.popper.addEventListener("keyup", (ev) => {
+            if (ev.key !== "Enter") return;
+            if (ev.target instanceof HTMLInputElement) {
+              instance.hide();
+            }
+          });
+          instance.popper.addEventListener("click", (ev) => {
+            if (ev.target instanceof HTMLElement) {
+              if (
+                ev.target.parentElement?.classList.contains("hyperlinkEdit")
+              ) {
+                ReactDOM.render(
+                  hyperlinkEditMenu,
+                  document.getElementById(HYPERLINK_MENU)
+                );
+                return;
+              }
+              if (ev.target instanceof HTMLInputElement) {
+                return;
+              }
+            }
+            instance.hide();
+          });
+        },
+      };
+    },
+  };
+};
+
+/**
  * This customed link includes a special menu for editing/deleting/opening the link.
  * The menu will be triggered by hovering over the link with the mouse,
  * or by moving the cursor inside the link text
@@ -232,6 +128,7 @@ const Hyperlink = Link.extend({
             return false;
           },
           handleDOMEvents: {
+            // keyboard trigger mechanism
             keyup: (view, event) => {
               const key = event.key;
 
@@ -295,6 +192,10 @@ const Hyperlink = Link.extend({
                 return false;
               }
 
+              if (!(anchor instanceof HTMLAnchorElement)) {
+                return false;
+              }
+
               document.getElementById(ACTIVE)?.removeAttribute("id");
               anchor.id = ACTIVE;
 
@@ -321,30 +222,27 @@ const Hyperlink = Link.extend({
               // this rect position is used for Tippy as reference
               const anchorPos = generateAnchorPos(anchor);
 
-              const hyperlinkMenu = (
+              const hyperlinkEditMenu = tippyWrapperHyperlinkEditMenu(
+                anchorPos,
+                anchor,
+                editHandler
+              );
+
+              const hyperlinkBasicMenu = (
                 <Tippy
                   getReferenceClientRect={() => anchorPos}
                   content={
-                    <HyperLinkMenu
+                    <HyperlinkBasicMenu
                       removeHandler={removeHandler}
-                      editHandler={editHandler}
-                      href={href ?? ""}
-                      text={anchor.innerText}></HyperLinkMenu>
+                      href={href}></HyperlinkBasicMenu>
                   }
+                  plugins={[hideOnClickPlugin(hyperlinkEditMenu)]}
                   interactive={true}
                   interactiveBorder={30}
+                  // this is different from the mouse triggered, otherwise it won't show
                   showOnCreate={true}
                   // the trigger is no longer mouse enter
                   trigger={`keyup keydown`}
-                  onTrigger={(instance, event) => {
-                    if (event instanceof KeyboardEvent) {
-                      if (event.key.startsWith("arrow")) {
-                        instance.show();
-                      }
-                      instance.hide();
-                    }
-                    instance.hide();
-                  }}
                   triggerTarget={document.getElementById(ACTIVE)}
                   appendTo={() => document.body}>
                   <div id={MENU}></div>
@@ -352,17 +250,19 @@ const Hyperlink = Link.extend({
               );
 
               ReactDOM.render(
-                hyperlinkMenu,
+                hyperlinkBasicMenu,
                 document.getElementById(HYPERLINK_MENU)
               );
               return true;
             },
+
+            // mouse trigger mechanism
             mouseover: (view, event) => {
               const anchor = event.target;
               // this only handles an <a> element
               if (
                 anchor &&
-                anchor instanceof Element &&
+                anchor instanceof HTMLAnchorElement &&
                 anchor.nodeName === "A" &&
                 !document.getElementById(EDITING_MENU)
               ) {
@@ -402,16 +302,21 @@ const Hyperlink = Link.extend({
                 // this rect position is used for Tippy as reference
                 const anchorPos = generateAnchorPos(anchor);
 
-                const hyperlinkMenu = (
+                const hyperlinkEditMenu = tippyWrapperHyperlinkEditMenu(
+                  anchorPos,
+                  anchor,
+                  editHandler
+                );
+
+                const hyperlinkBasicMenu = (
                   <Tippy
                     getReferenceClientRect={() => anchorPos}
                     content={
-                      <HyperLinkMenu
+                      <HyperlinkBasicMenu
                         removeHandler={removeHandler}
-                        editHandler={editHandler}
-                        href={href ?? ""}
-                        text={anchor.innerHTML}></HyperLinkMenu>
+                        href={href ?? ""}></HyperlinkBasicMenu>
                     }
+                    plugins={[hideOnClickPlugin(hyperlinkEditMenu)]}
                     interactive={true}
                     interactiveBorder={30}
                     triggerTarget={document.getElementById(ACTIVE)}
@@ -421,7 +326,7 @@ const Hyperlink = Link.extend({
                 );
 
                 ReactDOM.render(
-                  hyperlinkMenu,
+                  hyperlinkBasicMenu,
                   document.getElementById(HYPERLINK_MENU)
                 );
 

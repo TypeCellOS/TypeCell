@@ -11,6 +11,7 @@ export const Input: ComponentClass<
   }
 > = styled.input`
   input& {
+    autofocus: true;
     background: transparent;
     border: 0;
     border-radius: 0;

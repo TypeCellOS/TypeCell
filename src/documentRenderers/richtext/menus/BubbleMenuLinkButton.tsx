@@ -8,6 +8,7 @@ import styles from "./InlineMenu.module.css";
 import LinkIcon from "remixicon-react/LinkIcon";
 import { ButtonStyleDetails } from "./BubbleMenuButton";
 import { Editor } from "@tiptap/react";
+import { EDITING_MENU_LINK } from "../extensions/marks/Hyperlink";
 
 export type LinkMenuButtonProps = {
   styleDetails: ButtonStyleDetails;
@@ -44,6 +45,9 @@ const BubbleMenuLinkButton = (props: LinkMenuButtonProps) => {
       <Tippy
         content={<LinkForm editor={props.editor} />}
         trigger={"click"}
+        onShown={(instance) => {
+          document.getElementById(EDITING_MENU_LINK)?.focus();
+        }}
         interactive={true}
         maxWidth={500}>
         <Button
