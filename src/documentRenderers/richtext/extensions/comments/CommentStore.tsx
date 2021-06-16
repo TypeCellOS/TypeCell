@@ -39,7 +39,6 @@ class CommentStore {
     const comments: Array<CommentType> = JSON.parse(
       localStorage.getItem("comments")!
     );
-    console.log(comments.filter((comment) => comment.id === id)[0].date);
     return comments.filter((comment) => comment.id === id)[0];
   }
 

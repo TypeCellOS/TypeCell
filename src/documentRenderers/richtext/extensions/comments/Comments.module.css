@@ -3,6 +3,7 @@
     /*margin-left: 70rem;*/
     /*width: 22rem;*/
     right: 0.5rem;
+    cursor: pointer;
     z-index: 1;
 }
 
@@ -18,14 +19,8 @@
     z-index: 2;
 }
 
-.commentReference {
-    background-color: #FFF0B3;
-    padding: 0.2rem;
-    border-radius: 2px;
-}
-
 .commentForm {
-    z-index: 5;
+    z-index: 3;
 }
 
 .commentHighlight {

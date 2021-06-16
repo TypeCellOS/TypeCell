@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useState } from "react";
 import { getMarkRange, getMarksBetween, getMarkType } from "@tiptap/core";
-import { EditorState } from "prosemirror-state";
+import { EditorState, TextSelection } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import Avatar from "@atlaskit/avatar";
 import Comment, {
@@ -102,10 +102,29 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
     return getNearestComment(props.state)?.id === props.id;
   }
 
+  function highlight() {
+    const tr = props.state.tr;
+    let commentFound = false;
+    props.state.doc.descendants(function (node, offset) {
+      for (let mark of node.marks) {
+        if (!commentFound) {
+          if (mark.type.name === "comment" && mark.attrs["id"] === props.id) {
+            commentFound = true;
+            tr.setSelection(TextSelection.create(props.state.doc, offset));
+            props.view.dispatch(tr);
+          }
+        } else {
+          return false;
+        }
+      }
+    });
+  }
+
   return (
     <div
       className={styles.comment}
-      style={{ background: checkHighlighted() ? "#FFF0B3" : "white" }}>
+      style={{ background: checkHighlighted() ? "#FFF0B3" : "white" }}
+      onClick={highlight}>
       <Comment
         avatar={<Avatar src={avatarImg} size="medium" />}
         author={
