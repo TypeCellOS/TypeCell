@@ -1,6 +1,5 @@
 import { Extension } from "@tiptap/react";
 import { Plugin, PluginKey } from "prosemirror-state";
-import { commentStore, CommentType } from "./CommentStore";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { getNearestComment } from "./GetNearestComment";
 

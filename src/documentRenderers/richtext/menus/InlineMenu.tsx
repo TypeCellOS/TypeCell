@@ -2,20 +2,18 @@ import { BubbleMenu, Editor } from "@tiptap/react";
 import { NodeSelection } from "prosemirror-state";
 import React from "react";
 import BoldIcon from "remixicon-react/BoldIcon";
+import Chat2LineIcon from "remixicon-react/Chat2LineIcon";
+import CodeLineIcon from "remixicon-react/CodeLineIcon";
 import ItalicIcon from "remixicon-react/ItalicIcon";
 import StrikethroughIcon from "remixicon-react/StrikethroughIcon";
-import CodeLineIcon from "remixicon-react/CodeLineIcon";
 import UnderlineIcon from "remixicon-react/UnderlineIcon";
-
-import { Underline } from "../extensions/marks/Underline";
+import { CommentStore } from "../extensions/comments/CommentStore";
 import { Comment } from "../extensions/marks/Comment";
+import { Underline } from "../extensions/marks/Underline";
 import BubbleMenuButton, { ButtonStyleDetails } from "./BubbleMenuButton";
 import styles from "./InlineMenu.module.css";
-import Chat2LineIcon from "remixicon-react/Chat2LineIcon";
-import Bold from "@tiptap/extension-bold";
-import { commentStore } from "../extensions/comments/CommentStore";
 
-type InlineMenuProps = { editor: Editor };
+type InlineMenuProps = { editor: Editor; commentStore: CommentStore };
 
 const bold: ButtonStyleDetails = {
   markName: "bold",
@@ -60,74 +58,66 @@ const comment: ButtonStyleDetails = {
   icon: Chat2LineIcon,
 };
 
-class InlineMenu extends React.Component<InlineMenuProps> {
-  render() {
-    const TOP_DEPTH = 1;
+const InlineMenu = (props: InlineMenuProps) => {
+  const TOP_DEPTH = 1;
 
-    const resolvedPos = this.props.editor.state.doc.resolve(
-      this.props.editor.state.selection.from
-    );
+  const resolvedPos = props.editor.state.doc.resolve(
+    props.editor.state.selection.from
+  );
 
-    if (resolvedPos.depth > TOP_DEPTH) {
-      const grandParent = resolvedPos.node(resolvedPos.depth - 1);
-      // console.log(`the grandpa.type.name is ${grandParent.type.name}`);
-      if (
-        grandParent &&
-        grandParent.type.name.toLowerCase().startsWith("table")
-      ) {
-        return (
-          <BubbleMenu className={styles.hidden} editor={this.props.editor} />
-        );
-      }
+  if (resolvedPos.depth > TOP_DEPTH) {
+    const grandParent = resolvedPos.node(resolvedPos.depth - 1);
+    // console.log(`the grandpa.type.name is ${grandParent.type.name}`);
+    if (
+      grandParent &&
+      grandParent.type.name.toLowerCase().startsWith("table")
+    ) {
+      return <BubbleMenu className={styles.hidden} editor={props.editor} />;
     }
-
-    // Renders an empty menu if a block is selected.
-    if (this.props.editor.state.selection instanceof NodeSelection) {
-      return (
-        <BubbleMenu className={styles.hidden} editor={this.props.editor} />
-      );
-    }
-
-    return (
-      <BubbleMenu className={styles.bubbleMenu} editor={this.props.editor}>
-        <BubbleMenuButton
-          editor={this.props.editor}
-          onClick={() => this.props.editor.chain().focus().toggleBold().run()}
-          styleDetails={bold}
-        />
-        <BubbleMenuButton
-          editor={this.props.editor}
-          onClick={() => this.props.editor.chain().focus().toggleItalic().run()}
-          styleDetails={italic}
-        />
-        <BubbleMenuButton
-          editor={this.props.editor}
-          onClick={() => this.props.editor.chain().focus().toggleStrike().run()}
-          styleDetails={strike}
-        />
-        <BubbleMenuButton
-          editor={this.props.editor}
-          onClick={() => this.props.editor.chain().focus().toggleCode().run()}
-          styleDetails={code}
-        />
-        <BubbleMenuButton
-          editor={this.props.editor}
-          onClick={() =>
-            this.props.editor.chain().focus().toggleUnderline().run()
-          }
-          styleDetails={underline}
-        />
-        <BubbleMenuButton
-          editor={this.props.editor}
-          onClick={() => {
-            const comment = commentStore.createComment();
-            this.props.editor.chain().focus().setComment(comment.id).run();
-          }}
-          styleDetails={comment}
-        />
-      </BubbleMenu>
-    );
   }
-}
+
+  // Renders an empty menu if a block is selected.
+  if (props.editor.state.selection instanceof NodeSelection) {
+    return <BubbleMenu className={styles.hidden} editor={props.editor} />;
+  }
+
+  return (
+    <BubbleMenu className={styles.bubbleMenu} editor={props.editor}>
+      <BubbleMenuButton
+        editor={props.editor}
+        onClick={() => props.editor.chain().focus().toggleBold().run()}
+        styleDetails={bold}
+      />
+      <BubbleMenuButton
+        editor={props.editor}
+        onClick={() => props.editor.chain().focus().toggleItalic().run()}
+        styleDetails={italic}
+      />
+      <BubbleMenuButton
+        editor={props.editor}
+        onClick={() => props.editor.chain().focus().toggleStrike().run()}
+        styleDetails={strike}
+      />
+      <BubbleMenuButton
+        editor={props.editor}
+        onClick={() => props.editor.chain().focus().toggleCode().run()}
+        styleDetails={code}
+      />
+      <BubbleMenuButton
+        editor={props.editor}
+        onClick={() => props.editor.chain().focus().toggleUnderline().run()}
+        styleDetails={underline}
+      />
+      <BubbleMenuButton
+        editor={props.editor}
+        onClick={() => {
+          const comment = props.commentStore.createComment();
+          props.editor.chain().focus().setComment(comment.id).run();
+        }}
+        styleDetails={comment}
+      />
+    </BubbleMenu>
+  );
+};
 
 export default InlineMenu;

@@ -21,6 +21,11 @@ export class DocumentResource extends BaseResource {
   }
 
   /** @internal */
+  public get comments(): Y.Map<any> {
+    return this.ydoc.getMap("comments");
+  }
+
+  /** @internal */
   public get data(): Y.XmlFragment {
     let xml = this.ydoc.getXmlFragment("doc");
     return xml;
