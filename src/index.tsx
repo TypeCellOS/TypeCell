@@ -5,6 +5,9 @@ import "./index.css";
 import MatrixApp from "./MatrixApp";
 import reportWebVitals from "./reportWebVitals";
 import { setupDocConnectionManager } from "./store/DocConnection";
+// @ts-ignore
+import olmWasmPath from "@matrix-org/olm/olm.wasm";
+import Olm from "@matrix-org/olm";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays
@@ -42,9 +45,9 @@ const cachedValidatedConfig = {
 async function init() {
   // TODO
 
-  // await Olm.init({
-  //   locateFile: () => olmWasmPath,
-  // });
+  await Olm.init({
+    locateFile: () => olmWasmPath,
+  });
 
   setupDocConnectionManager();
 

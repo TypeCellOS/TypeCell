@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { createClient, MatrixClient } from "matrix-js-sdk";
+import { createClient, MatrixClient, MatrixEvent } from "matrix-js-sdk";
 import * as Y from "yjs";
 import { Emitter, Event } from "../util/vscode-common/event";
 import { Disposable } from "../util/vscode-common/lifecycle";
@@ -160,8 +160,13 @@ export default class MatrixProvider extends Disposable {
       const events = res.chunk;
       // res.end !== res.start
       for (let i = 0; i < events.length; i++) {
-        const event = events[i];
+        let event = events[i];
 
+        if (event.type === "m.room.encrypted") {
+          event = (
+            await this.matrixClient._crypto.decryptEvent(new MatrixEvent(event))
+          ).clearEvent;
+        }
         if (event.type !== "m.room.message") {
           continue;
         }

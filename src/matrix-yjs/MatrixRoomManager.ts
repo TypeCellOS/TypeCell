@@ -3,40 +3,73 @@ import { MatrixClientPeg } from "../matrix-auth/MatrixClientPeg";
 export async function createMatrixDocument(parentId: string, id: string) {
   const matrixClient = MatrixClientPeg.get();
   try {
+    const initial_state = [];
+
+    initial_state.push({
+      type: "m.room.guest_access",
+      state_key: "",
+      content: {
+        guest_access: "forbidden",
+      },
+    });
+
+    initial_state.push({
+      type: "m.room.encryption",
+      state_key: "",
+      content: {
+        algorithm: "m.megolm.v1.aes-sha2",
+      },
+    });
+
+    initial_state.push({
+      type: "m.room.history_visibility",
+      content: {
+        history_visibility: "world_readable",
+      },
+    });
+
+    initial_state.push({
+      type: "m.room.join_rules",
+      content: {
+        join_rule: "public",
+      },
+    });
+
     const ret = await matrixClient.createRoom({
       room_alias_name: id,
       visibility: "private",
       name: id,
       topic: "",
+      initial_state,
     });
 
     // The history of a (publicly accessible) room should be readable by everyone,
     // so that all users can get all yjs updates
-    await matrixClient.sendStateEvent(
-      ret.room_id,
-      "m.room.history_visibility",
-      {
-        history_visibility: "world_readable",
-      },
-      ""
-    );
+    // await matrixClient.sendStateEvent(
+    //   ret.room_id,
+    //   "m.room.history_visibility",
+    //   {
+    //     history_visibility: "world_readable",
+    //   },
+    //   ""
+    // );
 
     // all registered users can join
-    await matrixClient.sendStateEvent(
-      ret.room_id,
-      "m.room.join_rules",
-      { join_rule: "public" },
-      ""
-    );
+    // await matrixClient.sendStateEvent(
+    //   ret.room_id,
+    //   "m.room.join_rules",
+    //   { join_rule: "public" },
+    //   ""
+    // );
 
     // guests should not be able to actually join the room,
     // because we don't want guests to be able to write
-    await matrixClient.sendStateEvent(
-      ret.room_id,
-      "m.room.guest_access",
-      { guest_access: "forbidden" },
-      ""
-    );
+    // await matrixClient.sendStateEvent(
+    //   ret.room_id,
+    //   "m.room.guest_access",
+    //   { guest_access: "forbidden" },
+    //   ""
+    // );
 
     // TODO: add room to space
 

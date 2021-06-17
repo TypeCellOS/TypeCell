@@ -9,6 +9,7 @@ declare module "matrix-js-sdk" {
   export const LocalStorageCryptoStore: any;
   export const SERVICE_TYPES: any;
   export type MatrixClient = any;
+  export const MatrixEvent: any;
   export type ICreateClientOpts = any;
 
   export const MemoryStore: any;

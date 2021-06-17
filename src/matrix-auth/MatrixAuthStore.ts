@@ -440,26 +440,29 @@ export class MatrixAuthStore {
     //     room.setBlacklistUnverifiedDevices(blacklistEnabled);
     //   }
     // });
-    // cli.on("crypto.warning", (type) => {
-    //   switch (type) {
-    //     case "CRYPTO_WARNING_OLD_VERSION_DETECTED":
-    //       Modal.createTrackedDialog("Crypto migrated", "", ErrorDialog, {
-    //         title: _t("Old cryptography data detected"),
-    //         description: _t(
-    //           "Data from an older version of %(brand)s has been detected. " +
-    //             "This will have caused end-to-end cryptography to malfunction " +
-    //             "in the older version. End-to-end encrypted messages exchanged " +
-    //             "recently whilst using the older version may not be decryptable " +
-    //             "in this version. This may also cause messages exchanged with this " +
-    //             "version to fail. If you experience problems, log out and back in " +
-    //             "again. To retain message history, export and re-import your keys.",
-    //           { brand: SdkConfig.get().brand }
-    //         ),
-    //       });
-    //       break;
-    //   }
-    // });
-    // cli.on("crypto.keyBackupFailed", async (errcode) => {
+    cli.on("crypto.warning", (type: any) => {
+      console.warn("crypto warning", type);
+      //   switch (type) {
+      //     case "CRYPTO_WARNING_OLD_VERSION_DETECTED":
+      //       Modal.createTrackedDialog("Crypto migrated", "", ErrorDialog, {
+      //         title: _t("Old cryptography data detected"),
+      //         description: _t(
+      //           "Data from an older version of %(brand)s has been detected. " +
+      //             "This will have caused end-to-end cryptography to malfunction " +
+      //             "in the older version. End-to-end encrypted messages exchanged " +
+      //             "recently whilst using the older version may not be decryptable " +
+      //             "in this version. This may also cause messages exchanged with this " +
+      //             "version to fail. If you experience problems, log out and back in " +
+      //             "again. To retain message history, export and re-import your keys.",
+      //           { brand: SdkConfig.get().brand }
+      //         ),
+      //       });
+      //       break;
+      //   }
+    });
+    cli.on("crypto.keyBackupFailed", async (errcode: any) => {
+      console.warn("crypto keyBackupFailed", errcode);
+    });
     //   let haveNewVersion;
     //   let newVersionInfo;
     //   // if key backup is still enabled, there must be a new backup in place
@@ -499,9 +502,12 @@ export class MatrixAuthStore {
     //   }
     // });
 
-    // cli.on(
-    //   "crypto.keySignatureUploadFailure",
-    //   (failures, source, continuation) => {
+    cli.on(
+      "crypto.keySignatureUploadFailure",
+      (failures: any, source: any, continuation: any) => {
+        console.warn("crypto keySignatureUploadFailure", failures);
+      }
+    );
     //     const KeySignatureUploadFailedDialog = sdk.getComponent(
     //       "views.dialogs.KeySignatureUploadFailedDialog"
     //     );
@@ -514,7 +520,9 @@ export class MatrixAuthStore {
     //   }
     // );
 
-    // cli.on("crypto.verification.request", (request) => {
+    cli.on("crypto.verification.request", (request: any) => {
+      console.warn("crypto verification.request", request);
+    });
     //   if (request.verifier) {
     //     const IncomingSasDialog = sdk.getComponent(
     //       "views.dialogs.IncomingSasDialog"
