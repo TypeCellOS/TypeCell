@@ -29,36 +29,6 @@ export const Comments = Extension.create({
             ]);
           },
         },
-
-        // Removes comments when their marks are deleted.
-        view: () => {
-          return {
-            update: () => {
-              const state = this.editor.state;
-
-              // When refreshing, the editor content doesn't load immediately which would otherwise break things.
-              if (state.doc.textContent === "") {
-                return;
-              }
-
-              let comments: Array<CommentType> = commentStore.getComments();
-              const markIDs: Set<string> = new Set<string>();
-
-              // Fills markIDs array with all comment marks in the document.
-              state.doc.descendants(function (node) {
-                for (let mark of node.marks) {
-                  if (mark.type.name === "comment") {
-                    markIDs.add(mark.attrs["id"]);
-                  }
-                }
-              });
-
-              // Removes comments with no corresponding marks.
-              comments = comments.filter((comment) => markIDs.has(comment.id));
-              commentStore.setComments(comments);
-            },
-          };
-        },
       }),
     ];
   },

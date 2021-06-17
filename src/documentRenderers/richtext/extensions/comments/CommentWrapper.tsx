@@ -8,6 +8,7 @@ import {
 import { CommentComponent } from "./CommentComponent";
 import styles from "./Comments.module.css";
 import { commentStore } from "./CommentStore";
+import { getNearestComment } from "./GetNearestComment";
 
 export type CommentWrapperProps = { editor: Editor };
 
@@ -53,6 +54,8 @@ export const CommentWrapper: React.FC<CommentWrapperProps> = (props) => {
     new Map([...commentDates.entries()].sort((a, b) => a[1] - b[1])).keys()
   );
 
+  const highlightedComment = getNearestComment(props.editor.state);
+
   return (
     <div className={styles.comments} style={{ top: fromTop }}>
       {commentIds.map((id) => (
@@ -61,6 +64,7 @@ export const CommentWrapper: React.FC<CommentWrapperProps> = (props) => {
           state={props.editor.state}
           view={props.editor.view}
           key={id}
+          highlighted={highlightedComment?.id === id}
         />
       ))}
     </div>

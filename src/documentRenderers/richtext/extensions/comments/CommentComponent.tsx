@@ -1,7 +1,3 @@
-import React, { ChangeEvent, useState } from "react";
-import { getMarkRange, getMarksBetween, getMarkType } from "@tiptap/core";
-import { EditorState, TextSelection } from "prosemirror-state";
-import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import Avatar from "@atlaskit/avatar";
 import Comment, {
   CommentAction,
@@ -9,16 +5,20 @@ import Comment, {
   CommentTime,
 } from "@atlaskit/comment";
 import TextArea from "@atlaskit/textarea";
-import { commentStore, CommentType } from "./CommentStore";
+import { getMarkRange, getMarkType } from "@tiptap/core";
+import { EditorState, TextSelection } from "prosemirror-state";
+import { EditorView } from "prosemirror-view";
+import React, { ChangeEvent, useState } from "react";
 import { navigationStore } from "../../../../store/local/stores";
 import styles from "./Comments.module.css";
+import { commentStore } from "./CommentStore";
 import avatarImg from "./defualtAvatar.png";
-import { getNearestComment } from "./GetNearestComment";
 
 export type CommentComponentProps = {
   id: string;
   state: EditorState;
   view: EditorView;
+  highlighted: boolean;
 };
 
 /**
@@ -32,7 +32,7 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
   const [comment, setComment] = useState(
     commentStore.getComment(props.id).comment
   );
-  const [commentEditable, setCommentEditable] = useState(
+  const [editing, setEditing] = useState(
     commentStore.getComment(props.id).comment === ""
   );
 
@@ -43,42 +43,37 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
   }
 
   // Toggles the user's ability to edit a comment. Only updates the "editable" field of the comment in cache.
-  function toggleEditable() {
-    setCommentEditable(!commentEditable);
-    const oldComments: Array<CommentType> = commentStore.getComments();
-    const newComments = oldComments.filter(
-      (comment) => comment.id !== props.id
-    );
-    const newComment = {
-      id: commentStore.getComment(props.id).id,
-      comment: comment,
-      user: commentStore.getComment(props.id).user,
-      date: commentStore.getComment(props.id).date,
-    };
-    newComments.push(newComment);
-    commentStore.setComments(newComments);
+  function toggleEditing() {
+    setEditing(!editing);
+    if (editing) {
+      // was editing, but now submits
+      commentStore.updateComment(props.id, comment);
+    }
   }
 
   // Reverts an editable comment to its previous state. This either deletes it or re-creates it from data in cache.
-  function cancelEdit() {
+  function cancelEdit(e: React.MouseEvent) {
     // True if comment is only being created rather than edited.
     const remove = commentStore.getComment(props.id).comment === "";
     // Removes comment if it was being created, reverts it if it was being edited.
     if (remove) {
-      removeComment();
+      markCommentAsResolvedAndRemoveMark();
     } else {
       setComment(commentStore.getComment(props.id).comment);
-      setCommentEditable(false);
+      setEditing(false);
     }
+    e.stopPropagation();
+  }
+
+  function resolveComment(e: React.MouseEvent) {
+    markCommentAsResolvedAndRemoveMark();
+    e.stopPropagation();
   }
 
   // Removes the comment from browser cache as well as its corresponding mark.
-  function removeComment() {
+  function markCommentAsResolvedAndRemoveMark() {
     // Removes comment from browser cache.
-    let comments: Array<CommentType> = commentStore.getComments();
-    comments = comments.filter((comment) => comment.id !== props.id);
-    commentStore.setComments(comments);
-
+    commentStore.resolveComment(props.id);
     // Removes corresponding comment mark.
     const tr = props.state.tr;
     props.state.doc.descendants(function (node, offset) {
@@ -97,24 +92,18 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
     props.view.dispatch(tr);
   }
 
-  // Checks if this comment is closest to the cursor.
-  function checkHighlighted() {
-    return getNearestComment(props.state)?.id === props.id;
-  }
-
   function highlight() {
     const tr = props.state.tr;
     let commentFound = false;
     props.state.doc.descendants(function (node, offset) {
       for (let mark of node.marks) {
-        if (!commentFound) {
-          if (mark.type.name === "comment" && mark.attrs["id"] === props.id) {
-            commentFound = true;
-            tr.setSelection(TextSelection.create(props.state.doc, offset));
-            props.view.dispatch(tr);
-          }
-        } else {
+        if (commentFound) {
           return false;
+        }
+        if (mark.type.name === "comment" && mark.attrs["id"] === props.id) {
+          commentFound = true;
+          tr.setSelection(TextSelection.create(props.state.doc, offset));
+          props.view.dispatch(tr);
         }
       }
     });
@@ -123,7 +112,7 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
   return (
     <div
       className={styles.comment}
-      style={{ background: checkHighlighted() ? "#FFF0B3" : "white" }}
+      style={{ background: props.highlighted ? "#FFF0B3" : "white" }}
       onClick={highlight}>
       <Comment
         avatar={<Avatar src={avatarImg} size="medium" />}
@@ -147,7 +136,7 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
         }
         content={
           <div>
-            {commentEditable ? (
+            {editing ? (
               <div className={styles.commentForm}>
                 <TextArea
                   resize="smart"
@@ -162,11 +151,11 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
           </div>
         }
         actions={
-          commentEditable
+          editing
             ? [
                 <CommentAction
                   isDisabled={comment === ""}
-                  onClick={toggleEditable}>
+                  onClick={toggleEditing}>
                   Submit
                 </CommentAction>,
                 <CommentAction onClick={cancelEdit}>Cancel</CommentAction>,
@@ -174,8 +163,8 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
             : navigationStore.currentPage.owner ===
               commentStore.getComment(props.id).user
             ? [
-                <CommentAction onClick={toggleEditable}>Edit</CommentAction>,
-                <CommentAction onClick={removeComment}>Delete</CommentAction>,
+                <CommentAction onClick={toggleEditing}>Edit</CommentAction>,
+                <CommentAction onClick={resolveComment}>Resolve</CommentAction>,
               ]
             : []
         }

@@ -6,6 +6,11 @@ export type CommentType = {
   comment: string;
   user: string;
   date: number;
+  // Note: we currently store the resolvedAt time, but we do nothing (yet) with the resolved state or date,
+  // e.g.: when resolving a comment, the mark is removed from the document. When the user then hits Undo,
+  // the mark is re-added to the document, but the comment still shows as "unresoved" (i.e.: the user can resolve again)
+  resolvedAt?: number;
+  // TODO: resolvedByUser?
 };
 
 // This class provides commands to easily manipulate and retrieve comment data in browser cache.
@@ -27,7 +32,7 @@ class CommentStore {
       id: v4(), // Newly generated UUID V4 ID string.
       comment: "", // Empty comment, for obvious reasons.
       user: sessionStore.loggedInUser!, // The current logged in user.
-      date: Math.round(new Date().getTime()), // Time in ms since UNIX epoch.
+      date: Date.now(), // Time in ms since UNIX epoch.
     };
     comments.push(comment);
     commentStore.setComments(comments);
@@ -39,7 +44,26 @@ class CommentStore {
     const comments: Array<CommentType> = JSON.parse(
       localStorage.getItem("comments")!
     );
-    return comments.filter((comment) => comment.id === id)[0];
+    return comments.find((comment) => comment.id === id)!;
+  }
+
+  public updateComment(id: string, commentText: string) {
+    const comments: Array<CommentType> = JSON.parse(
+      localStorage.getItem("comments")!
+    );
+    const comment = comments.find((comment) => comment.id === id)!;
+    comment.comment = commentText;
+    comment.date = Date.now();
+    this.setComments(comments);
+  }
+
+  public resolveComment(id: string) {
+    const comments: Array<CommentType> = JSON.parse(
+      localStorage.getItem("comments")!
+    );
+    const comment = comments.find((comment) => comment.id === id)!;
+    comment.resolvedAt = Date.now();
+    this.setComments(comments);
   }
 
   // Retrieves all comments from browser cache in an array.

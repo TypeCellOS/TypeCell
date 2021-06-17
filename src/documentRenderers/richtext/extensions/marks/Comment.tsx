@@ -34,9 +34,6 @@ export const Comment = Mark.create<CommentOptions>({
       id: {
         default: null,
       },
-      highlighted: {
-        default: false,
-      },
     };
   },
 
