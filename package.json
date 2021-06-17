@@ -105,8 +105,14 @@
   },
   "jest": {
     "transformIgnorePatterns": [
-      "/node_modules/(?!monaco-editor).+\\.js$"
-    ]
+      "/node_modules/(?!monaco-editor).+\\.js$",
+      "/node_modules/y-monaco/.+\\.js$"
+    ],
+    "moduleNameMapper": {
+      "lib0/dist/(.+)\\.js$": "<rootDir>/node_modules/lib0/dist/$1.cjs",
+      "y-protocols/(.+)\\.js$": "<rootDir>/node_modules/y-protocols/dist/$1.cjs",
+      "monaco-editor$": "<rootDir>/src/__mocks__/monacoMock.ts"
+    }
   },
   "devDependencies": {
     "@svgr/webpack": "^5.5.0",

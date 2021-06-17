@@ -1,20 +1,4 @@
-// mock necessary for monaco
-Object.defineProperty(window, "matchMedia", {
-  writable: true,
-  value: (query: any) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(), // Deprecated
-    removeListener: jest.fn(), // Deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  }),
-});
-
-// import "monaco-editor" doesn't work in jest
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
+import * as monaco from "monaco-editor";
 import { diffToMonacoTextEdits } from "../diffToMonacoTextEdits";
 
 function applyTest(v1: string, v2: string) {
@@ -24,7 +8,6 @@ function applyTest(v1: string, v2: string) {
   expect(model.getValue()).toEqual(v2);
   return edits;
 }
-
 it("basic replace", () => {
   const edits = applyTest("hello", "hi");
   expect(edits).toHaveLength(1);
