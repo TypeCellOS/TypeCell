@@ -5,6 +5,8 @@ import Open from "remixicon-react/ExternalLinkFillIcon";
 import menuStyles from "../../../menus/InlineMenu.module.css";
 import styles from "../Hyperlink.module.css";
 
+export const EDIT_LINK_BUTTON = "hyperlinkEditButton";
+
 type HyperlinkMenuProps = {
   href: string;
   removeHandler: () => void;
@@ -24,7 +26,7 @@ export const HyperlinkBasicMenu = (props: HyperlinkMenuProps) => {
             <div className={menuStyles.mainText}>Edit</div>
           </div>
         }>
-        <Button appearance="subtle" className="hyperlinkEdit">
+        <Button appearance="subtle" className={EDIT_LINK_BUTTON}>
           Edit Link
         </Button>
       </Tippy>

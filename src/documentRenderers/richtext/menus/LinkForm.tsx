@@ -4,23 +4,25 @@ import {
   Container,
   ContainerWrapper,
   IconWrapper,
+  TextInputWrapper,
   UrlInputWrapper,
 } from "../extensions/marks/AtlaskitHyperlink/ToolbarComponent";
 import Tooltip from "@atlaskit/tooltip";
 import LinkIcon from "remixicon-react/LinkIcon";
 import PanelTextInput from "../extensions/marks/AtlaskitHyperlink/PanelTextInput";
 import { EDITING_MENU_LINK } from "../extensions/marks/Hyperlink";
+import TextIcon from "remixicon-react/TextIcon";
 
 export type LinkFormProps = { editor: Editor };
 
 const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
   /**
-   * The input form is a controlled component and uses the url state.
+   * The input form is a controlled component and uses the url and text states.
    *
-   * The "value" attribute of the input form is set to this state,
-   * and it gets updated throughout the functions in this file.
+   * they get updated throughout the functions in this file.
    */
   const [url, setUrl] = useState("");
+  const [text, setText] = useState("");
 
   /**
    * Updates the url state in the background(when link menu is out of focus)
@@ -39,29 +41,37 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
   });
 
   /**
-   * Handles form submit
+   * Updates the text state in the backgroud
    *
-   * Called when the submit button is clicked. Will remove the link mark
-   * if the url state is empty, and set a link if its not. The url that will
-   * be set is prepended with "//" to force the browser open it as an absolute
-   * path.
+   * The text comes from the selection extracted from doc
    */
-  const handleSubmit = (e: any) => {
-    const absoluteUrl = "//" + url;
-
-    if (url === "") {
-      props.editor.chain().focus().unsetLink().run();
-    } else {
-      props.editor.chain().focus().setLink({ href: absoluteUrl }).run();
-      setUrl("");
+  useEffect(() => {
+    if (props.editor.isFocused) {
+      const { from, to } = props.editor.state.selection;
+      const selectedText = props.editor.state.doc.textBetween(from, to);
+      setText(selectedText);
     }
-  };
+  });
 
   /**
-   * Updates the url state
+   * Handles form submit
+   *
+   * Called when the key Enter is pressed. No mark is set if the url is empty
+   * and a proper hyperlink will be set if it's not. The url that will be set
+   * is prepended with "//" to force the browser open it as an absolute path
    */
-  const handleChange = (val: string) => {
-    setUrl(val);
+  const submission = () => {
+    if (url === "") {
+      return;
+    }
+    const absoluteUrl = "//" + url;
+    const mark = props.editor.schema.mark("link", { href: absoluteUrl });
+    let { from, to } = props.editor.state.selection;
+    props.editor.view.dispatch(
+      props.editor.view.state.tr
+        .insertText(text, from, to)
+        .addMark(from, from + text.length, mark)
+    );
   };
 
   return (
@@ -77,9 +87,20 @@ const LinkForm: React.FC<LinkFormProps> = (props: LinkFormProps) => {
             id={EDITING_MENU_LINK}
             placeholder={"URL"}
             defaultValue={url}
-            onChange={handleChange}
-            onSubmit={handleSubmit}></PanelTextInput>
+            onChange={(value) => setUrl(value)}
+            onSubmit={submission}></PanelTextInput>
         </UrlInputWrapper>
+        <TextInputWrapper>
+          <IconWrapper>
+            <Tooltip content={"Edit the title"}>
+              <TextIcon></TextIcon>
+            </Tooltip>
+          </IconWrapper>
+          <PanelTextInput
+            defaultValue={text!}
+            onSubmit={submission}
+            onChange={(value) => setText(value)}></PanelTextInput>
+        </TextInputWrapper>
       </Container>
     </ContainerWrapper>
   );

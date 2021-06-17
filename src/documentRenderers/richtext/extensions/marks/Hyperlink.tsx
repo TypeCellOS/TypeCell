@@ -2,9 +2,13 @@ import ReactDOM from "react-dom";
 import { Link } from "@tiptap/extension-link";
 import { Plugin, PluginKey } from "prosemirror-state";
 import Tippy from "@tippyjs/react";
-import { HyperlinkBasicMenu } from "./hyperlinkMenus/HyperlinkBasicMenu";
+import {
+  EDIT_LINK_BUTTON,
+  HyperlinkBasicMenu,
+} from "./hyperlinkMenus/HyperlinkBasicMenu";
 import { HyperlinkEditMenu } from "./hyperlinkMenus/HyperlinkEditMenu";
 import { Plugin as TippyPlugin } from "tippy.js";
+import styles from "./Hyperlink.module.css";
 
 // ids to search for the active anchor link and its menu
 export const ACTIVE = "activeLink";
@@ -91,7 +95,8 @@ const hideOnClickPlugin: (hyperlinkEditMenu: JSX.Element) => TippyPlugin = (
           instance.popper.addEventListener("click", (ev) => {
             if (ev.target instanceof HTMLElement) {
               if (
-                ev.target.parentElement?.classList.contains("hyperlinkEdit")
+                ev.target.classList.contains(EDIT_LINK_BUTTON) ||
+                ev.target.parentElement?.classList.contains(EDIT_LINK_BUTTON)
               ) {
                 ReactDOM.render(
                   hyperlinkEditMenu,
@@ -269,7 +274,12 @@ const Hyperlink = Link.extend({
                 clearMenu();
                 document.getElementById(ACTIVE)?.removeAttribute("id");
                 anchor.id = ACTIVE;
+                anchor.classList.add(styles.anchor);
                 const href = anchor.getAttribute("href")?.substring(2);
+
+                anchor.addEventListener("click", (ev) => {
+                  window.open("//" + href);
+                });
 
                 // find the position of this <a> and construct handlers accordingly
                 const from = view.posAtDOM(anchor, -1);
