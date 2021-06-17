@@ -59,7 +59,8 @@ blockquote {
   margin: 0;
 }
 
-.ProseMirror ul {
+.ProseMirror ul,
+.ProseMirror ol {
   margin: 0;
   padding: 0;
 }

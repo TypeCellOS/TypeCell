@@ -5,6 +5,8 @@ import styles from "./SuggestionGroup.module.css";
 import { SlashCommand } from "../../extensions/slashcommand/SlashCommand";
 import React from "react";
 
+const MIN_LEFT_MARGIN = 5;
+
 type SuggestionGroupProps<T> = {
   /**
    * Name of the group
@@ -79,23 +81,35 @@ function SuggestionComponent<T extends SuggestionItem>(
   let isButtonSelected =
     props.selectedIndex !== undefined && props.selectedIndex === props.index;
 
-  const buttonRef = React.useRef<HTMLInputElement>(null);
+  const buttonRef = React.useRef<HTMLElement>(null);
   React.useEffect(() => {
-    if (isButtonSelected && buttonRef.current) {
+    if (
+      isButtonSelected &&
+      buttonRef.current &&
+      buttonRef.current.getBoundingClientRect().left > MIN_LEFT_MARGIN //TODO: Kinda hacky, fix
+      // This check is needed because initially the menu is initialized somewhere above outside the screen (with left = 1)
+      // scrollIntoView() is called before the menu is set in the right place, and without the check would scroll to the top of the page every time
+    ) {
       buttonRef.current.scrollIntoView({
         behavior: "smooth",
         block: "nearest",
       });
     }
-  }, [isButtonSelected]);
+  }, [props.selectedIndex]);
 
   return (
     <div className={styles.buttonItem}>
       <ButtonItem
         isSelected={isButtonSelected} // This is needed to navigate with the keyboard
         iconBefore={getIcon(props.item, isButtonSelected)}
-        key={props.index}
-        onClick={() => props.clickItem(props.item)}
+        onClick={(e) => {
+          setTimeout(() => {
+            props.clickItem(props.item);
+          }, 0);
+
+          // e.stopPropagation();
+          // e.preventDefault();
+        }}
         ref={buttonRef}>
         <SuggestionContent item={props.item} />
       </ButtonItem>
@@ -112,6 +126,7 @@ export function SuggestionGroup<T extends SuggestionItem>(
         return (
           <SuggestionComponent
             item={item}
+            key={index} // TODO: using index as key is not ideal for performance, better have ids on suggestionItems
             index={index}
             selectedIndex={props.selectedIndex}
             clickItem={props.clickItem}
