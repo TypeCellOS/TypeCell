@@ -394,6 +394,8 @@ function Block(
       ? { "data-placeholder": placeholder, class: "is-empty" }
       : {};
 
+    console.log(props.decorations);
+
     return (
       <NodeViewWrapper className={`${styles.block}`} ref={outerRef}>
         <div className={styles.inner + " inner"} ref={innerRef}>

@@ -11,6 +11,11 @@ export function forSelectedBlocks(
   state: EditorState,
   f: (node: Node, offset?: number) => void
 ) {
+  // No point running function if the selection doesn't even span one character.
+  if (state.selection.head !== state.selection.anchor) {
+    return;
+  }
+
   // Depth values between resolved positions and node ranges represent different actual depths.
   // 0 1 2 3 4... Actual depths
   // 1 3 5 7 9... ResolvedPos depths
@@ -38,24 +43,21 @@ export function forSelectedBlocks(
 
   // Marks nodes between the anchor and head as selected.
   if (
-    (state.selection.head <= nodeStartPos ||
-      state.selection.head >= nodeEndPos) &&
-    state.selection.head !== state.selection.anchor
+    state.selection.head <= nodeStartPos ||
+    state.selection.head >= nodeEndPos
   ) {
     state.doc.descendants(function (node, offset) {
       // Checks if node lies within selection.
       if (offset >= range.start && offset < range.end - 1) {
         // These node types are redundant for Notion-like selection.
         if (
+          node.attrs["block-id"] &&
           node.type.name !== "bulletList" &&
           node.type.name !== "orderedList" &&
           node.type.name !== "text"
         ) {
           f(node, offset);
-        }
-        // Children should not be selected if entire item is selected.
-        if (node.type.name === "listItem") {
-          return false;
+          return false; // If a parent node is selected, children are not to prevent duplication.
         }
       }
     });
