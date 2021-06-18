@@ -2,6 +2,20 @@ import { EditorState } from "prosemirror-state";
 import { getMarkRange, getMarksBetween, getMarkType } from "@tiptap/core";
 
 /**
+ * There is a faster, but much more complicated way of doing this, something like this:
+ * 1. Create a list with the IDs of all comment marks that selection.from is in.
+ * 2. Find the TextNode that selection.from is in.
+ * 3. Perform a depth-first search on the document, starting at the text node found in step 2 and heading towards the
+ * start of the document.
+ * 4. Treat TextNodes as leaf nodes.
+ * 5. Search the tree until a leaf node no longer contains comment marks with all the IDs in the list.
+ * 6. Save the ID of the first comment mark which is missing from this leaf node and the node start position.
+ * 7. Perform a new depth-first search, again starting at the leaf node from step 2 but now heading towards the end of
+ * the document.
+ * 8. When a leaf node no longer has a comment mark with the saved ID, save the node start position - 1.
+ */
+
+/**
  * This function finds the comment in the editor closest to the cursor. Closest implies that the text the comment refers
  * to has a starting position that is left of the cursor and closer to it than that of any other comment. This seems
  * arbitrary, but it is the same behaviour that's used in most other editors, e.g. Google Docs.
