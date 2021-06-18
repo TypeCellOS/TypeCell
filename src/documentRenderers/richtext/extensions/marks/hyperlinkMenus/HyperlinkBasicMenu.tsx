@@ -4,12 +4,14 @@ import Remove from "remixicon-react/LinkUnlinkIcon";
 import Open from "remixicon-react/ExternalLinkFillIcon";
 import menuStyles from "../../../menus/InlineMenu.module.css";
 import styles from "../Hyperlink.module.css";
+import { useState } from "react";
 
 export const EDIT_LINK_BUTTON = "hyperlinkEditButton";
 
 type HyperlinkMenuProps = {
   href: string;
   removeHandler: () => void;
+  editMenu: React.ReactElement;
 };
 
 /**
@@ -18,6 +20,16 @@ type HyperlinkMenuProps = {
  * @returns a menu for editing/removing/opening the link
  */
 export const HyperlinkBasicMenu = (props: HyperlinkMenuProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  if (isEditing) {
+    return props.editMenu;
+  }
+
+  function onEditClick(e: React.MouseEvent) {
+    setIsEditing(true);
+    e.stopPropagation();
+  }
+
   return (
     <div className={`${styles.linkerWrapper} ${menuStyles.bubbleMenu}`}>
       <Tippy
@@ -26,7 +38,7 @@ export const HyperlinkBasicMenu = (props: HyperlinkMenuProps) => {
             <div className={menuStyles.mainText}>Edit</div>
           </div>
         }>
-        <Button appearance="subtle" className={EDIT_LINK_BUTTON}>
+        <Button appearance="subtle" onClick={onEditClick}>
           Edit Link
         </Button>
       </Tippy>
@@ -43,7 +55,7 @@ export const HyperlinkBasicMenu = (props: HyperlinkMenuProps) => {
           style={{ width: "36px" }}
           appearance="subtle"
           onClick={() => {
-            window.open("//" + props.href, "_blank");
+            window.open(props.href, "_blank");
           }}
           iconBefore={<Open className={menuStyles.icon}></Open>}></Button>
       </Tippy>

@@ -38,7 +38,3 @@
   cursor: auto !important;
   background: white !important;
 }
-
-.anchor:hover {
-  cursor: pointer;
-}

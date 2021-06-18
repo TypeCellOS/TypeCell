@@ -2,20 +2,19 @@ import { BubbleMenu, Editor } from "@tiptap/react";
 import { TextSelection } from "prosemirror-state";
 import React from "react";
 import BoldIcon from "remixicon-react/BoldIcon";
-import ItalicIcon from "remixicon-react/ItalicIcon";
-import StrikethroughIcon from "remixicon-react/StrikethroughIcon";
 import CodeLineIcon from "remixicon-react/CodeLineIcon";
-import UnderlineIcon from "remixicon-react/UnderlineIcon";
+import ItalicIcon from "remixicon-react/ItalicIcon";
 import LinkIcon from "remixicon-react/LinkIcon";
-
+import StrikethroughIcon from "remixicon-react/StrikethroughIcon";
+import UnderlineIcon from "remixicon-react/UnderlineIcon";
 import { Underline } from "../extensions/marks/Underline";
-import BubbleMenuButton, { ButtonStyleDetails } from "./BubbleMenuButton";
-import styles from "./InlineMenu.module.css";
+import BubbleMenuButton from "./BubbleMenuButton";
 import BubbleMenuLinkButton from "./BubbleMenuLinkButton";
+import styles from "./InlineMenu.module.css";
 
 type InlineMenuProps = { editor: Editor };
 
-const bold: ButtonStyleDetails = {
+const bold = {
   markName: "bold",
   mainTooltip: "Bold",
   // This will change to a variable if custom shortcuts are implemented
@@ -23,35 +22,35 @@ const bold: ButtonStyleDetails = {
   icon: BoldIcon,
 };
 
-const italic: ButtonStyleDetails = {
+const italic = {
   markName: "italic",
   mainTooltip: "Italic",
   secondaryTooltip: "Ctrl+I",
   icon: ItalicIcon,
 };
 
-const strike: ButtonStyleDetails = {
+const strike = {
   markName: "strike",
   mainTooltip: "Strikethrough",
   secondaryTooltip: "Ctrl+Shift+X",
   icon: StrikethroughIcon,
 };
 
-const code: ButtonStyleDetails = {
+const code = {
   markName: "code",
   mainTooltip: "Inline Code",
   secondaryTooltip: "Ctrl+E",
   icon: CodeLineIcon,
 };
 
-const underline: ButtonStyleDetails = {
+const underline = {
   markName: Underline.name,
   mainTooltip: "Underline",
   secondaryTooltip: "Ctrl+U",
   icon: UnderlineIcon,
 };
 
-const link: ButtonStyleDetails = {
+const link = {
   markName: "link",
   mainTooltip: "Link",
   secondaryTooltip: "Ctrl+K",

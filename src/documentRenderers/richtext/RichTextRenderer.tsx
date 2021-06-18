@@ -6,43 +6,42 @@ import Document from "@tiptap/extension-document";
 import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
 import Placeholder from "@tiptap/extension-placeholder";
-import { useEditor, EditorContent } from "@tiptap/react";
+import Strike from "@tiptap/extension-strike";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import TableRow from "@tiptap/extension-table-row";
+import Text from "@tiptap/extension-text";
+import { EditorContent, useEditor } from "@tiptap/react";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useMemo, useRef } from "react";
-import Strike from "@tiptap/extension-strike";
-import Text from "@tiptap/extension-text";
 import { DocumentResource } from "../../store/DocumentResource";
+import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import { AutoId } from "./extensions/autoid/AutoId";
-import { TrailingNode } from "./extensions/trailingnode";
 import {
   BlockQuoteBlock,
+  BulletList,
+  CodeBlockBlock,
   HeadingBlock,
   HorizontalRuleBlock,
   IndentItemBlock,
   ListItemBlock,
+  OrderedList,
   ParagraphBlock,
   TypeCellNodeBlock,
-  BulletList,
-  OrderedList,
-  CodeBlockBlock,
 } from "./extensions/blocktypes";
-import { TableBlock } from "./extensions/blocktypes/TableBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
+import { TableBlock } from "./extensions/blocktypes/TableBlock";
+import Hyperlink from "./extensions/marks/Hyperlink";
 import { Underline } from "./extensions/marks/Underline";
 import { Mention, MentionType } from "./extensions/mentions/Mention";
 import { MentionsExtension } from "./extensions/mentions/MentionsExtension";
 import SlashCommandExtension from "./extensions/slashcommand";
-import "./RichTextRenderer.css";
-import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
+import { TrailingNode } from "./extensions/trailingnode";
 import { EngineContext } from "./extensions/typecellnode/EngineContext";
 import InlineMenu from "./menus/InlineMenu";
 import TableMenu from "./menus/TableInlineMenu";
-import TableCell from "@tiptap/extension-table-cell";
-import TableHeader from "@tiptap/extension-table-header";
-import TableRow from "@tiptap/extension-table-row";
-import Hyperlink, { HYPERLINK_MENU } from "./extensions/marks/Hyperlink";
-import multipleLineMarkdownRuleBuilder from "./extensions/markdownPasteRules/multiple/markdownMultipleLines";
+import "./RichTextRenderer.css";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -83,13 +82,6 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
   }, []);
 
   const editor = useEditor({
-    onCreate: ({ editor }) => {
-      const prosemirror = document.querySelector(".ProseMirror");
-      // Add an invisible element to render Tippy Component
-      const div = document.createElement("div");
-      div.id = HYPERLINK_MENU;
-      prosemirror?.parentElement?.appendChild(div);
-    },
     onUpdate: ({ editor }) => {
       console.log(editor.getJSON());
     },

@@ -1,4 +1,3 @@
-import { EDITING_MENU } from "../Hyperlink";
 import {
   Container,
   ContainerWrapper,
@@ -10,11 +9,12 @@ import PanelTextInput from "../AtlaskitHyperlink/PanelTextInput";
 import Tooltip from "@atlaskit/tooltip";
 import LinkIcon from "remixicon-react/LinkIcon";
 import TextIcon from "remixicon-react/TextIcon";
-import React from "react";
+import React, { useState } from "react";
 
-type HyperlinkEditorMenuProps = {
-  anchor: HTMLAnchorElement;
-  editHandler: (href: string, text: string) => void;
+export type HyperlinkEditorMenuProps = {
+  url: string;
+  text: string;
+  onSubmit: (url: string, text: string) => void;
 };
 
 /**
@@ -23,14 +23,12 @@ type HyperlinkEditorMenuProps = {
  * @returns a menu for the edit operation of a hyperlink
  */
 export const HyperlinkEditMenu = (props: HyperlinkEditorMenuProps) => {
-  const [href, setHref] = React.useState(
-    props.anchor.getAttribute("href")?.substring(2)
-  );
-  const [text, setText] = React.useState(props.anchor.innerText);
+  const [url, setUrl] = useState(props.url);
+  const [text, setText] = useState(props.text);
 
   return (
     <ContainerWrapper>
-      <Container provider={false} id={EDITING_MENU}>
+      <Container provider={false}>
         <UrlInputWrapper>
           <IconWrapper>
             <Tooltip content={"Edit the link"}>
@@ -38,13 +36,13 @@ export const HyperlinkEditMenu = (props: HyperlinkEditorMenuProps) => {
             </Tooltip>
           </IconWrapper>
           <PanelTextInput
-            defaultValue={href!}
+            defaultValue={url}
             autoFocus={true}
-            onSubmit={(linkValue) => {
-              props.editHandler("//" + linkValue, text);
+            onSubmit={(value) => {
+              props.onSubmit(value, text);
             }}
             onChange={(value) => {
-              setHref(value);
+              setUrl(value);
             }}></PanelTextInput>
         </UrlInputWrapper>
         <TextInputWrapper>
@@ -55,8 +53,8 @@ export const HyperlinkEditMenu = (props: HyperlinkEditorMenuProps) => {
           </IconWrapper>
           <PanelTextInput
             defaultValue={text!}
-            onSubmit={(textValue) => {
-              props.editHandler("//" + href, textValue);
+            onSubmit={(value) => {
+              props.onSubmit(url, value);
             }}
             onChange={(value) => {
               setText(value);

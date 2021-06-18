@@ -39,7 +39,8 @@ export function extendAsBlock<NodeOptions>(
         // don't use the built-in stopEvent from TipTap
         // because it blocks drag events that we handle ourselves
         // (we don't use tiptap / PM draggable)
-        stopEvent: (event) => true,
+        // TODO
+        stopEvent: (event) => false,
       });
     },
 
