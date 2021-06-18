@@ -46,6 +46,11 @@ export const ProfilePopup = observer(
         <DropdownItem onClick={props.navigationStore.showNewPageDialog}>
           New page
         </DropdownItem>
+        {props.navigationStore.currentPage.document && (
+          <DropdownItem onClick={props.navigationStore.showNewPageDialog}>
+            Sync to Github
+          </DropdownItem>
+        )}
         <DropdownItemGroup title={props.sessionStore.loggedInUser!}>
           {" "}
           {/* @${props.authStore.user?.username} */}
