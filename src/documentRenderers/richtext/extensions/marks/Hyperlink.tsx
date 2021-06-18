@@ -187,17 +187,9 @@ function linkMenusPlugin() {
             // dispatch a meta transaction to make sure the view gets updated
             hoveredLink = newHoveredLink;
 
-            if (hoveredLink) {
-              view.dispatch(
-                view.state.tr.setMeta(PLUGIN_KEY, { hoveredLinkChanged: true })
-              );
-            } else {
-              view.dispatch(
-                view.state.tr.setMeta(PLUGIN_KEY, {
-                  hoveredLinkChanged: true,
-                })
-              );
-            }
+            view.dispatch(
+              view.state.tr.setMeta(PLUGIN_KEY, { hoveredLinkChanged: true })
+            );
           }
           return false;
         },
