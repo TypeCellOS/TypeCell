@@ -13,6 +13,9 @@ import { getMarkRange, getMarksBetween, getMarkType } from "@tiptap/core";
  * 7. Perform a new depth-first search, again starting at the leaf node from step 2 but now heading towards the end of
  * the document.
  * 8. When a leaf node no longer has a comment mark with the saved ID, save the node start position - 1.
+ *
+ * Alternatively, getMarkRange could be edited to find check for marks before the node that the selection is in rather
+ * than backwards. However, the default getMarkRange implementation doesn't work if a mark goes across nodes.
  */
 
 /**
