@@ -35,7 +35,7 @@ type DnDItemType = {
   node: Node;
 };
 
-// Used to store temporary multi-selection data
+// Stores the currently selected blocks. Updates on drag-handle press.
 let selected: Array<DnDItemType> = [];
 
 /**
@@ -90,7 +90,10 @@ function Block(
       }
       return {
         type: "block",
-        item: selected,
+        // This has to be a function to be assigned at drag start. Using an object only assigns it at drag end/drop.
+        item: function () {
+          return selected;
+        },
       };
     }, [props.getPos, props.node]);
 
@@ -145,9 +148,8 @@ function Block(
 
           // delete the old block/s
           tr.deleteRange(
-            selected[0].pos,
-            selected[selected.length - 1].pos +
-              selected[selected.length - 1].node.nodeSize
+            item[0].pos,
+            item[item.length - 1].pos + item[item.length - 1].node.nodeSize
           );
 
           let posToInsert = cursorInUpperHalf(
@@ -157,7 +159,7 @@ function Block(
             ? posBeforeTargetNode
             : posAfterTargetNode;
 
-          if (selected[0].pos < posToInsert) {
+          if (item[0].pos < posToInsert) {
             // we're moving an item downwards. As "delete" happens before "insert",
             // we need to adjust the insert position
 
@@ -169,7 +171,7 @@ function Block(
           }
           // insert the block/s at new position
           let nextPos = posToInsert;
-          for (let block of selected) {
+          for (let block of item) {
             tr.insert(nextPos, block.node);
             nextPos += block.node.nodeSize;
           }
@@ -179,17 +181,17 @@ function Block(
 
           // Set new selection if dragging multiple blocks
           // Must be a new transaction since the document changes
-          if (selected.length > 1) {
+          if (item.length > 1) {
             const newSelection = props.editor.state.tr.setSelection(
               TextSelection.create(
                 props.editor.state.doc,
                 // List
-                posToInsert + (selected[0].node.isTextblock ? 1 : 2),
+                posToInsert + (item[0].node.isTextblock ? 1 : 2),
                 posToInsert +
-                  selected[selected.length - 1].pos -
-                  selected[0].pos +
-                  selected[selected.length - 1].node.nodeSize -
-                  (selected[selected.length - 1].node.isTextblock ? 1 : 2)
+                  item[item.length - 1].pos -
+                  item[0].pos +
+                  item[item.length - 1].node.nodeSize -
+                  (item[item.length - 1].node.isTextblock ? 1 : 2)
               )
             );
             props.editor.view.dispatch(newSelection);
@@ -257,25 +259,18 @@ function Block(
       }
     }
 
-    /**
-     * Updates the multi-block selection. If this block is outside this selection, the selection is cancelled and the
-     * cursor is moved to the start of this block. Runs every time the drag-handle/side-menu button is clicked, as all
-     * operations which utilize multi-block selections are triggered from the drag-handle in some way.
-     */
-    function updateSelection() {
-      selected = getSelected();
-    }
-
+    // Prevents any accidental re-renders when dragging.
     function onMouseOver(e: MouseEvent) {
-      // Prevents any accidental re-renders when dragging.
       if (!canDrop) {
         updateHover();
       }
     }
 
     /**
-     * Gets all selected blocks.
-     * @returns An array of nodes, each corresponding to a selected block. Empty if selection is within a single block.
+     * Gets an array with all selected blocks and their corresponding positions. If this block is either not part of the
+     * selected blocks or no blocks are selected, the selection is set to the start of this block and an array with only
+     * this block (and its position) is returned. If this block's position cannot be found, returns an empty array.
+     * @returns An array of all selected blocks, an array with only this block, or an empty array.
      */
     function getSelected(): Array<DnDItemType> {
       const selected: Array<DnDItemType> = [];
@@ -367,7 +362,7 @@ function Block(
               interactive={true}>
               <div
                 className={styles.handle + (hover ? " " + styles.hover : "")}
-                onMouseDown={updateSelection}
+                onMouseDown={() => (selected = getSelected())}
               />
             </Tippy>
           </div>
