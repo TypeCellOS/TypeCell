@@ -31,13 +31,12 @@ let globalState = makeAutoObservable({
 });
 
 type DnDItemType = {
-  getPos: () => number;
+  pos: number;
   node: Node;
 };
 
 // Used to store temporary multi-selection data
-let selectedBlocks: Array<Node> = [];
-let selectedRange: Array<number> = [];
+let selected: Array<DnDItemType> = [];
 
 /**
  * This function creates a React component that represents a block in the editor. This is so that editor blocks can be
@@ -82,7 +81,7 @@ function Block(
     let hover = globalState.activeBlocks[id];
 
     const [{ isDragging }, dragRef, dragPreview] = useDrag<
-      DnDItemType,
+      Array<DnDItemType>,
       any,
       any
     >(() => {
@@ -91,15 +90,12 @@ function Block(
       }
       return {
         type: "block",
-        item: {
-          getPos: props.getPos,
-          node: props.node,
-        },
+        item: selected,
       };
     }, [props.getPos, props.node]);
 
     const [{ isOver, canDrop, clientOffset }, drop] = useDrop<
-      DnDItemType,
+      Array<DnDItemType>,
       any,
       any
     >(
@@ -135,9 +131,6 @@ function Block(
           // Should we move source to the top of bottom of target? Let's find out
           // (logic from https://react-dnd.github.io/react-dnd/examples/sortable/simple)
 
-          // Get all selected blocks, empty if there's only a basic text selection
-          const nodes = getSelectedBlocks();
-
           // Determine rectangle on screen
           const hoverBoundingRect =
             mouseCaptureRef.current!.getBoundingClientRect();
@@ -150,15 +143,12 @@ function Block(
           const tr = props.editor.state.tr;
           const oldDocSize = tr.doc.nodeSize;
 
-          // Get range of selected blocks
-          selectedRange = getSelectedRange();
-
           // delete the old block/s
-          if (selectedRange[0] !== -1 && selectedRange[1] !== -1) {
-            tr.deleteRange(selectedRange[0], selectedRange[1]);
-          } else {
-            tr.deleteRange(item.getPos(), item.getPos() + item.node.nodeSize);
-          }
+          tr.deleteRange(
+            selected[0].pos,
+            selected[selected.length - 1].pos +
+              selected[selected.length - 1].node.nodeSize
+          );
 
           let posToInsert = cursorInUpperHalf(
             monitor.getClientOffset()!.y,
@@ -167,7 +157,7 @@ function Block(
             ? posBeforeTargetNode
             : posAfterTargetNode;
 
-          if (item.getPos() < posToInsert) {
+          if (selected[0].pos < posToInsert) {
             // we're moving an item downwards. As "delete" happens before "insert",
             // we need to adjust the insert position
 
@@ -178,32 +168,28 @@ function Block(
             posToInsert -= deletedLength;
           }
           // insert the block/s at new position
-          selectedBlocks = getSelectedBlocks();
-          if (selectedBlocks.length > 0) {
-            let nextPos = posToInsert;
-            for (let node of selectedBlocks) {
-              tr.insert(nextPos, node);
-              nextPos += node.nodeSize;
-            }
-          } else {
-            tr.insert(posToInsert, item.node);
+          let nextPos = posToInsert;
+          for (let block of selected) {
+            tr.insert(nextPos, block.node);
+            nextPos += block.node.nodeSize;
           }
+
           // Execute transaction
           props.editor.view.dispatch(tr);
 
           // Set new selection if dragging multiple blocks
           // Must be a new transaction since the document changes
-          if (selectedBlocks.length > 0) {
+          if (selected.length > 1) {
             const newSelection = props.editor.state.tr.setSelection(
               TextSelection.create(
                 props.editor.state.doc,
                 // List
-                posToInsert + (selectedBlocks[0].isTextblock ? 1 : 2),
+                posToInsert + (selected[0].node.isTextblock ? 1 : 2),
                 posToInsert +
-                  (selectedRange[1] - selectedRange[0]) -
-                  (selectedBlocks[selectedBlocks.length - 1].isTextblock
-                    ? 1
-                    : 2)
+                  selected[selected.length - 1].pos -
+                  selected[0].pos +
+                  selected[selected.length - 1].node.nodeSize -
+                  (selected[selected.length - 1].node.isTextblock ? 1 : 2)
               )
             );
             props.editor.view.dispatch(newSelection);
@@ -237,18 +223,17 @@ function Block(
         throw new Error("unexpected");
       }
 
-      if (selectedBlocks.length > 0) {
-        props.editor.view.dispatch(
-          props.editor.state.tr.deleteRange(selectedRange[0], selectedRange[1])
-        );
-      } else {
-        props.editor.view.dispatch(
-          props.editor.state.tr.deleteRange(
-            props.getPos(),
-            props.getPos() + props.node.nodeSize
-          )
-        );
+      if (selected.length === 0) {
+        return;
       }
+
+      props.editor.view.dispatch(
+        props.editor.state.tr.deleteRange(
+          selected[0].pos,
+          selected[selected.length - 1].pos +
+            selected[selected.length - 1].node.nodeSize
+        )
+      );
     }
 
     /**
@@ -278,30 +263,7 @@ function Block(
      * operations which utilize multi-block selections are triggered from the drag-handle in some way.
      */
     function updateSelection() {
-      if (typeof props.getPos === "boolean") {
-        throw new Error("unexpected");
-      }
-
-      selectedBlocks = getSelectedBlocks();
-      selectedRange = getSelectedRange();
-
-      // Checks if block position is outside the multi-block selection and a multi-block selection exists.
-      if (
-        (props.getPos() < selectedRange[0] ||
-          props.getPos() >= selectedRange[1]) &&
-        selectedBlocks.length > 0
-      ) {
-        // Sets the selection to the start of the block
-        props.editor.view.dispatch(
-          props.editor.state.tr.setSelection(
-            TextSelection.create(props.editor.state.doc, props.getPos() + 1)
-          )
-        );
-
-        // Updates the multi-block selection since the selection was reset.
-        selectedBlocks = getSelectedBlocks();
-        selectedRange = getSelectedRange();
-      }
+      selected = getSelected();
     }
 
     function onMouseOver(e: MouseEvent) {
@@ -315,40 +277,37 @@ function Block(
      * Gets all selected blocks.
      * @returns An array of nodes, each corresponding to a selected block. Empty if selection is within a single block.
      */
-    function getSelectedBlocks(): Array<Node> {
-      const selectedBlocks: Array<Node> = [];
-      function getBlocks(node: Node) {
-        selectedBlocks.push(node);
+    function getSelected(): Array<DnDItemType> {
+      const selected: Array<DnDItemType> = [];
+      function getBlocks(node: Node, pos?: number) {
+        selected.push({ node: node, pos: pos! });
       }
 
       forSelectedBlocks(props.editor.state, getBlocks);
 
-      return selectedBlocks;
-    }
-
-    /**
-     * Gets the start and end positions of the multi-block selection.
-     * @returns A 2-element array containing the start and end positions of the multi-block selection. If the selection
-     * is within a single block, the first array value equals Number.MAX_VALUE while the second element equals -1.
-     * However, it is better to check for this if getSelectedBlocks() returns an empty array.
-     */
-    function getSelectedRange(): Array<number> {
-      let start = Number.MAX_VALUE;
-      let end = -1;
-      function getRange(node: Node, offset?: number) {
-        if (offset !== undefined) {
-          if (offset < start) {
-            start = offset;
-          }
-          if (offset + node.nodeSize > end) {
-            end = offset + node.nodeSize;
-          }
-        }
+      // Case something goes wrong.
+      if (typeof props.getPos === "boolean") {
+        return [];
       }
 
-      forSelectedBlocks(props.editor.state, getRange);
+      // Case multi-block selection exists and this block is in it.
+      if (
+        selected.length > 0 &&
+        selected[0].pos <= props.getPos() &&
+        selected[selected.length - 1].pos +
+          selected[selected.length - 1].node.nodeSize >
+          props.getPos()
+      ) {
+        return selected;
+      }
 
-      return [start, end];
+      // Case multi-block selection does not exist or this block is not in it.
+      props.editor.view.dispatch(
+        props.editor.state.tr.setSelection(
+          TextSelection.create(props.editor.state.doc, props.getPos() + 1)
+        )
+      );
+      return [{ node: props.node, pos: props.getPos() }];
     }
 
     /**
@@ -363,7 +322,6 @@ function Block(
 
       // Get pixels to the top
       const hoverClientY = mouseYPos - rect.top;
-      // console.log(hoverClientY, hoverMiddleY);
       return hoverClientY < hoverMiddleY;
     }
 
@@ -394,8 +352,6 @@ function Block(
       ? { "data-placeholder": placeholder, class: "is-empty" }
       : {};
 
-    console.log(props.decorations);
-
     return (
       <NodeViewWrapper className={`${styles.block}`} ref={outerRef}>
         <div className={styles.inner + " inner"} ref={innerRef}>
@@ -411,7 +367,7 @@ function Block(
               interactive={true}>
               <div
                 className={styles.handle + (hover ? " " + styles.hover : "")}
-                onClick={updateSelection}
+                onMouseDown={updateSelection}
               />
             </Tippy>
           </div>

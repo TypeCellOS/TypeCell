@@ -11,11 +11,6 @@ export function forSelectedBlocks(
   state: EditorState,
   f: (node: Node, offset?: number) => void
 ) {
-  // No point running function if the selection doesn't even span one character.
-  if (state.selection.head !== state.selection.anchor) {
-    return;
-  }
-
   // Depth values between resolved positions and node ranges represent different actual depths.
   // 0 1 2 3 4... Actual depths
   // 1 3 5 7 9... ResolvedPos depths
@@ -43,8 +38,9 @@ export function forSelectedBlocks(
 
   // Marks nodes between the anchor and head as selected.
   if (
-    state.selection.head <= nodeStartPos ||
-    state.selection.head >= nodeEndPos
+    (state.selection.head <= nodeStartPos ||
+      state.selection.head >= nodeEndPos) &&
+    state.selection.head !== state.selection.anchor
   ) {
     state.doc.descendants(function (node, offset) {
       // Checks if node lies within selection.
