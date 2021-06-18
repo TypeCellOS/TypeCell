@@ -9,6 +9,7 @@ import React, { useState } from "react";
 
 import { SessionStore } from "../../store/local/SessionStore";
 import { NavigationStore } from "../../store/local/navigationStore";
+import { saveDocumentToGithub } from "../../github/github";
 
 const imgCSS = {
   borderRadius: "100%",
@@ -47,7 +48,13 @@ export const ProfilePopup = observer(
           New page
         </DropdownItem>
         {props.navigationStore.currentPage.document && (
-          <DropdownItem onClick={props.navigationStore.showNewPageDialog}>
+          <DropdownItem
+            onClick={() =>
+              saveDocumentToGithub(
+                props.navigationStore.currentPage.owner!,
+                props.navigationStore.currentPage.document!
+              )
+            }>
             Sync to Github
           </DropdownItem>
         )}

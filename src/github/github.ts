@@ -1,5 +1,6 @@
 import { DocConnection } from "../store/DocConnection";
 import * as octokit from "octokit";
+import { CellModel } from "../models/CellModel";
 
 type RepoOptions = {
   owner: string;
@@ -17,51 +18,94 @@ export const templateRepo = {
 export async function copyTree(
   repo: RepoOptions,
   targetRepo: RepoOptions,
-  treeData: any[]
+  treeData: any[],
+  cells: CellModel[],
+  dirName: string = "root"
 ) {
   // TODO: maybe use repos.getContent(), probably faster
-  const children = await Promise.all(
-    treeData.map(async (entry) => {
-      const newEntry: any = {
-        path: entry.path,
-        mode: entry.mode,
-        type: entry.type,
-      };
-      if (entry.mode !== "040000") {
-        // directory
-        const blob = await githubClient.rest.git.getBlob({
-          ...repo,
-          file_sha: entry.sha,
-        });
-        const newBlob = await githubClient.rest.git.createBlob({
-          ...targetRepo,
-          file_sha: entry.sha,
-          content: blob.data.content,
-          encoding: blob.data.encoding,
-        });
-        // newEntry.content = blob.data.content;
-        // newEntry.encoding = blob.data.encoding;
-        newEntry.sha = newBlob.data.sha;
-      } else {
-        const subTree = await githubClient.rest.git.getTree({
-          ...repo,
-          tree_sha: entry.sha,
-        });
-        const subTreeCopied = await copyTree(
-          repo,
-          targetRepo,
-          subTree.data.tree
-        );
-        newEntry.sha = subTreeCopied.data.sha;
-      }
-      return newEntry;
-    })
+  let children = await Promise.all(
+    treeData
+      .map(async (entry) => {
+        const newEntry: any = {
+          path: entry.path,
+          mode: entry.mode,
+          type: entry.type,
+        };
+        if (entry.mode !== "040000") {
+          // directory
+          const blob = await githubClient.rest.git.getBlob({
+            ...repo,
+            file_sha: entry.sha,
+          });
+          const newBlob = await githubClient.rest.git.createBlob({
+            ...targetRepo,
+            file_sha: entry.sha,
+            content: blob.data.content,
+            encoding: blob.data.encoding,
+          });
+          // newEntry.content = blob.data.content;
+          // newEntry.encoding = blob.data.encoding;
+          newEntry.sha = newBlob.data.sha;
+        } else {
+          const subTree = await githubClient.rest.git.getTree({
+            ...repo,
+            tree_sha: entry.sha,
+          });
+          const subTreeCopied = await copyTree(
+            repo,
+            targetRepo,
+            subTree.data.tree,
+            cells,
+            newEntry.path
+          );
+          newEntry.sha = subTreeCopied.data.sha;
+        }
+        return newEntry;
+      })
+      .filter((f) => f)
   );
 
+  if (dirName === "types") {
+    const index = children.find((c) => c.path === "index.ts");
+    delete index.sha;
+    const imports = cells
+      .map(
+        (c) => `
+    import type * as fc${c.id} from "../c${c.id}";`
+      )
+      .join("");
+
+    const contents = cells
+      .map(
+        (c) => `
+    type tc${c.id} = Omit<typeof fc${c.id}, "default">;
+    export interface IContext extends tc${c.id} {}`
+      )
+      .join("\n");
+
+    index.content = `
+    // this is a .ts file so it gets copied to the build folder
+
+    ${imports}
+    ${contents}`;
+  }
+
+  if (dirName === "notebook") {
+    children = children.filter((p) => p.path !== "c1.ts" && p.path !== "c2.ts");
+    cells.forEach((c) => {
+      children.push({
+        path: "c" + c.id + ".ts",
+        mode: "100644",
+        type: "blob",
+        content: c.code.toJSON(),
+      });
+    });
+  }
   const created = await githubClient.rest.git.createTree({
     ...targetRepo,
     tree: children,
   });
+  console.log("created", children);
   return created;
 }
 
@@ -120,9 +164,22 @@ export async function getTemplateTree() {
   return tree;
 }
 
-export async function getGithubTree(owner: string, document: string) {
+export async function saveDocumentToGithub(owner: string, document: string) {
+  const targetRepo = {
+    owner: "yousefed",
+    repo: "testrep",
+  };
+
   const dc = DocConnection.load({ owner, document });
   const doc = await dc.waitForDoc();
   const template = await getTemplateTree();
+  debugger;
+  const copy = await copyTree(
+    templateRepo,
+    targetRepo,
+    template.data.tree,
+    doc.doc.cells
+  );
+  await commit(targetRepo, copy);
   return template;
 }
