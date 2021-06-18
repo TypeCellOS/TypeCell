@@ -26,8 +26,8 @@ import Field, { IInputProps } from "../elements/Field";
 
 interface IProps extends Omit<IInputProps, "onValidate"> {
   autoFocus?: boolean;
-  id?: string;
-  className?: string;
+  // id?: string;
+  // className?: string;
   minScore: 0 | 1 | 2 | 3 | 4;
   value: string;
   fieldRef?: RefCallback<Field> | RefObject<Field>;
@@ -37,8 +37,8 @@ interface IProps extends Omit<IInputProps, "onValidate"> {
   labelStrongPassword: string;
   labelAllowedButUnsafe: string;
 
-  onChange(ev: React.FormEvent<HTMLElement>): void;
-  onValidate(result: IValidationResult): void;
+  // onChange(ev: React.FormEvent<HTMLElement>): void;
+  // onValidate(result: IValidationResult): void;
 }
 
 class PassphraseField extends PureComponent<IProps> {
@@ -101,19 +101,16 @@ class PassphraseField extends PureComponent<IProps> {
     ],
   });
 
-  onValidate = async (fieldState: IFieldState) => {
-    const result = await this.validate(fieldState);
-    this.props.onValidate(result);
-    return result;
-  };
+  // onValidate = async (fieldState: IFieldState) => {
+  //   const result = await this.validate(fieldState);
+  //   this.props.onValidate(result);
+  //   return result;
+  // };
 
   render() {
     return (
       <Field
-        id={this.props.id}
         autoFocus={this.props.autoFocus}
-        className={classNames("mx_PassphraseField", this.props.className)}
-        ref={this.props.fieldRef}
         type="password"
         autoComplete="new-password"
         label={this.props.label}
@@ -121,6 +118,7 @@ class PassphraseField extends PureComponent<IProps> {
         onChange={this.props.onChange}
         // temp disabled
         //onValidate={this.onValidate}
+        ref={this.props.fieldRef}
       />
     );
   }

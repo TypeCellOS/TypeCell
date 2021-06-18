@@ -32,6 +32,8 @@ import AuthHeader from "./views/AuthHeader";
 import RegistrationForm from "./views/RegistrationForm";
 import { PageLayout, Main, Content, Banner } from "@atlaskit/page-layout";
 import PageHeader from "@atlaskit/page-header";
+import Button from "@atlaskit/button";
+import { HelperMessage } from "@atlaskit/form";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -422,7 +424,7 @@ export default class Registration extends React.Component<IProps, IState> {
     );
   }
 
-  private onLoginClick = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+  private onLoginClick = (ev: React.MouseEvent<HTMLElement>) => {
     ev.preventDefault();
     ev.stopPropagation();
     this.props.onLoginClick();
@@ -560,6 +562,46 @@ export default class Registration extends React.Component<IProps, IState> {
   }
 
   render() {
+    const SignInSectionWrapper = ({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) => {
+      return (
+        <div
+          style={{
+            position: "absolute",
+            display: "inline-block",
+            // float: "right",
+            width: "50%",
+            height: "36px",
+            bottom: "16px",
+            right: "16px",
+            // backgroundColor: "light-grey",
+            // padding: "4px 8px 0 0",
+            textAlign: "left",
+          }}>
+          {children}
+        </div>
+      );
+    };
+
+    const SignInButtonWrapper = ({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) => {
+      return (
+        <div
+          style={{
+            position: "absolute",
+            right: "0px",
+          }}>
+          {children}
+        </div>
+      );
+    };
+
     let errorText;
     const err = this.state.errorText;
     if (err) {
@@ -579,12 +621,27 @@ export default class Registration extends React.Component<IProps, IState> {
     }
 
     const signIn = (
-      <span className="mx_AuthBody_changeFlow">
-        Already have an account?{" "}
-        <a onClick={this.onLoginClick} href="#">
+      <>
+        <div
+          style={{
+            position: "absolute",
+            width: "80",
+            padding: "6px 0 0 0",
+          }}>
+          <HelperMessage>Already have an account? </HelperMessage>
+        </div>
+        {/* <a onClick={this.onLoginClick} href="#">
           Sign in here
-        </a>
-      </span>
+        </a> */}
+        <SignInButtonWrapper>
+          <Button
+            appearance="subtle"
+            onClick={(e, analyticsEvent) => this.onLoginClick(e)}
+            href="#">
+            Sign in
+          </Button>
+        </SignInButtonWrapper>
+      </>
     );
 
     // Only show the 'go back' button if you're not looking at the form
@@ -669,7 +726,7 @@ export default class Registration extends React.Component<IProps, IState> {
           /> */}
           {this.renderRegisterComponent()}
           {goBack}
-          {signIn}
+          <SignInSectionWrapper>{signIn}</SignInSectionWrapper>
         </div>
       );
     }

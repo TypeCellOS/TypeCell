@@ -663,7 +663,6 @@ export default class LoginComponent extends React.PureComponent<
         <div
           style={{
             float: "right",
-            height: "36px",
             backgroundColor: "light-grey",
             padding: "4px 8px 0 0",
           }}>

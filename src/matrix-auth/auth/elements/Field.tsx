@@ -61,7 +61,7 @@ interface IProps {
   // changes.  Returns an object with `valid` boolean field
   // and a `feedback` react component field to provide feedback
   // to the user.
-  onValidate?: (value?: string) => string | undefined;
+  onValidate?: (value?: string) => Promise<string | undefined>;
   // If specified, overrides the value returned by onValidate.
   forceValidity?: boolean;
   // If specified, contents will appear as a tooltip on the element and

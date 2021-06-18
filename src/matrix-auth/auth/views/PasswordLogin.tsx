@@ -402,7 +402,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             //onBlur={this.onUsernameBlur}
             disabled={this.props.disableSubmit}
             autoFocus={autoFocus}
-            onValidate={this.onEmailValidate}
+            // onValidate={this.onEmailValidate}
             isRequired={true}
             ref={(field) => (this[LoginField.Email] = field)}
           />
@@ -532,7 +532,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             {loginType}
             {loginField}
             <Field
-              className={pwFieldClass}
+              // className={pwFieldClass}
               type="password"
               name="password"
               key={"password_input"}

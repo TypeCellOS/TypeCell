@@ -28,6 +28,7 @@ import { ValidatedServerConfig } from "../util/AutoDiscoveryUtils";
 import { looksValidEmail } from "../util/email";
 import { phoneNumberLooksValid } from "../util/phonenumber";
 import Form from "@atlaskit/form";
+import Button from "@atlaskit/button";
 
 enum RegistrationField {
   Email = "field_email",
@@ -460,12 +461,11 @@ export default class RegistrationForm extends React.PureComponent<
   private renderPassword() {
     return (
       <PassphraseField
-        id="mx_RegistrationForm_password"
-        fieldRef={(field) => (this[RegistrationField.Password] = field)}
         minScore={PASSWORD_MIN_SCORE}
         value={this.state.password}
-        onChange={this.onPasswordChange}
-        onValidate={this.onPasswordValidate}
+        // onChange={this.onPasswordChange}
+        // onValidate={this.onPasswordValidate}
+        fieldRef={(field) => (this[RegistrationField.Password] = field)}
       />
     );
   }
@@ -473,15 +473,14 @@ export default class RegistrationForm extends React.PureComponent<
   renderPasswordConfirm() {
     return (
       <Field
-        id="mx_RegistrationForm_passwordConfirm"
-        ref={(field) => (this[RegistrationField.PasswordConfirm] = field)}
         type="password"
-        autoComplete="new-password"
+        name="password"
         label={"Confirm password"}
         value={this.state.passwordConfirm}
-        onChange={this.onPasswordConfirmChange}
+        // onChange={this.onPasswordConfirmChange}
         // temp disabled
         //onValidate={this.onPasswordConfirmValidate}
+        ref={(field) => (this[RegistrationField.PasswordConfirm] = field)}
       />
     );
   }
@@ -537,12 +536,14 @@ export default class RegistrationForm extends React.PureComponent<
 
   render() {
     const registerButton = (
-      <input
-        className="mx_Login_submit"
+      <Button
+        style={{ margin: "16px 0 0 0" }}
         type="submit"
+        appearance="primary"
         value={"Register"}
-        disabled={!this.props.canSubmit}
-      />
+        isDisabled={!this.props.canSubmit}>
+        Register
+      </Button>
     );
 
     let emailHelperText: JSX.Element = <></>;
