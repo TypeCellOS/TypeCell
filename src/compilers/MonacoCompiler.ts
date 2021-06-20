@@ -1,11 +1,9 @@
 import * as monaco from "monaco-editor";
-import { TypeCellCodeModel } from "../../models/TypeCellCodeModel";
-import { hash } from "../../util/hash";
-import { CodeModel } from "../CodeModel";
+import { TypeCellCodeModel } from "../models/TypeCellCodeModel";
+import { hash } from "../util/hash";
+import { CodeModel } from "../engine/CodeModel";
 import { getCompiledCode, WorkerType } from "./monacoHelpers";
 
-// TODO: this should be moved outside of the /engine directory, and passed in externally
-// because we don't need a reference to Monaco or to SharedModel in the /engine code.
 let mainWorker: WorkerType;
 
 let initialPromise: Promise<void> | undefined;
@@ -13,7 +11,7 @@ let initialPromise: Promise<void> | undefined;
 // for performance: don't fire all compilations immediately. Compile once first, so we can use recompilation results
 // TODO: verify performance improvement
 function awaitFirst<T extends Function>(func: T): T {
-  return (async function () {
+  return async function () {
     // @ts-ignore
     let args = arguments;
     if (initialPromise) {
@@ -32,7 +30,7 @@ function awaitFirst<T extends Function>(func: T): T {
       }
     });
     return initialPromise;
-  } as any) as T;
+  } as any as T;
 }
 
 // TODO: LRU cache or similar
@@ -69,7 +67,7 @@ function getCachedItem(model: CodeModel) {
   return undefined;
 }
 
-async function _compile(model: CodeModel) {
+async function _compile(model: TypeCellCodeModel) {
   const tscode = model.getValue();
   const hsh = hash(tscode) + "";
 
@@ -82,15 +80,15 @@ async function _compile(model: CodeModel) {
   }
 
   console.log("recompile", model.path);
-  const m = model as TypeCellCodeModel; // TODO;
-  const mm = m.acquireMonacoModel();
+  const monacoModel = model.acquireMonacoModel();
 
   if (!mainWorker) {
     mainWorker = await monaco.languages.typescript.getTypeScriptWorker();
   }
 
-  let compiledCode = (await getCompiledCode(mainWorker, mm.uri)).firstJSCode;
-  m.releaseMonacoModel();
+  let compiledCode = (await getCompiledCode(mainWorker, monacoModel.uri))
+    .firstJSCode;
+  model.releaseMonacoModel();
   if (ENABLE_CACHE) {
     saveCachedItem(model, { hash: hsh, compiledCode });
   }
