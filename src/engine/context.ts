@@ -1,15 +1,15 @@
 import { observable } from "mobx";
-import { hookDefaultAnnotation } from "./customAnnotation";
-import { Storage } from "./storage/Storage";
+import { hookDefaultAnnotation } from "./mobx/customAnnotation";
+// import { Storage } from "./storage/Storage";
 
 hookDefaultAnnotation();
 
-export type TypeCellContext = {
-  context: any;
-  storage: Storage;
+export type TypeCellContext<T> = {
+  context: T;
+  // storage: Storage;
 };
 
-export function createContext(storage: Storage): TypeCellContext {
+export function createContext<T>(storage?: Storage): TypeCellContext<T> {
   const observableContext = observable<any>({
     __esModule: true,
   });
@@ -37,6 +37,6 @@ export function createContext(storage: Storage): TypeCellContext {
 
   return {
     context: proxy,
-    storage,
+    // storage,
   };
 }
