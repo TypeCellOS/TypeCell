@@ -9,6 +9,6 @@ const targetRepo = {
 
 it("creates commit", async () => {
   const tree = await getTemplateTree();
-  const treeCopy = await copyTree(templateRepo, targetRepo, tree.data.tree, []);
-  await commit(targetRepo, treeCopy);
+  // const treeCopy = await copyTree(templateRepo, targetRepo, tree.data.tree, []);
+  // await commit(targetRepo, treeCopy);
 });
