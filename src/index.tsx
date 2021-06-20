@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import * as reo from "react-error-overlay";
+import "@atlaskit/css-reset/dist/bundle.css";
 import "./index.css";
 import MatrixApp from "./MatrixApp";
 import reportWebVitals from "./reportWebVitals";

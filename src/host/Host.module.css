@@ -1,0 +1,7 @@
+.host > header::after {
+  background: none;
+}
+
+.host > header {
+  border-bottom: 1px solid rgb(239, 241, 244);
+}
