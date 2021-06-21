@@ -36,6 +36,7 @@ export const ProfilePopup = observer(
         shouldFlip
         trigger={
           <Profile
+            testId="profileButton"
             icon={<img alt="" style={imgCSS} src={""} />}
             onClick={onClick}
             isSelected={isOpen}
