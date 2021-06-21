@@ -90,7 +90,7 @@ export default class PanelTextInput extends PureComponent<Props, State> {
         maxLength={maxLength}
         aria-label={ariaLabel}
         id={this.props.id}
-        style={{ fontSize: `1rem` }}
+        style={{ fontSize: `0.8rem` }}
       />
     );
   }

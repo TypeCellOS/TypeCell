@@ -32,7 +32,7 @@ export const HyperlinkEditMenu = (props: HyperlinkEditorMenuProps) => {
         <UrlInputWrapper>
           <IconWrapper>
             <Tooltip content={"Edit the link"}>
-              <LinkIcon></LinkIcon>
+              <LinkIcon size={20}></LinkIcon>
             </Tooltip>
           </IconWrapper>
           <PanelTextInput
@@ -48,7 +48,7 @@ export const HyperlinkEditMenu = (props: HyperlinkEditorMenuProps) => {
         <TextInputWrapper>
           <IconWrapper>
             <Tooltip content={"Edit the title"}>
-              <TextIcon></TextIcon>
+              <TextIcon size={20}></TextIcon>
             </Tooltip>
           </IconWrapper>
           <PanelTextInput

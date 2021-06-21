@@ -19,7 +19,6 @@ type HyperlinkMenuProps = {
  */
 export const HyperlinkBasicMenu = (props: HyperlinkMenuProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  // if true, return the hyperlinkEditMenu directly
   if (isEditing) {
     return props.editMenu;
   }
