@@ -277,7 +277,10 @@ function Block(
       : {};
 
     return (
-      <NodeViewWrapper className={`${styles.block}`} ref={outerRef}>
+      <NodeViewWrapper
+        className={`${styles.block}`}
+        ref={outerRef}
+        data-cy={"block"}>
         <div className={styles.inner + " inner"} ref={innerRef}>
           <div
             className={styles.handleContainer}
