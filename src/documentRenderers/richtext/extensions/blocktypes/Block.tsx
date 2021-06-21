@@ -55,6 +55,22 @@ function Block(
   return observer(function Component(
     props: PropsWithChildren<NodeViewRendererProps>
   ) {
+    // The node is not supposed to be draggable, for example, we could be dealing with a paragraph
+    // inside a <li> or <blockquote>. In that case, the wrapper should be draggable, not this item itself.
+    if (!props.node.attrs["block-id"]) {
+      // this should be covered by disabling the nodeview in addNodeView
+      throw new Error("unexpected, no block id");
+      // return (
+      //   <NodeViewWrapper>
+      //     <NodeViewContent
+      //       as={domType}
+      //       {...domAttrs}
+      //       ref={(props as any).contentWrapperRef}
+      //     />
+      //   </NodeViewWrapper>
+      // );
+    }
+
     const domOutput = toDOM(props.node);
     // NOTE: we might want to extend ElementType itself instead of declaring it like this
     let domType: ElementType | "typecell";
@@ -205,20 +221,6 @@ function Block(
       }),
       [props.getPos, props.node]
     );
-
-    // The node is not supposed to be draggable, for example, we could be dealing with a paragraph
-    // inside a <li> or <blockquote>. In that case, the wrapper should be draggable, not this item itself.
-    if (!props.node.attrs["block-id"]) {
-      return (
-        <NodeViewWrapper>
-          <NodeViewContent
-            as={domType}
-            {...domAttrs}
-            ref={(props as any).contentWrapperRef}
-          />
-        </NodeViewWrapper>
-      );
-    }
 
     function onDelete() {
       if (typeof props.getPos === "boolean") {
