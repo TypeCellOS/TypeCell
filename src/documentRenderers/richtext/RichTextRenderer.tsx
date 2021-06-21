@@ -132,7 +132,12 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         placeholder: "Enter text or type '/' for commands",
         placeholderOnlyWhenSelected: true,
       }),
-      ListItemBlock.configure({ placeholder: "List item" }),
+      ListItemBlock.configure({
+        placeholder: "List item",
+        HTMLAttributes: {
+          "data-cy": "list-item-block",
+        },
+      }),
       TableBlock,
       IndentItemBlock.configure({
         HTMLAttributes: {
