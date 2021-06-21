@@ -6,8 +6,6 @@ import menuStyles from "../../../menus/InlineMenu.module.css";
 import styles from "../Hyperlink.module.css";
 import { useState } from "react";
 
-export const EDIT_LINK_BUTTON = "hyperlinkEditButton";
-
 type HyperlinkMenuProps = {
   href: string;
   removeHandler: () => void;
@@ -16,11 +14,12 @@ type HyperlinkMenuProps = {
 
 /**
  * A hyperlink menu shown when an anchor is hovered over.
- * @param props props of a hyperlink menu
+ * @param props props of a hyperlink basic menu
  * @returns a menu for editing/removing/opening the link
  */
 export const HyperlinkBasicMenu = (props: HyperlinkMenuProps) => {
   const [isEditing, setIsEditing] = useState(false);
+  // if true, return the hyperlinkEditMenu directly
   if (isEditing) {
     return props.editMenu;
   }

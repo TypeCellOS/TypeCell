@@ -8,6 +8,8 @@ export const RECENT_SEARCH_WIDTH_IN_PX = 420;
 export const RECENT_SEARCH_WIDTH_WITHOUT_ITEMS_IN_PX = 360;
 export const RECENT_SEARCH_HEIGHT_IN_PX = 360;
 
+// These components below are mainly used in HyperlinkEditMenu as wrapper components for input fields
+
 export const InputWrapper = `
   display: flex;
   line-height: 0;

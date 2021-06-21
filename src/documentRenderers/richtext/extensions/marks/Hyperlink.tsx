@@ -12,10 +12,8 @@ import {
 
 /**
  * a helper function that wraps a Tippy around a HyperlinkEditMenu
- * @param anchorPos an Pos object from generateAnchorPos
- * @param anchor the anchor element
- * @param editHandler the handler for submission
- * @returns a Tippy that shows when the Edit Link button is clicked
+ * @param props has {text, url, onSubmit and anchorPos}
+ * @returns a Tippy instance whose content is a editMenu
  */
 const tippyWrapperHyperlinkEditMenu = (
   props: HyperlinkEditorMenuProps & { anchorPos: ClientRect | DOMRect }
@@ -122,13 +120,15 @@ function linkMenusPlugin() {
 
           const foundLinkMark = linkMark; // typescript workaround for event handlers
 
-          // Delete mark first, then replace the text, mark that piece of text with the new link
           const editHandler = (href: string, text: string) => {
             menuState = "hidden";
             ReactDOM.render(<></>, fakeRenderTarget);
 
+            // update the mark with new href
             foundLinkMark.attrs = { ...foundLinkMark.attrs, href };
+            // insertText actually replaces the range with text
             const tr = view.state.tr.insertText(text, range.from, range.to);
+            // the former range.to is no longer in use
             tr.addMark(range.from, range.from + text.length, foundLinkMark);
             view.dispatch(tr);
           };
@@ -139,6 +139,9 @@ function linkMenusPlugin() {
             );
           };
 
+          // the hyperlinkEditMenu will be positioned at the same place as hyperlinkBasicMenu
+          // this is achieved by making this editMenu a property of the basicMenu below
+          // and returning this editMenu directly by introducing another isEditing state
           const hyperlinkEditMenu = tippyWrapperHyperlinkEditMenu({
             anchorPos,
             text,
@@ -177,6 +180,7 @@ function linkMenusPlugin() {
 
     props: {
       handleDOMEvents: {
+        // update view when an <a> is hovered over
         mouseover(view, event) {
           const newHoveredLink =
             event.target instanceof HTMLAnchorElement &&
