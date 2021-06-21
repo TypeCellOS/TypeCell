@@ -120,6 +120,7 @@ function linkMenusPlugin() {
 
           const foundLinkMark = linkMark; // typescript workaround for event handlers
 
+          // A URL has to begin with http(s):// to be interpreted as an absolute path
           const editHandler = (href: string, text: string) => {
             menuState = "hidden";
             ReactDOM.render(<></>, fakeRenderTarget);
