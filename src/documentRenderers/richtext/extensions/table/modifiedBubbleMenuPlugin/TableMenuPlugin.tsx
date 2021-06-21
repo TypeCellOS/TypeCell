@@ -15,6 +15,7 @@ export type TableBubbleMenuViewProps = TableBubbleMenuPluginProps & {
   view: EditorView;
 };
 
+// Most variable/constant names are prepended with "table"
 export class TableBubbleMenuView {
   public editor: Editor;
 
@@ -97,12 +98,14 @@ export class TableBubbleMenuView {
 
     const { from, to, empty } = selection;
 
+    // This if block is the only major change compared to the original version
     // When selection is empty, do not just hide it right away.
     if (empty) {
       const resolvedPos = doc.resolve(selection.from);
-      // if the cursor is at top level, i.e., not inside a table node, hide it
       if (
+        // if the cursor is at the top level, i.e. any regular node without nesting, hide this menu
         resolvedPos.depth === 1 ||
+        // if the cursor is not inside any node that's related to table/tableRow/tableCells, hide this menu
         !resolvedPos
           .node(resolvedPos.depth - 1)
           ?.type?.name.toLowerCase()
@@ -111,6 +114,8 @@ export class TableBubbleMenuView {
         this.hide();
         return;
       }
+      // At this point an empty selection is in a tableCell/tableRow/table
+      // the flow should proceed as usual to show this TableBubbleMenu
     }
 
     this.tippy.setProps({

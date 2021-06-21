@@ -331,6 +331,9 @@ function renderContentBasedOnDOMType(
 ): JSX.Element | null | undefined {
   if (domType === "pre") {
     // Wraps in "pre" tags if the content is code.
+    // The <select> inside <pre> controls programming language selection and update
+    // Available programming languages come from the "lowlight" extension
+    // The NodeViewContent is rendered inside a <code> tag
     return (
       <pre className={styles.codeBlockPre}>
         <select
@@ -346,6 +349,7 @@ function renderContentBasedOnDOMType(
           <option disabled>—</option>
           {props.extension.options.lowlight
             .listLanguages()
+            // each available language is transformed into an <option> element
             // @ts-ignore
             .map((lang, index) => {
               return (

@@ -1,11 +1,16 @@
 import { BulletList } from "@tiptap/extension-bullet-list";
 import multipleLineMarkdownRuleBuilder from "./markdownMultipleLines";
 
+/**
+ * Configure BulletList for markdown(* or - or + ) parsing
+ */
 const MarkdownBulletList = BulletList.extend({
   addPasteRules() {
     return [
       multipleLineMarkdownRuleBuilder(
         "mdBulletList",
+        // This merge function maps each fragmented text into a separate ListItem node
+        // and the entire list of ListItems is converted into a BulletList node
         (editor, accumulatedText) => {
           const items = accumulatedText.map((listContent) => {
             const paragraphText = editor.schema.text(listContent);
