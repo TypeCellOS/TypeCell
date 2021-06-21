@@ -32,6 +32,7 @@ import { TableBlock } from "./extensions/blocktypes/TableBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
+import { Comment } from "./extensions/marks/Comment";
 import { Mention, MentionType } from "./extensions/mentions/Mention";
 import { MentionsExtension } from "./extensions/mentions/MentionsExtension";
 import SlashCommandExtension from "./extensions/slashcommand";
@@ -43,7 +44,9 @@ import TableMenu from "./menus/TableInlineMenu";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import multipleLineMarkdownRuleBuilder from "./extensions/markdownPasteRules/multiple/markdownMultipleLines";
+import { Comments } from "./extensions/comments/Comments";
+import { CommentStore } from "./extensions/comments/CommentStore";
+import { CommentWrapper } from "./extensions/comments/CommentWrapper";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -58,7 +61,9 @@ const PEOPLE = [
 type Props = {
   document: DocumentResource;
 };
-const RichTextRenderer: React.FC<Props> = observer((props) => {
+
+const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
+  const commentStore = new CommentStore(props.document.comments);
   const disposer = useRef<() => void>();
 
   const engine = useMemo(() => {
@@ -105,6 +110,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       }),
       AutoId,
       HardBreak,
+      Comments,
       MultiSelection,
 
       // basics:
@@ -117,6 +123,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       Italic,
       Strike,
       Underline,
+      Comment,
       Link,
 
       // custom blocks:
@@ -174,8 +181,14 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
 
   return (
     <div>
-      {editor != null ? <InlineMenu editor={editor} /> : null}
+      {editor != null ? (
+        <InlineMenu editor={editor} commentStore={commentStore} />
+      ) : null}
       {editor != null ? <TableMenu editor={editor} /> : null}
+      {editor != null ? (
+        <CommentWrapper editor={editor} commentStore={commentStore} />
+      ) : null}
+      <EditorContent editor={editor} />
       <EngineContext.Provider value={{ engine, document: props.document }}>
         <EditorContent editor={editor} />
       </EngineContext.Provider>
