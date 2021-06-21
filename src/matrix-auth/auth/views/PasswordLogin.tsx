@@ -533,6 +533,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             {loginField}
             <Field
               // className={pwFieldClass}
+
               type="password"
               name="password"
               key={"password_input"}

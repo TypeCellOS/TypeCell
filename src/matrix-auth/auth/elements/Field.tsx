@@ -29,10 +29,19 @@ import React, {
 import TextField from "@atlaskit/textfield";
 // import { ValidMessage, Field as AtlaskitField } from "@atlaskit/form";
 // import { ErrorMessage, Field as AtlaskitField } from "@atlaskit/form";
-import { Field as AtlaskitField } from "@atlaskit/form";
+// import { ErrorMessage, ValidMessage, Field as AtlaskitField } from "@atlaskit/form";
+import {
+  ErrorMessage,
+  Field as AtlaskitField,
+  ValidMessage,
+} from "@atlaskit/form";
 import Select from "@atlaskit/select";
+// import { IValidationResult } from "./Validation";
 // Invoke validation from user input (when typing, etc.) at most once every N ms.
 // const VALIDATION_THROTTLE_MS = 200;
+import { SuccessProgressBar } from "@atlaskit/progress-bar";
+// import Form from "@atlaskit/form";
+import { FormState } from "final-form";
 
 const BASE_ID = "mx_Field";
 let count = 1;
@@ -53,33 +62,26 @@ interface IProps {
   label?: string;
   // The field's placeholder string. Defaults to the label.
   placeholder?: string;
-  // Optional component to include inside the field before the input.
-  prefixComponent?: React.ReactNode;
-  // Optional component to include inside the field after the input.
-  postfixComponent?: React.ReactNode;
   // The callback called whenever the contents of the field
   // changes.  Returns an object with `valid` boolean field
   // and a `feedback` react component field to provide feedback
   // to the user.
-  onValidate?: (value?: string) => Promise<string | undefined>;
-  // If specified, overrides the value returned by onValidate.
-  forceValidity?: boolean;
-  // If specified, contents will appear as a tooltip on the element and
-  // validation feedback tooltips will be suppressed.
-  tooltipContent?: React.ReactNode;
-  // If specified the tooltip will be shown regardless of feedback
-  forceTooltipVisible?: boolean;
-  // If specified alongside tooltipContent, the class name to apply to the
-  // tooltip itself.
-  tooltipClassName?: string;
-  // If specified, an additional class name to apply to the field container
-  className?: string;
-  // On what events should validation occur; by default on all
+  onValidate?: (value?: string) => IValidationResult;
   isRequired?: boolean;
-  validateOnFocus?: boolean;
-  validateOnBlur?: boolean;
-  validateOnChange?: boolean;
+  needsValidation?: boolean;
+  helperMessage?: string;
+  validMessage?: string;
+  // The FormData type is specific to the RegistrationForm, a more general type
+  // with inheritence can be made if needed, for now any is used
+  // getState?: () => FormState<FormData>
+  getFormState?: () => FormState<any>;
+  stateCallback?: (state: FormState<any>) => void;
   // All other props pass through to the <input>.
+}
+
+export interface IValidationResult {
+  error?: string;
+  progress?: number;
 }
 
 export interface IInputProps
@@ -103,10 +105,8 @@ interface ITextareaProps
 type PropShapes = IInputProps | ISelectProps | ITextareaProps;
 
 interface IState {
-  valid: boolean;
-  feedback: React.ReactNode;
-  feedbackVisible: boolean;
-  focused: boolean;
+  error?: string;
+  progress?: number;
 }
 
 export default class Field extends React.PureComponent<PropShapes, IState> {
@@ -120,9 +120,7 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
   public static readonly defaultProps = {
     element: "input",
     type: "text",
-    validateOnFocus: true,
-    validateOnBlur: true,
-    validateOnChange: true,
+    needsValidation: false,
   };
 
   // This is not used anymore as the validation is called by AtlasKitForm
@@ -144,10 +142,8 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
   constructor(props: PropShapes) {
     super(props);
     this.state = {
-      valid: false,
-      feedback: undefined,
-      feedbackVisible: false,
-      focused: false,
+      error: undefined,
+      progress: undefined,
     };
 
     this.id = this.props.id || getId();
@@ -187,26 +183,42 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
   // };
 
   // TODO: likely remove this
-  private onBlur = (ev: React.FocusEvent<any>) => {
-    this.setState({
-      focused: false,
-    });
-    if (this.props.validateOnBlur) {
-      this.validate();
-    }
-    // Parent component may have supplied its own `onBlur` as well
-    if (this.props.onBlur) {
-      this.props.onBlur(ev);
-    }
-  };
+  // private onBlur = (ev: React.FocusEvent<any>) => {
+  //   this.setState({
+  //     focused: false,
+  //   });
+  //   if (this.props.validateOnBlur) {
+  //     this.validate();
+  //   }
+  //   // Parent component may have supplied its own `onBlur` as well
+  //   if (this.props.onBlur) {
+  //     this.props.onBlur(ev);
+  //   }
+  // };
 
-  public async validate(value?: string) {
+  public validate = (value?: string) => {
     if (!this.props.onValidate) {
       return undefined;
     }
 
-    return await this.props.onValidate(value);
-  }
+    if (this.props.getFormState && this.props.stateCallback) {
+      const formState = this.props.getFormState();
+      console.log("formstate is ", formState);
+      this.props.stateCallback(formState);
+    }
+
+    const validationResult = this.props.onValidate(value);
+    // validationResult.then((result: IValidationResult) => {
+    //   if (result.progress) {
+    //     this.setState({ progress: result.progress });
+    //   }
+    //   return result.error;
+    // });
+    if (validationResult.progress !== undefined) {
+      this.setState({ progress: validationResult.progress });
+    }
+    return validationResult.error;
+  };
 
   // public async validate({
   //   focused,
@@ -249,22 +261,7 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
 
   public render() {
     /* eslint @typescript-eslint/no-unused-vars: ["error", { "ignoreRestSiblings": true }] */
-    const {
-      element,
-      prefixComponent,
-      postfixComponent,
-      className,
-      onValidate,
-      children,
-      tooltipContent,
-      forceValidity,
-      tooltipClassName,
-      list,
-      validateOnBlur,
-      validateOnChange,
-      validateOnFocus,
-      ...inputProps
-    } = this.props;
+    const { element, onValidate, children, list, ...inputProps } = this.props;
 
     // Set some defaults for the <input> element
     const ref = (input: any) => (this.input = input);
@@ -356,10 +353,9 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
         // TODO: change "name" to "key"(somehow its always undefined when doing so)
         name={this.props.name || "undefined name"}
         // TODO: transform validate to fit the validate function requirement for AtlasKitField
-        //validate={this.validate}
-      >
+        validate={this.validate}>
         {/* {({ fieldProps, error }: any) => ( */}
-        {({ fieldProps }: any) => (
+        {({ fieldProps, error, valid }: any) => (
           <Fragment>
             {/* debug printing */}
             {console.log(
@@ -371,8 +367,20 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
             {element === "input" ? (
               <Fragment>
                 <TextField {...(inputProps_ as any)} {...fieldProps} />
-                {/* likely not needed as the isRequired prop handles this */}
-                {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
+                {this.props.needsValidation && (
+                  <Fragment>
+                    {this.state.progress !== undefined && (
+                      //make wrapper out of this
+                      <div style={{ marginTop: "6px" }}>
+                        <SuccessProgressBar value={this.state.progress} />
+                      </div>
+                    )}
+                    {error && <ErrorMessage>{error}</ErrorMessage>}
+                    {valid && (
+                      <ValidMessage>{this.props.validMessage!}</ValidMessage>
+                    )}
+                  </Fragment>
+                )}
               </Fragment>
             ) : element === "textarea" ? (
               // TODO: should be textarea (but can do later, not used for now)
@@ -401,17 +409,5 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
         )}
       </AtlaskitField>
     );
-
-    // Old native matrix version, replaced by AtlasKit
-
-    // return (
-    //   <div className={fieldClasses}>
-    //     {prefixContainer}
-    //     {fieldInput}
-    //     <label htmlFor={this.id}>{this.props.label}</label>
-    //     {postfixContainer}
-    //     {/* {fieldTooltip} */}
-    //   </div>
-    // );
   }
 }

@@ -29,6 +29,7 @@ import { looksValidEmail } from "../util/email";
 import { phoneNumberLooksValid } from "../util/phonenumber";
 import Form from "@atlaskit/form";
 import Button from "@atlaskit/button";
+import { FormState } from "final-form";
 
 enum RegistrationField {
   Email = "field_email",
@@ -59,7 +60,8 @@ interface IProps {
     email?: string;
     phoneCountry?: string;
     phoneNumber?: string;
-  }): Promise<void>;
+  }): void;
+  // }): RegistrationFormData;
   onEditServerDetailsClick?(): void;
 }
 
@@ -74,6 +76,14 @@ interface IState {
   password: string;
   passwordConfirm: string;
   passwordComplexity?: number;
+  getState?: () => FormState<RegistrationFormData>;
+  passwordToConfirm: string;
+}
+
+interface RegistrationFormData {
+  username?: string;
+  password?: string;
+  confirmPassword?: string;
 }
 
 /*
@@ -107,12 +117,11 @@ export default class RegistrationForm extends React.PureComponent<
       password: this.props.defaultPassword || "",
       passwordConfirm: this.props.defaultPassword || "",
       passwordComplexity: undefined,
+      passwordToConfirm: "",
     };
   }
 
-  private onSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
-    ev.preventDefault();
-    ev.persist();
+  private onSubmit = async (data: RegistrationFormData) => {
     if (!this.props.canSubmit) return;
 
     const allFieldsValid = await this.verifyFieldsBeforeSubmit();
@@ -145,30 +154,34 @@ export default class RegistrationForm extends React.PureComponent<
         // );
       } else {
         // user can't set an e-mail so don't prompt them to
-        this.doSubmit(ev);
+        this.doSubmit(data);
         return;
       }
     } else {
-      this.doSubmit(ev);
+      this.doSubmit(data);
     }
   };
 
-  private doSubmit(ev: React.FormEvent<HTMLFormElement>) {
-    const email = this.state.email.trim();
-    const promise = this.props.onRegisterClick({
-      username: this.state.username.trim(),
-      password: this.state.password.trim(),
-      email: email,
-      phoneCountry: this.state.phoneCountry,
-      phoneNumber: this.state.phoneNumber,
-    });
+  private doSubmit(data: RegistrationFormData) {
+    let username = data.username || "";
+    let password = data.password || "";
 
-    if (promise) {
-      (ev.target as HTMLFormElement).disabled = true;
-      promise.finally(function () {
-        (ev.target as HTMLFormElement).disabled = false;
-      });
-    }
+    // const promise = this.props.onRegisterClick({
+    //   username: this.state.username.trim(),
+    //   password: this.state.password.trim(),
+    //   email: email,
+    //   phoneCountry: this.state.phoneCountry,
+    //   phoneNumber: this.state.phoneNumber,
+    // });
+
+    this.props.onRegisterClick({ username, password });
+
+    // if (promise) {
+    //   (ev.target as HTMLFormElement).disabled = true;
+    //   promise.finally(function () {
+    //     (ev.target as HTMLFormElement).disabled = false;
+    //   });
+    // }
   }
 
   private async verifyFieldsBeforeSubmit() {
@@ -293,9 +306,9 @@ export default class RegistrationForm extends React.PureComponent<
     });
   };
 
-  private onPasswordValidate = (result: IValidationResult) => {
-    this.markFieldValid(RegistrationField.Password, !!result.valid);
-  };
+  // private onPasswordValidate = (result: IValidationResult) => {
+  //   this.markFieldValid(RegistrationField.Password, !!result.valid);
+  // };
 
   private onPasswordConfirmChange = (ev: React.ChangeEvent<any>) => {
     this.setState({
@@ -303,10 +316,25 @@ export default class RegistrationForm extends React.PureComponent<
     });
   };
 
-  private onPasswordConfirmValidate = async (fieldState: IFieldState) => {
-    const result = await this.validatePasswordConfirmRules(fieldState);
-    this.markFieldValid(RegistrationField.PasswordConfirm, !!result.valid);
-    return result;
+  private passwordStateCallback = (state: FormState<any>) => {
+    const password = state.values.password;
+    console.log("password that changes the state is ", password);
+    this.setState({ password: password });
+  };
+
+  private onPasswordConfirmValidate = (value?: string) => {
+    // const result = await this.validatePasswordConfirmRules(fieldState);
+    // this.markFieldValid(RegistrationField.PasswordConfirm, !!result.valid);
+    // return result;
+    console.log(
+      "password read from validation change function ",
+      this.state.password
+    );
+    if (value === this.state.password) {
+      return {};
+    } else {
+      return { error: "Passwords don't match" };
+    }
   };
 
   private validatePasswordConfirmRules = withValidation<RegistrationForm>({
@@ -470,17 +498,24 @@ export default class RegistrationForm extends React.PureComponent<
     );
   }
 
-  renderPasswordConfirm() {
+  renderPasswordConfirm(getState: () => FormState<RegistrationFormData>) {
+    // this.setState({ getState: getState });
+
     return (
       <Field
         type="password"
-        name="password"
+        name="confirmPassword"
+        key="password"
         label={"Confirm password"}
-        value={this.state.passwordConfirm}
+        isRequired
         // onChange={this.onPasswordConfirmChange}
         // temp disabled
-        //onValidate={this.onPasswordConfirmValidate}
+        onValidate={this.onPasswordConfirmValidate}
+        validMessage="Password Matches"
         ref={(field) => (this[RegistrationField.PasswordConfirm] = field)}
+        needsValidation
+        getFormState={getState}
+        stateCallback={this.passwordStateCallback}
       />
     );
   }
@@ -566,12 +601,12 @@ export default class RegistrationForm extends React.PureComponent<
     }
 
     return (
-      <Form onSubmit={this.onSubmit}>
-        {({ formProps }) => (
+      <Form<RegistrationFormData> onSubmit={this.onSubmit}>
+        {({ formProps, getState }) => (
           <form {...formProps}>
             {this.renderUsername()}
             {this.renderPassword()}
-            {this.renderPasswordConfirm()}
+            {this.renderPasswordConfirm(getState)}
             {this.renderEmail()}
             {/* {this.renderPhoneNumber()} */}
             {emailHelperText}
