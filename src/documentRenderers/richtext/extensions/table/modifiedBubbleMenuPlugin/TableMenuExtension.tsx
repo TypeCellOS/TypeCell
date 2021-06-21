@@ -5,7 +5,7 @@ import {
 } from "./TableMenuPlugin";
 
 // Code adapted from https://github.com/ueberdosis/tiptap/blob/7bf4c1d11ce4c36ad2846c4a15491ef8b649280d/packages/extension-bubble-menu/src/bubble-menu.ts
-// This code is meant to show the menu when no text is selected, only variable/constant names are prepended with "table".
+// This code is meant to show the menu when no text is selected
 export type TableBubbleMenuOptions = Omit<
   TableBubbleMenuPluginProps,
   "editor" | "element"

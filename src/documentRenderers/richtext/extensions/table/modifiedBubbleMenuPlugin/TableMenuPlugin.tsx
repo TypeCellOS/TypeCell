@@ -15,7 +15,6 @@ export type TableBubbleMenuViewProps = TableBubbleMenuPluginProps & {
   view: EditorView;
 };
 
-// Most variable/constant names are prepended with "table"
 export class TableBubbleMenuView {
   public editor: Editor;
 

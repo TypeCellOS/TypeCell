@@ -6,7 +6,7 @@ import {
 } from "./modifiedBubbleMenuPlugin/TableMenuPlugin";
 
 // Code adapted from https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/BubbleMenu.tsx
-// This is needed to provide a BubbleMenu that can be activated without selecting text. Names are prepened with "Table".
+// This is needed to provide a BubbleMenu that can be activated without selecting text.
 export type TableBubbleMenuProps = Omit<
   TableBubbleMenuPluginProps,
   "element"
