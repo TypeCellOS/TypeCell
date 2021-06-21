@@ -6,7 +6,7 @@ import {
 } from "./modifiedBubbleMenuPlugin/TableMenuPlugin";
 
 // Code adapted from https://github.com/ueberdosis/tiptap/blob/main/packages/react/src/BubbleMenu.tsx
-// This is needed to provide a BubbleMenu that can be activated without selecting text. Names are changed accordingly.
+// This is needed to provide a BubbleMenu that can be activated without selecting text.
 export type TableBubbleMenuProps = Omit<
   TableBubbleMenuPluginProps,
   "element"
@@ -14,6 +14,11 @@ export type TableBubbleMenuProps = Omit<
   className?: string;
 };
 
+/**
+ * This is needed to actually register the plugin to the editor and create the TableMenu
+ * @param props of TableBubbleMenuProps
+ * @returns a component of TableBubbleMenu
+ */
 export const TableBubbleMenu: React.FC<TableBubbleMenuProps> = (props) => {
   const element = useRef<HTMLDivElement>(null);
 
