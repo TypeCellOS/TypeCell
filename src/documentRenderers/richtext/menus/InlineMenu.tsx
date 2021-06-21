@@ -9,9 +9,12 @@ import UnderlineIcon from "remixicon-react/UnderlineIcon";
 import LinkIcon from "remixicon-react/LinkIcon";
 
 import { Underline } from "../extensions/marks/Underline";
-import BubbleMenuButton, { ButtonStyleDetails } from "./BubbleMenuButton";
+import {
+  BubbleMenuButton,
+  LinkBubbleMenuButton,
+  ButtonStyleDetails,
+} from "./BubbleMenuButton";
 import styles from "./InlineMenu.module.css";
-import BubbleMenuLinkButton from "./BubbleMenuLinkButton";
 
 type InlineMenuProps = { editor: Editor };
 
@@ -131,7 +134,7 @@ class InlineMenu extends React.Component<InlineMenuProps> {
             }
             styleDetails={underline}
           />
-          <BubbleMenuLinkButton
+          <LinkBubbleMenuButton
             editor={this.props.editor}
             styleDetails={link}
           />

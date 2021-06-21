@@ -8,7 +8,7 @@ import DeleteColumnIcon from "remixicon-react/DeleteColumnIcon";
 import DeleteRowIcon from "remixicon-react/DeleteRowIcon";
 
 import { TableBubbleMenu } from "../extensions/table/TableBubbleMenu";
-import BubbleMenuButton, { ButtonStyleDetails } from "./BubbleMenuButton";
+import { BubbleMenuButton, ButtonStyleDetails } from "./BubbleMenuButton";
 import styles from "./InlineMenu.module.css";
 
 type TableMenuProps = { editor: Editor };
