@@ -1,16 +1,17 @@
 import Bold from "@tiptap/extension-bold";
-import BulletList from "@tiptap/extension-bullet-list";
 import Code from "@tiptap/extension-code";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import Document from "@tiptap/extension-document";
 import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
-import OrderedList from "@tiptap/extension-ordered-list";
+import Placeholder from "@tiptap/extension-placeholder";
+import { useEditor, EditorContent } from "@tiptap/react";
+import { observer } from "mobx-react-lite";
+import React, { useEffect, useMemo, useRef } from "react";
 import Strike from "@tiptap/extension-strike";
+import Link from "@tiptap/extension-link";
 import Text from "@tiptap/extension-text";
-import { EditorContent, useEditor } from "@tiptap/react";
-import React from "react";
 import { DocumentResource } from "../../store/DocumentResource";
 import { AutoId } from "./extensions/autoid/AutoId";
 import { TrailingNode } from "./extensions/trailingnode";
@@ -21,9 +22,12 @@ import {
   IndentItemBlock,
   ListItemBlock,
   ParagraphBlock,
+  TypeCellNodeBlock,
+  BulletList,
+  OrderedList,
+  CodeBlockBlock,
 } from "./extensions/blocktypes";
 import { TableBlock } from "./extensions/blocktypes/TableBlock";
-import { CodeBlockBlock } from "./extensions/blocktypes/CodeBlockBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
@@ -32,13 +36,13 @@ import { Mention, MentionType } from "./extensions/mentions/Mention";
 import { MentionsExtension } from "./extensions/mentions/MentionsExtension";
 import SlashCommandExtension from "./extensions/slashcommand";
 import "./RichTextRenderer.css";
-import styles from "./extensions/comments/Comments.module.css";
+import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
+import { EngineContext } from "./extensions/typecellnode/EngineContext";
 import InlineMenu from "./menus/InlineMenu";
 import TableMenu from "./menus/TableInlineMenu";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import { Placeholder } from "@tiptap/extension-placeholder";
 import { Comments } from "./extensions/comments/Comments";
 import { CommentStore } from "./extensions/comments/CommentStore";
 import { CommentWrapper } from "./extensions/comments/CommentWrapper";
@@ -57,11 +61,35 @@ type Props = {
   document: DocumentResource;
 };
 
-const RichTextRenderer: React.FC<Props> = (props) => {
+const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
   const commentStore = new CommentStore(props.document.comments);
+  const disposer = useRef<() => void>();
+
+  const engine = useMemo(() => {
+    if (disposer.current) {
+      disposer.current();
+      disposer.current = undefined;
+    }
+    const newEngine = new EngineWithOutput(props.document.id, true);
+    disposer.current = () => {
+      newEngine.dispose();
+    };
+
+    return newEngine;
+  }, [props.document.id]);
+
+  useEffect(() => {
+    return () => {
+      if (disposer.current) {
+        disposer.current();
+        disposer.current = undefined;
+      }
+    };
+  }, []);
+
   const editor = useEditor({
     onUpdate: ({ editor }) => {
-      // console.log(editor.getJSON());
+      console.log(editor.getJSON());
     },
     onSelectionUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
@@ -98,6 +126,7 @@ const RichTextRenderer: React.FC<Props> = (props) => {
       Strike,
       Underline,
       Comment,
+      Link,
 
       // custom blocks:
       ImageBlock,
@@ -116,16 +145,17 @@ const RichTextRenderer: React.FC<Props> = (props) => {
           class: "indent",
         },
       }),
+      BulletList,
+      OrderedList,
 
       // custom containers:
       IndentGroup,
 
       // from tiptap (unmodified)
-      BulletList,
-      OrderedList,
       TableCell,
       TableHeader,
       TableRow,
+      TypeCellNodeBlock,
 
       // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
       // should be handled before Enter handlers in other components like splitListItem
@@ -141,7 +171,6 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         },
       }),
       TrailingNode,
-      // TypeCellNode,
     ],
     enableInputRules: true,
     enablePasteRules: true,
@@ -162,8 +191,11 @@ const RichTextRenderer: React.FC<Props> = (props) => {
         <CommentWrapper editor={editor} commentStore={commentStore} />
       ) : null}
       <EditorContent editor={editor} />
+      <EngineContext.Provider value={{ engine, document: props.document }}>
+        <EditorContent editor={editor} />
+      </EngineContext.Provider>
     </div>
   );
-};
+});
 
 export default RichTextRenderer;

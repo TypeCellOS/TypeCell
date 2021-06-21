@@ -1,6 +1,6 @@
 import { Extension } from "@tiptap/react";
-import { uniqueId } from "lodash";
 import { Plugin, PluginKey } from "prosemirror-state";
+import uniqueId from "../../../../util/uniqueId";
 import { isList } from "../../util/isList";
 
 export interface AutoIdOptions {}

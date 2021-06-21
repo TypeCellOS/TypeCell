@@ -11,6 +11,7 @@ import { sessionStore, navigationStore } from "../store/local/stores";
 
 import NewPageDialog from "./components/NewPageDialog";
 import { ProfilePopup } from "./components/ProfilePopup";
+import styles from "./Host.module.css";
 
 const ProductHome = () => {
   return (
@@ -56,7 +57,7 @@ const Navigation = observer(() => {
 
 const Host = observer(() => {
   return (
-    <>
+    <div className={styles.host}>
       <Navigation />
       {sessionStore.user === "loading" ? (
         <div>Loading</div>
@@ -82,7 +83,7 @@ const Host = observer(() => {
           )}
         </>
       </FlagGroup> */}
-    </>
+    </div>
   );
 });
 

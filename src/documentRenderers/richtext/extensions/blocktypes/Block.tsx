@@ -6,19 +6,19 @@ import {
 } from "@tiptap/react";
 import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
-import { Node, DOMOutputSpec } from "prosemirror-model";
+import { DOMOutputSpec, Node } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
 import React, {
   ElementType,
   MouseEvent,
   PropsWithChildren,
-  RefObject,
   useRef,
   useState,
 } from "react";
-import { useDrag, useDrop, XYCoord } from "react-dnd";
+import { useDrag, useDrop } from "react-dnd";
 import SideMenu from "../../menus/SideMenu";
 import mergeAttributesReact from "../../util/mergeAttributesReact";
+import TypeCellComponent from "../typecellnode/TypeCellComponent";
 import styles from "./Block.module.css";
 /**
  * A global store that keeps track of which block is being hovered over
@@ -33,8 +33,6 @@ type DnDItemType = {
   getPos: () => number;
   node: Node;
 };
-
-let aboveCenterLine = false;
 
 /**
  * This function creates a React component that represents a block in the editor. This is so that editor blocks can be
@@ -54,7 +52,8 @@ function Block(
     props: PropsWithChildren<NodeViewRendererProps>
   ) {
     const domOutput = toDOM(props.node);
-    let domType: ElementType;
+    // NOTE: we might want to extend ElementType itself instead of declaring it like this
+    let domType: ElementType | "typecell";
     let domAttrs: { [attr: string]: string | null | undefined } = {};
 
     if (Array.isArray(domOutput)) {
@@ -139,7 +138,7 @@ function Block(
 
           // ProseMirror token positions just before and just after the target block
           const posBeforeTargetNode = props.getPos();
-          const posAfterTargetNode = props.getPos() + props.node.nodeSize;
+          let posAfterTargetNode = props.getPos() + props.node.nodeSize;
 
           // create a new transaction
           const tr = props.editor.state.tr;
@@ -188,7 +187,11 @@ function Block(
     if (!props.node.attrs["block-id"]) {
       return (
         <NodeViewWrapper>
-          <NodeViewContent as={domType} {...domAttrs} />
+          <NodeViewContent
+            as={domType}
+            {...domAttrs}
+            ref={(props as any).contentWrapperRef}
+          />
         </NodeViewWrapper>
       );
     }
@@ -274,75 +277,44 @@ function Block(
       : {};
 
     return (
-      <NodeViewWrapper className={`${styles.block}`}>
-        <div ref={outerRef}>
-          <div className={styles.inner + " inner"} ref={innerRef}>
-            <div className={styles.handleContainer} ref={dragRef}>
-              <Tippy
-                content={<SideMenu onDelete={onDelete}></SideMenu>}
-                trigger={"click"}
-                placement={"left"}
-                interactive={true}>
-                <div
-                  contentEditable={false} // This is needed because otherwise pressing key up when positioned just after draghandle doesn't work
-                  className={styles.handle + (hover ? " " + styles.hover : "")}
-                />
-              </Tippy>
-            </div>
-            {domType === "pre" ? ( // Wraps content in "pre" tags if the content is code.
-              <pre className={styles.codeBlockPre}>
-                <select
-                  className={styles.codeBlockLanguageSelector}
-                  value={props.node.attrs["language"]}
-                  onChange={(event) => {
-                    // @ts-ignore
-                    props.updateAttributes({
-                      language: event.target.value,
-                    });
-                  }}>
-                  <option value="null">auto</option>
-                  <option disabled>—</option>
-                  {props.extension.options.lowlight
-                    .listLanguages()
-                    // @ts-ignore
-                    .map((lang, index) => {
-                      return (
-                        <option
-                          key={props.node.attrs["block-id"] + index}
-                          value={lang}>
-                          {lang}
-                        </option>
-                      );
-                    })}
-                </select>
-
-                <NodeViewContent
-                  as={"code"}
-                  {...domAttrs}
-                  className={styles.codeBlockCodeContent}
-                />
-              </pre>
-            ) : (
-              <div>
-                <NodeViewContent
-                  as={domType}
-                  {...mergeAttributesReact(placeholderAttrs, domAttrs)}
-                />
-              </div>
-            )}
-          </div>
+      <NodeViewWrapper className={`${styles.block}`} ref={outerRef}>
+        <div className={styles.inner + " inner"} ref={innerRef}>
           <div
-            className={`${styles.mouseCapture} ${
-              hover && canDrop
-                ? " " +
-                  (globalState.aboveCenterLine
-                    ? styles.topIndicator
-                    : styles.bottomIndicator)
-                : ""
-            }`}
-            onMouseOver={onMouseOver}
-            ref={mouseCaptureRef}
-            contentEditable={false}></div>
+            className={styles.handleContainer}
+            ref={dragRef}
+            // This is needed because otherwise pressing key up when positioned just after draghandle doesn't work
+            contentEditable={false}>
+            <Tippy
+              content={<SideMenu onDelete={onDelete}></SideMenu>}
+              trigger={"click"}
+              placement={"left"}
+              interactive={true}>
+              <div
+                className={
+                  styles.handle + (hover ? " " + styles.hover : "")
+                }></div>
+            </Tippy>
+          </div>
+          {renderContentBasedOnDOMType(
+            domType,
+            domAttrs,
+            placeholderAttrs,
+            props
+          )}
+        </div>
+        <div
+          className={`${styles.mouseCapture} ${
+            hover && canDrop
+              ? " " +
+                (globalState.aboveCenterLine
+                  ? styles.topIndicator
+                  : styles.bottomIndicator)
+              : ""
+          }`}
+          onMouseOver={onMouseOver}
+          ref={mouseCaptureRef}
+          contentEditable={false}>
+          {/* space content is needed because otherwise keyboard navigation doesn't work well */}{" "}
         </div>
       </NodeViewWrapper>
     );
@@ -350,3 +322,57 @@ function Block(
 }
 
 export default Block;
+function renderContentBasedOnDOMType(
+  // NOTE: we might want to extend ElementType itself instead of declaring it like this
+  domType: ElementType,
+  domAttrs: { [attr: string]: string | null | undefined },
+  placeholderAttrs: { [attr: string]: string | null | undefined },
+  props: React.PropsWithChildren<NodeViewRendererProps>
+): JSX.Element | null | undefined {
+  if (domType === "pre") {
+    // Wraps in "pre" tags if the content is code.
+    return (
+      <pre className={styles.codeBlockPre}>
+        <select
+          className={styles.codeBlockLanguageSelector}
+          value={props.node.attrs["language"]}
+          onChange={(event) => {
+            // @ts-ignore
+            props.updateAttributes({
+              language: event.target.value,
+            });
+          }}>
+          <option value="null">auto</option>
+          <option disabled>—</option>
+          {props.extension.options.lowlight
+            .listLanguages()
+            // @ts-ignore
+            .map((lang, index) => {
+              return (
+                <option key={props.node.attrs["block-id"] + index} value={lang}>
+                  {lang}
+                </option>
+              );
+            })}
+        </select>
+
+        <NodeViewContent
+          as={"code"}
+          {...domAttrs}
+          className={styles.codeBlockCodeContent}
+          ref={(props as any).contentWrapperRef}
+        />
+      </pre>
+    );
+  } else if (props.node.type.name === "typecell") {
+    return <TypeCellComponent node={props.node}></TypeCellComponent>;
+  } else {
+    return (
+      <NodeViewContent
+        as={domType}
+        {...mergeAttributesReact(placeholderAttrs, domAttrs)}
+        ref={(props as any).contentWrapperRef}
+      />
+    );
+  }
+}

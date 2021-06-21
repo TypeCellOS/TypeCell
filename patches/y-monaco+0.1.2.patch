@@ -1,0 +1,30 @@
+diff --git a/node_modules/y-monaco/dist/y-monaco.js b/node_modules/y-monaco/dist/y-monaco.js
+index 0261cb7..98918a4 100644
+--- a/node_modules/y-monaco/dist/y-monaco.js
++++ b/node_modules/y-monaco/dist/y-monaco.js
+@@ -160,7 +160,9 @@ class MonacoBinding {
+       this._rerenderDecorations();
+     };
+     ytext.observe(this._ytextObserver);
+-    monacoModel.setValue(ytext.toString());
++    if (monacoModel.getValue() !== ytext.toString()) {
++      monacoModel.setValue(ytext.toString())
++    }
+     this._monacoChangeHandler = monacoModel.onDidChangeContent(event => {
+       // apply changes from right to left
+       this.mux(() => {
+diff --git a/node_modules/y-monaco/src/y-monaco.js b/node_modules/y-monaco/src/y-monaco.js
+index 182786f..608889a 100644
+--- a/node_modules/y-monaco/src/y-monaco.js
++++ b/node_modules/y-monaco/src/y-monaco.js
+@@ -156,7 +156,9 @@ export class MonacoBinding {
+       this._rerenderDecorations()
+     }
+     ytext.observe(this._ytextObserver)
+-    monacoModel.setValue(ytext.toString())
++    if (monacoModel.getValue() !== ytext.toString()) {
++      monacoModel.setValue(ytext.toString())
++    }
+     this._monacoChangeHandler = monacoModel.onDidChangeContent(event => {
+       // apply changes from right to left
+       this.mux(() => {

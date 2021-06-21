@@ -11,12 +11,12 @@ export interface CommentOptions {
 }
 
 declare module "@tiptap/core" {
-  interface Commands {
+  interface Commands<ReturnType> {
     comment: {
       /**
        * Set a comment mark
        */
-      setComment: (id: string) => Command;
+      setComment: (id: string) => ReturnType;
     };
   }
 }
