@@ -114,7 +114,8 @@ function linkMenusPlugin() {
           const url = linkMark.attrs.href;
 
           const anchorPos = {
-            ...view.coordsAtPos(range.from),
+            // use the 'median' position of the range
+            ...view.coordsAtPos(Math.round((range.from + range.to) / 2)),
             height: 0, // needed to satisfy types
             width: 0,
           };
