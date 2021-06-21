@@ -14,6 +14,7 @@ import Link from "@tiptap/extension-link";
 import Text from "@tiptap/extension-text";
 import { DocumentResource } from "../../store/DocumentResource";
 import { AutoId } from "./extensions/autoid/AutoId";
+import { MultiSelection } from "./extensions/multiselection/MultiSelection";
 import { TrailingNode } from "./extensions/trailingnode";
 import {
   BlockQuoteBlock,
@@ -86,10 +87,6 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     onUpdate: ({ editor }) => {
       console.log(editor.getJSON());
     },
-    onSelectionUpdate: ({ editor }) => {
-      // console.log(editor.getJSON());
-      // console.log(editor.state.selection);
-    },
     extensions: [
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,
@@ -106,9 +103,9 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         placeholder: "", // actual placeholders are defined per block
         showOnlyCurrent: true, // use showOnlyCurrent to make sure the nodeviews are rerendered when cursor moves
       }),
-
       AutoId,
       HardBreak,
+      MultiSelection,
 
       // basics:
       Text,
