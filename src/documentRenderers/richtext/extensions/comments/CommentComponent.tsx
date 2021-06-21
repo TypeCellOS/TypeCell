@@ -9,7 +9,7 @@ import { getMarkRange, getMarkType } from "@tiptap/core";
 import { EditorState, TextSelection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import React, { ChangeEvent, useState } from "react";
-import { navigationStore } from "../../../../store/local/stores";
+import { navigationStore, sessionStore } from "../../../../store/local/stores";
 import styles from "./Comments.module.css";
 import { CommentStore } from "./CommentStore";
 import avatarImg from "./defualtAvatar.png";
@@ -149,7 +149,7 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
                 </CommentAction>,
                 <CommentAction onClick={cancelEdit}>Cancel</CommentAction>,
               ]
-            : navigationStore.currentPage.owner === comment.user
+            : sessionStore.loggedInUser === comment.user
             ? [
                 <CommentAction onClick={toggleEditing}>Edit</CommentAction>,
                 <CommentAction onClick={resolveComment}>Resolve</CommentAction>,
