@@ -5,7 +5,7 @@ import { createExecutionScope, getModulesFromTypeCellCode } from "./modules";
 // const log = engineLogger;
 
 export function createCellEvaluator(
-  typecellContext: TypeCellContext,
+  typecellContext: TypeCellContext<any>,
   resolveImport: (module: string) => Promise<any>,
   setAndWatchOutput = true,
   onOutputChanged: (output: any) => void,
