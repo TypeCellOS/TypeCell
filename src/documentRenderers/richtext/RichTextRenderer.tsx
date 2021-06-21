@@ -188,7 +188,6 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       {editor != null ? (
         <CommentWrapper editor={editor} commentStore={commentStore} />
       ) : null}
-      <EditorContent editor={editor} />
       <EngineContext.Provider value={{ engine, document: props.document }}>
         <EditorContent editor={editor} />
       </EngineContext.Provider>
