@@ -11,7 +11,7 @@ export type SlashCommandOptions = {
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
-    replaceRangeCustom: {
+    replaceRangeAndUpdateSelection: {
       /**
        * Command for replacing a range with a node.
        *

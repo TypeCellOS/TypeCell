@@ -16,6 +16,9 @@ import SeparatorIcon from "remixicon-react/SeparatorIcon";
 import TableIcon from "remixicon-react/TableLineIcon";
 import uniqueId from "../../../../util/uniqueId";
 
+/**
+ * An array containing commands for creating all default blocks.
+ */
 const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 1 heading
   heading: new SlashCommand(
