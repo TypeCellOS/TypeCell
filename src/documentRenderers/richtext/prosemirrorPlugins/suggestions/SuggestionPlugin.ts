@@ -129,12 +129,9 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           };
 
           const rendererProps: SuggestionRendererProps<T> = {
-            editor,
-            range: state.range,
-            query: state.query,
             groups: changed || started ? groups : {},
             count: state.items.length,
-            selectItemCallback: (item: T) => {
+            onSelectItem: (item: T) => {
               deactivate();
               selectItemCallback({
                 item,
@@ -142,7 +139,6 @@ export function SuggestionPlugin<T extends SuggestionItem>({
                 range: state.range,
               });
             },
-            decorationNode,
             // virtual node for popper.js or tippy.js
             // this can be used for building popups without a DOM node
             clientRect: decorationNode
@@ -281,6 +277,8 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           return false;
         }
 
+        // pass the key event onto the renderer (to handle arrow keys, enter and escape)
+        // return true if the event got handled by the renderer or false otherwise
         return renderer.onKeyDown?.(event) || false;
       },
 

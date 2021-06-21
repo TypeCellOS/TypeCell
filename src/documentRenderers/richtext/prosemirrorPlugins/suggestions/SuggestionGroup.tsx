@@ -25,7 +25,7 @@ type SuggestionGroupProps<T> = {
   selectedIndex?: number;
 
   /**
-   * Callback for handling clicking on an item
+   * Callback that gets executed when an item is clicked on.
    */
   clickItem: (item: T) => void;
 };
