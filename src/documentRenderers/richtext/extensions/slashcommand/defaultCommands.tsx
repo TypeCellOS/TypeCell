@@ -30,7 +30,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .replaceRangeCustom(range, node)
+        .replaceRangeAndUpdateSelection(range, node)
         .scrollIntoView()
         .run();
 
@@ -55,7 +55,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .replaceRangeCustom(range, node)
+        .replaceRangeAndUpdateSelection(range, node)
         .scrollIntoView()
         .run();
 
@@ -80,7 +80,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .replaceRangeCustom(range, node)
+        .replaceRangeAndUpdateSelection(range, node)
         .scrollIntoView()
         .run();
 
@@ -105,7 +105,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .replaceRangeCustom(range, node)
+        .replaceRangeAndUpdateSelection(range, node)
         .scrollIntoView()
         .run();
 
@@ -130,7 +130,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .replaceRangeCustom(range, node)
+        .replaceRangeAndUpdateSelection(range, node)
         .scrollIntoView()
         .run();
 
@@ -155,7 +155,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .replaceRangeCustom(range, node)
+        .replaceRangeAndUpdateSelection(range, node)
         .scrollIntoView()
         .run();
 
@@ -177,7 +177,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .replaceRangeCustom(range, node)
+        .replaceRangeAndUpdateSelection(range, node)
         .scrollIntoView()
         .run();
 
@@ -201,7 +201,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .replaceRangeCustom(range, node)
+        .replaceRangeAndUpdateSelection(range, node)
         .scrollIntoView()
         .run();
 
@@ -222,7 +222,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .replaceRangeCustom(range, node)
+        .replaceRangeAndUpdateSelection(range, node)
         .scrollIntoView()
         .run();
 
@@ -253,7 +253,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .replaceRangeCustom(range, node)
+        .replaceRangeAndUpdateSelection(range, node)
         .scrollIntoView()
         .run();
 
@@ -284,7 +284,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .replaceRangeCustom(range, node)
+        .replaceRangeAndUpdateSelection(range, node)
         .scrollIntoView()
         .run();
 
@@ -310,7 +310,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .replaceRangeCustom(range, node)
+        .replaceRangeAndUpdateSelection(range, node)
         .scrollIntoView()
         .run();
 
@@ -336,7 +336,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .replaceRangeCustom(range, node)
+        .replaceRangeAndUpdateSelection(range, node)
         .command(({ tr, dispatch }) => {
           if (dispatch) {
             // the node immediately after the cursor

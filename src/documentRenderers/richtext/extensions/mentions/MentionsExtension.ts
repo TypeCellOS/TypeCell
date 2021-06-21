@@ -90,7 +90,7 @@ export const MentionsExtension = Node.create<MentionsOptions>({
 
           return mentions;
         },
-        selectItemCallback: ({ item, editor, range }) => {
+        onSelectItem: ({ item, editor, range }) => {
           editor
             .chain()
             .focus()

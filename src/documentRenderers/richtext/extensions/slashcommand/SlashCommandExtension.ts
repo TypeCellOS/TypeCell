@@ -18,13 +18,13 @@ declare module "@tiptap/core" {
        * This command tries to put the cursor at the start of the newly created node,
        * such that the user can start typing in the new node immediately.
        *
-       * **Only use this command works best for inserting nodes that contain editable text.**
+       * **The behaviour of this command is undefined if the new node is not editable (i.e. if the cursor cannot be placed inside of the new node).**
        *
-       * @param range the range
-       * @param node the prosemirror node
+       * @param range the range to replace
+       * @param node the prosemirror node to insert
        * @returns true iff the command succeeded
        */
-      replaceRangeCustom: (range: Range, node: Node) => ReturnType;
+      replaceRangeAndUpdateSelection: (range: Range, node: Node) => ReturnType;
     };
   }
 }
@@ -38,7 +38,7 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
 
   addCommands() {
     return {
-      replaceRangeCustom:
+      replaceRangeAndUpdateSelection:
         (range, node) =>
         ({ tr, dispatch }) => {
           const { from, to } = range;
@@ -56,11 +56,11 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
             const mappedFrom = tr.mapping.map(from, -1);
             const mappedTo = tr.mapping.map(to, 1);
 
-            // unfortunately, we need a forceUpdate, to make sure the React lifecycle has been flushed and NodeViews have been rendered completely
             const blockId = node.attrs["block-id"];
-            // (this.editor as any).contentComponent.forceUpdate(() => {
+
             // Keeps track of whether the node has been placed yet
             let placed = false;
+
             // Go over all nodes in the range
             // Refer to https://discuss.prosemirror.net/t/find-new-node-instances-and-track-them/96
             // for a discussion on how to find the position of a newly placed node in the document
@@ -103,7 +103,7 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
 
           return commands.filter((cmd: SlashCommand) => cmd.match(query));
         },
-        selectItemCallback: ({ item, editor, range }) => {
+        onSelectItem: ({ item, editor, range }) => {
           item.execute(editor, range);
         },
       }),
