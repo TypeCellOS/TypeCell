@@ -11,7 +11,7 @@ import { EditorView } from "prosemirror-view";
 import React, { ChangeEvent, useState } from "react";
 import { navigationStore } from "../../../../store/local/stores";
 import styles from "./Comments.module.css";
-import { commentStore } from "./CommentStore";
+import { CommentStore } from "./CommentStore";
 import avatarImg from "./defualtAvatar.png";
 
 export type CommentComponentProps = {
@@ -19,6 +19,7 @@ export type CommentComponentProps = {
   state: EditorState;
   view: EditorView;
   highlighted: boolean;
+  commentStore: CommentStore;
 };
 
 /**
@@ -29,17 +30,14 @@ export type CommentComponentProps = {
  * @prop view   The editor view, used in deletion.
  */
 export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
-  const [comment, setComment] = useState(
-    commentStore.getComment(props.id).comment
-  );
-  const [editing, setEditing] = useState(
-    commentStore.getComment(props.id).comment === ""
-  );
+  const comment = props.commentStore.getComment(props.id);
+  const [commentText, setCommentText] = useState(comment.comment);
+  const [editing, setEditing] = useState(comment.comment === "");
 
   // Updates comment text from user input but does not save it to cache.
   function updateComment(event: ChangeEvent<HTMLTextAreaElement>) {
     event.preventDefault();
-    setComment(event.target.value);
+    setCommentText(event.target.value);
   }
 
   // Toggles the user's ability to edit a comment. Only updates the "editable" field of the comment in cache.
@@ -47,19 +45,19 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
     setEditing(!editing);
     if (editing) {
       // was editing, but now submits
-      commentStore.updateComment(props.id, comment);
+      props.commentStore.updateComment(props.id, commentText);
     }
   }
 
   // Reverts an editable comment to its previous state. This either deletes it or re-creates it from data in cache.
   function cancelEdit(e: React.MouseEvent) {
     // True if comment is only being created rather than edited.
-    const remove = commentStore.getComment(props.id).comment === "";
+    const remove = comment.comment === "";
     // Removes comment if it was being created, reverts it if it was being edited.
     if (remove) {
       markCommentAsResolvedAndRemoveMark();
     } else {
-      setComment(commentStore.getComment(props.id).comment);
+      setCommentText(comment.comment);
       setEditing(false);
     }
     e.stopPropagation();
@@ -73,7 +71,7 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
   // Removes the comment from browser cache as well as its corresponding mark.
   function markCommentAsResolvedAndRemoveMark() {
     // Removes comment from browser cache.
-    commentStore.resolveComment(props.id);
+    props.commentStore.resolveComment(props.id);
     // Removes corresponding comment mark.
     const tr = props.state.tr;
     props.state.doc.descendants(function (node, offset) {
@@ -116,22 +114,13 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
       onClick={highlight}>
       <Comment
         avatar={<Avatar src={avatarImg} size="medium" />}
-        author={
-          <CommentAuthor>
-            {commentStore.getComment(props.id).user}
-          </CommentAuthor>
-        }
+        author={<CommentAuthor>{comment.user}</CommentAuthor>}
         type={
-          navigationStore.currentPage.owner ===
-          commentStore.getComment(props.id).user
-            ? "author"
-            : ""
+          navigationStore.currentPage.owner === comment.user ? "author" : ""
         }
         time={
           <CommentTime>
-            {new Date(
-              commentStore.getComment(props.id).date
-            ).toLocaleDateString()}
+            {new Date(comment.date).toLocaleDateString()}
           </CommentTime>
         }
         content={
@@ -141,12 +130,12 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
                 <TextArea
                   resize="smart"
                   name="commentInput"
-                  defaultValue={commentStore.getComment(props.id).comment}
+                  defaultValue={comment.comment}
                   onChange={updateComment}
                 />
               </div>
             ) : (
-              <p>{comment}</p>
+              <p>{commentText}</p>
             )}
           </div>
         }
@@ -154,14 +143,13 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
           editing
             ? [
                 <CommentAction
-                  isDisabled={comment === ""}
+                  isDisabled={commentText === ""}
                   onClick={toggleEditing}>
                   Submit
                 </CommentAction>,
                 <CommentAction onClick={cancelEdit}>Cancel</CommentAction>,
               ]
-            : navigationStore.currentPage.owner ===
-              commentStore.getComment(props.id).user
+            : navigationStore.currentPage.owner === comment.user
             ? [
                 <CommentAction onClick={toggleEditing}>Edit</CommentAction>,
                 <CommentAction onClick={resolveComment}>Resolve</CommentAction>,

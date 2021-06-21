@@ -7,10 +7,13 @@ import {
 } from "@tiptap/core";
 import { CommentComponent } from "./CommentComponent";
 import styles from "./Comments.module.css";
-import { commentStore } from "./CommentStore";
+import { CommentStore } from "./CommentStore";
 import { getNearestComment } from "./GetNearestComment";
 
-export type CommentWrapperProps = { editor: Editor };
+export type CommentWrapperProps = {
+  editor: Editor;
+  commentStore: CommentStore;
+};
 
 /**
  * This component is a wrapper for all comments that are displayed at any given time.
@@ -46,7 +49,7 @@ export const CommentWrapper: React.FC<CommentWrapperProps> = (props) => {
 
   const commentDates = new Map();
   commentIds.map((id) =>
-    commentDates.set(id, commentStore.getComment(id).date)
+    commentDates.set(id, props.commentStore.getComment(id).date)
   );
 
   // IDs sorted by the chronological order their comments were created in.
@@ -60,6 +63,7 @@ export const CommentWrapper: React.FC<CommentWrapperProps> = (props) => {
     <div className={styles.comments} style={{ top: fromTop }}>
       {commentIds.map((id) => (
         <CommentComponent
+          commentStore={props.commentStore}
           id={id}
           state={props.editor.state}
           view={props.editor.view}

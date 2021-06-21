@@ -40,7 +40,7 @@ import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import { Comments } from "./extensions/comments/Comments";
-import { commentStore } from "./extensions/comments/CommentStore";
+import { CommentStore } from "./extensions/comments/CommentStore";
 import { CommentWrapper } from "./extensions/comments/CommentWrapper";
 
 // This is a temporary array to show off mentions
@@ -53,15 +53,12 @@ const PEOPLE = [
   new Mention("Nikolay Zhlebinkov", MentionType.PEOPLE),
 ];
 
-// Initializes comments map if not already done.
-if (!commentStore.isInitialized()) {
-  commentStore.initialize();
-}
-
 type Props = {
   document: DocumentResource;
 };
+
 const RichTextRenderer: React.FC<Props> = (props) => {
+  const commentStore = new CommentStore(props.document.comments);
   const editor = useEditor({
     onUpdate: ({ editor }) => {
       // console.log(editor.getJSON());
@@ -157,9 +154,13 @@ const RichTextRenderer: React.FC<Props> = (props) => {
 
   return (
     <div>
-      {editor != null ? <InlineMenu editor={editor} /> : null}
+      {editor != null ? (
+        <InlineMenu editor={editor} commentStore={commentStore} />
+      ) : null}
       {editor != null ? <TableMenu editor={editor} /> : null}
-      {editor != null ? <CommentWrapper editor={editor} /> : null}
+      {editor != null ? (
+        <CommentWrapper editor={editor} commentStore={commentStore} />
+      ) : null}
       <EditorContent editor={editor} />
     </div>
   );
