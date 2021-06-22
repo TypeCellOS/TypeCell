@@ -135,7 +135,15 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
 
   public render() {
     /* eslint @typescript-eslint/no-unused-vars: ["error", { "ignoreRestSiblings": true }] */
-    const { element, onValidate, children, list, ...inputProps } = this.props;
+    const {
+      element,
+      onValidate,
+      children,
+      list,
+      showErrorMsg,
+      showValidMsg,
+      ...inputProps
+    } = this.props;
 
     // Set some defaults for the <input> element
     const ref = (input: any) => (this.input = input);
@@ -159,6 +167,7 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
             return (
               <Fragment>
                 <TextField
+                  defaultValue=""
                   {...(inputProps_ as any)}
                   {...fieldProps}
                   onChange={(e) => {
@@ -172,12 +181,10 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
                     <SuccessProgressBar value={this.state.progress} />
                   </div>
                 )}
-                {this.props.showValidMsg && valid && (
+                {showValidMsg && valid && (
                   <ValidMessage>{this.props.validMessage}</ValidMessage>
                 )}
-                {this.props.showErrorMsg && error && (
-                  <ErrorMessage>{error}</ErrorMessage>
-                )}
+                {showErrorMsg && error && <ErrorMessage>{error}</ErrorMessage>}
               </Fragment>
             );
           } else if (element === "select") {
