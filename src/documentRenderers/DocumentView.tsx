@@ -20,7 +20,10 @@ const DocumentView = observer((props: Props) => {
   const [connection, setConnection] = useState<DocConnection>();
 
   React.useEffect(() => {
-    const newConnection = DocConnection.load(props.id);
+    const newConnection = DocConnection.load(
+      props.id,
+      window.location.search.includes("offline")
+    );
 
     setConnection(newConnection);
     return () => {
