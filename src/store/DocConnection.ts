@@ -186,7 +186,7 @@ export class DocConnection extends Disposable {
       });
     };
 
-    if (alreadyLocal || offline) {
+    if (alreadyLocal || offline === "offline") {
       // For alreadyLocal,
       // we await here to first load indexeddb, and then later sync with remote providers
       // This way, when we set up MatrixProvider, we also have an initial state
