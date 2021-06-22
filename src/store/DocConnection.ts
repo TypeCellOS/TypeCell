@@ -170,7 +170,6 @@ export class DocConnection extends Disposable {
               "yjs-" + this.identifier.id,
               this._ydoc
             );
-            debugger;
 
             this.indexedDBProvider.on("synced", () => {
               resolve();
