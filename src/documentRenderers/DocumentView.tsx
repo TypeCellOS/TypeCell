@@ -12,11 +12,26 @@ type Props = {
   id: string | { owner: string; document: string };
 };
 
+/**
+ * Load a Resource based on a URL (owner/document).
+ * When a resource is loaded and has a supported type, load the corresponding renderer
+ */
 const DocumentView = observer((props: Props) => {
   const [connection, setConnection] = useState<DocConnection>();
 
   React.useEffect(() => {
-    const newConnection = DocConnection.load(props.id);
+    const offline = window.location.search.includes("test");
+
+    const newConnection = DocConnection.load(
+      props.id,
+      offline ? "local-only" : false
+    );
+
+    if (offline) {
+      newConnection.waitForDoc().then((d) => {
+        d.create("!richtext");
+      });
+    }
 
     setConnection(newConnection);
     return () => {

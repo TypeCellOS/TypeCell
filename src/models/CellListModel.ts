@@ -1,7 +1,8 @@
 import * as _ from "lodash";
 import * as Y from "yjs";
+import uniqueId from "../util/uniqueId";
 import { CellModel } from "./CellModel";
-import { v4 as uuidv4 } from "uuid";
+
 export class CellListModel {
   /** @internal */
   constructor(private documentId: string, private fragment: Y.XmlFragment) {}
@@ -53,7 +54,7 @@ export class CellListModel {
 
   public addCell(i: number) {
     const element = new Y.XmlElement("typecell");
-    element.setAttribute("block-id", uuidv4());
+    element.setAttribute("block-id", uniqueId());
     element.insert(0, [new Y.XmlText("// hello")]);
     this.fragment.insert(i, [element]);
   }

@@ -1,5 +1,5 @@
 export class UnreachableCaseError extends Error {
-  constructor(val: never) {
+  constructor(val: any) {
     super(`Unreachable case: ${val}`);
   }
 }

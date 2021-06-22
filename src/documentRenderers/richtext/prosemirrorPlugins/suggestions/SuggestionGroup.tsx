@@ -95,12 +95,13 @@ function SuggestionComponent<T extends SuggestionItem>(
         block: "nearest",
       });
     }
-  }, [props.selectedIndex]);
+  }, [isButtonSelected]);
 
   return (
     <div className={styles.buttonItem}>
       <ButtonItem
         isSelected={isButtonSelected} // This is needed to navigate with the keyboard
+        data-cy={isButtonSelected ? "selected-suggestion" : undefined}
         iconBefore={getIcon(props.item, isButtonSelected)}
         onClick={(e) => {
           setTimeout(() => {
