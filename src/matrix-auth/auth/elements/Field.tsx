@@ -28,7 +28,6 @@ import {
 } from "@atlaskit/form";
 import Select from "@atlaskit/select";
 import { SuccessProgressBar } from "@atlaskit/progress-bar";
-import { FormState } from "final-form";
 
 const BASE_ID = "mx_Field";
 let count = 1;
@@ -53,16 +52,13 @@ interface IProps {
   // changes.  Returns an object with `valid` boolean field
   // and a `feedback` react component field to provide feedback
   // to the user.
-  onValidate?: (value?: string) => IValidationResult;
+  onValidate?: (
+    value?: string
+  ) => IValidationResult | Promise<IValidationResult>;
   isRequired?: boolean;
   needsValidation?: boolean;
   helperMessage?: string;
   validMessage?: string;
-  // The FormData type is specific to the RegistrationForm, a more general type
-  // with inheritence can be made if needed, for now any is used
-  // getState?: () => FormState<FormData>
-  getFormState?: () => FormState<any>;
-  stateCallback?: (state: FormState<any>) => void;
   // All other props pass through to the <input>.
 }
 
@@ -98,11 +94,11 @@ interface IState {
 
 export default class Field extends React.PureComponent<PropShapes, IState> {
   private id: string;
-  private input: any;
-  // | HTMLInputElement
-  // | HTMLTextAreaElement
-  // | HTMLSelectElement
-  // | undefined;
+  private input:
+    | HTMLInputElement
+    | HTMLTextAreaElement
+    | HTMLSelectElement
+    | undefined;
 
   public static readonly defaultProps = {
     element: "input",
@@ -124,18 +120,12 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     this.input!.focus();
   }
 
-  public validate = (value?: string) => {
+  public validate = async (value?: string) => {
     if (!this.props.onValidate) {
       return undefined;
     }
 
-    if (this.props.getFormState && this.props.stateCallback) {
-      const formState = this.props.getFormState();
-      console.log("formstate is ", formState);
-      this.props.stateCallback(formState);
-    }
-
-    const validationResult = this.props.onValidate(value);
+    const validationResult = await this.props.onValidate(value);
     // validationResult.then((result: IValidationResult) => {
     //   if (result.progress) {
     //     this.setState({ progress: result.progress });
@@ -160,17 +150,29 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     // Appease typescript's inference
     const inputProps_ = { ...inputProps, ref, list };
 
+    if (!this.props.name) {
+      throw new Error("no name");
+    }
+
     return (
       <AtlaskitField
         label={this.props.label}
         // TODO: change "name" to "key"(somehow its always undefined when doing so)
-        name={this.props.name || "undefined name"}
+        name={this.props.name}
         validate={this.validate}>
-        {({ fieldProps, error, valid }: any) => (
-          <Fragment>
-            {element === "input" ? (
+        {({ fieldProps, error, valid }: any) => {
+          if (element === "input") {
+            return (
               <Fragment>
-                <TextField {...(inputProps_ as any)} {...fieldProps} />
+                <TextField
+                  {...(inputProps_ as any)}
+                  {...fieldProps}
+                  onChange={(e) => {
+                    // trigger both handlers if set
+                    fieldProps.onChange?.(e);
+                    inputProps_.onChange?.(e as any);
+                  }}
+                />
                 {this.props.needsValidation && (
                   <Fragment>
                     {this.state.progress !== undefined && (
@@ -185,10 +187,12 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
                   </Fragment>
                 )}
               </Fragment>
-            ) : element === "select" ? (
-              // TODO: should move props into ISelectProps and let caller
-              // define these props. I attempted this once but since ISelectProps
-              // extends HTMLSelectElement I was not able to redefine "defaultValue".
+            );
+          } else if (element === "select") {
+            // TODO: should move props into ISelectProps and let caller
+            // define these props. I attempted this once but since ISelectProps
+            // extends HTMLSelectElement I was not able to redefine "defaultValue".
+            return (
               <Select
                 {...(inputProps_ as any)}
                 {...fieldProps}
@@ -203,9 +207,11 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
                   { label: "Phone", value: "login_field_phone" },
                 ]}
               />
-            ) : undefined}
-          </Fragment>
-        )}
+            );
+          } else {
+            throw new Error("not implemented");
+          }
+        }}
       </AtlaskitField>
     );
   }

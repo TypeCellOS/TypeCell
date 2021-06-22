@@ -17,7 +17,6 @@ limitations under the License.
 import React, { PureComponent, RefCallback, RefObject } from "react";
 
 import Field, { IInputProps, IValidationResult } from "../elements/Field";
-import { scorePassword } from "../util/PasswordScorer";
 
 interface IProps extends Omit<IInputProps, "onValidate"> {
   autoFocus?: boolean;
@@ -26,22 +25,25 @@ interface IProps extends Omit<IInputProps, "onValidate"> {
 }
 
 class PassphraseField extends PureComponent<IProps> {
-  public readonly validate = (value?: string) => {
-    if (!value)
+  private validate = async (value?: string) => {
+    if (!value || !value.length)
       return {
         error: "Add another word or two. Uncommon words are better",
         progress: 0,
       };
-    // const { scorePassword } = await import("../util/PasswordScorer");
+
+    // loaded async because this library is expensive
+    const { scorePassword } = await import("../util/PasswordScorer");
+
     const scoreResults = scorePassword(value);
     console.log("score result is ", scoreResults?.score);
-    // TODO: compiler sees this as possibly null, why?
+
     if (!scoreResults) {
-      return {
-        error: "Unknown error, try something else",
-        progress: 0,
-      };
+      throw new Error(
+        "shouldn't be null at this point , as value has been checked for non-emptiness"
+      );
     }
+
     if (scoreResults.score && scoreResults.score >= this.props.minScore) {
       return { progress: scoreResults.score / 4 };
     } else {
@@ -55,12 +57,6 @@ class PassphraseField extends PureComponent<IProps> {
     }
   };
 
-  onValidate = (value?: string) => {
-    console.log("arrived at validate of PassphraseField");
-    const result = this.validate(value);
-    return result;
-  };
-
   render() {
     return (
       <Field
@@ -70,11 +66,12 @@ class PassphraseField extends PureComponent<IProps> {
         key="password"
         autoComplete="new-password"
         label="password"
-        onValidate={this.onValidate}
+        onValidate={this.validate}
         needsValidation
         validMessage="Nice, strong password!"
         isRequired
         ref={this.props.fieldRef}
+        onChange={this.props.onChange}
       />
     );
   }

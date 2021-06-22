@@ -35,7 +35,7 @@ export default class AuthHeader extends React.Component {
             fontSize: "32px",
             margin: "auto",
           }}>
-          🌐TypeCell
+          🌐 TypeCell
         </span>
       </div>
     );

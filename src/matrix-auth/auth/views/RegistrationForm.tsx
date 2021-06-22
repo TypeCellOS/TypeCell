@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React from "react";
+import React, { ChangeEvent } from "react";
 
 import PassphraseField from "./PassphraseField";
 
@@ -109,15 +109,15 @@ export default class RegistrationForm extends React.PureComponent<
     this.props.onRegisterClick({ username, password });
   }
 
-  private passwordStateCallback = (state: FormState<any>) => {
-    const password = state.values.password;
+  private onPasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const password = event.target.value;
     console.log("setting state of password to ", password);
     this.setState({ passwordToConfirm: password });
   };
 
   private onPasswordConfirmValidate = (value?: string) => {
     console.log("confirmPassword value is ", value);
-    if (value && value.length > 1 && value === this.state.passwordToConfirm) {
+    if (value && value.length && value === this.state.passwordToConfirm) {
       return {};
     } else {
       return { error: "Passwords don't match" };
@@ -195,6 +195,7 @@ export default class RegistrationForm extends React.PureComponent<
       <PassphraseField
         minScore={PASSWORD_MIN_SCORE}
         fieldRef={(field) => (this[RegistrationField.Password] = field)}
+        onChange={this.onPasswordChange}
       />
     );
   }
@@ -211,8 +212,6 @@ export default class RegistrationForm extends React.PureComponent<
         validMessage="Password Matches"
         ref={(field) => (this[RegistrationField.PasswordConfirm] = field)}
         needsValidation
-        getFormState={getState}
-        stateCallback={this.passwordStateCallback}
       />
     );
   }
