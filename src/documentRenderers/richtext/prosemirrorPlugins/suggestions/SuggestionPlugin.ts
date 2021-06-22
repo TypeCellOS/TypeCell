@@ -1,38 +1,13 @@
 import { Editor, Range } from "@tiptap/core";
 import { escapeRegExp, groupBy } from "lodash";
 import { Plugin, PluginKey, Selection } from "prosemirror-state";
-import { EditorView, Decoration, DecorationSet } from "prosemirror-view";
+import { Decoration, DecorationSet } from "prosemirror-view";
 import SuggestionItem from "./SuggestionItem";
-import createRenderer from "./SuggestionListReactRenderer";
+
 import { ReplaceStep } from "prosemirror-transform";
-export interface SuggestionRenderer<T extends SuggestionItem> {
-  onExit?: (props: SuggestionRendererProps<T>) => void;
-  onUpdate?: (props: SuggestionRendererProps<T>) => void;
-  onStart?: (props: SuggestionRendererProps<T>) => void;
-  onKeyDown?: (props: SuggestionRendererKeyDownProps) => boolean;
-}
-
-export interface SuggestionRendererKeyDownProps {
-  view: EditorView;
-  event: KeyboardEvent;
-  range: Range;
-}
-
-export type SuggestionRendererProps<T extends SuggestionItem> = {
-  editor: Editor;
-  range: Range;
-  query: string;
-  groups: {
-    [groupName: string]: T[];
-  };
-  count: number;
-  selectItemCallback: (item: T) => void;
-  decorationNode: Element | null;
-  // virtual node for popper.js or tippy.js
-  // this can be used for building popups without a DOM node
-  clientRect: (() => DOMRect) | null;
-  onClose: () => void;
-};
+import createRenderer, {
+  SuggestionRendererProps,
+} from "./SuggestionListReactRenderer";
 
 export type SuggestionPluginOptions<T extends SuggestionItem> = {
   // Used for ensuring that the plugin key is unique when more than one instance of the SuggestionPlugin is used.
@@ -45,7 +20,6 @@ export type SuggestionPluginOptions<T extends SuggestionItem> = {
     range: Range;
   }) => void;
   items?: (filter: string) => T[];
-  renderer?: SuggestionRenderer<T>;
   allow?: (props: { editor: Editor; range: Range }) => boolean;
 };
 
@@ -101,17 +75,26 @@ export function SuggestionPlugin<T extends SuggestionItem>({
   char,
   selectItemCallback = () => {},
   items = () => [],
-  renderer = undefined,
 }: SuggestionPluginOptions<T>) {
-  // Use react renderer by default
-  // This will fail if the editor is not a @tiptap/react editor
-  if (!renderer) renderer = createRenderer(editor);
+  const renderer = createRenderer<T>(editor);
 
   // Create a random plugin key (since this plugin might be instantiated multiple times)
   const PLUGIN_KEY = new PluginKey(`suggestions-${pluginName}`);
 
   return new Plugin({
     key: PLUGIN_KEY,
+
+    filterTransaction(transaction) {
+      // prevent blurring when clicking with the mouse inside the popup menu
+      const blurMeta = transaction.getMeta("blur");
+      if (blurMeta?.event.relatedTarget) {
+        const c = renderer.getComponent();
+        if (c?.contains(blurMeta.event.relatedTarget)) {
+          return false;
+        }
+      }
+      return true;
+    },
 
     view() {
       return {
@@ -167,20 +150,20 @@ export function SuggestionPlugin<T extends SuggestionItem>({
               : null,
             onClose: () => {
               deactivate();
-              renderer?.onExit?.(rendererProps);
+              renderer.onExit?.(rendererProps);
             },
           };
 
           if (stopped) {
-            renderer?.onExit?.(rendererProps);
+            renderer.onExit?.(rendererProps);
           }
 
           if (changed) {
-            renderer?.onUpdate?.(rendererProps);
+            renderer.onUpdate?.(rendererProps);
           }
 
           if (started) {
-            renderer?.onStart?.(rendererProps);
+            renderer.onStart?.(rendererProps);
           }
         },
       };
@@ -298,7 +281,7 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           return false;
         }
 
-        return renderer?.onKeyDown?.({ view, event, range }) || false;
+        return renderer.onKeyDown?.(event) || false;
       },
 
       // Setup decorator on the currently active suggestion.

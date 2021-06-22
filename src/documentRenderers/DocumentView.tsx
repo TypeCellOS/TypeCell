@@ -12,6 +12,10 @@ type Props = {
   id: string | { owner: string; document: string };
 };
 
+/**
+ * Load a Resource based on a URL (owner/document).
+ * When a resource is loaded and has a supported type, load the corresponding renderer
+ */
 const DocumentView = observer((props: Props) => {
   const [connection, setConnection] = useState<DocConnection>();
 

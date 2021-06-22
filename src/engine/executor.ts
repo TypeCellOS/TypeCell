@@ -7,7 +7,7 @@ import { isView } from "./view";
 
 async function resolveDependencyArray(
   dependencyArray: string[],
-  context: TypeCellContext,
+  context: TypeCellContext<any>,
   resolveImport: (module: string) => any,
   exports: any,
   userDisposes: Array<() => void>
@@ -59,7 +59,7 @@ export type ModuleExecution = {
 
 export async function runModule(
   mod: Module,
-  context: TypeCellContext,
+  context: TypeCellContext<any>,
   resolveImport: (module: string) => any,
   beforeExecuting: () => void,
   onExecuted: (exports: any) => void,
