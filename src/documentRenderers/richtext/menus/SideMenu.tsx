@@ -7,7 +7,8 @@ type Props = {
 };
 
 /**
- * A side menu is created for each block. This is wrapped in a Tippy instance.
+ * A side menu is created for each block for block level functionalities.
+ * It will be wrapped in a Tippy instance, whose triggerTarget is the drag handle of this block.
  * @param props none;
  * @returns React.FC
  */
