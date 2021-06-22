@@ -1,4 +1,7 @@
-import { Annotation, ObservableObjectAdministration } from "mobx/dist/internal";
+import type {
+  Annotation,
+  ObservableObjectAdministration,
+} from "mobx/dist/internal";
 import { observable, $mobx } from "mobx";
 import React from "react";
 

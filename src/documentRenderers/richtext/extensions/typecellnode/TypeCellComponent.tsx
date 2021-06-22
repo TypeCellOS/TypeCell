@@ -1,4 +1,3 @@
-import { NodeViewWrapper } from "@tiptap/react";
 import { useContext } from "react";
 import NotebookCell from "../../../notebook/NotebookCell";
 import { EngineContext } from "./EngineContext";

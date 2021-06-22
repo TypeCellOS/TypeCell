@@ -1,6 +1,6 @@
 import { Extension } from "@tiptap/react";
-import { v4 as uuidv4 } from "uuid";
 import { Plugin, PluginKey } from "prosemirror-state";
+import uniqueId from "../../../../util/uniqueId";
 import { isList } from "../../util/isList";
 
 export interface AutoIdOptions {}
@@ -33,7 +33,7 @@ export const AutoId = Extension.create<AutoIdOptions>({
               if (!node.attrs["block-id"]) {
                 tr.setNodeMarkup(pos, undefined, {
                   ...node.attrs,
-                  "block-id": uuidv4(),
+                  "block-id": uniqueId(),
                 });
               }
             } else {

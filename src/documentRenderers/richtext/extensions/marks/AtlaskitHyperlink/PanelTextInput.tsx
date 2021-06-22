@@ -33,6 +33,7 @@ export interface State {
 const KeyZCode = 90;
 const KeyYCode = 89;
 
+// returns an <Input> Component, used as an input field in HyperlinkEditMenu
 export default class PanelTextInput extends PureComponent<Props, State> {
   private input?: HTMLInputElement;
   private focusTimeoutId: number | undefined;
@@ -89,7 +90,7 @@ export default class PanelTextInput extends PureComponent<Props, State> {
         maxLength={maxLength}
         aria-label={ariaLabel}
         id={this.props.id}
-        style={{ fontSize: `1rem` }}
+        style={{ fontSize: `0.8rem` }}
       />
     );
   }

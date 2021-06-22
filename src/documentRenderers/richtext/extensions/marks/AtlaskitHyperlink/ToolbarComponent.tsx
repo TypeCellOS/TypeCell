@@ -8,10 +8,12 @@ export const RECENT_SEARCH_WIDTH_IN_PX = 420;
 export const RECENT_SEARCH_WIDTH_WITHOUT_ITEMS_IN_PX = 360;
 export const RECENT_SEARCH_HEIGHT_IN_PX = 360;
 
+// These components below are mainly used in HyperlinkEditMenu as wrapper components for input fields
+
 export const InputWrapper = `
   display: flex;
   line-height: 0;
-  padding: 5px 0;
+  padding: 4px 0;
   align-items: center;
 `;
 
@@ -43,8 +45,8 @@ export const TextInputWrapper = styled.div`
 
 export const IconWrapper = styled.span`
   color: ${N80};
-  padding: 4px 8px;
-  width: 36px;
+  padding: 3px 6px;
+  width: 32px;
 `;
 
 export const ContainerWrapper = styled.div`
@@ -52,7 +54,7 @@ export const ContainerWrapper = styled.div`
   border-radius: 3px;
   box-shadow: rgb(9 30 66 / 31%) 0px 0px 1px,
     rgb(9 30 66 / 25%) 0px 4px 8px -2px;
-  padding: 4px 8px;
+  padding: 3px 6px;
   display: flex;
   line-height: 1;
   box-sizing: border-box;
