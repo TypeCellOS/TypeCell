@@ -196,9 +196,11 @@ export default class RegistrationForm extends React.PureComponent<
   renderPasswordConfirm() {
     return (
       <Field
+        key="password"
         type="password"
         name="confirmPassword"
         label="Confirm password"
+        defaultValue={this.props.defaultPassword}
         isRequired
         onValidate={this.onPasswordConfirmValidate}
         validMessage="Password Matches"
@@ -212,10 +214,12 @@ export default class RegistrationForm extends React.PureComponent<
   renderUsername() {
     return (
       <Field
+        key="username"
         name="username"
         type="text"
         label={"Username"}
         placeholder={"Username".toLocaleLowerCase()}
+        defaultValue={this.props.defaultUsername}
         isRequired
         onValidate={this.onUsernameValidate}
         autoFocus={true}

@@ -148,6 +148,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
         classes.error = !!this.props.loginIncorrect;
         return (
           <Field
+            key="email"
             name="email"
             type="text"
             label="Email"
@@ -164,6 +165,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
         classes.error = !!this.props.loginIncorrect;
         return (
           <Field
+            key="username"
             name="username" // make it a little easier for browser's remember-password
             type="text"
             label="Username"
@@ -193,6 +195,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
 
         return (
           <Field
+            // key="phoneNumber"
             name="phoneNumber"
             type="text"
             label="Phone"
@@ -230,6 +233,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
       loginType = (
         <div className="mx_Login_type_container">
           <Field
+            key="select"
             element="select"
             name="select"
             value={this.state.loginType}
@@ -258,6 +262,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             {loginType}
             {loginField}
             <Field
+              key="password"
               type="password"
               name="password"
               label="Password"

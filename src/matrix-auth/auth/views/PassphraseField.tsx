@@ -59,6 +59,7 @@ class PassphraseField extends PureComponent<IProps> {
   render() {
     return (
       <Field
+        key="password"
         autoFocus={this.props.autoFocus}
         type="password"
         name="password"

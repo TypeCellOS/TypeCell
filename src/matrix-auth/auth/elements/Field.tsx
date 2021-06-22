@@ -36,6 +36,7 @@ function getId() {
 }
 
 interface IProps {
+  key?: string;
   // The field's ID, which binds the input and label together. Immutable.
   id?: string;
   // The field's type (when used as an <input>). Defaults to "text".
