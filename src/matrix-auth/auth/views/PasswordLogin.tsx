@@ -277,7 +277,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
               ref={(field) => (this[LoginField.Password] = field)}
             />
             {forgotPasswordJsx}
-            {this.props.busy && (
+            {!this.props.busy && (
               // <LoadingButton isLoading={this.props.busy}>
               <Button
                 style={{ margin: "16px 0 0 0" }}
