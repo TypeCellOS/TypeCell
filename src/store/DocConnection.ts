@@ -36,7 +36,7 @@ export function readOnlyAccess() {
   if (typeof sessionStore.user === "string") {
     return false;
   }
-  return sessionStore.user.type === "guest-user";
+  return false; // sessionStore.user.type === "guest-user";
 }
 
 export function setupDocConnectionManager() {
@@ -103,7 +103,7 @@ export class DocConnection extends Disposable {
 
   protected constructor(
     public readonly identifier: Identifier,
-    offline = false
+    offline: false | "local-only" | "offline" = false
   ) {
     super();
 
@@ -133,7 +133,7 @@ export class DocConnection extends Disposable {
     await this.initializeNoCatch();
   }
 
-  private async initialize(offline = false) {
+  private async initialize(offline: false | "local-only" | "offline" = false) {
     try {
       await this.initializeNoCatch(offline);
     } catch (e) {
@@ -142,7 +142,9 @@ export class DocConnection extends Disposable {
     }
   }
 
-  private async initializeNoCatch(offline = false) {
+  private async initializeNoCatch(
+    offline: false | "local-only" | "offline" = false
+  ) {
     if (typeof sessionStore.user === "string") {
       throw new Error("no matrix client available");
     }
@@ -195,28 +197,30 @@ export class DocConnection extends Disposable {
       await initLocalProviders();
     }
 
-    this.matrixProvider = this._register(
-      new MatrixProvider(this._ydoc, mxClient, this.identifier.id, readonly)
-    );
+    if (offline !== "local-only") {
+      this.matrixProvider = this._register(
+        new MatrixProvider(this._ydoc, mxClient, this.identifier.id, readonly)
+      );
 
-    this._register(
-      this.matrixProvider.onDocumentAvailable(() => {
-        initLocalProviders();
-      })
-    );
+      this._register(
+        this.matrixProvider.onDocumentAvailable(() => {
+          initLocalProviders();
+        })
+      );
 
-    this._register(
-      this.matrixProvider.onDocumentUnavailable(() => {
-        // TODO: tombstone?
-        runInAction(() => {
-          this.doc = "not-found";
-        });
-        this.indexedDBProvider?.destroy();
-        this.webrtcProvider?.destroy();
-        this.indexedDBProvider = undefined;
-        this.webrtcProvider = undefined;
-      })
-    );
+      this._register(
+        this.matrixProvider.onDocumentUnavailable(() => {
+          // TODO: tombstone?
+          runInAction(() => {
+            this.doc = "not-found";
+          });
+          this.indexedDBProvider?.destroy();
+          this.webrtcProvider?.destroy();
+          this.indexedDBProvider = undefined;
+          this.webrtcProvider = undefined;
+        })
+      );
+    }
   }
 
   public static async create(
@@ -246,7 +250,7 @@ export class DocConnection extends Disposable {
       // TODO: add to pending if "offline"
       const connection = await DocConnection.load(
         id,
-        remoteResult === "offline"
+        remoteResult === "offline" ? "offline" : false
       );
 
       const doc = await connection.waitForDoc();
@@ -259,7 +263,7 @@ export class DocConnection extends Disposable {
 
   public static load(
     id: string | { owner: string; document: string },
-    offline = false
+    offline: false | "local-only" | "offline" = false
   ) {
     const identifier = parseIdentifier(id);
 

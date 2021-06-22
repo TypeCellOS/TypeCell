@@ -22,7 +22,10 @@ const DocumentView = observer((props: Props) => {
   React.useEffect(() => {
     const offline = window.location.search.includes("test");
 
-    const newConnection = DocConnection.load(props.id, offline);
+    const newConnection = DocConnection.load(
+      props.id,
+      offline ? "local-only" : false
+    );
 
     if (offline) {
       newConnection.waitForDoc().then((d) => {

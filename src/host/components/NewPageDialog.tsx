@@ -53,7 +53,7 @@ export const NewPageDialog = (props: {
                   setWarning("Invalid title");
                   break;
                 default:
-                  throw new UnreachableCaseError(ret);
+                  throw new Error(ret);
               }
             } else if (ret instanceof BaseResource) {
               navigationStore.navigateToDocument(ret);
@@ -68,7 +68,7 @@ export const NewPageDialog = (props: {
               props.close();
             } else {
               if (ret.status !== "error") {
-                throw new UnreachableCaseError(ret.status);
+                throw new Error(ret.status);
               }
               console.error(ret);
               setError("Unknown error while creating new page.");
