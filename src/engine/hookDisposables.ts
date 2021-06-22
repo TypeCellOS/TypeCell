@@ -33,19 +33,26 @@ function installHook<T, K extends FunctionPropertyNames<T>>(
   };
 }
 
+const wnd = typeof window === "undefined" ? global : window;
+
 export function installHooks() {
   const hooks: Hook[] = [];
-  hooks.push(installHook(window, "setTimeout", (ret) => clearTimeout(ret)));
-  hooks.push(installHook(window, "setInterval", (ret) => clearInterval(ret)));
+  hooks.push(installHook(wnd, "setTimeout", (ret) => clearTimeout(ret as any)));
   hooks.push(
-    installHook(
-      EventTarget.prototype,
-      "addEventListener",
-      function (this: any, ret, args: IArguments) {
-        this.removeEventListener(args[0], args[1]);
-      }
-    )
+    installHook(wnd, "setInterval", (ret) => clearInterval(ret as any))
   );
+
+  if (typeof EventTarget !== "undefined") {
+    hooks.push(
+      installHook(
+        EventTarget.prototype,
+        "addEventListener",
+        function (this: any, ret, args: IArguments) {
+          this.removeEventListener(args[0], args[1]);
+        }
+      )
+    );
+  }
 
   return {
     disposeAll: () => {

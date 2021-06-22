@@ -1,6 +1,7 @@
 import { autorun, untracked } from "mobx";
 import * as monaco from "monaco-editor";
 import * as Y from "yjs";
+import { compile } from "../compilers/MonacoCompiler";
 import { CodeModel } from "../engine/CodeModel";
 import { Emitter, Event } from "../util/vscode-common/event";
 import {
@@ -44,8 +45,8 @@ export class TypeCellCodeModel extends Disposable implements CodeModel {
   private readonly _onDidChangeContent: Emitter<void> = this._register(
     new Emitter<void>()
   );
-  public readonly onDidChangeContent: Event<void> = this._onDidChangeContent
-    .event;
+  public readonly onDidChangeContent: Event<void> =
+    this._onDidChangeContent.event;
 
   private monacoModelListener: IDisposable | undefined;
   private monacoModelReferences = 0;
@@ -91,6 +92,7 @@ export class TypeCellCodeModel extends Disposable implements CodeModel {
     this.monacoModel.dispose();
     this.monacoModelListener.dispose();
   }
+
   public releaseMonacoModel() {
     this.monacoModelReferences--;
     if (this.monacoModelReferences < 0) {
@@ -104,6 +106,10 @@ export class TypeCellCodeModel extends Disposable implements CodeModel {
         "releaseMonacoModel no more references, but we're not disposing yet"
       );
     }
+  }
+
+  public getCompiledJavascriptCode() {
+    return compile(this);
   }
 
   public dispose() {

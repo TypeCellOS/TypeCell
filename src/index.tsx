@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import * as reo from "react-error-overlay";
+import "@atlaskit/css-reset/dist/bundle.css";
 import "./index.css";
 import MatrixApp from "./MatrixApp";
 import reportWebVitals from "./reportWebVitals";
@@ -11,7 +12,6 @@ if (process.env.NODE_ENV === "development") {
   // We make use of React Error Boundaries to catch exceptions during rendering of
   // user-defined react components. It's annoying (and slow) to get the React error overlay
   // while editing TypeCell cells
-
   // Note that this breaks hot reloading
   (reo as any).stopReportingRuntimeErrors();
 }

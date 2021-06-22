@@ -1,11 +1,16 @@
 import { OrderedList } from "@tiptap/extension-ordered-list";
 import multipleLineMarkdownRuleBuilder from "./markdownMultipleLines";
 
+/**
+ * Configure OrderedList for markdown(1. or 2. etc.) parsing
+ */
 const MarkdownOrderedList = OrderedList.extend({
   addPasteRules() {
     return [
       multipleLineMarkdownRuleBuilder(
         "mdOrderedList",
+        // This merge function maps each fragmented text into a ListItem node
+        // the entire list is converted into a OrderedList node
         (editor, accumulatedText) => {
           const items = accumulatedText.map((listContent) => {
             const paragraphText = editor.schema.text(listContent);

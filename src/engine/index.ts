@@ -1,7 +1,6 @@
-import { CodeModel } from "./CodeModel";
 import { createCellEvaluator } from "./CellEvaluator";
+import { CodeModel } from "./CodeModel";
 import { createContext, TypeCellContext } from "./context";
-import { compile } from "./compilers/MonacoCompiler";
 
 /**
  * The engine automatically runs models registered to it.
@@ -14,7 +13,7 @@ import { compile } from "./compilers/MonacoCompiler";
 export class Engine<T extends CodeModel> {
   private disposed = false;
   private disposers: Array<() => void> = [];
-  public readonly observableContext = createContext({} as any);
+  public readonly observableContext = createContext<any>({} as any);
   private readonly registeredModels = new Set<T>();
 
   private readonly evaluatorCache = new Map<
@@ -98,7 +97,7 @@ export class Engine<T extends CodeModel> {
 
   private async evaluateUpdate(
     model: T,
-    typecellContext: TypeCellContext,
+    typecellContext: TypeCellContext<any>,
     resolveImport: (module: string) => Promise<any>,
     onOutput: (model: T, output: any) => void
   ) {
@@ -115,7 +114,7 @@ export class Engine<T extends CodeModel> {
       );
     }
     const evaluator = this.evaluatorCache.get(model)!;
-    let code = await compile(model);
+    let code = await model.getCompiledJavascriptCode();
     await evaluator.evaluate(code);
   }
 }

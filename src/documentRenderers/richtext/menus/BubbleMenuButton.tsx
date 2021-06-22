@@ -40,6 +40,10 @@ const BubbleMenuButton = (props: MenuButtonProps) => {
   const markName = props.styleDetails.markName;
   let isButtonSelected = () => {
     if (props.editor && markName) {
+      if (markName === "comment") {
+        // Always false as it should be possible to add overlapping comments.
+        return false;
+      }
       return props.editor.isActive(markName);
     } else return false;
   };

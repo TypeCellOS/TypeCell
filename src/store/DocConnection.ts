@@ -219,7 +219,10 @@ export class DocConnection extends Disposable {
     );
   }
 
-  public static async create(id: string | { owner: string; document: string }) {
+  public static async create(
+    id: string | { owner: string; document: string },
+    offline = false
+  ) {
     const identifier = tryParseIdentifier(id);
 
     if (typeof identifier === "string") {
@@ -229,10 +232,15 @@ export class DocConnection extends Disposable {
     if (await existsLocally(identifier.id)) {
       return "already-exists";
     }
-    const remoteResult = await createMatrixDocument(
-      identifier.owner,
-      identifier.id
-    );
+
+    let remoteResult: any = "offline"; // TODO: fix :any
+
+    if (!offline) {
+      remoteResult = await createMatrixDocument(
+        identifier.owner,
+        identifier.id
+      );
+    }
 
     if (remoteResult === "offline" || remoteResult === "ok") {
       // TODO: add to pending if "offline"

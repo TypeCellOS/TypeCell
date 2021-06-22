@@ -14,7 +14,7 @@ import OrderedListIcon from "remixicon-react/ListOrderedIcon";
 import QuoteIcon from "remixicon-react/DoubleQuotesRIcon";
 import SeparatorIcon from "remixicon-react/SeparatorIcon";
 import TableIcon from "remixicon-react/TableLineIcon";
-import { v4 as uuidv4 } from "uuid";
+import uniqueId from "../../../../util/uniqueId";
 
 const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 1 heading
@@ -24,7 +24,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 1,
-        "block-id": uuidv4(),
+        "block-id": uniqueId(),
       });
 
       editor
@@ -49,7 +49,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 2,
-        "block-id": uuidv4(),
+        "block-id": uniqueId(),
       });
 
       editor
@@ -74,7 +74,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 3,
-        "block-id": uuidv4(),
+        "block-id": uniqueId(),
       });
 
       editor
@@ -99,7 +99,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 4,
-        "block-id": uuidv4(),
+        "block-id": uniqueId(),
       });
 
       editor
@@ -124,7 +124,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 5,
-        "block-id": uuidv4(),
+        "block-id": uniqueId(),
       });
 
       editor
@@ -149,7 +149,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("heading", {
         level: 6,
-        "block-id": uuidv4(),
+        "block-id": uniqueId(),
       });
 
       editor
@@ -172,7 +172,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     "Paragraph",
     CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
-      const node = editor.schema.node("paragraph", { "block-id": uuidv4() });
+      const node = editor.schema.node("paragraph", { "block-id": uniqueId() });
 
       editor
         .chain()
@@ -194,7 +194,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node(
         "typecell",
-        { "block-id": uuidv4() },
+        { "block-id": uniqueId() },
         editor.schema.text("// Enter code here :)")
       );
 
@@ -217,7 +217,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     "Code Block",
     CommandGroup.CODE,
     (editor, range) => {
-      const node = editor.schema.node("codeBlock", { "block-id": uuidv4() });
+      const node = editor.schema.node("codeBlock", { "block-id": uniqueId() });
 
       editor
         .chain()
@@ -241,12 +241,12 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       const paragraph = editor.schema.node("paragraph");
       const listItem = editor.schema.node(
         "listItem",
-        { "block-id": uuidv4() },
+        { "block-id": uniqueId() },
         paragraph
       );
       const node = editor.schema.node(
         "bulletList",
-        { "block-id": uuidv4() },
+        { "block-id": uniqueId() },
         listItem
       );
 
@@ -272,12 +272,12 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       const paragraph = editor.schema.node("paragraph");
       const listItem = editor.schema.node(
         "listItem",
-        { "block-id": uuidv4() },
+        { "block-id": uniqueId() },
         paragraph
       );
       const node = editor.schema.node(
         "orderedList",
-        { "block-id": uuidv4() },
+        { "block-id": uniqueId() },
         listItem
       );
 
@@ -303,7 +303,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       const paragraph = editor.schema.node("paragraph");
       const node = editor.schema.node(
         "blockquote",
-        { "block-id": uuidv4() },
+        { "block-id": uniqueId() },
         paragraph
       );
 
@@ -328,7 +328,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     CommandGroup.BASIC_BLOCKS,
     (editor, range) => {
       const node = editor.schema.node("horizontalRule", {
-        "block-id": uuidv4(),
+        "block-id": uniqueId(),
       });
 
       // insert horizontal rule, create a new block after the horizontal rule if applicable
