@@ -57,12 +57,12 @@ context("Slash-command menu integration tests", () => {
   it("Should create headings properly", () => {
     const headings = ["h1", "h2", "h3", "h4", "h5", "h6"];
 
-    for (const heading of headings) {
+    headings.forEach((heading) => {
       // Type command in trailing paragraph and press enter
       clickLastBlock().type(`/${heading}{enter}`);
 
       // Check whether the appropriate heading element exists in the second to last block
       getNthBlock(-1).get(heading).should("exist");
-    }
+    });
   });
 });
