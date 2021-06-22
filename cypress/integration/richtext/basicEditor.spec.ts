@@ -3,10 +3,10 @@
 import { getFirstBlock, goOffline } from "./utils";
 
 context("Basic editor interaction", () => {
-  before(() => goOffline());
+  // before(() => goOffline());
 
   beforeEach(() => {
-    cy.visit("localhost:3000/@nzhlebinkov/test");
+    cy.visit("localhost:3000/@whatever/whatever?test");
     cy.on("uncaught:exception", () => {
       return false;
     });
