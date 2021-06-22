@@ -103,19 +103,19 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     };
 
     // TODO: remove placeholder
-    let username: string | undefined = "";
+    let usernameOrEmail: string | undefined = "";
     let phoneCountry: string | undefined;
     let phoneNumber: string | undefined;
 
     switch (login) {
       case LoginField.MatrixId:
-        username = data.username;
+        usernameOrEmail = data.username;
         if (error.username !== undefined || error.password !== undefined) {
           return error;
         }
         break;
       case LoginField.Email:
-        username = data.email;
+        usernameOrEmail = data.email;
         if (error.email !== undefined || error.password !== undefined) {
           return error;
         }
@@ -128,7 +128,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     }
 
     this.props.onSubmit?.(
-      data.username!,
+      usernameOrEmail!,
       phoneCountry,
       phoneNumber,
       data.password!

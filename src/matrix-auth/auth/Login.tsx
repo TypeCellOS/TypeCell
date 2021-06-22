@@ -270,6 +270,7 @@ export default class LoginComponent extends React.PureComponent<
     );
   };
 
+  // TODO (maybe later): restore
   // onUsernameBlur = async (username: string) => {
   //   const doWellknownLookup = username[0] === "@";
   //   this.setState({
@@ -598,17 +599,17 @@ export default class LoginComponent extends React.PureComponent<
       );
     }
 
-    let register;
+    let footer;
     if (this.props.isSyncing || this.state.busyLoggingIn) {
-      register = (
+      footer = (
         <Fragment>
-          {/* <Spinner />
+          {/* TODO <Spinner />
           {this.props.isSyncing ? "Syncing..." : "Signing In..."} */}
         </Fragment>
       );
       // } else if (SettingsStore.getValue(UIFeature.Registration)) {
     } else {
-      register = (
+      footer = (
         <Button
           appearance="subtle"
           onClick={(e, analyticsEvent) => this.onTryRegisterClick(e)}
@@ -649,7 +650,7 @@ export default class LoginComponent extends React.PureComponent<
             {errorTextSection}
             <AuthBodyContextWrapper>
               {this.renderLoginComponentForFlows()}
-              <ExtraContextWrapper>{register}</ExtraContextWrapper>
+              <ExtraContextWrapper>{footer}</ExtraContextWrapper>
             </AuthBodyContextWrapper>
             <AuthFooter />
           </Main>
