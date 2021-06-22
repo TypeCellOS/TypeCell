@@ -94,12 +94,6 @@ export default class RegistrationForm extends React.PureComponent<
   private onSubmit = (data: RegistrationFormData) => {
     if (!this.props.canSubmit) return;
 
-    // This is the second check for equality, because there is a current
-    // bug where the first check does not work.
-    if (data.password !== data.confirmPassword) {
-      return { confirmPassword: "Passwords don't match" };
-    }
-
     this.doSubmit(data);
   };
 
@@ -264,7 +258,7 @@ export default class RegistrationForm extends React.PureComponent<
 
     return (
       <Form<RegistrationFormData> onSubmit={this.onSubmit}>
-        {({ formProps, getState }) => (
+        {({ formProps }) => (
           <form {...formProps}>
             {/* <FormHeader title="Register" /> */}
             {this.renderUsername()}
