@@ -63,7 +63,7 @@ class PassphraseField extends PureComponent<IProps> {
         type="password"
         name="password"
         autoComplete="new-password"
-        label="password"
+        label="Password"
         onValidate={this.validate}
         showValidMsg
         showErrorMsg
