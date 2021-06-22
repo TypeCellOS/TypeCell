@@ -162,7 +162,7 @@ export class DocConnection extends Disposable {
         return;
       }
 
-      if (!readonly) {
+      if (!readonly && offline !== "local-only") {
         await new Promise<void>((resolve, reject) => {
           try {
             // TODO: add user id to indexeddb id?
@@ -186,7 +186,7 @@ export class DocConnection extends Disposable {
       });
     };
 
-    if (alreadyLocal || offline === "offline") {
+    if (alreadyLocal || offline) {
       // For alreadyLocal,
       // we await here to first load indexeddb, and then later sync with remote providers
       // This way, when we set up MatrixProvider, we also have an initial state
