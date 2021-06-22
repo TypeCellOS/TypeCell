@@ -745,6 +745,7 @@ export default class Registration extends React.Component<IProps, IState> {
     }
 
     return (
+      // TODO: use manual components instead of PageLayout/etc.
       <PageLayout>
         <Banner isFixed={false} height={100}>
           <AuthHeader />

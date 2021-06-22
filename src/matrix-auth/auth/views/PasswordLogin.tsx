@@ -94,6 +94,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
       usernameOrEmail = data.email ? data.email : "";
     }
 
+    // TODO: phone signin has yet to be implemented
     let phoneCountry: string | undefined;
     let phoneNumber: string | undefined;
     const password = data.password ? data.password : "";
@@ -119,7 +120,6 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
   };
 
   private onEmailValidate = (value?: string) => {
-    // TODO: add "looks valid" functionality
     if (!value) {
       return { error: "Enter e-mail" };
     } else if (!looksValidEmail(value)) {
@@ -148,17 +148,11 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
         classes.error = !!this.props.loginIncorrect;
         return (
           <Field
-            className={classNames(classes)}
-            name="email" // make it a little easier for browser's remember-password
+            name="email"
             type="text"
             label="Email"
             placeholder="joe@example.com"
-            //onChange={this.onUsernameChanged}
-            //onFocus={this.onUsernameFocus}
-            //onBlur={this.onUsernameBlur}
             disabled={this.props.disableSubmit}
-            // autoFocus={autoFocus}
-            // onValidate={this.onEmailValidate}
             isRequired
             showErrorMsg
             onValidate={this.onEmailValidate}
@@ -182,6 +176,8 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             ref={(field) => (this[LoginField.MatrixId] = field)}
           />
         );
+
+      // TODO: Phone signin has yet to be implemented
       case LoginField.Phone: {
         // classes.error = !!this.props.loginIncorrect && !this.props.phoneNumber;
         classes.error = !!this.props.loginIncorrect;
@@ -197,7 +193,6 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
 
         return (
           <Field
-            className={classNames(classes)}
             name="phoneNumber"
             type="text"
             label="Phone"

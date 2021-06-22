@@ -641,6 +641,7 @@ export default class LoginComponent extends React.PureComponent<
     };
 
     return (
+      // TODO: use manual components instead of PageLayout/Banner/etc.
       <PageLayout>
         <Banner isFixed={false} height={100}>
           <AuthHeader />

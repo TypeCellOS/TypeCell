@@ -105,7 +105,6 @@ export default class RegistrationForm extends React.PureComponent<
   }
 
   private onPasswordConfirmValidate = (value?: string) => {
-    console.log("validate confirmPassword value is ", value);
     if (
       value &&
       value.length &&
@@ -167,6 +166,7 @@ export default class RegistrationForm extends React.PureComponent<
     // return true;
   }
 
+  // TODO: email for registration has yet to be implemented
   private renderEmail() {
     if (!this.showEmail()) {
       return null;

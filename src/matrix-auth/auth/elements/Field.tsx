@@ -166,19 +166,6 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
                     inputProps_.onChange?.(e as any);
                   }}
                 />
-                {/* {this.props.needsValidation && (
-                  <Fragment>
-                    {this.state.progress !== undefined && (
-                      <div style={{ marginTop: "6px" }}>
-                        <SuccessProgressBar value={this.state.progress} />
-                      </div>
-                    )}
-                    {error && <ErrorMessage>{error}</ErrorMessage>}
-                    {valid && (
-                      <ValidMessage>{this.props.validMessage!}</ValidMessage>
-                    )}
-                  </Fragment>
-                )} */}
                 {this.state.progress !== undefined && (
                   <div style={{ marginTop: "6px" }}>
                     <SuccessProgressBar value={this.state.progress} />
