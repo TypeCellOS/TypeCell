@@ -30,10 +30,14 @@ import { messageForResourceLimitError } from "./util/messages";
 import AuthBodyContextWrapper from "./views/AuthBodyContextWrapper";
 import AuthHeader from "./views/AuthHeader";
 import RegistrationForm from "./views/RegistrationForm";
+import ErrorSectionContextWrapper from "./views/ErrorSectionContextWrapper";
 import { PageLayout, Main, Content, Banner } from "@atlaskit/page-layout";
-import PageHeader from "@atlaskit/page-header";
 import Button from "@atlaskit/button";
 import { HelperMessage } from "@atlaskit/form";
+import ErrorIcon from "@atlaskit/icon/glyph/error";
+import { R400 } from "@atlaskit/theme/colors";
+import Flag from "@atlaskit/flag";
+import AuthFooter from "./views/AuthFooter";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -546,11 +550,6 @@ export default class Registration extends React.Component<IProps, IState> {
         <React.Fragment>
           {ssoSection}
           <RegistrationForm
-            defaultUsername={this.state.formVals.username}
-            defaultEmail={this.state.formVals.email}
-            defaultPhoneCountry={this.state.formVals.phoneCountry}
-            defaultPhoneNumber={this.state.formVals.phoneNumber}
-            defaultPassword={this.state.formVals.password}
             onRegisterClick={this.onFormSubmit}
             flows={this.state.flows}
             serverConfig={this.props.serverConfig}
@@ -602,10 +601,20 @@ export default class Registration extends React.Component<IProps, IState> {
       );
     };
 
-    let errorText;
-    const err = this.state.errorText;
-    if (err) {
-      errorText = <div className="mx_Login_error">{err}</div>;
+    let errorTextSection;
+    const errorText = this.state.errorText;
+    if (errorText) {
+      errorTextSection = (
+        <ErrorSectionContextWrapper>
+          <Flag
+            appearance="error"
+            icon={<ErrorIcon label="Error" secondaryColor={R400} />}
+            id="error"
+            key="error"
+            title={errorText}
+          />
+        </ErrorSectionContextWrapper>
+      );
     }
 
     let serverDeadSection;
@@ -636,7 +645,7 @@ export default class Registration extends React.Component<IProps, IState> {
         <SignInButtonWrapper>
           <Button
             appearance="subtle"
-            onClick={(e, analyticsEvent) => this.onLoginClick(e)}
+            onClick={(e, _) => this.onLoginClick(e)}
             href="#">
             Sign in
           </Button>
@@ -712,7 +721,6 @@ export default class Registration extends React.Component<IProps, IState> {
       body = (
         <div>
           {/* <PageHeader>Create account</PageHeader> */}
-          {errorText}
           {serverDeadSection}
           {/* <ServerPicker
             title={"Host account on"}
@@ -733,12 +741,14 @@ export default class Registration extends React.Component<IProps, IState> {
 
     return (
       <PageLayout>
-        <Banner height={100}>
+        <Banner isFixed={false} height={100}>
           <AuthHeader />
         </Banner>
         <Content>
           <Main width={650}>
+            {errorTextSection}
             <AuthBodyContextWrapper>{body}</AuthBodyContextWrapper>
+            <AuthFooter />
           </Main>
         </Content>
       </PageLayout>

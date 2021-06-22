@@ -31,6 +31,10 @@ import { ErrorMessage, HelperMessage } from "@atlaskit/form";
 import Button from "@atlaskit/button";
 import Spinner from "@atlaskit/spinner";
 import PageHeader from "@atlaskit/page-header";
+import ErrorSectionContextWrapper from "./views/ErrorSectionContextWrapper";
+import ErrorIcon from "@atlaskit/icon/glyph/error";
+import { R400 } from "@atlaskit/theme/colors";
+import Flag from "@atlaskit/flag";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -266,69 +270,55 @@ export default class LoginComponent extends React.PureComponent<
     );
   };
 
-  onUsernameChanged = (username: string) => {
-    this.setState({ username: username });
-  };
+  // onUsernameBlur = async (username: string) => {
+  //   const doWellknownLookup = username[0] === "@";
+  //   this.setState({
+  //     username: username,
+  //     busy: doWellknownLookup,
+  //     errorText: null,
+  //     canTryLogin: true,
+  //   });
+  //   if (doWellknownLookup) {
+  //     const serverName = username.split(":").slice(1).join(":");
+  //     try {
+  //       const result = await AutoDiscoveryUtils.validateServerName(serverName);
+  //       this.props.onServerConfigChange(result);
+  //       // We'd like to rely on new props coming in via `onServerConfigChange`
+  //       // so that we know the servers have definitely updated before clearing
+  //       // the busy state. In the case of a full MXID that resolves to the same
+  //       // HS as Element's default HS though, there may not be any server change.
+  //       // To avoid this trap, we clear busy here. For cases where the server
+  //       // actually has changed, `initLoginLogic` will be called and manages
+  //       // busy state for its own liveness check.
+  //       this.setState({
+  //         busy: false,
+  //       });
+  //     } catch (e) {
+  //       console.error(
+  //         "Problem parsing URL or unhandled error doing .well-known discovery:",
+  //         e
+  //       );
 
-  onUsernameBlur = async (username: string) => {
-    const doWellknownLookup = username[0] === "@";
-    this.setState({
-      username: username,
-      busy: doWellknownLookup,
-      errorText: null,
-      canTryLogin: true,
-    });
-    if (doWellknownLookup) {
-      const serverName = username.split(":").slice(1).join(":");
-      try {
-        const result = await AutoDiscoveryUtils.validateServerName(serverName);
-        this.props.onServerConfigChange(result);
-        // We'd like to rely on new props coming in via `onServerConfigChange`
-        // so that we know the servers have definitely updated before clearing
-        // the busy state. In the case of a full MXID that resolves to the same
-        // HS as Element's default HS though, there may not be any server change.
-        // To avoid this trap, we clear busy here. For cases where the server
-        // actually has changed, `initLoginLogic` will be called and manages
-        // busy state for its own liveness check.
-        this.setState({
-          busy: false,
-        });
-      } catch (e) {
-        console.error(
-          "Problem parsing URL or unhandled error doing .well-known discovery:",
-          e
-        );
+  //       let message = "Failed to perform homeserver discovery";
+  //       if (e.translatedMessage) {
+  //         message = e.translatedMessage;
+  //       }
 
-        let message = "Failed to perform homeserver discovery";
-        if (e.translatedMessage) {
-          message = e.translatedMessage;
-        }
+  //       let errorText: ReactNode = message;
+  //       let discoveryState = {};
+  //       if (AutoDiscoveryUtils.isLivelinessError(e)) {
+  //         errorText = this.state.errorText;
+  //         discoveryState = AutoDiscoveryUtils.authComponentStateForError(e);
+  //       }
 
-        let errorText: ReactNode = message;
-        let discoveryState = {};
-        if (AutoDiscoveryUtils.isLivelinessError(e)) {
-          errorText = this.state.errorText;
-          discoveryState = AutoDiscoveryUtils.authComponentStateForError(e);
-        }
-
-        this.setState({
-          busy: false,
-          errorText,
-          ...discoveryState,
-        });
-      }
-    }
-  };
-
-  onPhoneCountryChanged = (phoneCountry: string) => {
-    this.setState({ phoneCountry: phoneCountry });
-  };
-
-  onPhoneNumberChanged = (phoneNumber: string) => {
-    this.setState({
-      phoneNumber: phoneNumber,
-    });
-  };
+  //       this.setState({
+  //         busy: false,
+  //         errorText,
+  //         ...discoveryState,
+  //       });
+  //     }
+  //   }
+  // };
 
   onRegisterClick = (ev: React.MouseEvent<HTMLElement>) => {
     ev.preventDefault();
@@ -536,13 +526,13 @@ export default class LoginComponent extends React.PureComponent<
     return (
       <PasswordLogin
         onSubmit={this.onPasswordLogin}
-        username={this.state.username}
-        phoneCountry={this.state.phoneCountry}
-        phoneNumber={this.state.phoneNumber}
-        onUsernameChanged={this.onUsernameChanged}
-        onUsernameBlur={this.onUsernameBlur}
-        onPhoneCountryChanged={this.onPhoneCountryChanged}
-        onPhoneNumberChanged={this.onPhoneNumberChanged}
+        // username={this.state.username}
+        // phoneCountry={this.state.phoneCountry}
+        // phoneNumber={this.state.phoneNumber}
+        // onUsernameChanged={this.onUsernameChanged}
+        // onUsernameBlur={this.onUsernameBlur}
+        // onPhoneCountryChanged={this.onPhoneCountryChanged}
+        // onPhoneNumberChanged={this.onPhoneNumberChanged}
         onForgotPasswordClick={this.props.onForgotPasswordClick}
         loginIncorrect={this.state.loginIncorrect}
         serverConfig={this.props.serverConfig}
@@ -581,19 +571,18 @@ export default class LoginComponent extends React.PureComponent<
 
     const errorText = this.state.errorText;
 
-    //let errorTextSection: JSX.Element;
     let errorTextSection;
     if (errorText) {
-      // errorTextSection = <div className="mx_Login_error">{errorText}</div>;
       errorTextSection = (
-        // <Flag
-        //   appearance="error"
-        //   icon={<ErrorIcon label="Error" secondaryColor={R400} />}
-        //   id="error"
-        //   key="error"
-        //   title={errorText}
-        // />
-        <ErrorMessage>{errorText}</ErrorMessage>
+        <ErrorSectionContextWrapper>
+          <Flag
+            appearance="error"
+            icon={<ErrorIcon label="Error" secondaryColor={R400} />}
+            id="error"
+            key="error"
+            title={errorText}
+          />
+        </ErrorSectionContextWrapper>
       );
     }
 
@@ -629,8 +618,6 @@ export default class LoginComponent extends React.PureComponent<
       );
     }
 
-    // UI components
-
     const ExtraContextWrapper = ({
       children,
     }: {
@@ -639,9 +626,7 @@ export default class LoginComponent extends React.PureComponent<
       return (
         <div
           style={{
-            // margin: "auto",
             position: "absolute",
-            // backgroundColor: "grey",
             display: "inline-block",
             width: "76%",
             height: "36px",
@@ -654,57 +639,17 @@ export default class LoginComponent extends React.PureComponent<
       );
     };
 
-    const ErrorTextSectionWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => {
-      return (
-        <div
-          style={{
-            float: "right",
-            backgroundColor: "light-grey",
-            padding: "4px 8px 0 0",
-          }}>
-          {children}
-        </div>
-      );
-    };
-
-    const Footer = () => {
-      return (
-        <div
-          style={{
-            position: "absolute",
-            left: "50%",
-            transform: "translateX(-50%)",
-          }}>
-          <HelperMessage>Powered by Matrix</HelperMessage>
-        </div>
-        // <a href="https://matrix.org" target="_blank" rel="noreferrer noopener">
-        //   "powered by Matrix"
-        // </a>
-      );
-    };
-
     return (
-      // TODO: change background color with style={{ BackgroundColor: N10 }}
       <PageLayout>
-        <Banner height={100}>
+        <Banner isFixed={false} height={100}>
           <AuthHeader />
         </Banner>
         <Content>
           <Main width={650}>
+            {errorTextSection}
             <AuthBodyContextWrapper>
-              {/* <PageHeader disableTitleStyles>Sign in</PageHeader> */}
-              {/* {loader} */}
               {this.renderLoginComponentForFlows()}
-              <ExtraContextWrapper>
-                {register}
-                <ErrorTextSectionWrapper>
-                  {errorTextSection}
-                </ErrorTextSectionWrapper>
-              </ExtraContextWrapper>
+              <ExtraContextWrapper>{register}</ExtraContextWrapper>
             </AuthBodyContextWrapper>
             <AuthFooter />
           </Main>

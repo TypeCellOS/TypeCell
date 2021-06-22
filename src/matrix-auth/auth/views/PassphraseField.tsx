@@ -15,38 +15,17 @@ limitations under the License.
 */
 
 import React, { PureComponent, RefCallback, RefObject } from "react";
-import classNames from "classnames";
-import type zxcvbn from "zxcvbn";
 
-import withValidation, { IFieldState } from "../elements/Validation";
 import Field, { IInputProps, IValidationResult } from "../elements/Field";
 import { scorePassword } from "../util/PasswordScorer";
 
 interface IProps extends Omit<IInputProps, "onValidate"> {
   autoFocus?: boolean;
-  // id?: string;
-  // className?: string;
   minScore: 0 | 1 | 2 | 3 | 4;
-  value: string;
   fieldRef?: RefCallback<Field> | RefObject<Field>;
-
-  label?: string;
-  labelEnterPassword: string;
-  labelStrongPassword: string;
-  labelAllowedButUnsafe: string;
-
-  // onChange(ev: React.FormEvent<HTMLElement>): void;
-  // onValidate(result: string L| undefined): void;
 }
 
 class PassphraseField extends PureComponent<IProps> {
-  static defaultProps = {
-    label: "Password",
-    labelEnterPassword: "Enter password",
-    labelStrongPassword: "Nice, strong password!",
-    labelAllowedButUnsafe: "Password is allowed, but unsafe",
-  };
-
   public readonly validate = (value?: string) => {
     if (!value)
       return {
@@ -79,7 +58,6 @@ class PassphraseField extends PureComponent<IProps> {
   onValidate = (value?: string) => {
     console.log("arrived at validate of PassphraseField");
     const result = this.validate(value);
-    // this.props.onValidate(result);
     return result;
   };
 
@@ -91,8 +69,7 @@ class PassphraseField extends PureComponent<IProps> {
         name="password"
         key="password"
         autoComplete="new-password"
-        label={this.props.label}
-        // onChange={this.props.onChange}
+        label="password"
         onValidate={this.onValidate}
         needsValidation
         validMessage="Nice, strong password!"
