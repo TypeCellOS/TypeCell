@@ -26,7 +26,9 @@ import Field from "../elements/Field";
 import { ValidatedServerConfig } from "../util/AutoDiscoveryUtils";
 
 import Form, { FormHeader } from "@atlaskit/form";
-import Button from "@atlaskit/button";
+
+import Button, { LoadingButton } from "@atlaskit/button";
+import { looksValidEmail } from "../util/email";
 // For validating phone numbers without country codes
 const PHONE_NUMBER_REGEX = /^[0-9()\-\s]*$/;
 
@@ -47,7 +49,6 @@ interface IProps {
 
 interface IState {
   loginType: LoginField.Email | LoginField.MatrixId | LoginField.Phone;
-  password: "";
 }
 
 enum LoginField {
@@ -78,7 +79,6 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     super(props);
     this.state = {
       loginType: LoginField.MatrixId,
-      password: "",
     };
   }
 
@@ -89,54 +89,23 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
   };
 
   private onSubmitForm = async (data: LoginFormData) => {
+    let usernameOrEmail: string = "";
+
     const login = this.state.loginType;
 
-    // TODO: add phonenumber empty case
-    const error = {
-      username:
-        login === LoginField.MatrixId && data.username
-          ? undefined
-          : "Enter a username",
-      email:
-        login === LoginField.Email && data.email ? undefined : "Enter an email",
-      password: data.password ? undefined : "Enter a password",
-    };
-
-    // TODO: remove placeholder
-    let usernameOrEmail: string | undefined = "";
-    let phoneCountry: string | undefined;
-    let phoneNumber: string | undefined;
-
-    switch (login) {
-      case LoginField.MatrixId:
-        usernameOrEmail = data.username;
-        if (error.username !== undefined || error.password !== undefined) {
-          return error;
-        }
-        break;
-      case LoginField.Email:
-        usernameOrEmail = data.email;
-        if (error.email !== undefined || error.password !== undefined) {
-          return error;
-        }
-        break;
-      default:
-        if (error.password !== undefined) {
-          return error;
-        }
-        break;
+    if (login === LoginField.MatrixId) {
+      usernameOrEmail = data.username ? data.username : "";
+    } else if (login === LoginField.Email) {
+      usernameOrEmail = data.email ? data.email : "";
     }
 
-    this.props.onSubmit?.(
-      usernameOrEmail!,
-      phoneCountry,
-      phoneNumber,
-      data.password!
-    );
+    let phoneCountry: string | undefined;
+    let phoneNumber: string | undefined;
+    const password = data.password ? data.password : "";
+
+    this.props.onSubmit?.(usernameOrEmail, phoneCountry, phoneNumber, password);
   };
 
-  // TODO: use the Atlaskit Form getState instead of onchange.
-  // Atlaskit is uncontrolled so onChange is better not to be used.
   private onLoginTypeChange = (data: any) => {
     const loginType = data.value;
     this.setState({ loginType });
@@ -144,6 +113,33 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     // CountlyAnalytics.instance.track("onboarding_login_type_changed", {
     //   loginType,
     // });
+  };
+
+  private onUsernameValidate = (value?: string) => {
+    if (!value) {
+      return { error: "Enter username" };
+    } else {
+      return {};
+    }
+  };
+
+  private onEmailValidate = (value?: string) => {
+    // TODO: add "looks valid" functionality
+    if (!value) {
+      return { error: "Enter e-mail" };
+    } else if (!looksValidEmail(value)) {
+      return { error: "Doesn't look like a valid email address" };
+    } else {
+      return {};
+    }
+  };
+
+  private onPasswordValidate = (value?: string) => {
+    if (!value) {
+      return { error: "Enter password" };
+    } else {
+      return {};
+    }
   };
 
   private renderLoginField(loginType: IState["loginType"]) {
@@ -159,7 +155,6 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
           <Field
             className={classNames(classes)}
             name="email" // make it a little easier for browser's remember-password
-            key="email"
             type="text"
             label="Email"
             placeholder="joe@example.com"
@@ -170,6 +165,8 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             // autoFocus={autoFocus}
             // onValidate={this.onEmailValidate}
             isRequired
+            showErrorMsg
+            onValidate={this.onEmailValidate}
             ref={(field) => (this[LoginField.Email] = field)}
           />
         );
@@ -179,13 +176,14 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
         return (
           <Field
             name="username" // make it a little easier for browser's remember-password
-            key="usernameInput"
             type="text"
             label="Username"
             placeholder={"Username".toLocaleLowerCase()}
             disabled={this.props.disableSubmit}
+            onValidate={this.onUsernameValidate}
             autoFocus={true}
             isRequired
+            showErrorMsg
             ref={(field) => (this[LoginField.MatrixId] = field)}
           />
         );
@@ -206,7 +204,6 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
           <Field
             className={classNames(classes)}
             name="phoneNumber"
-            key="phoneinput"
             type="text"
             label="Phone"
             // prefixComponent={phoneCountry}
@@ -243,7 +240,6 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
       loginType = (
         <div className="mx_Login_type_container">
           <Field
-            key="select"
             element="select"
             name="select"
             value={this.state.loginType}
@@ -274,14 +270,15 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             <Field
               type="password"
               name="password"
-              key="password"
               label="Password"
-              value={this.state.password}
               disabled={this.props.disableSubmit}
+              showErrorMsg
+              onValidate={this.onPasswordValidate}
               ref={(field) => (this[LoginField.Password] = field)}
             />
             {forgotPasswordJsx}
-            {!this.props.busy && (
+            {this.props.busy && (
+              // <LoadingButton isLoading={this.props.busy}>
               <Button
                 style={{ margin: "16px 0 0 0" }}
                 type="submit"
@@ -289,6 +286,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
                 isDisabled={this.props.disableSubmit}>
                 Sign in
               </Button>
+              // </LoadingButton>
             )}
           </form>
         )}

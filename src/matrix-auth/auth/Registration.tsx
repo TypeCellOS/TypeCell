@@ -550,6 +550,11 @@ export default class Registration extends React.Component<IProps, IState> {
         <React.Fragment>
           {ssoSection}
           <RegistrationForm
+            defaultUsername={this.state.formVals.username}
+            defaultEmail={this.state.formVals.email}
+            defaultPhoneCountry={this.state.formVals.phoneCountry}
+            defaultPhoneNumber={this.state.formVals.phoneNumber}
+            defaultPassword={this.state.formVals.password}
             onRegisterClick={this.onFormSubmit}
             flows={this.state.flows}
             serverConfig={this.props.serverConfig}

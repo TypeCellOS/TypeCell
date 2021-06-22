@@ -36,7 +36,6 @@ class PassphraseField extends PureComponent<IProps> {
     const { scorePassword } = await import("../util/PasswordScorer");
 
     const scoreResults = scorePassword(value);
-    console.log("score result is ", scoreResults?.score);
 
     if (!scoreResults) {
       throw new Error(
@@ -63,11 +62,11 @@ class PassphraseField extends PureComponent<IProps> {
         autoFocus={this.props.autoFocus}
         type="password"
         name="password"
-        key="password"
         autoComplete="new-password"
         label="password"
         onValidate={this.validate}
-        needsValidation
+        showValidMsg
+        showErrorMsg
         validMessage="Nice, strong password!"
         isRequired
         ref={this.props.fieldRef}

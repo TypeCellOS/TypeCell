@@ -36,8 +36,6 @@ function getId() {
 }
 
 interface IProps {
-  // The field's key, passed down to the AtlasKitField's name, which is used as a key by the Atlaskit Form
-  key?: string;
   // The field's ID, which binds the input and label together. Immutable.
   id?: string;
   // The field's type (when used as an <input>). Defaults to "text".
@@ -56,7 +54,8 @@ interface IProps {
     value?: string
   ) => IValidationResult | Promise<IValidationResult>;
   isRequired?: boolean;
-  needsValidation?: boolean;
+  showValidMsg?: boolean;
+  showErrorMsg?: boolean;
   helperMessage?: string;
   validMessage?: string;
   // All other props pass through to the <input>.
@@ -103,7 +102,8 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
   public static readonly defaultProps = {
     element: "input",
     type: "text",
-    needsValidation: false,
+    showValidMsg: false,
+    showErrorMsg: false,
   };
 
   constructor(props: PropShapes) {
@@ -157,7 +157,6 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     return (
       <AtlaskitField
         label={this.props.label}
-        // TODO: change "name" to "key"(somehow its always undefined when doing so)
         name={this.props.name}
         validate={this.validate}>
         {({ fieldProps, error, valid }: any) => {
@@ -173,7 +172,7 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
                     inputProps_.onChange?.(e as any);
                   }}
                 />
-                {this.props.needsValidation && (
+                {/* {this.props.needsValidation && (
                   <Fragment>
                     {this.state.progress !== undefined && (
                       <div style={{ marginTop: "6px" }}>
@@ -185,6 +184,17 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
                       <ValidMessage>{this.props.validMessage!}</ValidMessage>
                     )}
                   </Fragment>
+                )} */}
+                {this.state.progress !== undefined && (
+                  <div style={{ marginTop: "6px" }}>
+                    <SuccessProgressBar value={this.state.progress} />
+                  </div>
+                )}
+                {this.props.showValidMsg && valid && (
+                  <ValidMessage>{this.props.validMessage}</ValidMessage>
+                )}
+                {this.props.showErrorMsg && error && (
+                  <ErrorMessage>{error}</ErrorMessage>
                 )}
               </Fragment>
             );

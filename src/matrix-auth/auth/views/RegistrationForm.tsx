@@ -36,6 +36,12 @@ enum RegistrationField {
 export const PASSWORD_MIN_SCORE = 3; // safely unguessable: moderate protection from offline slow-hash scenario.
 
 interface IProps {
+  // Values pre-filled in the input boxes when the component loads
+  defaultEmail?: string;
+  defaultPhoneCountry?: string;
+  defaultPhoneNumber?: string;
+  defaultUsername?: string;
+  defaultPassword?: string;
   flows: {
     stages: string[];
   }[];
@@ -111,12 +117,12 @@ export default class RegistrationForm extends React.PureComponent<
 
   private onPasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
     const password = event.target.value;
-    console.log("setting state of password to ", password);
+    // console.log("setting state to ", password);
     this.setState({ passwordToConfirm: password });
   };
 
   private onPasswordConfirmValidate = (value?: string) => {
-    console.log("confirmPassword value is ", value);
+    // console.log("confirmPassword value is ", value);
     if (value && value.length && value === this.state.passwordToConfirm) {
       return {};
     } else {
@@ -127,6 +133,8 @@ export default class RegistrationForm extends React.PureComponent<
   private onUsernameValidate = (value?: string) => {
     if (!value) {
       return { error: "Enter username" };
+    } else if (!/^[a-z0-9_\-]+$/.test(value)) {
+      return { error: "Some characters are not allowed" };
     } else {
       return {};
     }
@@ -174,7 +182,6 @@ export default class RegistrationForm extends React.PureComponent<
 
   private renderEmail() {
     if (!this.showEmail()) {
-      console.log("failed");
       return null;
     }
     const emailPlaceholder = this.authStepIsRequired("m.login.email.identity")
@@ -205,13 +212,13 @@ export default class RegistrationForm extends React.PureComponent<
       <Field
         type="password"
         name="confirmPassword"
-        key="confirmPassword"
         label="Confirm password"
         isRequired
         onValidate={this.onPasswordConfirmValidate}
         validMessage="Password Matches"
         ref={(field) => (this[RegistrationField.PasswordConfirm] = field)}
-        needsValidation
+        showErrorMsg
+        showValidMsg
       />
     );
   }
@@ -220,16 +227,13 @@ export default class RegistrationForm extends React.PureComponent<
     return (
       <Field
         name="username"
-        key="username_input"
         type="text"
         label={"Username"}
         placeholder={"Username".toLocaleLowerCase()}
         isRequired
-        //value={this.state.username}
-        //onChange={this.onUsernameChange}
-        // temp disabled
         onValidate={this.onUsernameValidate}
         autoFocus={true}
+        showErrorMsg
         ref={(field) => (this[RegistrationField.Username] = field)}
       />
     );
