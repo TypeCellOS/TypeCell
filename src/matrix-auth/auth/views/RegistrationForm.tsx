@@ -58,10 +58,7 @@ interface IProps {
   onEditServerDetailsClick?(): void;
 }
 
-interface IState {
-  getState?: () => FormState<RegistrationFormData>;
-  passwordToConfirm: string;
-}
+interface IState {}
 
 interface RegistrationFormData {
   username?: string;
@@ -91,9 +88,7 @@ export default class RegistrationForm extends React.PureComponent<
   constructor(props: IProps) {
     super(props);
 
-    this.state = {
-      passwordToConfirm: "",
-    };
+    this.state = {};
   }
 
   private onSubmit = (data: RegistrationFormData) => {
@@ -115,15 +110,13 @@ export default class RegistrationForm extends React.PureComponent<
     this.props.onRegisterClick({ username, password });
   }
 
-  private onPasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const password = event.target.value;
-    // console.log("setting state to ", password);
-    this.setState({ passwordToConfirm: password });
-  };
-
   private onPasswordConfirmValidate = (value?: string) => {
-    // console.log("confirmPassword value is ", value);
-    if (value && value.length && value === this.state.passwordToConfirm) {
+    console.log("validate confirmPassword value is ", value);
+    if (
+      value &&
+      value.length &&
+      value === (this[RegistrationField.Password] as any).input.value
+    ) {
       return {};
     } else {
       return { error: "Passwords don't match" };
@@ -202,12 +195,11 @@ export default class RegistrationForm extends React.PureComponent<
       <PassphraseField
         minScore={PASSWORD_MIN_SCORE}
         fieldRef={(field) => (this[RegistrationField.Password] = field)}
-        onChange={this.onPasswordChange}
       />
     );
   }
 
-  renderPasswordConfirm(getState: () => FormState<RegistrationFormData>) {
+  renderPasswordConfirm() {
     return (
       <Field
         type="password"
@@ -277,7 +269,7 @@ export default class RegistrationForm extends React.PureComponent<
             {/* <FormHeader title="Register" /> */}
             {this.renderUsername()}
             {this.renderPassword()}
-            {this.renderPasswordConfirm(getState)}
+            {this.renderPasswordConfirm()}
             {this.renderEmail()}
             {/* {this.renderPhoneNumber()} */}
             {/* {emailHelperText} */}
