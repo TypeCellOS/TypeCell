@@ -14,11 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// TODO: If AtlasKit always does reliable per-field validation check
-// and doesn't do validation on the initial state of the forms(empty),
-// then consider doing this submission check in the per-field validation
-// instead.
-
 import classNames from "classnames";
 import React from "react";
 import AccessibleButton, { ButtonEvent } from "../elements/AccessibleButton";

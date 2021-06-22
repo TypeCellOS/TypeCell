@@ -126,12 +126,6 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     }
 
     const validationResult = await this.props.onValidate(value);
-    // validationResult.then((result: IValidationResult) => {
-    //   if (result.progress) {
-    //     this.setState({ progress: result.progress });
-    //   }
-    //   return result.error;
-    // });
     if (validationResult.progress !== undefined) {
       this.setState({ progress: validationResult.progress });
     }
