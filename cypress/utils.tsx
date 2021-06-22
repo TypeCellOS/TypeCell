@@ -20,13 +20,14 @@ export const goOffline = () => {
     });
 };
 
-export const getFirstBlock = () => {
-  let block = cy.get("[data-cy=block]");
-  try {
-    block.click();
-  } catch (any) {
-    cy.get("[data-cy=block]").click();
-  } finally {
-    return cy.focused();
-  } // Focuses the editor where a user can type
+export const getNthBlock = (n: number) => {
+  return cy.get("[data-cy=block]").eq(n);
+};
+
+export const getLastBlock = () => {
+  return cy.get("[data-cy=block]").last();
+};
+
+export const clickLastBlock = () => {
+  return getLastBlock().click();
 };
