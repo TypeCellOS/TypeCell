@@ -16,6 +16,7 @@ import React, {
   useState,
 } from "react";
 import { useDrag, useDrop } from "react-dnd";
+import { hideAll } from "tippy.js";
 import SideMenu from "../../menus/SideMenu";
 import mergeAttributesReact from "../../util/mergeAttributesReact";
 import { forSelectedBlocks } from "../multiselection/forSelectedBlocks";
@@ -37,6 +38,8 @@ type DnDItemType = {
 
 // Stores the currently selected blocks. Updates on drag-handle press.
 let selected: Array<DnDItemType> = [];
+
+let timer = 0;
 
 /**
  * This function creates a React component that represents a block in the editor. This is so that editor blocks can be
@@ -349,8 +352,17 @@ function Block(
       ? { "data-placeholder": placeholder, class: "is-empty" }
       : {};
 
+    const tippyHideEvent = "tippy-hide-event";
+
     return (
-      <NodeViewWrapper className={`${styles.block}`} ref={outerRef}>
+      <NodeViewWrapper
+        className={`${styles.block}`}
+        ref={outerRef}
+        // onMouseLeave={(leave: Event) => {
+        //   console.log(`mouseleave ${timer++}`);
+        //   leave.target?.dispatchEvent(new Event(tippyHideEvent));
+        // }}
+      >
         <div className={styles.inner + " inner"} ref={innerRef}>
           <div
             className={styles.handleContainer}
@@ -359,8 +371,25 @@ function Block(
             contentEditable={false}>
             <Tippy
               content={<SideMenu onDelete={onDelete} />}
-              trigger={"click"}
               placement={"left"}
+              trigger={"click"}
+              onTrigger={(instance, ev) => {
+                if (ev.target && ev.target instanceof Element) {
+                  let reactParent = ev.target;
+                  while (!reactParent.classList.contains("react-renderer")) {
+                    reactParent = reactParent.parentElement!;
+                  }
+                  reactParent = reactParent.nextElementSibling!;
+                  reactParent.addEventListener(tippyHideEvent, (hideEvent) => {
+                    instance.hide();
+                  });
+                  console.log("registering...");
+                  // reactParent.addEventListener("mouseleave", (leave) => {
+                  //   console.log(`react parent leaving: ${timer++}`);
+                  //   reactParent.dispatchEvent(new Event(tippyHideEvent));
+                  // });
+                }
+              }}
               interactive={true}>
               <div
                 className={styles.handle + (hover ? " " + styles.hover : "")}
@@ -384,7 +413,20 @@ function Block(
                   : styles.bottomIndicator)
               : ""
           }`}
-          onMouseOver={onMouseOver}
+          onMouseLeave={(e) => {
+            console.log(`leaving ${timer++}`);
+            if (e.target instanceof Element) {
+              let reactParent = e.target;
+              while (!reactParent.classList.contains("react-renderer"))
+                reactParent = reactParent.parentElement!;
+              reactParent.dispatchEvent(new Event(tippyHideEvent));
+            }
+          }}
+          onMouseOver={(e) => {
+            // console.log(`mouseover ${timer++}`);
+            // setTimeout(onMouseOver, 100);
+            onMouseOver(e);
+          }}
           ref={mouseCaptureRef}
           contentEditable={false}>
           {/* space content is needed because otherwise keyboard navigation doesn't work well */}{" "}
