@@ -55,6 +55,7 @@ test.describe("slash-command menu", () => {
 
     await firstBlock.press("Backspace");
 
+    // Wait for the fade out animation to finish
     await page.waitForTimeout(1000);
 
     expect(await page.isVisible("data-testid=suggestion-menu")).toBeFalsy();
@@ -72,6 +73,7 @@ test.describe("slash-command menu", () => {
 
     await firstBlock.type("~~~~");
 
+    // Wait for the fade out animation to finish
     await page.waitForTimeout(1000);
 
     expect(await page.isVisible("data-testid=suggestion-menu")).toBeFalsy();
@@ -96,36 +98,23 @@ test.describe("slash-command menu", () => {
       }
     }
   });
+
+  test("should create headings properly", async ({ page }) => {
+    const headings = ["h1", "h2", "h3", "h4", "h5", "h6"];
+
+    for (const heading of headings) {
+      const lastBlock = await getLastBlock(page);
+
+      // Type command in trailing paragraph and press enter
+      await lastBlock.click();
+      await lastBlock.type(`/${heading}`);
+      await lastBlock.press("Enter");
+
+      // Check whether the appropriate heading element exists in the block we typed in
+      const secondToLastBlock = await getNthBlock(page, -1);
+
+      const headingElement = await secondToLastBlock.$(heading);
+      expect(await headingElement.isVisible()).toBeTruthy();
+    }
+  });
 });
-
-// context("Slash-command menu integration tests", () => {
-
-//   it("Should filter all default commands properly", () => {
-//     cy.get("[data-cy=suggestion-menu]").should("not.exist");
-
-//     for (const commandName in defaultCommands) {
-//       const command = defaultCommands[commandName];
-
-//       // Type command
-//       clickLastBlock().type(`/${command.name}`);
-
-//       cy.get("[data-cy=selected-suggestion]").should("be.visible");
-//       cy.get("[data-cy=suggestion-menu]").contains(command.name);
-
-//       // Remove command with repeated backspaces
-//       getLastBlock().type(repeat("{backspace}", command.name.length + 1));
-//     }
-//   });
-
-//   it("Should create headings properly", () => {
-//     const headings = ["h1", "h2", "h3", "h4", "h5", "h6"];
-
-//     headings.forEach((heading) => {
-//       // Type command in trailing paragraph and press enter
-//       clickLastBlock().type(`/${heading}{enter}`);
-
-//       // Check whether the appropriate heading element exists in the second to last block
-//       getNthBlock(-1).get(heading).should("exist");
-//     });
-//   });
-// });
