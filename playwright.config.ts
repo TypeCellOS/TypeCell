@@ -6,7 +6,6 @@ const config: PlaywrightTestConfig = {
 
   // Each test is given 30 seconds
   timeout: 30000,
-  workers: 6,
 
   // Forbid test.only on CI
   //   forbidOnly: !!process.env.CI,
