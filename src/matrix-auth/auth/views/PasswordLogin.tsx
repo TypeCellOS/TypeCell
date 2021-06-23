@@ -14,13 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import classNames from "classnames";
 import React from "react";
 import AccessibleButton, { ButtonEvent } from "../elements/AccessibleButton";
-import Field from "../elements/Field";
+import Field, { IValidationResult } from "../elements/Field";
 import { ValidatedServerConfig } from "../util/AutoDiscoveryUtils";
 
-import Form, { FormHeader } from "@atlaskit/form";
+import Form from "@atlaskit/form";
 
 import Button, { LoadingButton } from "@atlaskit/button";
 import { looksValidEmail } from "../util/email";
@@ -57,12 +56,14 @@ enum LoginField {
   Password = "login_field_phone",
 }
 
-interface LoginFormData {
+// The type for the form data, represents the structure of the form,
+// and also gets passed into the submit handler of the form.
+type LoginFormData = {
   username?: string;
   email?: string;
   phoneNumber?: string;
   password?: string;
-}
+};
 
 /*
  * A pure UI component which displays a username/password form.
@@ -81,6 +82,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     };
   }
 
+  // TODO forgot password is untouched Matrix code
   private onForgotPasswordClick = (ev: ButtonEvent) => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -92,6 +94,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
 
     const login = this.state.loginType;
 
+    // set usernameOrEmail to either username or email
     if (login === LoginField.MatrixId) {
       usernameOrEmail = data.username ? data.username : "";
     } else if (login === LoginField.Email) {
@@ -101,6 +104,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     // TODO: phone signin has yet to be implemented
     let phoneCountry: string | undefined;
     let phoneNumber: string | undefined;
+
     const password = data.password ? data.password : "";
 
     this.props.onSubmit?.(usernameOrEmail, phoneCountry, phoneNumber, password);
@@ -109,11 +113,20 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
   private onLoginTypeChange = (data: any) => {
     const loginType = data.value;
     this.setState({ loginType });
-    //this.props.onUsernameChanged?.(""); // Reset because email and username use the same state
     // CountlyAnalytics.instance.track("onboarding_login_type_changed", {
     //   loginType,
     // });
   };
+
+  // Field-level validations
+  // these validation functions take the field value and should return
+  // an "error" if it is not valid, or undefined if it is valid.
+  // If ShowErrorMsg is set in the corresponding Field, the error string
+  // will be displayed when the field is invalid. Similarly, if ShowValidMsg
+  // is set in the corresponding Field, a validation message will be displayed
+  // if the field is valid. The valid message is also set in the Field props.
+  // Additionally, if a "progress"(range 0-1) is returned with the "error",
+  // a progress bar will be rendered under the field.
 
   private onUsernameValidate = (value?: string) => {
     if (!value) {
@@ -160,7 +173,6 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             disabled={this.props.disableSubmit}
             defaultValue={this.props.defaultUsernameOrEmail}
             isRequired
-            showErrorMsg
             onValidate={this.onEmailValidate}
             ref={(field) => (this[LoginField.Email] = field)}
           />
@@ -261,6 +273,11 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     }
 
     return (
+      // Renders an Atlaskit form together with many other components,
+      // mainly Atlaskit Fields. This is an uncontrolled form, but we pass
+      // many props into the Field components, while Atlaskit does most of the
+      // front-end like handling focus, blurring, validation error rendering, etc.
+      // See Atlaskits documentation for more detailed information.
       <Form<LoginFormData> onSubmit={this.onSubmitForm}>
         {({ formProps }) => (
           <form {...formProps}>
@@ -281,6 +298,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             {!this.props.busy && (
               // <LoadingButton isLoading={this.props.busy}>
               <Button
+                // TODO move styles to module
                 style={{ margin: "16px 0 0 0" }}
                 type="submit"
                 appearance="primary"

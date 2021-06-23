@@ -663,6 +663,7 @@ export default class LoginComponent extends React.PureComponent<
     //   </AuthPage>
     // );
 
+    // Renders the components that make up the login page
     return (
       <div className={styles.AuthPage}>
         <div className={styles.AuthHeader}>

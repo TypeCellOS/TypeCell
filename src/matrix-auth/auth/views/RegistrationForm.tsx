@@ -104,6 +104,16 @@ export default class RegistrationForm extends React.PureComponent<
     this.props.onRegisterClick({ username, password });
   }
 
+  // Field-level validations
+  // these validation functions take the field value and should return
+  // an "error" if it is not valid, or undefined if it is valid.
+  // If ShowErrorMsg is set in the corresponding Field, the error string
+  // will be displayed when the field is invalid. Similarly, if ShowValidMsg
+  // is set in the corresponding Field, a validation message will be displayed
+  // if the field is valid. The valid message is also set in the Field props.
+  // Additionally, if a "progress"(range 0-1) is returned with the "error",
+  // a progress bar will be rendered under the field.
+
   private onPasswordConfirmValidate = (value?: string) => {
     if (
       value &&
@@ -261,6 +271,11 @@ export default class RegistrationForm extends React.PureComponent<
     }
 
     return (
+      // Renders an Atlaskit form together with many other components,
+      // mainly Atlaskit Fields. This is an uncontrolled form, but we pass
+      // many props into the Field components, while Atlaskit does most of the
+      // front-end like handling focus, blurring, validation error rendering, etc.
+      // See Atlaskits documentation for more detailed information.
       <Form<RegistrationFormData> onSubmit={this.onSubmit}>
         {({ formProps }) => (
           <form {...formProps}>

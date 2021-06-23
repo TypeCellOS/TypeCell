@@ -25,6 +25,16 @@ interface IProps extends Omit<IInputProps, "onValidate"> {
 }
 
 class PassphraseField extends PureComponent<IProps> {
+  // Field-level validations
+  // these validation functions take the field value and should return
+  // an "error" if it is not valid, or undefined if it is valid.
+  // If ShowErrorMsg is set in the corresponding Field, the error string
+  // will be displayed when the field is invalid. Similarly, if ShowValidMsg
+  // is set in the corresponding Field, a validation message will be displayed
+  // if the field is valid. The valid message is also set in the Field props.
+  // Additionally, if a "progress"(range 0-1) is returned with the "error",
+  // a progress bar will be rendered under the field.
+
   private validate = async (value?: string) => {
     if (!value || !value.length)
       return {
