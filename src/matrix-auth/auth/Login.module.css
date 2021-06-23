@@ -1,0 +1,41 @@
+/* .AuthPage {
+} */
+
+.AuthHeader {
+  width: 100%;
+  height: 100px;
+}
+
+.AuthHeaderLogo {
+  margin: auto;
+  width: 200px;
+  height: 100%;
+  display: flex;
+}
+
+.AuthHeaderLogoSpan {
+  color: var(--N800);
+  font-size: 32px;
+  margin: auto;
+}
+
+/* .AuthBody {
+} */
+
+.AuthForm {
+  position: relative;
+  border: 1px solid;
+  border-color: var(--N40);
+  box-shadow: 0px 4px 8px rgba(9, 30, 66, 0.25),
+    0px 0px 1px rgba(9, 30, 66, 0.31);
+  border-radius: 4;
+  width: 500px;
+  margin: 16px auto;
+  padding: 16px;
+}
+
+.AuthFooter {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}

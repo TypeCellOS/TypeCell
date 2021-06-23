@@ -37,6 +37,7 @@ import ErrorSectionContextWrapper from "./views/ErrorSectionContextWrapper";
 import ErrorIcon from "@atlaskit/icon/glyph/error";
 import { R400 } from "@atlaskit/theme/colors";
 import Flag from "@atlaskit/flag";
+import styles from "./Login.module.css";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -642,26 +643,43 @@ export default class LoginComponent extends React.PureComponent<
       );
     };
 
+    // return (
+    //   // TODO: use manual components instead of PageLayout/Banner/etc.
+    //   <AuthPage>
+    //     <AuthHeader>
+    //       <AuthHeaderLogo>🌐 TypeCell</AuthHeaderLogo>
+    //     </AuthHeader>
+    //     <AuthBody>
+    //       {errorTextSection}
+    //       <AuthForm>
+    //         {this.renderLoginComponentForFlows()}
+    //         <ExtraContextWrapper>{footer}</ExtraContextWrapper>
+    //       </AuthForm>
+    //       <AuthFooter>
+    //         <HelperMessage>Powered by Matrix</HelperMessage>
+    //       </AuthFooter>
+    //     </AuthBody>
+    //   </AuthPage>
+    // );
+
     return (
-      // TODO: use manual components instead of PageLayout/Banner/etc.
-      <AuthPage>
-        {/* <Banner isFixed={false} height={100}>
-          <AuthHeaderLogo>🌐 TypeCell</AuthHeaderLogo>
-        </Banner> */}
-        <AuthHeader>
-          <AuthHeaderLogo>🌐 TypeCell</AuthHeaderLogo>
-        </AuthHeader>
-        <AuthBody>
+      <div className={styles.AuthPage}>
+        <div className={styles.AuthHeader}>
+          <div className={styles.AuthHeaderLogo}>
+            <span className={styles.AuthHeaderLogoSpan}>🌐 TypeCell</span>
+          </div>
+        </div>
+        <div className={styles.AuthBody}>
           {errorTextSection}
-          <AuthForm>
+          <div className={styles.AuthForm}>
             {this.renderLoginComponentForFlows()}
             <ExtraContextWrapper>{footer}</ExtraContextWrapper>
-          </AuthForm>
-          <AuthFooter>
-            <HelperMessage>Powered by Matrix</HelperMessage>
-          </AuthFooter>
-        </AuthBody>
-      </AuthPage>
+          </div>
+        </div>
+        <div className={styles.AuthFooter}>
+          <HelperMessage>Powered by Matrix</HelperMessage>
+        </div>
+      </div>
     );
   }
 }
