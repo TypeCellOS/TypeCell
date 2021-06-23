@@ -11,8 +11,6 @@ import LinkIcon from "remixicon-react/LinkIcon";
 import TextIcon from "remixicon-react/TextIcon";
 import { useState } from "react";
 
-import styles from "../../../menus/BubbleMenuButton.module.css";
-
 export type HyperlinkEditorMenuProps = {
   url: string;
   text: string;
