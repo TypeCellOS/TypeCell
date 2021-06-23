@@ -1,13 +1,16 @@
-import Button from "@atlaskit/button";
+import React from "react";
 import Tippy from "@tippyjs/react";
-import { Editor } from "@tiptap/react";
-import React, { useCallback, useState } from "react";
-import { HyperlinkEditMenu } from "../extensions/marks/hyperlinkMenus/HyperlinkEditMenu";
-import { ButtonStyleDetails } from "./BubbleMenuButton";
+import Button from "@atlaskit/button";
+import { RemixiconReactIconComponentType } from "remixicon-react";
+import LinkForm from "./LinkForm";
+
 import styles from "./InlineMenu.module.css";
+import LinkIcon from "remixicon-react/LinkIcon";
+import { ButtonStyleDetails } from "./BubbleMenuButton";
+import { Editor } from "@tiptap/react";
 
 export type LinkMenuButtonProps = {
-  styleDetails: ButtonStyleDetails & { markName: string };
+  styleDetails: ButtonStyleDetails;
   editor: Editor;
 };
 
@@ -17,8 +20,6 @@ export type LinkMenuButtonProps = {
  * __When adding new buttons__ create a constant with the details.
  */
 const BubbleMenuLinkButton = (props: LinkMenuButtonProps) => {
-  const [creationMenu, setCreationMenu] = useState<any>();
-
   const tooltipContent = (
     <div className={styles.buttonTooltip}>
       <div className={styles.mainText}>{props.styleDetails.mainTooltip}</div>
@@ -30,51 +31,19 @@ const BubbleMenuLinkButton = (props: LinkMenuButtonProps) => {
 
   const markName = props.styleDetails.markName;
   let isButtonSelected = () => {
-    return props.editor.isActive(markName);
+    if (props.editor && markName) {
+      return props.editor.isActive(markName);
+    } else return false;
   };
 
+  // To be used in DOM, it needs to be with capital letter
   const ButtonIcon = props.styleDetails.icon;
-
-  const onSubmit = (url: string, text: string) => {
-    if (url === "") {
-      return;
-    }
-    const mark = props.editor.schema.mark("link", { href: url });
-    let { from, to } = props.editor.state.selection;
-    props.editor.view.dispatch(
-      props.editor.view.state.tr
-        .insertText(text, from, to)
-        .addMark(from, from + text.length, mark)
-    );
-  };
-
-  const updateCreationMenu = useCallback(() => {
-    // get the currently selected text and url from the document, and use it to
-    // create a new creation menu
-    const { from, to } = props.editor.state.selection;
-    const selectedText = props.editor.state.doc.textBetween(from, to);
-    const activeUrl = props.editor.isActive("link")
-      ? props.editor.getAttributes("link").href || ""
-      : "";
-
-    setCreationMenu(
-      <HyperlinkEditMenu
-        key={Math.random() + ""} // Math.random to prevent old element from being re-used
-        url={activeUrl}
-        text={selectedText}
-        onSubmit={onSubmit}
-      />
-    );
-  }, [props.editor, props.editor.state]);
 
   return (
     <Tippy content={tooltipContent}>
       <Tippy
-        content={creationMenu}
+        content={<LinkForm editor={props.editor} />}
         trigger={"click"}
-        onShow={(instance) => {
-          updateCreationMenu();
-        }}
         interactive={true}
         maxWidth={500}>
         <Button

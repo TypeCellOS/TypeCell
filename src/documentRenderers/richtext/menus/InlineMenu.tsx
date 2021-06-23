@@ -53,7 +53,7 @@ const underline: ButtonStyleDetails = {
   icon: UnderlineIcon,
 };
 
-const link = {
+const link: ButtonStyleDetails = {
   markName: "link",
   mainTooltip: "Link",
   secondaryTooltip: "Ctrl+K",
@@ -155,6 +155,6 @@ class InlineMenu extends React.Component<InlineMenuProps> {
       );
     }
   }
-}
+};
 
 export default InlineMenu;
