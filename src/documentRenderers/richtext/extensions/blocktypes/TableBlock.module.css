@@ -28,7 +28,7 @@ tr {
 td,
 th {
   word-wrap: break-word;
-  padding: 0.5em;
+  padding: 0.5em !important;
   border: solid 0.05em black !important;
 }
 
