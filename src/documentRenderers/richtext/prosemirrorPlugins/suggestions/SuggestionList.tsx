@@ -1,15 +1,29 @@
 import { PopupMenuGroup, Section } from "@atlaskit/menu";
-import React from "react";
 import styles from "../../menus/SideMenu.module.css";
 import { SuggestionGroup } from "./SuggestionGroup";
 import SuggestionItem from "./SuggestionItem";
 
 export type SuggestionListProps<T> = {
+  /**
+   * Object containing all suggestion items, grouped by their `groupName`.
+   */
   groups: {
     [groupName: string]: T[];
   };
+
+  /**
+   * The total number of suggestion-items
+   */
   count: number;
-  selectItemCallback: (item: T) => void;
+
+  /**
+   * This callback gets executed whenever an item is clicked on
+   */
+  onSelectItem: (item: T) => void;
+
+  /**
+   * The index of the item that is currently selected (but not yet clicked on)
+   */
   selectedIndex: number;
 };
 
@@ -36,7 +50,7 @@ export function SuggestionList<T extends SuggestionItem>(
             ? props.selectedIndex - currentGroupIndex
             : undefined
         }
-        clickItem={props.selectItemCallback}></SuggestionGroup>
+        clickItem={props.onSelectItem}></SuggestionGroup>
     );
 
     currentGroupIndex += items.length;
