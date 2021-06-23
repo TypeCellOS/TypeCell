@@ -26,10 +26,6 @@ export const HyperlinkEditMenu = (props: HyperlinkEditorMenuProps) => {
   const [url, setUrl] = useState(props.url);
   const [text, setText] = useState(props.text);
 
-  // const styledTooltip = (text: String) => (
-  //   <div className={styles.buttonTooltip}>{text}</div>
-  // );
-
   return (
     <ContainerWrapper>
       <Container provider={false}>
