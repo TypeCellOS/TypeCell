@@ -19,25 +19,17 @@ import React from "react";
 import AuthHeaderLogo from "./AuthHeaderLogo";
 import { N800 } from "@atlaskit/theme/colors";
 
-export default class AuthHeader extends React.Component {
-  render() {
-    return (
-      <div
-        style={{
-          margin: "auto",
-          width: "200px",
-          height: "100%",
-          display: "flex",
-        }}>
-        <span
-          style={{
-            color: N800,
-            fontSize: "32px",
-            margin: "auto",
-          }}>
-          🌐 TypeCell
-        </span>
-      </div>
-    );
-  }
-}
+export const AuthHeader = (props: { children: React.ReactNode }) => {
+  return (
+    <div
+      style={{
+        // margin: "auto",
+        width: "100%",
+        height: "100px",
+      }}>
+      {props.children}
+    </div>
+  );
+};
+
+export default AuthHeader;

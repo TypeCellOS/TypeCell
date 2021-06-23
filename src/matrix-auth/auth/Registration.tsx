@@ -27,17 +27,20 @@ import AutoDiscoveryUtils, {
   ValidatedServerConfig,
 } from "./util/AutoDiscoveryUtils";
 import { messageForResourceLimitError } from "./util/messages";
-import AuthBodyContextWrapper from "./views/AuthBodyContextWrapper";
+import AuthPage from "./views/AuthPage";
 import AuthHeader from "./views/AuthHeader";
+import AuthHeaderLogo from "./views/AuthHeaderLogo";
+import AuthBody from "./views/AuthBody";
+import AuthForm from "./views/AuthForm";
+import AuthFooter from "./views/AuthFooter";
+import PasswordLogin from "./views/PasswordLogin";
 import RegistrationForm from "./views/RegistrationForm";
 import ErrorSectionContextWrapper from "./views/ErrorSectionContextWrapper";
-import { PageLayout, Main, Content, Banner } from "@atlaskit/page-layout";
 import Button from "@atlaskit/button";
 import { HelperMessage } from "@atlaskit/form";
 import ErrorIcon from "@atlaskit/icon/glyph/error";
 import { R400 } from "@atlaskit/theme/colors";
 import Flag from "@atlaskit/flag";
-import AuthFooter from "./views/AuthFooter";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -746,18 +749,16 @@ export default class Registration extends React.Component<IProps, IState> {
 
     return (
       // TODO: use manual components instead of PageLayout/etc.
-      <PageLayout>
-        <Banner isFixed={false} height={100}>
-          <AuthHeader />
-        </Banner>
-        <Content>
-          <Main width={650}>
-            {errorTextSection}
-            <AuthBodyContextWrapper>{body}</AuthBodyContextWrapper>
-            <AuthFooter />
-          </Main>
-        </Content>
-      </PageLayout>
+      <AuthPage>
+        <AuthHeader>
+          <AuthHeaderLogo>🌐 TypeCell</AuthHeaderLogo>
+        </AuthHeader>
+        {errorTextSection}
+        <AuthForm>{body}</AuthForm>
+        <AuthFooter>
+          <HelperMessage>Powered by Matrix</HelperMessage>
+        </AuthFooter>
+      </AuthPage>
     );
   }
 }

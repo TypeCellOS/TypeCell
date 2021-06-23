@@ -15,27 +15,24 @@ limitations under the License.
 */
 
 import React from "react";
-import { N800 } from "@atlaskit/theme/colors";
+import { N40 } from "@atlaskit/theme/colors";
 
-const AuthHeaderLogo = (props: { children: React.ReactNode }) => {
+export const AuthForm = ({ children }: { children: React.ReactNode }) => {
   return (
     <div
       style={{
-        margin: "auto",
-        width: "200px",
-        height: "100%",
-        display: "flex",
+        position: "relative",
+        border: `1px solid ${N40}`,
+        boxShadow:
+          "0px 4px 8px rgba(9, 30, 66, 0.25), 0px 0px 1px rgba(9, 30, 66, 0.31)",
+        borderRadius: 4,
+        maxWidth: 500,
+        margin: "16px auto",
+        padding: "16px",
       }}>
-      <span
-        style={{
-          color: N800,
-          fontSize: "32px",
-          margin: "auto",
-        }}>
-        {props.children}
-      </span>
+      {children}
     </div>
   );
 };
 
-export default AuthHeaderLogo;
+export default AuthForm;

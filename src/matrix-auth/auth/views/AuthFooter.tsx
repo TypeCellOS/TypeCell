@@ -16,23 +16,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React from "react";
+import React, { Children } from "react";
 import { HelperMessage } from "@atlaskit/form";
 
-export default class AuthFooter extends React.Component {
-  render() {
-    return (
-      <div
-        style={{
-          position: "absolute",
-          left: "50%",
-          transform: "translateX(-50%)",
-        }}>
-        <HelperMessage>Powered by Matrix</HelperMessage>
-      </div>
-      // <a href="https://matrix.org" target="_blank" rel="noreferrer noopener">
-      //   "powered by Matrix"
-      // </a>
-    );
-  }
-}
+const AuthFooter = (props: { children: React.ReactNode }) => {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: "50%",
+        transform: "translateX(-50%)",
+      }}>
+      {props.children}
+    </div>
+  );
+};
+
+export default AuthFooter;

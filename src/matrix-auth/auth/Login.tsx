@@ -22,11 +22,13 @@ import AutoDiscoveryUtils, {
 } from "./util/AutoDiscoveryUtils";
 import { IMatrixClientCreds } from "./util/matrix";
 import { messageForResourceLimitError } from "./util/messages";
-import AuthBodyContextWrapper from "./views/AuthBodyContextWrapper";
+import AuthPage from "./views/AuthPage";
 import AuthHeader from "./views/AuthHeader";
+import AuthHeaderLogo from "./views/AuthHeaderLogo";
+import AuthBody from "./views/AuthBody";
+import AuthForm from "./views/AuthForm";
 import AuthFooter from "./views/AuthFooter";
 import PasswordLogin from "./views/PasswordLogin";
-import { PageLayout, Main, Content, Banner } from "@atlaskit/page-layout";
 import { ErrorMessage, HelperMessage } from "@atlaskit/form";
 import Button from "@atlaskit/button";
 import Spinner from "@atlaskit/spinner";
@@ -642,21 +644,24 @@ export default class LoginComponent extends React.PureComponent<
 
     return (
       // TODO: use manual components instead of PageLayout/Banner/etc.
-      <PageLayout>
-        <Banner isFixed={false} height={100}>
-          <AuthHeader />
-        </Banner>
-        <Content>
-          <Main width={650}>
-            {errorTextSection}
-            <AuthBodyContextWrapper>
-              {this.renderLoginComponentForFlows()}
-              <ExtraContextWrapper>{footer}</ExtraContextWrapper>
-            </AuthBodyContextWrapper>
-            <AuthFooter />
-          </Main>
-        </Content>
-      </PageLayout>
+      <AuthPage>
+        {/* <Banner isFixed={false} height={100}>
+          <AuthHeaderLogo>🌐 TypeCell</AuthHeaderLogo>
+        </Banner> */}
+        <AuthHeader>
+          <AuthHeaderLogo>🌐 TypeCell</AuthHeaderLogo>
+        </AuthHeader>
+        <AuthBody>
+          {errorTextSection}
+          <AuthForm>
+            {this.renderLoginComponentForFlows()}
+            <ExtraContextWrapper>{footer}</ExtraContextWrapper>
+          </AuthForm>
+          <AuthFooter>
+            <HelperMessage>Powered by Matrix</HelperMessage>
+          </AuthFooter>
+        </AuthBody>
+      </AuthPage>
     );
   }
 }

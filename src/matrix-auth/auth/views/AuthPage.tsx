@@ -19,13 +19,8 @@ limitations under the License.
 import React from "react";
 import AuthFooter from "./AuthFooter";
 
-export const AuthPage = (props: { children: any }) => {
-  return (
-    <div className="mx_AuthPage">
-      <div className="mx_AuthPage_modal">{props.children}</div>
-      <AuthFooter />
-    </div>
-  );
+export const AuthPage = (props: { children: React.ReactNode }) => {
+  return <>{props.children}</>;
 };
 
 export default AuthPage;
