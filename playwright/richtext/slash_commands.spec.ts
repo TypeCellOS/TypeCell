@@ -21,7 +21,7 @@ const defaultCommands = [
 test.describe("slash-command menu", () => {
   test.beforeEach(async ({ page }) => {
     // Go to the starting url before each test.
-    await page.goto("http://localhost:3000/@whatever/whatever?test");
+    await page.goto("http://localhost:3000/@whateverz/whateverzz?test");
 
     // Wait for the editor to be visible
     await page.waitForSelector("data-testid=editor", {
@@ -40,10 +40,6 @@ test.describe("slash-command menu", () => {
     await firstBlock.click();
     await firstBlock.type("/");
 
-    await page.waitForSelector("data-testid=suggestion-menu", {
-      state: "visible",
-    });
-
     menuVisible = await page.isVisible("data-testid=suggestion-menu");
 
     expect(menuVisible).toBeTruthy();
@@ -59,9 +55,7 @@ test.describe("slash-command menu", () => {
 
     await firstBlock.press("Backspace");
 
-    await page.waitForSelector("data-testid=suggestion-menu", {
-      state: "hidden",
-    });
+    await page.waitForTimeout(1000);
 
     expect(await page.isVisible("data-testid=suggestion-menu")).toBeFalsy();
   });
@@ -74,32 +68,22 @@ test.describe("slash-command menu", () => {
     await firstBlock.click();
     await firstBlock.type("/h1");
 
-    await page.waitForSelector("data-testid=suggestion-menu", {
-      state: "visible",
-    });
-
     expect(await page.isVisible("data-testid=suggestion-menu")).toBeTruthy();
 
     await firstBlock.type("~~~~");
 
-    await page.waitForSelector("data-testid=suggestion-menu", {
-      state: "hidden",
-    });
+    await page.waitForTimeout(1000);
 
     expect(await page.isVisible("data-testid=suggestion-menu")).toBeFalsy();
   });
 
   test("should filter all default commands properly", async ({ page }) => {
     for (const commandName of defaultCommands) {
-      console.log(commandName);
       const lastBlock = await getLastBlock(page);
 
       // Type command
+      await lastBlock.click();
       await lastBlock.type(`/${commandName}`);
-
-      await page.waitForSelector("data-testid=suggestion-menu", {
-        state: "visible",
-      });
 
       expect(
         await page.isVisible("data-testid=selected-suggestion")
