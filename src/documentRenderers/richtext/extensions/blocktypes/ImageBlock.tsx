@@ -13,14 +13,13 @@ const ImageBlock = extendAsBlock(Image, {
   // Code of Slava Vishnyakov
   // https://gist.github.com/slava-vishnyakov/16076dff1a77ddaca93c4bccd4ec4521
   addPasteRules() {
-    const setImage: Function = this.editor.commands.setImage;
     return [
       new Plugin({
         key: new PluginKey("imagePasteRule"),
         props: {
           handlePaste(view: EditorView, event: ClipboardEvent, slice) {
             const items = event.clipboardData?.items;
-            if (items == undefined) return false;
+            if (items === undefined) return false;
             for (const item of items) {
               if (item.type.indexOf("image") === 0) {
                 event.preventDefault();
@@ -68,7 +67,7 @@ const ImageBlock = extendAsBlock(Image, {
                 left: event.clientX,
                 top: event.clientY,
               });
-              if (coordinates == (null || undefined)) return false;
+              if (!coordinates) return false;
 
               images.forEach(async (image) => {
                 const reader = new FileReader();

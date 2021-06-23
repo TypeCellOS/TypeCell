@@ -11,8 +11,8 @@ import LinkIcon from "remixicon-react/LinkIcon";
 import { CommentStore } from "../extensions/comments/CommentStore";
 import { Comment } from "../extensions/marks/Comment";
 import { Underline } from "../extensions/marks/Underline";
-import BubbleMenuButton, { ButtonStyleDetails } from "./BubbleMenuButton";
-import BubbleMenuLinkButton from "./BubbleMenuLinkButton";
+import { BubbleMenuButton, ButtonStyleDetails } from "./BubbleMenuButton";
+import LinkBubbleMenuButton from "./LinkBubbleMenuButton";
 import styles from "./InlineMenu.module.css";
 
 type InlineMenuProps = { editor: Editor; commentStore: CommentStore };
@@ -53,7 +53,7 @@ const underline: ButtonStyleDetails = {
   icon: UnderlineIcon,
 };
 
-const link = {
+const link: ButtonStyleDetails = {
   markName: "link",
   mainTooltip: "Link",
   secondaryTooltip: "Ctrl+K",
@@ -139,7 +139,7 @@ class InlineMenu extends React.Component<InlineMenuProps> {
             }
             styleDetails={underline}
           />
-          <BubbleMenuLinkButton
+          <LinkBubbleMenuButton
             editor={this.props.editor}
             styleDetails={link}
           />
