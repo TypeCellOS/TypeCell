@@ -19,9 +19,9 @@ export const getNthBlock = async (page: Page, n: number) => {
 
   if (blocks.length === 0) throw new Error("No blocks were found");
 
-  if (n < 0) n = Math.max(blocks.length + n, 0);
+  if (n < 0) n = Math.max(blocks.length + n - 1, 0);
 
-  const block = blocks[0];
+  const block = blocks[n];
 
   return block;
 };
