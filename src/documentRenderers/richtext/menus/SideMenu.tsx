@@ -1,4 +1,3 @@
-import React from "react";
 import styles from "./SideMenu.module.css";
 import { MenuGroup, ButtonItem } from "@atlaskit/menu";
 
