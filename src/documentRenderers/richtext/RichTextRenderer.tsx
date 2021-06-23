@@ -32,9 +32,9 @@ import { TableBlock } from "./extensions/blocktypes/TableBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
 import { Underline } from "./extensions/marks/Underline";
+import { Mention, MentionType } from "./extensions/mentions";
+import MentionsExtension from "./extensions/mentions";
 import { Comment } from "./extensions/marks/Comment";
-import { Mention, MentionType } from "./extensions/mentions/Mention";
-import { MentionsExtension } from "./extensions/mentions/MentionsExtension";
 import SlashCommandExtension from "./extensions/slashcommand";
 import "./RichTextRenderer.css";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
@@ -47,6 +47,7 @@ import TableRow from "@tiptap/extension-table-row";
 import { Comments } from "./extensions/comments/Comments";
 import { CommentStore } from "./extensions/comments/CommentStore";
 import { CommentWrapper } from "./extensions/comments/CommentWrapper";
+import Hyperlink from "./extensions/marks/Hyperlink";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -124,7 +125,7 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       Strike,
       Underline,
       Comment,
-      Link,
+      Hyperlink,
 
       // custom blocks:
       ImageBlock,
