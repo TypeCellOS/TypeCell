@@ -353,6 +353,7 @@ function Block(
       <NodeViewWrapper
         className={`${styles.block}`}
         ref={outerRef}
+        data-test-id={"block"}
         data-cy={"block"}>
         <div className={styles.inner + " inner"} ref={innerRef}>
           <div

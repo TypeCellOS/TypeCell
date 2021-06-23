@@ -115,6 +115,7 @@
     ]
   },
   "devDependencies": {
+    "@playwright/test": "^1.12.2",
     "@svgr/webpack": "^5.5.0",
     "@types/jest": "^26.0.22",
     "@types/lodash": "^4.14.168",
@@ -128,6 +129,7 @@
     "cypress": "^7.5.0",
     "fake-indexeddb": "^3.1.2",
     "patch-package": "^6.4.7",
+    "playwright": "^1.12.2",
     "prettier": "^2.3.0"
   }
 }

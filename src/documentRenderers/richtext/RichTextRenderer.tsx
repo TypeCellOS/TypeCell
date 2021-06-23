@@ -140,6 +140,7 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
         placeholder: "List item",
         HTMLAttributes: {
           "data-cy": "list-item-block",
+          "data-test-id": "list-item-block",
         },
       }),
       TableBlock,
