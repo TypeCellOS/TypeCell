@@ -1,7 +1,5 @@
 /*
-Copyright 2015, 2016 OpenMarket Ltd
 Copyright 2019 New Vector Ltd
-Copyright 2019 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,22 +15,27 @@ limitations under the License.
 */
 
 import React from "react";
-import { HelperMessage } from "@atlaskit/form";
+import { N40 } from "@atlaskit/theme/colors";
 
-export default class AuthFooter extends React.Component {
-  render() {
-    return (
-      <div
-        style={{
-          position: "absolute",
-          left: "50%",
-          transform: "translateX(-50%)",
-        }}>
-        <HelperMessage>Powered by Matrix</HelperMessage>
-      </div>
-      // <a href="https://matrix.org" target="_blank" rel="noreferrer noopener">
-      //   "powered by Matrix"
-      // </a>
-    );
-  }
-}
+export const ErrorSectionContextWrapper = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  return (
+    <div
+      style={{
+        position: "relative",
+        border: `1px solid ${N40}`,
+        boxShadow:
+          "0px 4px 8px rgba(9, 30, 66, 0.25), 0px 0px 1px rgba(9, 30, 66, 0.31)",
+        borderRadius: 4,
+        maxWidth: 500,
+        margin: "16px auto",
+      }}>
+      {children}
+    </div>
+  );
+};
+
+export default ErrorSectionContextWrapper;
