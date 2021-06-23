@@ -343,6 +343,7 @@ export default class LoginComponent extends React.PureComponent<
     if (ssoFlow && !hasPasswordFlow) {
       ev.preventDefault();
       ev.stopPropagation();
+      // TODO: restore for sso
       //   const ssoKind = ssoFlow.type === "m.login.sso" ? "sso" : "cas";
       //   PlatformPeg.get().startSingleSignOn(
       //     this.loginLogic!.createTemporaryClient(),
@@ -455,7 +456,6 @@ export default class LoginComponent extends React.PureComponent<
     return true;
   };
 
-  // err import {MatrixError} from "matrix-js-sdk/src/http-api";
   private errorTextFromError(err: any): ReactNode {
     let errCode = err.errcode;
     if (!errCode && err.httpStatus) {
@@ -529,14 +529,13 @@ export default class LoginComponent extends React.PureComponent<
   private renderPasswordStep = () => {
     return (
       <PasswordLogin
+        // We do not control these values, but on submission they do get
+        // recorded in the state, so we use the values of the state as
+        // default value.
         onSubmit={this.onPasswordLogin}
-        // username={this.state.username}
-        // phoneCountry={this.state.phoneCountry}
-        // phoneNumber={this.state.phoneNumber}
-        // onUsernameChanged={this.onUsernameChanged}
-        // onUsernameBlur={this.onUsernameBlur}
-        // onPhoneCountryChanged={this.onPhoneCountryChanged}
-        // onPhoneNumberChanged={this.onPhoneNumberChanged}
+        defaultUsernameOrEmail={this.state.username}
+        defaultPhoneCountry={this.state.phoneCountry}
+        defaultPhoneNumber={this.state.phoneNumber}
         onForgotPasswordClick={this.props.onForgotPasswordClick}
         loginIncorrect={this.state.loginIncorrect}
         serverConfig={this.props.serverConfig}
@@ -546,6 +545,7 @@ export default class LoginComponent extends React.PureComponent<
     );
   };
 
+  // TODO restore for sso
   //   private renderSsoStep = (loginType) => {
   //     const flow = this.state.flows.find(
   //       (flow) => flow.type === "m.login." + loginType

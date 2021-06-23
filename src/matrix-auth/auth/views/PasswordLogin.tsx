@@ -28,6 +28,10 @@ import { looksValidEmail } from "../util/email";
 const PHONE_NUMBER_REGEX = /^[0-9()\-\s]*$/;
 
 interface IProps {
+  defaultUsernameOrEmail: string;
+  defaultPhoneCountry?: string;
+  defaultPhoneNumber?: string;
+
   serverConfig: ValidatedServerConfig;
   loginIncorrect?: boolean;
   disableSubmit?: boolean;
@@ -154,6 +158,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             label="Email"
             placeholder="joe@example.com"
             disabled={this.props.disableSubmit}
+            defaultValue={this.props.defaultUsernameOrEmail}
             isRequired
             showErrorMsg
             onValidate={this.onEmailValidate}
@@ -173,6 +178,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             disabled={this.props.disableSubmit}
             onValidate={this.onUsernameValidate}
             autoFocus={true}
+            defaultValue={this.props.defaultUsernameOrEmail}
             isRequired
             showErrorMsg
             ref={(field) => (this[LoginField.MatrixId] = field)}

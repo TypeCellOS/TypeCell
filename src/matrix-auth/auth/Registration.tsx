@@ -770,8 +770,8 @@ export default class Registration extends React.Component<IProps, IState> {
             <span className={styles.AuthHeaderLogoSpan}>🌐 TypeCell</span>
           </div>
         </div>
-        {errorTextSection}
         <div className={styles.AuthBody}>
+          {errorTextSection}
           <div className={styles.AuthForm}>{body}</div>
         </div>
         <div className={styles.AuthFooter}>
