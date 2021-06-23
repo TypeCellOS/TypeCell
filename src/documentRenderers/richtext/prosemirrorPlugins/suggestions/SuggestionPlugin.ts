@@ -96,6 +96,9 @@ export function SuggestionPlugin<T extends SuggestionItem>({
   onSelectItem: selectItemCallback = () => {},
   items = () => [],
 }: SuggestionPluginOptions<T>) {
+  // Assertions
+  if (char.length !== 1) throw new Error("'char' should be a single character");
+
   const renderer = createRenderer<T>(editor);
 
   // Create a random plugin key (since this plugin might be instantiated multiple times)
