@@ -47,6 +47,7 @@ import TableRow from "@tiptap/extension-table-row";
 import { Comments } from "./extensions/comments/Comments";
 import { CommentStore } from "./extensions/comments/CommentStore";
 import { CommentWrapper } from "./extensions/comments/CommentWrapper";
+import Hyperlink from "./extensions/marks/Hyperlink";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -124,7 +125,7 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       Strike,
       Underline,
       Comment,
-      Link,
+      Hyperlink,
 
       // custom blocks:
       ImageBlock,

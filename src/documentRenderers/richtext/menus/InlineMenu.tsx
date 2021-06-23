@@ -56,7 +56,7 @@ const underline: ButtonStyleDetails = {
   icon: UnderlineIcon,
 };
 
-const link: ButtonStyleDetails = {
+const link = {
   markName: "link",
   mainTooltip: "Link",
   secondaryTooltip: "Ctrl+K",
