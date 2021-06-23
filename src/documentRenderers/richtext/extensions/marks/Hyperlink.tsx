@@ -107,7 +107,8 @@ function linkMenusPlugin() {
             return;
           }
 
-          const range = getMarkRange(resPos, linkMark.type, linkMark.attrs)!;
+          const range = getMarkRange(resPos, linkMark.type, linkMark.attrs);
+          if (!range) return;
           const text = view.state.doc.textBetween(range.from, range.to);
           const url = linkMark.attrs.href;
 
