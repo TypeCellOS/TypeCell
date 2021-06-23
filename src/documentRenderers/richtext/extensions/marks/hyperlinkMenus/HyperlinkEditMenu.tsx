@@ -11,6 +11,8 @@ import LinkIcon from "remixicon-react/LinkIcon";
 import TextIcon from "remixicon-react/TextIcon";
 import { useState } from "react";
 
+import styles from "../../../menus/BubbleMenuButton.module.css";
+
 export type HyperlinkEditorMenuProps = {
   url: string;
   text: string;
@@ -26,12 +28,16 @@ export const HyperlinkEditMenu = (props: HyperlinkEditorMenuProps) => {
   const [url, setUrl] = useState(props.url);
   const [text, setText] = useState(props.text);
 
+  // const styledTooltip = (text: String) => (
+  //   <div className={styles.buttonTooltip}>{text}</div>
+  // );
+
   return (
     <ContainerWrapper>
       <Container provider={false}>
         <UrlInputWrapper>
           <IconWrapper>
-            <Tooltip content={"Edit the link"}>
+            <Tooltip content={"Edit the link"} position={"left"}>
               <LinkIcon size={20}></LinkIcon>
             </Tooltip>
           </IconWrapper>
@@ -47,7 +53,7 @@ export const HyperlinkEditMenu = (props: HyperlinkEditorMenuProps) => {
         </UrlInputWrapper>
         <TextInputWrapper>
           <IconWrapper>
-            <Tooltip content={"Edit the title"}>
+            <Tooltip content={"Edit the title"} position={"left"}>
               <TextIcon size={20}></TextIcon>
             </Tooltip>
           </IconWrapper>

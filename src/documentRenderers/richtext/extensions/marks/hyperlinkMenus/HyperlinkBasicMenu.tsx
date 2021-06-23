@@ -3,6 +3,7 @@ import Button from "@atlaskit/button";
 import Remove from "remixicon-react/LinkUnlinkIcon";
 import Open from "remixicon-react/ExternalLinkFillIcon";
 import menuStyles from "../../../menus/InlineMenu.module.css";
+import buttonStyles from "../../../menus/BubbleMenuButton.module.css";
 import styles from "../Hyperlink.module.css";
 import { useState } from "react";
 
@@ -32,8 +33,8 @@ export const HyperlinkBasicMenu = (props: HyperlinkMenuProps) => {
     <div className={`${styles.linkerWrapper} ${menuStyles.bubbleMenu}`}>
       <Tippy
         content={
-          <div className={menuStyles.buttonTooltip}>
-            <div className={menuStyles.mainText}>Edit</div>
+          <div className={buttonStyles.buttonTooltip}>
+            <div className={buttonStyles.mainText}>Edit</div>
           </div>
         }>
         <Button appearance="subtle" onClick={onEditClick}>
@@ -45,8 +46,8 @@ export const HyperlinkBasicMenu = (props: HyperlinkMenuProps) => {
 
       <Tippy
         content={
-          <div className={menuStyles.buttonTooltip}>
-            <div className={menuStyles.mainText}>Open in new tab</div>
+          <div className={buttonStyles.buttonTooltip}>
+            <div className={buttonStyles.mainText}>Open in new tab</div>
           </div>
         }>
         <Button
@@ -55,22 +56,22 @@ export const HyperlinkBasicMenu = (props: HyperlinkMenuProps) => {
           onClick={() => {
             window.open(props.href, "_blank");
           }}
-          iconBefore={<Open className={menuStyles.icon}></Open>}></Button>
+          iconBefore={<Open className={buttonStyles.icon}></Open>}></Button>
       </Tippy>
 
       <Button appearance="subtle" className={styles.separator}></Button>
 
       <Tippy
         content={
-          <div className={menuStyles.buttonTooltip}>
-            <div className={menuStyles.mainText}>Remove link</div>
+          <div className={buttonStyles.buttonTooltip}>
+            <div className={buttonStyles.mainText}>Remove link</div>
           </div>
         }>
         <Button
           style={{ width: "36px" }}
           appearance="subtle"
           onClick={props.removeHandler}
-          iconBefore={<Remove className={menuStyles.icon}></Remove>}></Button>
+          iconBefore={<Remove className={buttonStyles.icon}></Remove>}></Button>
       </Tippy>
     </div>
   );
