@@ -2,12 +2,14 @@ import { BubbleMenu, Editor } from "@tiptap/react";
 import { TextSelection } from "prosemirror-state";
 import React from "react";
 import BoldIcon from "remixicon-react/BoldIcon";
+import Chat2LineIcon from "remixicon-react/Chat2LineIcon";
+import CodeLineIcon from "remixicon-react/CodeLineIcon";
 import ItalicIcon from "remixicon-react/ItalicIcon";
 import StrikethroughIcon from "remixicon-react/StrikethroughIcon";
-import CodeLineIcon from "remixicon-react/CodeLineIcon";
 import UnderlineIcon from "remixicon-react/UnderlineIcon";
 import LinkIcon from "remixicon-react/LinkIcon";
-
+import { CommentStore } from "../extensions/comments/CommentStore";
+import { Comment } from "../extensions/marks/Comment";
 import { Underline } from "../extensions/marks/Underline";
 import {
   BubbleMenuButton,
@@ -16,7 +18,7 @@ import {
 } from "./BubbleMenuButton";
 import styles from "./InlineMenu.module.css";
 
-type InlineMenuProps = { editor: Editor };
+type InlineMenuProps = { editor: Editor; commentStore: CommentStore };
 
 const bold: ButtonStyleDetails = {
   markName: "bold",
@@ -61,6 +63,13 @@ const link: ButtonStyleDetails = {
   icon: LinkIcon,
 };
 
+const comment: ButtonStyleDetails = {
+  markName: Comment.name,
+  mainTooltip: "Comment",
+  secondaryTooltip: "",
+  icon: Chat2LineIcon,
+};
+
 class InlineMenu extends React.Component<InlineMenuProps> {
   render() {
     const TOP_DEPTH = 1;
@@ -82,7 +91,6 @@ class InlineMenu extends React.Component<InlineMenuProps> {
       }
     }
 
-    // Check for typecell code editor node
     if (
       resolvedPos.nodeAfter &&
       resolvedPos.nodeAfter.type.name === "typecell"
@@ -137,6 +145,14 @@ class InlineMenu extends React.Component<InlineMenuProps> {
           <LinkBubbleMenuButton
             editor={this.props.editor}
             styleDetails={link}
+          />
+          <BubbleMenuButton
+            editor={this.props.editor}
+            onClick={() => {
+              const comment = this.props.commentStore.createComment();
+              this.props.editor.chain().focus().setComment(comment.id).run();
+            }}
+            styleDetails={comment}
           />
         </BubbleMenu>
       );

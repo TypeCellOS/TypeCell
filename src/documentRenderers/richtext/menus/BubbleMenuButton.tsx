@@ -49,6 +49,10 @@ const tooltipContent = (styleDetails: ButtonStyleDetails) => (
 
 const isButtonSelected = (editor?: Editor, markName?: string) => {
   if (editor && markName) {
+    if (markName === "comment") {
+      // Always false as it should be possible to add overlapping comments.
+      return false;
+    }
     return editor.isActive(markName);
   } else return false;
 };

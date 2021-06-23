@@ -114,3 +114,11 @@
   /*Display below block*/
   bottom: -0.1rem; /*Negative height value*/
 }
+
+.selected {
+  background-color: #DDEEFF;
+}
+
+::selection {
+  background-color: #AAD2FF;
+}
