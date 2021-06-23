@@ -37,7 +37,7 @@ import ErrorSectionContextWrapper from "./views/ErrorSectionContextWrapper";
 import ErrorIcon from "@atlaskit/icon/glyph/error";
 import { R400 } from "@atlaskit/theme/colors";
 import Flag from "@atlaskit/flag";
-import styles from "./Login.module.css";
+import styles from "./WrapperStyling.module.css";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -643,6 +643,7 @@ export default class LoginComponent extends React.PureComponent<
       );
     };
 
+    // OLD STRUCTURE USING COMPONENTS
     // return (
     //   // TODO: use manual components instead of PageLayout/Banner/etc.
     //   <AuthPage>

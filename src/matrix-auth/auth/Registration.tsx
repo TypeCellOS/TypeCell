@@ -41,6 +41,7 @@ import { HelperMessage } from "@atlaskit/form";
 import ErrorIcon from "@atlaskit/icon/glyph/error";
 import { R400 } from "@atlaskit/theme/colors";
 import Flag from "@atlaskit/flag";
+import styles from "./WrapperStyling.module.css";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -747,18 +748,36 @@ export default class Registration extends React.Component<IProps, IState> {
       );
     }
 
+    // OLD METHOD USING COMPONENTS
+    // return (
+    //   // TODO: use manual components instead of PageLayout/etc.
+    //   <AuthPage>
+    //     <AuthHeader>
+    //       <AuthHeaderLogo>🌐 TypeCell</AuthHeaderLogo>
+    //     </AuthHeader>
+    //     {errorTextSection}
+    //     <AuthForm>{body}</AuthForm>
+    //     <AuthFooter>
+    //       <HelperMessage>Powered by Matrix</HelperMessage>
+    //     </AuthFooter>
+    //   </AuthPage>
+    // );
+
     return (
-      // TODO: use manual components instead of PageLayout/etc.
-      <AuthPage>
-        <AuthHeader>
-          <AuthHeaderLogo>🌐 TypeCell</AuthHeaderLogo>
-        </AuthHeader>
+      <div className={styles.AuthPage}>
+        <div className={styles.AuthHeader}>
+          <div className={styles.AuthHeaderLogo}>
+            <span className={styles.AuthHeaderLogoSpan}>🌐 TypeCell</span>
+          </div>
+        </div>
         {errorTextSection}
-        <AuthForm>{body}</AuthForm>
-        <AuthFooter>
+        <div className={styles.AuthBody}>
+          <div className={styles.AuthForm}>{body}</div>
+        </div>
+        <div className={styles.AuthFooter}>
           <HelperMessage>Powered by Matrix</HelperMessage>
-        </AuthFooter>
-      </AuthPage>
+        </div>
+      </div>
     );
   }
 }
