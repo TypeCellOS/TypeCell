@@ -1,7 +1,4 @@
-import { Editor, Range } from "@tiptap/core";
 import SuggestionItem from "../../prosemirrorPlugins/suggestions/SuggestionItem";
-
-export type MentionCallback = (editor: Editor, range: Range) => boolean;
 
 export enum MentionType {
   PEOPLE = "People",

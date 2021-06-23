@@ -17,12 +17,27 @@ limitations under the License.
 
 import React from "react";
 import AuthHeaderLogo from "./AuthHeaderLogo";
+import { N800 } from "@atlaskit/theme/colors";
 
-export const AuthHeader = () => {
-  return (
-    <div className="mx_AuthHeader">
-      <AuthHeaderLogo />
-    </div>
-  );
-};
-export default AuthHeader;
+export default class AuthHeader extends React.Component {
+  render() {
+    return (
+      <div
+        style={{
+          margin: "auto",
+          width: "200px",
+          height: "100%",
+          display: "flex",
+        }}>
+        <span
+          style={{
+            color: N800,
+            fontSize: "32px",
+            margin: "auto",
+          }}>
+          🌐 TypeCell
+        </span>
+      </div>
+    );
+  }
+}
