@@ -102,3 +102,7 @@ blockquote {
   border-radius: 0.3rem;
   padding: 0.1rem 0.3rem;
 }
+
+.ProseMirror a {
+  cursor: pointer;
+}
