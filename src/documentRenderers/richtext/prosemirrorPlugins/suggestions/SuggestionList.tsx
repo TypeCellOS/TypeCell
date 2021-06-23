@@ -43,8 +43,11 @@ export function SuggestionList<T extends SuggestionItem>(
   }
 
   return (
-    <div className={styles.menuList} data-cy={"suggestion-menu"}>
-      <PopupMenuGroup maxWidth="250px" maxHeight="400px">
+    <div className={styles.menuList}>
+      <PopupMenuGroup
+        maxWidth="250px"
+        maxHeight="400px"
+        testId="suggestion-menu">
         {renderedGroups.length > 0 ? (
           renderedGroups
         ) : (
