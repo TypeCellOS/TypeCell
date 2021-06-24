@@ -362,8 +362,10 @@ function Block(
             contentEditable={false}>
             <Tippy
               content={<SideMenu onDelete={onDelete} />}
-              trigger={"click"}
               placement={"left"}
+              trigger={"click"}
+              duration={0}
+              interactiveBorder={100}
               interactive={true}>
               <div
                 className={styles.handle + (hover ? " " + styles.hover : "")}

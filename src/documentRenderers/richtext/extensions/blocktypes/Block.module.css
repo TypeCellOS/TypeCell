@@ -116,9 +116,13 @@
 }
 
 .selected {
-  background-color: #DDEEFF;
+  background-color: #ddeeff;
 }
 
 ::selection {
-  background-color: #AAD2FF;
+  background-color: #aad2ff;
+}
+
+:global(div[data-reference-hidden]) {
+  visibility: hidden !important;
 }
