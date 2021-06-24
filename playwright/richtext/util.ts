@@ -25,3 +25,17 @@ export const getNthBlock = async (page: Page, n: number) => {
 
   return block;
 };
+
+export const randomDocumentUrl = (): string => {
+  // Source: https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript?rq=1
+  const randomUser = Math.random()
+    .toString(36)
+    .replace(/[^a-z]+/g, "")
+    .substr(0, 5);
+  const randomDoc = Math.random()
+    .toString(36)
+    .replace(/[^a-z]+/g, "")
+    .substr(0, 5);
+
+  return `@${randomUser}/${randomDoc}`;
+};

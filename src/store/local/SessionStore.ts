@@ -99,6 +99,7 @@ export class SessionStore {
         };
       });
     } catch (e) {
+      console.error(e);
       runInAction(() => {
         this.user = "offlineNoUser";
       });

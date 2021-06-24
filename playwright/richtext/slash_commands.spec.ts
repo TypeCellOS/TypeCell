@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { getLastBlock, getNthBlock } from "./util";
+import { getLastBlock, getNthBlock, randomDocumentUrl } from "./util";
 
 const defaultCommands = [
   "Heading",
@@ -21,7 +21,7 @@ const defaultCommands = [
 test.describe("slash-command menu", () => {
   test.beforeEach(async ({ page }) => {
     // Go to the starting url before each test.
-    await page.goto("http://localhost:3000/@whateverz/whateverzz?test");
+    await page.goto(`http://localhost:3000/${randomDocumentUrl()}?test`);
 
     // Wait for the editor to be visible
     await page.waitForSelector("data-testid=editor", {

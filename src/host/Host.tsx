@@ -56,16 +56,11 @@ const Navigation = observer(() => {
 });
 
 const Host = observer(() => {
+  console.log(sessionStore.user);
   return (
     <div className={styles.host}>
       <Navigation />
-      {sessionStore.user === "loading" ? (
-        <div>Loading</div>
-      ) : sessionStore.user === "offlineNoUser" ? (
-        <div>Offline</div>
-      ) : (
-        <App />
-      )}
+      {sessionStore.user === "loading" ? <div>Loading</div> : <App />}
       {sessionStore.loggedInUser && (
         <NewPageDialog
           ownerId={sessionStore.loggedInUser}

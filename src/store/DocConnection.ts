@@ -145,10 +145,6 @@ export class DocConnection extends Disposable {
   private async initializeNoCatch(
     offline: false | "local-only" | "offline" = false
   ) {
-    if (typeof sessionStore.user === "string") {
-      throw new Error("no matrix client available");
-    }
-    const mxClient = sessionStore.user.matrixClient;
     const readonly = readOnlyAccess();
     const alreadyLocal = !readonly && (await existsLocally(this.identifier.id));
 
@@ -201,6 +197,11 @@ export class DocConnection extends Disposable {
     }
 
     if (offline !== "local-only") {
+      if (typeof sessionStore.user === "string") {
+        throw new Error("no matrix client available");
+      }
+      const mxClient = sessionStore.user.matrixClient;
+
       this.matrixProvider = this._register(
         new MatrixProvider(this._ydoc, mxClient, this.identifier.id, readonly)
       );
