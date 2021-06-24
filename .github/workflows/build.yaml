@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
+      - uses: microsoft/playwright-github-action@v1
 
       - name: Setup Node.js 14.x
         uses: actions/setup-node@master
@@ -17,10 +18,12 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Run Tests
+      - name: Run unit tests
         run: npm run test
 
-      - uses: microsoft/playwright-github-action@v1
+      - name: Start local server
+        run: npm run start & npx wait-on http://localhost:3000
+
       - name: Run your tests
         run: npx playwright test
 
