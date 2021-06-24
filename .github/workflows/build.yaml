@@ -21,10 +21,13 @@ jobs:
       - name: Run unit tests
         run: npm run test
 
+      - name: Increase watchers
+        run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
       - name: Start local server
         run: npm run start & npx wait-on http://localhost:3000
 
-      - name: Run your tests
+      - name: Run end-to-end tests
         run: npx playwright test
 
       # - name: Upload to coveralls
