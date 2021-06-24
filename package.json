@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@atlaskit/css-reset": "^6.0.5",
     "@atlaskit/atlassian-navigation": "^1.0.0",
     "@atlaskit/avatar": "^20.3.0",
     "@atlaskit/banner": "^11.2.0",
     "@atlaskit/button": "^15.1.6",
     "@atlaskit/comment": "^10.0.7",
+    "@atlaskit/css-reset": "^6.0.5",
     "@atlaskit/dropdown-menu": "^10.1.6",
     "@atlaskit/flag": "^14.3.0",
     "@atlaskit/form": "^8.2.2",
@@ -119,6 +119,7 @@
     ]
   },
   "devDependencies": {
+    "playwright": "^1.12.2",
     "@playwright/test": "^1.12.2",
     "@svgr/webpack": "^5.5.0",
     "@types/jest": "^26.0.22",
