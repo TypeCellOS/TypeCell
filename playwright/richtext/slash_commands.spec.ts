@@ -91,11 +91,6 @@ test.describe("slash-command menu", () => {
         await page.isVisible("data-testid=selected-suggestion")
       ).toBeTruthy();
       expect(await page.isVisible(`text=${commandName}`));
-
-      // Remove command with repeated backspaces
-      for (let i = 0; i < commandName.length + 1; i++) {
-        await page.keyboard.press("Backspace");
-      }
     });
   }
 
