@@ -6,7 +6,7 @@ found under the `src/documentRenderers/richtext/` directory.
 Directories are referenced using their relative paths, with the root directory being `src/documentRenderers/`. This
 means that, for example, `src/documentRenderers/richtext/` is referred to as just `richtext/`.
 
-###richtext/
+### richtext/
 All files found within the core `richtext/` directory are necessary for the rich-text editor to be rendered and provide
 basic functionality, i.e., allow the user to write text. The only files in this directory are `RichTextRenderer.tsx`
 and its corresponding `RichTextRenderer.css` style sheet, used for styling the editor.
@@ -17,7 +17,7 @@ team or come standard with TipTap. Finally, RichTextRenderer.tsx renders said ed
 note, however, that this file does not contain logic for any features of the editor that go beyond writing text.
 This is contained within the sub-directories of `richtext/`.
 
-###richtext/extensions/
+### richtext/extensions/
 Each folder in the `richtext/extensions/` directory has an extension which is used to implement a single,
 specific feature, and most can be loaded by any TipTap editor instance while still functioning independently.
 The directories that are found below.
@@ -87,7 +87,7 @@ menu allows the user to manipulate cells, namely adding/removing adjacent rows/c
 selected rows/columns. Like the inline menu, the table menu uses default TipTap extensions and commands
 for rendering and logic.
 
-###richtext/prosemirrorPlugins/
+### richtext/prosemirrorPlugins/
 The `richtext/prosemirrorPlugins/` directory holds pure ProseMirror plugins. To understand what this
 means, this subsection will also discuss the differences in how TipTap and ProseMirror extend their editor’s
 functionalities.
@@ -108,7 +108,7 @@ extensions, allowing the user to see the various options and select one. The rea
 `richtext/menus/` directory is because the logic behind it is quite extensive and goes beyond just rendering the
 drop-down menu and handling what the buttons do.
 
-###richtext/utils/
+### richtext/utils/
 The final directory within `richtext/` is `richtext/util/`, and it is also the least important. Found here are
 files containing miscellaneous functions which may be useful for a variety of features. These functions are very
 general and only two currently exist - one for checking if a TipTap node is a list, and the other for ensuring
