@@ -26,13 +26,19 @@ export type MenuButtonProps = {
   styleDetails: ButtonStyleDetails;
   onClick: () => void;
   editor?: Editor;
+  testId?: string;
 };
 
 /**
  * Generate and style the button tooltip based on the given [styleDetails]
  */
-export const tooltipContent = (styleDetails: ButtonStyleDetails) => (
-  <div className={styles.buttonTooltip}>
+export const tooltipContent = (
+  styleDetails: ButtonStyleDetails,
+  testId?: string
+) => (
+  <div
+    className={styles.buttonTooltip}
+    data-testid={testId ? `${testId}-tooltip` : undefined}>
     <div className={styles.mainText}>{styleDetails.mainTooltip}</div>
     <div className={styles.secondaryText}>{styleDetails.secondaryTooltip}</div>
   </div>
@@ -73,12 +79,13 @@ export const BubbleMenuButton = (props: MenuButtonProps) => {
   const ButtonIcon = props.styleDetails.icon;
 
   return (
-    <Tippy content={tooltipContent(props.styleDetails)}>
+    <Tippy content={tooltipContent(props.styleDetails, props.testId)}>
       <Button
         appearance="subtle"
         onClick={props.onClick}
         isSelected={isSelected}
         iconBefore={addSelectedStyling(ButtonIcon, isSelected)}
+        testId={props.testId}
       />
     </Tippy>
   );

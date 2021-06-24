@@ -116,6 +116,7 @@ class InlineMenu extends React.Component<InlineMenuProps> {
             editor={this.props.editor}
             onClick={() => this.props.editor.chain().focus().toggleBold().run()}
             styleDetails={bold}
+            testId={"inline-menu-bold"}
           />
           <BubbleMenuButton
             editor={this.props.editor}
@@ -123,6 +124,7 @@ class InlineMenu extends React.Component<InlineMenuProps> {
               this.props.editor.chain().focus().toggleItalic().run()
             }
             styleDetails={italic}
+            testId={"inline-menu-italic"}
           />
           <BubbleMenuButton
             editor={this.props.editor}
@@ -130,11 +132,13 @@ class InlineMenu extends React.Component<InlineMenuProps> {
               this.props.editor.chain().focus().toggleStrike().run()
             }
             styleDetails={strike}
+            testId={"inline-menu-strike"}
           />
           <BubbleMenuButton
             editor={this.props.editor}
             onClick={() => this.props.editor.chain().focus().toggleCode().run()}
             styleDetails={code}
+            testId={"inline-menu-code"}
           />
           <BubbleMenuButton
             editor={this.props.editor}
@@ -142,10 +146,12 @@ class InlineMenu extends React.Component<InlineMenuProps> {
               this.props.editor.chain().focus().toggleUnderline().run()
             }
             styleDetails={underline}
+            testId={"inline-menu-underline"}
           />
           <LinkBubbleMenuButton
             editor={this.props.editor}
             styleDetails={link}
+            testId={"inline-menu-link"}
           />
           <BubbleMenuButton
             editor={this.props.editor}
@@ -153,6 +159,7 @@ class InlineMenu extends React.Component<InlineMenuProps> {
               const comment = this.props.commentStore.createComment();
               this.props.editor.chain().focus().setComment(comment.id).run();
             }}
+            testId={"inline-menu-comment"}
             styleDetails={comment}
           />
         </BubbleMenu>

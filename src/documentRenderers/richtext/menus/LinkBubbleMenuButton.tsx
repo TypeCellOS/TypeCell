@@ -16,6 +16,7 @@ import {
 export type LinkMenuButtonProps = {
   styleDetails: ButtonStyleDetails;
   editor: Editor;
+  testId?: string;
 };
 
 /**
@@ -63,7 +64,7 @@ export const LinkBubbleMenuButton = (props: LinkMenuButtonProps) => {
   }, [props.editor]);
 
   return (
-    <Tippy content={tooltipContent}>
+    <Tippy content={tooltipContent(props.styleDetails, props.testId)}>
       <Tippy
         content={creationMenu}
         trigger={"click"}
@@ -76,6 +77,7 @@ export const LinkBubbleMenuButton = (props: LinkMenuButtonProps) => {
           appearance="subtle"
           isSelected={isSelected}
           iconBefore={addSelectedStyling(ButtonIcon, isSelected)}
+          testId={props.testId}
         />
       </Tippy>
     </Tippy>

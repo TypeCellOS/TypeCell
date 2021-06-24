@@ -185,15 +185,16 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
     },
   });
 
+  if (!editor) return <div>A problem occurred while loading the editor...</div>;
+
   return (
     <div>
-      {editor != null ? (
-        <InlineMenu editor={editor} commentStore={commentStore} />
-      ) : null}
-      {editor != null ? <TableMenu editor={editor} /> : null}
-      {editor != null ? (
-        <CommentWrapper editor={editor} commentStore={commentStore} />
-      ) : null}
+      <InlineMenu editor={editor} commentStore={commentStore} />
+
+      <TableMenu editor={editor} />
+
+      <CommentWrapper editor={editor} commentStore={commentStore} />
+
       <EngineContext.Provider value={{ engine, document: props.document }}>
         <EditorContent editor={editor} data-testid="editor" />
       </EngineContext.Provider>
