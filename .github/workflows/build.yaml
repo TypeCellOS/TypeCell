@@ -20,6 +20,11 @@ jobs:
       - name: Run Tests
         run: npm run test
 
+      steps:
+      - uses: microsoft/playwright-github-action@v1
+      - name: Run your tests
+        run: npx playwright test
+
       # - name: Upload to coveralls
       #   uses: coverallsapp/github-action@master
       #   with:
