@@ -17,54 +17,56 @@ import styles from "./InlineMenu.module.css";
 
 type InlineMenuProps = { editor: Editor; commentStore: CommentStore };
 
-const bold: ButtonStyleDetails = {
-  markName: "bold",
-  mainTooltip: "Bold",
-  // This will change to a variable if custom shortcuts are implemented
-  secondaryTooltip: "Ctrl+B",
-  icon: BoldIcon,
-};
+export const buttonDetails: { [key: string]: ButtonStyleDetails } = {
+  bold: {
+    markName: "bold",
+    mainTooltip: "Bold",
+    // This will change to a variable if custom shortcuts are implemented
+    secondaryTooltip: "Ctrl+B",
+    icon: BoldIcon,
+  },
 
-const italic: ButtonStyleDetails = {
-  markName: "italic",
-  mainTooltip: "Italic",
-  secondaryTooltip: "Ctrl+I",
-  icon: ItalicIcon,
-};
+  italic: {
+    markName: "italic",
+    mainTooltip: "Italic",
+    secondaryTooltip: "Ctrl+I",
+    icon: ItalicIcon,
+  },
 
-const strike: ButtonStyleDetails = {
-  markName: "strike",
-  mainTooltip: "Strikethrough",
-  secondaryTooltip: "Ctrl+Shift+X",
-  icon: StrikethroughIcon,
-};
+  strike: {
+    markName: "strike",
+    mainTooltip: "Strikethrough",
+    secondaryTooltip: "Ctrl+Shift+X",
+    icon: StrikethroughIcon,
+  },
 
-const code: ButtonStyleDetails = {
-  markName: "code",
-  mainTooltip: "Inline Code",
-  secondaryTooltip: "Ctrl+E",
-  icon: CodeLineIcon,
-};
+  code: {
+    markName: "code",
+    mainTooltip: "Inline Code",
+    secondaryTooltip: "Ctrl+E",
+    icon: CodeLineIcon,
+  },
 
-const underline: ButtonStyleDetails = {
-  markName: Underline.name,
-  mainTooltip: "Underline",
-  secondaryTooltip: "Ctrl+U",
-  icon: UnderlineIcon,
-};
+  underline: {
+    markName: Underline.name,
+    mainTooltip: "Underline",
+    secondaryTooltip: "Ctrl+U",
+    icon: UnderlineIcon,
+  },
 
-const link: ButtonStyleDetails = {
-  markName: "link",
-  mainTooltip: "Link",
-  secondaryTooltip: "Ctrl+K",
-  icon: LinkIcon,
-};
+  link: {
+    markName: "link",
+    mainTooltip: "Link",
+    secondaryTooltip: "Ctrl+K",
+    icon: LinkIcon,
+  },
 
-const comment: ButtonStyleDetails = {
-  markName: Comment.name,
-  mainTooltip: "Comment",
-  secondaryTooltip: "",
-  icon: Chat2LineIcon,
+  comment: {
+    markName: Comment.name,
+    mainTooltip: "Comment",
+    secondaryTooltip: "",
+    icon: Chat2LineIcon,
+  },
 };
 
 class InlineMenu extends React.Component<InlineMenuProps> {
@@ -111,37 +113,37 @@ class InlineMenu extends React.Component<InlineMenuProps> {
           <BubbleMenuButton
             editor={this.props.editor}
             onClick={() => this.props.editor.chain().focus().toggleBold().run()}
-            styleDetails={bold}
+            styleDetails={buttonDetails.bold}
           />
           <BubbleMenuButton
             editor={this.props.editor}
             onClick={() =>
               this.props.editor.chain().focus().toggleItalic().run()
             }
-            styleDetails={italic}
+            styleDetails={buttonDetails.italic}
           />
           <BubbleMenuButton
             editor={this.props.editor}
             onClick={() =>
               this.props.editor.chain().focus().toggleStrike().run()
             }
-            styleDetails={strike}
+            styleDetails={buttonDetails.strike}
           />
           <BubbleMenuButton
             editor={this.props.editor}
             onClick={() => this.props.editor.chain().focus().toggleCode().run()}
-            styleDetails={code}
+            styleDetails={buttonDetails.code}
           />
           <BubbleMenuButton
             editor={this.props.editor}
             onClick={() =>
               this.props.editor.chain().focus().toggleUnderline().run()
             }
-            styleDetails={underline}
+            styleDetails={buttonDetails.underline}
           />
           <LinkBubbleMenuButton
             editor={this.props.editor}
-            styleDetails={link}
+            styleDetails={buttonDetails.link}
           />
           <BubbleMenuButton
             editor={this.props.editor}
@@ -149,7 +151,7 @@ class InlineMenu extends React.Component<InlineMenuProps> {
               const comment = this.props.commentStore.createComment();
               this.props.editor.chain().focus().setComment(comment.id).run();
             }}
-            styleDetails={comment}
+            styleDetails={buttonDetails.comment}
           />
         </BubbleMenu>
       );
