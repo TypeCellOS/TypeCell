@@ -368,6 +368,7 @@ function Block(
               <div
                 className={styles.handle + (hover ? " " + styles.hover : "")}
                 onMouseDown={() => (selected = getSelected())}
+                data-cy={"drag-handle"}
               />
             </Tippy>
           </div>

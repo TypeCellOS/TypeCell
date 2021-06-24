@@ -42,6 +42,7 @@ const BubbleMenuLinkButton = (props: LinkMenuButtonProps) => {
   return (
     <Tippy content={tooltipContent}>
       <Tippy
+        data-cy={"bubble-menu-button"}
         content={<LinkForm editor={props.editor} />}
         trigger={"click"}
         interactive={true}

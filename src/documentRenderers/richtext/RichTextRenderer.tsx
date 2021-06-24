@@ -89,9 +89,6 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
   }, []);
 
   const editor = useEditor({
-    onUpdate: ({ editor }) => {
-      console.log(editor.getJSON());
-    },
     extensions: [
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,

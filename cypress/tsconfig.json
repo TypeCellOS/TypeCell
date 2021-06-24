@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "es5",
     "lib": ["es5", "dom"],
-    "types": ["cypress"]
+    "types": ["cypress", "cypress-real-events"]
   },
   "include": ["**/*.ts"]
 }

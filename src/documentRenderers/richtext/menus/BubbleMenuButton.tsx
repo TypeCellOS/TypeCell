@@ -54,6 +54,7 @@ const BubbleMenuButton = (props: MenuButtonProps) => {
   return (
     <Tippy content={tooltipContent}>
       <Button
+        data-cy={"bubble-menu-button"}
         appearance="subtle"
         onClick={props.onClick}
         isSelected={isButtonSelected()}

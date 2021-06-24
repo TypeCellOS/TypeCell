@@ -180,7 +180,10 @@ export class DocConnection extends Disposable {
         });
       }
 
-      this.webrtcProvider = new WebrtcProvider(this.identifier.id, this._ydoc);
+      this.webrtcProvider = new WebrtcProvider(
+        this.identifier.id + Math.random(),
+        this._ydoc
+      );
       runInAction(() => {
         this.doc = new BaseResource(this._ydoc, this);
       });
