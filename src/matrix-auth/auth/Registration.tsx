@@ -27,10 +27,17 @@ import AutoDiscoveryUtils, {
   ValidatedServerConfig,
 } from "./util/AutoDiscoveryUtils";
 import { messageForResourceLimitError } from "./util/messages";
-import AuthBody from "./views/AuthBody";
+import AuthBodyContextWrapper from "./views/AuthBodyContextWrapper";
 import AuthHeader from "./views/AuthHeader";
-import AuthPage from "./views/AuthPage";
 import RegistrationForm from "./views/RegistrationForm";
+import ErrorSectionContextWrapper from "./views/ErrorSectionContextWrapper";
+import { PageLayout, Main, Content, Banner } from "@atlaskit/page-layout";
+import Button from "@atlaskit/button";
+import { HelperMessage } from "@atlaskit/form";
+import ErrorIcon from "@atlaskit/icon/glyph/error";
+import { R400 } from "@atlaskit/theme/colors";
+import Flag from "@atlaskit/flag";
+import AuthFooter from "./views/AuthFooter";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -421,7 +428,7 @@ export default class Registration extends React.Component<IProps, IState> {
     );
   }
 
-  private onLoginClick = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+  private onLoginClick = (ev: React.MouseEvent<HTMLElement>) => {
     ev.preventDefault();
     ev.stopPropagation();
     this.props.onLoginClick();
@@ -559,10 +566,60 @@ export default class Registration extends React.Component<IProps, IState> {
   }
 
   render() {
-    let errorText;
-    const err = this.state.errorText;
-    if (err) {
-      errorText = <div className="mx_Login_error">{err}</div>;
+    const SignInSectionWrapper = ({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) => {
+      return (
+        <div
+          style={{
+            position: "absolute",
+            display: "inline-block",
+            // float: "right",
+            width: "50%",
+            height: "36px",
+            bottom: "16px",
+            right: "16px",
+            // backgroundColor: "light-grey",
+            // padding: "4px 8px 0 0",
+            textAlign: "left",
+          }}>
+          {children}
+        </div>
+      );
+    };
+
+    const SignInButtonWrapper = ({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) => {
+      return (
+        <div
+          style={{
+            position: "absolute",
+            right: "0px",
+          }}>
+          {children}
+        </div>
+      );
+    };
+
+    let errorTextSection;
+    const errorText = this.state.errorText;
+    if (errorText) {
+      errorTextSection = (
+        <ErrorSectionContextWrapper>
+          <Flag
+            appearance="error"
+            icon={<ErrorIcon label="Error" secondaryColor={R400} />}
+            id="error"
+            key="error"
+            title={errorText}
+          />
+        </ErrorSectionContextWrapper>
+      );
     }
 
     let serverDeadSection;
@@ -578,12 +635,27 @@ export default class Registration extends React.Component<IProps, IState> {
     }
 
     const signIn = (
-      <span className="mx_AuthBody_changeFlow">
-        Already have an account?{" "}
-        <a onClick={this.onLoginClick} href="#">
+      <>
+        <div
+          style={{
+            position: "absolute",
+            width: "80",
+            padding: "6px 0 0 0",
+          }}>
+          <HelperMessage>Already have an account? </HelperMessage>
+        </div>
+        {/* <a onClick={this.onLoginClick} href="#">
           Sign in here
-        </a>
-      </span>
+        </a> */}
+        <SignInButtonWrapper>
+          <Button
+            appearance="subtle"
+            onClick={(e, _) => this.onLoginClick(e)}
+            href="#">
+            Sign in
+          </Button>
+        </SignInButtonWrapper>
+      </>
     );
 
     // Only show the 'go back' button if you're not looking at the form
@@ -653,8 +725,7 @@ export default class Registration extends React.Component<IProps, IState> {
     } else {
       body = (
         <div>
-          <h2>Create account</h2>
-          {errorText}
+          {/* <PageHeader>Create account</PageHeader> */}
           {serverDeadSection}
           {/* <ServerPicker
             title={"Host account on"}
@@ -668,16 +739,25 @@ export default class Registration extends React.Component<IProps, IState> {
           /> */}
           {this.renderRegisterComponent()}
           {goBack}
-          {signIn}
+          <SignInSectionWrapper>{signIn}</SignInSectionWrapper>
         </div>
       );
     }
 
     return (
-      <AuthPage>
-        <AuthHeader />
-        <AuthBody>{body}</AuthBody>
-      </AuthPage>
+      // TODO: use manual components instead of PageLayout/etc.
+      <PageLayout>
+        <Banner isFixed={false} height={100}>
+          <AuthHeader />
+        </Banner>
+        <Content>
+          <Main width={650}>
+            {errorTextSection}
+            <AuthBodyContextWrapper>{body}</AuthBodyContextWrapper>
+            <AuthFooter />
+          </Main>
+        </Content>
+      </PageLayout>
     );
   }
 }

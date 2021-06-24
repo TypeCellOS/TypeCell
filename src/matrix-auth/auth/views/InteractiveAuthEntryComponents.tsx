@@ -156,6 +156,9 @@ export class PasswordAuthEntry extends React.Component<PasswordAuthEntryProps> {
     }
 
     return (
+      // TODO: Change this to be compatible with Atlaskit Form
+      // This form uses the old structure of forms, which has been
+      // replaced by Atlaskit Form's. See mainly Fields.tsx
       <div>
         <p>Confirm your identity by entering your account password below.</p>
         <form
