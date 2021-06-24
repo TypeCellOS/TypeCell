@@ -5,7 +5,7 @@ import { clickLastBlock, getLastBlock, goOffline } from "../../utils";
 
 context("Basic editor interaction", () => {
   beforeEach(() => {
-    cy.visit("localhost:3000/@test/editor?test");
+    cy.visit("@test/editor?test");
     getLastBlock().should("exist"); // This is needed to wait until the editor is loaded completely
     cy.on("uncaught:exception", () => {
       return false;
@@ -34,5 +34,20 @@ context("Basic editor interaction", () => {
 
     clickLastBlock().type("menu").realPress(["Shift", "ArrowLeft"]);
     cy.get("[data-cy=bubble-menu-button").should("exist");
+  });
+
+  it("Can delete block from side menu", () => {
+    // Set up the block to be deleted
+    clickLastBlock().type("First").realPress("Enter");
+    cy.get("[data-cy=block]").should("have.length", 2);
+    clickLastBlock().type("Second");
+    cy.contains("Second").should("exist");
+
+    // Open the side menu and delete
+    cy.contains("Delete").should("not.exist");
+    cy.get("[data-cy=drag-handle").last().invoke("show").click();
+    cy.contains(/delete/i).click();
+    cy.contains("Second").should("not.exist");
+    cy.contains("First").should("exist");
   });
 });
