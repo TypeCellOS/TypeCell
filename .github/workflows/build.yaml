@@ -15,12 +15,21 @@ jobs:
         with:
           node-version: 14.x
 
+      - uses: actions/cache@master
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install Dependencies
         run: npm install
 
       - name: Run unit tests
         run: npm run test
 
+      # The amount of watchers is limited by GHA by default, and sadly insufficient for our purposes,
+      # thus we need to manually increase this amount
       - name: Increase watchers
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
