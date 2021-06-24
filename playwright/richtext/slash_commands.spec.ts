@@ -79,8 +79,8 @@ test.describe("slash-command menu", () => {
     expect(await page.isVisible("data-testid=suggestion-menu")).toBeFalsy();
   });
 
-  test("should filter all default commands properly", async ({ page }) => {
-    for (const commandName of defaultCommands) {
+  for (const commandName of defaultCommands) {
+    test(`should filter ${commandName} command properly`, async ({ page }) => {
       const lastBlock = await getLastBlock(page);
 
       // Type command
@@ -96,13 +96,11 @@ test.describe("slash-command menu", () => {
       for (let i = 0; i < commandName.length + 1; i++) {
         await page.keyboard.press("Backspace");
       }
-    }
-  });
+    });
+  }
 
-  test("should create headings properly", async ({ page }) => {
-    const headings = ["h1", "h2", "h3", "h4", "h5", "h6"];
-
-    for (const heading of headings) {
+  for (const heading of ["h1", "h2", "h3", "h4", "h5", "h6"]) {
+    test(`should create ${heading} properly`, async ({ page }) => {
       const lastBlock = await getLastBlock(page);
 
       // Type command in trailing paragraph and press enter
@@ -115,6 +113,6 @@ test.describe("slash-command menu", () => {
 
       const headingElement = await secondToLastBlock.$(heading);
       expect(await headingElement.isVisible()).toBeTruthy();
-    }
-  });
+    });
+  }
 });

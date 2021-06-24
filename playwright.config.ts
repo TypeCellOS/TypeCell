@@ -12,6 +12,7 @@ const config: PlaywrightTestConfig = {
 
   // Limit the number of workers on CI, use default locally
   //   workers: process.env.CI ? 2 : undefined,
+  workers: 1,
 
   use: {
     // Browser options
