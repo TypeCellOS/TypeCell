@@ -1,7 +1,7 @@
 import { KeyboardEvent, PureComponent } from "react";
 import { Input } from "./PanelTextInputStyles";
 import { FocusEvent } from "react";
-import { browser } from "@atlaskit/editor-common";
+import browser from "../../../../../util/browser";
 
 // code adapted from https://bitbucket.org/atlassian/design-system-mirror/src/master/editor/editor-core/src/ui/PanelTextInput/index.tsx
 

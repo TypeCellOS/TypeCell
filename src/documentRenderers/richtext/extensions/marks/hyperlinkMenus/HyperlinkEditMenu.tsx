@@ -9,7 +9,7 @@ import PanelTextInput from "../AtlaskitHyperlink/PanelTextInput";
 import Tooltip from "@atlaskit/tooltip";
 import LinkIcon from "remixicon-react/LinkIcon";
 import TextIcon from "remixicon-react/TextIcon";
-import React, { useState } from "react";
+import { useState } from "react";
 
 export type HyperlinkEditorMenuProps = {
   url: string;
@@ -31,7 +31,7 @@ export const HyperlinkEditMenu = (props: HyperlinkEditorMenuProps) => {
       <Container provider={false}>
         <UrlInputWrapper>
           <IconWrapper>
-            <Tooltip content={"Edit the link"}>
+            <Tooltip content={"Edit the link"} position={"left"}>
               <LinkIcon size={20}></LinkIcon>
             </Tooltip>
           </IconWrapper>
@@ -47,7 +47,7 @@ export const HyperlinkEditMenu = (props: HyperlinkEditorMenuProps) => {
         </UrlInputWrapper>
         <TextInputWrapper>
           <IconWrapper>
-            <Tooltip content={"Edit the title"}>
+            <Tooltip content={"Edit the title"} position={"left"}>
               <TextIcon size={20}></TextIcon>
             </Tooltip>
           </IconWrapper>
