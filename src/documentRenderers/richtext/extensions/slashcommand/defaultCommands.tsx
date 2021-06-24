@@ -15,7 +15,30 @@ import QuoteIcon from "remixicon-react/DoubleQuotesRIcon";
 import SeparatorIcon from "remixicon-react/SeparatorIcon";
 import TableIcon from "remixicon-react/TableLineIcon";
 import uniqueId from "../../../../util/uniqueId";
+import { Node } from "prosemirror-model";
+import { Editor, Range } from "@tiptap/core";
 
+/**
+ * A helper function that focuses the editor,
+ * replaces the given range with the given node
+ * and then scrolls the node into view.
+ *
+ * @param editor the editor
+ * @param range the range to replace
+ * @param node the node to insert
+ */
+function replaceRangeWithNode(editor: Editor, range: Range, node: Node) {
+  editor
+    .chain()
+    .focus()
+    .replaceRangeAndUpdateSelection(range, node)
+    .scrollIntoView()
+    .run();
+}
+
+/**
+ * An array containing commands for creating all default blocks.
+ */
 const defaultCommands: { [key: string]: SlashCommand } = {
   // Command for creating a level 1 heading
   heading: new SlashCommand(
@@ -27,12 +50,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         "block-id": uniqueId(),
       });
 
-      editor
-        .chain()
-        .focus()
-        .replaceRangeCustom(range, node)
-        .scrollIntoView()
-        .run();
+      replaceRangeWithNode(editor, range, node);
 
       return true;
     },
@@ -52,12 +70,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         "block-id": uniqueId(),
       });
 
-      editor
-        .chain()
-        .focus()
-        .replaceRangeCustom(range, node)
-        .scrollIntoView()
-        .run();
+      replaceRangeWithNode(editor, range, node);
 
       return true;
     },
@@ -77,12 +90,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         "block-id": uniqueId(),
       });
 
-      editor
-        .chain()
-        .focus()
-        .replaceRangeCustom(range, node)
-        .scrollIntoView()
-        .run();
+      replaceRangeWithNode(editor, range, node);
 
       return true;
     },
@@ -102,12 +110,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         "block-id": uniqueId(),
       });
 
-      editor
-        .chain()
-        .focus()
-        .replaceRangeCustom(range, node)
-        .scrollIntoView()
-        .run();
+      replaceRangeWithNode(editor, range, node);
 
       return true;
     },
@@ -127,12 +130,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         "block-id": uniqueId(),
       });
 
-      editor
-        .chain()
-        .focus()
-        .replaceRangeCustom(range, node)
-        .scrollIntoView()
-        .run();
+      replaceRangeWithNode(editor, range, node);
 
       return true;
     },
@@ -152,12 +150,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         "block-id": uniqueId(),
       });
 
-      editor
-        .chain()
-        .focus()
-        .replaceRangeCustom(range, node)
-        .scrollIntoView()
-        .run();
+      replaceRangeWithNode(editor, range, node);
 
       return true;
     },
@@ -174,12 +167,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("paragraph", { "block-id": uniqueId() });
 
-      editor
-        .chain()
-        .focus()
-        .replaceRangeCustom(range, node)
-        .scrollIntoView()
-        .run();
+      replaceRangeWithNode(editor, range, node);
 
       return true;
     },
@@ -198,12 +186,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         editor.schema.text("// Enter code here :)")
       );
 
-      editor
-        .chain()
-        .focus()
-        .replaceRangeCustom(range, node)
-        .scrollIntoView()
-        .run();
+      replaceRangeWithNode(editor, range, node);
 
       return true;
     },
@@ -219,12 +202,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
     (editor, range) => {
       const node = editor.schema.node("codeBlock", { "block-id": uniqueId() });
 
-      editor
-        .chain()
-        .focus()
-        .replaceRangeCustom(range, node)
-        .scrollIntoView()
-        .run();
+      replaceRangeWithNode(editor, range, node);
 
       return true;
     },
@@ -250,12 +228,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         listItem
       );
 
-      editor
-        .chain()
-        .focus()
-        .replaceRangeCustom(range, node)
-        .scrollIntoView()
-        .run();
+      replaceRangeWithNode(editor, range, node);
 
       return true;
     },
@@ -281,12 +254,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         listItem
       );
 
-      editor
-        .chain()
-        .focus()
-        .replaceRangeCustom(range, node)
-        .scrollIntoView()
-        .run();
+      replaceRangeWithNode(editor, range, node);
 
       return true;
     },
@@ -307,12 +275,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
         paragraph
       );
 
-      editor
-        .chain()
-        .focus()
-        .replaceRangeCustom(range, node)
-        .scrollIntoView()
-        .run();
+      replaceRangeWithNode(editor, range, node);
 
       return true;
     },
@@ -336,7 +299,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       editor
         .chain()
         .focus()
-        .replaceRangeCustom(range, node)
+        .replaceRangeAndUpdateSelection(range, node)
         .command(({ tr, dispatch }) => {
           if (dispatch) {
             // the node immediately after the cursor

@@ -25,7 +25,7 @@ type SuggestionGroupProps<T> = {
   selectedIndex?: number;
 
   /**
-   * Callback for handling clicking on an item
+   * Callback that gets executed when an item is clicked on.
    */
   clickItem: (item: T) => void;
 };
@@ -101,7 +101,7 @@ function SuggestionComponent<T extends SuggestionItem>(
     <div className={styles.buttonItem}>
       <ButtonItem
         isSelected={isButtonSelected} // This is needed to navigate with the keyboard
-        data-cy={isButtonSelected ? "selected-suggestion" : undefined}
+        testId={isButtonSelected ? "selected-suggestion" : undefined}
         iconBefore={getIcon(props.item, isButtonSelected)}
         onClick={(e) => {
           setTimeout(() => {
