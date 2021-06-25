@@ -17,7 +17,7 @@ const config: PlaywrightTestConfig = {
   use: {
     // Browser options
     headless: true,
-    slowMo: 100,
+    // slowMo: 100,
 
     // Context options
     viewport: { width: 1280, height: 720 },
