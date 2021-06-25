@@ -111,8 +111,6 @@ export function SuggestionPlugin<T extends SuggestionItem>({
       // prevent blurring when clicking with the mouse inside the popup menu
       const blurMeta = transaction.getMeta("blur");
       if (blurMeta?.event.relatedTarget) {
-        console.log(blurMeta?.event.relatedTarget);
-
         const c = renderer.getComponent();
         if (c?.contains(blurMeta.event.relatedTarget)) {
           return false;
