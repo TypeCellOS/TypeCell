@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { getLastBlock, getNthBlock, randomDocumentUrl } from "./util";
+import { getFirstBlock, randomDocumentUrl } from "./util";
 
 const MENU_BUTTONS: { selector: string; regex: RegExp }[] = [
   { selector: "inline-menu-bold", regex: /Bold/ },
@@ -23,7 +23,7 @@ test.describe("inline menu", () => {
   });
 
   test("should show when text is selected", async ({ page }) => {
-    const firstBlock = await getNthBlock(page, 0);
+    const firstBlock = await getFirstBlock(page);
 
     await firstBlock.click();
     await firstBlock.type("test");
@@ -43,7 +43,7 @@ test.describe("inline menu", () => {
     test(`tooltip for ${button.selector} button should show on hover`, async ({
       page,
     }) => {
-      const firstBlock = await getNthBlock(page, 0);
+      const firstBlock = await getFirstBlock(page);
 
       await firstBlock.click();
       await firstBlock.type("t");
