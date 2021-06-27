@@ -1,3 +1,5 @@
+/*Login.tsx and Registration shared styling*/
+
 /* .AuthPage {
 } */
 
@@ -38,4 +40,49 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+}
+
+.AuthError {
+  position: relative;
+  border: 1px solid;
+  border-color: var(--N40);
+  box-shadow: 0px 4px 8px rgba(9, 30, 66, 0.25),
+    0px 0px 1px rgba(9, 30, 66, 0.31);
+  border-radius: 4;
+  max-width: 500px;
+  margin: 16px auto;
+}
+
+/* Registration.tsx styling */
+
+.RegisterButton {
+  position: absolute;
+  display: inline-block;
+  width: 76%;
+  height: 32px;
+  bottom: 16px;
+  right: 16px;
+  text-align: left;
+}
+
+/* Registration.tsx styling */
+
+.SignIn {
+  position: absolute;
+  display: inline-block;
+  width: 42%;
+  height: 32px;
+  bottom: 16px;
+  right: 16px;
+  text-align: left;
+}
+
+.SignInText {
+  position: absolute;
+  padding: 4px 0 0 0;
+}
+
+.SignInButton {
+  position: absolute;
+  right: 0px;
 }

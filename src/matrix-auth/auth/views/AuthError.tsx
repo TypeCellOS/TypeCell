@@ -17,11 +17,7 @@ limitations under the License.
 import React from "react";
 import { N40 } from "@atlaskit/theme/colors";
 
-export const ErrorSectionContextWrapper = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const AuthError = ({ children }: { children: React.ReactNode }) => {
   return (
     <div
       style={{
@@ -38,4 +34,4 @@ export const ErrorSectionContextWrapper = ({
   );
 };
 
-export default ErrorSectionContextWrapper;
+export default AuthError;

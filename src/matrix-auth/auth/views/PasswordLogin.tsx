@@ -94,6 +94,16 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
 
     const login = this.state.loginType;
 
+    // do field-level validation on fields we only want to validate
+    // on submission instead of after every event.
+    if (
+      login === LoginField.Email &&
+      data.email &&
+      !looksValidEmail(data.email)
+    ) {
+      return { email: "Doesn't look like a valid email address" };
+    }
+
     // set usernameOrEmail to either username or email
     if (login === LoginField.MatrixId) {
       usernameOrEmail = data.username ? data.username : "";
@@ -118,16 +128,6 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     // });
   };
 
-  // Field-level validations
-  // these validation functions take the field value and should return
-  // an "error" if it is not valid, or undefined if it is valid.
-  // If ShowErrorMsg is set in the corresponding Field, the error string
-  // will be displayed when the field is invalid. Similarly, if ShowValidMsg
-  // is set in the corresponding Field, a validation message will be displayed
-  // if the field is valid. The valid message is also set in the Field props.
-  // Additionally, if a "progress"(range 0-1) is returned with the "error",
-  // a progress bar will be rendered under the field.
-
   private onUsernameValidate = (value?: string) => {
     if (!value) {
       return { error: "Enter username" };
@@ -139,8 +139,8 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
   private onEmailValidate = (value?: string) => {
     if (!value) {
       return { error: "Enter e-mail" };
-    } else if (!looksValidEmail(value)) {
-      return { error: "Doesn't look like a valid email address" };
+      // } else if (!looksValidEmail(value)) {
+      //   return { error: "Doesn't look like a valid email address" };
     } else {
       return {};
     }
@@ -173,6 +173,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             disabled={this.props.disableSubmit}
             defaultValue={this.props.defaultUsernameOrEmail}
             isRequired
+            showErrorMsg
             onValidate={this.onEmailValidate}
             ref={(field) => (this[LoginField.Email] = field)}
           />
@@ -257,8 +258,17 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             value={this.state.loginType}
             onChange={this.onLoginTypeChange}
             disabled={this.props.disableSubmit}
-            label={"Sign in with"}>
-            <option key={LoginField.MatrixId} value={LoginField.MatrixId}>
+            label={"Sign in with"}
+            defaultValue={{
+              label: "Username",
+              value: this.state.loginType,
+            }}
+            options={[
+              { label: "Username", value: LoginField.MatrixId },
+              { label: "Email Address", value: LoginField.Email },
+              { label: "Phone", value: LoginField.Phone },
+            ]}>
+            {/* <option key={LoginField.MatrixId} value={LoginField.MatrixId}>
               {"Username"}
             </option>
             <option key={LoginField.Email} value={LoginField.Email}>
@@ -266,14 +276,14 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             </option>
             <option key={LoginField.Password} value={LoginField.Password}>
               {"Phone"}
-            </option>
+            </option> */}
           </Field>
         </div>
       );
     }
 
     return (
-      // Renders an Atlaskit form together with many other components,
+      // Renders an Atlaskit Form together with many other components,
       // mainly Atlaskit Fields. This is an uncontrolled form, but we pass
       // many props into the Field components, while Atlaskit does most of the
       // front-end like handling focus, blurring, validation error rendering, etc.

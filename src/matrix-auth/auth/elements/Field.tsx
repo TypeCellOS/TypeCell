@@ -26,7 +26,7 @@ import {
   Field as AtlaskitField,
   ValidMessage,
 } from "@atlaskit/form";
-import Select from "@atlaskit/select";
+import Select, { OptionType } from "@atlaskit/select";
 import { SuccessProgressBar } from "@atlaskit/progress-bar";
 
 const BASE_ID = "mx_Field";
@@ -36,6 +36,7 @@ function getId() {
 }
 
 interface IProps {
+  // The field's key, which Atlaskit uses in the Form state in the key-value per Field.
   key?: string;
   // The field's ID, which binds the input and label together. Immutable.
   id?: string;
@@ -50,14 +51,30 @@ interface IProps {
   // The callback called whenever the contents of the field
   // changes.  Returns an object with `valid` boolean field
   // and a `feedback` react component field to provide feedback
+  // The callback function takes the field value and should return
+  // an "error" if it is not valid, or undefined if it is valid.
+  // If ShowErrorMsg is set in the corresponding Field, the error string
+  // will be displayed when the field is invalid. Similarly, if ShowValidMsg
+  // is set in the corresponding Field, a validation message will be displayed
+  // if the field is valid. The valid message is also set in the Field props.
+  // Additionally, if a "progress"(range 0-1) is returned with the "error",
+  // a progress bar will be rendered under the field.
   // to the user.
   onValidate?: (
     value?: string
   ) => IValidationResult | Promise<IValidationResult>;
+  // A validity check for empty field, Atlaskit will auto focus and
+  // show tooltip on submission
   isRequired?: boolean;
+  // Whether Atlaskit should render a ValidMessage when validation passes
+  // The message should be passed to validMessage prop
   showValidMsg?: boolean;
+  // Whether Atlaskit should render a ErrorMessage when validation fails
+  // The message should be returned by the validate function
   showErrorMsg?: boolean;
+  // The HelperMessage message, if provided, that Atlaskit will show under the field.
   helperMessage?: string;
+  // The ValidMessage that is rendered if field is valid and showValidMsg is true.
   validMessage?: string;
   // All other props pass through to the <input>.
 }
@@ -74,9 +91,15 @@ export interface IInputProps
   element?: "input";
 }
 
-interface ISelectProps extends IProps, SelectHTMLAttributes<HTMLSelectElement> {
+// TODO: consider removing SelectHTMLAttributes extension and use custom props
+interface ISelectProps
+  extends IProps,
+    Omit<SelectHTMLAttributes<HTMLSelectElement>, "defaultValue"> {
   // To define options for a select, use <Field><option ... /></Field>
   element: "select";
+  defaultValue?: OptionType;
+  options?: OptionType[];
+  // onChange?:
 }
 
 interface ITextareaProps
@@ -92,6 +115,16 @@ interface IState {
   progress?: number;
 }
 
+// Field renders an appropriate Atlaskit Field based on the given props.
+//
+// Input and Select are the two available field types, and Textarea could be
+// implemented when needed(current codebase does not make use of it, Matrix did).
+//
+// Field events, including submission, will trigger Atlaskits validation call,
+// which in turn calls the onValidate function provided to this component. More
+// sophisticated rendering of validity that Atlaskit does on each field can be
+// set by props. for more information regarding props see comments on each prop,
+// as well as Atlaskit documentation for more detauls on how Fields work.
 export default class Field extends React.PureComponent<PropShapes, IState> {
   private id: string;
   private input:
@@ -105,6 +138,7 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     type: "text",
     showValidMsg: false,
     showErrorMsg: false,
+    isRequired: false,
   };
 
   constructor(props: PropShapes) {
@@ -115,10 +149,6 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     };
 
     this.id = this.props.id || getId();
-  }
-
-  public focus() {
-    this.input!.focus();
   }
 
   public validate = async (value?: string) => {
@@ -158,16 +188,20 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     }
 
     return (
+      // Renders an Atlaskit Field based on provided props to this component.
+      // Used inside Atlaskit Form components. See commnets in this file and
+      // Atlaskit documentation for more details.
       <AtlaskitField
         label={this.props.label}
         name={this.props.name}
-        validate={this.validate}>
+        validate={this.validate}
+        isRequired={this.props.isRequired}>
         {({ fieldProps, error, valid }: any) => {
           if (element === "input") {
             return (
               <Fragment>
                 <TextField
-                  defaultValue=""
+                  defaultValue={this.props.defaultValue}
                   {...(inputProps_ as any)}
                   {...fieldProps}
                   onChange={(e) => {
@@ -188,23 +222,13 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
               </Fragment>
             );
           } else if (element === "select") {
-            // TODO: should move props into ISelectProps and let caller
-            // define these props. I attempted this once but since ISelectProps
-            // extends HTMLSelectElement I was not able to redefine "defaultValue".
             return (
               <Select
                 {...(inputProps_ as any)}
                 {...fieldProps}
-                defaultValue={{
-                  label: "Username",
-                  value: this.props.value,
-                }}
+                defaultValue={this.props.defaultValue}
                 onChange={this.props.onChange}
-                options={[
-                  { label: "Username", value: "login_field_mxid" },
-                  { label: "Email address", value: "login_field_email" },
-                  { label: "Phone", value: "login_field_phone" },
-                ]}
+                options={(this.props as ISelectProps).options}
               />
             );
           } else {

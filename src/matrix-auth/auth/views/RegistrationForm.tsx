@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React, { ChangeEvent } from "react";
+import React from "react";
 
 import PassphraseField from "./PassphraseField";
 
@@ -58,8 +58,8 @@ interface IProps {
   onEditServerDetailsClick?(): void;
 }
 
-interface IState {}
-
+// The type for the form data, represents the structure of the form,
+// and also gets passed into the submit handler of the form.
 interface RegistrationFormData {
   username?: string;
   password?: string;
@@ -69,10 +69,7 @@ interface RegistrationFormData {
 /*
  * A pure UI component which displays a registration form.
  */
-export default class RegistrationForm extends React.PureComponent<
-  IProps,
-  IState
-> {
+export default class RegistrationForm extends React.PureComponent<IProps> {
   [RegistrationField.Username]: Field | null = null;
   [RegistrationField.Password]: Field | null = null;
   [RegistrationField.PasswordConfirm]: Field | null = null;
@@ -94,25 +91,11 @@ export default class RegistrationForm extends React.PureComponent<
   private onSubmit = (data: RegistrationFormData) => {
     if (!this.props.canSubmit) return;
 
-    this.doSubmit(data);
-  };
-
-  private doSubmit(data: RegistrationFormData) {
     let username = data.username || "";
     let password = data.password || "";
 
     this.props.onRegisterClick({ username, password });
-  }
-
-  // Field-level validations
-  // these validation functions take the field value and should return
-  // an "error" if it is not valid, or undefined if it is valid.
-  // If ShowErrorMsg is set in the corresponding Field, the error string
-  // will be displayed when the field is invalid. Similarly, if ShowValidMsg
-  // is set in the corresponding Field, a validation message will be displayed
-  // if the field is valid. The valid message is also set in the Field props.
-  // Additionally, if a "progress"(range 0-1) is returned with the "error",
-  // a progress bar will be rendered under the field.
+  };
 
   private onPasswordConfirmValidate = (value?: string) => {
     if (
@@ -251,6 +234,7 @@ export default class RegistrationForm extends React.PureComponent<
       </Button>
     );
 
+    // TODO email registration has yet to be implemented
     let emailHelperText: JSX.Element = <></>;
     if (this.showEmail()) {
       if (this.showPhoneNumber()) {

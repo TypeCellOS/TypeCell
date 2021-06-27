@@ -33,7 +33,7 @@ import { ErrorMessage, HelperMessage } from "@atlaskit/form";
 import Button from "@atlaskit/button";
 import Spinner from "@atlaskit/spinner";
 import PageHeader from "@atlaskit/page-header";
-import ErrorSectionContextWrapper from "./views/ErrorSectionContextWrapper";
+import AuthError from "./views/AuthError";
 import ErrorIcon from "@atlaskit/icon/glyph/error";
 import { R400 } from "@atlaskit/theme/colors";
 import Flag from "@atlaskit/flag";
@@ -578,7 +578,7 @@ export default class LoginComponent extends React.PureComponent<
     let errorTextSection;
     if (errorText) {
       errorTextSection = (
-        <ErrorSectionContextWrapper>
+        <div className={styles.AuthErro}>
           <Flag
             appearance="error"
             icon={<ErrorIcon label="Error" secondaryColor={R400} />}
@@ -586,7 +586,7 @@ export default class LoginComponent extends React.PureComponent<
             key="error"
             title={errorText}
           />
-        </ErrorSectionContextWrapper>
+        </div>
       );
     }
 
@@ -615,53 +615,12 @@ export default class LoginComponent extends React.PureComponent<
       footer = (
         <Button
           appearance="subtle"
-          onClick={(e, analyticsEvent) => this.onTryRegisterClick(e)}
+          onClick={(e, _) => this.onTryRegisterClick(e)}
           href="#">
           Register
         </Button>
       );
     }
-
-    const ExtraContextWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => {
-      return (
-        <div
-          style={{
-            position: "absolute",
-            display: "inline-block",
-            width: "76%",
-            height: "36px",
-            bottom: "16px",
-            right: "16px",
-            textAlign: "left",
-          }}>
-          {children}
-        </div>
-      );
-    };
-
-    // OLD STRUCTURE USING COMPONENTS
-    // return (
-    //   // TODO: use manual components instead of PageLayout/Banner/etc.
-    //   <AuthPage>
-    //     <AuthHeader>
-    //       <AuthHeaderLogo>🌐 TypeCell</AuthHeaderLogo>
-    //     </AuthHeader>
-    //     <AuthBody>
-    //       {errorTextSection}
-    //       <AuthForm>
-    //         {this.renderLoginComponentForFlows()}
-    //         <ExtraContextWrapper>{footer}</ExtraContextWrapper>
-    //       </AuthForm>
-    //       <AuthFooter>
-    //         <HelperMessage>Powered by Matrix</HelperMessage>
-    //       </AuthFooter>
-    //     </AuthBody>
-    //   </AuthPage>
-    // );
 
     // Renders the components that make up the login page
     return (
@@ -675,7 +634,7 @@ export default class LoginComponent extends React.PureComponent<
           {errorTextSection}
           <div className={styles.AuthForm}>
             {this.renderLoginComponentForFlows()}
-            <ExtraContextWrapper>{footer}</ExtraContextWrapper>
+            <div className={styles.RegisterButton}>{footer}</div>
           </div>
         </div>
         <div className={styles.AuthFooter}>

@@ -35,7 +35,7 @@ import AuthForm from "./views/AuthForm";
 import AuthFooter from "./views/AuthFooter";
 import PasswordLogin from "./views/PasswordLogin";
 import RegistrationForm from "./views/RegistrationForm";
-import ErrorSectionContextWrapper from "./views/ErrorSectionContextWrapper";
+import AuthError from "./views/AuthError";
 import Button from "@atlaskit/button";
 import { HelperMessage } from "@atlaskit/form";
 import ErrorIcon from "@atlaskit/icon/glyph/error";
@@ -570,51 +570,11 @@ export default class Registration extends React.Component<IProps, IState> {
   }
 
   render() {
-    const SignInSectionWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => {
-      return (
-        <div
-          style={{
-            position: "absolute",
-            display: "inline-block",
-            // float: "right",
-            width: "50%",
-            height: "36px",
-            bottom: "16px",
-            right: "16px",
-            // backgroundColor: "light-grey",
-            // padding: "4px 8px 0 0",
-            textAlign: "left",
-          }}>
-          {children}
-        </div>
-      );
-    };
-
-    const SignInButtonWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => {
-      return (
-        <div
-          style={{
-            position: "absolute",
-            right: "0px",
-          }}>
-          {children}
-        </div>
-      );
-    };
-
     let errorTextSection;
     const errorText = this.state.errorText;
     if (errorText) {
       errorTextSection = (
-        <ErrorSectionContextWrapper>
+        <div className={styles.AuthErro}>
           <Flag
             appearance="error"
             icon={<ErrorIcon label="Error" secondaryColor={R400} />}
@@ -622,7 +582,7 @@ export default class Registration extends React.Component<IProps, IState> {
             key="error"
             title={errorText}
           />
-        </ErrorSectionContextWrapper>
+        </div>
       );
     }
 
@@ -637,30 +597,6 @@ export default class Registration extends React.Component<IProps, IState> {
         <div className={classes}>{this.state.serverDeadError}</div>
       );
     }
-
-    const signIn = (
-      <>
-        <div
-          style={{
-            position: "absolute",
-            width: "80",
-            padding: "6px 0 0 0",
-          }}>
-          <HelperMessage>Already have an account? </HelperMessage>
-        </div>
-        {/* <a onClick={this.onLoginClick} href="#">
-          Sign in here
-        </a> */}
-        <SignInButtonWrapper>
-          <Button
-            appearance="subtle"
-            onClick={(e, _) => this.onLoginClick(e)}
-            href="#">
-            Sign in
-          </Button>
-        </SignInButtonWrapper>
-      </>
-    );
 
     // Only show the 'go back' button if you're not looking at the form
     let goBack;
@@ -728,7 +664,7 @@ export default class Registration extends React.Component<IProps, IState> {
       );
     } else {
       body = (
-        <div>
+        <>
           {/* <PageHeader>Create account</PageHeader> */}
           {serverDeadSection}
           {/* <ServerPicker
@@ -743,26 +679,25 @@ export default class Registration extends React.Component<IProps, IState> {
           /> */}
           {this.renderRegisterComponent()}
           {goBack}
-          <SignInSectionWrapper>{signIn}</SignInSectionWrapper>
-        </div>
+          {/* <SignIn>{signIn}</SignIn> */}
+          <div className={styles.SignIn}>
+            <div className={styles.SignInText}>
+              <HelperMessage>Already have an account?</HelperMessage>
+            </div>
+            <div className={styles.SignInButton}>
+              <Button
+                appearance="subtle"
+                onClick={(e, _) => this.onLoginClick(e)}
+                href="#">
+                Sign in
+              </Button>
+            </div>
+          </div>
+        </>
       );
     }
 
-    // OLD METHOD USING COMPONENTS
-    // return (
-    //   // TODO: use manual components instead of PageLayout/etc.
-    //   <AuthPage>
-    //     <AuthHeader>
-    //       <AuthHeaderLogo>🌐 TypeCell</AuthHeaderLogo>
-    //     </AuthHeader>
-    //     {errorTextSection}
-    //     <AuthForm>{body}</AuthForm>
-    //     <AuthFooter>
-    //       <HelperMessage>Powered by Matrix</HelperMessage>
-    //     </AuthFooter>
-    //   </AuthPage>
-    // );
-
+    // Renders the components that make up the registration page
     return (
       <div className={styles.AuthPage}>
         <div className={styles.AuthHeader}>
