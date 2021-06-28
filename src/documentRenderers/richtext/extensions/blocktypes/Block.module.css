@@ -123,6 +123,10 @@
   background-color: #aad2ff;
 }
 
+code ::selection {
+  background-color: #808080;
+}
+
 :global(div[data-reference-hidden]) {
   visibility: hidden !important;
 }
