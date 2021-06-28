@@ -37,7 +37,8 @@ import AuthError from "./views/AuthError";
 import ErrorIcon from "@atlaskit/icon/glyph/error";
 import { R400 } from "@atlaskit/theme/colors";
 import Flag from "@atlaskit/flag";
-import styles from "./WrapperStyling.module.css";
+import AuthStyles from "./AuthStyles.module.css";
+import styles from "./Login.module.css";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -578,7 +579,7 @@ export default class LoginComponent extends React.PureComponent<
     let errorTextSection;
     if (errorText) {
       errorTextSection = (
-        <div className={styles.AuthErro}>
+        <div className={AuthStyles.AuthError}>
           <Flag
             appearance="error"
             icon={<ErrorIcon label="Error" secondaryColor={R400} />}
@@ -624,20 +625,20 @@ export default class LoginComponent extends React.PureComponent<
 
     // Renders the components that make up the login page
     return (
-      <div className={styles.AuthPage}>
-        <div className={styles.AuthHeader}>
-          <div className={styles.AuthHeaderLogo}>
-            <span className={styles.AuthHeaderLogoSpan}>🌐 TypeCell</span>
+      <div className={AuthStyles.AuthPage}>
+        <div className={AuthStyles.AuthHeader}>
+          <div className={AuthStyles.AuthHeaderLogo}>
+            <span className={AuthStyles.AuthHeaderLogoSpan}>🌐 TypeCell</span>
           </div>
         </div>
-        <div className={styles.AuthBody}>
+        <div className={AuthStyles.AuthBody}>
           {errorTextSection}
-          <div className={styles.AuthForm}>
+          <div className={AuthStyles.AuthForm}>
             {this.renderLoginComponentForFlows()}
             <div className={styles.RegisterButton}>{footer}</div>
           </div>
         </div>
-        <div className={styles.AuthFooter}>
+        <div className={AuthStyles.AuthFooter}>
           <HelperMessage>Powered by Matrix</HelperMessage>
         </div>
       </div>

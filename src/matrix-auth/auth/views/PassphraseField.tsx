@@ -18,10 +18,11 @@ import React, { PureComponent, RefCallback, RefObject } from "react";
 
 import Field, { IInputProps, IValidationResult } from "../elements/Field";
 
-interface IProps extends Omit<IInputProps, "onValidate"> {
+interface IProps extends IInputProps {
   autoFocus?: boolean;
   minScore: 0 | 1 | 2 | 3 | 4;
   fieldRef?: RefCallback<Field> | RefObject<Field>;
+  defaultValue?: string;
 }
 
 class PassphraseField extends PureComponent<IProps> {
@@ -68,10 +69,10 @@ class PassphraseField extends PureComponent<IProps> {
         onValidate={this.validate}
         showValidMsg
         showErrorMsg
+        defaultValue={this.props.defaultValue}
         validMessage="Nice, strong password!"
         isRequired
         ref={this.props.fieldRef}
-        onChange={this.props.onChange}
       />
     );
   }

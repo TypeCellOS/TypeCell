@@ -41,7 +41,8 @@ import { HelperMessage } from "@atlaskit/form";
 import ErrorIcon from "@atlaskit/icon/glyph/error";
 import { R400 } from "@atlaskit/theme/colors";
 import Flag from "@atlaskit/flag";
-import styles from "./WrapperStyling.module.css";
+import AuthStyles from "./AuthStyles.module.css";
+import styles from "./Registration.module.css";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -574,7 +575,7 @@ export default class Registration extends React.Component<IProps, IState> {
     const errorText = this.state.errorText;
     if (errorText) {
       errorTextSection = (
-        <div className={styles.AuthErro}>
+        <div className={AuthStyles.AuthError}>
           <Flag
             appearance="error"
             icon={<ErrorIcon label="Error" secondaryColor={R400} />}
@@ -699,17 +700,17 @@ export default class Registration extends React.Component<IProps, IState> {
 
     // Renders the components that make up the registration page
     return (
-      <div className={styles.AuthPage}>
-        <div className={styles.AuthHeader}>
-          <div className={styles.AuthHeaderLogo}>
-            <span className={styles.AuthHeaderLogoSpan}>🌐 TypeCell</span>
+      <div className={AuthStyles.AuthPage}>
+        <div className={AuthStyles.AuthHeader}>
+          <div className={AuthStyles.AuthHeaderLogo}>
+            <span className={AuthStyles.AuthHeaderLogoSpan}>🌐 TypeCell</span>
           </div>
         </div>
-        <div className={styles.AuthBody}>
+        <div className={AuthStyles.AuthBody}>
           {errorTextSection}
-          <div className={styles.AuthForm}>{body}</div>
+          <div className={AuthStyles.AuthForm}>{body}</div>
         </div>
-        <div className={styles.AuthFooter}>
+        <div className={AuthStyles.AuthFooter}>
           <HelperMessage>Powered by Matrix</HelperMessage>
         </div>
       </div>

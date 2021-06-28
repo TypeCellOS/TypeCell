@@ -1,0 +1,19 @@
+.SignIn {
+  position: absolute;
+  display: inline-block;
+  width: 42%;
+  height: 32px;
+  bottom: 16px;
+  right: 16px;
+  text-align: left;
+}
+
+.SignInText {
+  position: absolute;
+  padding: 4px 0 0 0;
+}
+
+.SignInButton {
+  position: absolute;
+  right: 0px;
+}

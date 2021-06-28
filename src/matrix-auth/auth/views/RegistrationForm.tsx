@@ -182,6 +182,7 @@ export default class RegistrationForm extends React.PureComponent<IProps> {
       <PassphraseField
         minScore={PASSWORD_MIN_SCORE}
         fieldRef={(field) => (this[RegistrationField.Password] = field)}
+        defaultValue={this.props.defaultPassword}
       />
     );
   }
