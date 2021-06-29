@@ -16,7 +16,6 @@ const SideMenu = (props: Props) => {
     <div className={styles.menuList}>
       <MenuGroup>
         <ButtonItem onClick={props.onDelete}>Delete</ButtonItem>
-        <ButtonItem isDisabled={true}>Item 2</ButtonItem>
       </MenuGroup>
     </div>
   );

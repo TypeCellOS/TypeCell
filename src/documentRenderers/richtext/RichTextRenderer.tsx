@@ -120,7 +120,11 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
 
       // marks:
       Bold,
-      Code,
+      Code.configure({
+        HTMLAttributes: {
+          style: "background-color: #DFE1E6; color: #FF5630; padding: 2px",
+        },
+      }),
       Italic,
       Strike,
       Underline,
@@ -129,7 +133,8 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
 
       // custom blocks:
       ImageBlock,
-      BlockQuoteBlock.configure({ placeholder: "Empty quote" }),
+      BlockQuoteBlock,
+      // .configure({ placeholder: "Empty quote" }),
       CodeBlockBlock,
       HeadingBlock.configure({ placeholder: "Heading" }),
       HorizontalRuleBlock,

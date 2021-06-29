@@ -191,7 +191,7 @@ const defaultCommands: { [key: string]: SlashCommand } = {
       return true;
     },
     ["code", "codeblock", "code block", "cell"],
-    undefined, // TODO: add icon
+    CodeIcon, // TODO: add icon
     "A TypeCell editor block, for writing code that is automatically run"
   ),
 
