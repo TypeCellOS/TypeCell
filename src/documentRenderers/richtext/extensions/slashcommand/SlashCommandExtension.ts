@@ -1,13 +1,35 @@
-import { Extension } from "@tiptap/core";
+import { Extension, Range } from "@tiptap/core";
 import { Selection } from "prosemirror-state";
 import defaultCommands from "./defaultCommands";
 import { CommandGroup, SlashCommand } from "./SlashCommand";
 import { SuggestionPlugin } from "../../prosemirrorPlugins/suggestions/SuggestionPlugin";
 import { searchBlocks } from "../../../../search";
+import { Node } from "prosemirror-model";
+import uniqueId from "../../../../util/uniqueId";
 
 export type SlashCommandOptions = {
   commands: { [key: string]: SlashCommand };
 };
+
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    replaceRangeAndUpdateSelection: {
+      /**
+       * Command for replacing a range with a node.
+       *
+       * This command tries to put the cursor at the start of the newly created node,
+       * such that the user can start typing in the new node immediately.
+       *
+       * **The behaviour of this command is undefined if the new node is not editable (i.e. if the cursor cannot be placed inside of the new node).**
+       *
+       * @param range the range to replace
+       * @param node the prosemirror node to insert
+       * @returns true iff the command succeeded
+       */
+      replaceRangeAndUpdateSelection: (range: Range, node: Node) => ReturnType;
+    };
+  }
+}
 
 export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
   name: "slash-command",
@@ -18,25 +40,25 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
 
   addCommands() {
     return {
-      replaceRangeCustom:
+      replaceRangeAndUpdateSelection:
         (range, node) =>
         ({ tr, dispatch }) => {
           const { from, to } = range;
 
           if (dispatch) {
-            // Give the node a temporary id.
-            // This temporary id is used to keep track of the node, such that we can be 100% certain
-            // that  the cursor is placed in the right node (and not a different node of the same type for example)
-            // TODO: replace this temp-id "hack" with node-id's (once we have implemented the node-id system)
-            node.attrs["temp-id"] = `id_${Math.floor(
-              Math.random() * 0xffffffff
-            )}`;
+            // The block id is used to keep track of the node, such that we can be 100% certain
+            // that  the cursor is placed in the right nod
+            if (!node.attrs["block-id"]) {
+              throw new Error("replaceRangeCustom expects block-id");
+            }
             // Replace range with node
             tr.replaceRangeWith(from, to, node);
 
             // These positions mark the lower and upper bound of the range for searching the position of the newly placed node
             const mappedFrom = tr.mapping.map(from, -1);
             const mappedTo = tr.mapping.map(to, 1);
+
+            const blockId = node.attrs["block-id"];
 
             // Keeps track of whether the node has been placed yet
             let placed = false;
@@ -48,24 +70,19 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
               // If cursor is already placed, exit the callback and stop recursing
               if (placed) return false;
 
-              // Check if this node is the node we just created, by comparing their temp-id
-              // IMPORTANT: this temp-id is used to ensure that we place the cursor in the correct node
-              // Only comparing types, for example, is not sufficient, because the cursor might be
-              // placed in a different node of the same type
-              if (n.attrs["temp-id"] === node.attrs["temp-id"]) {
+              // Check if this node is the node we just created, by comparing their block-id
+              if (n.attrs["block-id"] === blockId) {
                 tr.setSelection(Selection.near(tr.doc.resolve(pos)));
-                placed = true;
 
+                placed = true;
                 // Stop recursing
                 return false;
               }
-
-              // In case of no success; keep on recursing
-              return true;
             });
 
-            // Clear the temp-id (NOTE: this might not work correctly, since nodes are supposed to be immutable)
-            node.attrs["temp-id"] = undefined;
+            if (!placed) {
+              console.error("couldn't find node after /command insertion");
+            }
           }
 
           return true;
@@ -100,11 +117,12 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
                   (editor, range) => {
                     const node = editor.schema.node("ref", {
                       documentId: r.document.id,
-                      blockId: r.block.id,
+                      blockId: r.block.id, // TODO: better naming for self vs reffed block
+                      "block-id": uniqueId(),
                     });
                     return editor
                       .chain()
-                      .replaceRangeCustom(range, node)
+                      .replaceRangeAndUpdateSelection(range, node)
                       .focus()
                       .scrollIntoView()
                       .run();
@@ -116,7 +134,7 @@ export const SlashCommandExtension = Extension.create<SlashCommandOptions>({
           }
           return results;
         },
-        selectItemCallback: ({ item, editor, range }) => {
+        onSelectItem: ({ item, editor, range }) => {
           item.execute(editor, range);
         },
       }),

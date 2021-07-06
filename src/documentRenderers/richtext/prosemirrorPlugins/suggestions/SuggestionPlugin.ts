@@ -1,61 +1,54 @@
 import { Editor, Range } from "@tiptap/core";
 import { escapeRegExp, groupBy } from "lodash";
 import { Plugin, PluginKey, Selection } from "prosemirror-state";
-import { EditorView, Decoration, DecorationSet } from "prosemirror-view";
+import { Decoration, DecorationSet } from "prosemirror-view";
 import SuggestionItem from "./SuggestionItem";
-import createRenderer from "./SuggestionListReactRenderer";
-import { ReplaceStep } from "prosemirror-transform";
-export interface SuggestionRenderer<T extends SuggestionItem> {
-  onExit?: (props: SuggestionRendererProps<T>) => void;
-  onUpdate?: (props: SuggestionRendererProps<T>) => void;
-  onStart?: (props: SuggestionRendererProps<T>) => void;
-  onKeyDown?: (props: SuggestionRendererKeyDownProps) => boolean;
-}
 
-export interface SuggestionRendererKeyDownProps {
-  view: EditorView;
-  event: KeyboardEvent;
-  range: Range;
-}
-
-export type SuggestionRendererProps<T extends SuggestionItem> = {
-  editor: Editor;
-  range: Range;
-  query: string;
-  groups: {
-    [groupName: string]: T[];
-  };
-  count: number;
-  selectItemCallback: (item: T) => void;
-  decorationNode: Element | null;
-  // virtual node for popper.js or tippy.js
-  // this can be used for building popups without a DOM node
-  clientRect: (() => DOMRect) | null;
-  onClose: () => void;
-};
+import createRenderer, {
+  SuggestionRendererProps,
+} from "./SuggestionListReactRenderer";
 
 export type SuggestionPluginOptions<T extends SuggestionItem> = {
-  // Used for ensuring that the plugin key is unique when more than one instance of the SuggestionPlugin is used.
+  /**
+   * The name of the plugin.
+   *
+   * Used for ensuring that the plugin key is unique when more than one instance of the SuggestionPlugin is used.
+   */
   pluginName: string;
+
+  /**
+   * The TipTap editor.
+   */
   editor: Editor;
+
+  /**
+   * The character that should trigger the suggestion menu to pop up (e.g. a '/' for commands)
+   */
   char: string;
-  selectItemCallback?: (props: {
-    item: T;
-    editor: Editor;
-    range: Range;
-  }) => void;
-  items?: (filter: string) => T[];
-  renderer?: SuggestionRenderer<T>;
+
+  /**
+   * The callback that gets executed when an item is selected by the user.
+   *
+   * **NOTE:** The command text is not removed automatically from the editor by this plugin,
+   * this should be done manually. The `editor` and `range` properties passed
+   * to the callback function might come in handy when doing this.
+   */
+  onSelectItem?: (props: { item: T; editor: Editor; range: Range }) => void;
+
+  /**
+   * A function that should supply the plugin with items to suggest, based on a certain query string.
+   */
+  items?: (query: string) => T[];
+
   allow?: (props: { editor: Editor; range: Range }) => boolean;
 };
 
 /**
- * Finds a command: a specified character (e.g. '/') followed by a string of letters and/or numbers.
- * Returns the word following the specified character or undefined if no such word could be found.
- * Only works if the command is right before the cursor (without a space in between) and the cursor is in a paragraph node.
+ * Finds a command: a specified character (e.g. '/') followed by a string of characters (all characters except the specified character are allowed).
+ * Returns the string following the specified character or undefined if no command was found.
  *
- * @param char the character that indicated the start of the command
- * @param selection the selection (only works if the selection is empty; i.e. is a cursor).
+ * @param char the character that indicates the start of a command
+ * @param selection the selection (only works if the selection is empty; i.e. is a blinking cursor).
  * @returns an object containing the matching word (excluding the specified character) and the range of the match (including the specified character) or undefined if there is no match.
  */
 export function findCommandBeforeCursor(
@@ -91,6 +84,7 @@ export function findCommandBeforeCursor(
  * This version is adapted from the aforementioned version in the following ways:
  * - This version supports generic items instead of only strings (to allow for more advanced filtering for example)
  * - This version hides some unnecessary complexity from the user of the plugin.
+ * - This version handles key events differently
  *
  * @param options options for configuring the plugin
  * @returns the prosemirror plugin
@@ -99,19 +93,31 @@ export function SuggestionPlugin<T extends SuggestionItem>({
   pluginName,
   editor,
   char,
-  selectItemCallback = () => {},
+  onSelectItem: selectItemCallback = () => {},
   items = () => [],
-  renderer = undefined,
 }: SuggestionPluginOptions<T>) {
-  // Use react renderer by default
-  // This will fail if the editor is not a @tiptap/react editor
-  if (!renderer) renderer = createRenderer(editor);
+  // Assertions
+  if (char.length !== 1) throw new Error("'char' should be a single character");
+
+  const renderer = createRenderer<T>(editor);
 
   // Create a random plugin key (since this plugin might be instantiated multiple times)
   const PLUGIN_KEY = new PluginKey(`suggestions-${pluginName}`);
 
   return new Plugin({
     key: PLUGIN_KEY,
+
+    filterTransaction(transaction) {
+      // prevent blurring when clicking with the mouse inside the popup menu
+      const blurMeta = transaction.getMeta("blur");
+      if (blurMeta?.event.relatedTarget) {
+        const c = renderer.getComponent();
+        if (c?.contains(blurMeta.event.relatedTarget)) {
+          return false;
+        }
+      }
+      return true;
+    },
 
     view() {
       return {
@@ -146,12 +152,9 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           };
 
           const rendererProps: SuggestionRendererProps<T> = {
-            editor,
-            range: state.range,
-            query: state.query,
             groups: changed || started ? groups : {},
             count: state.items.length,
-            selectItemCallback: (item: T) => {
+            onSelectItem: (item: T) => {
               deactivate();
               selectItemCallback({
                 item,
@@ -159,7 +162,6 @@ export function SuggestionPlugin<T extends SuggestionItem>({
                 range: state.range,
               });
             },
-            decorationNode,
             // virtual node for popper.js or tippy.js
             // this can be used for building popups without a DOM node
             clientRect: decorationNode
@@ -167,20 +169,20 @@ export function SuggestionPlugin<T extends SuggestionItem>({
               : null,
             onClose: () => {
               deactivate();
-              renderer?.onExit?.(rendererProps);
+              renderer.onExit?.(rendererProps);
             },
           };
 
           if (stopped) {
-            renderer?.onExit?.(rendererProps);
+            renderer.onExit?.(rendererProps);
           }
 
           if (changed) {
-            renderer?.onUpdate?.(rendererProps);
+            renderer.onUpdate?.(rendererProps);
           }
 
           if (started) {
-            renderer?.onStart?.(rendererProps);
+            renderer.onStart?.(rendererProps);
           }
         },
       };
@@ -202,9 +204,9 @@ export function SuggestionPlugin<T extends SuggestionItem>({
       apply(transaction, prev, oldState, newState) {
         const { selection } = transaction;
         const next = { ...prev };
-        // We can only be suggesting if there is no selection
 
         if (
+          // only show popup if selection is a blinking cursor
           selection.from === selection.to &&
           // deactivate popup from view (e.g.: choice has been made or esc has been pressed)
           !transaction.getMeta(PLUGIN_KEY)?.deactivate &&
@@ -298,7 +300,9 @@ export function SuggestionPlugin<T extends SuggestionItem>({
           return false;
         }
 
-        return renderer?.onKeyDown?.({ view, event, range }) || false;
+        // pass the key event onto the renderer (to handle arrow keys, enter and escape)
+        // return true if the event got handled by the renderer or false otherwise
+        return renderer.onKeyDown?.(event) || false;
       },
 
       // Setup decorator on the currently active suggestion.

@@ -12,16 +12,16 @@ import { DocConnection } from "../../../../store/DocConnection";
 import { autorun } from "mobx";
 
 declare module "@tiptap/core" {
-  interface Commands {
+  interface Commands<ReturnType> {
     collaboration: {
       /**
        * Undo recent changes
        */
-      undo: () => Command;
+      undo: () => ReturnType;
       /**
        * Reapply reverted changes
        */
-      redo: () => Command;
+      redo: () => ReturnType;
     };
   }
 }
@@ -123,12 +123,26 @@ export const Collaboration = Extension.create<CollaborationOptions>({
       if (!docId) {
         throw new Error("no documentId on ref");
       }
+
+      const blockId = el.getAttribute("blockId") || attrs.blockId;
+      if (!blockId) {
+        throw new Error("no blockId on ref");
+      }
+
       const resource = DocConnection.load(docId);
 
       const getElement = () => {
         let doc = resource.doc;
         if (typeof doc !== "string" && doc.doc.type === "!richtext") {
-          return doc.doc.data.firstChild;
+          return doc.doc.data.toArray().find((el) => {
+            if (
+              el instanceof XmlElement &&
+              el.getAttribute("block-id") === blockId
+            ) {
+              return true;
+            }
+            return false;
+          });
         }
         return undefined;
       };

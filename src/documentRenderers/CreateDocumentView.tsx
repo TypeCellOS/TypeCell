@@ -29,7 +29,7 @@ const CreateDocumentView = observer((props: Props) => {
 
   return (
     <div className={styles.container}>
-      <button onClick={createNotebook}>Create new document</button>
+      <button onClick={createNotebook}>Create new notebook</button>
       <button onClick={createPlugin}>Create new plugin</button>
       <button onClick={createRichText}>Create new rich text editor</button>
       {values(runtimeStore.resourceTypes).map((type) => (

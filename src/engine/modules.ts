@@ -1,9 +1,9 @@
 import { TypeCellContext } from "./context";
 import { observable, untracked, autorun } from "mobx";
-import { stored } from "./storage/stored";
-import { view } from "./view";
+// import { stored } from "./storage/stored";
+// import { view } from "./view";
 
-const unnamedModule = Symbol("unnamed");
+export const unnamedModule = Symbol("unnamed");
 
 export type Module = {
   name: string | typeof unnamedModule;
@@ -11,6 +11,32 @@ export type Module = {
   factoryFunction: Function;
 };
 
+/**
+ * for compiled format, e.g.:
+
+ export default (define) =>
+  define(["require", "exports", "lodash"], async function (
+    require,
+    exports,
+    lodash_1
+  ) {
+    ...
+  }
+ */
+export function getModulesFromDefineCaller(
+  caller: (define: any) => any,
+  scope: any
+): Module[] {
+  const modules: Module[] = [];
+  const define = createDefine(modules);
+  caller.apply(scope, [define]);
+  return modules;
+}
+
+/**
+ * for editor / repl format, where code is a string
+ * prepared by getModulesFromTypeCellCode
+ */
 function getModulesFromCode(code: string, scope: any): Module[] {
   const modules: Module[] = [];
   const define = createDefine(modules);
@@ -45,14 +71,14 @@ function createDefine(modules: Module[]) {
   };
 }
 
-export function createExecutionScope(context: TypeCellContext) {
+export function createExecutionScope(context: TypeCellContext<any>) {
   const scope = {
     autorun,
     $: context.context,
     untracked,
     // editor: globalEditor,
-    stored,
-    view,
+    // stored,
+    // view,
     observable,
   };
   return scope;
@@ -82,7 +108,7 @@ export function getModulesFromTypeCellCode(compiledCode: string, scope: any) {
   `;
 
   totalCode = totalCode.replace(
-    /^(define\((".*", )?\[.*\], )function/gm,
+    /^\s*(define\((".*", )?\[.*\], )function/gm,
     "$1async function"
   ); // TODO: remove await?
 

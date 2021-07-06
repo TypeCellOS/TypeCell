@@ -15,22 +15,19 @@ limitations under the License.
 */
 
 import classNames from "classnames";
-import React, { FormEvent } from "react";
+import React from "react";
 import AccessibleButton, { ButtonEvent } from "../elements/AccessibleButton";
 import Field from "../elements/Field";
-import withValidation, { IFieldState } from "../elements/Validation";
 import { ValidatedServerConfig } from "../util/AutoDiscoveryUtils";
-import { looksValidEmail } from "../util/email";
-import { Country } from "../util/phonenumber";
 
+import Form, { FormHeader } from "@atlaskit/form";
+
+import Button, { LoadingButton } from "@atlaskit/button";
+import { looksValidEmail } from "../util/email";
 // For validating phone numbers without country codes
 const PHONE_NUMBER_REGEX = /^[0-9()\-\s]*$/;
 
 interface IProps {
-  username: string; // also used for email address
-  phoneCountry: string | undefined;
-  phoneNumber: string;
-
   serverConfig: ValidatedServerConfig;
   loginIncorrect?: boolean;
   disableSubmit?: boolean;
@@ -42,17 +39,11 @@ interface IProps {
     phoneNumber: string | undefined,
     password: string
   ): void;
-  onUsernameChanged?(username: string): void;
-  onUsernameBlur?(username: string): void;
-  onPhoneCountryChanged?(phoneCountry: string): void;
-  onPhoneNumberChanged?(phoneNumber: string): void;
   onForgotPasswordClick?(): void;
 }
 
 interface IState {
-  fieldValid: Partial<Record<LoginField, boolean>>;
   loginType: LoginField.Email | LoginField.MatrixId | LoginField.Phone;
-  password: "";
 }
 
 enum LoginField {
@@ -60,6 +51,13 @@ enum LoginField {
   MatrixId = "login_field_mxid",
   Phone = "login_field_phone",
   Password = "login_field_phone",
+}
+
+interface LoginFormData {
+  username?: string;
+  email?: string;
+  phoneNumber?: string;
+  password?: string;
 }
 
 /*
@@ -75,10 +73,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
   constructor(props: IProps) {
     super(props);
     this.state = {
-      // Field error codes by field ID
-      fieldValid: {},
       loginType: LoginField.MatrixId,
-      password: "",
     };
   }
 
@@ -88,290 +83,106 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     this.props.onForgotPasswordClick?.();
   };
 
-  private onSubmitForm = async (ev: FormEvent<HTMLFormElement>) => {
-    ev.preventDefault();
+  private onSubmitForm = async (data: LoginFormData) => {
+    let usernameOrEmail: string = "";
 
-    const allFieldsValid = await this.verifyFieldsBeforeSubmit();
-    if (!allFieldsValid) {
-      return;
+    const login = this.state.loginType;
+
+    if (login === LoginField.MatrixId) {
+      usernameOrEmail = data.username ? data.username : "";
+    } else if (login === LoginField.Email) {
+      usernameOrEmail = data.email ? data.email : "";
     }
 
-    let username = ""; // XXX: Synapse breaks if you send null here:
+    // TODO: phone signin has yet to be implemented
     let phoneCountry: string | undefined;
     let phoneNumber: string | undefined;
+    const password = data.password ? data.password : "";
 
-    switch (this.state.loginType) {
-      case LoginField.Email:
-      case LoginField.MatrixId:
-        username = this.props.username;
-        break;
-      case LoginField.Phone:
-        phoneCountry = this.props.phoneCountry;
-        phoneNumber = this.props.phoneNumber;
-        break;
-    }
-
-    this.props.onSubmit?.(
-      username,
-      phoneCountry,
-      phoneNumber,
-      this.state.password
-    );
+    this.props.onSubmit?.(usernameOrEmail, phoneCountry, phoneNumber, password);
   };
 
-  private onUsernameChanged = (ev: React.ChangeEvent<any>) => {
-    this.props.onUsernameChanged?.(ev.target.value);
-  };
-
-  private onUsernameFocus = () => {
-    if (this.state.loginType === LoginField.MatrixId) {
-      // CountlyAnalytics.instance.track("onboarding_login_mxid_focus");
-    } else {
-      // CountlyAnalytics.instance.track("onboarding_login_email_focus");
-    }
-  };
-
-  private onUsernameBlur = (ev: React.FocusEvent<any>) => {
-    if (this.state.loginType === LoginField.MatrixId) {
-      // CountlyAnalytics.instance.track("onboarding_login_mxid_blur");
-    } else {
-      // CountlyAnalytics.instance.track("onboarding_login_email_blur");
-    }
-    this.props.onUsernameBlur?.(ev.target.value);
-  };
-
-  private onLoginTypeChange = (ev: React.ChangeEvent<any>) => {
-    const loginType = ev.target.value;
+  private onLoginTypeChange = (data: any) => {
+    const loginType = data.value;
     this.setState({ loginType });
-    this.props.onUsernameChanged?.(""); // Reset because email and username use the same state
+    //this.props.onUsernameChanged?.(""); // Reset because email and username use the same state
     // CountlyAnalytics.instance.track("onboarding_login_type_changed", {
     //   loginType,
     // });
   };
 
-  private onPhoneCountryChanged = (country: Country) => {
-    this.props.onPhoneCountryChanged?.(country.iso2);
-  };
-
-  private onPhoneNumberChanged = (ev: React.ChangeEvent<any>) => {
-    this.props.onPhoneNumberChanged?.(ev.target.value);
-  };
-
-  private onPhoneNumberFocus = () => {
-    // CountlyAnalytics.instance.track("onboarding_login_phone_number_focus");
-  };
-
-  private onPhoneNumberBlur = () => {
-    // CountlyAnalytics.instance.track("onboarding_login_phone_number_blur");
-  };
-
-  private onPasswordChanged = (ev: React.ChangeEvent<any>) => {
-    this.setState({ password: ev.target.value });
-  };
-
-  private async verifyFieldsBeforeSubmit() {
-    // Blur the active element if any, so we first run its blur validation,
-    // which is less strict than the pass we're about to do below for all fields.
-    const activeElement = document.activeElement as HTMLElement;
-    if (activeElement) {
-      activeElement.blur();
+  private onUsernameValidate = (value?: string) => {
+    if (!value) {
+      return { error: "Enter username" };
+    } else {
+      return {};
     }
-
-    const fieldIDsInDisplayOrder = [this.state.loginType, LoginField.Password];
-
-    // Run all fields with stricter validation that no longer allows empty
-    // values for required fields.
-    for (const fieldID of fieldIDsInDisplayOrder) {
-      const field = this[fieldID];
-      if (!field) {
-        continue;
-      }
-      // We must wait for these validations to finish before queueing
-      // up the setState below so our setState goes in the queue after
-      // all the setStates from these validate calls (that's how we
-      // know they've finished).
-      await field.validate({ allowEmpty: false });
-    }
-
-    // Validation and state updates are async, so we need to wait for them to complete
-    // first. Queue a `setState` callback and wait for it to resolve.
-    await new Promise<void>((resolve) => this.setState({}, resolve));
-
-    if (this.allFieldsValid()) {
-      return true;
-    }
-
-    const invalidField = this.findFirstInvalidField(fieldIDsInDisplayOrder);
-
-    if (!invalidField) {
-      return true;
-    }
-
-    // Focus the first invalid field and show feedback in the stricter mode
-    // that no longer allows empty values for required fields.
-    invalidField.focus();
-    invalidField.validate({ allowEmpty: false, focused: true });
-    return false;
-  }
-
-  private allFieldsValid() {
-    const keys = Object.keys(this.state.fieldValid);
-    for (let i = 0; i < keys.length; ++i) {
-      if (!this.state.fieldValid[keys[i] as LoginField]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private findFirstInvalidField(fieldIDs: LoginField[]) {
-    for (const fieldID of fieldIDs) {
-      if (!this.state.fieldValid[fieldID] && this[fieldID]) {
-        return this[fieldID];
-      }
-    }
-    return null;
-  }
-
-  private markFieldValid(fieldID: LoginField, valid: boolean) {
-    const { fieldValid } = this.state;
-    fieldValid[fieldID] = valid;
-    this.setState({
-      fieldValid,
-    });
-  }
-
-  private validateUsernameRules = withValidation<this, void>({
-    rules: [
-      {
-        key: "required",
-        test({ value, allowEmpty }) {
-          return allowEmpty || !!value;
-        },
-        invalid: () => "Enter username",
-      },
-    ],
-  });
-
-  private onUsernameValidate = async (fieldState: IFieldState) => {
-    const result = await this.validateUsernameRules(fieldState);
-    this.markFieldValid(LoginField.MatrixId, !!result.valid);
-    return result;
   };
 
-  private validateEmailRules = withValidation<this, void>({
-    rules: [
-      {
-        key: "required",
-        test({ value, allowEmpty }) {
-          return allowEmpty || !!value;
-        },
-        invalid: () => "Enter email address",
-      },
-      {
-        key: "email",
-        test: ({ value }) => !value || looksValidEmail(value),
-        invalid: () => "Doesn't look like a valid email address",
-      },
-    ],
-  });
-
-  private onEmailValidate = async (fieldState: IFieldState) => {
-    const result = await this.validateEmailRules(fieldState);
-    this.markFieldValid(LoginField.Email, !!result.valid);
-    return result;
+  private onEmailValidate = (value?: string) => {
+    if (!value) {
+      return { error: "Enter e-mail" };
+    } else if (!looksValidEmail(value)) {
+      return { error: "Doesn't look like a valid email address" };
+    } else {
+      return {};
+    }
   };
 
-  private validatePhoneNumberRules = withValidation<this, void>({
-    rules: [
-      {
-        key: "required",
-        test({ value, allowEmpty }) {
-          return allowEmpty || !!value;
-        },
-        invalid: () => "Enter phone number",
-      },
-      {
-        key: "number",
-        test: ({ value }) => !value || PHONE_NUMBER_REGEX.test(value),
-        invalid: () =>
-          "That phone number doesn't look quite right, please check and try again",
-      },
-    ],
-  });
-
-  private onPhoneNumberValidate = async (fieldState: IFieldState) => {
-    const result = await this.validatePhoneNumberRules(fieldState);
-    this.markFieldValid(LoginField.Password, !!result.valid);
-    return result;
+  private onPasswordValidate = (value?: string) => {
+    if (!value) {
+      return { error: "Enter password" };
+    } else {
+      return {};
+    }
   };
 
-  private validatePasswordRules = withValidation<this, void>({
-    rules: [
-      {
-        key: "required",
-        test({ value, allowEmpty }) {
-          return allowEmpty || !!value;
-        },
-        invalid: () => "Enter password",
-      },
-    ],
-  });
-
-  private onPasswordValidate = async (fieldState: IFieldState) => {
-    const result = await this.validatePasswordRules(fieldState);
-    this.markFieldValid(LoginField.Password, !!result.valid);
-    return result;
-  };
-
-  private renderLoginField(loginType: IState["loginType"], autoFocus: boolean) {
+  private renderLoginField(loginType: IState["loginType"]) {
     const classes = {
       error: false,
     };
 
     switch (loginType) {
       case LoginField.Email:
-        classes.error = !!this.props.loginIncorrect && !this.props.username;
+        // classes.error = !!this.props.loginIncorrect && !this.props.username;
+        classes.error = !!this.props.loginIncorrect;
         return (
           <Field
-            className={classNames(classes)}
-            name="username" // make it a little easier for browser's remember-password
-            key="email_input"
+            key="email"
+            name="email"
             type="text"
-            label={"Email"}
+            label="Email"
             placeholder="joe@example.com"
-            value={this.props.username}
-            onChange={this.onUsernameChanged}
-            onFocus={this.onUsernameFocus}
-            onBlur={this.onUsernameBlur}
             disabled={this.props.disableSubmit}
-            autoFocus={autoFocus}
+            isRequired
+            showErrorMsg
             onValidate={this.onEmailValidate}
             ref={(field) => (this[LoginField.Email] = field)}
           />
         );
       case LoginField.MatrixId:
-        classes.error = !!this.props.loginIncorrect && !this.props.username;
+        // classes.error = !!this.props.loginIncorrect && !this.props.username;
+        classes.error = !!this.props.loginIncorrect;
         return (
           <Field
-            className={classNames(classes)}
+            key="username"
             name="username" // make it a little easier for browser's remember-password
-            key="username_input"
             type="text"
-            label={"Username"}
+            label="Username"
             placeholder={"Username".toLocaleLowerCase()}
-            value={this.props.username}
-            onChange={this.onUsernameChanged}
-            onFocus={this.onUsernameFocus}
-            onBlur={this.onUsernameBlur}
             disabled={this.props.disableSubmit}
-            autoFocus={autoFocus}
             onValidate={this.onUsernameValidate}
+            autoFocus={true}
+            isRequired
+            showErrorMsg
             ref={(field) => (this[LoginField.MatrixId] = field)}
           />
         );
+
+      // TODO: Phone signin has yet to be implemented
       case LoginField.Phone: {
-        classes.error = !!this.props.loginIncorrect && !this.props.phoneNumber;
+        // classes.error = !!this.props.loginIncorrect && !this.props.phoneNumber;
+        classes.error = !!this.props.loginIncorrect;
 
         // const phoneCountry = (
         //   <CountryDropdown
@@ -384,19 +195,14 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
 
         return (
           <Field
-            className={classNames(classes)}
+            // key="phoneNumber"
             name="phoneNumber"
-            key="phone_input"
             type="text"
-            label={"Phone"}
-            value={this.props.phoneNumber}
+            label="Phone"
             // prefixComponent={phoneCountry}
-            onChange={this.onPhoneNumberChanged}
-            onFocus={this.onPhoneNumberFocus}
-            onBlur={this.onPhoneNumberBlur}
             disabled={this.props.disableSubmit}
-            autoFocus={autoFocus}
-            onValidate={this.onPhoneNumberValidate}
+            // autoFocus={autoFocus}
+            //onValidate={this.onPhoneNumberValidate}
             ref={(field) => (this[LoginField.Password] = field)}
           />
         );
@@ -404,19 +210,9 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     }
   }
 
-  private isLoginEmpty() {
-    switch (this.state.loginType) {
-      case LoginField.Email:
-      case LoginField.MatrixId:
-        return !this.props.username;
-      case LoginField.Phone:
-        return !this.props.phoneCountry || !this.props.phoneNumber;
-    }
-  }
-
   render() {
-    let forgotPasswordJsx;
-
+    let forgotPasswordJsx: any;
+    console.log("forgotPasswordclick: ", this.props.onForgotPasswordClick);
     if (this.props.onForgotPasswordClick) {
       forgotPasswordJsx = (
         <AccessibleButton
@@ -429,29 +225,21 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
       );
     }
 
-    const pwFieldClass = classNames({
-      error: this.props.loginIncorrect && !this.isLoginEmpty(), // only error password if error isn't top field
-    });
+    const loginField = this.renderLoginField(this.state.loginType);
 
-    // If login is empty, autoFocus login, otherwise autoFocus password.
-    // this is for when auto server discovery remounts us when the user tries to tab from username to password
-    const autoFocusPassword = !this.isLoginEmpty();
-    const loginField = this.renderLoginField(
-      this.state.loginType,
-      !autoFocusPassword
-    );
-
-    let loginType;
-    // if (!SdkConfig.get().disable_3pid_login) {
+    let loginType: any;
+    //!SdkConfig.get().disable_3pid_login) {
     if (true) {
       loginType = (
         <div className="mx_Login_type_container">
-          <label className="mx_Login_type_label">{"Sign in with"}</label>
           <Field
+            key="select"
             element="select"
+            name="select"
             value={this.state.loginType}
             onChange={this.onLoginTypeChange}
-            disabled={this.props.disableSubmit}>
+            disabled={this.props.disableSubmit}
+            label={"Sign in with"}>
             <option key={LoginField.MatrixId} value={LoginField.MatrixId}>
               {"Username"}
             </option>
@@ -467,33 +255,37 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     }
 
     return (
-      <div>
-        <form onSubmit={this.onSubmitForm}>
-          {loginType}
-          {loginField}
-          <Field
-            className={pwFieldClass}
-            type="password"
-            name="password"
-            label={"Password"}
-            value={this.state.password}
-            onChange={this.onPasswordChanged}
-            disabled={this.props.disableSubmit}
-            autoFocus={autoFocusPassword}
-            onValidate={this.onPasswordValidate}
-            ref={(field) => (this[LoginField.Password] = field)}
-          />
-          {forgotPasswordJsx}
-          {!this.props.busy && (
-            <input
-              className="mx_Login_submit"
-              type="submit"
-              value={"Sign in"}
+      <Form<LoginFormData> onSubmit={this.onSubmitForm}>
+        {({ formProps }) => (
+          <form {...formProps}>
+            {/* <FormHeader title="Log in" /> */}
+            {loginType}
+            {loginField}
+            <Field
+              key="password"
+              type="password"
+              name="password"
+              label="Password"
               disabled={this.props.disableSubmit}
+              showErrorMsg
+              onValidate={this.onPasswordValidate}
+              ref={(field) => (this[LoginField.Password] = field)}
             />
-          )}
-        </form>
-      </div>
+            {forgotPasswordJsx}
+            {!this.props.busy && (
+              // <LoadingButton isLoading={this.props.busy}>
+              <Button
+                style={{ margin: "16px 0 0 0" }}
+                type="submit"
+                appearance="primary"
+                isDisabled={this.props.disableSubmit}>
+                Sign in
+              </Button>
+              // </LoadingButton>
+            )}
+          </form>
+        )}
+      </Form>
     );
   }
 }

@@ -15,17 +15,26 @@ limitations under the License.
 */
 
 import classNames from "classnames";
-import React, { ReactNode } from "react";
+import React, { Fragment, ReactNode } from "react";
 import LoginHelper, { LoginFlow } from "./LoginHelper";
 import AutoDiscoveryUtils, {
   ValidatedServerConfig,
 } from "./util/AutoDiscoveryUtils";
 import { IMatrixClientCreds } from "./util/matrix";
 import { messageForResourceLimitError } from "./util/messages";
-import AuthBody from "./views/AuthBody";
+import AuthBodyContextWrapper from "./views/AuthBodyContextWrapper";
 import AuthHeader from "./views/AuthHeader";
-import { AuthPage } from "./views/AuthPage";
+import AuthFooter from "./views/AuthFooter";
 import PasswordLogin from "./views/PasswordLogin";
+import { PageLayout, Main, Content, Banner } from "@atlaskit/page-layout";
+import { ErrorMessage, HelperMessage } from "@atlaskit/form";
+import Button from "@atlaskit/button";
+import Spinner from "@atlaskit/spinner";
+import PageHeader from "@atlaskit/page-header";
+import ErrorSectionContextWrapper from "./views/ErrorSectionContextWrapper";
+import ErrorIcon from "@atlaskit/icon/glyph/error";
+import { R400 } from "@atlaskit/theme/colors";
+import Flag from "@atlaskit/flag";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -261,77 +270,64 @@ export default class LoginComponent extends React.PureComponent<
     );
   };
 
-  onUsernameChanged = (username: string) => {
-    this.setState({ username: username });
-  };
+  // TODO (maybe later): restore
+  // onUsernameBlur = async (username: string) => {
+  //   const doWellknownLookup = username[0] === "@";
+  //   this.setState({
+  //     username: username,
+  //     busy: doWellknownLookup,
+  //     errorText: null,
+  //     canTryLogin: true,
+  //   });
+  //   if (doWellknownLookup) {
+  //     const serverName = username.split(":").slice(1).join(":");
+  //     try {
+  //       const result = await AutoDiscoveryUtils.validateServerName(serverName);
+  //       this.props.onServerConfigChange(result);
+  //       // We'd like to rely on new props coming in via `onServerConfigChange`
+  //       // so that we know the servers have definitely updated before clearing
+  //       // the busy state. In the case of a full MXID that resolves to the same
+  //       // HS as Element's default HS though, there may not be any server change.
+  //       // To avoid this trap, we clear busy here. For cases where the server
+  //       // actually has changed, `initLoginLogic` will be called and manages
+  //       // busy state for its own liveness check.
+  //       this.setState({
+  //         busy: false,
+  //       });
+  //     } catch (e) {
+  //       console.error(
+  //         "Problem parsing URL or unhandled error doing .well-known discovery:",
+  //         e
+  //       );
 
-  onUsernameBlur = async (username: string) => {
-    const doWellknownLookup = username[0] === "@";
-    this.setState({
-      username: username,
-      busy: doWellknownLookup,
-      errorText: null,
-      canTryLogin: true,
-    });
-    if (doWellknownLookup) {
-      const serverName = username.split(":").slice(1).join(":");
-      try {
-        const result = await AutoDiscoveryUtils.validateServerName(serverName);
-        this.props.onServerConfigChange(result);
-        // We'd like to rely on new props coming in via `onServerConfigChange`
-        // so that we know the servers have definitely updated before clearing
-        // the busy state. In the case of a full MXID that resolves to the same
-        // HS as Element's default HS though, there may not be any server change.
-        // To avoid this trap, we clear busy here. For cases where the server
-        // actually has changed, `initLoginLogic` will be called and manages
-        // busy state for its own liveness check.
-        this.setState({
-          busy: false,
-        });
-      } catch (e) {
-        console.error(
-          "Problem parsing URL or unhandled error doing .well-known discovery:",
-          e
-        );
+  //       let message = "Failed to perform homeserver discovery";
+  //       if (e.translatedMessage) {
+  //         message = e.translatedMessage;
+  //       }
 
-        let message = "Failed to perform homeserver discovery";
-        if (e.translatedMessage) {
-          message = e.translatedMessage;
-        }
+  //       let errorText: ReactNode = message;
+  //       let discoveryState = {};
+  //       if (AutoDiscoveryUtils.isLivelinessError(e)) {
+  //         errorText = this.state.errorText;
+  //         discoveryState = AutoDiscoveryUtils.authComponentStateForError(e);
+  //       }
 
-        let errorText: ReactNode = message;
-        let discoveryState = {};
-        if (AutoDiscoveryUtils.isLivelinessError(e)) {
-          errorText = this.state.errorText;
-          discoveryState = AutoDiscoveryUtils.authComponentStateForError(e);
-        }
+  //       this.setState({
+  //         busy: false,
+  //         errorText,
+  //         ...discoveryState,
+  //       });
+  //     }
+  //   }
+  // };
 
-        this.setState({
-          busy: false,
-          errorText,
-          ...discoveryState,
-        });
-      }
-    }
-  };
-
-  onPhoneCountryChanged = (phoneCountry: string) => {
-    this.setState({ phoneCountry: phoneCountry });
-  };
-
-  onPhoneNumberChanged = (phoneNumber: string) => {
-    this.setState({
-      phoneNumber: phoneNumber,
-    });
-  };
-
-  onRegisterClick = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+  onRegisterClick = (ev: React.MouseEvent<HTMLElement>) => {
     ev.preventDefault();
     ev.stopPropagation();
     this.props.onRegisterClick();
   };
 
-  onTryRegisterClick = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+  onTryRegisterClick = (ev: React.MouseEvent<HTMLElement>) => {
     const hasPasswordFlow = this.state.flows?.find(
       (flow) => flow.type === "m.login.password"
     );
@@ -531,13 +527,13 @@ export default class LoginComponent extends React.PureComponent<
     return (
       <PasswordLogin
         onSubmit={this.onPasswordLogin}
-        username={this.state.username}
-        phoneCountry={this.state.phoneCountry}
-        phoneNumber={this.state.phoneNumber}
-        onUsernameChanged={this.onUsernameChanged}
-        onUsernameBlur={this.onUsernameBlur}
-        onPhoneCountryChanged={this.onPhoneCountryChanged}
-        onPhoneNumberChanged={this.onPhoneNumberChanged}
+        // username={this.state.username}
+        // phoneCountry={this.state.phoneCountry}
+        // phoneNumber={this.state.phoneNumber}
+        // onUsernameChanged={this.onUsernameChanged}
+        // onUsernameBlur={this.onUsernameBlur}
+        // onPhoneCountryChanged={this.onPhoneCountryChanged}
+        // onPhoneNumberChanged={this.onPhoneNumberChanged}
         onForgotPasswordClick={this.props.onForgotPasswordClick}
         loginIncorrect={this.state.loginIncorrect}
         serverConfig={this.props.serverConfig}
@@ -569,7 +565,7 @@ export default class LoginComponent extends React.PureComponent<
     const loader =
       this.isBusy() && !this.state.busyLoggingIn ? (
         <div className="mx_Login_loader">
-          {/* <Spinner /> */}
+          <Spinner />
           Loading
         </div>
       ) : null;
@@ -578,7 +574,17 @@ export default class LoginComponent extends React.PureComponent<
 
     let errorTextSection;
     if (errorText) {
-      errorTextSection = <div className="mx_Login_error">{errorText}</div>;
+      errorTextSection = (
+        <ErrorSectionContextWrapper>
+          <Flag
+            appearance="error"
+            icon={<ErrorIcon label="Error" secondaryColor={R400} />}
+            id="error"
+            key="error"
+            title={errorText}
+          />
+        </ErrorSectionContextWrapper>
+      );
     }
 
     let serverDeadSection;
@@ -596,49 +602,61 @@ export default class LoginComponent extends React.PureComponent<
     let footer;
     if (this.props.isSyncing || this.state.busyLoggingIn) {
       footer = (
-        <div className="mx_AuthBody_paddedFooter">
-          <div className="mx_AuthBody_paddedFooter_title">
-            {/* <InlineSpinner w={20} h={20} /> */}
-            {this.props.isSyncing ? "Syncing..." : "Signing In..."}
-          </div>
-          {this.props.isSyncing && (
-            <div className="mx_AuthBody_paddedFooter_subtitle">
-              If you've joined lots of rooms, this might take a while
-            </div>
-          )}
-        </div>
+        <Fragment>
+          {/* TODO <Spinner />
+          {this.props.isSyncing ? "Syncing..." : "Signing In..."} */}
+        </Fragment>
       );
       // } else if (SettingsStore.getValue(UIFeature.Registration)) {
     } else {
       footer = (
-        <span className="mx_AuthBody_changeFlow">
-          New?{" "}
-          <a onClick={this.onTryRegisterClick} href="#">
-            Create account
-          </a>
-        </span>
+        <Button
+          appearance="subtle"
+          onClick={(e, analyticsEvent) => this.onTryRegisterClick(e)}
+          href="#">
+          Register
+        </Button>
       );
     }
 
+    const ExtraContextWrapper = ({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) => {
+      return (
+        <div
+          style={{
+            position: "absolute",
+            display: "inline-block",
+            width: "76%",
+            height: "36px",
+            bottom: "16px",
+            right: "16px",
+            textAlign: "left",
+          }}>
+          {children}
+        </div>
+      );
+    };
+
     return (
-      <AuthPage>
-        <AuthHeader />
-        <AuthBody>
-          <h2>
-            Sign in
-            {loader}
-          </h2>
-          {errorTextSection}
-          {serverDeadSection}
-          {/* <ServerPicker
-            serverConfig={this.props.serverConfig}
-            onServerConfigChange={this.props.onServerConfigChange}
-          /> */}
-          (TODO: pick server)
-          {this.renderLoginComponentForFlows()}
-          {footer}
-        </AuthBody>
-      </AuthPage>
+      // TODO: use manual components instead of PageLayout/Banner/etc.
+      <PageLayout>
+        <Banner isFixed={false} height={100}>
+          <AuthHeader />
+        </Banner>
+        <Content>
+          <Main width={650}>
+            {errorTextSection}
+            <AuthBodyContextWrapper>
+              {this.renderLoginComponentForFlows()}
+              <ExtraContextWrapper>{footer}</ExtraContextWrapper>
+            </AuthBodyContextWrapper>
+            <AuthFooter />
+          </Main>
+        </Content>
+      </PageLayout>
     );
   }
 }

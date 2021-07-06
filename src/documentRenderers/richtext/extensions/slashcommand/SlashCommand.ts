@@ -1,5 +1,4 @@
 import { Editor, Range } from "@tiptap/core";
-import React from "react";
 import { RemixiconReactIconComponentType } from "remixicon-react";
 import SuggestionItem from "../../prosemirrorPlugins/suggestions/SuggestionItem";
 
@@ -8,6 +7,7 @@ export type SlashCommandCallback = (editor: Editor, range: Range) => boolean;
 export enum CommandGroup {
   HEADINGS = "Headings",
   BASIC_BLOCKS = "Basic Blocks",
+  CODE = "Code Blocks",
 
   // Just some examples, that are not currently in use
   INLINE = "Inline",
