@@ -12,7 +12,6 @@ import * as Y from "yjs";
 import MatrixProvider from "../matrix-yjs/MatrixProvider";
 import { createMatrixDocument } from "../matrix-yjs/MatrixRoomManager";
 
-import { observeDoc } from "../moby/doc";
 import { Disposable } from "../util/vscode-common/lifecycle";
 import { BaseResource } from "./BaseResource";
 import { Identifier, parseIdentifier, tryParseIdentifier } from "./Identifier";
@@ -109,8 +108,6 @@ export class DocConnection extends Disposable {
 
     console.log("new docconnection", this.identifier.id);
     this._ydoc = new Y.Doc({ guid: this.identifier.id });
-
-    observeDoc(this._ydoc);
 
     makeObservable(this, {
       doc: observable.ref,
@@ -219,7 +216,10 @@ export class DocConnection extends Disposable {
     );
   }
 
-  public static async create(id: string | { owner: string; document: string }) {
+  public static async create(
+    id: string | { owner: string; document: string },
+    type = "!richtext"
+  ) {
     const identifier = tryParseIdentifier(id);
 
     if (typeof identifier === "string") {
@@ -242,7 +242,7 @@ export class DocConnection extends Disposable {
       );
 
       const doc = await connection.waitForDoc();
-      doc.create("!richtext");
+      doc.create(type);
       return doc;
     }
 

@@ -8,4 +8,5 @@ export type CodeModel = {
   getValue(): string;
   getCompiledJavascriptCode(): Promise<string>;
   readonly path: string;
+  readonly language: string;
 };

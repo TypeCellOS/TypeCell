@@ -38,10 +38,13 @@ export const NewPageDialog = (props: {
             setError("");
             setLoading(true);
 
-            const ret = await DocConnection.create({
-              owner: props.ownerId,
-              document: obj.title,
-            });
+            const ret = await DocConnection.create(
+              {
+                owner: props.ownerId,
+                document: obj.title,
+              },
+              "!notebook"
+            );
             setLoading(false);
 
             if (typeof ret === "string") {

@@ -25,29 +25,22 @@ export class CellListModel {
       return val instanceof Y.XmlElement && val.nodeName === "typecell";
     }) as Y.XmlElement[];
 
-    if (_.isEqual(children, this._previousChildren)) {
+    if (
+      _.isEqual(children, this._previousChildren) &&
+      _.isEqual(
+        children.map((c) => ({
+          id: c.getAttribute("block-id"),
+          lang: c.getAttribute("language"),
+        })),
+        this._previousCells.map((c) => ({ id: c.id, lang: c.language }))
+      )
+    ) {
       return this._previousCells;
     }
 
     this._previousChildren = children;
     this._previousCells = children.map((el) => {
-      const id = el.getAttribute("block-id");
-      if (!id) {
-        throw new Error("no id specified");
-      }
-      const path = "!@" + this.documentId.substr(1) + "/" + id + ".cell.tsx";
-
-      if (!el.firstChild) {
-        throw new Error("unexpected");
-      }
-
-      const code = el.firstChild;
-
-      if (!(code instanceof Y.XmlText)) {
-        throw new Error("should be text");
-      }
-
-      return new CellModel(id, path, code);
+      return new CellModel(this.documentId, el);
     });
     return this._previousCells;
   }

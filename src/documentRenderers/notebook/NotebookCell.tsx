@@ -3,39 +3,28 @@ import { observer } from "mobx-react-lite";
 // import useCellModel from "./useCellModel.ts.bak";
 import type * as Monaco from "monaco-editor";
 import * as monaco from "monaco-editor";
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import {
-  VscChevronDown,
-  VscChevronRight,
-  VscFile,
-  VscFileCode,
-  VscTrash,
-} from "react-icons/vsc";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
 import { MonacoBinding } from "y-monaco";
 import { Awareness } from "y-protocols/awareness";
-import { CellModel } from "../../models/CellModel";
 import {
   getTypeCellCodeModel,
   TypeCellCodeModel,
 } from "../../models/TypeCellCodeModel";
 import PluginEngine from "../../pluginEngine/PluginEngine";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
+import { NotebookCellModel } from "./NotebookCellModel";
 import Output from "./Output";
 
 type Props = {
-  cell: CellModel;
+  cell: NotebookCellModel;
   engine: PluginEngine | EngineWithOutput;
   onRemove?: () => void;
   classList?: string;
   defaultCollapsed?: boolean;
   initialFocus?: boolean;
   awareness: Awareness | null;
+  toolbarContent?: React.ReactElement;
 };
 
 const NotebookCell: React.FC<Props> = observer((props) => {
@@ -101,6 +90,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
     if (!editor) {
       return;
     }
+    console.log("acquire", props.cell.path);
     const newModel = getTypeCellCodeModel(props.cell);
 
     // TODO: do we want to do this here? At least for PluginRenderer, it will register twice
@@ -144,6 +134,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
     });
 
     return () => {
+      console.log("release", props.cell.path);
       monacoBinding.destroy();
       sizeDisposer.dispose();
       // releaseModel(props.cell);
@@ -211,33 +202,9 @@ const NotebookCell: React.FC<Props> = observer((props) => {
       <div style={{ flex: 1 }} className="notebookCell-content">
         {codeVisible && (
           <div className="notebookCell-codeContainer">
-            <div className="code-toolbar">
-              <button
-                title="TypeScript"
-                className={
-                  props.cell.language === "typescript" ? "active" : ""
-                }>
-                <VscFileCode
-                  onClick={() => (props.cell.language = "typescript")}
-                />
-              </button>
-              {/* <button title="TypeScript (node)" className={props.cell.language === "node-typescript" ? "active" : ""}>
-                <VscServerProcess onClick={() => props.cell.setLanguage("node-typescript")} />
-              </button> */}
-              <button
-                title="Markdown"
-                className={props.cell.language === "markdown" ? "active" : ""}>
-                <VscFile onClick={() => (props.cell.language = "markdown")} />
-              </button>
-              {props.onRemove && (
-                <button title="Delete" onClick={props.onRemove}>
-                  <VscTrash />
-                </button>
-              )}
-              {/* <button title="More">
-                <VscEllipsis />
-              </button> */}
-            </div>
+            {props.toolbarContent && (
+              <div className="code-toolbar">{props.toolbarContent}</div>
+            )}
             {/* <div>{Math.random()}</div> */}
             <div
               className="code"

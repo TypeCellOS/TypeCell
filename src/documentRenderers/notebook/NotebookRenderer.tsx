@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useMemo, useRef } from "react";
-import { VscDiffAdded } from "react-icons/vsc";
+import { VscDiffAdded, VscFile, VscFileCode, VscTrash } from "react-icons/vsc";
 import { DocumentResource } from "../../store/DocumentResource";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import CellListDraggableCell from "./CellListDraggableCell";
@@ -66,6 +66,29 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
             cell={e}
             engine={engine}
             awareness={props.document.webrtcProvider.awareness}
+            toolbarContent={
+              <>
+                <button
+                  title="TypeScript"
+                  className={e.language === "typescript" ? "active" : ""}>
+                  <VscFileCode onClick={() => e.setLanguage("typescript")} />
+                </button>
+                {/* <button title="TypeScript (node)" className={props.cell.language === "node-typescript" ? "active" : ""}>
+                <VscServerProcess onClick={() => props.cell.setLanguage("node-typescript")} />
+              </button> */}
+                <button
+                  title="Markdown"
+                  className={e.language === "markdown" ? "active" : ""}>
+                  <VscFile onClick={() => e.setLanguage("markdown")} />
+                </button>
+                <button title="Delete" onClick={() => remove(i)}>
+                  <VscTrash />
+                </button>
+                {/* <button title="More">
+                <VscEllipsis />
+              </button> */}
+              </>
+            }
           />
         </CellListDraggableCell>
       ))}
