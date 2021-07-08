@@ -56,7 +56,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
       )}
       {cells.map((e, i: number) => (
         <CellListDraggableCell
-          key={i}
+          key={e.id} // TODO: good that we use id here, but NotebookCell should also be robust to using "i" as key, which it currently isn't
           onAddBefore={() => onAdd(i)}
           onAddAfter={() => onAdd(i + 1)}
           onRemove={() => remove(i)}

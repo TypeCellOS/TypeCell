@@ -92,7 +92,9 @@ export class TypeCellCodeModel extends Disposable implements CodeModel {
       this.monacoModel.isDisposed() ||
       !this.monacoModelListener
     ) {
-      throw new Error("monaco already already disposed");
+      console.warn("monaco already already disposed");
+      // throw new Error("monaco already already disposed");
+      return;
     }
     this.monacoModel.dispose();
     this.monacoModelListener.dispose();
@@ -116,7 +118,6 @@ export class TypeCellCodeModel extends Disposable implements CodeModel {
   public async getCompiledJavascriptCode() {
     if (this.language === "typescript") {
       const js = await compile(this);
-      console.log(js);
       return js;
     } else if (this.language === "markdown") {
       // TODO: this is a hacky way to quickly support markdown. We compile markdown to JS so it can pass through the regular "evaluator".
