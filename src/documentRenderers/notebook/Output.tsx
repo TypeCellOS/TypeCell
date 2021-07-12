@@ -51,7 +51,6 @@ const DefaultVisualizer = (props: {
       let rules = sheet.cssRules;
       // we loop over all rules
       for (let i = 0; i < rules.length; i++) {
-        debugger;
         let rule = rules[i];
 
         let selector = (rule as any).selectorText;
