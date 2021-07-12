@@ -4,8 +4,10 @@ import * as Y from "yjs";
 import { Emitter, Event } from "../util/vscode-common/event";
 import { Disposable } from "../util/vscode-common/lifecycle";
 import { decodeBase64, encodeBase64 } from "../matrix-auth/unexported/olmlib";
+import { arrayBuffersAreEqual } from "../util/binaryEqual";
 
-const FLUSH_INTERVAL = 1000 * 5;
+const DEFAULT_FLUSH_INTERVAL = 1000 * 5;
+const FORBIDDEN_FLUSH_INTERVAL = 1000 * 5; // TODO: raise to 1 min
 
 /**
  * Syncs a Matrix room with a Yjs document.
@@ -23,6 +25,15 @@ export default class MatrixProvider extends Disposable {
   private pendingUpdates: any[] = [];
   private isSendingUpdates = false;
   private roomId: string | undefined;
+  private _canWrite: boolean = true;
+  private initializeTimeoutHandler: any;
+  private retryTimeoutHandler: any;
+
+  private readonly _onCanWriteChanged: Emitter<void> = this._register(
+    new Emitter<void>()
+  );
+  public readonly onCanWriteChanged: Event<void> =
+    this._onCanWriteChanged.event;
 
   private readonly _onDocumentAvailable: Emitter<void> = this._register(
     new Emitter<void>()
@@ -33,17 +44,27 @@ export default class MatrixProvider extends Disposable {
   private readonly _onDocumentUnavailable: Emitter<void> = this._register(
     new Emitter<void>()
   );
+
+  private setCanWrite(value: boolean) {
+    if (this._canWrite !== value) {
+      this._canWrite = value;
+      this._onCanWriteChanged.fire();
+    }
+  }
+
+  public get canWrite() {
+    return this._canWrite;
+  }
+
   public readonly onDocumentUnavailable: Event<void> =
     this._onDocumentUnavailable.event;
 
   public constructor(
     private doc: Y.Doc,
     private matrixClient: MatrixClient,
-    private typecellId: string,
-    private readOnlyAccess: boolean
+    private typecellId: string
   ) {
     super();
-
     doc.on("update", this.documentUpdateListener);
 
     // TODO: catch events for when room has been deleted or user has been kicked
@@ -59,11 +80,6 @@ export default class MatrixProvider extends Disposable {
     }
     if (origin?.provider) {
       // update from peer (e.g.: webrtc / websockets). Peer is responsible for sending to Matrix
-      return;
-    }
-
-    if (this.readOnlyAccess) {
-      console.error("received update on readonly doc");
       return;
     }
     this.pendingUpdates.push(update);
@@ -120,8 +136,14 @@ export default class MatrixProvider extends Disposable {
         content,
         ""
       );
+      this.setCanWrite(true);
     } catch (e) {
-      console.error("error sending updates", e);
+      if (e.errcode === "M_FORBIDDEN") {
+        console.warn("not allowed to edit document", e);
+        this.setCanWrite(false);
+      } else {
+        console.error("error sending updates", e);
+      }
       this.pendingUpdates.unshift(merged);
     } finally {
       this.isSendingUpdates = false;
@@ -129,9 +151,12 @@ export default class MatrixProvider extends Disposable {
 
     if (this.pendingUpdates.length) {
       // if new events have been added in the meantime (or we need to retry)
-      setTimeout(() => {
-        this.throttledFlushUpdatesToMatrix();
-      }, FLUSH_INTERVAL);
+      this.retryTimeoutHandler = setTimeout(
+        () => {
+          this.throttledFlushUpdatesToMatrix();
+        },
+        this.canWrite ? DEFAULT_FLUSH_INTERVAL : FORBIDDEN_FLUSH_INTERVAL
+      );
     }
     // syncProtocol.writeUpdate(encoder, update);
     // broadcastMessage(this, encoding.toUint8Array(encoder));
@@ -139,7 +164,7 @@ export default class MatrixProvider extends Disposable {
 
   private throttledFlushUpdatesToMatrix = _.throttle(
     this.flushUpdatesToMatrix,
-    FLUSH_INTERVAL
+    this.canWrite ? DEFAULT_FLUSH_INTERVAL : FORBIDDEN_FLUSH_INTERVAL
   );
 
   public async getEventsAfter(eventId: string | undefined) {
@@ -207,11 +232,12 @@ export default class MatrixProvider extends Disposable {
       );
       this.roomId = ret.room_id;
 
-      if (!this.matrixClient.isGuest()) {
-        // make sure we're in the room, so we keep receiving updates
-        // guests can't / won't join, so MatrixProvider won't send updates for this room
-        await this.matrixClient.joinRoom(this.roomId);
-      }
+      // TODO: we should join the room if we want to send updates
+      // if (!this.matrixClient.isGuest()) {
+      // make sure we're in the room, so we can send updates
+      // guests can't / won't join, so MatrixProvider won't send updates for this room
+      // await this.matrixClient.joinRoom(this.roomId);
+      // }
     } catch (e) {
       let timeout = 5 * 1000;
       if (e.errcode === "M_NOT_FOUND") {
@@ -226,14 +252,21 @@ export default class MatrixProvider extends Disposable {
       }
 
       // TODO: current implementation uses polling to get room availability, but should be possible to get a real-time solution
-      setTimeout(() => {
+      this.initializeTimeoutHandler = setTimeout(() => {
         this.initialize();
       }, timeout);
       return;
     }
 
     let initialLocalState = Y.encodeStateAsUpdate(this.doc);
+    const initialLocalStateVector =
+      Y.encodeStateVectorFromUpdate(initialLocalState);
+    const deleteSetOnlyUpdate = Y.diffUpdate(
+      initialLocalState,
+      initialLocalStateVector
+    );
 
+    let oldSnapshot = Y.snapshot(this.doc);
     // This can fail because of no access to room. Because the room history should always be available,
     // we don't catch this event here
     const update = await this.getExistingStateFromRoom();
@@ -248,9 +281,26 @@ export default class MatrixProvider extends Disposable {
 
     const missingOnServer = Y.diffUpdate(initialLocalState, remoteStateVector);
 
+    // missingOnServer will always contain the entire deleteSet on startup.
+    // Unfortunately diffUpdate doesn't work well with deletes. In the if-statement
+    // below, we try to detect when missingOnServer only contains the deleteSet, with
+    // deletes that already exist on the server
+
+    if (
+      arrayBuffersAreEqual(deleteSetOnlyUpdate.buffer, missingOnServer.buffer)
+    ) {
+      // TODO: instead of next 3 lines, we can probably get deleteSet directly from "update"
+      let serverDoc = new Y.Doc();
+      Y.applyUpdate(serverDoc, update);
+      let serverSnapshot = Y.snapshot(serverDoc);
+
+      if (snapshotContainsAllDeletes(serverSnapshot, oldSnapshot)) {
+        // missingOnServer only contains a deleteSet with items that are already in the deleteSet on server
+        return;
+      }
+    }
+
     if (missingOnServer.length > 2) {
-      // TODO: missingOnServer will always send the entire deleteSet on startup.
-      // Unfortunately diffUpdate doesn't work well with deletes. Can we improve this?
       this.pendingUpdates.push(missingOnServer);
     }
 
@@ -261,7 +311,32 @@ export default class MatrixProvider extends Disposable {
 
   public dispose() {
     super.dispose();
+    clearTimeout(this.retryTimeoutHandler);
+    clearTimeout(this.initializeTimeoutHandler);
+    this.throttledFlushUpdatesToMatrix.cancel();
     this.doc.off("update", this.documentUpdateListener);
     this.matrixClient.off("Room.timeline", this.matrixRoomListener);
   }
+}
+
+// adapted from yjs snapshot equals function
+function snapshotContainsAllDeletes(
+  newSnapshot: Y.Snapshot,
+  oldSnapshot: Y.Snapshot
+) {
+  // only contains deleteSet
+  for (const [client, dsitems1] of oldSnapshot.ds.clients.entries()) {
+    const dsitems2 = newSnapshot.ds.clients.get(client) || [];
+    if (dsitems1.length > dsitems2.length) {
+      return false;
+    }
+    for (let i = 0; i < dsitems1.length; i++) {
+      const dsitem1 = dsitems1[i];
+      const dsitem2 = dsitems2[i];
+      if (dsitem1.clock !== dsitem2.clock || dsitem1.len !== dsitem2.len) {
+        return false;
+      }
+    }
+  }
+  return true;
 }

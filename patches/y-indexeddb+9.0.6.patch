@@ -1,0 +1,15 @@
+diff --git a/node_modules/y-indexeddb/src/y-indexeddb.js b/node_modules/y-indexeddb/src/y-indexeddb.js
+index 1d3124a..80a2191 100644
+--- a/node_modules/y-indexeddb/src/y-indexeddb.js
++++ b/node_modules/y-indexeddb/src/y-indexeddb.js
+@@ -132,8 +132,8 @@ export class IndexeddbPersistence extends Observable {
+    * @return {Promise<void>}
+    */
+   clearData () {
+-    return this.destroy().then(() => {
+-      idb.deleteDB(this.name)
++    return idb.deleteDB(this.name).then(() => {
++      return this.destroy()
+     })
+   }
+ 

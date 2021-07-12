@@ -4,11 +4,8 @@ import Host from "./host/Host";
 import LoginComponent from "./matrix-auth/auth/Login";
 import Registration from "./matrix-auth/auth/Registration";
 import { ValidatedServerConfig } from "./matrix-auth/auth/util/AutoDiscoveryUtils";
-import {
-  matrixAuthStore,
-  navigationStore,
-  sessionStore,
-} from "./store/local/stores";
+import { navigationStore } from "./store/local/navigationStore";
+import { matrixAuthStore, sessionStore } from "./store/local/stores";
 
 function makeRegistrationUrl(params: any) {
   let url =

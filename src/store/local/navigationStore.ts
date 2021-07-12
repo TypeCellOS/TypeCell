@@ -1,19 +1,31 @@
-import { action, makeObservable, observable, reaction } from "mobx";
+import { action, computed, makeObservable, observable, reaction } from "mobx";
 
 import routing from "../../typecellEngine/lib/routing";
 import { BaseResource } from "../BaseResource";
+import { DocConnection } from "../DocConnection";
 import { sessionStore } from "./stores";
 
 export class NavigationStore {
   public isNewPageDialogVisible = false;
   public currentPage: ReturnType<typeof routing> = routing();
 
+  public get currentDocument() {
+    if (this.currentPage.page === "document") {
+      const newConnection = DocConnection.load({
+        document: this.currentPage.document,
+        owner: this.currentPage.owner,
+      });
+      return newConnection;
+    }
+    return undefined;
+  }
   constructor() {
     makeObservable(this, {
       isNewPageDialogVisible: observable,
       showNewPageDialog: action,
       hideNewPageDialog: action,
 
+      currentDocument: computed,
       currentPage: observable.ref,
       navigateToDocument: action,
       onPopState: action,
@@ -67,6 +79,15 @@ export class NavigationStore {
       }
     );
 
+    // clean up currentDocument on navigation
+    reaction(
+      () => this.currentDocument,
+      (newVal, oldVal) => {
+        if (oldVal) {
+          oldVal.dispose();
+        }
+      }
+    );
     window.addEventListener("popstate", this.onPopState);
   }
 
@@ -133,3 +154,5 @@ export class NavigationStore {
     window.history.pushState({ url }, "", url);
   };
 }
+
+export const navigationStore = new NavigationStore();
