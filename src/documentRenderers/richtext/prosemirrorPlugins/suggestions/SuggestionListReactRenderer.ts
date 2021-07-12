@@ -1,6 +1,6 @@
 import { Editor as ReactEditor, ReactRenderer } from "@tiptap/react";
 import { Editor } from "@tiptap/core";
-import tippy from "tippy.js";
+import tippy, { Instance } from "tippy.js";
 import SuggestionItem from "./SuggestionItem";
 import { SuggestionList, SuggestionListProps } from "./SuggestionList";
 
@@ -34,7 +34,7 @@ export interface SuggestionRenderer<T extends SuggestionItem> {
   /**
    * The DOM Element representing the suggestion menu
    */
-  getComponent: () => Element;
+  getComponent: () => Element | undefined;
 }
 
 export type SuggestionRendererProps<T extends SuggestionItem> = {
@@ -87,7 +87,7 @@ export default function createRenderer<T extends SuggestionItem>(
   editor: Editor
 ): SuggestionRenderer<T> {
   let component: ReactRenderer;
-  let popup: any;
+  let popup: Instance[];
   let componentsDisposedOrDisposing = true;
   let selectedIndex = 0;
   let props: SuggestionRendererProps<T> | undefined;
@@ -120,7 +120,10 @@ export default function createRenderer<T extends SuggestionItem>(
 
   return {
     getComponent: () => {
-      return component?.element;
+      if (!popup || !popup[0]) return undefined;
+      // return the tippy container element, this is used to ensure
+      // that click events inside the menu are handled properly.
+      return popup[0].reference;
     },
     onStart: (newProps) => {
       props = newProps;

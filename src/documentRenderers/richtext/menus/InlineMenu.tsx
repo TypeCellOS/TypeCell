@@ -88,6 +88,10 @@ class InlineMenu extends React.Component<InlineMenuProps> {
       }
     }
 
+    if (resolvedPos.node(resolvedPos.depth).type.name === "codeBlock") {
+      shouldRender = false;
+    }
+
     if (
       resolvedPos.nodeAfter &&
       resolvedPos.nodeAfter.type.name === "typecell"
