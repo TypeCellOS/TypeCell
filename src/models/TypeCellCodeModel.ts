@@ -137,6 +137,19 @@ export class TypeCellCodeModel extends Disposable implements CodeModel {
         exports.default = el;
         ;
     });`;
+    } else if (this.language === "css") {
+      // TODO: same as above comment for markdown
+      return `define(["require", "exports"], function (require, exports) {
+        "use strict";
+        Object.defineProperty(exports, "__esModule", { value: true });
+        const style = document.createElement("style");
+        style.setAttribute("type", "text/css");
+        style.appendChild(document.createTextNode(${JSON.stringify(
+          this.getValue()
+        )}));
+        exports.default = style;
+        ;
+    });`;
     }
     throw new Error("unsupported language");
   }

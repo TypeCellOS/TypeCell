@@ -1,8 +1,8 @@
 import * as Y from "yjs";
 import { NotebookCellModel } from "../documentRenderers/notebook/NotebookCellModel";
 
-export type CellLanguage = "typescript" | "markdown";
-const VALID_LANGUAGES = ["typescript", "markdown"];
+export type CellLanguage = "typescript" | "markdown" | "css";
+const VALID_LANGUAGES = ["typescript", "markdown", "css"];
 export class CellModel implements NotebookCellModel {
   /** @internal */
   public readonly code: Y.Text;

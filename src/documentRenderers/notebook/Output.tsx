@@ -1,6 +1,6 @@
 import { ObservableMap, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ObjectInspector from "react-inspector";
 import { TypeCellCodeModel } from "../../models/TypeCellCodeModel";
 import { TypeVisualizer } from "../../typecellEngine/lib/exports";
@@ -8,6 +8,15 @@ import { ModelOutput } from "../../typecellEngine/ModelOutput";
 import RetryErrorBoundary from "./RetryErrorBoundary";
 
 // TODO: later maybe also use https://github.com/samdenty/console-feed to capture console messages
+
+function findStyleSheet(node: HTMLStyleElement) {
+  for (let i = document.styleSheets.length - 1; i >= 0; i--) {
+    if (document.styleSheets.item(i)?.ownerNode === node) {
+      return document.styleSheets.item(i)!;
+    }
+  }
+  return undefined;
+}
 
 // TODO: clean up props, make more simple / readable
 const DefaultVisualizer = (props: {
@@ -18,12 +27,68 @@ const DefaultVisualizer = (props: {
 }) => {
   const htmlElementKey = useRef(0);
   const { mainKey, mainExport, output, outputJS } = props;
+
+  const [styleElement, setStyleElement] = useState<CSSStyleSheet | undefined>();
+
+  /**
+   * - Adds CSS stylesheet to head
+   * - prefixes CSS rules to only affect content in typecell-output
+   * - Cleans up CSS Stylesheet on change
+   */
+  useEffect(() => {
+    if (styleElement) {
+      styleElement.ownerNode?.remove();
+      setStyleElement(undefined);
+    }
+
+    if (mainExport instanceof HTMLStyleElement) {
+      document.head.appendChild(mainExport);
+      const sheet = findStyleSheet(mainExport);
+      if (!sheet) {
+        throw new Error("css sheet not found");
+      }
+      // based on: https://stackoverflow.com/a/33237161/194651
+      let rules = sheet.cssRules;
+      // we loop over all rules
+      for (let i = 0; i < rules.length; i++) {
+        debugger;
+        let rule = rules[i];
+
+        let selector = (rule as any).selectorText;
+        let def = rule.cssText.replace(selector, "");
+
+        // we update the selector
+        let selector2 = selector.replace(/([^,]+,?)/g, ".typecell-output $1 ");
+
+        sheet.deleteRule(i); // we remove the old
+        sheet.insertRule(selector2 + def, i); // we add the new
+      }
+      setStyleElement(sheet);
+    }
+  }, [mainExport]);
+
   if (mainKey) {
     if (React.isValidElement(mainExport)) {
-      return <RetryErrorBoundary>{mainExport}</RetryErrorBoundary>;
+      return (
+        <RetryErrorBoundary>
+          <div className="typecell-output" style={{ display: "contents" }}>
+            {mainExport}
+          </div>
+        </RetryErrorBoundary>
+      );
+    } else if (mainExport instanceof HTMLStyleElement) {
+      return (
+        <span className="outputWrapper">
+          <ObjectInspector
+            name={mainKey}
+            data={styleElement}
+            expandLevel={0}></ObjectInspector>
+        </span>
+      );
     } else if (mainExport instanceof HTMLElement) {
       return (
         <div
+          className="typecell-output"
           style={{ display: "contents" }}
           key={htmlElementKey.current++}
           ref={(el) => {
@@ -83,9 +148,8 @@ type Props = {
  * - All other values are rendered using ObjectInspector
  */
 const Output: React.FC<Props> = observer((props) => {
-  const [selectedVisualizer, setSelectedVisualizer] = useState<
-    TypeVisualizer<any>
-  >();
+  const [selectedVisualizer, setSelectedVisualizer] =
+    useState<TypeVisualizer<any>>();
 
   const modelOutput = props.outputs.get(props.model);
 

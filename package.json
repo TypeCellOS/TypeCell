@@ -65,6 +65,7 @@
     "mobx": "^6.2.0",
     "mobx-react-lite": "^3.2.0",
     "monaco-editor": "^0.23.0",
+    "prettier": "^2.3.0",
     "react": "^17.0.2",
     "react-dnd": "^14.0.2",
     "react-dnd-html5-backend": "^14.0.0",
@@ -131,7 +132,6 @@
     "@types/zxcvbn": "^4.4.1",
     "cross-env": "^7.0.3",
     "fake-indexeddb": "^3.1.2",
-    "patch-package": "^6.4.7",
-    "prettier": "^2.3.0"
+    "patch-package": "^6.4.7"
   }
 }

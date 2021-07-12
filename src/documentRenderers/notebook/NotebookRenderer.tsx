@@ -1,6 +1,12 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useMemo, useRef } from "react";
-import { VscDiffAdded, VscFile, VscFileCode, VscTrash } from "react-icons/vsc";
+import {
+  VscDiffAdded,
+  VscFile,
+  VscFileCode,
+  VscFileMedia,
+  VscTrash,
+} from "react-icons/vsc";
 import { DocumentResource } from "../../store/DocumentResource";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import CellListDraggableCell from "./CellListDraggableCell";
@@ -80,6 +86,11 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
                   title="Markdown"
                   className={e.language === "markdown" ? "active" : ""}>
                   <VscFile onClick={() => e.setLanguage("markdown")} />
+                </button>
+                <button
+                  title="Markdown"
+                  className={e.language === "css" ? "active" : ""}>
+                  <VscFileMedia onClick={() => e.setLanguage("css")} />
                 </button>
                 <button title="Delete" onClick={() => remove(i)}>
                   <VscTrash />
