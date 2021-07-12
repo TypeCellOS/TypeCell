@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import * as Y from "yjs";
 import uniqueId from "../util/uniqueId";
-import { CellModel } from "./CellModel";
+import { CellLanguage, CellModel } from "./CellModel";
 
 export class CellListModel {
   /** @internal */
@@ -55,10 +55,11 @@ export class CellListModel {
     return this._previousCells;
   }
 
-  public addCell(i: number) {
+  public addCell(i: number, language: CellLanguage, content: string) {
     const element = new Y.XmlElement("typecell");
     element.setAttribute("block-id", uniqueId());
-    element.insert(0, [new Y.XmlText("// hello")]);
+    element.setAttribute("language", language);
+    element.insert(0, [new Y.XmlText(content)]);
     this.fragment.insert(i, [element]);
   }
 

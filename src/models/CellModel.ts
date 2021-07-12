@@ -1,7 +1,7 @@
 import * as Y from "yjs";
 import { NotebookCellModel } from "../documentRenderers/notebook/NotebookCellModel";
 
-type CellLanguage = "typescript" | "markdown";
+export type CellLanguage = "typescript" | "markdown";
 const VALID_LANGUAGES = ["typescript", "markdown"];
 export class CellModel implements NotebookCellModel {
   /** @internal */
@@ -29,6 +29,7 @@ export class CellModel implements NotebookCellModel {
 
     let attrLanguage = xmlElement.getAttribute("language");
     if (!attrLanguage) {
+      console.warn("setting default language to typescript");
       attrLanguage = "typescript";
       xmlElement.setAttribute("language", attrLanguage);
     }

@@ -36,7 +36,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
   }, []);
 
   const onAdd = (i: number) => {
-    props.document.cellList.addCell(i);
+    props.document.cellList.addCell(i, "typescript", "// Enter code here");
   };
 
   const remove = (i: number) => {

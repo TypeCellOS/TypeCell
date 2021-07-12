@@ -27,6 +27,7 @@ export const NewPageDialog = (props: {
         <form
           {...innerProps}
           onSubmit={async (e) => {
+            // TODO: format title?
             e.preventDefault();
             const data = new FormData(e.target as HTMLFormElement);
             const obj: any = {};
@@ -58,6 +59,12 @@ export const NewPageDialog = (props: {
               }
             } else if (ret instanceof BaseResource) {
               ret.create("!notebook");
+              ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
+              ret.doc.cellList.addCell(
+                1,
+                "typescript",
+                `export let message = "Hello World"`
+              );
               navigationStore.navigateToDocument(ret);
 
               // Bit hacky, dispose with timeout,
