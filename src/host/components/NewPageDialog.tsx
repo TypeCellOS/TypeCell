@@ -8,7 +8,7 @@ import React, { useCallback, useState } from "react";
 
 import { BaseResource } from "../../store/BaseResource";
 import { DocConnection } from "../../store/DocConnection";
-import { navigationStore } from "../../store/local/stores";
+import { navigationStore } from "../../store/local/navigationStore";
 
 import { UnreachableCaseError } from "../../util/UnreachableCaseError";
 
@@ -38,13 +38,11 @@ export const NewPageDialog = (props: {
             setError("");
             setLoading(true);
 
-            const ret = await DocConnection.create(
-              {
-                owner: props.ownerId,
-                document: obj.title,
-              },
-              "!notebook"
-            );
+            const ret = await DocConnection.create({
+              owner: props.ownerId,
+              document: obj.title,
+            });
+
             setLoading(false);
 
             if (typeof ret === "string") {
@@ -59,6 +57,7 @@ export const NewPageDialog = (props: {
                   throw new UnreachableCaseError(ret);
               }
             } else if (ret instanceof BaseResource) {
+              ret.create("!notebook");
               navigationStore.navigateToDocument(ret);
 
               // Bit hacky, dispose with timeout,

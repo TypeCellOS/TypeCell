@@ -1,5 +1,6 @@
 import { MatrixClientPeg } from "../matrix-auth/MatrixClientPeg";
 
+// TODO (security): user2 can create a room @user1/doc
 export async function createMatrixDocument(parentId: string, id: string) {
   const matrixClient = MatrixClientPeg.get();
   try {
@@ -21,11 +22,11 @@ export async function createMatrixDocument(parentId: string, id: string) {
       ""
     );
 
-    // all registered users can join
+    // invite-only
     await matrixClient.sendStateEvent(
       ret.room_id,
       "m.room.join_rules",
-      { join_rule: "public" },
+      { join_rule: "invite" }, // or "public"
       ""
     );
 

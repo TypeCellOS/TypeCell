@@ -7,7 +7,10 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { VscSignIn } from "react-icons/vsc";
 import App from "../App";
-import { sessionStore, navigationStore } from "../store/local/stores";
+import { BaseResource } from "../store/BaseResource";
+import { navigationStore } from "../store/local/navigationStore";
+import { sessionStore } from "../store/local/stores";
+import { UnreachableCaseError } from "../util/UnreachableCaseError";
 
 import NewPageDialog from "./components/NewPageDialog";
 import { ProfilePopup } from "./components/ProfilePopup";
@@ -23,23 +26,74 @@ const ProductHome = () => {
 
 const AN = AtlassianNavigation as any;
 const Navigation = observer(() => {
+  const forkAction = sessionStore.isLoggedIn ? (
+    <a
+      href=""
+      onClick={async (e) => {
+        e.preventDefault();
+        if (!navigationStore.currentDocument) {
+          throw new Error("unexpected, forking without currentDocument");
+        }
+        const result = await navigationStore.currentDocument.fork();
+        if (result instanceof BaseResource) {
+          navigationStore.navigateToDocument(result);
+        } else {
+          if (result.status !== "error") {
+            throw new UnreachableCaseError(result.status);
+          }
+          throw new Error("error while forking");
+        }
+        return false;
+      }}>
+      save a copy
+    </a>
+  ) : (
+    <a
+      href=""
+      onClick={(e) => {
+        navigationStore.showLoginScreen();
+        e.preventDefault();
+        return false;
+      }}>
+      sign in to save a copy
+    </a>
+  );
   return (
     <AN
       renderProductHome={ProductHome}
       primaryItems={[]}
-      renderProfile={observer(
-        () =>
-          (sessionStore.isLoggedIn && (
+      renderHelp={observer(() => (
+        <>
+          {navigationStore.currentDocument?.needsFork && (
+            <div>
+              Local changes ({forkAction} /{" "}
+              <a
+                href=""
+                onClick={(e) => {
+                  navigationStore.currentDocument?.revert();
+                  e.preventDefault();
+                  return false;
+                }}>
+                revert
+              </a>
+              )
+            </div>
+          )}
+        </>
+      ))}
+      renderProfile={observer(() => (
+        <>
+          {sessionStore.isLoggedIn && (
             <ProfilePopup
               navigationStore={navigationStore}
               sessionStore={sessionStore}
             />
-          )) ||
-          null
-      )}
-      renderSignIn={observer(
-        () =>
-          (!sessionStore.isLoggedIn && (
+          )}
+        </>
+      ))}
+      renderSignIn={observer(() => (
+        <>
+          {!sessionStore.isLoggedIn && (
             <PrimaryButton
               onClick={navigationStore.showLoginScreen}
               iconBefore={
@@ -48,9 +102,9 @@ const Navigation = observer(() => {
               {" "}
               Sign in
             </PrimaryButton>
-          )) ||
-          null
-      )}
+          )}
+        </>
+      ))}
     />
   );
 });

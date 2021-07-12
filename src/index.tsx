@@ -5,7 +5,7 @@ import "@atlaskit/css-reset/dist/bundle.css";
 import "./index.css";
 import MatrixApp from "./MatrixApp";
 import reportWebVitals from "./reportWebVitals";
-import { setupDocConnectionManager } from "./store/DocConnection";
+
 import * as yjsBindings from "@reactivedata/yjs-reactive-bindings";
 import * as mobx from "mobx";
 
@@ -49,8 +49,6 @@ async function init() {
   // });
   yjsBindings.useMobxBindings(mobx);
   yjsBindings.makeYJSObservable();
-
-  setupDocConnectionManager();
 
   ReactDOM.render(
     <React.StrictMode>

@@ -23,6 +23,10 @@ export class SessionStore {
         matrixClient: MatrixClient;
       } = "loading";
 
+  public get tryUser() {
+    return typeof this.user === "string" ? undefined : this.user;
+  }
+
   public get isLoggedIn() {
     return typeof this.user !== "string" && this.user.type === "matrix-user";
   }
