@@ -1,0 +1,24 @@
+import { createClient } from "matrix-js-sdk";
+
+export async function createMatrixGuestClient(config: { baseUrl: string }) {
+  const tmpClient = await createClient(config);
+  const { user_id, device_id, access_token } = await tmpClient.registerGuest();
+  let matrixClient = createClient({
+    baseUrl: config.baseUrl,
+    accessToken: access_token,
+    userId: user_id,
+    deviceId: device_id,
+  });
+  matrixClient._supportsVoip = false;
+  matrixClient._clientOpts = {
+    lazyLoadMembers: false,
+  };
+  matrixClient.setGuest(true);
+
+  // don't use startClient (because it will sync periodically), when we're in guest / readonly mode
+  // in guest mode we only use the matrixclient to fetch initial room state, but receive updates via WebRTCProvider
+
+  // matrixClient.startClient({ lazyLoadMembers: true });
+
+  return matrixClient;
+}

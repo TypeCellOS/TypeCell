@@ -6,10 +6,7 @@ import {
   runInAction,
   when,
 } from "mobx";
-import { IndexeddbPersistence } from "y-indexeddb";
-import { WebrtcProvider } from "y-webrtc";
-import * as Y from "yjs";
-import MatrixProvider from "../matrix-yjs/MatrixProvider";
+import { MatrixClientPeg } from "../matrix-auth/MatrixClientPeg";
 import { createMatrixDocument } from "../matrix-yjs/MatrixRoomManager";
 
 import { observeDoc } from "../moby/doc";
@@ -230,6 +227,7 @@ export class DocConnection extends Disposable {
       return "already-exists";
     }
     const remoteResult = await createMatrixDocument(
+      MatrixClientPeg.get(),
       identifier.owner,
       identifier.id
     );

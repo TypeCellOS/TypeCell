@@ -1,12 +1,14 @@
-import { MatrixClientPeg } from "../matrix-auth/MatrixClientPeg";
-
-export async function createMatrixDocument(parentId: string, id: string) {
-  const matrixClient = MatrixClientPeg.get();
+// TODO (security): user2 can create a room @user1/doc
+export async function createMatrixDocument(
+  matrixClient: any,
+  parentId: string,
+  roomName: string
+) {
   try {
     const ret = await matrixClient.createRoom({
-      room_alias_name: id,
+      room_alias_name: roomName,
       visibility: "private",
-      name: id,
+      name: roomName,
       topic: "",
     });
 
@@ -40,7 +42,7 @@ export async function createMatrixDocument(parentId: string, id: string) {
 
     // TODO: add room to space
 
-    return "ok" as "ok";
+    return { status: "ok" as "ok", roomId: ret.room_id };
   } catch (e) {
     if (e.errcode === "M_ROOM_IN_USE") {
       return "already-exists" as "already-exists";
