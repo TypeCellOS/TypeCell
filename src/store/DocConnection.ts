@@ -6,6 +6,7 @@ import {
   runInAction,
   when,
 } from "mobx";
+import { MatrixClientPeg } from "../matrix-auth/MatrixClientPeg";
 import { createMatrixDocument } from "../matrix-yjs/MatrixRoomManager";
 import { Disposable } from "../util/vscode-common/lifecycle";
 import { BaseResource } from "./BaseResource";
@@ -215,6 +216,7 @@ export class DocConnection extends Disposable {
     }
 
     const remoteResult = await createMatrixDocument(
+      MatrixClientPeg.get(),
       identifier.owner,
       identifier.id
     );

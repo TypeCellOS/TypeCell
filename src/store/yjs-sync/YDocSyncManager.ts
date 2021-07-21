@@ -9,6 +9,7 @@ import { Identifier } from "../Identifier";
 import { createAtom } from "mobx";
 import { MatrixClient } from "matrix-js-sdk";
 import { existsLocally, getIDBIdentifier, waitForIDBSynced } from "./IDBHelper";
+import { MatrixClientPeg } from "../../matrix-auth/MatrixClientPeg";
 
 /**
  * Given an identifier, manages local + remote syncing of a Y.Doc
@@ -170,7 +171,12 @@ export class YDocSyncManager extends Disposable {
     }
 
     this.matrixProvider = this._register(
-      new MatrixProvider(this._ydoc, this.mxClient, this.identifier.id)
+      new MatrixProvider(
+        this._ydoc,
+        this.mxClient,
+        this.identifier.id,
+        "mx.typecell.org" // TODO
+      )
     );
     this._canWriteAtom.reportChanged();
 
