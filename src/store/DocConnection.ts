@@ -221,7 +221,11 @@ export class DocConnection extends Disposable {
       identifier.id
     );
 
-    if (remoteResult === "offline" || remoteResult === "ok") {
+    if (remoteResult === "already-exists") {
+      return remoteResult;
+    }
+
+    if (remoteResult === "offline" || remoteResult.status === "ok") {
       // TODO: add to pending if "offline"
       if (remoteResult === "offline") {
         // create local-first
