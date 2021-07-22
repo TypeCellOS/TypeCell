@@ -39,8 +39,8 @@ jobs:
       - name: Check running containers
         run: docker ps -a
 
-      - name: Check docker logs
-        run: docker logs backend
+      # - name: Check docker logs
+      #   run: docker logs backend
 
       - name: Run Tests
         run: npm run test
