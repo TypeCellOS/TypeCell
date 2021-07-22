@@ -38,6 +38,13 @@ jobs:
 
       # - name: Check docker logs
       #   run: docker logs backend
+      - name: Wait for Matrix
+        uses: nev7n/wait_for_response@v1
+        with:
+          url: "http://localhost:8888/_matrix/static/"
+          responseCode: 200
+          timeout: 20000
+          interval: 500
 
       - name: Run Tests
         run: npm run test
