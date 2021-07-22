@@ -1,5 +1,6 @@
-import * as http from "http";
 import autocannon from "autocannon";
+import * as http from "http";
+import * as cp from "child_process";
 
 export async function createSimpleServer(
   handler: (req: any, res: any) => Promise<void>,
@@ -35,4 +36,24 @@ export async function runAutocannonFromNode(url: string) {
     renderResultsTable: true,
   });
   console.log(ret);
+}
+
+export async function autocannonSeparateProcess(params: string[]) {
+  console.log("autocannonSeparateProcess");
+
+  const ls = cp.spawn("./node_modules/.bin/autocannon", params);
+  return new Promise<void>((resolve) => {
+    ls.stdout.on("data", (data: any) => {
+      console.log(`stdout: ${data}`);
+    });
+
+    ls.stderr.on("data", (data: any) => {
+      console.log(`stderr: ${data}`);
+    });
+
+    ls.on("close", (code: any) => {
+      console.log(`child process exited with code ${code}`);
+      resolve();
+    });
+  });
 }

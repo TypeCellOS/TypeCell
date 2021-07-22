@@ -1,8 +1,10 @@
 import fetch from "cross-fetch";
-
-import * as cp from "child_process";
-import { createSimpleServer, runAutocannonFromNode } from "./util";
 import * as http from "http";
+import {
+  autocannonSeparateProcess,
+  createSimpleServer,
+  runAutocannonFromNode,
+} from "./util";
 
 // In this file, we compare different ways of benchmarking.
 // This can be used to estimate the overhead of our benchmarking process
@@ -124,32 +126,14 @@ async function autocannonFromNode() {
 /**
  * - Call autocannon in a separate process, which calls the test page directly
  */
-async function autocannonSeparateProcess() {
-  console.log("autocannonSeparateProcess");
+async function autocannonHomeSeparateProcess() {
+  console.log("autocannonHomeSeparateProcess");
 
-  const ls = cp.spawn("./node_modules/.bin/autocannon", [
-    "-c",
-    "10",
-    MATRIX_HOME_URL.toString(),
-  ]);
-  return new Promise<void>((resolve) => {
-    ls.stdout.on("data", (data: any) => {
-      console.log(`stdout: ${data}`);
-    });
-
-    ls.stderr.on("data", (data: any) => {
-      console.error(`stderr: ${data}`);
-    });
-
-    ls.on("close", (code: any) => {
-      console.log(`child process exited with code ${code}`);
-      resolve();
-    });
-  });
+  await autocannonSeparateProcess(["-c", "10", MATRIX_HOME_URL.toString()]);
 }
 
 async function runAllTests() {
-  await autocannonSeparateProcess();
+  await autocannonHomeSeparateProcess();
   await autocannonFromNode();
   await autocannonViaServerHttp();
   await autocannonViaServerHttpNoAgent();

@@ -1,15 +1,12 @@
-import { makeObservable, observable, runInAction } from "mobx";
-import * as Y from "yjs";
+import { MatrixClient } from "matrix-js-sdk";
+import { createAtom, makeObservable, observable, runInAction } from "mobx";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { WebrtcProvider } from "y-webrtc";
+import * as Y from "yjs";
 import MatrixProvider from "../../matrix-yjs/MatrixProvider";
 import { Disposable } from "../../util/vscode-common/lifecycle";
-
 import { Identifier } from "../Identifier";
-import { createAtom } from "mobx";
-import { MatrixClient } from "matrix-js-sdk";
 import { existsLocally, getIDBIdentifier, waitForIDBSynced } from "./IDBHelper";
-import { MatrixClientPeg } from "../../matrix-auth/MatrixClientPeg";
 
 /**
  * Given an identifier, manages local + remote syncing of a Y.Doc
@@ -136,7 +133,7 @@ export class YDocSyncManager extends Disposable {
     if (this.webrtcProvider) {
       throw new Error("already has webrtcProvider");
     }
-    this.webrtcProvider = new WebrtcProvider(this.identifier.id, this._ydoc);
+    // this.webrtcProvider = new WebrtcProvider(this.identifier.id, this._ydoc);
     runInAction(() => {
       this.doc = this._ydoc;
     });
@@ -178,6 +175,7 @@ export class YDocSyncManager extends Disposable {
         "mx.typecell.org" // TODO
       )
     );
+    this.matrixProvider.initialize();
     this._canWriteAtom.reportChanged();
 
     this._register(

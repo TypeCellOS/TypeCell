@@ -57,6 +57,7 @@
     "es-module-shims": "0.7.1",
     "fractional-indexing": "^2.0.0",
     "frontend-collective-react-dnd-scrollzone": "1.0.2",
+    "got": "^11.8.2",
     "limax": "^3.0.0",
     "lodash": "^4.17.21",
     "lowlight": "^1.20.0",
@@ -67,6 +68,7 @@
     "mobx-react-lite": "^3.2.0",
     "monaco-editor": "^0.23.0",
     "prettier": "^2.3.0",
+    "qs": "^6.10.1",
     "react": "^17.0.2",
     "react-avatar": "^3.10.0",
     "react-dnd": "^14.0.2",
@@ -100,7 +102,8 @@
     "eject": "react-scripts eject",
     "postinstall": "patch-package",
     "bench": "NODE_OPTIONS='--max-old-space-size=4096' ts-node --files -O '{\"module\":\"commonjs\"}' src/matrix-yjs/benchmark/benchmarkTest.ts ",
-    "cannon": "autocannon -c 10 http://localhost:8080"
+    "cannon": "autocannon -c 10 http://localhost:8080",
+    "cannon2": "autocannon -c 1000 -a 1000 -t 20 http://localhost:8888/_matrix/static/"
   },
   "eslintConfig": {
     "extends": [
@@ -131,15 +134,16 @@
     "@types/jest": "^26.0.22",
     "@types/lodash": "^4.14.168",
     "@types/lowlight": "0.0.2",
+    "@types/qs": "^6.9.7",
     "@types/react-inspector": "^4.0.1",
     "@types/speakingurl": "^13.0.2",
     "@types/ua-parser-js": "^0.7.36",
     "@types/uuid": "^8.3.0",
     "@types/zxcvbn": "^4.4.1",
+    "autocannon": "^7.4.0",
     "cross-env": "^7.0.3",
     "fake-indexeddb": "^3.1.2",
     "patch-package": "^6.4.7",
-    "autocannon": "^7.4.0",
     "ts-node": "^10.1.0"
   }
 }

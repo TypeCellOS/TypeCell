@@ -12,6 +12,6 @@ export async function sendMessage(
       msgtype: "m.text",
     };
   }
-
+  client.scheduler = undefined;
   await client.sendEvent(roomId, eventType, content, "");
 }

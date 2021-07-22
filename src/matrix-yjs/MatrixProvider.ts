@@ -8,8 +8,8 @@ import { Disposable } from "../util/vscode-common/lifecycle";
 import MatrixReader from "./MatrixReader";
 import { sendMessage } from "./matrixUtil";
 
-const DEFAULT_FLUSH_INTERVAL = 1000 * 5;
-const FORBIDDEN_FLUSH_INTERVAL = 1000 * 5; // TODO: raise to 1 min
+const DEFAULT_FLUSH_INTERVAL = process.env.NODE_ENV === "test" ? 100 : 1000 * 5;
+const FORBIDDEN_FLUSH_INTERVAL = 1000 * 30; // TODO: raise to 1 min
 
 /**
  * Syncs a Matrix room with a Yjs document.
@@ -31,7 +31,7 @@ export default class MatrixProvider extends Disposable {
   private initializeTimeoutHandler: any;
   private retryTimeoutHandler: any;
   private initializedResolve: any;
-  private initializedPromise = new Promise<void>((resolve) => {
+  private readonly initializedPromise = new Promise<void>((resolve) => {
     this.initializedResolve = resolve;
   });
 
@@ -59,6 +59,12 @@ export default class MatrixProvider extends Disposable {
 
   public readonly onSentAllEvents: Event<void> = this._onSentAllEvents.event;
 
+  private readonly _onReceivedEvents: Emitter<void> = this._register(
+    new Emitter<void>()
+  );
+
+  public readonly onReceivedEvents: Event<void> = this._onReceivedEvents.event;
+
   private setCanWrite(value: boolean) {
     if (this._canWrite !== value) {
       this._canWrite = value;
@@ -81,7 +87,6 @@ export default class MatrixProvider extends Disposable {
   ) {
     super();
     doc.on("update", this.documentUpdateListener);
-    this.initialize();
   }
 
   private documentUpdateListener = async (update: any, origin: any) => {
@@ -94,10 +99,11 @@ export default class MatrixProvider extends Disposable {
       return;
     }
     this.pendingUpdates.push(update);
-    this.throttledFlushUpdatesToMatrix();
+    setTimeout(() => this.throttledFlushUpdatesToMatrix(), 0); // setTimeout 0 so waitForFlush works if we call it just after setting doc
   };
 
   private processIncomingMessages = (messages: any[]) => {
+    console.log("processIncomingMessages", messages.length);
     const updates = messages.map(
       (message) => new Uint8Array(decodeBase64(message.content.body))
     );
@@ -105,6 +111,8 @@ export default class MatrixProvider extends Disposable {
 
     // Apply latest state from server
     Y.applyUpdate(this.doc, update, this);
+
+    this._onReceivedEvents.fire();
     return update;
   };
 
@@ -124,14 +132,26 @@ export default class MatrixProvider extends Disposable {
     // encoding.writeVarUint8Array(encoder, merged);
     // encoding.writeVarUint(encoder, 0);
     const str = encodeBase64(merged);
-
+    let retryImmediately = false;
     try {
+      console.log("Sending updates");
       await sendMessage(this.matrixClient, this.roomId, str);
       this.setCanWrite(true);
+      console.log("sent updates");
     } catch (e) {
       if (e.errcode === "M_FORBIDDEN") {
         console.warn("not allowed to edit document", e);
         this.setCanWrite(false);
+
+        try {
+          // make sure we're in the room, so we can send updates
+          // guests can't / won't join, so MatrixProvider won't send updates for this room
+          await this.matrixClient.joinRoom(this.roomId);
+          console.log("joined room", this.roomId);
+          retryImmediately = true;
+        } catch (e) {
+          console.warn("failed to join room", e);
+        }
       } else {
         console.error("error sending updates", e);
       }
@@ -146,9 +166,14 @@ export default class MatrixProvider extends Disposable {
         () => {
           this.throttledFlushUpdatesToMatrix();
         },
-        this.canWrite ? DEFAULT_FLUSH_INTERVAL : FORBIDDEN_FLUSH_INTERVAL
+        retryImmediately
+          ? 0
+          : this.canWrite
+          ? DEFAULT_FLUSH_INTERVAL
+          : FORBIDDEN_FLUSH_INTERVAL
       );
     } else {
+      console.log("_onSentAllEvents");
       this._onSentAllEvents.fire();
     }
     // syncProtocol.writeUpdate(encoder, update);
@@ -190,7 +215,7 @@ export default class MatrixProvider extends Disposable {
     return this.processIncomingMessages(events);
   }
 
-  private async initialize() {
+  public async initialize() {
     try {
       await this.initializeNoCatch();
     } catch (e) {
@@ -205,13 +230,6 @@ export default class MatrixProvider extends Disposable {
         "#" + this.typecellId + ":" + this.homeserver // TODO
       );
       this.roomId = ret.room_id;
-
-      // TODO: we should join the room if we want to send updates
-      // if (!this.matrixClient.isGuest()) {
-      // make sure we're in the room, so we can send updates
-      // guests can't / won't join, so MatrixProvider won't send updates for this room
-      // await this.matrixClient.joinRoom(this.roomId);
-      // }
     } catch (e) {
       let timeout = 5 * 1000;
       if (e.errcode === "M_NOT_FOUND") {
@@ -267,6 +285,7 @@ export default class MatrixProvider extends Disposable {
       // TODO: could also compare whether snapshot equal? instead of snapshotContainsAllDeletes?
       if (snapshotContainsAllDeletes(serverSnapshot, oldSnapshot)) {
         // missingOnServer only contains a deleteSet with items that are already in the deleteSet on server
+        this.initializedResolve();
         return;
       }
     }
@@ -288,7 +307,7 @@ export default class MatrixProvider extends Disposable {
     clearTimeout(this.retryTimeoutHandler);
     clearTimeout(this.initializeTimeoutHandler);
     this.throttledFlushUpdatesToMatrix.cancel();
-    this.matrixClient.off("Room.timeline", this.processIncomingMessages);
+    this.doc.off("update", this.documentUpdateListener);
   }
 }
 

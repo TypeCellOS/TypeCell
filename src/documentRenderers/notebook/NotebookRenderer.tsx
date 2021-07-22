@@ -71,7 +71,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
           <NotebookCell
             cell={e}
             engine={engine}
-            awareness={props.document.webrtcProvider.awareness}
+            awareness={props.document.webrtcProvider?.awareness}
             toolbarContent={
               <>
                 <button

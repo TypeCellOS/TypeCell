@@ -12,11 +12,13 @@ import {
 import type * as Y from "yjs";
 import { DocumentResource } from "./DocumentResource";
 import { Identifier } from "./Identifier";
+import type { WebrtcProvider } from "y-webrtc";
 
 export type BaseResourceConnection = {
   identifier: Identifier;
   dispose: () => void;
-  webrtcProvider: any; // TODO
+  /** @internal */
+  webrtcProvider: WebrtcProvider | undefined; // TODO
 };
 /**
  * A resource is an entity definied by a unique id.

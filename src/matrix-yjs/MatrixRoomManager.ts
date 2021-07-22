@@ -2,7 +2,8 @@
 export async function createMatrixDocument(
   matrixClient: any,
   parentId: string,
-  roomName: string
+  roomName: string,
+  access: "public-read-write" | "public-read"
 ) {
   try {
     const ret = await matrixClient.createRoom({
@@ -27,7 +28,7 @@ export async function createMatrixDocument(
     await matrixClient.sendStateEvent(
       ret.room_id,
       "m.room.join_rules",
-      { join_rule: "invite" }, // or "public"
+      { join_rule: access === "public-read-write" ? "public" : "invite" },
       ""
     );
 

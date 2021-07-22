@@ -6,9 +6,11 @@ const PEEK_POLL_TIMEOUT = 30 * 1000;
 const PEEK_POLL_ERROR_TIMEOUT = 30 * 1000;
 
 export default class MatrixReader extends Disposable {
-  private latestToken: string | undefined;
+  public latestToken: string | undefined;
   private disposed = false;
   private polling = false;
+  private pendingPollRequest: any;
+  private pollRetryTimeout: ReturnType<typeof setTimeout> | undefined;
 
   private readonly _onMessages: Emitter<any[]> = this._register(
     new Emitter<any[]>()
@@ -59,7 +61,7 @@ export default class MatrixReader extends Disposable {
       return;
     }
     try {
-      const results = await this.matrixClient._http.authedRequest(
+      this.pendingPollRequest = this.matrixClient._http.authedRequest(
         undefined,
         "GET",
         "/events",
@@ -71,19 +73,27 @@ export default class MatrixReader extends Disposable {
         undefined,
         PEEK_POLL_TIMEOUT * 2
       );
-
+      const results = await this.pendingPollRequest;
+      this.pendingPollRequest = undefined;
       if (this.disposed) {
         return;
       }
 
       const messages = this.getMessagesFromResults(results);
-      this._onMessages.fire(messages);
+      if (messages.length) {
+        this._onMessages.fire(messages);
+      }
 
       this.latestToken = results.end;
       this.peekPoll();
     } catch (e) {
       console.error("peek error", e);
-      setTimeout(() => this.peekPoll(), PEEK_POLL_ERROR_TIMEOUT);
+      if (!this.disposed) {
+        this.pollRetryTimeout = setTimeout(
+          () => this.peekPoll(),
+          PEEK_POLL_ERROR_TIMEOUT
+        );
+      }
     }
   }
 
@@ -116,13 +126,12 @@ export default class MatrixReader extends Disposable {
 
     let hasNextPage = true;
     while (hasNextPage) {
-      let res = await this.matrixClient._createMessagesRequest(
+      const res = await this.matrixClient._createMessagesRequest(
         this.roomId,
         token,
         30,
         "b"
       );
-
       // res.end !== res.start
       ret.push.apply(ret, this.getMessagesFromResults(res));
       token = res.end;
@@ -145,6 +154,12 @@ export default class MatrixReader extends Disposable {
   public dispose() {
     this.disposed = true;
     super.dispose();
+    if (this.pollRetryTimeout) {
+      clearTimeout(this.pollRetryTimeout);
+    }
+    if (this.pendingPollRequest) {
+      this.pendingPollRequest.abort();
+    }
     this.matrixClient.off("Room.timeline", this.matrixRoomListener);
   }
 }

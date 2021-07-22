@@ -23,7 +23,7 @@ type Props = {
   classList?: string;
   defaultCollapsed?: boolean;
   initialFocus?: boolean;
-  awareness: Awareness | null;
+  awareness: Awareness | undefined;
   toolbarContent?: React.ReactElement;
 };
 
@@ -126,7 +126,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
       props.cell.code,
       monacoModel,
       new Set([editor]),
-      props.awareness // TODO: fix reference to doc
+      props.awareness || null // TODO: fix reference to doc
     );
 
     // This is a bit of a hack. MonacoBinding sets an eventListener to cell.code.
