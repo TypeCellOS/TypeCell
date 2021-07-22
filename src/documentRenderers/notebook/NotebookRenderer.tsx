@@ -1,6 +1,12 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useMemo, useRef } from "react";
-import { VscDiffAdded } from "react-icons/vsc";
+import {
+  VscDiffAdded,
+  VscFile,
+  VscFileCode,
+  VscFileMedia,
+  VscTrash,
+} from "react-icons/vsc";
 import { DocumentResource } from "../../store/DocumentResource";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import CellListDraggableCell from "./CellListDraggableCell";
@@ -36,7 +42,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
   }, []);
 
   const onAdd = (i: number) => {
-    props.document.cellList.addCell(i);
+    props.document.cellList.addCell(i, "typescript", "// Enter code here");
   };
 
   const remove = (i: number) => {
@@ -56,7 +62,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
       )}
       {cells.map((e, i: number) => (
         <CellListDraggableCell
-          key={i}
+          key={e.id} // TODO: good that we use id here, but NotebookCell should also be robust to using "i" as key, which it currently isn't
           onAddBefore={() => onAdd(i)}
           onAddAfter={() => onAdd(i + 1)}
           onRemove={() => remove(i)}
@@ -65,7 +71,35 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
           <NotebookCell
             cell={e}
             engine={engine}
-            awareness={props.document.webrtcProvider.awareness}
+            awareness={props.document.webrtcProvider?.awareness}
+            toolbarContent={
+              <>
+                <button
+                  title="TypeScript"
+                  className={e.language === "typescript" ? "active" : ""}>
+                  <VscFileCode onClick={() => e.setLanguage("typescript")} />
+                </button>
+                {/* <button title="TypeScript (node)" className={props.cell.language === "node-typescript" ? "active" : ""}>
+                <VscServerProcess onClick={() => props.cell.setLanguage("node-typescript")} />
+              </button> */}
+                <button
+                  title="Markdown"
+                  className={e.language === "markdown" ? "active" : ""}>
+                  <VscFile onClick={() => e.setLanguage("markdown")} />
+                </button>
+                <button
+                  title="Markdown"
+                  className={e.language === "css" ? "active" : ""}>
+                  <VscFileMedia onClick={() => e.setLanguage("css")} />
+                </button>
+                <button title="Delete" onClick={() => remove(i)}>
+                  <VscTrash />
+                </button>
+                {/* <button title="More">
+                <VscEllipsis />
+              </button> */}
+              </>
+            }
           />
         </CellListDraggableCell>
       ))}

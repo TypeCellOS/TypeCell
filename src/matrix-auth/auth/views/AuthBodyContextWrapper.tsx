@@ -15,8 +15,28 @@ limitations under the License.
 */
 
 import React from "react";
+import { N40 } from "@atlaskit/theme/colors";
 
-export const AuthBody = (props: { children: any }) => {
-  return <div className="mx_AuthBody">{props.children}</div>;
+export const AuthBodyContextWrapper = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  return (
+    <div
+      style={{
+        position: "relative",
+        border: `1px solid ${N40}`,
+        boxShadow:
+          "0px 4px 8px rgba(9, 30, 66, 0.25), 0px 0px 1px rgba(9, 30, 66, 0.31)",
+        borderRadius: 4,
+        maxWidth: 500,
+        margin: "16px auto",
+        padding: "16px",
+      }}>
+      {children}
+    </div>
+  );
 };
-export default AuthBody;
+
+export default AuthBodyContextWrapper;

@@ -27,6 +27,8 @@ export function parseIdentifier(
     // return "invalid-identifier" as "invalid-identifier";
   }
 
+  // TODO: validate parts, lowercase, alphanumeric?
+
   const [owner, document] = parts;
 
   if (

@@ -6,10 +6,11 @@ import {
 } from "@atlaskit/dropdown-menu";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
-
+import Avatar from "react-avatar";
 import { SessionStore } from "../../store/local/SessionStore";
 import { NavigationStore } from "../../store/local/navigationStore";
 import { saveDocumentToGithub } from "../../github/github";
+import { sessionStore } from "../../store/local/stores";
 
 const imgCSS = {
   borderRadius: "100%",
@@ -37,7 +38,15 @@ export const ProfilePopup = observer(
         shouldFlip
         trigger={
           <Profile
-            icon={<img alt="" style={imgCSS} src={""} />}
+            icon={
+              <Avatar
+                name={sessionStore.loggedInUser?.substr(1)}
+                size="32"
+                round={true}
+                textSizeRatio={2}
+              />
+            }
+            // icon={<img alt="" style={imgCSS} src={""} />}
             onClick={onClick}
             isSelected={isOpen}
             tooltip=""

@@ -6,8 +6,8 @@ import {
 } from "@tiptap/react";
 import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
-import { DOMOutputSpec, Node } from "prosemirror-model";
-import { Transaction } from "prosemirror-state";
+import { Node, DOMOutputSpec } from "prosemirror-model";
+import { TextSelection, Transaction } from "prosemirror-state";
 import React, {
   ElementType,
   MouseEvent,
@@ -18,6 +18,7 @@ import React, {
 import { useDrag, useDrop } from "react-dnd";
 import SideMenu from "../../menus/SideMenu";
 import mergeAttributesReact from "../../util/mergeAttributesReact";
+import { forSelectedBlocks } from "../multiselection/forSelectedBlocks";
 import TypeCellComponent from "../typecellnode/TypeCellComponent";
 import styles from "./Block.module.css";
 /**
@@ -30,9 +31,12 @@ let globalState = makeAutoObservable({
 });
 
 type DnDItemType = {
-  getPos: () => number;
+  pos: number;
   node: Node;
 };
+
+// Stores the currently selected blocks. Updates on drag-handle press.
+let selected: Array<DnDItemType> = [];
 
 /**
  * This function creates a React component that represents a block in the editor. This is so that editor blocks can be
@@ -51,6 +55,22 @@ function Block(
   return observer(function Component(
     props: PropsWithChildren<NodeViewRendererProps>
   ) {
+    // The node is not supposed to be draggable, for example, we could be dealing with a paragraph
+    // inside a <li> or <blockquote>. In that case, the wrapper should be draggable, not this item itself.
+    if (!props.node.attrs["block-id"]) {
+      // this should be covered by disabling the nodeview in addNodeView
+      throw new Error("unexpected, no block id");
+      // return (
+      //   <NodeViewWrapper>
+      //     <NodeViewContent
+      //       as={domType}
+      //       {...domAttrs}
+      //       ref={(props as any).contentWrapperRef}
+      //     />
+      //   </NodeViewWrapper>
+      // );
+    }
+
     const domOutput = toDOM(props.node);
     // NOTE: we might want to extend ElementType itself instead of declaring it like this
     let domType: ElementType | "typecell";
@@ -76,14 +96,8 @@ function Block(
     // if activeBlocks[id] is set, this block is being hovered over
     let hover = globalState.activeBlocks[id];
 
-    function deleteBlock(tr: Transaction, pos: number, node: Node) {
-      // use deleteRange
-      // https://discuss.prosemirror.net/t/defining-a-container-node-that-gets-removed-when-empty/762
-      return tr.deleteRange(pos, pos + node.nodeSize);
-    }
-
     const [{ isDragging }, dragRef, dragPreview] = useDrag<
-      DnDItemType,
+      Array<DnDItemType>,
       any,
       any
     >(() => {
@@ -92,15 +106,15 @@ function Block(
       }
       return {
         type: "block",
-        item: {
-          getPos: props.getPos,
-          node: props.node,
+        // This has to be a function to be assigned at drag start. Using an object only assigns it at drag end/drop.
+        item: function () {
+          return selected;
         },
       };
     }, [props.getPos, props.node]);
 
     const [{ isOver, canDrop, clientOffset }, drop] = useDrop<
-      DnDItemType,
+      Array<DnDItemType>,
       any,
       any
     >(
@@ -136,20 +150,23 @@ function Block(
           // Should we move source to the top of bottom of target? Let's find out
           // (logic from https://react-dnd.github.io/react-dnd/examples/sortable/simple)
 
+          // Determine rectangle on screen
+          const hoverBoundingRect =
+            mouseCaptureRef.current!.getBoundingClientRect();
+
           // ProseMirror token positions just before and just after the target block
           const posBeforeTargetNode = props.getPos();
           let posAfterTargetNode = props.getPos() + props.node.nodeSize;
 
-          // create a new transaction
+          // Create a new transaction
           const tr = props.editor.state.tr;
           const oldDocSize = tr.doc.nodeSize;
 
-          // delete the old block
-          deleteBlock(tr, item.getPos(), item.node);
-
-          // Determine rectangle on screen
-          const hoverBoundingRect =
-            mouseCaptureRef!.current!.getBoundingClientRect();
+          // delete the old block/s
+          tr.deleteRange(
+            item[0].pos,
+            item[item.length - 1].pos + item[item.length - 1].node.nodeSize
+          );
 
           let posToInsert = cursorInUpperHalf(
             monitor.getClientOffset()!.y,
@@ -158,7 +175,7 @@ function Block(
             ? posBeforeTargetNode
             : posAfterTargetNode;
 
-          if (item.getPos() < posToInsert) {
+          if (item[0].pos < posToInsert) {
             // we're moving an item downwards. As "delete" happens before "insert",
             // we need to adjust the insert position
 
@@ -168,10 +185,33 @@ function Block(
             const deletedLength = oldDocSize - tr.doc.nodeSize;
             posToInsert -= deletedLength;
           }
-          // insert the block at new position
-          tr.insert(posToInsert, item.node);
-          // execute transaction
+          // insert the block/s at new position
+          let nextPos = posToInsert;
+          for (let block of item) {
+            tr.insert(nextPos, block.node);
+            nextPos += block.node.nodeSize;
+          }
+
+          // Execute transaction
           props.editor.view.dispatch(tr);
+
+          // Set new selection if dragging multiple blocks
+          // Must be a new transaction since the document changes
+          if (item.length > 1) {
+            const newSelection = props.editor.state.tr.setSelection(
+              TextSelection.create(
+                props.editor.state.doc,
+                // List
+                posToInsert + (item[0].node.isTextblock ? 1 : 2),
+                posToInsert +
+                  item[item.length - 1].pos -
+                  item[0].pos +
+                  item[item.length - 1].node.nodeSize -
+                  (item[item.length - 1].node.isTextblock ? 1 : 2)
+              )
+            );
+            props.editor.view.dispatch(newSelection);
+          }
         },
         collect: (monitor) => ({
           isOver: monitor.isOver(),
@@ -182,26 +222,21 @@ function Block(
       [props.getPos, props.node]
     );
 
-    // The node is not supposed to be draggable, for example, we could be dealing with a paragraph
-    // inside a <li> or <blockquote>. In that case, the wrapper should be draggable, not this item itself.
-    if (!props.node.attrs["block-id"]) {
-      return (
-        <NodeViewWrapper>
-          <NodeViewContent
-            as={domType}
-            {...domAttrs}
-            ref={(props as any).contentWrapperRef}
-          />
-        </NodeViewWrapper>
-      );
-    }
-
     function onDelete() {
       if (typeof props.getPos === "boolean") {
         throw new Error("unexpected");
       }
+
+      if (selected.length === 0) {
+        return;
+      }
+
       props.editor.view.dispatch(
-        deleteBlock(props.editor.state.tr, props.getPos(), props.node)
+        props.editor.state.tr.deleteRange(
+          selected[0].pos,
+          selected[selected.length - 1].pos +
+            selected[selected.length - 1].node.nodeSize
+        )
       );
     }
 
@@ -226,11 +261,50 @@ function Block(
       }
     }
 
+    // Prevents any accidental re-renders when dragging.
     function onMouseOver(e: MouseEvent) {
-      // Prevents any accidental re-renders when dragging.
       if (!canDrop) {
         updateHover();
       }
+    }
+
+    /**
+     * Gets an array with all selected blocks and their corresponding positions. If this block is either not part of the
+     * selected blocks or no blocks are selected, the selection is set to the start of this block and an array with only
+     * this block (and its position) is returned. If this block's position cannot be found, returns an empty array.
+     * @returns An array of all selected blocks, an array with only this block, or an empty array.
+     */
+    function getSelected(): Array<DnDItemType> {
+      const selected: Array<DnDItemType> = [];
+      function getBlocks(node: Node, pos?: number) {
+        selected.push({ node: node, pos: pos! });
+      }
+
+      forSelectedBlocks(props.editor.state, getBlocks);
+
+      // Case something goes wrong.
+      if (typeof props.getPos === "boolean") {
+        return [];
+      }
+
+      // Case multi-block selection exists and this block is in it.
+      if (
+        selected.length > 0 &&
+        selected[0].pos <= props.getPos() &&
+        selected[selected.length - 1].pos +
+          selected[selected.length - 1].node.nodeSize >
+          props.getPos()
+      ) {
+        return selected;
+      }
+
+      // Case multi-block selection does not exist or this block is not in it.
+      props.editor.view.dispatch(
+        props.editor.state.tr.setSelection(
+          TextSelection.create(props.editor.state.doc, props.getPos() + 1)
+        )
+      );
+      return [{ node: props.node, pos: props.getPos() }];
     }
 
     /**
@@ -245,7 +319,6 @@ function Block(
 
       // Get pixels to the top
       const hoverClientY = mouseYPos - rect.top;
-      // console.log(hoverClientY, hoverMiddleY);
       return hoverClientY < hoverMiddleY;
     }
 
@@ -285,14 +358,16 @@ function Block(
             // This is needed because otherwise pressing key up when positioned just after draghandle doesn't work
             contentEditable={false}>
             <Tippy
-              content={<SideMenu onDelete={onDelete}></SideMenu>}
-              trigger={"click"}
+              content={<SideMenu onDelete={onDelete} />}
               placement={"left"}
+              trigger={"click"}
+              duration={0}
+              interactiveBorder={100}
               interactive={true}>
               <div
-                className={
-                  styles.handle + (hover ? " " + styles.hover : "")
-                }></div>
+                className={styles.handle + (hover ? " " + styles.hover : "")}
+                onMouseDown={() => (selected = getSelected())}
+              />
             </Tippy>
           </div>
           {renderContentBasedOnDOMType(
@@ -331,6 +406,9 @@ function renderContentBasedOnDOMType(
 ): JSX.Element | null | undefined {
   if (domType === "pre") {
     // Wraps in "pre" tags if the content is code.
+    // The <select> inside <pre> controls programming language selection and update
+    // Available programming languages come from the "lowlight" extension
+    // The NodeViewContent is rendered inside a <code> tag
     return (
       <pre className={styles.codeBlockPre}>
         <select
@@ -346,6 +424,7 @@ function renderContentBasedOnDOMType(
           <option disabled>—</option>
           {props.extension.options.lowlight
             .listLanguages()
+            // each available language is transformed into an <option> element
             // @ts-ignore
             .map((lang, index) => {
               return (
@@ -365,7 +444,7 @@ function renderContentBasedOnDOMType(
       </pre>
     );
   } else if (props.node.type.name === "typecell") {
-    return <TypeCellComponent node={props.node}></TypeCellComponent>;
+    return <TypeCellComponent node={props.node} />;
   } else {
     return (
       <NodeViewContent

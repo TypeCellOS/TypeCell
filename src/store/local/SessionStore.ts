@@ -8,6 +8,7 @@ import {
 } from "mobx";
 import { MatrixAuthStore } from "../../matrix-auth/MatrixAuthStore";
 import { MatrixClientPeg } from "../../matrix-auth/MatrixClientPeg";
+import { createMatrixGuestClient } from "../../matrix-yjs/MatrixGuestClient";
 
 export class SessionStore {
   public user:
@@ -22,6 +23,10 @@ export class SessionStore {
         userId: string;
         matrixClient: MatrixClient;
       } = "loading";
+
+  public get tryUser() {
+    return typeof this.user === "string" ? undefined : this.user;
+  }
 
   public get isLoggedIn() {
     return typeof this.user !== "string" && this.user.type === "matrix-user";
@@ -74,24 +79,9 @@ export class SessionStore {
         baseUrl: "https://mx.typecell.org",
         // idBaseUrl: "https://vector.im",
       };
-      const tmpClient = await createClient(config);
-      const { user_id, device_id, access_token } =
-        await tmpClient.registerGuest();
-      let matrixClient = createClient({
-        baseUrl: config.baseUrl,
-        accessToken: access_token,
-        userId: user_id,
-        deviceId: device_id,
-      });
-      matrixClient._supportsVoip = false;
-      matrixClient._clientOpts = {
-        lazyLoadMembers: false,
-      };
-      matrixClient.setGuest(true);
-      // don't use startClient (because it will sync periodically), when we're in guest / readonly mode
-      // in guest mode we only use the matrixclient to fetch initial room state, but receive updates via WebRTCProvider
 
-      // matrixClient.startClient({ lazyLoadMembers: true });
+      const matrixClient = await createMatrixGuestClient(config);
+
       runInAction(() => {
         this.user = {
           type: "guest-user",

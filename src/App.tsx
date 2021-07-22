@@ -10,7 +10,7 @@ import { setMonacoDefaults } from "./sandbox";
 import setupNpmTypeResolver from "./sandbox/setupNpmTypeResolver";
 import setupTypecellTypeResolver from "./sandbox/setupTypecellTypeResolver";
 import { DocumentResource } from "./store/DocumentResource";
-import { navigationStore } from "./store/local/stores";
+import { navigationStore } from "./store/local/navigationStore";
 
 setMonacoDefaults(monaco);
 setupTypecellTypeResolver();

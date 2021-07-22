@@ -1,5 +1,6 @@
 import { autorun, untracked } from "mobx";
 import * as react from "react";
+import * as markdownit from "markdown-it";
 import * as reactdnd from "react-dnd";
 import * as reactdom from "react-dom";
 import SkypackResolver from "../engine/resolvers/SkypackResolver";
@@ -14,6 +15,10 @@ const sz = require("frontend-collective-react-dnd-scrollzone");
 function resolveNestedModule(id: string) {
   function isModule(id: string, moduleName: string) {
     return id === moduleName || id === "https://cdn.skypack.dev/" + moduleName;
+  }
+
+  if (isModule(id, "markdown-it")) {
+    return markdownit;
   }
 
   if (isModule(id, "react")) {

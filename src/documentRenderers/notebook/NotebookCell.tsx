@@ -3,44 +3,34 @@ import { observer } from "mobx-react-lite";
 // import useCellModel from "./useCellModel.ts.bak";
 import type * as Monaco from "monaco-editor";
 import * as monaco from "monaco-editor";
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import {
-  VscChevronDown,
-  VscChevronRight,
-  VscFile,
-  VscFileCode,
-  VscTrash,
-} from "react-icons/vsc";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
 import { MonacoBinding } from "y-monaco";
 import { Awareness } from "y-protocols/awareness";
-import { CellModel } from "../../models/CellModel";
 import {
   getTypeCellCodeModel,
   TypeCellCodeModel,
 } from "../../models/TypeCellCodeModel";
 import PluginEngine from "../../pluginEngine/PluginEngine";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
+import { NotebookCellModel } from "./NotebookCellModel";
 import Output from "./Output";
 
 type Props = {
-  cell: CellModel;
+  cell: NotebookCellModel;
   engine: PluginEngine | EngineWithOutput;
   onRemove?: () => void;
   classList?: string;
   defaultCollapsed?: boolean;
   initialFocus?: boolean;
-  awareness: Awareness | null;
+  awareness: Awareness | undefined;
+  toolbarContent?: React.ReactElement;
 };
 
 const NotebookCell: React.FC<Props> = observer((props) => {
   const initial = useRef(true);
   const [model, setModel] = useState<TypeCellCodeModel>();
+  const [monacoModel, setMonacoModel] = useState<any>();
   const [editor, setEditor] = useState<Monaco.editor.IStandaloneCodeEditor>();
   const disposeHandlers = useRef<Array<() => void>>();
   // const [codeRef, setCodeRef] = useState<HTMLDivElement>();
@@ -91,6 +81,18 @@ const NotebookCell: React.FC<Props> = observer((props) => {
         newEditor.onDidBlurEditorWidget(() => {
           newEditor.trigger("blur", "editor.action.formatDocument", {});
         });
+
+        newEditor.onDidContentSizeChange(() => {
+          const contentHeight = Math.min(500, newEditor.getContentHeight());
+          try {
+            newEditor.layout({
+              height: contentHeight,
+              width: newEditor.getContainerDomNode()!.offsetWidth,
+            });
+          } finally {
+          }
+        });
+
         setEditor(newEditor);
       }
     },
@@ -98,23 +100,33 @@ const NotebookCell: React.FC<Props> = observer((props) => {
   );
 
   useEffect(() => {
-    if (!editor) {
-      return;
-    }
     const newModel = getTypeCellCodeModel(props.cell);
-
     // TODO: do we want to do this here? At least for PluginRenderer, it will register twice
     // (currently this is ignored in the engine and only logs a warning)
     props.engine.engine.registerModel(newModel.object);
     const monacoModel = newModel.object.acquireMonacoModel();
-    editor.setModel(monacoModel);
     setModel(newModel.object);
+    setMonacoModel(monacoModel);
+    return () => {
+      console.log("dispose newModel", props.cell.path);
+      newModel.object.releaseMonacoModel();
+      newModel.dispose();
+      setModel(undefined);
+      setMonacoModel(undefined);
+    };
+  }, [props.cell, props.engine]);
+
+  useEffect(() => {
+    if (!editor || !monacoModel) {
+      return;
+    }
+    editor.setModel(monacoModel);
 
     const monacoBinding = new MonacoBinding(
       props.cell.code,
       monacoModel,
       new Set([editor]),
-      props.awareness // TODO: fix reference to doc
+      props.awareness || null // TODO: fix reference to doc
     );
 
     // This is a bit of a hack. MonacoBinding sets an eventListener to cell.code.
@@ -129,29 +141,11 @@ const NotebookCell: React.FC<Props> = observer((props) => {
     const old = props.cell.code._eH.l.pop()!;
     props.cell.code._eH.l.unshift(old);
 
-    const sizeDisposer = editor.onDidContentSizeChange(() => {
-      if (!editor) {
-        return;
-      }
-      const contentHeight = Math.min(500, editor.getContentHeight());
-      try {
-        editor.layout({
-          height: contentHeight,
-          width: editor.getContainerDomNode()!.offsetWidth,
-        });
-      } finally {
-      }
-    });
-
     return () => {
       monacoBinding.destroy();
-      sizeDisposer.dispose();
       // releaseModel(props.cell);
-      newModel.object.releaseMonacoModel();
-      newModel.dispose();
-      setModel(undefined);
     };
-  }, [editor, props.cell, props.cell.code, props.engine, props.awareness]);
+  }, [editor, monacoModel, props.cell.code, props.engine, props.awareness]);
 
   // Disabled, feels weird, work on UX
   // editor.current.onKeyUp((e) => {
@@ -211,33 +205,9 @@ const NotebookCell: React.FC<Props> = observer((props) => {
       <div style={{ flex: 1 }} className="notebookCell-content">
         {codeVisible && (
           <div className="notebookCell-codeContainer">
-            <div className="code-toolbar">
-              <button
-                title="TypeScript"
-                className={
-                  props.cell.language === "typescript" ? "active" : ""
-                }>
-                <VscFileCode
-                  onClick={() => (props.cell.language = "typescript")}
-                />
-              </button>
-              {/* <button title="TypeScript (node)" className={props.cell.language === "node-typescript" ? "active" : ""}>
-                <VscServerProcess onClick={() => props.cell.setLanguage("node-typescript")} />
-              </button> */}
-              <button
-                title="Markdown"
-                className={props.cell.language === "markdown" ? "active" : ""}>
-                <VscFile onClick={() => (props.cell.language = "markdown")} />
-              </button>
-              {props.onRemove && (
-                <button title="Delete" onClick={props.onRemove}>
-                  <VscTrash />
-                </button>
-              )}
-              {/* <button title="More">
-                <VscEllipsis />
-              </button> */}
-            </div>
+            {props.toolbarContent && (
+              <div className="code-toolbar">{props.toolbarContent}</div>
+            )}
             {/* <div>{Math.random()}</div> */}
             <div
               className="code"

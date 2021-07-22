@@ -1,5 +1,4 @@
 import { Editor, Range } from "@tiptap/core";
-import React from "react";
 import { RemixiconReactIconComponentType } from "remixicon-react";
 import SuggestionItem from "../../prosemirrorPlugins/suggestions/SuggestionItem";
 

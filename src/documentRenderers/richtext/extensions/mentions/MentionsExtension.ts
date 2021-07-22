@@ -2,7 +2,7 @@ import { mergeAttributes, Node } from "@tiptap/core";
 import { SuggestionPlugin } from "../../prosemirrorPlugins/suggestions/SuggestionPlugin";
 import { Mention } from "./Mention";
 
-export type MentionsOptions = {
+export type MentionsExtensionOptions = {
   providers: { [key: string]: (query: string) => Mention[] };
 };
 
@@ -17,7 +17,7 @@ export type MentionsOptions = {
  * to supply metadata to mentions, such as (a link to) a user profile or a reference to a document.
  * Such that, when the user clicks on a mention, a popup with info will show (for example).
  */
-export const MentionsExtension = Node.create<MentionsOptions>({
+export const MentionsExtension = Node.create<MentionsExtensionOptions>({
   name: "mention",
 
   defaultOptions: {
@@ -90,7 +90,7 @@ export const MentionsExtension = Node.create<MentionsOptions>({
 
           return mentions;
         },
-        selectItemCallback: ({ item, editor, range }) => {
+        onSelectItem: ({ item, editor, range }) => {
           editor
             .chain()
             .focus()
