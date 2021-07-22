@@ -4,6 +4,7 @@ version: "3"
 
 services:
   synapse:
+    container_name: synapse
     # build:
     #   context: ./
     #   dockerfile: docker/Dockerfile

@@ -36,8 +36,9 @@ jobs:
       - name: Check running containers
         run: docker ps -a
 
-      # - name: Check docker logs
-      #   run: docker logs backend
+      - name: Check docker logs
+        run: docker logs synapse
+
       - name: Wait for Matrix
         uses: nev7n/wait_for_response@v1
         with:
