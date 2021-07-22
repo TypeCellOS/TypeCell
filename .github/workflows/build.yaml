@@ -27,17 +27,17 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
-      - name: Install Dependencies
-        run: npm install
-
       - name: Build the docker-compose stack
-        run: docker-compose -f server/test/docker-compose.yml up -d
+        run: docker-compose -f server/test/docker-compose.yml up
 
       - name: Check running containers
         run: docker ps -a
 
       - name: Check docker logs
         run: docker logs synapse
+
+      - name: Install Dependencies
+        run: npm install
 
       - name: Wait for Matrix
         uses: nev7n/wait_for_response@v1
