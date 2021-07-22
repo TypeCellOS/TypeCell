@@ -27,7 +27,7 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
-      - name: set correct access for data
+      - name: Set correct access for docker containers (server/test/data)
         run: chmod -R a+rw server/test/data
 
       - name: Build the docker-compose stack
