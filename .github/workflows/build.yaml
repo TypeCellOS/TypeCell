@@ -30,11 +30,8 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Install Dependencies
-        run: npm install
-
       - name: Build the docker-compose stack
-        run: docker-compose up -f server/test/docker-compose.yml -d
+        run: docker-compose -f server/test/docker-compose.yml up -d
 
       - name: Check running containers
         run: docker ps -a
