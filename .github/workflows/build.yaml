@@ -41,6 +41,8 @@ jobs:
 
       - name: Run Tests
         run: npm run test
+        env:
+          CI: true
 
       # - name: Upload to coveralls
       #   uses: coverallsapp/github-action@master

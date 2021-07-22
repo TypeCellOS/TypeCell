@@ -1,6 +1,5 @@
 import * as cp from "child_process";
 import fetch from "cross-fetch";
-const { Worker, isMainThread } = require("worker_threads");
 
 export const MATRIX_HOME_URL = new URL("http://localhost:8888/_matrix/static/");
 
@@ -23,7 +22,9 @@ async function hasMatrixStarted() {
 
 async function waitForMatrixStart() {
   while (true) {
+    console.log("Waiting for Matrix to start...");
     if (await hasMatrixStarted()) {
+      console.log("Matrix has started!");
       return;
     }
     await new Promise((resolve) => {
@@ -39,9 +40,9 @@ export async function ensureMatrixIsRunning() {
     }
   }
 
-  if (!matrixStarted) {
+  if (!matrixStarted && !process.env.CI) {
     matrixStarted = true;
-    console.log("starting matrix");
+    console.log("Starting matrix using docker-compose");
     cp.execSync("docker-compose up -d", { cwd: "server/test/" });
   }
 
