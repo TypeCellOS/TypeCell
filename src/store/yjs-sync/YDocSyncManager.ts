@@ -3,6 +3,7 @@ import { createAtom, makeObservable, observable, runInAction } from "mobx";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
+import GithubProvider from "../../github/GithubProvider";
 import MatrixProvider from "../../matrix-yjs/MatrixProvider";
 import { Disposable } from "../../util/vscode-common/lifecycle";
 import { Identifier } from "../Identifier";
@@ -27,7 +28,7 @@ export class YDocSyncManager extends Disposable {
   }
 
   /** @internal */
-  public matrixProvider: MatrixProvider | undefined;
+  public matrixProvider: MatrixProvider | GithubProvider | undefined;
 
   /** @internal */
   public webrtcProvider: WebrtcProvider | undefined;
@@ -153,7 +154,7 @@ export class YDocSyncManager extends Disposable {
     // if (!mxClient) {
     //   throw new Error("no matrix client available");
     // }
-    const alreadyLocal = await existsLocally(this.identifier.id);
+    const alreadyLocal = await existsLocally(this.idbIdentifier);
 
     if (typeof this.doc !== "string") {
       throw new Error("already loaded");
@@ -168,12 +169,14 @@ export class YDocSyncManager extends Disposable {
     }
 
     this.matrixProvider = this._register(
-      new MatrixProvider(
-        this._ydoc,
-        this.mxClient,
-        this.identifier.id,
-        "mx.typecell.org" // TODO
-      )
+      this.identifier.type === "typecell"
+        ? new MatrixProvider(
+            this._ydoc,
+            this.mxClient,
+            this.identifier.id,
+            "mx.typecell.org" // TODO
+          )
+        : new GithubProvider(this._ydoc, this.identifier)
     );
     this.matrixProvider.initialize();
     this._canWriteAtom.reportChanged();

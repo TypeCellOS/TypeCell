@@ -11,10 +11,7 @@ export class NavigationStore {
 
   public get currentDocument() {
     if (this.currentPage.page === "document") {
-      const newConnection = DocConnection.load({
-        document: this.currentPage.document,
-        owner: this.currentPage.owner,
-      });
+      const newConnection = DocConnection.load(this.currentPage.identifier);
       return newConnection;
     }
     return undefined;
@@ -146,9 +143,7 @@ export class NavigationStore {
   navigateToDocument = (doc: BaseResource) => {
     this.currentPage = {
       page: "document",
-      owner: doc.identifier.owner,
-      document: doc.identifier.document,
-      remainingParts: [],
+      identifier: doc.identifier,
     };
     const url = "/" + doc.identifier.id;
     window.history.pushState({ url }, "", url);

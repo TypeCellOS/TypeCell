@@ -1,6 +1,8 @@
-import { DocConnection } from "../store/DocConnection";
 import * as octokit from "octokit";
 import { CellModel } from "../models/CellModel";
+import { DocConnection } from "../store/DocConnection";
+import { Identifier } from "../store/Identifier";
+import { decodeBase64UTF8 } from "../util/base64";
 
 type RepoOptions = {
   owner: string;
@@ -164,13 +166,13 @@ export async function getTemplateTree() {
   return tree;
 }
 
-export async function saveDocumentToGithub(owner: string, document: string) {
+export async function saveDocumentToGithub(id: Identifier) {
   const targetRepo = {
     owner: "yousefed",
     repo: "testrep",
   };
 
-  const dc = DocConnection.load({ owner, document });
+  const dc = DocConnection.load(id);
   const doc = await dc.waitForDoc();
   const template = await getTemplateTree();
   debugger;
@@ -182,4 +184,14 @@ export async function saveDocumentToGithub(owner: string, document: string) {
   );
   await commit(targetRepo, copy);
   return template;
+}
+
+export async function getFileFromGithub(file: {
+  repo: string;
+  owner: string;
+  path: string;
+}) {
+  const githubClient = new octokit.Octokit();
+  const ret = await githubClient.rest.repos.getContent(file);
+  return decodeBase64UTF8((ret.data as any).content);
 }

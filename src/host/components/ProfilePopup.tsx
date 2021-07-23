@@ -56,12 +56,11 @@ export const ProfilePopup = observer(
         <DropdownItem onClick={props.navigationStore.showNewPageDialog}>
           New page
         </DropdownItem>
-        {props.navigationStore.currentPage.document && (
+        {props.navigationStore.currentPage.page === "document" && (
           <DropdownItem
             onClick={() =>
               saveDocumentToGithub(
-                props.navigationStore.currentPage.owner!,
-                props.navigationStore.currentPage.document!
+                props.navigationStore.currentPage.identifier!
               )
             }>
             Sync to Github

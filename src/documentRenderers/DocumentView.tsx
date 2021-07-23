@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useState } from "react";
 import { DocConnection } from "../store/DocConnection";
+import { Identifier } from "../store/Identifier";
 import PluginResource from "../store/PluginResource";
 import { CustomRenderer } from "./custom/CustomRenderer";
 import NotebookRenderer from "./notebook/NotebookRenderer";
@@ -9,7 +10,7 @@ import PluginRenderer from "./plugin/PluginRenderer";
 import RichTextRenderer from "./richtext/RichTextRenderer";
 
 type Props = {
-  id: string | { owner: string; document: string };
+  id: Identifier;
 };
 
 /**

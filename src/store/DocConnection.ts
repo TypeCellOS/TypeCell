@@ -10,7 +10,11 @@ import { MatrixClientPeg } from "../matrix-auth/MatrixClientPeg";
 import { createMatrixDocument } from "../matrix-yjs/MatrixRoomManager";
 import { Disposable } from "../util/vscode-common/lifecycle";
 import { BaseResource } from "./BaseResource";
-import { Identifier, parseIdentifier, tryParseIdentifier } from "./Identifier";
+import {
+  Identifier,
+  parseTypeCellIdentifier,
+  tryParseTypeCellIdentifier,
+} from "./Identifier";
 import { sessionStore } from "./local/stores";
 import { existsLocally, getIDBIdentifier } from "./yjs-sync/IDBHelper";
 import { YDocSyncManager } from "./yjs-sync/YDocSyncManager";
@@ -147,13 +151,14 @@ export class DocConnection extends Disposable {
     let tryN = 1;
 
     do {
-      const result = await DocConnection.create(
-        {
-          owner: sessionStore.loggedInUser,
-          document: this.identifier.document + (tryN > 1 ? "-" + tryN : ""),
-        },
-        this.identifier
-      );
+      if (this.identifier.type !== "typecell") {
+        throw new Error("not implemented");
+      }
+      const newIdentifier = parseTypeCellIdentifier({
+        owner: sessionStore.loggedInUser,
+        document: this.identifier.document + (tryN > 1 ? "-" + tryN : ""),
+      });
+      const result = await DocConnection.create(newIdentifier, this.identifier);
 
       // TODO: store fork info in document
 
@@ -197,7 +202,7 @@ export class DocConnection extends Disposable {
     if (!sessionStore.loggedInUser) {
       throw new Error("no user available on create document");
     }
-    const identifier = tryParseIdentifier(id);
+    const identifier = tryParseTypeCellIdentifier(id);
 
     if (typeof identifier === "string") {
       return identifier;
@@ -218,7 +223,8 @@ export class DocConnection extends Disposable {
     const remoteResult = await createMatrixDocument(
       MatrixClientPeg.get(),
       identifier.owner,
-      identifier.id
+      identifier.id,
+      "public-read"
     );
 
     if (remoteResult === "already-exists") {
@@ -238,10 +244,15 @@ export class DocConnection extends Disposable {
   }
 
   public static load(
-    id: string | { owner: string; document: string },
+    id: string | { owner: string; document: string } | Identifier,
     forkSourceIdentifier?: Identifier
   ) {
-    const identifier = parseIdentifier(id);
+    // TODO
+    const identifier = (id as any).type
+      ? (id as Identifier)
+      : parseTypeCellIdentifier(
+          id as string | { owner: string; document: string }
+        );
 
     let connection = cache.get(identifier.id);
     if (!connection) {
