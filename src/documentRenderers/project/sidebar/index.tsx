@@ -156,6 +156,7 @@ const renderItem = ({
 };
 
 function treeToTreeData(tree: TreeNode[]) {
+  tree.sort(sortTreeItems);
   const ret: TreeData = {
     rootId: "root",
     items: {
@@ -171,9 +172,19 @@ function treeToTreeData(tree: TreeNode[]) {
       },
     },
   };
+  function sortTreeItems(a: TreeNode, b: TreeNode) {
+    debugger;
+    if (a.isDirectory && !b.isDirectory) {
+      return -1;
+    } else if (b.isDirectory && !a.isDirectory) {
+      return 1;
+    }
+    return a.fileName.localeCompare(b.fileName);
+  }
 
   function processTree(parent: string, tree: TreeNode[]) {
     for (let child of tree) {
+      child.children.sort(sortTreeItems);
       const fullName = parent + child.fileName;
       ret.items[fullName] = {
         id: fullName,

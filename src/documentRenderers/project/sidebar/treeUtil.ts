@@ -1,7 +1,7 @@
 // https://stackoverflow.com/a/51012811/194651
 
 export interface TreeNode {
-  isDirectory: string;
+  isDirectory: boolean;
   children: TreeNode[];
   fileName: string;
 }
