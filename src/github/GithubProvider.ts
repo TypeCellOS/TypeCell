@@ -1,7 +1,8 @@
 import * as _ from "lodash";
 
 import * as Y from "yjs";
-import { GithubIdentifier } from "../store/Identifier";
+import { GithubIdentifier } from "../identifiers/GithubIdentifier";
+
 import { arrayBuffersAreEqual } from "../util/binaryEqual";
 import uniqueId from "../util/uniqueId";
 import { Emitter, Event } from "../util/vscode-common/event";

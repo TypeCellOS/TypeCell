@@ -75,7 +75,7 @@ export default async function resolveImport(
     const connection = DocConnection.load(owner + "/" + document);
 
     const engine = new EngineWithOutput(
-      connection.identifier.id,
+      connection.identifier.toString(),
       needsTypesInMonaco
     );
 

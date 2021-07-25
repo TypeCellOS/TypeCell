@@ -2,6 +2,7 @@ import { CellModel } from "../models/CellModel";
 import { BaseResource, BaseResourceConnection } from "./BaseResource";
 import type * as Y from "yjs";
 import { NotebookCellModel } from "../documentRenderers/notebook/NotebookCellModel";
+import { Identifier } from "../identifiers/Identifier";
 
 /**
  * A Resource defining a plugin. Plugins have a description and a single cell with code,
@@ -9,7 +10,7 @@ import { NotebookCellModel } from "../documentRenderers/notebook/NotebookCellMod
  */
 export default class PluginResource extends BaseResource {
   /** @internal */
-  constructor(ydoc: Y.Doc, connection: BaseResourceConnection) {
+  constructor(ydoc: Y.Doc, connection: BaseResourceConnection | Identifier) {
     super(ydoc, connection);
     if (this.type !== "!plugin") {
       throw new Error("invalid type for PluginResource");

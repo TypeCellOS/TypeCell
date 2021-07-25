@@ -299,8 +299,6 @@ code {
 }
 /* styles below based on pluto */
 .cellList {
-  margin: 0 auto;
-  max-width: calc(731px);
   padding-top: 20px;
   padding-bottom: 4rem;
   padding-left: 25px;
@@ -308,6 +306,12 @@ code {
   align-content: center;
   width: 100%;
   flex: 1 1 0%;
+  overflow-y: auto;
+}
+
+.cellList > div {
+  margin: 0 auto;
+  max-width: calc(731px);
 }
 
 .cellList-item {

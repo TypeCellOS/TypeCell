@@ -1,7 +1,8 @@
 import * as octokit from "octokit";
+import { Identifier } from "../identifiers/Identifier";
 import { CellModel } from "../models/CellModel";
 import { DocConnection } from "../store/DocConnection";
-import { Identifier } from "../store/Identifier";
+
 import { decodeBase64UTF8 } from "../util/base64";
 
 type RepoOptions = {

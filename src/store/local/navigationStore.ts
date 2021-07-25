@@ -85,6 +85,14 @@ export class NavigationStore {
         }
       }
     );
+
+    reaction(
+      () => this.currentPage.identifier?.subPath,
+      (newVal, oldVal) => {
+        if (newVal) {
+        }
+      }
+    );
     window.addEventListener("popstate", this.onPopState);
   }
 
@@ -145,7 +153,7 @@ export class NavigationStore {
       page: "document",
       identifier: doc.identifier,
     };
-    const url = "/" + doc.identifier.id;
+    const url = "/" + doc.identifier.toString();
     window.history.pushState({ url }, "", url);
   };
 }
