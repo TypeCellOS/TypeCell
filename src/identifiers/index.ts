@@ -1,9 +1,9 @@
+import { slug } from "../util/slug";
 import { URI } from "../util/vscode-common/uri";
 import { FileIdentifier } from "./FileIdentifier";
 import { GithubIdentifier } from "./GithubIdentifier";
-import { MatrixIdentifier } from "./MatrixIdentifier";
-import { slug } from "../util/slug";
 import { Identifier, IdentifierFactory } from "./Identifier";
+import { MatrixIdentifier } from "./MatrixIdentifier";
 
 export const identifiers = new Map<string, IdentifierFactory<Identifier>>();
 const factories = [MatrixIdentifier, GithubIdentifier, FileIdentifier];

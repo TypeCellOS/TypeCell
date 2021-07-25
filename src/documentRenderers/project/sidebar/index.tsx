@@ -237,12 +237,20 @@ export const SidebarTree = observer(
 
     const onExpand = (itemId: ItemId) => {
       setAktree(mutateTree(akTree, itemId, { isExpanded: true }));
-      props.onClick(akTree.items[itemId].data!.path);
+      const item = akTree.items[itemId];
+      if (!item.hasChildren) {
+        // file, not a directory
+        props.onClick(item.data!.path);
+      }
     };
 
     const onCollapse = (itemId: ItemId) => {
       setAktree(mutateTree(akTree, itemId, { isExpanded: false }));
-      props.onClick(akTree.items[itemId].data!.path);
+      const item = akTree.items[itemId];
+      if (!item.hasChildren) {
+        // file, not a directory
+        props.onClick(item.data!.path);
+      }
     };
 
     return (

@@ -1,11 +1,7 @@
-import { ObservableSet, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useRef } from "react";
-import { Watcher } from "../../github/file";
+import React from "react";
 import { FileIdentifier } from "../../identifiers/FileIdentifier";
-
 import ProjectResource from "../../store/ProjectResource";
-import { URI } from "../../util/vscode-common/uri";
 import DocumentView from "../DocumentView";
 import SidebarTree from "./sidebar";
 
@@ -24,7 +20,7 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
   //   ? tryParseIdentifier(subIdentifierStr)
   //   : undefined;
 
-  const files = Array.from(props.project.files.keys()).sort().reverse();
+  const files = Array.from(props.project.files.keys()).sort();
 
   const onClick = (item: string) => {
     identifier.subPath = item;
@@ -59,7 +55,8 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
       }}>
       <div
         style={{
-          width: "400px",
+          maxWidth: "400px",
+          minWidth: "250px",
           position: "relative",
           zIndex: 9999999,
           background: "white",

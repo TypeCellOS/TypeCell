@@ -84,7 +84,6 @@ export class YDocFileSyncManager extends Disposable {
   }
 
   private async getNewYDocFromId() {
-    debugger;
     const ret = await readFile(this.identifier.path);
     if (ret.type === "file") {
       await this.getNewYDocFromFile(ret.contents);
@@ -160,7 +159,7 @@ export class YDocFileSyncManager extends Disposable {
     // const contents = await readFile(this.identifier.path);
     // const nbData = markdownToNotebook(contents);
 
-    if (doc.getMap("meta").get("type") !== "!project") {
+    if (doc.getMap("meta").get("type") !== "!notebook") {
       throw new Error("invalid type");
     }
 

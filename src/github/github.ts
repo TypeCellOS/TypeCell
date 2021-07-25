@@ -176,7 +176,7 @@ export async function saveDocumentToGithub(id: Identifier) {
   const dc = DocConnection.load(id);
   const doc = await dc.waitForDoc();
   const template = await getTemplateTree();
-  debugger;
+
   const copy = await copyTree(
     templateRepo,
     targetRepo,
