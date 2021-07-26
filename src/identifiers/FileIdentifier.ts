@@ -2,7 +2,7 @@ import { URI } from "../util/vscode-common/uri";
 import { Identifier, stringWithoutInitialSlash } from "./Identifier";
 
 export class FileIdentifier extends Identifier {
-  public static scheme = "file";
+  public static scheme = "fs";
 
   public readonly path: string;
 
@@ -15,7 +15,7 @@ export class FileIdentifier extends Identifier {
       URI.from({
         scheme: uri.scheme,
         authority: uri.authority,
-        path: uri.path,
+        path: identifier,
       }),
       subPath
     );

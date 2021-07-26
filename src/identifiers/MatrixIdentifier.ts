@@ -2,6 +2,8 @@ import MatrixProvider from "../matrix-yjs/MatrixProvider";
 import { URI } from "../util/vscode-common/uri";
 import { Identifier, stringWithoutInitialSlash } from "./Identifier";
 
+const DEFAULT_AUTHORITY = "mx.typecell.org";
+
 export class MatrixIdentifier extends Identifier {
   public static scheme = "mx";
   public readonly owner: string;
@@ -35,7 +37,7 @@ export class MatrixIdentifier extends Identifier {
       MatrixIdentifier.scheme,
       URI.from({
         scheme: uri.scheme,
-        authority: uri.authority || "mx.typecell.org",
+        authority: uri.authority || DEFAULT_AUTHORITY,
         path: "/" + owner + "/" + document,
       }),
       subPath
@@ -46,5 +48,13 @@ export class MatrixIdentifier extends Identifier {
 
   public get roomName() {
     return this.owner + "/" + this.document;
+  }
+
+  public get defaultURI() {
+    return this.uri.authority === DEFAULT_AUTHORITY
+      ? this.uri.with({
+          authority: null,
+        })
+      : this.uri;
   }
 }

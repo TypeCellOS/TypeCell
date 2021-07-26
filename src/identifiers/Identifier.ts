@@ -25,7 +25,36 @@ export abstract class Identifier {
   }
 
   public toString() {
-    return this.uri.toString();
+    return this.uri.toString(true);
+  }
+
+  protected get defaultURI() {
+    return this.uri;
+  }
+
+  public toRouteString(defaultScheme = "mx") {
+    let str = this.defaultURI.toString(true);
+    if (
+      !this.defaultURI.authority &&
+      this.defaultURI.scheme === defaultScheme
+    ) {
+      str = str.substring(defaultScheme.length + 1);
+    }
+    if (this.subPath) {
+      str += "/:/" + this.subPath;
+    }
+    if (!str.startsWith("/")) {
+      str = "/" + str;
+    }
+    return str;
+  }
+
+  public equals(other: Identifier) {
+    return this.toString() === other.toString();
+  }
+
+  public equalsIncludingSub(other: Identifier) {
+    return this.equals(other) && this.subPath === other.subPath;
   }
 }
 
