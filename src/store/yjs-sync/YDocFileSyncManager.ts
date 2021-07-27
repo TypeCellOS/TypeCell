@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import { makeObservable, observable } from "mobx";
 import * as Y from "yjs";
-import { readFile, saveFile, Watcher } from "../../github/file";
+import { readFile, saveFile, Watcher } from "filebridge-client";
 import { markdownToNotebook } from "../../github/markdown";
 import { FileIdentifier } from "../../identifiers/FileIdentifier";
 import uniqueId from "../../util/uniqueId";
