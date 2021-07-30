@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import { MatrixClient } from "matrix-js-sdk";
 import * as Y from "yjs";
+import { MatrixIdentifier } from "../identifiers/MatrixIdentifier";
 import { decodeBase64, encodeBase64 } from "../matrix-auth/unexported/olmlib";
 import { arrayBuffersAreEqual } from "../util/binaryEqual";
 import { Emitter, Event } from "../util/vscode-common/event";
@@ -82,9 +83,10 @@ export default class MatrixProvider extends Disposable {
   public constructor(
     private doc: Y.Doc,
     private matrixClient: MatrixClient,
-    private typecellId: string,
+    private roomName: string,
     private homeserver: string
   ) {
+    // TODO: check authority of identifier
     super();
     doc.on("update", this.documentUpdateListener);
   }
@@ -227,18 +229,18 @@ export default class MatrixProvider extends Disposable {
   private async initializeNoCatch() {
     try {
       const ret = await this.matrixClient.getRoomIdForAlias(
-        "#" + this.typecellId + ":" + this.homeserver // TODO
+        "#" + this.roomName + ":" + this.homeserver // TODO
       );
       this.roomId = ret.room_id;
     } catch (e) {
       let timeout = 5 * 1000;
       if (e.errcode === "M_NOT_FOUND") {
-        console.log("room not found", this.typecellId);
+        console.log("room not found", this.roomName);
         this._onDocumentUnavailable.fire();
       } else if (e.name === "ConnectionError") {
-        console.log("room not found (offline)", this.typecellId);
+        console.log("room not found (offline)", this.roomName);
       } else {
-        console.error("error retrieving room", this.typecellId, e);
+        console.error("error retrieving room", this.roomName, e);
         timeout = 30 * 1000;
         this._onDocumentUnavailable.fire();
       }

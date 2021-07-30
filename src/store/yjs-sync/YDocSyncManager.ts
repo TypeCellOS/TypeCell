@@ -4,9 +4,12 @@ import { IndexeddbPersistence } from "y-indexeddb";
 import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
 import GithubProvider from "../../github/GithubProvider";
+import { GithubIdentifier } from "../../identifiers/GithubIdentifier";
+import { Identifier } from "../../identifiers/Identifier";
+import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";
 import MatrixProvider from "../../matrix-yjs/MatrixProvider";
 import { Disposable } from "../../util/vscode-common/lifecycle";
-import { Identifier } from "../Identifier";
+
 import { existsLocally, getIDBIdentifier, waitForIDBSynced } from "./IDBHelper";
 
 /**
@@ -50,19 +53,22 @@ export class YDocSyncManager extends Disposable {
   public doc: "loading" | "not-found" | Y.Doc = "loading";
 
   public constructor(
-    public readonly identifier: Identifier,
+    public readonly identifier: MatrixIdentifier | GithubIdentifier,
     private readonly mxClient: MatrixClient,
     private readonly userId: string | undefined,
     private readonly forkSourceIdentifier?: Identifier
   ) {
     super();
-    this.idbIdentifier = getIDBIdentifier(this.identifier.id, this.userId);
+    this.idbIdentifier = getIDBIdentifier(
+      this.identifier.toString(),
+      this.userId
+    );
     makeObservable(this, {
       doc: observable.ref,
     });
 
-    console.log("new docconnection", this.identifier.id);
-    this._ydoc = new Y.Doc({ guid: this.identifier.id });
+    console.log("new docconnection", this.identifier);
+    this._ydoc = new Y.Doc({ guid: this.identifier.toString() });
   }
 
   public async initialize() {
@@ -112,7 +118,7 @@ export class YDocSyncManager extends Disposable {
 
     // scenario 1
     if (this.userId) {
-      const guestIDB = getIDBIdentifier(this.identifier.id, undefined);
+      const guestIDB = getIDBIdentifier(this.identifier.toString(), undefined);
       if (existsLocally(guestIDB)) {
         console.log("copying guest idb");
         await this.applyChangesFromAndDeleteSource(guestIDB);
@@ -124,7 +130,10 @@ export class YDocSyncManager extends Disposable {
       if (!this.userId) {
         throw new Error("unexpected, forkSource but no userId");
       }
-      const idbId = getIDBIdentifier(this.forkSourceIdentifier.id, this.userId);
+      const idbId = getIDBIdentifier(
+        this.forkSourceIdentifier.toString(),
+        this.userId
+      );
       if (!existsLocally(idbId)) {
         throw new Error("fork source not found");
       }
@@ -169,12 +178,12 @@ export class YDocSyncManager extends Disposable {
     }
 
     this.matrixProvider = this._register(
-      this.identifier.type === "typecell"
+      this.identifier instanceof MatrixIdentifier
         ? new MatrixProvider(
             this._ydoc,
             this.mxClient,
-            this.identifier.id,
-            "mx.typecell.org" // TODO
+            this.identifier.roomName,
+            this.identifier.uri.authority
           )
         : new GithubProvider(this._ydoc, this.identifier)
     );

@@ -11,8 +11,8 @@ import {
 
 import type * as Y from "yjs";
 import { DocumentResource } from "./DocumentResource";
-import { Identifier } from "./Identifier";
 import type { WebrtcProvider } from "y-webrtc";
+import { Identifier } from "../identifiers/Identifier";
 
 export type BaseResourceConnection = {
   identifier: Identifier;
@@ -25,18 +25,28 @@ export type BaseResourceConnection = {
  * All entities extend from BaseResource, which provides support for id, type, and references
  */
 export class BaseResource {
+  private readonly _identifier: Identifier;
+  private readonly connection?: BaseResourceConnection;
+
   /** @internal */
   public constructor(
     /** @internal */ protected readonly ydoc: Y.Doc,
-    protected readonly connection: BaseResourceConnection
-  ) {}
+    connectionOrIdentifier: BaseResourceConnection | Identifier
+  ) {
+    if ((connectionOrIdentifier as any).identifier) {
+      this.connection = connectionOrIdentifier as BaseResourceConnection;
+      this._identifier = this.connection.identifier;
+    } else {
+      this._identifier = connectionOrIdentifier as any;
+    }
+  }
 
   public get identifier() {
-    return this.connection.identifier;
+    return this._identifier;
   }
 
   public get id() {
-    return this.connection.identifier.id;
+    return this._identifier.toString();
   }
 
   public get type(): string {
@@ -46,7 +56,7 @@ export class BaseResource {
   // TODO: do / how do we want to expose this?
   /** @internal */
   public get webrtcProvider() {
-    return this.connection.webrtcProvider;
+    return this.connection?.webrtcProvider;
   }
 
   /**
@@ -63,14 +73,18 @@ export class BaseResource {
 
   /** @internal */
   public getSpecificType<T extends BaseResource>(
-    constructor: new (doc: Y.Doc, connection: BaseResourceConnection) => T
+    constructor: new (
+      doc: Y.Doc,
+      connection: BaseResourceConnection | Identifier
+    ) => T
   ): T {
     if (this._specificType && !(this._specificType instanceof constructor)) {
       throw new Error("already has different specifictype");
     }
 
     this._specificType =
-      this._specificType || new constructor(this.ydoc, this.connection);
+      this._specificType ||
+      new constructor(this.ydoc, this.connection || this.identifier);
 
     return this._specificType;
   }
@@ -215,6 +229,6 @@ export class BaseResource {
     // This should always only dispose the connection
     // BaseResource is not meant to manage other resources,
     // because BaseResource can be initiated often (in YDocConnection.load), and is not cached
-    this.connection.dispose();
+    this.connection?.dispose();
   }
 }
