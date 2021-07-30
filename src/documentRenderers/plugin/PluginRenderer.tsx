@@ -18,7 +18,7 @@ const PluginRenderer: React.FC<Props> = observer((props) => {
       <NotebookCell
         cell={props.plugin.pluginCell}
         engine={engine}
-        awareness={props.plugin.webrtcProvider.awareness}
+        awareness={props.plugin.webrtcProvider?.awareness}
       />
     </div>
   );

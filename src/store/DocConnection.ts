@@ -6,47 +6,24 @@ import {
   runInAction,
   when,
 } from "mobx";
-import { IndexeddbPersistence } from "y-indexeddb";
-import { WebrtcProvider } from "y-webrtc";
-import * as Y from "yjs";
-import MatrixProvider from "../matrix-yjs/MatrixProvider";
+import { MatrixClientPeg } from "../matrix-auth/MatrixClientPeg";
 import { createMatrixDocument } from "../matrix-yjs/MatrixRoomManager";
-
-import { observeDoc } from "../moby/doc";
 import { Disposable } from "../util/vscode-common/lifecycle";
 import { BaseResource } from "./BaseResource";
-import { Identifier, parseIdentifier, tryParseIdentifier } from "./Identifier";
+
 import { sessionStore } from "./local/stores";
+import { existsLocally, getIDBIdentifier } from "./yjs-sync/IDBHelper";
+import { YDocFileSyncManager } from "./yjs-sync/YDocFileSyncManager";
+import { YDocSyncManager } from "./yjs-sync/YDocSyncManager";
+import * as Y from "yjs";
+import { Identifier } from "../identifiers/Identifier";
+import { FileIdentifier } from "../identifiers/FileIdentifier";
+import { GithubIdentifier } from "../identifiers/GithubIdentifier";
+import { MatrixIdentifier } from "../identifiers/MatrixIdentifier";
+import { URI } from "../util/vscode-common/uri";
+import { parseIdentifier, tryParseIdentifier } from "../identifiers";
 
-// TODO, extract cache + global function to Manager object / class
 const cache = new Map<string, DocConnection>();
-
-export function reloadDocuments() {
-  if (cache.size) {
-    console.log("reloading documents");
-  }
-  for (let doc of cache.values()) {
-    doc.reinitialize().catch((e) => {
-      console.error("error reinitializing document", e);
-    });
-  }
-}
-
-export function readOnlyAccess() {
-  if (typeof sessionStore.user === "string") {
-    return false;
-  }
-  return sessionStore.user.type === "guest-user";
-}
-
-export function setupDocConnectionManager() {
-  reaction(
-    () => readOnlyAccess(),
-    () => {
-      reloadDocuments();
-    }
-  );
-}
 
 /**
  * Encapsulates a Y.Doc and exposes the Resource the Y.Doc represents
@@ -54,16 +31,100 @@ export function setupDocConnectionManager() {
 export class DocConnection extends Disposable {
   private disposed: boolean = false;
   private _refCount = 0;
-  private _ydoc: Y.Doc;
 
   /** @internal */
-  public matrixProvider: MatrixProvider | undefined;
+  private manager: YDocSyncManager | YDocFileSyncManager | undefined;
+  private _baseResourceCache:
+    | undefined
+    | {
+        baseResource: BaseResource;
+        doc: Y.Doc;
+      };
+
+  // TODO: move to YDocSyncManager?
+  private clearAndInitializeManager(forkSourceIdentifier?: Identifier) {
+    runInAction(() => {
+      this._baseResourceCache = undefined;
+      this.manager?.dispose();
+      this.manager = undefined;
+      if (this.identifier instanceof FileIdentifier) {
+        this.manager = new YDocFileSyncManager(this.identifier);
+        this.manager.initialize();
+      } else if (
+        this.identifier instanceof GithubIdentifier ||
+        this.identifier instanceof MatrixIdentifier
+      ) {
+        if (typeof sessionStore.user !== "string") {
+          this.manager = new YDocSyncManager(
+            this.identifier,
+            sessionStore.user.matrixClient,
+            sessionStore.user.type === "matrix-user"
+              ? sessionStore.user.userId
+              : undefined,
+            forkSourceIdentifier
+          );
+          this.manager.initialize();
+        }
+      } else {
+        throw new Error("unsupported identifier");
+      }
+    });
+  }
+
+  protected constructor(
+    public readonly identifier: Identifier,
+    forkSourceIdentifier?: Identifier
+  ) {
+    super();
+
+    // add "manager" to satisfy TS as it's a private field
+    // https://mobx.js.org/observable-state.html#limitations
+    makeObservable<DocConnection, "manager">(this, {
+      doc: computed,
+      tryDoc: computed,
+      needsFork: computed,
+      manager: observable.ref,
+    });
+
+    let forked = false;
+    const dispose = reaction(
+      () => sessionStore.user,
+      () => {
+        this.clearAndInitializeManager(
+          forked ? undefined : forkSourceIdentifier
+        );
+        forked = true;
+      },
+      { fireImmediately: true }
+    );
+
+    this._register({
+      dispose,
+    });
+  }
+  /**
+   * Returns the doc if loaded and available, or undefined otherwise
+   *
+   * (mobx computed)
+   *
+   * @readonly
+   * @memberof DocConnection
+   */
+  public get tryDoc() {
+    return typeof this.doc === "string" ? undefined : this.doc;
+  }
 
   /** @internal */
-  public webrtcProvider: WebrtcProvider | undefined;
+  public get webrtcProvider() {
+    return this.manager?.webrtcProvider;
+  }
 
-  /** @internal */
-  public indexedDBProvider: IndexeddbPersistence | undefined;
+  public get needsFork() {
+    if (!this.manager) {
+      return false;
+    }
+    return !this.manager.canWrite;
+  }
 
   /**
    * Get the managed "doc". Returns:
@@ -76,18 +137,79 @@ export class DocConnection extends Disposable {
    * @type {("loading" | "not-found" | BaseResource)}
    * @memberof DocConnection
    */
-  public doc: "loading" | "not-found" | BaseResource = "loading";
+  public get doc() {
+    if (!this.manager) {
+      return "loading" as "loading";
+    }
 
-  /**
-   * Returns the doc if loaded and available, or undefined otherwise
-   *
-   * (mobx computed)
-   *
-   * @readonly
-   * @memberof DocConnection
-   */
-  public get tryDoc() {
-    return typeof this.doc === "string" ? undefined : this.doc;
+    const ydoc = this.manager.doc;
+    if (typeof ydoc === "string") {
+      return ydoc;
+    }
+
+    if (!this._baseResourceCache || this._baseResourceCache.doc !== ydoc) {
+      this._baseResourceCache = {
+        doc: ydoc,
+        baseResource: new BaseResource(ydoc, this),
+      };
+    }
+
+    return this._baseResourceCache.baseResource;
+  }
+
+  public async revert() {
+    if (this.manager instanceof YDocFileSyncManager) {
+      throw new Error("revert() not supported for YDocFileSyncManager");
+    }
+    const manager = this.manager;
+    if (!manager) {
+      throw new Error("revert() called without manager");
+    }
+    await manager.deleteLocalChanges();
+    this.clearAndInitializeManager();
+  }
+
+  // TODO: fork github or file sources
+  public async fork() {
+    if (!sessionStore.loggedInUser) {
+      throw new Error("not logged in");
+    }
+
+    let tryN = 1;
+
+    do {
+      if (!(this.identifier instanceof MatrixIdentifier)) {
+        throw new Error("not implemented");
+      }
+      // TODO: test
+      const newIdentifier = new MatrixIdentifier(
+        URI.from({
+          scheme: this.identifier.uri.scheme,
+          // TODO: use user authority,
+          path:
+            "@" +
+            sessionStore.loggedInUser +
+            " / " +
+            this.identifier.document +
+            (tryN > 1 ? "-" + tryN : ""),
+        })
+      );
+
+      const result = await DocConnection.create(newIdentifier, this.identifier);
+
+      // TODO: store fork info in document
+
+      if (result === "invalid-identifier") {
+        throw new Error("unexpected invalid-identifier when forking");
+      }
+
+      if (result !== "already-exists") {
+        if (result instanceof BaseResource) {
+        }
+        return result;
+      }
+      tryN++;
+    } while (true);
   }
 
   public async waitForDoc() {
@@ -101,164 +223,81 @@ export class DocConnection extends Disposable {
     return doc;
   }
 
-  protected constructor(
-    public readonly identifier: Identifier,
-    offline = false
+  // public async reinitialize() {
+  //   console.log("reinitialize", this.identifier.id);
+  //   runInAction(() => {
+  //     this.doc = "loading";
+  //   });
+  //   this.manager.dispose();
+  //   await this.initializeNoCatch();
+  // }
+
+  public static async create(
+    id: string | { owner: string; document: string },
+    forkSourceIdentifier?: Identifier
   ) {
-    super();
-
-    console.log("new docconnection", this.identifier.id);
-    this._ydoc = new Y.Doc({ guid: this.identifier.id });
-
-    observeDoc(this._ydoc);
-
-    makeObservable(this, {
-      doc: observable.ref,
-      tryDoc: computed,
-    });
-    this.initialize(offline);
-  }
-
-  public async reinitialize() {
-    console.log("reinitialize", this.identifier.id);
-    runInAction(() => {
-      this.doc = "loading";
-    });
-    this.webrtcProvider?.destroy();
-    this.indexedDBProvider?.destroy();
-    this.webrtcProvider = undefined;
-    this.indexedDBProvider = undefined;
-    this.matrixProvider?.dispose();
-    this.matrixProvider = undefined;
-    await this.initializeNoCatch();
-  }
-
-  private async initialize(offline = false) {
-    try {
-      await this.initializeNoCatch(offline);
-    } catch (e) {
-      console.error(e);
-      throw e;
+    if (!sessionStore.loggedInUser) {
+      throw new Error("no user available on create document");
     }
-  }
-
-  private async initializeNoCatch(offline = false) {
-    if (typeof sessionStore.user === "string") {
-      throw new Error("no matrix client available");
-    }
-    const mxClient = sessionStore.user.matrixClient;
-    const readonly = readOnlyAccess();
-    const alreadyLocal = !readonly && (await existsLocally(this.identifier.id));
-
-    if (readonly && offline) {
-      throw new Error("unexpected; both readonly and offline");
-    }
-
-    const initLocalProviders = async () => {
-      if (typeof this.doc !== "string") {
-        // already loaded
-        return;
-      }
-
-      if (!readonly) {
-        await new Promise<void>((resolve, reject) => {
-          try {
-            // TODO: add user id to indexeddb id?
-            this.indexedDBProvider = new IndexeddbPersistence(
-              "yjs-" + this.identifier.id,
-              this._ydoc
-            );
-
-            this.indexedDBProvider.on("synced", () => {
-              resolve();
-            });
-          } catch (e) {
-            reject(e);
-          }
-        });
-      }
-
-      this.webrtcProvider = new WebrtcProvider(this.identifier.id, this._ydoc);
-      runInAction(() => {
-        this.doc = new BaseResource(this._ydoc, this);
-      });
-    };
-
-    if (alreadyLocal || offline) {
-      // For alreadyLocal,
-      // we await here to first load indexeddb, and then later sync with remote providers
-      // This way, when we set up MatrixProvider, we also have an initial state
-      // and can detect whether any local changes need to be synced to the remote (matrix)
-
-      // for offline, make sure we create the local document, because onDocumentAvailable
-      // won't resolve until we become online
-      await initLocalProviders();
-    }
-
-    this.matrixProvider = this._register(
-      new MatrixProvider(this._ydoc, mxClient, this.identifier.id, readonly)
-    );
-
-    this._register(
-      this.matrixProvider.onDocumentAvailable(() => {
-        initLocalProviders();
-      })
-    );
-
-    this._register(
-      this.matrixProvider.onDocumentUnavailable(() => {
-        // TODO: tombstone?
-        runInAction(() => {
-          this.doc = "not-found";
-        });
-        this.indexedDBProvider?.destroy();
-        this.webrtcProvider?.destroy();
-        this.indexedDBProvider = undefined;
-        this.webrtcProvider = undefined;
-      })
-    );
-  }
-
-  public static async create(id: string | { owner: string; document: string }) {
     const identifier = tryParseIdentifier(id);
 
-    if (typeof identifier === "string") {
+    if (identifier === "invalid-identifier") {
       return identifier;
     }
 
-    if (await existsLocally(identifier.id)) {
+    if (!(identifier instanceof MatrixIdentifier)) {
+      throw new Error("invalid identifier");
+    }
+
+    // TODO: check authority
+    if (identifier.owner !== sessionStore.loggedInUser) {
+      throw new Error("not authorized to create this document");
+    }
+
+    if (
+      await existsLocally(
+        getIDBIdentifier(identifier.toString(), sessionStore.loggedInUser)
+      )
+    ) {
       return "already-exists";
     }
+
     const remoteResult = await createMatrixDocument(
+      MatrixClientPeg.get(),
       identifier.owner,
-      identifier.id
+      identifier.roomName,
+      "public-read"
     );
 
-    if (remoteResult === "offline" || remoteResult === "ok") {
-      // TODO: add to pending if "offline"
-      const connection = await DocConnection.load(
-        id,
-        remoteResult === "offline"
-      );
+    if (remoteResult === "already-exists") {
+      return remoteResult;
+    }
 
-      const doc = await connection.waitForDoc();
-      doc.create("!richtext");
-      return doc;
+    if (remoteResult === "offline" || remoteResult.status === "ok") {
+      // TODO: add to pending if "offline"
+      if (remoteResult === "offline") {
+        // create local-first
+      }
+      const connection = await DocConnection.load(id, forkSourceIdentifier);
+      return connection.waitForDoc();
     }
 
     return remoteResult;
   }
 
   public static load(
-    id: string | { owner: string; document: string },
-    offline = false
+    identifier: string | { owner: string; document: string } | Identifier,
+    forkSourceIdentifier?: Identifier
   ) {
-    const identifier = parseIdentifier(id);
+    // TODO
+    if (!(identifier instanceof Identifier)) {
+      identifier = parseIdentifier(identifier);
+    }
 
-    let connection = cache.get(identifier.id);
+    let connection = cache.get(identifier.toString());
     if (!connection) {
-      connection = new DocConnection(identifier, offline);
-      cache.set(identifier.id, connection);
+      connection = new DocConnection(identifier, forkSourceIdentifier);
+      cache.set(identifier.toString(), connection);
     }
     connection.addRef();
     return connection;
@@ -275,23 +314,15 @@ export class DocConnection extends Disposable {
       throw new Error("already disposed or invalid refcount");
     }
     this._refCount--;
-    console.log("dispose", this.identifier.id, this._refCount);
+    console.log("dispose", this.identifier.toString(), this._refCount);
     if (this._refCount === 0) {
       super.dispose();
 
-      this.webrtcProvider?.destroy();
-      this.indexedDBProvider?.destroy();
-      this.webrtcProvider = undefined;
-      this.indexedDBProvider = undefined;
-      cache.delete(this.identifier.id);
+      this._baseResourceCache = undefined;
+      this.manager?.dispose();
+      this.manager = undefined;
+      cache.delete(this.identifier.toString());
       this.disposed = true;
     }
   }
-}
-
-async function existsLocally(id: string) {
-  const exists = (await (window.indexedDB as any).databases())
-    .map((db: IDBDatabase) => db.name)
-    .includes("yjs-" + id);
-  return exists;
 }

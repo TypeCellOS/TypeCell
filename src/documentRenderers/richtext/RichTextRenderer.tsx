@@ -94,10 +94,11 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       console.log(editor.getJSON());
     },
     extensions: [
-      CollaborationCursor.configure({
-        provider: props.document.webrtcProvider,
-        user: { name: "Hello", color: "#f783ac" },
-      }),
+      // TODO
+      // CollaborationCursor.configure({
+      //   provider: props.document.webrtcProvider,
+      //   user: { name: "Hello", color: "#f783ac" },
+      // }),
       Collaboration.configure({
         fragment: props.document.data,
       }),

@@ -28,7 +28,7 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
     ) {
       let split = fileName.substr("file:///%21%40".length).split("/");
 
-      if (split.length === 3 && fileName.endsWith(".cell.tsx")) {
+      if (fileName.endsWith(".cell.tsx")) {
         const folder = "!@" + split[0] + "/" + split[1];
 
         // add modified code at end, to not mess offsets

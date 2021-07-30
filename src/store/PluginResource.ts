@@ -1,6 +1,8 @@
 import { CellModel } from "../models/CellModel";
 import { BaseResource, BaseResourceConnection } from "./BaseResource";
 import type * as Y from "yjs";
+import { NotebookCellModel } from "../documentRenderers/notebook/NotebookCellModel";
+import { Identifier } from "../identifiers/Identifier";
 
 /**
  * A Resource defining a plugin. Plugins have a description and a single cell with code,
@@ -8,7 +10,7 @@ import type * as Y from "yjs";
  */
 export default class PluginResource extends BaseResource {
   /** @internal */
-  constructor(ydoc: Y.Doc, connection: BaseResourceConnection) {
+  constructor(ydoc: Y.Doc, connection: BaseResourceConnection | Identifier) {
     super(ydoc, connection);
     if (this.type !== "!plugin") {
       throw new Error("invalid type for PluginResource");
@@ -31,16 +33,17 @@ export default class PluginResource extends BaseResource {
     return descr;
   }
 
-  private _pluginCell: CellModel | undefined;
+  private _pluginCell: NotebookCellModel | undefined;
 
+  /** @internal */
   public get pluginCell() {
-    this._pluginCell =
-      this._pluginCell ||
-      new CellModel(
-        this.id,
-        "!@" + this.id.substr(1) + "/plugin.tsx",
-        this.ydoc.getText("pluginCell")
-      );
+    this._pluginCell = this._pluginCell || {
+      code: this.ydoc.getText("pluginCell"),
+      id: this.id,
+      path: "!@" + this.id.substr(1) + "/plugin.tsx",
+      language: "typescript",
+    };
+
     return this._pluginCell;
   }
 }

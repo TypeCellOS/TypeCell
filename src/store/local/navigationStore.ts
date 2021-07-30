@@ -1,19 +1,31 @@
-import { action, makeObservable, observable, reaction } from "mobx";
+import { action, computed, makeObservable, observable, reaction } from "mobx";
 
 import routing from "../../typecellEngine/lib/routing";
 import { BaseResource } from "../BaseResource";
+import { DocConnection } from "../DocConnection";
 import { sessionStore } from "./stores";
 
 export class NavigationStore {
   public isNewPageDialogVisible = false;
   public currentPage: ReturnType<typeof routing> = routing();
 
+  public get currentDocument() {
+    if (this.currentPage.page === "document") {
+      const newConnection = DocConnection.load(this.currentPage.identifier);
+      return newConnection;
+    }
+    return undefined;
+  }
   constructor() {
+    // TODO: normalize initial url (e.g.: when at @UserName, redirect to @username)
+    // This can be done using identifier.toRouteString()
+
     makeObservable(this, {
       isNewPageDialogVisible: observable,
       showNewPageDialog: action,
       hideNewPageDialog: action,
 
+      currentDocument: computed,
       currentPage: observable.ref,
       navigateToDocument: action,
       onPopState: action,
@@ -67,11 +79,38 @@ export class NavigationStore {
       }
     );
 
+    // clean up currentDocument on navigation
+    reaction(
+      () => this.currentDocument,
+      (newVal, oldVal) => {
+        if (oldVal) {
+          oldVal.dispose();
+        }
+      }
+    );
+
+    reaction(
+      () => this.currentPage.identifier?.toRouteString(),
+      (newVal, oldVal) => {
+        if (newVal && window.history.state?.url !== newVal) {
+          window.history.pushState({ url: newVal }, "", newVal);
+        }
+      }
+    );
     window.addEventListener("popstate", this.onPopState);
   }
 
   onPopState = (e: PopStateEvent) => {
-    this.currentPage = routing();
+    const newPage = routing();
+    if (
+      this.currentPage.identifier &&
+      newPage.identifier?.equals(this.currentPage.identifier)
+    ) {
+      // only subpath has changed
+      this.currentPage.identifier.subPath = newPage.identifier.subPath;
+    } else {
+      this.currentPage = newPage;
+    }
   };
 
   // hideLoginScreen = () => {
@@ -125,11 +164,9 @@ export class NavigationStore {
   navigateToDocument = (doc: BaseResource) => {
     this.currentPage = {
       page: "document",
-      owner: doc.identifier.owner,
-      document: doc.identifier.document,
-      remainingParts: [],
+      identifier: doc.identifier,
     };
-    const url = "/" + doc.identifier.id;
-    window.history.pushState({ url }, "", url);
   };
 }
+
+export const navigationStore = new NavigationStore();

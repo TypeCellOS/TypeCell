@@ -2,11 +2,14 @@
 
 import type * as Monaco from "monaco-editor";
 import parserTypescript from "prettier/parser-typescript";
+import parserCSS from "prettier/parser-postcss";
 import prettier from "prettier/standalone";
 // @ts-ignore
 import EditorWorker from "workerize-loader!./workers/editor.worker"; // eslint-disable-line import/no-webpack-loader-syntax
 // @ts-ignore
 import TsWorker from "workerize-loader!./workers/ts.worker"; // eslint-disable-line import/no-webpack-loader-syntax
+// @ts-ignore
+import CSSWorker from "workerize-loader!./workers/css.worker"; // eslint-disable-line import/no-webpack-loader-syntax
 import { getDefaultSandboxCompilerOptions } from "./compilerOptions";
 import { diffToMonacoTextEdits } from "./diffToMonacoTextEdits";
 
@@ -19,13 +22,10 @@ import { diffToMonacoTextEdits } from "./diffToMonacoTextEdits";
       throw new Error("not implemented");
     }
     if (label === "css" || label === "scss" || label === "less") {
-      throw new Error("not implemented");
+      return new CSSWorker();
     }
     if (label === "html" || label === "handlebars" || label === "razor") {
       throw new Error("not implemented");
-    }
-    if (label === "typescript" || label === "javascript") {
-      return "./ts.worker.bundle.js";
     }
     return new EditorWorker();
   },
@@ -105,7 +105,26 @@ function setupPrettier(monaco: typeof Monaco) {
         let ret = diffToMonacoTextEdits(model, newText);
         return ret;
       } catch (e) {
-        console.warn("error while formatting code (prettier)", e);
+        console.warn("error while formatting ts code (prettier)", e);
+        return [];
+      }
+    },
+  });
+
+  monaco.languages.registerDocumentFormattingEditProvider("css", {
+    provideDocumentFormattingEdits(model, options, token) {
+      try {
+        const newText = prettier.format(model.getValue(), {
+          parser: "css",
+          plugins: [parserCSS],
+          tabWidth: 2,
+          printWidth: 80,
+        });
+
+        let ret = diffToMonacoTextEdits(model, newText);
+        return ret;
+      } catch (e) {
+        console.warn("error while formatting css code (prettier)", e);
         return [];
       }
     },
