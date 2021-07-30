@@ -47,7 +47,7 @@ export const CustomRenderer = observer((props: Props) => {
     }
 
     const newEngine = new EngineWithOutput(
-      rendererDocument.identifier.id,
+      rendererDocument.identifier.toString(),
       false
     );
     setEngine(newEngine);

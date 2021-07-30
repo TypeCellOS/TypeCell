@@ -23,7 +23,7 @@ const App = observer(() => {
   return (
     <DndProvider backend={HTML5Backend}>
       {nav.currentPage.page === "document" && (
-        <DocumentView id={nav.currentPage} />
+        <DocumentView id={nav.currentPage.identifier} />
       )}
       {nav.currentPage.page === "root" && <div>Welcome to Typecell</div>}
       {nav.currentPage.page === "owner" && (

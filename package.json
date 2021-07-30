@@ -24,6 +24,7 @@
     "@atlaskit/textarea": "^4.1.0",
     "@atlaskit/textfield": "^5.0.1",
     "@atlaskit/tooltip": "^17.2.1",
+    "@atlaskit/tree": "^8.4.0",
     "@emotion/react": "^11.4.0",
     "@matrix-org/olm": "^3.2.2",
     "@reactivedata/yjs-reactive-bindings": "^0.1.8",
@@ -52,6 +53,7 @@
     "@types/react-dom": "^17.0.0",
     "@types/uuid": "^8.3.0",
     "@typescript/vfs": "^1.3.4",
+    "filebridge-client": "^0.1.1",
     "classnames": "^2.3.1",
     "cross-fetch": "^3.1.4",
     "es-module-shims": "0.7.1",
@@ -67,6 +69,7 @@
     "mobx": "^6.2.0",
     "mobx-react-lite": "^3.2.0",
     "monaco-editor": "^0.23.0",
+    "octokit": "^1.0.6",
     "prettier": "^2.3.0",
     "qs": "^6.10.1",
     "react": "^17.0.2",
@@ -78,6 +81,8 @@
     "react-icons": "^4.2.0",
     "react-inspector": "^5.1.0",
     "react-scripts": "4.0.3",
+    "remark-parse": "^9.0.0",
+    "remark-stringify": "^9.0.1",
     "remixicon-react": "^1.0.0",
     "speakingurl": "^14.0.1",
     "string.prototype.replaceall": "^1.0.5",
@@ -85,6 +90,7 @@
     "tippy.js": "^6.3.1",
     "typescript": "^4.2.4",
     "ua-parser-js": "^0.7.28",
+    "unified": "^10.0.1",
     "uuid": "^8.3.2",
     "web-vitals": "^1.0.1",
     "workerize-loader": "^1.3.0",
@@ -125,8 +131,9 @@
   },
   "jest": {
     "transformIgnorePatterns": [
-      "/node_modules/(?!monaco-editor).+\\.js$"
-    ]
+      "/node_modules/(?!(unified|bail|is-plain-obj|trough|vfile|unist-util-stringify-position|monaco-editor)).+\\.js$"
+    ],
+    "transform": {}
   },
   "devDependencies": {
     "@svgr/webpack": "^5.5.0",

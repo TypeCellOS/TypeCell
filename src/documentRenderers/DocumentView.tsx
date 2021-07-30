@@ -1,15 +1,19 @@
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useState } from "react";
+import { Identifier } from "../identifiers/Identifier";
 import { DocConnection } from "../store/DocConnection";
+
 import PluginResource from "../store/PluginResource";
+import ProjectResource from "../store/ProjectResource";
 import { CustomRenderer } from "./custom/CustomRenderer";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
+import ProjectRenderer from "./project/ProjectRenderer";
 import RichTextRenderer from "./richtext/RichTextRenderer";
 
 type Props = {
-  id: string | { owner: string; document: string };
+  id: Identifier;
 };
 
 /**
@@ -45,6 +49,13 @@ const DocumentView = observer((props: Props) => {
     return (
       <NotebookRenderer key={connection.doc.id} document={connection.doc.doc} />
     );
+  } else if (connection.doc.type === "!project") {
+    return (
+      <ProjectRenderer
+        key={connection.doc.id}
+        project={connection.doc.getSpecificType(ProjectResource)!}
+      />
+    );
   } else if (connection.doc.type === "!richtext") {
     return (
       <RichTextRenderer key={connection.doc.id} document={connection.doc.doc} />
@@ -64,3 +75,16 @@ const DocumentView = observer((props: Props) => {
 });
 
 export default DocumentView;
+
+/*
+
+/doc/file
+
+/file:index.md/doc
+
+
+index.md:
+
+type: 
+---
+*/
