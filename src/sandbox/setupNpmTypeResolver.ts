@@ -20,15 +20,13 @@ export default function setupNpmTypeResolver() {
     if (!uri.startsWith("file:///%21%40") /*!@*/) {
       return;
     }
-    uri = uri.substring("file:///%21%40".length);
-    const split = uri.split("/");
-    if (split.length !== 3) {
-      return;
-    }
+
+    // TODO: check language
 
     model.onDidChangeContent(() => {
       acquireTypes(model.getValue());
     });
+    acquireTypes(model.getValue());
   });
 
   // always import react types, as this library is imported by default in ts.worker

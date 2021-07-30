@@ -1,12 +1,12 @@
+import { tryParseIdentifier } from "../../identifiers";
+
 export default function routing() {
-  const paths = window.location.pathname.split("/");
+  const paths = window.location.pathname.split("/").filter((p) => p.length);
+
   let part1: string | undefined;
   let part2: string | undefined;
-  let remainingParts: string[] = [];
+
   for (let path of paths) {
-    if (!path.length) {
-      continue;
-    }
     if (!part1) {
       part1 = path.toLowerCase();
       continue;
@@ -15,18 +15,16 @@ export default function routing() {
       part2 = path.toLowerCase();
       continue;
     }
-    remainingParts.push(path);
   }
 
-  if (part2 && part1 && part1.startsWith("@")) {
+  const parsedIdentifier = tryParseIdentifier(paths.join("/"));
+  if (parsedIdentifier !== "invalid-identifier") {
     return {
       page: "document" as "document",
-      owner: part1,
-      document: part2,
-      remainingParts,
+      identifier: parsedIdentifier,
     };
-  } else if (part1 && part1.startsWith("@")) {
-    return { page: "owner" as "owner", owner: part1 };
+  } else if (part1 && part1.startsWith("@") && !part2) {
+    return { page: "owner" as "owner", owner: part1 }; // TODO: what if user pages should have subpages?
   } else if (part1 === "login") {
     return { page: "login" as "login" };
   } else if (part1 === "register") {

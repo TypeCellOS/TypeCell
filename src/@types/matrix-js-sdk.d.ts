@@ -6,6 +6,7 @@ declare module "matrix-js-sdk" {
   export const IndexedDBCryptoStore: any;
   export const WebStorageSessionStore: any;
   export const IndexedDBStore: any;
+  export const request: any;
   export const LocalStorageCryptoStore: any;
   export const SERVICE_TYPES: any;
   export type MatrixClient = any;

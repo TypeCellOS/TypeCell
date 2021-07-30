@@ -11,15 +11,15 @@ export class NavigationStore {
 
   public get currentDocument() {
     if (this.currentPage.page === "document") {
-      const newConnection = DocConnection.load({
-        document: this.currentPage.document,
-        owner: this.currentPage.owner,
-      });
+      const newConnection = DocConnection.load(this.currentPage.identifier);
       return newConnection;
     }
     return undefined;
   }
   constructor() {
+    // TODO: normalize initial url (e.g.: when at @UserName, redirect to @username)
+    // This can be done using identifier.toRouteString()
+
     makeObservable(this, {
       isNewPageDialogVisible: observable,
       showNewPageDialog: action,
@@ -88,11 +88,29 @@ export class NavigationStore {
         }
       }
     );
+
+    reaction(
+      () => this.currentPage.identifier?.toRouteString(),
+      (newVal, oldVal) => {
+        if (newVal && window.history.state?.url !== newVal) {
+          window.history.pushState({ url: newVal }, "", newVal);
+        }
+      }
+    );
     window.addEventListener("popstate", this.onPopState);
   }
 
   onPopState = (e: PopStateEvent) => {
-    this.currentPage = routing();
+    const newPage = routing();
+    if (
+      this.currentPage.identifier &&
+      newPage.identifier?.equals(this.currentPage.identifier)
+    ) {
+      // only subpath has changed
+      this.currentPage.identifier.subPath = newPage.identifier.subPath;
+    } else {
+      this.currentPage = newPage;
+    }
   };
 
   // hideLoginScreen = () => {
@@ -146,12 +164,8 @@ export class NavigationStore {
   navigateToDocument = (doc: BaseResource) => {
     this.currentPage = {
       page: "document",
-      owner: doc.identifier.owner,
-      document: doc.identifier.document,
-      remainingParts: [],
+      identifier: doc.identifier,
     };
-    const url = "/" + doc.identifier.id;
-    window.history.pushState({ url }, "", url);
   };
 }
 
