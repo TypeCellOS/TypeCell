@@ -41,7 +41,7 @@ function refreshUserModelTypes(folder: string) {
     .filter((m) => {
       let path = m.uri.path;
       return (
-        path.startsWith("/!@" + folder + "/") &&
+        path.startsWith(folder) &&
         (path.endsWith(".tsx") ||
           (path.endsWith(".ts") && !path.endsWith(".d.ts")))
       );
@@ -49,12 +49,11 @@ function refreshUserModelTypes(folder: string) {
     .map((m) => m.uri.toString().replace(/(\.ts|\.tsx)$/, ""));
 
   const content = models.map((f) => `export * from "${f}";`).join("\n");
-
   // register the typings as a node_module.
   // These typings are automatically imported as $ in ts.worker.ts
   monaco.languages.typescript.typescriptDefaults.addExtraLib(
     content,
-    `file:///node_modules/@types/!@${folder}/index.d.ts`
+    `file:///node_modules/@types${folder.replace("//", "/")}index.d.ts`
   );
 }
 
@@ -63,20 +62,15 @@ function refreshUserModelTypes(folder: string) {
  */
 function listenForTypecellUserModels() {
   monaco.editor.onDidCreateModel((model) => {
-    // console.log("created", model.uri.toString());
-    let uri = model.uri.toString();
-    if (!uri.startsWith("file:///%21%40") /*!@*/) {
-      return;
-    }
-    uri = uri.substring("file:///%21%40".length);
-    const split = uri.split("/");
-    if (split.length !== 3) {
+    if (!model.uri.path.startsWith("/!@")) {
       return;
     }
 
     model.onDidChangeContent((e) => {});
-
-    const folder = split[0] + "/" + split[1];
+    const folder = model.uri.path.substring(
+      0,
+      model.uri.path.lastIndexOf("/") + 1
+    );
     refreshUserModelTypes(folder);
     model.onWillDispose(() => {
       // console.log("dispose", model.uri.toString());

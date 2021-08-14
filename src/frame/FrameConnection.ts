@@ -1,0 +1,117 @@
+import { observable, runInAction } from "mobx";
+import { Connection, connectToParent } from "penpal";
+import { Engine } from "../engine";
+import { CodeModel } from "../engine/CodeModel";
+import EngineWithOutput from "../typecellEngine/EngineWithOutput";
+import { ModelOutput } from "../typecellEngine/ModelOutput";
+import { getTypeCellResolver } from "../typecellEngine/resolver";
+import { Disposable } from "../util/vscode-common/lifecycle";
+import { FrameCodeModel } from "./FrameCodeModel";
+
+let ENGINE_ID = 0;
+
+export class FrameConnection extends Disposable {
+  private readonly connection: Connection<any>;
+  private connectionMethods: any;
+  private readonly engine: Engine<FrameCodeModel>;
+
+  public readonly id = ENGINE_ID++;
+
+  // TODO: maybe observable map is not necessary / we can easily remove mobx dependency here
+  public readonly outputs = observable.map<FrameCodeModel, ModelOutput>(
+    undefined,
+    {
+      deep: false,
+    }
+  );
+
+  private readonly models = new Map<string, FrameCodeModel>();
+
+  constructor() {
+    super();
+    this.engine = new Engine<FrameCodeModel>(
+      (model, output) => {
+        let modelOutput = this.outputs.get(model);
+        if (!modelOutput) {
+          modelOutput = this._register(new ModelOutput(model));
+          this.outputs.set(model, modelOutput);
+        }
+        modelOutput.updateValue(output);
+      },
+      (model) => {},
+      getTypeCellResolver("TODO", "EWO" + this.id, false)
+    );
+
+    this.connection = connectToParent({
+      // Methods child is exposing to parent
+      methods: {
+        updateModel: this.updateModel,
+        deleteModel: this.deleteModel,
+        updatePositions: this.updatePositions,
+        ping: () => {
+          console.log("ping received, sending pong");
+          return "pong";
+        },
+      },
+    });
+    this.initialize().then(
+      () => {
+        console.log("connection established");
+      },
+      (e) => {
+        console.error("connection failed", e);
+      }
+    );
+  }
+
+  public setDimensions(
+    path: string,
+    dimensions: { width: number; height: number }
+  ) {
+    this.connectionMethods!.setDimensions(path, dimensions);
+  }
+
+  public mouseLeave(path: string) {
+    console.log("mouseLeave");
+    this.connectionMethods!.mouseLeave(path);
+  }
+
+  private updateModel = async (id: string, javascriptCode: string) => {
+    console.log("updateModel", id);
+    let model = this.models.get(id);
+    if (!model) {
+      model = new FrameCodeModel(id, javascriptCode);
+      this.engine.registerModel(model);
+      this.models.set(id, model);
+    } else {
+      model.setValue(javascriptCode);
+    }
+  };
+
+  private deleteModel = async (id: string) => {
+    console.log("deleteModel", id);
+    let model = this.models.get(id);
+    if (model) {
+      this.models.delete(id);
+      model.dispose();
+    }
+  };
+
+  private updatePositions = async (
+    id: string,
+    positions: { x: number; y: number }
+  ) => {
+    console.log("updatePositions", id, positions);
+    let model = this.models.get(id);
+    if (model) {
+      runInAction(() => {
+        model!.positions.x = positions.x;
+        model!.positions.y = positions.y;
+      });
+    }
+  };
+
+  async initialize() {
+    this.connectionMethods = await this.connection.promise;
+  }
+}

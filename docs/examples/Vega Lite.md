@@ -13,7 +13,6 @@ export default (
   />
 );
 ```
-
 Now, let's calculate character occurences in entered text:
 
 ```typescript
@@ -21,7 +20,6 @@ import * as _ from "lodash";
 
 export let counts = _.countBy($.data.toLowerCase(), (a) => a);
 ```
-
 Let's transform the map to a format that's more easy to consume with Vega:
 
 ```typescript
@@ -29,8 +27,8 @@ export let countArray = Object.entries($.counts).map((entry) => ({
   character: entry[0],
   frequency: entry[1],
 }));
-```
 
+```
 Now, we create a frequency chart using Vega-lite
 
 ```typescript
@@ -54,6 +52,6 @@ const spec = {
 };
 
 export default <VegaLite spec={spec} />;
-```
 
-_Inspired by https://observablehq.com/@observablehq/tutorial-3-visualizing-data?collection=@observablehq/tutorial_
+```
+*Inspired by https://observablehq.com/@observablehq/tutorial-3-visualizing-data?collection=@observablehq/tutorial*

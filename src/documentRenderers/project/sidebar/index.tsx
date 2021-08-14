@@ -173,7 +173,6 @@ function treeToTreeData(tree: TreeNode[]) {
     },
   };
   function sortTreeItems(a: TreeNode, b: TreeNode) {
-    debugger;
     if (a.isDirectory && !b.isDirectory) {
       return -1;
     } else if (b.isDirectory && !a.isDirectory) {

@@ -1,6 +1,12 @@
+import { IDisposable } from "../util/vscode-common/lifecycle";
+import { Disposable } from "../util/vscode-common/lifecycle";
 import { createCellEvaluator } from "./CellEvaluator";
 import { CodeModel } from "./CodeModel";
 import { createContext, TypeCellContext } from "./context";
+
+export type ResolvedImport = {
+  module: any;
+} & IDisposable;
 
 /**
  * The engine automatically runs models registered to it.
@@ -10,9 +16,8 @@ import { createContext, TypeCellContext } from "./context";
  * @export
  * @class Engine
  */
-export class Engine<T extends CodeModel> {
+export class Engine<T extends CodeModel> extends Disposable {
   private disposed = false;
-  private disposers: Array<() => void> = [];
   public readonly observableContext = createContext<any>({} as any);
   private readonly registeredModels = new Set<T>();
 
@@ -29,8 +34,13 @@ export class Engine<T extends CodeModel> {
   constructor(
     private onOutput: (model: T, output: any) => void,
     private beforeExecuting: (model: T) => void,
-    private resolveImport: (module: string, forModel: T) => Promise<any>
-  ) {}
+    private resolveImport: (
+      module: string,
+      forModel: T
+    ) => Promise<ResolvedImport>
+  ) {
+    super();
+  }
 
   /**
    * Register a model to the engine. After registering, the model will be observed for changes and automatically re-evaluated.
@@ -51,13 +61,21 @@ export class Engine<T extends CodeModel> {
       this.evaluateUpdate(
         model,
         this.observableContext,
-        (moduleName: string) => this.resolveImport(moduleName, model),
+        async (moduleName: string) => {
+          const ret = await this.resolveImport(moduleName, model);
+          this._register(ret);
+          if (this.disposed) {
+            // disposed in the meantime
+            ret.dispose();
+          }
+          return ret.module;
+        },
         this.onOutput
       ); // catch errors?
     };
     let prevValue: string | undefined = model.getValue();
 
-    this.disposers.push(
+    this._register(
       model.onDidChangeContent((_event) => {
         if (model.getValue() !== prevValue) {
           // make sure there were actual changes from the previous value
@@ -68,13 +86,13 @@ export class Engine<T extends CodeModel> {
           // TODO: inspect when this is the case. For initialization it makes sense,
           // but why do we get duplicate events more often?
         }
-      }).dispose
+      })
     );
 
     // evaluate initial
     evaluate();
 
-    this.disposers.push(
+    this._register(
       model.onWillDispose(() => {
         this.registeredModels.delete(model);
         const evaluator = this.evaluatorCache.get(model);
@@ -82,7 +100,7 @@ export class Engine<T extends CodeModel> {
           evaluator.dispose();
           this.evaluatorCache.delete(model);
         }
-      }).dispose
+      })
     );
   }
 
@@ -91,7 +109,8 @@ export class Engine<T extends CodeModel> {
       throw new Error("Engine already disposed");
     }
     this.disposed = true;
-    this.disposers.forEach((d) => d());
+
+    super.dispose();
     this.evaluatorCache.forEach((e) => e.dispose());
   }
 

@@ -4,12 +4,11 @@ import * as markdownit from "markdown-it";
 import * as reactdnd from "react-dnd";
 import * as reactdom from "react-dom";
 import SkypackResolver from "../engine/resolvers/SkypackResolver";
-import {
-  getTypeCellCodeModel,
-  TypeCellCodeModel,
-} from "../models/TypeCellCodeModel";
+import { getTypeCellCodeModel } from "../models/TypeCellCodeModel";
 import { DocConnection } from "../store/DocConnection";
-import EngineWithOutput from "./EngineWithOutput";
+import { Engine, ResolvedImport } from "../engine";
+import getExposeGlobalVariables from "./lib/exports";
+import { CodeModel } from "../engine/CodeModel";
 const sz = require("frontend-collective-react-dnd-scrollzone");
 
 function resolveNestedModule(id: string) {
@@ -46,19 +45,40 @@ const skypackResolver = new SkypackResolver(resolveNestedModule);
 
 const cache = new Map<string, ResolvedImport>();
 
-type ResolvedImport = {
-  module: any;
-  dispose: () => void;
-};
+export function getTypeCellResolver<T extends CodeModel>(
+  documentId: string,
+  cacheKey: string,
+  needsTypesInMonaco: boolean
+) {
+  // TODO: probably we can just use a random id here, or refactor this all to use class + local cache
+  const resolveImportNested = async (
+    moduleName: string,
+    forModel: T
+  ): Promise<ResolvedImport> => {
+    if (moduleName === "typecell") {
+      return {
+        module: getExposeGlobalVariables(documentId),
+        dispose: () => {},
+      };
+    }
+    const resolved = await resolveImport(
+      moduleName,
+      cacheKey + "$$" + forModel.path,
+      needsTypesInMonaco
+    );
+
+    return resolved;
+  };
+  return resolveImportNested;
+}
 
 export default async function resolveImport(
   moduleName: string,
-  forModel: TypeCellCodeModel,
-  forEngine: EngineWithOutput,
+  cacheKey: string,
   needsTypesInMonaco: boolean
 ): Promise<ResolvedImport> {
   if (moduleName.startsWith("!@")) {
-    const key = [forEngine.id, forModel.path, moduleName].join("$$");
+    const key = [cacheKey, moduleName].join("$$");
 
     const cached = cache.get(key);
     if (cached) {
@@ -74,9 +94,14 @@ export default async function resolveImport(
     // (i.e.: don't allow import "@YousefED/hello world", but "@yousefed/hello-world") for consistency
     const connection = DocConnection.load(owner + "/" + document);
 
-    const engine = new EngineWithOutput(
-      connection.identifier.toString(),
-      needsTypesInMonaco
+    const engine = new Engine(
+      () => {},
+      () => {},
+      getTypeCellResolver(
+        connection.identifier.toString(),
+        key,
+        needsTypesInMonaco
+      )
     );
 
     let releasePreviousModels = () => {};
@@ -94,7 +119,7 @@ export default async function resolveImport(
           if (needsTypesInMonaco) {
             m.object.acquireMonacoModel();
           }
-          engine.engine.registerModel(m.object);
+          engine.registerModel(m.object);
         });
         releasePreviousModels = () => {
           models.forEach((m) => {
@@ -109,7 +134,7 @@ export default async function resolveImport(
 
     let disposed = false;
     const ret = {
-      module: engine.engine.observableContext.context,
+      module: engine.observableContext.context,
       dispose: () => {
         if (disposed) {
           throw new Error("already disposed");
