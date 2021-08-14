@@ -17,7 +17,7 @@ type Props = {
   document: DocumentResource;
 };
 
-const USE_SAFE_IFRAME = false;
+const USE_SAFE_IFRAME = true;
 
 const NotebookRenderer: React.FC<Props> = observer((props) => {
   const disposer = useRef<() => void>();
