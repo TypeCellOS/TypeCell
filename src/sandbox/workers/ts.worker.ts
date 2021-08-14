@@ -13,14 +13,14 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
     super(context, createData);
   }
 
-  public _getScriptText(fileName: string) {
+  public _getScriptText(fileName: string): string {
     // always add an export {} statement, so that all files are modules, even if you have some script
     // that doesn't export anything. Otherwise the compiler will assume it's not a module and all variables
     // will be seen as globals
     let text = super._getScriptText(fileName);
 
     if (!fileName.startsWith("file:///")) {
-      return;
+      return text;
     }
     fileName = fileName.substr("file:///".length);
     const cleaned = decodeURIComponent(fileName);
