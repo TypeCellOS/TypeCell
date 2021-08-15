@@ -140,14 +140,6 @@ export default class IframeEngine extends Disposable {
     // console.log("disable");
   };
 
-  private normalizePositions(positions: { x: number; y: number }) {
-    const bboxIframe = this.iframe.getBoundingClientRect();
-    return {
-      x: positions.x - bboxIframe.x,
-      y: positions.y - bboxIframe.y,
-    };
-  }
-
   async initialize() {
     this.connectionMethods = await this.connection.promise;
     // const result = await this.connectionMethods.ping();
@@ -160,7 +152,7 @@ export default class IframeEngine extends Disposable {
       );
       await this.connectionMethods.updatePositions(
         model.path,
-        this.normalizePositions(this.positionCacheStore.get(model.path)!)
+        this.positionCacheStore.get(model.path)!
       );
     }
   }
@@ -224,7 +216,7 @@ export default class IframeEngine extends Disposable {
 
     evaluate();
     const dispose = autorun(() => {
-      const positions = this.normalizePositions(positionCache);
+      const positions = { x: positionCache.x, y: positionCache.y };
       if (this.connectionMethods) {
         console.log("send update positions");
         this.connectionMethods.updatePositions(model.path, positions);
@@ -252,6 +244,7 @@ export default class IframeEngine extends Disposable {
     return (
       <OutputShadow
         dimensions={this.dimensionStore.get(model.path)!}
+        positionOffsetElement={this.iframe}
         positions={this.positionCacheStore.get(model.path)!}
         onMouseMove={this.disablePointerEvents}
       />

@@ -6,6 +6,7 @@ export const OutputShadow = observer(
   (props: {
     dimensions: { width: number; height: number };
     positions: { x: number; y: number };
+    positionOffsetElement: HTMLElement;
     onMouseMove: () => void;
   }) => {
     const divRef = useRef<HTMLDivElement>(null);
@@ -15,17 +16,23 @@ export const OutputShadow = observer(
         if (!divRef.current) {
           return;
         }
-        const bbox = divRef.current.getBoundingClientRect();
+        const parentBB = props.positionOffsetElement.getBoundingClientRect();
+        let { y, x } = divRef.current.getBoundingClientRect();
+        y -= parentBB.y;
+        x -= parentBB.x;
         runInAction(() => {
-          props.positions.x = bbox.x;
-          props.positions.y = bbox.y;
+          if (props.positions.x !== x || props.positions.y !== y) {
+            console.log("update pos", y, props.positions.y);
+            props.positions.x = x;
+            props.positions.y = y;
+          }
         });
       };
       const handle = setInterval(updatePositions, 20); // TODO: replace with MutationObserver?
       return () => {
         clearInterval(handle);
       };
-    }, [props.positions]);
+    }, [props.positions, props.positionOffsetElement]);
 
     return (
       <div
