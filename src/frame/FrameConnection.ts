@@ -1,8 +1,6 @@
 import { observable, runInAction } from "mobx";
 import { Connection, connectToParent } from "penpal";
 import { Engine } from "../engine";
-import { CodeModel } from "../engine/CodeModel";
-import EngineWithOutput from "../typecellEngine/EngineWithOutput";
 import { ModelOutput } from "../typecellEngine/ModelOutput";
 import { getTypeCellResolver } from "../typecellEngine/resolver";
 import { Disposable } from "../util/vscode-common/lifecycle";
