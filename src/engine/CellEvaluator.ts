@@ -1,6 +1,7 @@
 import { TypeCellContext } from "./context";
 import { ModuleExecution, runModule } from "./executor";
 import { createExecutionScope, getModulesFromTypeCellCode } from "./modules";
+import { isReactView } from "./reactView";
 
 // const log = engineLogger;
 
@@ -22,9 +23,16 @@ export function createCellEvaluator(
       if (propertyName === "default") {
         // default exports are not on typecellContext.context
         newExports.default = exports[propertyName];
+      } else if (isReactView(exports[propertyName])) {
+        Object.defineProperty(newExports, propertyName, {
+          get: () => {
+            return exports[propertyName];
+          },
+        });
       } else {
         // Create a shallow "getter" that just returns the variable from the typecellContext.
-        // This way deep modifications are reflected in Output
+        // This way deep modifications and modifications from other cells ($.x = "val")
+        // are reflected in Output
         delete newExports[propertyName];
         Object.defineProperty(newExports, propertyName, {
           get: () => {

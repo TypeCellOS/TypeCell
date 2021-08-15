@@ -526,6 +526,22 @@ const getDependenciesForModule = (
     } else if (isDenoModule) {
       // E.g. import { serve } from "https://deno.land/std@v0.12/http/server.ts";
       await addModuleToRuntime(moduleToDownload, moduleToDownload, config);
+      // TODO: Possible fix for scheduler/tracing, but not critical / should file with original repo
+      // } else if (
+      //   !moduleToDownload.startsWith(".") &&
+      //   moduleToDownload.includes("/")
+      // ) {
+      //   const parts = moduleToDownload.split("/", 2);
+      //   const packageDef = await getModuleAndRootDefTypePath(parts[0], config);
+
+      //   if (packageDef) {
+      //     acquiredTypeDefs[moduleID] = packageDef.packageJSON;
+      //     const absolutePathForModule = mapRelativePath(
+      //       parts[1] + ".d.ts",
+      //       packageDef.path
+      //     );
+      //     await addModuleToRuntime(packageDef.mod, absolutePathForModule, config);
+      //   }
     } else {
       // E.g. import {Component} from "./MyThing"
       if (!moduleToDownload || !path)

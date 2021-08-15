@@ -41,14 +41,23 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
         // console.log("folder", folder);
         // add modified code at end, to not mess offsets
         text += `;\n
+
+        // @ts-ignore
+        import { OnlyViews, Values } from "typecell-helpers";
+
         // @ts-ignore
         import type * as $type from "${folder}";
+        
         // @ts-ignore
-        declare let $: typeof $type;
+        declare let $: Values<typeof $type>;
+        // @ts-ignore
+        declare let $views: OnlyViews<typeof $type>;
+
         // @ts-ignore
         import typecell from "typecell";
+        
         // @ts-ignore
-        import React from 'react';
+        import * as React from 'react';
         `;
         // always add an empty export to file to make sure it's seen as a module
         // text += "\nexport{};";

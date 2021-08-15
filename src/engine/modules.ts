@@ -75,6 +75,7 @@ export function createExecutionScope(context: TypeCellContext<any>) {
   const scope = {
     autorun,
     $: context.context,
+    $views: context.viewContext,
     untracked,
     // editor: globalEditor,
     // stored,

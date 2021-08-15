@@ -143,7 +143,7 @@ export async function runModule(
               if (isStored(exported)) {
                 // context.storage.addStoredValue(propertyName, exported);
               } else {
-                context.context[propertyName] = exported;
+                context.rawContext[propertyName] = exported;
               }
             }
           };
@@ -151,6 +151,34 @@ export async function runModule(
           let exported = exports[propertyName];
           if (isView(exported)) {
             disposeEveryRun.push(autorun(() => saveValue(exported.value)));
+            // } else if (isReactView(exported)) {
+            //   // debugger;
+            //   // disposeEveryRun.push(
+            //   //   autorun(() => saveValue(getReactViewValue(exported)))
+            //   // );
+
+            //   const previousSetter = Object.getOwnPropertyDescriptor(
+            //     context.context,
+            //     propertyName
+            //   )?.set;
+
+            //   Object.defineProperty(context.context, propertyName, {
+            //     configurable: true,
+            //     get: () => {
+            //       const val = getReactViewValue<any>(exported).get();
+            //       return val;
+            //     },
+            //     set: (v: any) => {
+            //       // make sure that when assigning to $.val, we call getReactViewValue($.val).set instead
+            //       // e.g.: another cell assigns $.inputText = "newVal"
+            //       getReactViewValue<any>(exported).set(v);
+            //     },
+            //   });
+            //   // make sure the get() methods on the context reevaluate, by resetting the previous value
+            //   // (you can test this by defining input(<input type="text" defaultValue="xxx") and changing defaultValue
+            //   if (previousSetter) {
+            //     previousSetter(Math.random());
+            //   }
           } else {
             saveValue(exported);
           }

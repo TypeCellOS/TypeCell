@@ -57,7 +57,9 @@ export function getTypeCellResolver<T extends CodeModel>(
   ): Promise<ResolvedImport> => {
     if (moduleName === "typecell") {
       return {
-        module: getExposeGlobalVariables(documentId),
+        module: {
+          default: getExposeGlobalVariables(documentId),
+        },
         dispose: () => {},
       };
     }
