@@ -90,6 +90,7 @@ export class FrameConnection extends Disposable {
     console.log("deleteModel", id);
     let model = this.models.get(id);
     if (model) {
+      this.outputs.delete(model);
       this.models.delete(id);
       model.dispose();
     }

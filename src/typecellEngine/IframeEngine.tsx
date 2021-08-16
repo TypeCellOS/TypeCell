@@ -79,9 +79,16 @@ export default class IframeEngine extends Disposable {
           id: string,
           dimensions: { width: number; height: number }
         ) => {
+          const dimensionsToSet = this.dimensionStore.get(id);
+          if (!dimensionsToSet) {
+            console.warn(
+              "setDimensions called, but for invalid or removed model?"
+            );
+            return;
+          }
           runInAction(() => {
-            this.dimensionStore.get(id)!.width = dimensions.width;
-            this.dimensionStore.get(id)!.height = dimensions.height;
+            dimensionsToSet.width = dimensions.width;
+            dimensionsToSet.height = dimensions.height;
           });
         },
       },
@@ -193,7 +200,7 @@ export default class IframeEngine extends Disposable {
 
     const evaluate = async () => {
       if (this.connectionMethods) {
-        this.connectionMethods.updateModel(
+        await this.connectionMethods.updateModel(
           model.path,
           await model.getCompiledJavascriptCode()
         );
@@ -214,13 +221,16 @@ export default class IframeEngine extends Disposable {
       })
     );
 
-    evaluate();
-    const dispose = autorun(() => {
-      const positions = { x: positionCache.x, y: positionCache.y };
-      if (this.connectionMethods) {
-        console.log("send update positions");
-        this.connectionMethods.updatePositions(model.path, positions);
-      }
+    let dispose: any;
+    evaluate().then(() => {
+      // TODO: refactor .then()
+      dispose = autorun(() => {
+        const positions = { x: positionCache.x, y: positionCache.y };
+        if (this.connectionMethods) {
+          console.log("send update positions");
+          this.connectionMethods.updatePositions(model.path, positions);
+        }
+      });
     });
 
     this._register(
@@ -230,7 +240,7 @@ export default class IframeEngine extends Disposable {
         this.registeredModels.delete(model);
         dispose();
         if (this.connectionMethods) {
-          this.connectionMethods.unregisterModel(model.path);
+          this.connectionMethods.deleteModel(model.path);
         }
       })
     );
