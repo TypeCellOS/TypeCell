@@ -64,9 +64,7 @@ function addHelperFiles() {
   const content = `
 import type * as React from "react";
 
-type ReactView<T> = React.ReactElement<{
-  __tcObservable: T;
-}>;
+type ReactView<T> = React.ReactElement<{__tcObservable: T}>;
 
 export type OnlyViews<T> = {
   // [E in keyof T as T[E] extends ReactView<any> ? E : never]: T[E];
