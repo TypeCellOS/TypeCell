@@ -23,7 +23,7 @@ export function Input<T extends string | string[] | number = string>(
           HTMLSelectElement
         >
       >,
-  bindingOrDefaultValue: T | ReactView<T>
+  bindingOrDefaultValue?: T | ReactView<T>
 ): ReactView<T> {
   if (el.type !== "input" && el.type !== "select" && el.type !== "textarea") {
     throw new Error("invalid element passed");

@@ -18,14 +18,9 @@ export function getReactViewValue<T>(value: ReactView<T>): IObservableValue<T> {
 //   t: ReactView<string>;
 // };
 
-type FilteredKeys<T, U> = {
-  [P in keyof T]: T[P] extends U ? P : never;
-}[keyof T];
-
 type OnlyViews<T> = {
-  [E in FilteredKeys<T, ReactView<any>>]: T[E] extends ReactView<any>
-    ? T[E]
-    : never;
+  // [E in keyof T as T[E] extends ReactView<any> ? E : never]: T[E];
+  [E in keyof T]: T[E] extends ReactView<any> ? T[E] : never;
 };
 
 type Values<T> = {
