@@ -16,8 +16,7 @@ export function acquireTypes(code: string) {
 
 export default function setupNpmTypeResolver() {
   monaco.editor.onDidCreateModel((model) => {
-    let uri = model.uri.toString();
-    if (!uri.startsWith("file:///%21%40") /*!@*/) {
+    if (!model.uri.path.startsWith("/!@") /*!@*/) {
       return;
     }
 

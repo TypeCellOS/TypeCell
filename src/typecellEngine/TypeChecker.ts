@@ -1,4 +1,5 @@
 import * as monaco from "monaco-editor";
+import { CodeModel } from "../engine/CodeModel";
 import { TypeCellCodeModel } from "../models/TypeCellCodeModel";
 import { Sequencer } from "../util/vscode-common/async";
 import { Disposable } from "../util/vscode-common/lifecycle";
@@ -34,7 +35,7 @@ export class TypeChecker extends Disposable {
   }
 
   public findMatchingVisualizers(
-    module: TypeCellCodeModel,
+    module: CodeModel,
     visualizers: Map<string, TypeVisualizer<any>>
   ) {
     if (visualizers.size === 0) {
@@ -48,7 +49,7 @@ export class TypeChecker extends Disposable {
   }
 
   private async _findMatchingVisualizers(
-    module: TypeCellCodeModel,
+    module: CodeModel,
     visualizerKeys: Array<[string, TypeVisualizer<any>]>
   ) {
     let imports = visualizerKeys

@@ -8,6 +8,7 @@ import reportWebVitals from "./reportWebVitals";
 
 import * as yjsBindings from "@reactivedata/yjs-reactive-bindings";
 import * as mobx from "mobx";
+import Frame from "./frame/Frame";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays
@@ -47,15 +48,24 @@ async function init() {
   // await Olm.init({
   //   locateFile: () => olmWasmPath,
   // });
-  yjsBindings.useMobxBindings(mobx);
-  yjsBindings.makeYJSObservable();
+  if (window.location.search.includes("frame")) {
+    ReactDOM.render(
+      <React.StrictMode>
+        <Frame />
+      </React.StrictMode>,
+      document.getElementById("root")
+    );
+  } else {
+    yjsBindings.useMobxBindings(mobx);
+    yjsBindings.makeYJSObservable();
 
-  ReactDOM.render(
-    <React.StrictMode>
-      <MatrixApp config={cachedValidatedConfig} />
-    </React.StrictMode>,
-    document.getElementById("root")
-  );
+    ReactDOM.render(
+      <React.StrictMode>
+        <MatrixApp config={cachedValidatedConfig} />
+      </React.StrictMode>,
+      document.getElementById("root")
+    );
+  }
 }
 
 init();

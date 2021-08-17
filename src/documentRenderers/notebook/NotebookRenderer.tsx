@@ -9,12 +9,15 @@ import {
 } from "react-icons/vsc";
 import { DocumentResource } from "../../store/DocumentResource";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
+import IframeEngine from "../../typecellEngine/IframeEngine";
 import CellListDraggableCell from "./CellListDraggableCell";
 import NotebookCell from "./NotebookCell";
 
 type Props = {
   document: DocumentResource;
 };
+
+const USE_SAFE_IFRAME = true;
 
 const NotebookRenderer: React.FC<Props> = observer((props) => {
   const disposer = useRef<() => void>();
@@ -24,7 +27,9 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
       disposer.current();
       disposer.current = undefined;
     }
-    const newEngine = new EngineWithOutput(props.document.id, true);
+    const newEngine = USE_SAFE_IFRAME
+      ? new IframeEngine(props.document.id, true)
+      : new EngineWithOutput(props.document.id, true);
     disposer.current = () => {
       newEngine.dispose();
     };
@@ -53,7 +58,8 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
   // renderLogger.log("cellList");
   return (
     <div className="cellList">
-      <div>
+      <div style={{ position: "relative" }}>
+        {engine.renderContainer()}
         {/* <p>{engine && engine.id} {Math.random()}</p> */}
         {cells.length === 0 && (
           <VscDiffAdded

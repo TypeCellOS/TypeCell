@@ -2,9 +2,10 @@ import { ObservableMap, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useRef, useState } from "react";
 import ObjectInspector from "react-inspector";
-import { TypeCellCodeModel } from "../../models/TypeCellCodeModel";
+import { CodeModel } from "../../engine/CodeModel";
 import { TypeVisualizer } from "../../typecellEngine/lib/exports";
 import { ModelOutput } from "../../typecellEngine/ModelOutput";
+import { ContainedElement } from "../../util/ContainedElement";
 import RetryErrorBoundary from "./RetryErrorBoundary";
 
 // TODO: later maybe also use https://github.com/samdenty/console-feed to capture console messages
@@ -25,7 +26,6 @@ const DefaultVisualizer = (props: {
   output: any;
   outputJS: any;
 }) => {
-  const htmlElementKey = useRef(0);
   const { mainKey, mainExport, output, outputJS } = props;
 
   const [styleElement, setStyleElement] = useState<CSSStyleSheet | undefined>();
@@ -86,14 +86,9 @@ const DefaultVisualizer = (props: {
       );
     } else if (mainExport instanceof HTMLElement) {
       return (
-        <div
+        <ContainedElement
           className="typecell-output"
-          style={{ display: "contents" }}
-          key={htmlElementKey.current++}
-          ref={(el) => {
-            el && el.appendChild(mainExport);
-          }}
-        />
+          element={mainExport}></ContainedElement>
       );
     } else {
       return (
@@ -126,8 +121,8 @@ const DefaultVisualizer = (props: {
 };
 
 type Props = {
-  model: TypeCellCodeModel;
-  outputs: ObservableMap<TypeCellCodeModel, ModelOutput>;
+  model: CodeModel;
+  outputs: ObservableMap<CodeModel, ModelOutput>;
 };
 
 // TODO: later maybe also use https://github.com/samdenty/console-feed to capture console messages

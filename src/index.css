@@ -164,7 +164,7 @@ code {
 }
 
 .output {
-  padding: 10px;
+  /* padding: 10px; */
   /* because it contains inline-block outputWrapper */
   line-height: 0;
 }

@@ -13,12 +13,13 @@ import {
 } from "../../models/TypeCellCodeModel";
 import PluginEngine from "../../pluginEngine/PluginEngine";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
+import IframeEngine from "../../typecellEngine/IframeEngine";
 import { NotebookCellModel } from "./NotebookCellModel";
 import Output from "./Output";
 
 type Props = {
   cell: NotebookCellModel;
-  engine: PluginEngine | EngineWithOutput;
+  engine: PluginEngine | EngineWithOutput | IframeEngine;
   onRemove?: () => void;
   classList?: string;
   defaultCollapsed?: boolean;
@@ -103,7 +104,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
     const newModel = getTypeCellCodeModel(props.cell);
     // TODO: do we want to do this here? At least for PluginRenderer, it will register twice
     // (currently this is ignored in the engine and only logs a warning)
-    props.engine.engine.registerModel(newModel.object);
+    props.engine.registerModel(newModel.object);
     const monacoModel = newModel.object.acquireMonacoModel();
     setModel(newModel.object);
     setMonacoModel(monacoModel);
@@ -215,10 +216,14 @@ const NotebookCell: React.FC<Props> = observer((props) => {
               style={{ height: "100%" }}></div>
           </div>
         )}
-        <div className="output" contentEditable={false}>
+
+        <div
+          className="output"
+          contentEditable={false}
+          style={{ position: "relative" }}>
           {/* <CellContext.Provider value={{ cell: props.cell }}> */}
           {/* <div>hello</div> */}
-          {model && <Output outputs={props.engine.outputs} model={model} />}
+          {model && props.engine.renderOutput(model)}
           {/* TODO: {props.cell.viewPluginsAvailable} */}
           {/* </CellContext.Provider> */}
         </div>

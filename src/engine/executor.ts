@@ -89,6 +89,12 @@ export async function runModule(
   let wouldLoopOnAutorun = false;
   let detectedLoop = false;
 
+  if (window.location.hostname !== "127.0.0.1") {
+    throw new Error(
+      "failed security check, executor must be running on 127.0.0.1!"
+    );
+  }
+
   const execute = async () => {
     try {
       if (wouldLoopOnAutorun) {
