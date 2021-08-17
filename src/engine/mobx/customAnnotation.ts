@@ -12,7 +12,8 @@ export const customAnnotation: Annotation = createCustomAnnotation();
 /**
  * A custom annotation that never deep observes react elements,
  * so that we can still pass react elements around on the observablecontext
- * (if we'd deep observe react elements, it will break)
+ * (if we'd deep observe react elements, it will break React and even if it wouldn't break, would
+ *  cause unnecessary perf overhead)
  */
 export function createCustomAnnotation(options?: object): Annotation {
   return {

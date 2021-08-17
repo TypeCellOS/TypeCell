@@ -2,6 +2,7 @@ import * as monaco from "monaco-editor";
 import { detectNewImportsToAcquireTypeFor } from "./typeAcquisition";
 
 const addLibraryToRuntime = (code: string, path: string) => {
+  // console.log("addlib", path);
   monaco.languages.typescript.typescriptDefaults.addExtraLib(code, path);
 };
 

@@ -58,6 +58,32 @@ function refreshUserModelTypes(folder: string) {
 }
 
 /**
+ * This adds OnlyViews and Values to use in ts.worker.ts
+ */
+function addHelperFiles() {
+  const content = `
+import type * as React from "react";
+
+type ReactView<T> = React.ReactElement<{__tcObservable: T}>;
+
+export type OnlyViews<T> = {
+  // [E in keyof T as T[E] extends ReactView<any> ? E : never]: T[E];
+  [E in keyof T]: T[E] extends ReactView<any> ? T[E] : never;
+};
+
+export type Values<T> = {
+  [E in keyof T]: T[E] extends ReactView<infer B> ? B : T[E];
+};
+`;
+  // register the typings as a node_module.
+  // These typings are automatically imported as $ in ts.worker.ts
+  monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    content,
+    `file:///node_modules/@types/typecell-helpers/index.d.ts`
+  );
+}
+
+/**
  * This exposes the types of the context to the monaco runtime
  */
 function listenForTypecellUserModels() {
@@ -92,6 +118,8 @@ export default function setupTypecellTypeResolver() {
 
   // Loads types for "typecell-plugin" helper library, as defined in pluginEngine/lib/exports
   loadTypecellLibTypes("typecell-plugin", "./pluginEngine/lib/exports");
+
+  addHelperFiles();
 
   // Loads types for $ context variables
   listenForTypecellUserModels();
