@@ -54,10 +54,10 @@ export class FrameConnection extends Disposable {
     });
     this.initialize().then(
       () => {
-        console.log("connection established");
+        console.log("FrameConnection connection established");
       },
       (e) => {
-        console.error("connection failed", e);
+        console.error("FrameConnection connection failed", e);
       }
     );
   }
@@ -111,6 +111,7 @@ export class FrameConnection extends Disposable {
   };
 
   async initialize() {
+    console.log("initialize FrameConnection");
     this.connectionMethods = await this.connection.promise;
   }
 }

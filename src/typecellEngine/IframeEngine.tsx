@@ -148,7 +148,9 @@ export default class IframeEngine extends Disposable {
   };
 
   async initialize() {
+    console.log("initialize IFrameEngine");
     this.connectionMethods = await this.connection.promise;
+    console.log("IFrameEngine connection established");
     // const result = await this.connectionMethods.ping();
     // console.log("received", result);
 
