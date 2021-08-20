@@ -30,23 +30,20 @@ export const MatrixApp = observer(
       return <div>Loading</div>;
     } else if (navigationStore.currentPage.page === "login") {
       return (
-        <div>
-          <LoginComponent
-            serverConfig={props.config}
-            onLoggedIn={matrixAuthStore.onUserCompletedLoginFlow}
-            onRegisterClick={() => {
-              navigationStore.showRegisterScreen();
-            }}
-            onServerConfigChange={() => {
-              // TODO
-              console.log("config change (not implemented)");
-            }}
-          />
-          {/* <button onClick={sendMessage}>click</button> */}
-        </div>
+        <LoginComponent
+          serverConfig={props.config}
+          onLoggedIn={matrixAuthStore.onUserCompletedLoginFlow}
+          onRegisterClick={() => {
+            navigationStore.showRegisterScreen();
+          }}
+          onServerConfigChange={() => {
+            // TODO
+            console.log("config change (not implemented)");
+          }}
+          onForgotPasswordClick={() => navigationStore.showForgotPassword()}
+        />
       );
-    }
-    if (navigationStore.currentPage.page === "register") {
+    } else if (navigationStore.currentPage.page === "register") {
       // const email = ThreepidInviteStore.instance.pickBestInvite()?.toEmail;
       return (
         <Registration
@@ -69,6 +66,8 @@ export const MatrixApp = observer(
           serverConfig={props.config}
         />
       );
+    } else if (navigationStore.currentPage.page === "recover") {
+      return <div>Not implemented yet</div>;
     } else {
       return <Host />;
     }

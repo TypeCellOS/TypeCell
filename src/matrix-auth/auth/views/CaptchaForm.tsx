@@ -16,129 +16,110 @@ limitations under the License.
 
 import React, { createRef } from "react";
 
-export default (props: { sitePublicKey: string; onCaptchaResponse: any }) => {
-  throw new Error("not implemented");
+const DIV_ID = "mx_recaptcha";
+
+type Props = {
+  sitePublicKey: string;
+  onCaptchaResponse: (response: any) => void;
 };
-// import PropTypes from 'prop-types';
-// import { _t } from '../../../languageHandler';
-// import CountlyAnalytics from "../../../CountlyAnalytics";
-// import {replaceableComponent} from "../../../utils/replaceableComponent";
 
-// const DIV_ID = 'mx_recaptcha';
+type State = {
+  errorText: undefined | string;
+};
 
-// /**
-//  * A pure UI component which displays a captcha form.
-//  */
-// @replaceableComponent("views.auth.CaptchaForm")
-// export default class CaptchaForm extends React.Component {
-//     static propTypes = {
-//         sitePublicKey: PropTypes.string,
+/**
+ * A pure UI component which displays a captcha form.
+ */
+export default class CaptchaForm extends React.Component<Props, State> {
+  private _captchaWidgetId: string | undefined;
+  private _recaptchaContainer = React.createRef<HTMLDivElement>();
+  constructor(props: Props) {
+    super(props);
 
-//         // called with the captcha response
-//         onCaptchaResponse: PropTypes.func,
-//     };
+    this.state = {
+      errorText: undefined,
+    };
+  }
 
-//     static defaultProps = {
-//         onCaptchaResponse: () => {},
-//     };
+  componentDidMount() {
+    // Just putting a script tag into the returned jsx doesn't work, annoyingly,
+    // so we do this instead.
+    if ((global as any).grecaptcha) {
+      // already loaded
+      this._onCaptchaLoaded();
+    } else {
+      console.log("Loading recaptcha script...");
+      (window as any).mx_on_recaptcha_loaded = () => {
+        this._onCaptchaLoaded();
+      };
+      const scriptTag = document.createElement("script");
+      scriptTag.setAttribute(
+        "src",
+        `https://www.recaptcha.net/recaptcha/api.js?onload=mx_on_recaptcha_loaded&render=explicit`
+      );
+      this._recaptchaContainer.current!.appendChild(scriptTag);
+    }
+  }
 
-//     constructor(props) {
-//         super(props);
+  componentWillUnmount() {
+    this._resetRecaptcha();
+  }
 
-//         this.state = {
-//             errorText: null,
-//         };
+  _renderRecaptcha(divId: string) {
+    if (!(global as any).grecaptcha) {
+      console.error("grecaptcha not loaded!");
+      throw new Error("Recaptcha did not load successfully");
+    }
 
-//         this._captchaWidgetId = null;
+    const publicKey = this.props.sitePublicKey;
+    if (!publicKey) {
+      console.error("No public key for recaptcha!");
+      throw new Error(
+        "This server has not supplied enough information for Recaptcha " +
+          "authentication"
+      );
+    }
 
-//         this._recaptchaContainer = createRef();
+    console.info("Rendering to %s", divId);
+    this._captchaWidgetId = (global as any).grecaptcha.render(divId, {
+      sitekey: publicKey,
+      callback: this.props.onCaptchaResponse,
+    });
+  }
 
-//         CountlyAnalytics.instance.track("onboarding_grecaptcha_begin");
-//     }
+  _resetRecaptcha() {
+    if (this._captchaWidgetId !== undefined) {
+      (global as any).grecaptcha.reset(this._captchaWidgetId);
+    }
+  }
 
-//     componentDidMount() {
-//         // Just putting a script tag into the returned jsx doesn't work, annoyingly,
-//         // so we do this instead.
-//         if (global.grecaptcha) {
-//             // already loaded
-//             this._onCaptchaLoaded();
-//         } else {
-//             console.log("Loading recaptcha script...");
-//             window.mx_on_recaptcha_loaded = () => {this._onCaptchaLoaded();};
-//             const scriptTag = document.createElement('script');
-//             scriptTag.setAttribute(
-//                 'src', `https://www.recaptcha.net/recaptcha/api.js?onload=mx_on_recaptcha_loaded&render=explicit`,
-//             );
-//             this._recaptchaContainer.current.appendChild(scriptTag);
-//         }
-//     }
+  _onCaptchaLoaded() {
+    console.log("Loaded recaptcha script.");
+    try {
+      this._renderRecaptcha(DIV_ID);
+      // clear error if re-rendered
+      this.setState({
+        errorText: undefined,
+      });
+    } catch (e) {
+      this.setState({
+        errorText: e.toString(),
+      });
+    }
+  }
 
-//     componentWillUnmount() {
-//         this._resetRecaptcha();
-//     }
+  render() {
+    let error = null;
+    if (this.state.errorText) {
+      error = <div className="error">{this.state.errorText}</div>;
+    }
 
-//     _renderRecaptcha(divId) {
-//         if (!global.grecaptcha) {
-//             console.error("grecaptcha not loaded!");
-//             throw new Error("Recaptcha did not load successfully");
-//         }
-
-//         const publicKey = this.props.sitePublicKey;
-//         if (!publicKey) {
-//             console.error("No public key for recaptcha!");
-//             throw new Error(
-//                 "This server has not supplied enough information for Recaptcha "
-//                     + "authentication");
-//         }
-
-//         console.info("Rendering to %s", divId);
-//         this._captchaWidgetId = global.grecaptcha.render(divId, {
-//             sitekey: publicKey,
-//             callback: this.props.onCaptchaResponse,
-//         });
-//     }
-
-//     _resetRecaptcha() {
-//         if (this._captchaWidgetId !== null) {
-//             global.grecaptcha.reset(this._captchaWidgetId);
-//         }
-//     }
-
-//     _onCaptchaLoaded() {
-//         console.log("Loaded recaptcha script.");
-//         try {
-//             this._renderRecaptcha(DIV_ID);
-//             // clear error if re-rendered
-//             this.setState({
-//                 errorText: null,
-//             });
-//             CountlyAnalytics.instance.track("onboarding_grecaptcha_loaded");
-//         } catch (e) {
-//             this.setState({
-//                 errorText: e.toString(),
-//             });
-//             CountlyAnalytics.instance.track("onboarding_grecaptcha_error", { error: e.toString() });
-//         }
-//     }
-
-//     render() {
-//         let error = null;
-//         if (this.state.errorText) {
-//             error = (
-//                 <div className="error">
-//                     { this.state.errorText }
-//                 </div>
-//             );
-//         }
-
-//         return (
-//             <div ref={this._recaptchaContainer}>
-//                 <p>{_t(
-//                     "This homeserver would like to make sure you are not a robot.",
-//                 )}</p>
-//                 <div id={DIV_ID} />
-//                 { error }
-//             </div>
-//         );
-//     }
-// }
+    return (
+      <div ref={this._recaptchaContainer}>
+        <p>Let's make sure you're not a robot:</p>
+        <div id={DIV_ID} style={{ margin: "1em 0" }} />
+        {error}
+      </div>
+    );
+  }
+}

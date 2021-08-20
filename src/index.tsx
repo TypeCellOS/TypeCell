@@ -9,6 +9,7 @@ import reportWebVitals from "./reportWebVitals";
 import * as yjsBindings from "@reactivedata/yjs-reactive-bindings";
 import * as mobx from "mobx";
 import Frame from "./frame/Frame";
+import { MATRIX_CONFIG } from "./config/config";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays
@@ -16,7 +17,7 @@ if (process.env.NODE_ENV === "development") {
   // user-defined react components. It's annoying (and slow) to get the React error overlay
   // while editing TypeCell cells
   // Note that this breaks hot reloading
-  (reo as any).stopReportingRuntimeErrors();
+  // (reo as any).stopReportingRuntimeErrors();
 }
 
 // const config = {
@@ -33,12 +34,12 @@ if (process.env.NODE_ENV === "development") {
 // const validatedConfig = await verifyServerConfig(config);
 
 const cachedValidatedConfig = {
-  hsName: "typecell.org",
+  hsName: MATRIX_CONFIG.hsName,
   hsNameIsDifferent: true,
-  hsUrl: "https://mx.typecell.org",
+  hsUrl: MATRIX_CONFIG.hsUrl,
   isDefault: true,
   isNameResolvable: true,
-  isUrl: "https://vector.im",
+  isUrl: MATRIX_CONFIG.isUrl,
   warning: null,
 };
 

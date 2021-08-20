@@ -5,6 +5,7 @@ import * as StorageManager from "./StorageManager";
 import { idbLoad, idbSave } from "./StorageManager";
 import { encryptAES } from "./unexported/aes";
 import { encodeUnpaddedBase64 } from "./unexported/olmlib";
+import { MatrixClient } from "matrix-js-sdk";
 
 const HOMESERVER_URL_KEY = "mx_hs_url";
 const ID_SERVER_URL_KEY = "mx_is_url";
@@ -346,4 +347,46 @@ export async function getStoredSessionOwner(): Promise<
   const { hsUrl, userId, hasAccessToken, isGuest } =
     await getStoredSessionVars();
   return hsUrl && userId && hasAccessToken ? [userId, isGuest] : undefined;
+}
+
+function getSSOCallbackUrl(fragmentAfterLogin?: string): URL {
+  const url = new URL(window.location.href);
+  url.hash = fragmentAfterLogin || "";
+  return url;
+}
+
+export const SSO_HOMESERVER_URL_KEY = "mx_sso_hs_url";
+export const SSO_ID_SERVER_URL_KEY = "mx_sso_is_url";
+export const SSO_IDP_ID_KEY = "mx_sso_idp_id";
+
+/**
+ * Begin Single Sign On flows.
+ * @param {MatrixClient} mxClient the matrix client using which we should start the flow
+ * @param {"sso"|"cas"} loginType the type of SSO it is, CAS/SSO.
+ * @param {string} fragmentAfterLogin the hash to pass to the app during sso callback.
+ * @param {string} idpId The ID of the Identity Provider being targeted, optional.
+ */
+export function startSingleSignOn(
+  mxClient: MatrixClient,
+  loginType: "sso" | "cas",
+  fragmentAfterLogin?: string,
+  idpId?: string
+) {
+  // persist hs url and is url for when the user is returned to the app with the login token
+  localStorage.setItem(SSO_HOMESERVER_URL_KEY, mxClient.getHomeserverUrl());
+  if (mxClient.getIdentityServerUrl()) {
+    localStorage.setItem(
+      SSO_ID_SERVER_URL_KEY,
+      mxClient.getIdentityServerUrl()
+    );
+  }
+  if (idpId) {
+    localStorage.setItem(SSO_IDP_ID_KEY, idpId);
+  }
+  const callbackUrl = getSSOCallbackUrl(fragmentAfterLogin);
+  window.location.href = mxClient.getSsoLoginUrl(
+    callbackUrl.toString(),
+    loginType,
+    idpId
+  ); // redirect to SSO
 }

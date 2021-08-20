@@ -14,30 +14,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import Button from "@atlaskit/button";
+import SectionMessage from "@atlaskit/section-message";
+import { HelperMessage } from "@atlaskit/form";
+import ErrorIcon from "@atlaskit/icon/glyph/error";
+import { R400 } from "@atlaskit/theme/colors";
 import classNames from "classnames";
 import { createClient, MatrixClient } from "matrix-js-sdk";
 import React, { ReactNode } from "react";
 import { getStoredSessionOwner } from "../AuthStoreUtil";
 import { MatrixClientPeg } from "../MatrixClientPeg";
+import AuthStyles from "./AuthStyles.module.css";
 import AccessibleButton from "./elements/AccessibleButton";
 import Spinner from "./elements/Spinner";
+import SSOButtons from "./elements/SSOButtons";
 import InteractiveAuth from "./InteractiveAuth";
 import Login, { ISSOFlow } from "./LoginHelper";
+import styles from "./Registration.module.css";
 import AutoDiscoveryUtils, {
   ValidatedServerConfig,
 } from "./util/AutoDiscoveryUtils";
 import { messageForResourceLimitError } from "./util/messages";
-import AuthBodyContextWrapper from "./views/AuthBodyContextWrapper";
-import AuthHeader from "./views/AuthHeader";
 import RegistrationForm from "./views/RegistrationForm";
-import ErrorSectionContextWrapper from "./views/ErrorSectionContextWrapper";
-import { PageLayout, Main, Content, Banner } from "@atlaskit/page-layout";
-import Button from "@atlaskit/button";
-import { HelperMessage } from "@atlaskit/form";
-import ErrorIcon from "@atlaskit/icon/glyph/error";
-import { R400 } from "@atlaskit/theme/colors";
-import Flag from "@atlaskit/flag";
-import AuthFooter from "./views/AuthFooter";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -79,7 +77,7 @@ interface IProps {
 
 interface IState {
   busy: boolean;
-  errorText?: ReactNode;
+  errorText?: string;
   // true if we're waiting for the user to complete
   // We remember the values entered by the user because
   // the registration form will be unmounted during the
@@ -128,7 +126,7 @@ export default class Registration extends React.Component<IProps, IState> {
 
     this.state = {
       busy: false,
-      errorText: null,
+      errorText: undefined,
       formVals: this.props.email
         ? {
             email: this.props.email,
@@ -166,7 +164,7 @@ export default class Registration extends React.Component<IProps, IState> {
 
   private async replaceClient(serverConfig: ValidatedServerConfig) {
     this.setState({
-      errorText: null,
+      errorText: undefined,
       serverDeadError: null,
       serverErrorIsFatal: false,
       // busy while we do liveness check (we need to avoid trying to render
@@ -518,37 +516,24 @@ export default class Registration extends React.Component<IProps, IState> {
     } else if (this.state.flows.length) {
       let ssoSection;
       if (this.state.ssoFlow) {
-        let continueWithSection;
-        const providers =
-          this.state.ssoFlow["org.matrix.msc2858.identity_providers"] || [];
-        // when there is only a single (or 0) providers we show a wide button with `Continue with X` text
-        if (providers.length > 1) {
-          // i18n: ssoButtons is a placeholder to help translators understand context
-          continueWithSection = (
-            <h3 className="mx_AuthBody_centered">Continue with</h3>
-          );
-        }
-
         // i18n: ssoButtons & usernamePassword are placeholders to help translators understand context
         ssoSection = (
           <React.Fragment>
-            {continueWithSection}
-            {/* TODO SSO <SSOButtons
+            <div className={AuthStyles.OrSeparator}>Or</div>
+            <SSOButtons
               matrixClient={this.loginLogic.createTemporaryClient()}
               flow={this.state.ssoFlow}
               loginType={
                 this.state.ssoFlow.type === "m.login.sso" ? "sso" : "cas"
               }
               fragmentAfterLogin={this.props.fragmentAfterLogin}
-            /> */}
-            <h3 className="mx_AuthBody_centered">Or</h3>
+            />
           </React.Fragment>
         );
       }
 
       return (
         <React.Fragment>
-          {ssoSection}
           <RegistrationForm
             defaultUsername={this.state.formVals.username}
             defaultEmail={this.state.formVals.email}
@@ -560,65 +545,22 @@ export default class Registration extends React.Component<IProps, IState> {
             serverConfig={this.props.serverConfig}
             canSubmit={!this.state.serverErrorIsFatal}
           />
+          {ssoSection}
         </React.Fragment>
       );
     }
   }
 
   render() {
-    const SignInSectionWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => {
-      return (
-        <div
-          style={{
-            position: "absolute",
-            display: "inline-block",
-            // float: "right",
-            width: "50%",
-            height: "36px",
-            bottom: "16px",
-            right: "16px",
-            // backgroundColor: "light-grey",
-            // padding: "4px 8px 0 0",
-            textAlign: "left",
-          }}>
-          {children}
-        </div>
-      );
-    };
-
-    const SignInButtonWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => {
-      return (
-        <div
-          style={{
-            position: "absolute",
-            right: "0px",
-          }}>
-          {children}
-        </div>
-      );
-    };
-
     let errorTextSection;
     const errorText = this.state.errorText;
     if (errorText) {
       errorTextSection = (
-        <ErrorSectionContextWrapper>
-          <Flag
-            appearance="error"
-            icon={<ErrorIcon label="Error" secondaryColor={R400} />}
-            id="error"
-            key="error"
-            title={errorText}
-          />
-        </ErrorSectionContextWrapper>
+        <div className={AuthStyles.AuthError}>
+          <SectionMessage appearance="error" key="error">
+            <p>{errorText}</p>
+          </SectionMessage>
+        </div>
       );
     }
 
@@ -633,30 +575,6 @@ export default class Registration extends React.Component<IProps, IState> {
         <div className={classes}>{this.state.serverDeadError}</div>
       );
     }
-
-    const signIn = (
-      <>
-        <div
-          style={{
-            position: "absolute",
-            width: "80",
-            padding: "6px 0 0 0",
-          }}>
-          <HelperMessage>Already have an account? </HelperMessage>
-        </div>
-        {/* <a onClick={this.onLoginClick} href="#">
-          Sign in here
-        </a> */}
-        <SignInButtonWrapper>
-          <Button
-            appearance="subtle"
-            onClick={(e, _) => this.onLoginClick(e)}
-            href="#">
-            Sign in
-          </Button>
-        </SignInButtonWrapper>
-      </>
-    );
 
     // Only show the 'go back' button if you're not looking at the form
     let goBack;
@@ -683,12 +601,11 @@ export default class Registration extends React.Component<IProps, IState> {
               {this.state.differentLoggedInUserId}).
             </p>
             <p>
-              <AccessibleButton
-                element="span"
+              <Button
                 className="mx_linkButton"
                 onClick={this.props.onLoginClick}>
                 {"Continue with previous account"}
-              </AccessibleButton>
+              </Button>
             </p>
           </div>
         );
@@ -696,7 +613,7 @@ export default class Registration extends React.Component<IProps, IState> {
         // We're the client that started the registration
         regDoneText = (
           <h3>
-            <a href="#/login" onClick={this.props.onLoginClick}>
+            <a href="/login" onClick={this.props.onLoginClick}>
               Log in
             </a>{" "}
             to your new account.
@@ -709,7 +626,7 @@ export default class Registration extends React.Component<IProps, IState> {
         regDoneText = (
           <h3>
             You can now close this window or{" "}
-            <a href="#/login" onClick={this.props.onLoginClick}>
+            <a href="/login" onClick={this.props.onLoginClick}>
               log in
             </a>{" "}
             to your new account.
@@ -724,7 +641,7 @@ export default class Registration extends React.Component<IProps, IState> {
       );
     } else {
       body = (
-        <div>
+        <>
           {/* <PageHeader>Create account</PageHeader> */}
           {serverDeadSection}
           {/* <ServerPicker
@@ -739,25 +656,36 @@ export default class Registration extends React.Component<IProps, IState> {
           /> */}
           {this.renderRegisterComponent()}
           {goBack}
-          <SignInSectionWrapper>{signIn}</SignInSectionWrapper>
-        </div>
+          <div className={AuthStyles.AuthFormFooter}>
+            <Button
+              appearance="link"
+              onClick={(e, _) => this.onLoginClick(e)}
+              href="#">
+              Already have an account? Sign in
+            </Button>
+          </div>
+        </>
       );
     }
 
+    // Renders the components that make up the registration page
     return (
-      // TODO: use manual components instead of PageLayout/etc.
-      <PageLayout>
-        <Banner isFixed={false} height={100}>
-          <AuthHeader />
-        </Banner>
-        <Content>
-          <Main width={650}>
+      <div className={AuthStyles.AuthPage}>
+        <div className={AuthStyles.AuthHeader}>
+          <div className={AuthStyles.AuthHeaderLogo}>
+            <span className={AuthStyles.AuthHeaderLogoSpan}>🌐 TypeCell</span>
+          </div>
+        </div>
+        <div className={AuthStyles.AuthBody}>
+          <div className={AuthStyles.AuthForm}>
             {errorTextSection}
-            <AuthBodyContextWrapper>{body}</AuthBodyContextWrapper>
-            <AuthFooter />
-          </Main>
-        </Content>
-      </PageLayout>
+            {body}
+          </div>
+        </div>
+        <div className={AuthStyles.AuthFooter}>
+          <HelperMessage>Powered by Matrix</HelperMessage>
+        </div>
+      </div>
     );
   }
 }

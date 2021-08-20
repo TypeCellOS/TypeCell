@@ -153,6 +153,24 @@ export class NavigationStore {
     );
   };
 
+  showForgotPassword = () => {
+    this.currentPage = {
+      page: "recover",
+    };
+    const url = "/recover";
+    window.history.pushState(
+      {
+        url,
+        prevUrl:
+          window.history.state?.prevUrl ||
+          window.history.state?.url ||
+          window.location.href,
+      },
+      "",
+      url
+    );
+  };
+
   showNewPageDialog = () => {
     this.isNewPageDialogVisible = true;
   };

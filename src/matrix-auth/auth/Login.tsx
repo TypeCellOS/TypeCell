@@ -14,27 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import Button from "@atlaskit/button";
+import Flag from "@atlaskit/flag";
+import { HelperMessage } from "@atlaskit/form";
+import ErrorIcon from "@atlaskit/icon/glyph/error";
+import SectionMessage from "@atlaskit/section-message";
+import Spinner from "@atlaskit/spinner";
+import { R400 } from "@atlaskit/theme/colors";
 import classNames from "classnames";
 import React, { Fragment, ReactNode } from "react";
-import LoginHelper, { LoginFlow } from "./LoginHelper";
+import AuthStyles from "./AuthStyles.module.css";
+import SSOButtons from "./elements/SSOButtons";
+
+import LoginHelper, { ISSOFlow, LoginFlow } from "./LoginHelper";
 import AutoDiscoveryUtils, {
   ValidatedServerConfig,
 } from "./util/AutoDiscoveryUtils";
 import { IMatrixClientCreds } from "./util/matrix";
 import { messageForResourceLimitError } from "./util/messages";
-import AuthBodyContextWrapper from "./views/AuthBodyContextWrapper";
-import AuthHeader from "./views/AuthHeader";
-import AuthFooter from "./views/AuthFooter";
 import PasswordLogin from "./views/PasswordLogin";
-import { PageLayout, Main, Content, Banner } from "@atlaskit/page-layout";
-import { ErrorMessage, HelperMessage } from "@atlaskit/form";
-import Button from "@atlaskit/button";
-import Spinner from "@atlaskit/spinner";
-import PageHeader from "@atlaskit/page-header";
-import ErrorSectionContextWrapper from "./views/ErrorSectionContextWrapper";
-import ErrorIcon from "@atlaskit/icon/glyph/error";
-import { R400 } from "@atlaskit/theme/colors";
-import Flag from "@atlaskit/flag";
 
 interface IProps {
   serverConfig: ValidatedServerConfig;
@@ -64,7 +62,7 @@ interface IProps {
 interface IState {
   busy: boolean;
   busyLoggingIn?: boolean;
-  errorText?: ReactNode;
+  errorText?: React.ReactNode;
   loginIncorrect: boolean;
   // can we attempt to log in or are there validation errors?
   canTryLogin: boolean;
@@ -103,7 +101,7 @@ export default class LoginComponent extends React.PureComponent<
     this.state = {
       busy: false,
       busyLoggingIn: undefined,
-      errorText: null,
+      errorText: undefined,
       loginIncorrect: false,
       canTryLogin: true,
 
@@ -124,8 +122,8 @@ export default class LoginComponent extends React.PureComponent<
       "m.login.password": this.renderPasswordStep,
 
       // CAS and SSO are the same thing, modulo the url we link to
-      //   "m.login.cas": () => this.renderSsoStep("cas"),
-      //   "m.login.sso": () => this.renderSsoStep("sso"),
+      "m.login.cas": () => this.renderSsoStep("cas"),
+      "m.login.sso": () => this.renderSsoStep("sso"),
     };
   }
 
@@ -340,6 +338,7 @@ export default class LoginComponent extends React.PureComponent<
     if (ssoFlow && !hasPasswordFlow) {
       ev.preventDefault();
       ev.stopPropagation();
+      // TODO: restore for sso
       //   const ssoKind = ssoFlow.type === "m.login.sso" ? "sso" : "cas";
       //   PlatformPeg.get().startSingleSignOn(
       //     this.loginLogic!.createTemporaryClient(),
@@ -452,7 +451,6 @@ export default class LoginComponent extends React.PureComponent<
     return true;
   };
 
-  // err import {MatrixError} from "matrix-js-sdk/src/http-api";
   private errorTextFromError(err: any): ReactNode {
     let errCode = err.errcode;
     if (!errCode && err.httpStatus) {
@@ -513,10 +511,13 @@ export default class LoginComponent extends React.PureComponent<
       .filter(Boolean);
     return (
       <React.Fragment>
-        {flows.map((flow) => {
+        {flows.map((flow, i) => {
           const stepRenderer = this.stepRendererMap[flow.type];
           return (
-            <React.Fragment key={flow.type}>{stepRenderer()}</React.Fragment>
+            <React.Fragment key={flow.type}>
+              {i > 0 && <div className={AuthStyles.OrSeparator}>OR</div>}
+              {stepRenderer()}
+            </React.Fragment>
           );
         })}
       </React.Fragment>
@@ -526,15 +527,14 @@ export default class LoginComponent extends React.PureComponent<
   private renderPasswordStep = () => {
     return (
       <PasswordLogin
+        // We do not control these values, but on submission they do get
+        // recorded in the state, so we use the values of the state as
+        // default value.
         onSubmit={this.onPasswordLogin}
-        // username={this.state.username}
-        // phoneCountry={this.state.phoneCountry}
-        // phoneNumber={this.state.phoneNumber}
-        // onUsernameChanged={this.onUsernameChanged}
-        // onUsernameBlur={this.onUsernameBlur}
-        // onPhoneCountryChanged={this.onPhoneCountryChanged}
-        // onPhoneNumberChanged={this.onPhoneNumberChanged}
-        onForgotPasswordClick={this.props.onForgotPasswordClick}
+        defaultUsernameOrEmail={this.state.username}
+        defaultPhoneCountry={this.state.phoneCountry}
+        defaultPhoneNumber={this.state.phoneNumber}
+        // onForgotPasswordClick={this.props.onForgotPasswordClick}
         loginIncorrect={this.state.loginIncorrect}
         serverConfig={this.props.serverConfig}
         disableSubmit={this.isBusy()}
@@ -543,23 +543,23 @@ export default class LoginComponent extends React.PureComponent<
     );
   };
 
-  //   private renderSsoStep = (loginType) => {
-  //     const flow = this.state.flows.find(
-  //       (flow) => flow.type === "m.login." + loginType
-  //     ) as ISSOFlow;
+  private renderSsoStep = (loginType: string) => {
+    const flow = this.state.flows!.find(
+      (flow) => flow.type === "m.login." + loginType
+    ) as ISSOFlow;
 
-  //     return (
-  //       <SSOButtons
-  //         matrixClient={this.loginLogic.createTemporaryClient()}
-  //         flow={flow}
-  //         loginType={loginType}
-  //         fragmentAfterLogin={this.props.fragmentAfterLogin}
-  //         primary={
-  //           !this.state.flows.find((flow) => flow.type === "m.login.password")
-  //         }
-  //       />
-  //     );
-  //   };
+    return (
+      <SSOButtons
+        matrixClient={this.loginLogic!.createTemporaryClient()}
+        flow={flow}
+        loginType={loginType as any}
+        fragmentAfterLogin={this.props.fragmentAfterLogin}
+        primary={
+          !this.state.flows!.find((flow) => flow.type === "m.login.password")
+        }
+      />
+    );
+  };
 
   render() {
     const loader =
@@ -575,15 +575,9 @@ export default class LoginComponent extends React.PureComponent<
     let errorTextSection;
     if (errorText) {
       errorTextSection = (
-        <ErrorSectionContextWrapper>
-          <Flag
-            appearance="error"
-            icon={<ErrorIcon label="Error" secondaryColor={R400} />}
-            id="error"
-            key="error"
-            title={errorText}
-          />
-        </ErrorSectionContextWrapper>
+        <SectionMessage appearance="error" key="error">
+          <p>{errorText}</p>
+        </SectionMessage>
       );
     }
 
@@ -610,53 +604,47 @@ export default class LoginComponent extends React.PureComponent<
       // } else if (SettingsStore.getValue(UIFeature.Registration)) {
     } else {
       footer = (
-        <Button
-          appearance="subtle"
-          onClick={(e, analyticsEvent) => this.onTryRegisterClick(e)}
-          href="#">
-          Register
-        </Button>
+        <>
+          {this.props.onForgotPasswordClick && (
+            <>
+              <Button
+                appearance="link"
+                onClick={(e, _) => this.props.onForgotPasswordClick!()}
+                href="#">
+                Forgot password
+              </Button>{" "}
+              •{" "}
+            </>
+          )}
+          <Button
+            appearance="link"
+            onClick={(e, _) => this.onTryRegisterClick(e)}
+            href="#">
+            Sign up for an account
+          </Button>
+        </>
       );
     }
 
-    const ExtraContextWrapper = ({
-      children,
-    }: {
-      children: React.ReactNode;
-    }) => {
-      return (
-        <div
-          style={{
-            position: "absolute",
-            display: "inline-block",
-            width: "76%",
-            height: "36px",
-            bottom: "16px",
-            right: "16px",
-            textAlign: "left",
-          }}>
-          {children}
-        </div>
-      );
-    };
-
+    // Renders the components that make up the login page
     return (
-      // TODO: use manual components instead of PageLayout/Banner/etc.
-      <PageLayout>
-        <Banner isFixed={false} height={100}>
-          <AuthHeader />
-        </Banner>
-        <Content>
-          <Main width={650}>
+      <div className={AuthStyles.AuthPage}>
+        <div className={AuthStyles.AuthHeader}>
+          <div className={AuthStyles.AuthHeaderLogo}>
+            <span className={AuthStyles.AuthHeaderLogoSpan}>🌐 TypeCell</span>
+          </div>
+        </div>
+        <div className={AuthStyles.AuthBody}>
+          <div className={AuthStyles.AuthForm}>
             {errorTextSection}
-            <AuthBodyContextWrapper>
-              {this.renderLoginComponentForFlows()}
-              <ExtraContextWrapper>{footer}</ExtraContextWrapper>
-            </AuthBodyContextWrapper>
-            <AuthFooter />
-          </Main>
-        </Content>
-      </PageLayout>
+            {this.renderLoginComponentForFlows()}
+            <div className={AuthStyles.AuthFormFooter}>{footer}</div>
+          </div>
+        </div>
+        <div className={AuthStyles.AuthFooter}>
+          <HelperMessage>Powered by Matrix</HelperMessage>
+        </div>
+      </div>
     );
   }
 }

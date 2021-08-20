@@ -1,3 +1,4 @@
+import { DEFAULT_HOMESERVER_HOST } from "../config/config";
 import { slug } from "../util/slug";
 import { URI } from "../util/vscode-common/uri";
 import { FileIdentifier } from "./FileIdentifier";
@@ -24,7 +25,12 @@ export function parseIdentifier(
   }
 
   if (identifier.startsWith("@")) {
-    identifier = MatrixIdentifier.scheme + "://mx.typecell.org/" + identifier;
+    identifier =
+      MatrixIdentifier.scheme +
+      "://" +
+      DEFAULT_HOMESERVER_HOST +
+      "/" +
+      identifier;
   }
 
   const uri = URI.parse(identifier);

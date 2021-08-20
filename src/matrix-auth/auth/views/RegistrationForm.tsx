@@ -15,10 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React, { ChangeEvent } from "react";
+import React from "react";
 
 import PassphraseField from "./PassphraseField";
-
+import AuthStyles from "../AuthStyles.module.css";
 import Field from "../elements/Field";
 import { ValidatedServerConfig } from "../util/AutoDiscoveryUtils";
 import Form, { FormHeader } from "@atlaskit/form";
@@ -58,27 +58,24 @@ interface IProps {
   onEditServerDetailsClick?(): void;
 }
 
-interface IState {}
-
+// The type for the form data, represents the structure of the form,
+// and also gets passed into the submit handler of the form.
 interface RegistrationFormData {
   username?: string;
   password?: string;
   confirmPassword?: string;
+  email?: string;
 }
 
 /*
  * A pure UI component which displays a registration form.
  */
-export default class RegistrationForm extends React.PureComponent<
-  IProps,
-  IState
-> {
-  [RegistrationField.Username]: Field | null = null;
-  [RegistrationField.Password]: Field | null = null;
-  [RegistrationField.PasswordConfirm]: Field | null = null;
-  [RegistrationField.Email]: Field | null = null;
-  [RegistrationField.PhoneNumber]: Field | null = null;
-  [RegistrationField.Password]: Field | null = null;
+export default class RegistrationForm extends React.PureComponent<IProps> {
+  [RegistrationField.Username]: Field<string> | null = null;
+  [RegistrationField.Password]: Field<string> | null = null;
+  [RegistrationField.PasswordConfirm]: Field<string> | null = null;
+  [RegistrationField.Email]: Field<string> | null = null;
+  [RegistrationField.PhoneNumber]: Field<string> | null = null;
 
   static defaultProps = {
     onValidationChange: console.error,
@@ -94,21 +91,16 @@ export default class RegistrationForm extends React.PureComponent<
   private onSubmit = (data: RegistrationFormData) => {
     if (!this.props.canSubmit) return;
 
-    this.doSubmit(data);
-  };
-
-  private doSubmit(data: RegistrationFormData) {
-    let username = data.username || "";
+    let username = (data.username || "").trim();
     let password = data.password || "";
+    let email = (data.email || "").trim();
 
-    this.props.onRegisterClick({ username, password });
-  }
+    this.props.onRegisterClick({ username, password, email });
+  };
 
   private onPasswordConfirmValidate = (value?: string) => {
     if (
-      value &&
-      value.length &&
-      value === (this[RegistrationField.Password] as any).input.value
+      (value || "") === (this[RegistrationField.Password] as any).input.value
     ) {
       return {};
     } else {
@@ -177,8 +169,10 @@ export default class RegistrationForm extends React.PureComponent<
     return (
       <Field
         ref={(field) => (this[RegistrationField.Email] = field)}
-        type="text"
+        type="email"
+        defaultValue={this.props.defaultEmail}
         label={emailPlaceholder}
+        name="email"
         // value={this.state.email}
       />
     );
@@ -189,11 +183,13 @@ export default class RegistrationForm extends React.PureComponent<
       <PassphraseField
         minScore={PASSWORD_MIN_SCORE}
         fieldRef={(field) => (this[RegistrationField.Password] = field)}
+        defaultValue={this.props.defaultPassword}
       />
     );
   }
 
   renderPasswordConfirm() {
+    console.log((this[RegistrationField.Password] as any)?.input.value.length);
     return (
       <Field
         key="password"
@@ -206,7 +202,7 @@ export default class RegistrationForm extends React.PureComponent<
         validMessage="Password Matches"
         ref={(field) => (this[RegistrationField.PasswordConfirm] = field)}
         showErrorMsg
-        showValidMsg
+        showValidMsg="if-not-empty"
       />
     );
   }
@@ -232,15 +228,17 @@ export default class RegistrationForm extends React.PureComponent<
   render() {
     const registerButton = (
       <Button
-        style={{ margin: "16px 0 0 0" }}
+        className={AuthStyles.AuthButton}
         type="submit"
         appearance="primary"
+        shouldFitContainer
         value={"Register"}
         isDisabled={!this.props.canSubmit}>
         Register
       </Button>
     );
 
+    // TODO email registration has yet to be implemented
     let emailHelperText: JSX.Element = <></>;
     if (this.showEmail()) {
       if (this.showPhoneNumber()) {
@@ -261,14 +259,19 @@ export default class RegistrationForm extends React.PureComponent<
     }
 
     return (
+      // Renders an Atlaskit form together with many other components,
+      // mainly Atlaskit Fields. This is an uncontrolled form, but we pass
+      // many props into the Field components, while Atlaskit does most of the
+      // front-end like handling focus, blurring, validation error rendering, etc.
+      // See Atlaskits documentation for more detailed information.
       <Form<RegistrationFormData> onSubmit={this.onSubmit}>
         {({ formProps }) => (
           <form {...formProps}>
             {/* <FormHeader title="Register" /> */}
             {this.renderUsername()}
+            {this.renderEmail()}
             {this.renderPassword()}
             {this.renderPasswordConfirm()}
-            {this.renderEmail()}
             {/* {this.renderPhoneNumber()} */}
             {/* {emailHelperText} */}
             {registerButton}
