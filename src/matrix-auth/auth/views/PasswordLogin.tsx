@@ -14,15 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import Button from "@atlaskit/button";
+import { LoadingButton } from "@atlaskit/button";
 import Form from "@atlaskit/form";
+import { OptionType } from "@atlaskit/select";
 import React from "react";
+import AuthStyles from "../AuthStyles.module.css";
 import { ButtonEvent } from "../elements/AccessibleButton";
 import Field from "../elements/Field";
 import { ValidatedServerConfig } from "../util/AutoDiscoveryUtils";
 import { looksValidEmail } from "../util/email";
-import AuthStyles from "../AuthStyles.module.css";
-import { OptionType } from "@atlaskit/select";
 
 // For validating phone numbers without country codes
 const PHONE_NUMBER_REGEX = /^[0-9()\-\s]*$/;
@@ -295,17 +295,15 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
             />
             {/* {forgotPasswordJsx} */}
             {!this.props.busy && (
-              // <LoadingButton isLoading={this.props.busy}>
-              <Button
-                // TODO move styles to module
+              <LoadingButton
+                isLoading={this.props.busy}
                 className={AuthStyles.AuthButton}
                 type="submit"
                 appearance="primary"
                 isDisabled={this.props.disableSubmit}
                 shouldFitContainer>
                 Continue
-              </Button>
-              // </LoadingButton>
+              </LoadingButton>
             )}
           </form>
         )}

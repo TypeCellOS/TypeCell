@@ -563,12 +563,7 @@ export default class LoginComponent extends React.PureComponent<
 
   render() {
     const loader =
-      this.isBusy() && !this.state.busyLoggingIn ? (
-        <div className="mx_Login_loader">
-          <Spinner />
-          Loading
-        </div>
-      ) : null;
+      this.isBusy() && !this.state.busyLoggingIn ? <Spinner /> : null;
 
     const errorText = this.state.errorText;
 
@@ -637,6 +632,7 @@ export default class LoginComponent extends React.PureComponent<
         <div className={AuthStyles.AuthBody}>
           <div className={AuthStyles.AuthForm}>
             {errorTextSection}
+            {loader}
             {this.renderLoginComponentForFlows()}
             <div className={AuthStyles.AuthFormFooter}>{footer}</div>
           </div>
