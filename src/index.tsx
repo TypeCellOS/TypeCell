@@ -5,7 +5,10 @@ import "@atlaskit/css-reset/dist/bundle.css";
 import "./index.css";
 import MatrixApp from "./MatrixApp";
 import reportWebVitals from "./reportWebVitals";
-import { setupDocConnectionManager } from "./store/DocConnection";
+
+import * as yjsBindings from "@reactivedata/yjs-reactive-bindings";
+import * as mobx from "mobx";
+import Frame from "./frame/Frame";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays
@@ -45,15 +48,24 @@ async function init() {
   // await Olm.init({
   //   locateFile: () => olmWasmPath,
   // });
+  if (window.location.search.includes("frame")) {
+    ReactDOM.render(
+      <React.StrictMode>
+        <Frame />
+      </React.StrictMode>,
+      document.getElementById("root")
+    );
+  } else {
+    yjsBindings.useMobxBindings(mobx);
+    yjsBindings.makeYJSObservable();
 
-  setupDocConnectionManager();
-
-  ReactDOM.render(
-    <React.StrictMode>
-      <MatrixApp config={cachedValidatedConfig} />
-    </React.StrictMode>,
-    document.getElementById("root")
-  );
+    ReactDOM.render(
+      <React.StrictMode>
+        <MatrixApp config={cachedValidatedConfig} />
+      </React.StrictMode>,
+      document.getElementById("root")
+    );
+  }
 }
 
 init();

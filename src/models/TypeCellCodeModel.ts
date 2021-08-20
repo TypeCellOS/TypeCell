@@ -2,6 +2,7 @@ import { autorun, untracked } from "mobx";
 import * as monaco from "monaco-editor";
 import * as Y from "yjs";
 import { compile } from "../compilers/MonacoCompiler";
+import { NotebookCellModel } from "../documentRenderers/notebook/NotebookCellModel";
 import { CodeModel } from "../engine/CodeModel";
 import { Emitter, Event } from "../util/vscode-common/event";
 import {
@@ -21,7 +22,11 @@ import { CellModel } from "./CellModel";
 export class TypeCellCodeModel extends Disposable implements CodeModel {
   private readonly uri: monaco.Uri;
 
-  constructor(public readonly path: string, private readonly codeText: Y.Text) {
+  constructor(
+    public readonly path: string,
+    public readonly language: string,
+    private readonly codeText: Y.Text
+  ) {
     super();
     const dispose = autorun(() => {
       this.codeText.toString(); // tracked by mobx
@@ -61,7 +66,7 @@ export class TypeCellCodeModel extends Disposable implements CodeModel {
       }
       this.monacoModel = monaco.editor.createModel(
         this.getValue(),
-        "typescript",
+        this.language,
         this.uri
       );
       this.monacoModelListener = this.onDidChangeContent(() => {
@@ -87,7 +92,9 @@ export class TypeCellCodeModel extends Disposable implements CodeModel {
       this.monacoModel.isDisposed() ||
       !this.monacoModelListener
     ) {
-      throw new Error("monaco already already disposed");
+      console.warn("monaco already already disposed");
+      // throw new Error("monaco already already disposed");
+      return;
     }
     this.monacoModel.dispose();
     this.monacoModelListener.dispose();
@@ -108,8 +115,43 @@ export class TypeCellCodeModel extends Disposable implements CodeModel {
     }
   }
 
-  public getCompiledJavascriptCode() {
-    return compile(this);
+  public async getCompiledJavascriptCode() {
+    if (this.language === "typescript") {
+      const js = await compile(this);
+      return js;
+    } else if (this.language === "markdown") {
+      // TODO: this is a hacky way to quickly support markdown. We compile markdown to JS so it can pass through the regular "evaluator".
+      // We should refactor to support different languages, probably by creating different CellEvaluators per language
+      return `define(["require", "exports", "markdown-it"], function (require, exports, markdown_it_1) {
+        "use strict";
+        Object.defineProperty(exports, "__esModule", { value: true });
+        const md = markdown_it_1.default({
+            html: true,
+            linkify: true,
+            typographer: true,
+        });
+        const render = md.render(${JSON.stringify(this.getValue())});
+        const el = document.createElement("div");
+        el.className = "markdown-body";
+        el.innerHTML = render;
+        exports.default = el;
+        ;
+    });`;
+    } else if (this.language === "css") {
+      // TODO: same as above comment for markdown
+      return `define(["require", "exports"], function (require, exports) {
+        "use strict";
+        Object.defineProperty(exports, "__esModule", { value: true });
+        const style = document.createElement("style");
+        style.setAttribute("type", "text/css");
+        style.appendChild(document.createTextNode(${JSON.stringify(
+          this.getValue()
+        )}));
+        exports.default = style;
+        ;
+    });`;
+    }
+    throw new Error("unsupported language");
   }
 
   public dispose() {
@@ -124,7 +166,7 @@ class ModelCollection extends ReferenceCollection<TypeCellCodeModel> {
     key: string,
     ...args: any[]
   ): TypeCellCodeModel {
-    return new TypeCellCodeModel(key, args[0]);
+    return new TypeCellCodeModel(key, args[0], args[1]);
   }
 
   protected destroyReferencedObject(
@@ -137,6 +179,6 @@ class ModelCollection extends ReferenceCollection<TypeCellCodeModel> {
 
 const modelStore = new ModelCollection();
 
-export function getTypeCellCodeModel(cell: CellModel) {
-  return modelStore.acquire(cell.path, cell.code);
+export function getTypeCellCodeModel(cell: NotebookCellModel) {
+  return modelStore.acquire(cell.path, cell.language, cell.code);
 }

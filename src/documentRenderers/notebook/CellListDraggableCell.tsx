@@ -131,7 +131,6 @@ const CellListDraggableCell: React.FC<Props> = observer((props) => {
         <span></span>
       </button>
       {props.children}
-      {/* <NotebookCell cell={props.cell} onRemove={props.onRemove}></NotebookCell> */}
       <button
         onClick={props.onAddAfter}
         className="add_cell after"

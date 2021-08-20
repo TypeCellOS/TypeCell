@@ -1,13 +1,13 @@
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useEffect, useState } from "react";
+import { Engine } from "../../engine";
+import { CodeModel } from "../../engine/CodeModel";
 import { getTypeCellCodeModel } from "../../models/TypeCellCodeModel";
 import { BaseResource } from "../../store/BaseResource";
-
 import { DocConnection } from "../../store/DocConnection";
 import { runtimeStore } from "../../store/local/runtimeStore";
-
-import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
+import { getTypeCellResolver } from "../../typecellEngine/resolver";
 import RetryErrorBoundary from "../notebook/RetryErrorBoundary";
 
 // TODO: should this be a React component or raw JS?
@@ -25,7 +25,7 @@ export const CustomRenderer = observer((props: Props) => {
     throw new Error("don't expect built-in document as renderer here");
   }
   const [rendererDocument, setRendererDocument] = useState<DocConnection>();
-  const [engine, setEngine] = useState<EngineWithOutput>();
+  const [engine, setEngine] = useState<Engine<CodeModel>>();
 
   const renderer = runtimeStore.customRenderers.get(props.document.type);
 
@@ -46,16 +46,17 @@ export const CustomRenderer = observer((props: Props) => {
       return;
     }
 
-    const newEngine = new EngineWithOutput(
-      rendererDocument.identifier.id,
-      false
+    const newEngine = new Engine(
+      () => {},
+      () => {},
+      getTypeCellResolver(rendererDocument.identifier.toString(), "CR", false) // TODO: add unique id for cachekey?
     );
     setEngine(newEngine);
 
     const cells = rendererDocument.tryDoc.doc.cells;
     const models = cells.map((c) => getTypeCellCodeModel(c));
     models.forEach((m) => {
-      newEngine.engine.registerModel(m.object);
+      newEngine.registerModel(m.object);
     });
 
     return () => {
@@ -84,8 +85,7 @@ export const CustomRenderer = observer((props: Props) => {
     throw new Error("only notebook documents supported");
   }
 
-  const layoutObject =
-    engine.engine.observableContext.context[renderer.variable];
+  const layoutObject = engine.observableContext.context[renderer.variable];
 
   if (!layoutObject) {
     return <div>Invalid renderer for this type</div>;

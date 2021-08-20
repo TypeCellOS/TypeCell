@@ -1,5 +1,5 @@
 import { TypeCellContext } from "./context";
-import { observable, untracked, autorun } from "mobx";
+import { observable, untracked, computed, autorun } from "mobx";
 // import { stored } from "./storage/stored";
 // import { view } from "./view";
 
@@ -75,7 +75,9 @@ export function createExecutionScope(context: TypeCellContext<any>) {
   const scope = {
     autorun,
     $: context.context,
+    $views: context.viewContext,
     untracked,
+    computed,
     // editor: globalEditor,
     // stored,
     // view,

@@ -13,40 +13,58 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
     super(context, createData);
   }
 
-  public _getScriptText(fileName: string) {
+  public _getScriptText(fileName: string): string {
     // always add an export {} statement, so that all files are modules, even if you have some script
     // that doesn't export anything. Otherwise the compiler will assume it's not a module and all variables
     // will be seen as globals
     let text = super._getScriptText(fileName);
 
+    if (!fileName.startsWith("file:///")) {
+      return text;
+    }
+    fileName = fileName.substr("file:///".length);
+    const cleaned = decodeURIComponent(fileName);
+
+    // console.log("worker", cleaned, fileName);
     // for typecell modules (files named /!@owner/document/cell.(ts|tsx))
     // automatically import the context ($) of other cells
     // The type of this context is defined setupTypecellTypeResolver.ts, and available under !@owner/document
     if (
-      fileName.startsWith("file:///%21%40") &&
-      (fileName.endsWith(".ts") || fileName.endsWith(".tsx"))
+      cleaned.startsWith("!@") &&
+      (cleaned.endsWith(".ts") || cleaned.endsWith(".tsx"))
     ) {
-      let split = fileName.substr("file:///%21%40".length).split("/");
-
-      if (split.length === 3 && fileName.endsWith(".cell.tsx")) {
-        const folder = "!@" + split[0] + "/" + split[1];
-
+      if (cleaned.endsWith(".cell.tsx")) {
+        // const folder = "!@" + split[0] + "/" + split[1];
+        const folder = cleaned
+          .substring(0, cleaned.lastIndexOf("/"))
+          .replace("//", "/");
+        // console.log("folder", folder);
         // add modified code at end, to not mess offsets
         text += `;\n
+
+        // @ts-ignore
+        import type { OnlyViews, Values } from "typecell-helpers";
+
         // @ts-ignore
         import type * as $type from "${folder}";
+        
         // @ts-ignore
-        declare let $: typeof $type;
+        declare let $: Values<typeof $type>;
+
+        // @ts-ignore
+        declare let $views: OnlyViews<typeof $type>;
+
         // @ts-ignore
         import typecell from "typecell";
+        
         // @ts-ignore
-        import React from 'react';
+        import * as React from 'react';
         `;
         // always add an empty export to file to make sure it's seen as a module
         // text += "\nexport{};";
       }
 
-      if (split.length === 3 && fileName.endsWith("plugin.tsx")) {
+      if (cleaned.endsWith("plugin.tsx")) {
         // add modified code at end, to not mess offsets
         text += `;\n
         // @ts-ignore

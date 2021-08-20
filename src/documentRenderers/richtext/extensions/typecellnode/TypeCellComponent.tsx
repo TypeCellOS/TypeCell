@@ -17,7 +17,7 @@ export default function TypeCellComponent(props: any) {
     <NotebookCell
       cell={cell}
       engine={ctx.engine!}
-      awareness={ctx.document?.webrtcProvider.awareness!}
+      awareness={ctx.document?.webrtcProvider?.awareness}
     />
   );
 }

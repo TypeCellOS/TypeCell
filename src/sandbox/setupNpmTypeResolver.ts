@@ -2,6 +2,7 @@ import * as monaco from "monaco-editor";
 import { detectNewImportsToAcquireTypeFor } from "./typeAcquisition";
 
 const addLibraryToRuntime = (code: string, path: string) => {
+  // console.log("addlib", path);
   monaco.languages.typescript.typescriptDefaults.addExtraLib(code, path);
 };
 
@@ -16,19 +17,16 @@ export function acquireTypes(code: string) {
 
 export default function setupNpmTypeResolver() {
   monaco.editor.onDidCreateModel((model) => {
-    let uri = model.uri.toString();
-    if (!uri.startsWith("file:///%21%40") /*!@*/) {
+    if (!model.uri.path.startsWith("/!@") /*!@*/) {
       return;
     }
-    uri = uri.substring("file:///%21%40".length);
-    const split = uri.split("/");
-    if (split.length !== 3) {
-      return;
-    }
+
+    // TODO: check language
 
     model.onDidChangeContent(() => {
       acquireTypes(model.getValue());
     });
+    acquireTypes(model.getValue());
   });
 
   // always import react types, as this library is imported by default in ts.worker

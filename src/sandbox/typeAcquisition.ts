@@ -41,9 +41,11 @@ const errorMsg = (msg: string, response: any, config: ATAConfig) => {
  */
 const parseFileForModuleReferences = (sourceCode: string) => {
   // https://regex101.com/r/Jxa3KX/4
-  const requirePattern = /(const|let|var)(.|\n)*? require\(('|")(.*)('|")\);?$/gm;
+  const requirePattern =
+    /(const|let|var)(.|\n)*? require\(('|")(.*)('|")\);?$/gm;
   // this handle ths 'from' imports  https://regex101.com/r/hdEpzO/4
-  const es6Pattern = /(import|export)((?!from)(?!require)(.|\n))*?(from|require\()\s?('|")(.*)('|")\)?;?$/gm;
+  const es6Pattern =
+    /(import|export)((?!from)(?!require)(.|\n))*?(from|require\()\s?('|")(.*)('|")\)?;?$/gm;
   // https://regex101.com/r/hdEpzO/6
   const es6ImportOnly = /import\s?\(?('|")(.*)('|")\)?;?/gm;
 
@@ -473,6 +475,7 @@ const getDependenciesForModule = (
   // Get all the import/requires for the file
   const filteredModulesToLookAt = parseFileForModuleReferences(sourceCode);
   filteredModulesToLookAt.forEach(async (name) => {
+    // console.log(sourceCode);
     // Support grabbing the hard-coded node modules if needed
     const moduleToDownload = mapModuleNameToModule(name);
 
@@ -523,6 +526,22 @@ const getDependenciesForModule = (
     } else if (isDenoModule) {
       // E.g. import { serve } from "https://deno.land/std@v0.12/http/server.ts";
       await addModuleToRuntime(moduleToDownload, moduleToDownload, config);
+      // TODO: Possible fix for scheduler/tracing, but not critical / should file with original repo
+      // } else if (
+      //   !moduleToDownload.startsWith(".") &&
+      //   moduleToDownload.includes("/")
+      // ) {
+      //   const parts = moduleToDownload.split("/", 2);
+      //   const packageDef = await getModuleAndRootDefTypePath(parts[0], config);
+
+      //   if (packageDef) {
+      //     acquiredTypeDefs[moduleID] = packageDef.packageJSON;
+      //     const absolutePathForModule = mapRelativePath(
+      //       parts[1] + ".d.ts",
+      //       packageDef.path
+      //     );
+      //     await addModuleToRuntime(packageDef.mod, absolutePathForModule, config);
+      //   }
     } else {
       // E.g. import {Component} from "./MyThing"
       if (!moduleToDownload || !path)

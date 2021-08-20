@@ -14,7 +14,7 @@ index 0261cb7..98918a4 100644
        // apply changes from right to left
        this.mux(() => {
 diff --git a/node_modules/y-monaco/src/y-monaco.js b/node_modules/y-monaco/src/y-monaco.js
-index 182786f..608889a 100644
+index 182786f..8a3e9ab 100644
 --- a/node_modules/y-monaco/src/y-monaco.js
 +++ b/node_modules/y-monaco/src/y-monaco.js
 @@ -156,7 +156,9 @@ export class MonacoBinding {
@@ -28,3 +28,12 @@ index 182786f..608889a 100644
      this._monacoChangeHandler = monacoModel.onDidChangeContent(event => {
        // apply changes from right to left
        this.mux(() => {
+@@ -202,7 +204,7 @@ export class MonacoBinding {
+     this._monacoChangeHandler.dispose()
+     this.ytext.unobserve(this._ytextObserver)
+     this.doc.off('beforeAllTransactions', this._beforeTransaction)
+-    if (this.awareness !== null) {
++    if (this.awareness) {
+       this.awareness.off('change', this._rerenderDecorations)
+     }
+   }

@@ -1,10 +1,12 @@
 import { autorun, observable, ObservableMap, runInAction } from "mobx";
+import Output from "../documentRenderers/notebook/Output";
 import { Engine } from "../engine";
+import { CodeModel } from "../engine/CodeModel";
 import { TypeCellCodeModel } from "../models/TypeCellCodeModel";
 import { Disposable } from "../util/vscode-common/lifecycle";
-import getExposeGlobalVariables, { TypeVisualizer } from "./lib/exports";
+import { TypeVisualizer } from "./lib/exports";
 import { ModelOutput } from "./ModelOutput";
-import resolveImport from "./resolver";
+import { getTypeCellResolver } from "./resolver";
 import { TypeChecker } from "./TypeChecker";
 
 let ENGINE_ID = 0;
@@ -23,10 +25,15 @@ export default class EngineWithOutput extends Disposable {
     string,
     TypeVisualizer<any>
   >();
-  public readonly engine: Engine<TypeCellCodeModel>;
+  private readonly engine: Engine<TypeCellCodeModel>;
   public readonly id = ENGINE_ID++;
   // private preRunDisposers = new Map<TypeCellCodeModel, Array<() => void>>();
   public readonly typechecker: TypeChecker | undefined;
+
+  public registerModel(model: TypeCellCodeModel) {
+    return this.engine.registerModel(model);
+  }
+
   constructor(
     private readonly documentId: string,
     private readonly needsTypesInMonaco: boolean
@@ -42,13 +49,23 @@ export default class EngineWithOutput extends Disposable {
       (model, output) => {
         let modelOutput = this.outputs.get(model);
         if (!modelOutput) {
-          modelOutput = this._register(new ModelOutput(model, this));
+          modelOutput = this._register(
+            new ModelOutput(
+              model,
+              this.typechecker
+                ? {
+                    typechecker: this.typechecker,
+                    availableVisualizers: this.availableVisualizers,
+                  }
+                : undefined
+            )
+          );
           this.outputs.set(model, modelOutput);
         }
         modelOutput.updateValue(output);
       },
       (model) => {},
-      this.resolveImport
+      getTypeCellResolver(documentId, "EWO" + this.id, needsTypesInMonaco)
     );
 
     // Generate a mobx map from TypeVisualizers on observableContext.
@@ -79,32 +96,17 @@ export default class EngineWithOutput extends Disposable {
     this._register({ dispose });
   }
 
-  private resolveImport = async (
-    module: string,
-    forModel: TypeCellCodeModel
-  ) => {
-    if (this.disposed) {
-      throw new Error(
-        "EngineWithOutput already disposed (resolveImport called)"
-      );
-    }
-    if (module === "typecell") {
-      return {
-        default: getExposeGlobalVariables(this.documentId),
-      };
-    }
-    const resolved = await resolveImport(
-      module,
-      forModel,
-      this,
-      this.needsTypesInMonaco
+  public renderContainer() {
+    return <></>;
+  }
+
+  public renderOutput(model: TypeCellCodeModel) {
+    return (
+      <div style={{ padding: "10px" }}>
+        <Output outputs={this.outputs} model={model} />
+      </div>
     );
-    if (this.disposed) {
-      resolved.dispose(); // engine has been disposed in the meantime
-    }
-    this._register(resolved);
-    return resolved.module;
-  };
+  }
 
   public dispose() {
     if (this.disposed) {

@@ -8,7 +8,7 @@ import React, { useCallback, useState } from "react";
 
 import { BaseResource } from "../../store/BaseResource";
 import { DocConnection } from "../../store/DocConnection";
-import { navigationStore } from "../../store/local/stores";
+import { navigationStore } from "../../store/local/navigationStore";
 
 import { UnreachableCaseError } from "../../util/UnreachableCaseError";
 
@@ -27,6 +27,7 @@ export const NewPageDialog = (props: {
         <form
           {...innerProps}
           onSubmit={async (e) => {
+            // TODO: format title?
             e.preventDefault();
             const data = new FormData(e.target as HTMLFormElement);
             const obj: any = {};
@@ -42,6 +43,7 @@ export const NewPageDialog = (props: {
               owner: props.ownerId,
               document: obj.title,
             });
+
             setLoading(false);
 
             if (typeof ret === "string") {
@@ -56,6 +58,13 @@ export const NewPageDialog = (props: {
                   throw new UnreachableCaseError(ret);
               }
             } else if (ret instanceof BaseResource) {
+              ret.create("!notebook");
+              ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
+              ret.doc.cellList.addCell(
+                1,
+                "typescript",
+                `export let message = "Hello World"`
+              );
               navigationStore.navigateToDocument(ret);
 
               // Bit hacky, dispose with timeout,

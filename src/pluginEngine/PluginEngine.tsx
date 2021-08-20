@@ -1,4 +1,5 @@
 import { observable } from "mobx";
+import Output from "../documentRenderers/notebook/Output";
 import { Engine } from "../engine";
 import {
   getTypeCellCodeModel,
@@ -12,7 +13,7 @@ let ENGINE_ID = 0;
 export default class PluginEngine extends Disposable {
   private disposed: boolean = false;
 
-  public readonly engine: Engine<TypeCellCodeModel>;
+  private readonly engine: Engine<TypeCellCodeModel>;
   public readonly id = ENGINE_ID++;
 
   private preRunDisposers: Array<() => void> = [];
@@ -20,6 +21,10 @@ export default class PluginEngine extends Disposable {
   public readonly outputs = observable.map<TypeCellCodeModel, any>(undefined, {
     deep: false,
   });
+
+  public registerModel(model: TypeCellCodeModel) {
+    return this.engine.registerModel(model);
+  }
 
   constructor(private plugin: PluginResource) {
     super();
@@ -35,15 +40,27 @@ export default class PluginEngine extends Disposable {
       async (module) => {
         if (module === "typecell-plugin") {
           return {
-            default: getExposeGlobalVariables(this.plugin.id, (disposer) =>
+            dispose: () => {
+              // TODO
+            },
+            module: getExposeGlobalVariables(this.plugin.id, (disposer) =>
               this.preRunDisposers.push(disposer)
             ),
           };
         }
+        throw new Error("not supported import");
       } // no support for imports
     );
     const model = this._register(getTypeCellCodeModel(plugin.pluginCell));
     this.engine.registerModel(model.object);
+  }
+
+  public renderContainer() {
+    return <></>;
+  }
+
+  public renderOutput(model: TypeCellCodeModel) {
+    return <Output outputs={this.outputs} model={model} />;
   }
 
   public dispose() {
