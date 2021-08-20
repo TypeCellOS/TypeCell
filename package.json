@@ -7,6 +7,7 @@
     "@atlaskit/avatar": "^20.3.0",
     "@atlaskit/banner": "^11.2.0",
     "@atlaskit/button": "^15.1.6",
+    "@atlaskit/checkbox": "^12.3.0",
     "@atlaskit/comment": "^10.0.7",
     "@atlaskit/css-reset": "^6.0.5",
     "@atlaskit/dropdown-menu": "^10.1.6",

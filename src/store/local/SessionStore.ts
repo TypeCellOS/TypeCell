@@ -6,6 +6,7 @@ import {
   reaction,
   runInAction,
 } from "mobx";
+import { MATRIX_CONFIG } from "../../config/config";
 import { MatrixAuthStore } from "../../matrix-auth/MatrixAuthStore";
 import { MatrixClientPeg } from "../../matrix-auth/MatrixClientPeg";
 import { createMatrixGuestClient } from "../../matrix-yjs/MatrixGuestClient";
@@ -76,7 +77,7 @@ export class SessionStore {
     // TODO: don't register as guest on home page, when no matrix is needed
     try {
       const config = {
-        baseUrl: "https://mx.typecell.org",
+        baseUrl: MATRIX_CONFIG.hsUrl,
         // idBaseUrl: "https://vector.im",
       };
 

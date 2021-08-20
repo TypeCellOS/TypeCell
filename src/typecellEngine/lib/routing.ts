@@ -29,6 +29,8 @@ export default function routing() {
     return { page: "login" as "login" };
   } else if (part1 === "register") {
     return { page: "register" as "register" };
+  } else if (part1 === "recover") {
+    return { page: "recover" as "recover" };
   } else if (!part1) {
     return { page: "root" as "root" };
   } else {

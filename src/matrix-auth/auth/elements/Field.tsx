@@ -35,7 +35,7 @@ function getId() {
   return `${BASE_ID}_${count++}`;
 }
 
-interface IProps {
+interface IProps<T> {
   // The field's key, which Atlaskit uses in the Form state in the key-value per Field.
   key?: string;
   // The field's ID, which binds the input and label together. Immutable.
@@ -60,15 +60,13 @@ interface IProps {
   // Additionally, if a "progress"(range 0-1) is returned with the "error",
   // a progress bar will be rendered under the field.
   // to the user.
-  onValidate?: (
-    value?: string
-  ) => IValidationResult | Promise<IValidationResult>;
+  onValidate?: (value?: T) => IValidationResult | Promise<IValidationResult>;
   // A validity check for empty field, Atlaskit will auto focus and
   // show tooltip on submission
   isRequired?: boolean;
   // Whether Atlaskit should render a ValidMessage when validation passes
   // The message should be passed to validMessage prop
-  showValidMsg?: boolean;
+  showValidMsg?: true | false | "if-not-empty";
   // Whether Atlaskit should render a ErrorMessage when validation fails
   // The message should be returned by the validate function
   showErrorMsg?: boolean;
@@ -77,6 +75,7 @@ interface IProps {
   // The ValidMessage that is rendered if field is valid and showValidMsg is true.
   validMessage?: string;
   // All other props pass through to the <input>.
+  defaultValue?: T;
 }
 
 export interface IValidationResult {
@@ -84,36 +83,38 @@ export interface IValidationResult {
   progress?: number;
 }
 
-export interface IInputProps
-  extends IProps,
-    InputHTMLAttributes<HTMLInputElement> {
+export interface IInputProps<T>
+  extends IProps<T>,
+    Omit<InputHTMLAttributes<HTMLInputElement>, "defaultValue"> {
   // The element to create. Defaults to "input".
   element?: "input";
 }
 
 // TODO: consider removing SelectHTMLAttributes extension and use custom props
-interface ISelectProps
-  extends IProps,
+interface ISelectProps<FieldValue>
+  extends IProps<FieldValue>,
     Omit<SelectHTMLAttributes<HTMLSelectElement>, "defaultValue"> {
   // To define options for a select, use <Field><option ... /></Field>
   element: "select";
-  defaultValue?: OptionType;
   options?: OptionType[];
   // onChange?:
 }
 
-interface ITextareaProps
-  extends IProps,
-    TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface ITextareaProps<FieldValue>
+  extends IProps<FieldValue>,
+    Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "defaultValue"> {
   element: "textarea";
 }
-
-type PropShapes = IInputProps | ISelectProps | ITextareaProps;
 
 interface IState {
   error?: string;
   progress?: number;
 }
+
+type Props<FieldValue> =
+  | IInputProps<FieldValue>
+  | ITextareaProps<FieldValue>
+  | ISelectProps<FieldValue>;
 
 // Field renders an appropriate Atlaskit Field based on the given props.
 //
@@ -125,7 +126,10 @@ interface IState {
 // sophisticated rendering of validity that Atlaskit does on each field can be
 // set by props. for more information regarding props see comments on each prop,
 // as well as Atlaskit documentation for more detauls on how Fields work.
-export default class Field extends React.PureComponent<PropShapes, IState> {
+export default class Field<FieldValue> extends React.PureComponent<
+  Props<FieldValue>,
+  IState
+> {
   private id: string;
   private input:
     | HTMLInputElement
@@ -141,7 +145,7 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     isRequired: false,
   };
 
-  constructor(props: PropShapes) {
+  constructor(props: Props<FieldValue>) {
     super(props);
     this.state = {
       error: undefined,
@@ -151,7 +155,7 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     this.id = this.props.id || getId();
   }
 
-  public validate = async (value?: string) => {
+  public validate = async (value?: FieldValue) => {
     if (!this.props.onValidate) {
       return undefined;
     }
@@ -159,6 +163,8 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
     const validationResult = await this.props.onValidate(value);
     if (validationResult.progress !== undefined) {
       this.setState({ progress: validationResult.progress });
+    } else {
+      this.setState({ progress: undefined });
     }
     return validationResult.error;
   };
@@ -191,17 +197,17 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
       // Renders an Atlaskit Field based on provided props to this component.
       // Used inside Atlaskit Form components. See commnets in this file and
       // Atlaskit documentation for more details.
-      <AtlaskitField
+      <AtlaskitField<FieldValue>
         label={this.props.label}
         name={this.props.name}
         validate={this.validate}
+        defaultValue={this.props.defaultValue}
         isRequired={this.props.isRequired}>
         {({ fieldProps, error, valid }: any) => {
           if (element === "input") {
             return (
               <Fragment>
                 <TextField
-                  defaultValue={this.props.defaultValue}
                   {...(inputProps_ as any)}
                   {...fieldProps}
                   onChange={(e) => {
@@ -215,9 +221,12 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
                     <SuccessProgressBar value={this.state.progress} />
                   </div>
                 )}
-                {showValidMsg && valid && (
-                  <ValidMessage>{this.props.validMessage}</ValidMessage>
-                )}
+                {valid &&
+                  (showValidMsg === true ||
+                    (showValidMsg === "if-not-empty" &&
+                      !!fieldProps.value?.length)) && (
+                    <ValidMessage>{this.props.validMessage}</ValidMessage>
+                  )}
                 {showErrorMsg && error && <ErrorMessage>{error}</ErrorMessage>}
               </Fragment>
             );
@@ -226,9 +235,11 @@ export default class Field extends React.PureComponent<PropShapes, IState> {
               <Select
                 {...(inputProps_ as any)}
                 {...fieldProps}
-                defaultValue={this.props.defaultValue}
-                onChange={this.props.onChange}
-                options={(this.props as ISelectProps).options}
+                onChange={(e) => {
+                  // trigger both handlers if set
+                  fieldProps.onChange?.(e);
+                  inputProps_.onChange?.(e as any);
+                }}
               />
             );
           } else {

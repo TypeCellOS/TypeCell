@@ -18,12 +18,19 @@ limitations under the License.
 
 import React, { createRef, FormEvent } from "react";
 import PropTypes from "prop-types";
+import { R400 } from "@atlaskit/theme/colors";
 import classnames from "classnames";
+
+import ErrorIcon from "@atlaskit/icon/glyph/error";
 
 import AccessibleButton from "../elements/AccessibleButton";
 import CaptchaForm from "./CaptchaForm";
 import Field from "../elements/Field";
 import Spinner from "../elements/Spinner";
+import { Checkbox } from "@atlaskit/checkbox";
+import Button from "@atlaskit/button";
+import Flag from "@atlaskit/flag";
+import SectionMessage from "@atlaskit/section-message";
 
 /* This file contains a collection of components which are used by the
  * InteractiveAuth to prompt the user to enter the information needed
@@ -394,46 +401,45 @@ export class TermsAuthEntry extends React.Component<
       allChecked = allChecked && checked;
 
       checkboxes.push(
-        // XXX: replace with StyledCheckbox
-        <label
-          key={"policy_checkbox_" + policy.id}
-          className="mx_InteractiveAuthEntryComponents_termsPolicy">
-          <input
-            type="checkbox"
+        <div style={{ margin: "1em 0" }} key={"policy_checkbox_" + policy.id}>
+          <Checkbox
+            isChecked={checked}
             onChange={() => this._togglePolicy(policy.id!)}
-            checked={checked}
+            label={
+              <a href={policy.url} target="_blank" rel="noreferrer noopener">
+                {policy.name}
+              </a>
+            }
           />
-          <a href={policy.url} target="_blank" rel="noreferrer noopener">
-            {policy.name}
-          </a>
-        </label>
-      );
-    }
-
-    let errorSection;
-    if (this.props.errorText || this.state.errorText) {
-      errorSection = (
-        <div className="error" role="alert">
-          {this.props.errorText || this.state.errorText}
         </div>
       );
     }
 
-    let submitButton;
+    let errorSection: any;
+    if (this.props.errorText || this.state.errorText) {
+      errorSection = (
+        <SectionMessage appearance="error" key="error">
+          <p>{this.props.errorText || this.state.errorText}</p>
+        </SectionMessage>
+      );
+    }
+
+    let submitButton: any;
     if (this.props.showContinue !== false) {
       // XXX: button classes
       submitButton = (
-        <button
+        <Button
+          appearance="primary"
           className="mx_InteractiveAuthEntryComponents_termsSubmit mx_GeneralButton"
           onClick={this._trySubmit}
-          disabled={!allChecked}>
+          isDisabled={!allChecked}>
           Accept
-        </button>
+        </Button>
       );
     }
 
     return (
-      <div>
+      <div style={{ margin: "0 0 1em 0" }}>
         <p>Please review and accept the policies of this homeserver:</p>
         {checkboxes}
         {errorSection}
@@ -484,7 +490,7 @@ export class EmailIdentityAuthEntry extends React.Component<EmailIdentityAuthEnt
       return <Spinner />;
     } else {
       return (
-        <div className="mx_InteractiveAuthEntryComponents_emailWrapper">
+        <div style={{ marginBottom: 10 }}>
           <p>
             A confirmation email has been sent to{" "}
             <b>{this.props.inputs.emailAddress}</b>
