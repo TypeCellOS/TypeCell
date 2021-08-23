@@ -249,11 +249,13 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
 
     let loginType: any;
     //!SdkConfig.get().disable_3pid_login) {
-    if (false) {
+    if (true) {
       const userNameOption = { label: "Username", value: LoginField.MatrixId };
       const emailOption = { label: "Email Address", value: LoginField.Email };
       const phoneOption = { label: "Phone", value: LoginField.Phone };
-      const options = [userNameOption, emailOption, phoneOption];
+      const options = [userNameOption, emailOption]; //, phoneOption];
+      // Perhaps this should not be a <Field> but just a <select>, as it only changes the design of the form,
+      // but we're not interested in the selected value itself
       loginType = (
         <div className="mx_Login_type_container">
           <Field<OptionType>

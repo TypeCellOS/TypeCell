@@ -237,7 +237,7 @@ export default class Field<FieldValue> extends React.PureComponent<
                 {...fieldProps}
                 onChange={(e) => {
                   // trigger both handlers if set
-                  fieldProps.onChange?.(e);
+                  // fieldProps.onChange?.(e); // exclude ecause we only use this for mx_Login_type_container. Perhaps better if we refactor that to a regular <select>
                   inputProps_.onChange?.(e as any);
                 }}
               />
