@@ -1,5 +1,6 @@
 import * as Y from "yjs";
 import { NotebookCellModel } from "../documentRenderers/notebook/NotebookCellModel";
+import { UnreachableCaseError } from "../util/UnreachableCaseError";
 
 export type CellLanguage = "typescript" | "markdown" | "css";
 const VALID_LANGUAGES = ["typescript", "markdown", "css"];
@@ -44,7 +45,15 @@ export class CellModel implements NotebookCellModel {
   }
 
   public get extension() {
-    return this.language === "typescript" ? "tsx" : "md";
+    if (this.language === "typescript") {
+      return "tsx";
+    } else if (this.language === "markdown") {
+      return "md";
+    } else if (this.language === "css") {
+      return "css";
+    } else {
+      throw new UnreachableCaseError(this.language);
+    }
   }
 
   public get path() {

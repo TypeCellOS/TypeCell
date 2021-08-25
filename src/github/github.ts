@@ -68,22 +68,35 @@ export async function copyTree(
       .filter((f) => f)
   );
 
+  const fileNames = cells.map((c, i) => {
+    const name = "c" + (i + "").padStart(2, "0") + "_" + c.id;
+    return {
+      name,
+      path: name + "." + c.extension,
+    };
+  });
   if (dirName === "types") {
     const index = children.find((c) => c.path === "index.ts");
     delete index.sha;
     const imports = cells
-      .map(
-        (c) => `
-    import type * as fc${c.id} from "../c${c.id}";`
-      )
+      .map((c, i) => {
+        if (c.language !== "typescript") {
+          return "";
+        }
+        return `
+    import type * as fc${c.id} from "../src/${fileNames[i].name}";`;
+      })
       .join("");
 
     const contents = cells
-      .map(
-        (c) => `
+      .map((c) => {
+        if (c.language !== "typescript") {
+          return "";
+        }
+        return `
     type tc${c.id} = Omit<typeof fc${c.id}, "default">;
-    export interface IContext extends tc${c.id} {}`
-      )
+    export interface IContext extends tc${c.id} {}`;
+      })
       .join("\n");
 
     index.content = `
@@ -93,14 +106,18 @@ export async function copyTree(
     ${contents}`;
   }
 
-  if (dirName === "notebook") {
+  if (dirName === "src" && children.find((c) => c.path === "c1.ts")) {
     children = children.filter((p) => p.path !== "c1.ts" && p.path !== "c2.ts");
-    cells.forEach((c) => {
+    cells.forEach((c, i) => {
+      const content =
+        c.language === "typescript"
+          ? `import * as React from "react";\n` + c.code.toJSON()
+          : c.code.toJSON();
       children.push({
-        path: "c" + c.id + ".ts",
+        path: fileNames[i].path,
         mode: "100644",
         type: "blob",
-        content: c.code.toJSON(),
+        content,
       });
     });
   }
@@ -196,3 +213,13 @@ export async function getFileFromGithub(file: {
   const ret = await githubClient.rest.repos.getContent(file);
   return decodeBase64UTF8((ret.data as any).content);
 }
+
+/*
+- react types
+- react import
+- export markdown cells
+- types for imported modules
+- imported modules to package
+- typecell helpers
+
+*/
