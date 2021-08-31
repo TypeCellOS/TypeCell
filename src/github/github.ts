@@ -129,8 +129,10 @@ export async function copyTree(
     ${contents}`;
   }
 
-  if (dirName === "src" && children.find((c) => c.path === "c1.ts")) {
-    children = children.filter((p) => p.path !== "c1.ts" && p.path !== "c2.ts");
+  if (dirName === "src" && children.find((c) => c.path === "c1.tsx")) {
+    children = children.filter(
+      (p) => p.path !== "c1.tsx" && p.path !== "c2.tsx"
+    );
     cells.forEach((c, i) => {
       const content =
         c.language === "typescript"
