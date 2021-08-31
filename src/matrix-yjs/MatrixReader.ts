@@ -126,7 +126,7 @@ export default class MatrixReader extends Disposable {
 
     let hasNextPage = true;
     while (hasNextPage) {
-      const res = await this.matrixClient._createMessagesRequest(
+      const res = await this.matrixClient.createMessagesRequest(
         this.roomId,
         token,
         30,

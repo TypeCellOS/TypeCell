@@ -9,10 +9,13 @@ export async function createMatrixGuestClient(config: { baseUrl: string }) {
     userId: user_id,
     deviceId: device_id,
   });
-  matrixClient._supportsVoip = false;
-  matrixClient._clientOpts = {
+
+  // hardcoded overwrites
+  matrixClient.canSupportVoip = false;
+  matrixClient.clientOpts = {
     lazyLoadMembers: false,
   };
+
   matrixClient.setGuest(true);
 
   // don't use startClient (because it will sync periodically), when we're in guest / readonly mode

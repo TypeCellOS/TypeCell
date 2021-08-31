@@ -4,7 +4,7 @@ CREATE DATABASE "synapse" WITH OWNER = "doadmin" LC_COLLATE = 'C' LC_CTYPE='C' T
 
 # create config files
 
-`docker-compose run --rm -e SYNAPSE_SERVER_NAME=my.matrix.host -e SYNAPSE_REPORT_STATS=no synapse generate`
+`docker-compose run --rm -e SYNAPSE_SERVER_NAME=typecell.org -e SYNAPSE_REPORT_STATS=no synapse generate`
 
 Modify `homeserver.yaml`
 
@@ -12,6 +12,8 @@ Modify `homeserver.yaml`
 - set enable_registration: true
 - set enable_search: false
 - set allow_guest_access: true
+- add github / google oidc providers (https://github.com/matrix-org/synapse/blob/master/docs/openid.md)
+- set public_baseurl: https://mx.typecell.org
 
 # setup server
 

@@ -383,6 +383,7 @@ export function startSingleSignOn(
   if (idpId) {
     localStorage.setItem(SSO_IDP_ID_KEY, idpId);
   }
+
   const callbackUrl = getSSOCallbackUrl(fragmentAfterLogin);
   window.location.href = mxClient.getSsoLoginUrl(
     callbackUrl.toString(),

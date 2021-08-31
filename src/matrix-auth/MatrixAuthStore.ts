@@ -6,6 +6,7 @@ import {
   observable,
   runInAction,
 } from "mobx";
+import { sendLoginRequest } from "./auth/LoginHelper";
 import { IMatrixClientCreds } from "./auth/util/matrix";
 import {
   abortLogin,
@@ -16,10 +17,13 @@ import {
   isSoftLogout,
   persistCredentials,
   pickleKeyToAesKey,
+  SSO_HOMESERVER_URL_KEY,
+  SSO_ID_SERVER_URL_KEY,
 } from "./AuthStoreUtil";
 import { MatrixClientPeg } from "./MatrixClientPeg";
 import * as StorageManager from "./StorageManager";
 import { decryptAES } from "./unexported/aes";
+import { decodeParams } from "./utils";
 
 interface ILoadSessionOpts {
   enableGuest?: boolean;
@@ -79,6 +83,30 @@ export class MatrixAuthStore {
     });
   }
 
+  public async initialize(defaultDeviceDisplayName: string) {
+    const params = decodeParams(window.location.search.substring(1));
+    const loggedIn = await this.attemptTokenLogin(
+      params as any,
+      defaultDeviceDisplayName,
+      "/"
+    );
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete("loginToken");
+    window.history.replaceState(null, "", url.href);
+
+    if (loggedIn) {
+      // this.tokenLogin = true;
+
+      // Create and start the client
+      await this.restoreFromLocalStorage({
+        ignoreGuest: true,
+      });
+      await this.postLoginSetup();
+    } else {
+      await this.loadSession();
+    }
+  }
   /**
    * fires on_logging_in, optionally clears localstorage, persists new credentials
    * to localstorage, starts the new client.
@@ -701,6 +729,58 @@ export class MatrixAuthStore {
       //   return false;
       // }
       // return handleLoadSessionFailure(e);
+    }
+  }
+
+  /**
+   * @param {Object} queryParams    string->string map of the
+   *     query-parameters extracted from the real query-string of the starting
+   *     URI.
+   *
+   * @param {string} defaultDeviceDisplayName
+   * @param {string} fragmentAfterLogin path to go to after a successful login, only used for "Try again"
+   *
+   * @returns {Promise} promise which resolves to true if we completed the token
+   *    login, else false
+   */
+  public async attemptTokenLogin(
+    queryParams: Record<string, string>,
+    defaultDeviceDisplayName?: string,
+    fragmentAfterLogin?: string
+  ): Promise<boolean> {
+    if (!queryParams.loginToken) {
+      return false;
+    }
+
+    const homeserver = localStorage.getItem(SSO_HOMESERVER_URL_KEY);
+    const identityServer = localStorage.getItem(SSO_ID_SERVER_URL_KEY);
+    if (!homeserver || !identityServer) {
+      console.warn("Cannot log in with token: can't determine HS URL to use");
+      throw new Error("unknown hs");
+    }
+
+    try {
+      const creds = await sendLoginRequest(
+        homeserver,
+        identityServer,
+        "m.login.token",
+        {
+          token: queryParams.loginToken,
+          initial_device_display_name: defaultDeviceDisplayName,
+        }
+      );
+
+      console.log("Logged in with token");
+      await clearStorage();
+      await persistCredentials(creds);
+      // remember that we just logged in
+      sessionStorage.setItem("mx_fresh_login", String(true));
+      return true;
+    } catch (err) {
+      console.error("Failed to log in with login token:");
+      console.error(err);
+      // return false;
+      throw err;
     }
   }
 
