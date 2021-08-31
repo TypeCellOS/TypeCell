@@ -1,14 +1,22 @@
 import * as octokit from "octokit";
+import { inc } from "semver";
 import { Identifier } from "../identifiers/Identifier";
 import { CellModel } from "../models/CellModel";
 import { DocConnection } from "../store/DocConnection";
 
 import { decodeBase64UTF8 } from "../util/base64";
 
+type ParentCommit = {
+  version: string | undefined;
+  commitSHA: string;
+  defaultBranch: string;
+};
+
 type RepoOptions = {
   owner: string;
   repo: string;
 };
+
 export const githubClient = new octokit.Octokit({
   auth: "",
 });
@@ -23,6 +31,7 @@ export async function copyTree(
   targetRepo: RepoOptions,
   treeData: any[],
   cells: CellModel[],
+  version: string,
   dirName: string = "root"
 ) {
   // TODO: maybe use repos.getContent(), probably faster
@@ -35,20 +44,33 @@ export async function copyTree(
           type: entry.type,
         };
         if (entry.mode !== "040000") {
-          // directory
+          // file
           const blob = await githubClient.rest.git.getBlob({
             ...repo,
             file_sha: entry.sha,
           });
-          const newBlob = await githubClient.rest.git.createBlob({
-            ...targetRepo,
-            file_sha: entry.sha,
-            content: blob.data.content,
-            encoding: blob.data.encoding,
-          });
-          // newEntry.content = blob.data.content;
-          // newEntry.encoding = blob.data.encoding;
-          newEntry.sha = newBlob.data.sha;
+
+          if (entry.path === "package.json") {
+            // add version and name
+
+            let content = JSON.parse(decodeBase64UTF8(blob.data.content));
+            content.name = "@" + targetRepo.owner + "/" + targetRepo.repo;
+            content.version = version;
+            content.description = "Notebook " + content.name;
+            newEntry.content = JSON.stringify(content, undefined, 2);
+            // newEntry.encoding = blob.data.encoding;
+          } else if (entry.path === "README.md" && dirName === "root") {
+            newEntry.content =
+              "# Notebook " + targetRepo.owner + "/" + targetRepo.repo;
+          } else {
+            const newBlob = await githubClient.rest.git.createBlob({
+              ...targetRepo,
+              file_sha: entry.sha,
+              content: blob.data.content,
+              encoding: blob.data.encoding,
+            });
+            newEntry.sha = newBlob.data.sha;
+          }
         } else {
           const subTree = await githubClient.rest.git.getTree({
             ...repo,
@@ -59,6 +81,7 @@ export async function copyTree(
             targetRepo,
             subTree.data.tree,
             cells,
+            version,
             newEntry.path
           );
           newEntry.sha = subTreeCopied.data.sha;
@@ -129,7 +152,12 @@ export async function copyTree(
   return created;
 }
 
-export async function commit(repoOptions: RepoOptions, tree: any) {
+export async function commit(
+  repoOptions: RepoOptions,
+  tree: any,
+  branch: string,
+  parent?: string
+) {
   // await oc.rest.repos.createOrUpdateFileContents({
   //   ...repoOptions,
   //   path: "initial.txt",
@@ -147,23 +175,21 @@ export async function commit(repoOptions: RepoOptions, tree: any) {
 
   const commit = await githubClient.rest.git.createCommit({
     ...repoOptions,
-    message: "test",
+    message: "export " + branch,
     tree: tree.data.sha,
-    // parents: ["5ba6486f8d48f29ce5f186294da35728d7a38813"],
+    parents: parent ? [parent] : undefined,
   });
 
-  // await githubClient.rest.git.createRef({
+  await githubClient.rest.git.createRef({
+    ...repoOptions,
+    ref: "refs/heads/" + branch,
+    sha: commit.data.sha,
+  });
+  // await githubClient.rest.git.updateRef({
   //   ...repoOptions,
-  //   ref: "refs/heads/typecell",
+  //   ref: "heads/" + branch,
   //   sha: commit.data.sha,
   // });
-
-  await githubClient.rest.git.updateRef({
-    ...repoOptions,
-    ref: "heads/typecell",
-    sha: commit.data.sha,
-    force: true, // TODO: set to false and use parents[] in commit
-  });
 }
 
 export async function getTemplateTree() {
@@ -184,6 +210,35 @@ export async function getTemplateTree() {
   return tree;
 }
 
+export async function getTargetInfo(repo: RepoOptions): Promise<ParentCommit> {
+  const repoInfo = await githubClient.rest.repos.get(repo);
+  const defaultBranch = repoInfo.data.default_branch;
+
+  const branchInfo = await githubClient.rest.git.getRef({
+    ...repo,
+    ref: "heads/" + defaultBranch,
+  });
+
+  let version: string | undefined;
+  try {
+    const packageJSON = await getFileFromGithub({
+      ...repo,
+      path: "package.json",
+    });
+    version = JSON.parse(packageJSON).version;
+  } catch (e) {
+    // TODO: only catch 404
+  }
+
+  return {
+    version,
+    defaultBranch,
+    commitSHA: branchInfo.data.object.sha,
+  };
+  // branchInfo.data.object.sha
+  // return {repoInfo.data.default_branch;
+}
+
 export async function saveDocumentToGithub(id: Identifier) {
   const targetRepo = {
     owner: "yousefed",
@@ -194,22 +249,65 @@ export async function saveDocumentToGithub(id: Identifier) {
   const doc = await dc.waitForDoc();
   const template = await getTemplateTree();
 
+  const targetInfo = await getTargetInfo(targetRepo);
+
+  let newVersion = "1.0.0";
+  if (targetInfo.version) {
+    let versionBumped = inc(targetInfo.version, "minor");
+    if (!versionBumped) {
+      throw new Error("couldn't parse version");
+    }
+    newVersion = versionBumped;
+  }
   const copy = await copyTree(
     templateRepo,
     targetRepo,
     template.data.tree,
-    doc.doc.cells
+    doc.doc.cells,
+    newVersion
   );
-  await commit(targetRepo, copy);
+
+  let branch: string = await getUnusedBranch(targetRepo, "v" + newVersion);
+
+  await commit(targetRepo, copy, branch, targetInfo.commitSHA);
+
+  await githubClient.rest.pulls.create({
+    ...targetRepo,
+    head: branch,
+    base: targetInfo.defaultBranch,
+    title: branch,
+  });
+
   return template;
 }
 
+export async function getUnusedBranch(repo: RepoOptions, branch: string) {
+  let tryN = 1;
+  let branchToTry = "";
+  while (true) {
+    try {
+      branchToTry = branch + (tryN > 1 ? "-" + (tryN + 1) : "");
+      await githubClient.rest.git.getRef({
+        ...repo,
+        ref: "heads/" + branchToTry,
+      });
+
+      tryN++;
+    } catch (e) {
+      if (e.status !== 404) {
+        throw e;
+      }
+      // not found, so we're good with this "branch" name
+      return branchToTry;
+    }
+  }
+}
 export async function getFileFromGithub(file: {
   repo: string;
   owner: string;
   path: string;
 }) {
-  const githubClient = new octokit.Octokit();
+  // const githubClient = new octokit.Octokit();
   const ret = await githubClient.rest.repos.getContent(file);
   return decodeBase64UTF8((ret.data as any).content);
 }

@@ -49,6 +49,7 @@ export default class IframeEngine extends Disposable {
       "allow-scripts",
       "allow-downloads",
       "allow-popups",
+      "allow-modals",
       "allow-forms",
       "allow-popups-to-escape-sandbox",
       "allow-top-navigation-by-user-activation"
