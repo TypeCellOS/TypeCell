@@ -1,4 +1,4 @@
-import { createClient, MatrixClient } from "matrix-js-sdk";
+import { MatrixClient } from "matrix-js-sdk";
 import {
   computed,
   makeObservable,
@@ -6,7 +6,6 @@ import {
   reaction,
   runInAction,
 } from "mobx";
-
 import { MATRIX_CONFIG } from "../../config/config";
 import { MatrixAuthStore } from "../../matrix-auth/MatrixAuthStore";
 import { MatrixClientPeg } from "../../matrix-auth/MatrixClientPeg";
@@ -49,9 +48,7 @@ export class SessionStore {
   }
 
   public async initialize() {
-    await this.matrixAuthStore.initialize(
-      MATRIX_CONFIG.defaultDeviceDisplayName
-    );
+    await this.matrixAuthStore.initialize();
 
     reaction(
       () => this.matrixAuthStore.loggedInUser,

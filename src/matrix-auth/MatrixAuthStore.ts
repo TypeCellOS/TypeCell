@@ -6,6 +6,7 @@ import {
   observable,
   runInAction,
 } from "mobx";
+import { MATRIX_CONFIG } from "../config/config";
 import { sendLoginRequest } from "./auth/LoginHelper";
 import { IMatrixClientCreds } from "./auth/util/matrix";
 import {
@@ -83,17 +84,19 @@ export class MatrixAuthStore {
     });
   }
 
-  public async initialize(defaultDeviceDisplayName: string) {
+  public async initialize() {
     const params = decodeParams(window.location.search.substring(1));
     const loggedIn = await this.attemptTokenLogin(
       params as any,
-      defaultDeviceDisplayName,
+      MATRIX_CONFIG.defaultDeviceDisplayName,
       "/"
     );
 
     const url = new URL(window.location.href);
-    url.searchParams.delete("loginToken");
-    window.history.replaceState(null, "", url.href);
+    if (url.searchParams.has("loginToken")) {
+      url.searchParams.delete("loginToken");
+      window.history.replaceState(null, "", url.href);
+    }
 
     if (loggedIn) {
       // this.tokenLogin = true;
@@ -103,6 +106,7 @@ export class MatrixAuthStore {
         ignoreGuest: true,
       });
       await this.postLoginSetup();
+      // TODO: handle and display errors
     } else {
       await this.loadSession();
     }
