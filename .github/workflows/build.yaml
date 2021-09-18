@@ -53,6 +53,11 @@ jobs:
           timeout: 20000
           interval: 500
 
+      - name: Build packages
+        run: npm run build
+        env:
+          CI: true
+
       - name: Run Tests
         run: npm run test
         env:
