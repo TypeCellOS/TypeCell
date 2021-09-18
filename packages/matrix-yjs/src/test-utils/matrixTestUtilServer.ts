@@ -43,7 +43,7 @@ export async function ensureMatrixIsRunning() {
   if (!matrixStarted && !process.env.CI) {
     matrixStarted = true;
     console.log("Starting matrix using docker-compose");
-    cp.execSync("docker-compose up -d", { cwd: "server/test/" });
+    cp.execSync("docker compose up -d", { cwd: "../../test-server/" });
   }
 
   await waitForMatrixStart();

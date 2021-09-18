@@ -1,6 +1,6 @@
 import { createClient } from "matrix-js-sdk";
 import { uniqueId } from "@typecell-org/common";
-import { createMatrixDocument } from "./matrixRoomManager";
+import { createMatrixDocument } from "../matrixRoomManager";
 import * as http from "http";
 import * as https from "https";
 import { matrixTestConfig } from "./matrixTestUtilServer";
@@ -76,8 +76,8 @@ export async function createMatrixUser(username: string, password: string) {
     // userId: user_id,
     // deviceId: device_id,
   });
-  matrixClientLoggedIn._supportsVoip = false;
-  matrixClientLoggedIn._clientOpts = {
+  matrixClientLoggedIn.canSupportVoip = false;
+  matrixClientLoggedIn.clientOpts = {
     lazyLoadMembers: false,
   };
   return matrixClientLoggedIn;

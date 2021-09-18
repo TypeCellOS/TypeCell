@@ -5,8 +5,11 @@ import * as Y from "yjs";
 import { event } from "vscode-lib";
 import { createMatrixGuestClient } from "../matrixGuestClient";
 import { MatrixProvider } from "../MatrixProvider";
-import { createRandomMatrixClientAndRoom } from "../matrixTestUtil";
-import { HOMESERVER_NAME, matrixTestConfig } from "../matrixTestUtilServer";
+import { createRandomMatrixClientAndRoom } from "../test-utils/matrixTestUtil";
+import {
+  HOMESERVER_NAME,
+  matrixTestConfig,
+} from "../test-utils/matrixTestUtilServer";
 import { createSimpleServer, runAutocannonFromNode } from "./util";
 http.globalAgent.maxSockets = 2000;
 https.globalAgent.maxSockets = 2000;

@@ -4,12 +4,12 @@ import * as qs from "qs";
 import { autocannonSeparateProcess } from "./benchmark/util";
 import { createMatrixGuestClient } from "./matrixGuestClient";
 import { MatrixReader } from "./MatrixReader";
-import { createRandomMatrixClientAndRoom } from "./matrixTestUtil";
+import { createRandomMatrixClientAndRoom } from "./test-utils/matrixTestUtil";
 import {
   ensureMatrixIsRunning,
   HOMESERVER_NAME,
   matrixTestConfig,
-} from "./matrixTestUtilServer";
+} from "./test-utils/matrixTestUtilServer";
 import { sendMessage } from "./matrixUtil";
 const { Worker, isMainThread } = require("worker_threads");
 

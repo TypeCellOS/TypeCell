@@ -5,12 +5,12 @@ import { MatrixProvider } from "./MatrixProvider";
 import {
   createRandomMatrixClient,
   createRandomMatrixClientAndRoom,
-} from "./matrixTestUtil";
+} from "./test-utils/matrixTestUtil";
 import {
   ensureMatrixIsRunning,
   HOMESERVER_NAME,
   matrixTestConfig,
-} from "./matrixTestUtilServer";
+} from "./test-utils/matrixTestUtilServer";
 
 jest.setTimeout(30000);
 

@@ -10,12 +10,17 @@ To run the project, open the command line in the project's root directory and en
 
     # Install all required npm modules, and bootstrap lerna packages
     npm install
+    npm bootstrap
 
     # Initial build of all packages required by the main editor project
     npm run build
 
     # Start the editor project
     npm start
+
+## Adding / updating packages
+
+If you've modified any `package.json`, or pulled changes from git, use `npm run bootstrap` instead of `npm install` to install updated dependencies!
 
 # Watch changes
 
