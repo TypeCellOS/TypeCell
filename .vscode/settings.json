@@ -6,7 +6,7 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "files.exclude": {
-    "packages/editor/public/*": true
+  "search.exclude": {
+    "packages/editor/public/types": true
   }
 }
