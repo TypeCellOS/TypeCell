@@ -1,0 +1,27 @@
+{
+  "name": "@typecell-org/common",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "string.prototype.replaceall": "^1.0.5",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "typescript": "4.2.4"
+  },
+  "source": "src/index.ts",
+  "types": "types/index.d.ts",
+  "main": "dist/index.js",
+  "scripts": {
+    "clean": "rimraf dist && rimraf types",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "watch": "tsc --watch"
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "/node_modules/(?!(unified|bail|is-plain-obj|trough|vfile|unist-util-stringify-position|monaco-editor)).+\\.js$"
+    ],
+    "transform": {}
+  }
+}
