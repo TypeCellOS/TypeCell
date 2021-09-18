@@ -155,7 +155,7 @@ it.skip("handles parallel live messages autocannon", async () => {
     await reader.getAllInitialEvents();
 
     const params = {
-      access_token: client._http.opts.accessToken,
+      access_token: client.http.opts.accessToken,
       from: reader.latestToken,
       room_id: setup.roomId,
       timeout: 30000,
