@@ -10,7 +10,7 @@ import Avatar from "react-avatar";
 import { SessionStore } from "../../store/local/SessionStore";
 import { NavigationStore } from "../../store/local/navigationStore";
 import { saveDocumentToGithub } from "../../github/github";
-import { sessionStore } from "../../store/local/stores";
+import { getStoreService } from "../../store/local/stores";
 
 const imgCSS = {
   borderRadius: "100%",
@@ -40,7 +40,7 @@ export const ProfilePopup = observer(
           <Profile
             icon={
               <Avatar
-                name={sessionStore.loggedInUser?.substr(1)}
+                name={getStoreService().sessionStore.loggedInUser?.substr(1)}
                 size="32"
                 round={true}
                 textSizeRatio={2}

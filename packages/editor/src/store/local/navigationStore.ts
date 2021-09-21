@@ -3,9 +3,11 @@ import { action, computed, makeObservable, observable, reaction } from "mobx";
 import routing from "../../typecellEngine/lib/routing";
 import { BaseResource } from "../BaseResource";
 import { DocConnection } from "../DocConnection";
-import { sessionStore } from "./stores";
+import { SessionStore } from "./SessionStore";
 
 export class NavigationStore {
+  private initialized = false;
+
   public isNewPageDialogVisible = false;
   public currentPage: ReturnType<typeof routing> = routing();
 
@@ -16,7 +18,7 @@ export class NavigationStore {
     }
     return undefined;
   }
-  constructor() {
+  constructor(private sessionStore: SessionStore) {
     // TODO: normalize initial url (e.g.: when at @UserName, redirect to @username)
     // This can be done using identifier.toRouteString()
 
@@ -30,13 +32,20 @@ export class NavigationStore {
       navigateToDocument: action,
       onPopState: action,
     });
+  }
+
+  public initialize() {
+    if (this.initialized) {
+      throw new Error("already initialized navigationStore");
+    }
+    this.initialized = true;
 
     // hide login / register screen when logged in
     reaction(
       () =>
         (this.currentPage.page === "login" ||
           this.currentPage.page === "register") &&
-        sessionStore.loggedInUser,
+        this.sessionStore.loggedInUser,
       (val) => {
         if (val) {
           const prevUrl = window.history.state?.prevUrl || "/";
@@ -71,7 +80,7 @@ export class NavigationStore {
     );
 
     reaction(
-      () => !!sessionStore.loggedInUser,
+      () => !!this.sessionStore.loggedInUser,
       (val) => {
         if (!val) {
           this.isNewPageDialogVisible = false;
@@ -186,5 +195,3 @@ export class NavigationStore {
     };
   };
 }
-
-export const navigationStore = new NavigationStore();

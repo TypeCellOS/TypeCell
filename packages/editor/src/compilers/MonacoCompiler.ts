@@ -1,4 +1,4 @@
-import * as monaco from "monaco-editor";
+import type * as monaco from "monaco-editor";
 import { TypeCellCodeModel } from "../models/TypeCellCodeModel";
 import { hash } from "../util/hash";
 import { CodeModel } from "@typecell-org/engine";
@@ -67,7 +67,10 @@ function getCachedItem(model: CodeModel) {
   return undefined;
 }
 
-async function _compile(model: TypeCellCodeModel) {
+async function _compile(
+  model: TypeCellCodeModel,
+  monacoInstance: typeof monaco
+) {
   const tscode = model.getValue();
   const hsh = hash(tscode) + "";
 
@@ -83,7 +86,8 @@ async function _compile(model: TypeCellCodeModel) {
   const monacoModel = model.acquireMonacoModel();
 
   if (!mainWorker) {
-    mainWorker = await monaco.languages.typescript.getTypeScriptWorker();
+    mainWorker =
+      await monacoInstance.languages.typescript.getTypeScriptWorker();
   }
 
   let compiledCode = (await getCompiledCode(mainWorker, monacoModel.uri))
@@ -92,6 +96,7 @@ async function _compile(model: TypeCellCodeModel) {
   if (ENABLE_CACHE) {
     saveCachedItem(model, { hash: hsh, compiledCode });
   }
+  // console.log(tscode, compiledCode);
   return compiledCode;
 }
 

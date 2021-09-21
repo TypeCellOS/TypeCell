@@ -297,7 +297,7 @@ export async function getUnusedBranch(repo: RepoOptions, branch: string) {
       });
 
       tryN++;
-    } catch (e) {
+    } catch (e: any) {
       if (e.status !== 404) {
         throw e;
       }

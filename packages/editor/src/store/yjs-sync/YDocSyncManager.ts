@@ -119,7 +119,7 @@ export class YDocSyncManager extends lifecycle.Disposable {
     // scenario 1
     if (this.userId) {
       const guestIDB = getIDBIdentifier(this.identifier.toString(), undefined);
-      if (existsLocally(guestIDB)) {
+      if (await existsLocally(guestIDB)) {
         console.log("copying guest idb");
         await this.applyChangesFromAndDeleteSource(guestIDB);
       }

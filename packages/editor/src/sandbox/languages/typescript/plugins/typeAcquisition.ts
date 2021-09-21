@@ -170,9 +170,16 @@ const addTypecellModuleToRuntime = async (
   path: string,
   config: ATAConfig
 ) => {
-  const content = await (
-    await config.fetcher(process.env.PUBLIC_URL + "/types/" + path)
-  ).text();
+  let content: string;
+  if (process.env.NODE_ENV === "test") {
+    // TODO: extract this case
+    let fs = require("fs");
+    content = fs.readFileSync("public/types/" + path, "utf-8");
+  } else {
+    content = await (
+      await config.fetcher(process.env.PUBLIC_URL + "/types/" + path)
+    ).text();
+  }
   if (!content) {
     return errorMsg(
       `Could not get root d.ts file for the module '${mod}' at ${path}`,
@@ -180,7 +187,6 @@ const addTypecellModuleToRuntime = async (
       config
     );
   }
-
   // Now look and grab dependent modules where you need the
   await getDependenciesForModule(content, mod, path, config);
 
@@ -204,6 +210,11 @@ const addModuleToRuntime = async (
     throw new Error(
       "looking for yjs types, this indicates internal type leaking from typecell"
     );
+  }
+
+  if (mod === "vscode-lib") {
+    console.warn("skipping types of vscode-lib");
+    return;
   }
   const isDeno = path && path.indexOf("https://") === 0;
 
@@ -466,7 +477,7 @@ export const detectNewImportsToAcquireTypeFor = async (
  * Looks at a JS/DTS file and recurses through all the dependencies.
  * It avoids
  */
-const getDependenciesForModule = (
+const getDependenciesForModule = async (
   sourceCode: string,
   moduleName: string | undefined,
   path: string,
@@ -474,7 +485,7 @@ const getDependenciesForModule = (
 ) => {
   // Get all the import/requires for the file
   const filteredModulesToLookAt = parseFileForModuleReferences(sourceCode);
-  filteredModulesToLookAt.forEach(async (name) => {
+  const promises = filteredModulesToLookAt.map(async (name) => {
     // console.log(sourceCode);
     // Support grabbing the hard-coded node modules if needed
     const moduleToDownload = mapModuleNameToModule(name);
@@ -567,5 +578,9 @@ const getDependenciesForModule = (
   });
 
   // Also support the
-  getReferenceDependencies(sourceCode, moduleName!, path!, config);
+  promises.push(
+    getReferenceDependencies(sourceCode, moduleName!, path!, config)
+  );
+
+  await Promise.all(promises);
 };

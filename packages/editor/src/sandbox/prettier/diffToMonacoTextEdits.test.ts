@@ -1,21 +1,6 @@
-// mock necessary for monaco
-Object.defineProperty(window, "matchMedia", {
-  writable: true,
-  value: (query: any) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(), // Deprecated
-    removeListener: jest.fn(), // Deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  }),
-});
-
 // import "monaco-editor" doesn't work in jest
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
-import { diffToMonacoTextEdits } from "../diffToMonacoTextEdits";
+import { diffToMonacoTextEdits } from "./diffToMonacoTextEdits";
 
 function applyTest(v1: string, v2: string) {
   const model = monaco.editor.createModel(v1);
@@ -25,42 +10,43 @@ function applyTest(v1: string, v2: string) {
   return edits;
 }
 
-it("basic replace", () => {
-  const edits = applyTest("hello", "hi");
-  expect(edits).toHaveLength(1);
-});
+describe.skip("diffToMonacoTextEdits", () => {
+  it("basic replace", () => {
+    const edits = applyTest("hello", "hi");
+    expect(edits).toHaveLength(1);
+  });
 
-it("basic add", () => {
-  const edits = applyTest("hello", "hello 2");
-  expect(edits).toHaveLength(1);
-});
+  it("basic add", () => {
+    const edits = applyTest("hello", "hello 2");
+    expect(edits).toHaveLength(1);
+  });
 
-it("basic delete", () => {
-  const edits = applyTest("hello there", "hello");
-  expect(edits).toHaveLength(1);
-});
+  it("basic delete", () => {
+    const edits = applyTest("hello there", "hello");
+    expect(edits).toHaveLength(1);
+  });
 
-it("no change", () => {
-  const edits = applyTest("hello there", "hello there");
-  expect(edits).toHaveLength(0);
-});
+  it("no change", () => {
+    const edits = applyTest("hello there", "hello there");
+    expect(edits).toHaveLength(0);
+  });
 
-it("multiline change", () => {
-  const edits = applyTest(
-    `// hello
+  it("multiline change", () => {
+    const edits = applyTest(
+      `// hello
   let x  = 4;
   let y  = 2;`,
-    `// hello
+      `// hello
   let x = 4;
   let y = 2;
   `
-  );
-  expect(edits).toHaveLength(2);
-});
+    );
+    expect(edits).toHaveLength(2);
+  });
 
-it("large change", () => {
-  const edits = applyTest(
-    `import * as monaco from "monaco-editor";
+  it("large change", () => {
+    const edits = applyTest(
+      `import * as monaco from "monaco-editor";
     import React from "react";
     import { DndProvider } from "react-dnd";
     import { HTML5Backend } from "react-dnd-html5-backend";
@@ -92,7 +78,7 @@ it("large change", () => {
     
     export default App;
     `,
-    `import * as monaco from "monaco-editor";
+      `import * as monaco from "monaco-editor";
     import React from "react";
     import { DndProvider } from "react-dnd";
     import { HTML5Backend } from "react-dnd-html5-backend";
@@ -122,6 +108,7 @@ it("large change", () => {
     
     export default App;
     `
-  );
-  expect(edits).toHaveLength(7);
+    );
+    expect(edits).toHaveLength(7);
+  });
 });

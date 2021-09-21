@@ -76,7 +76,7 @@ export default class CaptchaForm extends React.Component<Props, State> {
       console.error("No public key for recaptcha!");
       throw new Error(
         "This server has not supplied enough information for Recaptcha " +
-          "authentication"
+        "authentication"
       );
     }
 
@@ -101,7 +101,7 @@ export default class CaptchaForm extends React.Component<Props, State> {
       this.setState({
         errorText: undefined,
       });
-    } catch (e) {
+    } catch (e: any) {
       this.setState({
         errorText: e.toString(),
       });

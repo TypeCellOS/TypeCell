@@ -12,7 +12,7 @@ it.skip("creates commit", async () => {
   // await commit(targetRepo, treeCopy);
 });
 
-it("read file", async () => {
+it.skip("read file", async () => {
   const target = {
     owner: "yousefed",
     repo: "reactive",

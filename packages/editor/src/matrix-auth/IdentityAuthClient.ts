@@ -119,7 +119,7 @@ export default class IdentityAuthClient {
 
     try {
       await this._matrixClient.getIdentityAccount(token);
-    } catch (e) {
+    } catch (e: any) {
       if (e.errcode === "M_TERMS_NOT_SIGNED") {
         console.log("Identity Server requires new terms to be agreed to");
         await startTermsFlow([

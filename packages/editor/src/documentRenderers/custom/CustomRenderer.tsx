@@ -8,6 +8,7 @@ import { DocConnection } from "../../store/DocConnection";
 import { runtimeStore } from "../../store/local/runtimeStore";
 import { getTypeCellResolver } from "../../typecellEngine/resolver";
 import RetryErrorBoundary from "../notebook/RetryErrorBoundary";
+import { MonacoContext } from "../../sandbox/MonacoContext";
 
 // TODO: should this be a React component or raw JS?
 
@@ -27,6 +28,7 @@ export const CustomRenderer = observer((props: Props) => {
   const [engine, setEngine] = useState<Engine<CodeModel>>();
 
   const renderer = runtimeStore.customRenderers.get(props.document.type);
+  const monaco = React.useContext(MonacoContext).monaco;
 
   useEffect(() => {
     if (!renderer) {
@@ -46,14 +48,12 @@ export const CustomRenderer = observer((props: Props) => {
     }
 
     const newEngine = new Engine(
-      () => {},
-      () => {},
-      getTypeCellResolver(rendererDocument.identifier.toString(), "CR", false) // TODO: add unique id for cachekey?
+      getTypeCellResolver(rendererDocument.identifier.toString(), "CR", false, monaco) // TODO: add unique id for cachekey?
     );
     setEngine(newEngine);
 
     const cells = rendererDocument.tryDoc.doc.cells;
-    const models = cells.map((c) => getTypeCellCodeModel(c));
+    const models = cells.map((c) => getTypeCellCodeModel(c, monaco));
     models.forEach((m) => {
       newEngine.registerModel(m.object);
     });

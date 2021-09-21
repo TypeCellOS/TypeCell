@@ -1,4 +1,4 @@
-import { lifecycle } from "vscode-lib";
+import { lifecycle, event } from "vscode-lib";
 import { createCellEvaluator } from "./CellEvaluator";
 import { CodeModel } from "./CodeModel";
 import { createContext, TypeCellContext } from "./context";
@@ -24,15 +24,35 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
     T,
     ReturnType<typeof createCellEvaluator>
   >();
+
+  private readonly _onOutput: event.Emitter<{ model: T; output: any }> =
+    this._register(new event.Emitter<{ model: T; output: any }>());
+
   /**
+   * Raised whenever a model is (re)evaluated, with the exports by that model
    *
-   * @param onOutput Called whenever a model is reevaluated, with the exports by that model
-   * @param exposeGlobalVariables A Map of global variables passed to the execution of models
+   * @type {event.Event<{ model: T; output: any }>}
+   * @memberof Engine
+   */
+  public readonly onOutput: event.Event<{ model: T; output: any }> =
+    this._onOutput.event;
+
+  private readonly _onBeforeExecution: event.Emitter<{ model: T }> =
+    this._register(new event.Emitter<{ model: T }>());
+
+  /**
+   * Raised before (re)evaluating a model
+   *
+   * @type {event.Event<{ model: T }>}
+   * @memberof Engine
+   */
+  public readonly onBeforeExecution: event.Event<{ model: T }> =
+    this._onBeforeExecution.event;
+
+  /**
    * @param resolveImport Function (resolver) to resolve imports
    */
   constructor(
-    private onOutput: (model: T, output: any) => void,
-    private beforeExecuting: (model: T) => void,
     private resolveImport: (
       module: string,
       forModel: T
@@ -69,7 +89,7 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
           }
           return ret.module;
         },
-        this.onOutput
+        (model, output) => this._onOutput.fire({ model, output })
       ); // catch errors?
     };
     let prevValue: string | undefined = model.getValue();
@@ -127,7 +147,7 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
           resolveImport,
           true,
           (output) => onOutput(model, output),
-          () => this.beforeExecuting(model)
+          () => this._onBeforeExecution.fire({ model })
         )
       );
     }

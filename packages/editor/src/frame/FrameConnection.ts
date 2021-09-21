@@ -28,16 +28,18 @@ export class FrameConnection extends lifecycle.Disposable {
   constructor() {
     super();
     this.engine = new Engine<FrameCodeModel>(
-      (model, output) => {
+      getTypeCellResolver("TODO", "EWO" + this.id, false, undefined as any) // TODO
+    );
+
+    this._register(
+      this.engine.onOutput(({ model, output }) => {
         let modelOutput = this.outputs.get(model);
         if (!modelOutput) {
-          modelOutput = this._register(new ModelOutput(model));
+          modelOutput = this._register(new ModelOutput("", model));
           this.outputs.set(model, modelOutput);
         }
         modelOutput.updateValue(output);
-      },
-      (model) => {},
-      getTypeCellResolver("TODO", "EWO" + this.id, false)
+      })
     );
 
     this.connection = connectToParent({

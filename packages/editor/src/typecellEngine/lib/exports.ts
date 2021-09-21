@@ -9,7 +9,7 @@ import Input from "./input/Input";
 export default function getExposeGlobalVariables(id: string) {
   return {
     routing,
-    DocumentView,
+    // DocumentView,
     Input,
     namespace: id, // TODO: naming
     open: (identifier: string | { owner: string; document: string }) => {

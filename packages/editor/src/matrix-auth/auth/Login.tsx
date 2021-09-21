@@ -168,7 +168,7 @@ export default class LoginComponent extends React.PureComponent<
           this.props.serverConfig.isUrl
         );
         this.setState({ serverIsAlive: true, errorText: "" });
-      } catch (e) {
+      } catch (e: any) {
         const componentState = AutoDiscoveryUtils.authComponentStateForError(e);
         this.setState({
           busy: false,
@@ -394,7 +394,7 @@ export default class LoginComponent extends React.PureComponent<
           errorText: "",
         });
       }
-    } catch (e) {
+    } catch (e: any) {
       this.setState({
         busy: false,
         ...AutoDiscoveryUtils.authComponentStateForError(e),

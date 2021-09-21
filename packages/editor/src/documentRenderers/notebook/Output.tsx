@@ -230,7 +230,7 @@ const Output: React.FC<Props> = observer((props) => {
         )}
       </>
     );
-  } catch (e) {
+  } catch (e: any) {
     return (
       <span className="outputWrapper">
         <ObjectInspector data={e.toString()} expandLevel={1}></ObjectInspector>

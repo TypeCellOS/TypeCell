@@ -29,6 +29,7 @@
       "ROOT",
       "packages/common",
       "packages/engine"
-    ]
+    ],
+    "typescript.tsdk": "ROOT/node_modules/typescript/lib"
   }
 }

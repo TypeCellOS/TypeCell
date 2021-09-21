@@ -8,6 +8,7 @@ import {
 import PluginResource from "../store/PluginResource";
 import { lifecycle } from "vscode-lib";
 import getExposeGlobalVariables from "./lib/exports";
+import type * as monaco from "monaco-editor";
 
 let ENGINE_ID = 0;
 export default class PluginEngine extends lifecycle.Disposable {
@@ -26,17 +27,10 @@ export default class PluginEngine extends lifecycle.Disposable {
     return this.engine.registerModel(model);
   }
 
-  constructor(private plugin: PluginResource) {
+  constructor(private plugin: PluginResource, monacoInstance: typeof monaco) {
     super();
     // console.log(this.id, documentId);
     this.engine = new Engine(
-      (model, output) => {
-        // TODO: currently errors end up here and are not displayed
-      },
-      (model) => {
-        this.preRunDisposers.forEach((d) => d());
-        this.preRunDisposers = [];
-      },
       async (module) => {
         if (module === "typecell-plugin") {
           return {
@@ -51,7 +45,13 @@ export default class PluginEngine extends lifecycle.Disposable {
         throw new Error("not supported import");
       } // no support for imports
     );
-    const model = this._register(getTypeCellCodeModel(plugin.pluginCell));
+
+    this._register(this.engine.onBeforeExecution(e => {
+      this.preRunDisposers.forEach((d) => d());
+      this.preRunDisposers = [];
+    }))
+
+    const model = this._register(getTypeCellCodeModel(plugin.pluginCell, monacoInstance));
     this.engine.registerModel(model.object);
   }
 

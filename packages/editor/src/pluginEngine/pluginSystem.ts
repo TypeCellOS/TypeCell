@@ -25,7 +25,7 @@ export function enablePluginSystem() {
     pluginStore.plugins.forEach((plugin) => {
       if (!runningPlugins.has(plugin)) {
         // add
-        const engine = new PluginEngine(plugin);
+        const engine = new PluginEngine(plugin, undefined as any /* TODO */);
         runningPlugins.set(plugin, engine);
       }
     });

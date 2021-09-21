@@ -10,18 +10,19 @@ import {
   HyperlinkEditorMenuProps,
 } from "./hyperlinkMenus/HyperlinkEditMenu";
 
+
 /**
  * a helper function that wraps a Tippy around a HyperlinkEditMenu
  * @param props has {text, url, onSubmit and anchorPos}
  * @returns a Tippy instance whose content is a editMenu
  */
 const tippyWrapperHyperlinkEditMenu = (
-  props: HyperlinkEditorMenuProps & { anchorPos: ClientRect | DOMRect }
+  props: HyperlinkEditorMenuProps & { anchorPos: { left: number, top: number, width: number, height: number } }
 ) => {
   const { anchorPos, ...editMenuProps } = props;
   return (
     <Tippy
-      getReferenceClientRect={() => anchorPos}
+      getReferenceClientRect={() => anchorPos as any}
       content={<HyperlinkEditMenu {...editMenuProps}></HyperlinkEditMenu>}
       interactive={true}
       interactiveBorder={30}
@@ -154,7 +155,7 @@ function linkMenusPlugin() {
           const hyperlinkBasicMenu = (
             <Tippy
               key={nextTippyKey + ""} // it could be tippy has "hidden" itself after mouseout. We use a key to get a new instance with a clean state.
-              getReferenceClientRect={() => anchorPos}
+              getReferenceClientRect={() => anchorPos as any}
               content={
                 <HyperlinkBasicMenu
                   editMenu={hyperlinkEditMenu}
@@ -186,7 +187,7 @@ function linkMenusPlugin() {
         mouseover(view, event) {
           const newHoveredLink =
             event.target instanceof HTMLAnchorElement &&
-            event.target.nodeName === "A"
+              event.target.nodeName === "A"
               ? event.target
               : undefined;
 

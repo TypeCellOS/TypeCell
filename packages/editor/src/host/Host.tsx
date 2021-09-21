@@ -8,8 +8,8 @@ import React from "react";
 import { VscSignIn } from "react-icons/vsc";
 import App from "../App";
 import { BaseResource } from "../store/BaseResource";
-import { navigationStore } from "../store/local/navigationStore";
-import { sessionStore } from "../store/local/stores";
+import { getStoreService } from "../store/local/stores";
+
 import { UnreachableCaseError } from "../util/UnreachableCaseError";
 
 import NewPageDialog from "./components/NewPageDialog";
@@ -26,6 +26,8 @@ const ProductHome = () => {
 
 const AN = AtlassianNavigation as any;
 const Navigation = observer(() => {
+  const sessionStore = getStoreService().sessionStore;
+  const navigationStore = getStoreService().navigationStore;
   const forkAction = sessionStore.isLoggedIn ? (
     <a
       href=""
@@ -110,6 +112,8 @@ const Navigation = observer(() => {
 });
 
 const Host = observer(() => {
+  const sessionStore = getStoreService().sessionStore;
+  const navigationStore = getStoreService().navigationStore;
   return (
     <div className={styles.host}>
       <Navigation />
@@ -168,7 +172,7 @@ const FreezeAlert = (props: {
       id="error"
       key="error"
       title="The document is not responding"
-      description="It seems like your document has frozen. Perhaps there is an infinite loop in the code? 
+      description="It seems like your document has frozen. Perhaps there is an infinite loop in the code?
     You can load the document in safe mode to fix any code errors."
       actions={[
         { content: "Dismiss", onClick: props.onDismiss },

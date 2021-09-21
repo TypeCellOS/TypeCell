@@ -1,4 +1,4 @@
-import * as monaco from "monaco-editor";
+import type * as monaco from "monaco-editor";
 
 async function getCompiledCodeInternal(
   process: monaco.languages.typescript.TypeScriptWorker,

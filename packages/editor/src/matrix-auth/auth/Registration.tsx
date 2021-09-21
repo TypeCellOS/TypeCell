@@ -129,8 +129,8 @@ export default class Registration extends React.Component<IProps, IState> {
       errorText: undefined,
       formVals: this.props.email
         ? {
-            email: this.props.email,
-          }
+          email: this.props.email,
+        }
         : {},
       doingUIAuth: Boolean(this.props.sessionId),
       flows: undefined,
@@ -182,7 +182,7 @@ export default class Registration extends React.Component<IProps, IState> {
         serverIsAlive: true,
         serverErrorIsFatal: false,
       });
-    } catch (e) {
+    } catch (e: any) {
       this.setState({
         busy: false,
         ...AutoDiscoveryUtils.authComponentStateForError(e, "register"),
@@ -232,7 +232,7 @@ export default class Registration extends React.Component<IProps, IState> {
         // This should never succeed since we specified no auth object.
         console.log("Expecting 401 from register request but got success!");
       }
-    } catch (e) {
+    } catch (e: any) {
       if (e.httpStatus === 401) {
         this.setState({
           flows: e.data.flows,

@@ -8,7 +8,10 @@ import {
 } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { TypeVisualizer } from "./lib/exports";
-import { TypeChecker } from "./TypeChecker";
+// import {
+//   findMatchingVisualizers,
+//   TypeChecker,
+// } from "../sandbox/languages/typescript/reflection/TypeChecker";
 
 export class ModelOutput extends lifecycle.Disposable {
   private autorunDisposer: (() => void) | undefined;
@@ -16,11 +19,8 @@ export class ModelOutput extends lifecycle.Disposable {
   public typeVisualizers: TypeVisualizer<any>[] = [];
 
   constructor(
-    private readonly model: CodeModel,
-    private readonly typeCheckerProvider?: {
-      typechecker: TypeChecker;
-      availableVisualizers: ObservableMap<string, TypeVisualizer<any>>;
-    }
+    private readonly documentId: string,
+    private readonly model: CodeModel
   ) {
     super();
     makeObservable(this, {
@@ -33,27 +33,29 @@ export class ModelOutput extends lifecycle.Disposable {
     if (this.autorunDisposer) {
       this.autorunDisposer();
     }
-    const tc = this.typeCheckerProvider?.typechecker;
-    if (!tc) {
+    // const tc = this.typeCheckerProvider?.typechecker;
+    // if (!tc) {
+    //   runInAction(() => {
+    //     this.value = newValue;
+    //     this.typeVisualizers = [];
+    //   });
+    //   return;
+    // } else {
+    this.autorunDisposer = autorun(async () => {
+      let visualizers = []; /*await findMatchingVisualizers(
+        this.documentId,
+        this.model
+      );
+      visualizers = visualizers;
+      debugger;*/
       runInAction(() => {
         this.value = newValue;
-        this.typeVisualizers = [];
+        // this.typeVisualizers = visualizers.map(
+        //   (v) => this.typeCheckerProvider!.availableVisualizers.get(v)!
+        // );
       });
-      return;
-    } else {
-      this.autorunDisposer = autorun(async () => {
-        const visualizers = await tc.findMatchingVisualizers(
-          this.model,
-          this.typeCheckerProvider!.availableVisualizers
-        );
-        runInAction(() => {
-          this.value = newValue;
-          this.typeVisualizers = visualizers.map(
-            (v) => this.typeCheckerProvider!.availableVisualizers.get(v)!
-          );
-        });
-      });
-    }
+    });
+    // }
   }
 
   public dispose() {

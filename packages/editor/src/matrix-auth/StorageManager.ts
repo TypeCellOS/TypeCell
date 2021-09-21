@@ -130,7 +130,7 @@ async function checkSyncStore() {
     exists = await IndexedDBStore.exists(indexedDB, SYNC_STORE_NAME);
     log(`Sync store using IndexedDB contains data? ${exists}`);
     return { exists, healthy: true };
-  } catch (e) {
+  } catch (e: any) {
     error("Sync store using IndexedDB inaccessible", e);
   }
   log("Sync store using memory only");
@@ -143,14 +143,14 @@ async function checkCryptoStore() {
     exists = await IndexedDBCryptoStore.exists(indexedDB, CRYPTO_STORE_NAME);
     log(`Crypto store using IndexedDB contains data? ${exists}`);
     return { exists, healthy: true };
-  } catch (e) {
+  } catch (e: any) {
     error("Crypto store using IndexedDB inaccessible", e);
   }
   try {
     exists = await LocalStorageCryptoStore.exists(localStorage);
     log(`Crypto store using local storage contains data? ${exists}`);
     return { exists, healthy: true };
-  } catch (e) {
+  } catch (e: any) {
     error("Crypto store using local storage inaccessible", e);
   }
   log("Crypto store using memory only");

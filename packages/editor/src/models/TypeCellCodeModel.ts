@@ -1,5 +1,5 @@
 import { autorun, untracked } from "mobx";
-import * as monaco from "monaco-editor";
+import type * as monaco from "monaco-editor";
 import * as Y from "yjs";
 import { compile } from "../compilers/MonacoCompiler";
 import { NotebookCellModel } from "../documentRenderers/notebook/NotebookCellModel";
@@ -24,7 +24,8 @@ export class TypeCellCodeModel
   constructor(
     public readonly path: string,
     public readonly language: string,
-    private readonly codeText: Y.Text
+    private readonly codeText: Y.Text,
+    private monacoInstance: typeof monaco
   ) {
     super();
     const dispose = autorun(() => {
@@ -34,7 +35,7 @@ export class TypeCellCodeModel
     this._register({
       dispose,
     });
-    this.uri = monaco.Uri.file(path);
+    this.uri = this.monacoInstance.Uri.file(path);
   }
 
   public getValue() {
@@ -59,11 +60,12 @@ export class TypeCellCodeModel
   public acquireMonacoModel() {
     this.monacoModelReferences++;
     if (!this.monacoModel) {
-      this.monacoModel = monaco.editor.getModel(this.uri) || undefined;
+      this.monacoModel =
+        this.monacoInstance.editor.getModel(this.uri) || undefined;
       if (this.monacoModel) {
         throw new Error("model already exists");
       }
-      this.monacoModel = monaco.editor.createModel(
+      this.monacoModel = this.monacoInstance.editor.createModel(
         this.getValue(),
         this.language,
         this.uri
@@ -116,7 +118,7 @@ export class TypeCellCodeModel
 
   public async getCompiledJavascriptCode() {
     if (this.language === "typescript") {
-      const js = await compile(this);
+      const js = await compile(this, this.monacoInstance);
       return js;
     } else if (this.language === "markdown") {
       // TODO: this is a hacky way to quickly support markdown. We compile markdown to JS so it can pass through the regular "evaluator".
@@ -165,7 +167,7 @@ class ModelCollection extends lifecycle.ReferenceCollection<TypeCellCodeModel> {
     key: string,
     ...args: any[]
   ): TypeCellCodeModel {
-    return new TypeCellCodeModel(key, args[0], args[1]);
+    return new TypeCellCodeModel(key, args[0], args[1], args[2]);
   }
 
   protected destroyReferencedObject(
@@ -178,6 +180,14 @@ class ModelCollection extends lifecycle.ReferenceCollection<TypeCellCodeModel> {
 
 const modelStore = new ModelCollection();
 
-export function getTypeCellCodeModel(cell: NotebookCellModel) {
-  return modelStore.acquire(cell.path, cell.language, cell.code);
+export function getTypeCellCodeModel(
+  cell: NotebookCellModel,
+  monacoInstance: typeof monaco
+) {
+  return modelStore.acquire(
+    cell.path,
+    cell.language,
+    cell.code,
+    monacoInstance
+  );
 }

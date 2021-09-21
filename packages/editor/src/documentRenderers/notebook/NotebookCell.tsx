@@ -1,9 +1,9 @@
 import { untracked } from "mobx";
 import { observer } from "mobx-react-lite";
 // import useCellModel from "./useCellModel.ts.bak";
-import type * as Monaco from "monaco-editor";
-import * as monaco from "monaco-editor";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import type * as monaco from "monaco-editor";
+
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
 import { MonacoBinding } from "y-monaco";
 import { Awareness } from "y-protocols/awareness";
@@ -12,6 +12,7 @@ import {
   TypeCellCodeModel,
 } from "../../models/TypeCellCodeModel";
 import PluginEngine from "../../pluginEngine/PluginEngine";
+import { MonacoContext } from "../../sandbox/MonacoContext";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import IframeEngine from "../../typecellEngine/IframeEngine";
 import { NotebookCellModel } from "./NotebookCellModel";
@@ -32,8 +33,9 @@ const NotebookCell: React.FC<Props> = observer((props) => {
   const initial = useRef(true);
   const [model, setModel] = useState<TypeCellCodeModel>();
   const [monacoModel, setMonacoModel] = useState<any>();
-  const [editor, setEditor] = useState<Monaco.editor.IStandaloneCodeEditor>();
+  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
   const disposeHandlers = useRef<Array<() => void>>();
+  const monaco = useContext(MonacoContext).monaco;
   // const [codeRef, setCodeRef] = useState<HTMLDivElement>();
 
   const [codeVisible, setCodeVisible] = useState(
@@ -101,7 +103,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
   );
 
   useEffect(() => {
-    const newModel = getTypeCellCodeModel(props.cell);
+    const newModel = getTypeCellCodeModel(props.cell, monaco);
     // TODO: do we want to do this here? At least for PluginRenderer, it will register twice
     // (currently this is ignored in the engine and only logs a warning)
     props.engine.registerModel(newModel.object);
@@ -186,9 +188,8 @@ const NotebookCell: React.FC<Props> = observer((props) => {
 
   return (
     <div
-      className={`notebookCell ${codeVisible ? "expanded" : "collapsed"} ${
-        props.cell.language
-      } ${props.classList || ""}`}
+      className={`notebookCell ${codeVisible ? "expanded" : "collapsed"} ${props.cell.language
+        } ${props.classList || ""}`}
       style={{ display: "flex", flexDirection: "row" }}>
       {codeVisible ? (
         <VscChevronDown

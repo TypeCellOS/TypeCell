@@ -70,7 +70,7 @@
     "matrix-js-sdk": "^12.4.0",
     "mobx": "^6.2.0",
     "mobx-react-lite": "^3.2.0",
-    "monaco-editor": "^0.23.0",
+    "monaco-editor": "^0.27.0",
     "octokit": "^1.0.6",
     "penpal": "^6.1.0",
     "prettier": "^2.3.0",
@@ -92,7 +92,7 @@
     "string.prototype.replaceall": "^1.0.5",
     "styled-components": "3.2.6",
     "tippy.js": "^6.3.1",
-    "typescript": "4.2.4",
+    "typescript": "4.3.2",
     "ua-parser-js": "^0.7.28",
     "unified": "^10.0.1",
     "uuid": "^8.3.2",
@@ -136,9 +136,17 @@
   },
   "jest": {
     "transformIgnorePatterns": [
-      "/node_modules/(?!(unified|bail|is-plain-obj|trough|vfile|unist-util-stringify-position|monaco-editor)).+\\.js$"
+      "/node_modules/(?!(unified|bail|is-plain-obj|trough|vfile|unist-util-stringify-position|monaco-editor)).+\\.js$",
+      ".*typescriptServifces.*"
     ],
-    "transform": {}
+    "moduleNameMapper": {
+      "workerize-loader(\\?.*)?!(.*)": "identity-obj-proxy"
+    },
+    "transform": {
+      "workerize-loader(\\?.*)?!(.*)": "<rootDir>/workerize-jest.js",
+      "^.+\\.[jt]sx?$": "babel-jest",
+      "^.+\\.[jt]s?$": "babel-jest"
+    }
   },
   "devDependencies": {
     "@svgr/webpack": "^5.5.0",

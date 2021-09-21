@@ -1,6 +1,5 @@
-import * as monaco from "monaco-editor";
 import { detectNewImportsToAcquireTypeFor } from "./typeAcquisition";
-
+import type * as monaco from "monaco-editor";
 /**
  * Uses type definitions emitted by npm run emittypes to the public/types directory.
  * Now we can use types from this typecell codebase in the runtime
@@ -10,7 +9,8 @@ import { detectNewImportsToAcquireTypeFor } from "./typeAcquisition";
  */
 async function loadTypecellLibTypes(
   moduleName: string,
-  typecellTypePath: string
+  typecellTypePath: string,
+  monacoInstance: typeof monaco
 ) {
   const lib = `
     import getExposeGlobalVariables from "${typecellTypePath}";
@@ -18,15 +18,15 @@ async function loadTypecellLibTypes(
     export default exp;
   `;
 
-  monaco.languages.typescript.typescriptDefaults.addExtraLib(
+  monacoInstance.languages.typescript.typescriptDefaults.addExtraLib(
     lib,
     `file:///node_modules/@types/${moduleName}/index.d.ts`
   );
 
-  detectNewImportsToAcquireTypeFor(
+  await detectNewImportsToAcquireTypeFor(
     lib,
-    monaco.languages.typescript.typescriptDefaults.addExtraLib.bind(
-      monaco.languages.typescript.typescriptDefaults
+    monacoInstance.languages.typescript.typescriptDefaults.addExtraLib.bind(
+      monacoInstance.languages.typescript.typescriptDefaults
     ),
     window.fetch.bind(window),
     console, // TODO
@@ -34,9 +34,9 @@ async function loadTypecellLibTypes(
   );
 }
 
-function refreshUserModelTypes(folder: string) {
+function refreshUserModelTypes(folder: string, monacoInstance: typeof monaco) {
   // find all typecell scripts in the folder
-  const models = monaco.editor
+  const models = monacoInstance.editor
     .getModels()
     .filter((m) => {
       let path = m.uri.path;
@@ -51,7 +51,7 @@ function refreshUserModelTypes(folder: string) {
   const content = models.map((f) => `export * from "${f}";`).join("\n");
   // register the typings as a node_module.
   // These typings are automatically imported as $ in ts.worker.ts
-  monaco.languages.typescript.typescriptDefaults.addExtraLib(
+  monacoInstance.languages.typescript.typescriptDefaults.addExtraLib(
     content,
     `file:///node_modules/@types${folder.replace("//", "/")}index.d.ts`
   );
@@ -60,7 +60,7 @@ function refreshUserModelTypes(folder: string) {
 /**
  * This adds OnlyViews and Values to use in ts.worker.ts
  */
-function addHelperFiles() {
+function addHelperFiles(monacoInstance: typeof monaco) {
   const content = `
 import type * as React from "react";
 
@@ -77,7 +77,7 @@ export type Values<T> = {
 `;
   // register the typings as a node_module.
   // These typings are automatically imported as $ in ts.worker.ts
-  monaco.languages.typescript.typescriptDefaults.addExtraLib(
+  monacoInstance.languages.typescript.typescriptDefaults.addExtraLib(
     content,
     `file:///node_modules/@types/typecell-helpers/index.d.ts`
   );
@@ -86,8 +86,8 @@ export type Values<T> = {
 /**
  * This exposes the types of the context to the monaco runtime
  */
-function listenForTypecellUserModels() {
-  monaco.editor.onDidCreateModel((model) => {
+function listenForTypecellUserModels(monacoInstance: typeof monaco) {
+  monacoInstance.editor.onDidCreateModel((model) => {
     if (!model.uri.path.startsWith("/!@")) {
       return;
     }
@@ -97,10 +97,11 @@ function listenForTypecellUserModels() {
       0,
       model.uri.path.lastIndexOf("/") + 1
     );
-    refreshUserModelTypes(folder);
+
+    refreshUserModelTypes(folder, monacoInstance);
     model.onWillDispose(() => {
       // console.log("dispose", model.uri.toString());
-      refreshUserModelTypes(folder);
+      refreshUserModelTypes(folder, monacoInstance);
     });
   });
 }
@@ -112,15 +113,25 @@ function listenForTypecellUserModels() {
  *
  * These types are automatically imported in the cell / plugin context, in ts.worker.ts
  */
-export default function setupTypecellTypeResolver() {
+export default async function setupTypecellTypeResolver(
+  monacoInstance: typeof monaco
+) {
   // Loads types for standard "typecell" helper library, as defined in typecellEngine/lib/exports
-  loadTypecellLibTypes("typecell", "./typecellEngine/lib/exports");
+  await loadTypecellLibTypes(
+    "typecell",
+    "./typecellEngine/lib/exports",
+    monacoInstance
+  ).catch(console.error);
 
   // Loads types for "typecell-plugin" helper library, as defined in pluginEngine/lib/exports
-  loadTypecellLibTypes("typecell-plugin", "./pluginEngine/lib/exports");
+  await loadTypecellLibTypes(
+    "typecell-plugin",
+    "./pluginEngine/lib/exports",
+    monacoInstance
+  ).catch(console.error);
 
-  addHelperFiles();
+  addHelperFiles(monacoInstance);
 
   // Loads types for $ context variables
-  listenForTypecellUserModels();
+  listenForTypecellUserModels(monacoInstance);
 }

@@ -5,7 +5,7 @@ import * as reactdnd from "react-dnd";
 import * as reactdom from "react-dom";
 import { getTypeCellCodeModel } from "../models/TypeCellCodeModel";
 import { DocConnection } from "../store/DocConnection";
-
+import type * as monaco from "monaco-editor";
 import getExposeGlobalVariables from "./lib/exports";
 import {
   CodeModel,
@@ -52,7 +52,8 @@ const cache = new Map<string, ResolvedImport>();
 export function getTypeCellResolver<T extends CodeModel>(
   documentId: string,
   cacheKey: string,
-  needsTypesInMonaco: boolean
+  needsTypesInMonaco: boolean,
+  monacoInstance: typeof monaco
 ) {
   // TODO: probably we can just use a random id here, or refactor this all to use class + local cache
   const resolveImportNested = async (
@@ -70,7 +71,8 @@ export function getTypeCellResolver<T extends CodeModel>(
     const resolved = await resolveImport(
       moduleName,
       cacheKey + "$$" + forModel.path,
-      needsTypesInMonaco
+      needsTypesInMonaco,
+      monacoInstance
     );
 
     return resolved;
@@ -78,10 +80,11 @@ export function getTypeCellResolver<T extends CodeModel>(
   return resolveImportNested;
 }
 
-export default async function resolveImport(
+async function resolveImport(
   moduleName: string,
   cacheKey: string,
-  needsTypesInMonaco: boolean
+  needsTypesInMonaco: boolean,
+  monacoInstance: typeof monaco
 ): Promise<ResolvedImport> {
   if (moduleName.startsWith("!@")) {
     const key = [cacheKey, moduleName].join("$$");
@@ -101,12 +104,11 @@ export default async function resolveImport(
     const connection = DocConnection.load(owner + "/" + document);
 
     const engine = new Engine(
-      () => {},
-      () => {},
       getTypeCellResolver(
         connection.identifier.toString(),
         key,
-        needsTypesInMonaco
+        needsTypesInMonaco,
+        monacoInstance
       )
     );
 
@@ -120,7 +122,9 @@ export default async function resolveImport(
       untracked(() => {
         // untracked, because getModel accesses observable data in the cell (code.tostring)
         releasePreviousModels();
-        const models = cells.map((c) => getTypeCellCodeModel(c));
+        const models = cells.map((c) =>
+          getTypeCellCodeModel(c, monacoInstance)
+        );
         models.forEach((m) => {
           if (needsTypesInMonaco) {
             m.object.acquireMonacoModel();

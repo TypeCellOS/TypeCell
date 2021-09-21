@@ -8,7 +8,7 @@ import React, { useCallback, useState } from "react";
 
 import { BaseResource } from "../../store/BaseResource";
 import { DocConnection } from "../../store/DocConnection";
-import { navigationStore } from "../../store/local/navigationStore";
+import { getStoreService } from "../../store/local/stores";
 
 import { UnreachableCaseError } from "../../util/UnreachableCaseError";
 
@@ -65,7 +65,7 @@ export const NewPageDialog = (props: {
                 "typescript",
                 `export let message = "Hello World"`
               );
-              navigationStore.navigateToDocument(ret);
+              getStoreService().navigationStore.navigateToDocument(ret);
 
               // Bit hacky, dispose with timeout,
               // because navigateToDocument will (indirectly) need the doc

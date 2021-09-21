@@ -4,8 +4,8 @@ import Host from "./host/Host";
 import LoginComponent from "./matrix-auth/auth/Login";
 import Registration from "./matrix-auth/auth/Registration";
 import { ValidatedServerConfig } from "./matrix-auth/auth/util/AutoDiscoveryUtils";
-import { navigationStore } from "./store/local/navigationStore";
-import { matrixAuthStore, sessionStore } from "./store/local/stores";
+import { getStoreService } from "./store/local/stores";
+
 
 function makeRegistrationUrl(params: any) {
   let url =
@@ -26,6 +26,7 @@ function makeRegistrationUrl(params: any) {
 
 export const MatrixApp = observer(
   (props: { config: ValidatedServerConfig }) => {
+    const { sessionStore, matrixAuthStore, navigationStore } = getStoreService();
     if (sessionStore.user === "loading") {
       return <div>Loading</div>;
     } else if (navigationStore.currentPage.page === "login") {

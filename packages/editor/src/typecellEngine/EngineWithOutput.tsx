@@ -6,7 +6,8 @@ import { lifecycle } from "vscode-lib";
 import { TypeVisualizer } from "./lib/exports";
 import { ModelOutput } from "./ModelOutput";
 import { getTypeCellResolver } from "./resolver";
-import { TypeChecker } from "./TypeChecker";
+import { TypeChecker } from "../sandbox/languages/typescript/reflection/TypeChecker";
+import type * as monaco from "monaco-editor";
 
 let ENGINE_ID = 0;
 export default class EngineWithOutput extends lifecycle.Disposable {
@@ -35,37 +36,27 @@ export default class EngineWithOutput extends lifecycle.Disposable {
 
   constructor(
     private readonly documentId: string,
-    private readonly needsTypesInMonaco: boolean
+    monacoInstance: typeof monaco
   ) {
     super();
-    if (needsTypesInMonaco) {
-      // only use typechecker when enginewithoutput is used in notebookcells etc
-      this.typechecker = this._register(
-        new TypeChecker(this.id + "", documentId)
-      );
-    }
     this.engine = new Engine(
-      (model, output) => {
+      getTypeCellResolver(documentId, "EWO" + this.id, false, monacoInstance)
+    );
+
+    this._register(
+      this.engine.onOutput(({ model, output }) => {
         let modelOutput = this.outputs.get(model);
         if (!modelOutput) {
           modelOutput = this._register(
             new ModelOutput(
-              model,
-              this.typechecker
-                ? {
-                    typechecker: this.typechecker,
-                    availableVisualizers: this.availableVisualizers,
-                  }
-                : undefined
+              this.documentId,
+              model
             )
           );
           this.outputs.set(model, modelOutput);
         }
         modelOutput.updateValue(output);
-      },
-      (model) => {},
-      getTypeCellResolver(documentId, "EWO" + this.id, needsTypesInMonaco)
-    );
+      }));
 
     // Generate a mobx map from TypeVisualizers on observableContext.
     // TODO: Maybe we can use mobx-utils ObservableGroupMap for this?

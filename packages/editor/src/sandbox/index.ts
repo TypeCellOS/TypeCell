@@ -1,35 +1,36 @@
 // stripped down version of https://github.com/microsoft/TypeScript-Website/tree/v2/packages/sandbox
 
 import type * as Monaco from "monaco-editor";
-import parserTypescript from "prettier/parser-typescript";
-import parserCSS from "prettier/parser-postcss";
-import prettier from "prettier/standalone";
+
 // @ts-ignore
 import EditorWorker from "workerize-loader!./workers/editor.worker"; // eslint-disable-line import/no-webpack-loader-syntax
 // @ts-ignore
 import TsWorker from "workerize-loader!./workers/ts.worker"; // eslint-disable-line import/no-webpack-loader-syntax
 // @ts-ignore
 import CSSWorker from "workerize-loader!./workers/css.worker"; // eslint-disable-line import/no-webpack-loader-syntax
-import { getDefaultSandboxCompilerOptions } from "./compilerOptions";
-import { diffToMonacoTextEdits } from "./diffToMonacoTextEdits";
 
-(window as any).MonacoEnvironment = {
-  getWorker: function (workerId: string, label: string) {
-    if (label === "typescript" || label === "javascript") {
-      return new TsWorker();
-    }
-    if (label === "json") {
-      throw new Error("not implemented");
-    }
-    if (label === "css" || label === "scss" || label === "less") {
-      return new CSSWorker();
-    }
-    if (label === "html" || label === "handlebars" || label === "razor") {
-      throw new Error("not implemented");
-    }
-    return new EditorWorker();
-  },
-};
+import { getDefaultSandboxCompilerOptions } from "./compilerOptions";
+import { setupPrettier } from "./prettier";
+
+if (!(window as any).MonacoEnvironment) {
+  (window as any).MonacoEnvironment = (global as any).MonacoEnvironment = {
+    getWorker: function (workerId: string, label: string) {
+      if (label === "typescript" || label === "javascript") {
+        return TsWorker();
+      }
+      if (label === "json") {
+        throw new Error("not implemented");
+      }
+      if (label === "css" || label === "scss" || label === "less") {
+        return new CSSWorker();
+      }
+      if (label === "html" || label === "handlebars" || label === "razor") {
+        throw new Error("not implemented");
+      }
+      return new EditorWorker();
+    },
+  };
+}
 
 // Basically android and monaco is pretty bad, this makes it less bad
 // See https://github.com/microsoft/pxt/pull/7099 for this, and the long
@@ -61,7 +62,6 @@ export const setMonacoDefaults = (monaco: typeof Monaco) => {
   // const getWorker = monaco.languages.typescript.getTypeScriptWorker;
 
   monaco.editor.EditorOptions.formatOnPaste.defaultValue = true;
-
   const defaults = monaco.languages.typescript.typescriptDefaults;
 
   defaults.setDiagnosticsOptions({
@@ -89,44 +89,3 @@ export const setMonacoDefaults = (monaco: typeof Monaco) => {
   });
   setupPrettier(monaco);
 };
-
-function setupPrettier(monaco: typeof Monaco) {
-  monaco.languages.registerDocumentFormattingEditProvider("typescript", {
-    provideDocumentFormattingEdits(model, options, token) {
-      try {
-        const newText = prettier.format(model.getValue(), {
-          parser: "typescript",
-          plugins: [parserTypescript],
-          tabWidth: 2,
-          printWidth: 80,
-          jsxBracketSameLine: true,
-        });
-
-        let ret = diffToMonacoTextEdits(model, newText);
-        return ret;
-      } catch (e) {
-        console.warn("error while formatting ts code (prettier)", e);
-        return [];
-      }
-    },
-  });
-
-  monaco.languages.registerDocumentFormattingEditProvider("css", {
-    provideDocumentFormattingEdits(model, options, token) {
-      try {
-        const newText = prettier.format(model.getValue(), {
-          parser: "css",
-          plugins: [parserCSS],
-          tabWidth: 2,
-          printWidth: 80,
-        });
-
-        let ret = diffToMonacoTextEdits(model, newText);
-        return ret;
-      } catch (e) {
-        console.warn("error while formatting css code (prettier)", e);
-        return [];
-      }
-    },
-  });
-}

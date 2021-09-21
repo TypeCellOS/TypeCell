@@ -1,4 +1,4 @@
-import diff_match_patch from "../util/diff";
+import diff_match_patch from "../../util/diff";
 
 import type * as monaco from "monaco-editor";
 const dmp = new diff_match_patch();

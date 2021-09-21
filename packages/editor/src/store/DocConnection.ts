@@ -11,7 +11,6 @@ import { createMatrixDocument } from "@typecell-org/matrix-yjs";
 import { lifecycle } from "vscode-lib";
 import { BaseResource } from "./BaseResource";
 
-import { sessionStore } from "./local/stores";
 import { existsLocally, getIDBIdentifier } from "./yjs-sync/IDBHelper";
 import { YDocFileSyncManager } from "./yjs-sync/YDocFileSyncManager";
 import { YDocSyncManager } from "./yjs-sync/YDocSyncManager";
@@ -22,6 +21,7 @@ import { GithubIdentifier } from "../identifiers/GithubIdentifier";
 import { MatrixIdentifier } from "../identifiers/MatrixIdentifier";
 import { uri } from "vscode-lib";
 import { parseIdentifier, tryParseIdentifier } from "../identifiers";
+import { getStoreService } from "./local/stores";
 
 const cache = new Map<string, DocConnection>();
 
@@ -44,6 +44,7 @@ export class DocConnection extends lifecycle.Disposable {
   // TODO: move to YDocSyncManager?
   private clearAndInitializeManager(forkSourceIdentifier?: Identifier) {
     runInAction(() => {
+      const sessionStore = getStoreService().sessionStore;
       this._baseResourceCache = undefined;
       this.manager?.dispose();
       this.manager = undefined;
@@ -88,7 +89,7 @@ export class DocConnection extends lifecycle.Disposable {
 
     let forked = false;
     const dispose = reaction(
-      () => sessionStore.user,
+      () => getStoreService().sessionStore.user,
       () => {
         this.clearAndInitializeManager(
           forked ? undefined : forkSourceIdentifier
@@ -171,7 +172,7 @@ export class DocConnection extends lifecycle.Disposable {
 
   // TODO: fork github or file sources
   public async fork() {
-    if (!sessionStore.loggedInUser) {
+    if (!getStoreService().sessionStore.loggedInUser) {
       throw new Error("not logged in");
     }
 
@@ -188,7 +189,7 @@ export class DocConnection extends lifecycle.Disposable {
           // TODO: use user authority,
           path:
             "@" +
-            sessionStore.loggedInUser +
+            getStoreService().sessionStore.loggedInUser +
             " / " +
             this.identifier.document +
             (tryN > 1 ? "-" + tryN : ""),
@@ -236,6 +237,7 @@ export class DocConnection extends lifecycle.Disposable {
     id: string | { owner: string; document: string },
     forkSourceIdentifier?: Identifier
   ) {
+    const sessionStore = getStoreService().sessionStore;
     if (!sessionStore.loggedInUser) {
       throw new Error("no user available on create document");
     }

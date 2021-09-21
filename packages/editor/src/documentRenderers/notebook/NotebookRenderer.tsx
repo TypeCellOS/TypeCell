@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useContext, useEffect, useMemo, useRef } from "react";
 import {
   VscDiffAdded,
   VscFile,
@@ -7,6 +7,7 @@ import {
   VscFileMedia,
   VscTrash,
 } from "react-icons/vsc";
+import { MonacoContext } from "../../sandbox/MonacoContext";
 import { DocumentResource } from "../../store/DocumentResource";
 import EngineWithOutput from "../../typecellEngine/EngineWithOutput";
 import IframeEngine from "../../typecellEngine/IframeEngine";
@@ -17,11 +18,11 @@ type Props = {
   document: DocumentResource;
 };
 
-const USE_SAFE_IFRAME = true;
+const USE_SAFE_IFRAME = false;
 
 const NotebookRenderer: React.FC<Props> = observer((props) => {
   const disposer = useRef<() => void>();
-
+  const monaco = useContext(MonacoContext).monaco;
   const engine = useMemo(() => {
     if (disposer.current) {
       disposer.current();
@@ -29,7 +30,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
     }
     const newEngine = USE_SAFE_IFRAME
       ? new IframeEngine(props.document.id, true)
-      : new EngineWithOutput(props.document.id, true);
+      : new EngineWithOutput(props.document.id, monaco);
     disposer.current = () => {
       newEngine.dispose();
     };

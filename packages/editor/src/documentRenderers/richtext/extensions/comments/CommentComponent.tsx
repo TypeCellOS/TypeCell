@@ -9,8 +9,9 @@ import { getMarkRange, getMarkType } from "@tiptap/core";
 import { EditorState, TextSelection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import React, { ChangeEvent, useState } from "react";
-import { navigationStore } from "../../../../store/local/navigationStore";
-import { sessionStore } from "../../../../store/local/stores";
+
+import { getStoreService } from "../../../../store/local/stores";
+
 import styles from "./Comments.module.css";
 import { CommentStore } from "./CommentStore";
 import avatarImg from "./defualtAvatar.png";
@@ -117,7 +118,7 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
         avatar={<Avatar src={avatarImg} size="medium" />}
         author={<CommentAuthor>{comment.user}</CommentAuthor>}
         type={
-          navigationStore.currentPage.owner === comment.user ? "author" : ""
+          getStoreService().navigationStore.currentPage.owner === comment.user ? "author" : ""
         }
         time={
           <CommentTime>
@@ -143,19 +144,19 @@ export const CommentComponent: React.FC<CommentComponentProps> = (props) => {
         actions={
           editing
             ? [
-                <CommentAction
-                  isDisabled={commentText === ""}
-                  onClick={toggleEditing}>
-                  Submit
-                </CommentAction>,
-                <CommentAction onClick={cancelEdit}>Cancel</CommentAction>,
-              ]
-            : sessionStore.loggedInUser === comment.user
-            ? [
+              <CommentAction
+                isDisabled={commentText === ""}
+                onClick={toggleEditing}>
+                Submit
+              </CommentAction>,
+              <CommentAction onClick={cancelEdit}>Cancel</CommentAction>,
+            ]
+            : getStoreService().sessionStore.loggedInUser === comment.user
+              ? [
                 <CommentAction onClick={toggleEditing}>Edit</CommentAction>,
                 <CommentAction onClick={resolveComment}>Resolve</CommentAction>,
               ]
-            : []
+              : []
         }
       />
     </div>

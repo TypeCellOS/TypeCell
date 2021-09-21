@@ -8,7 +8,7 @@ import Italic from "@tiptap/extension-italic";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useContext, useEffect, useMemo, useRef } from "react";
 import Strike from "@tiptap/extension-strike";
 import Link from "@tiptap/extension-link";
 import Text from "@tiptap/extension-text";
@@ -48,6 +48,7 @@ import { Comments } from "./extensions/comments/Comments";
 import { CommentStore } from "./extensions/comments/CommentStore";
 import { CommentWrapper } from "./extensions/comments/CommentWrapper";
 import Hyperlink from "./extensions/marks/Hyperlink";
+import { MonacoContext } from "../../sandbox/MonacoContext";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -66,13 +67,13 @@ type Props = {
 const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
   const commentStore = new CommentStore(props.document.comments);
   const disposer = useRef<() => void>();
-
+  const monaco = useContext(MonacoContext).monaco;
   const engine = useMemo(() => {
     if (disposer.current) {
       disposer.current();
       disposer.current = undefined;
     }
-    const newEngine = new EngineWithOutput(props.document.id, true);
+    const newEngine = new EngineWithOutput(props.document.id, monaco);
     disposer.current = () => {
       newEngine.dispose();
     };
