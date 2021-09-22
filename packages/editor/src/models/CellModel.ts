@@ -1,5 +1,5 @@
 import * as Y from "yjs";
-import { NotebookCellModel } from "../documentRenderers/notebook/NotebookCellModel";
+import { NotebookCellModel } from "../app/documentRenderers/notebook/NotebookCellModel";
 import { UnreachableCaseError } from "../util/UnreachableCaseError";
 
 export type CellLanguage = "typescript" | "markdown" | "css";

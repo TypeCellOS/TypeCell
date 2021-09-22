@@ -1,9 +1,9 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
-import Host from "./host/Host";
-import LoginComponent from "./matrix-auth/auth/Login";
-import Registration from "./matrix-auth/auth/Registration";
-import { ValidatedServerConfig } from "./matrix-auth/auth/util/AutoDiscoveryUtils";
+import Host from "./app/host/Host";
+import LoginComponent from "./app/matrix-auth/auth/Login";
+import Registration from "./app/matrix-auth/auth/Registration";
+import { ValidatedServerConfig } from "./app/matrix-auth/auth/util/AutoDiscoveryUtils";
 import { getStoreService } from "./store/local/stores";
 
 

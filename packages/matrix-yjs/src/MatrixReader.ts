@@ -30,6 +30,8 @@ export class MatrixReader extends lifecycle.Disposable {
    * (i.e.: they're received via the sync API).
    *
    * TODO: Maybe we can disable support for this and only use the peek API
+   *
+   * TODO: unit test
    */
   private matrixRoomListener = (
     event: any,
@@ -49,7 +51,7 @@ export class MatrixReader extends lifecycle.Disposable {
       return; // event we're sending ourselves
     }
     // TODO: doesn't set latesttoken
-    this._onMessages.fire([event]);
+    this._onMessages.fire([event.event]);
   };
 
   private async peekPoll() {

@@ -1,6 +1,6 @@
 import { action, computed, makeObservable, observable, reaction } from "mobx";
+import routing from "../../app/routing";
 
-import routing from "../../typecellEngine/lib/routing";
 import { BaseResource } from "../BaseResource";
 import { DocConnection } from "../DocConnection";
 import { SessionStore } from "./SessionStore";

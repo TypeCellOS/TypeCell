@@ -6,7 +6,7 @@ import {
   runInAction,
   when,
 } from "mobx";
-import { MatrixClientPeg } from "../matrix-auth/MatrixClientPeg";
+import { MatrixClientPeg } from "../app/matrix-auth/MatrixClientPeg";
 import { createMatrixDocument } from "@typecell-org/matrix-yjs";
 import { lifecycle } from "vscode-lib";
 import { BaseResource } from "./BaseResource";

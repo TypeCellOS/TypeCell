@@ -4,12 +4,12 @@ import React from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import "./App.css";
-import DocumentView from "./documentRenderers/DocumentView";
-import { enablePluginSystem } from "./pluginEngine/pluginSystem";
-import { setMonacoDefaults } from "./sandbox";
-import setupNpmTypeResolver from "./sandbox/languages/typescript/plugins/npmTypeResolver";
-import setupTypecellTypeResolver from "./sandbox/languages/typescript/plugins/typecellTypeResolver";
-import { MonacoContext } from "./sandbox/MonacoContext";
+import DocumentView from "./app/documentRenderers/DocumentView";
+// import { enablePluginSystem } from "./pluginEngine/pluginSystem.ts.bak";
+import { setMonacoDefaults } from "./runtime/editor";
+import setupNpmTypeResolver from "./runtime/editor/languages/typescript/plugins/npmTypeResolver";
+import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/plugins/typecellTypeResolver";
+import { MonacoContext } from "./runtime/editor/MonacoContext";
 import { DocumentResource } from "./store/DocumentResource";
 import { getStoreService, initializeStoreService } from "./store/local/stores";
 
@@ -17,7 +17,7 @@ initializeStoreService();
 setMonacoDefaults(monaco);
 setupTypecellTypeResolver(monaco);
 setupNpmTypeResolver(monaco);
-enablePluginSystem();
+// enablePluginSystem();
 
 const nav = getStoreService().navigationStore;
 nav.initialize();

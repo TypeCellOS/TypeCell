@@ -1,12 +1,8 @@
 import { autorun, untracked } from "mobx";
 import type * as monaco from "monaco-editor";
-import * as Y from "yjs";
-import { compile } from "../compilers/MonacoCompiler";
-import { NotebookCellModel } from "../documentRenderers/notebook/NotebookCellModel";
-import { CodeModel } from "@typecell-org/engine";
 import { event, lifecycle } from "vscode-lib";
-
-import { CellModel } from "./CellModel";
+import * as Y from "yjs";
+import { NotebookCellModel } from "../app/documentRenderers/notebook/NotebookCellModel";
 
 /**
  * A CodeModel that bridges yjs and Monaco.
@@ -15,10 +11,7 @@ import { CellModel } from "./CellModel";
  *
  * TypeCellCodeModel observes a Y.Text as source-of-truth
  */
-export class TypeCellCodeModel
-  extends lifecycle.Disposable
-  implements CodeModel
-{
+export class TypeCellCodeModel extends lifecycle.Disposable {
   private readonly uri: monaco.Uri;
 
   constructor(
@@ -114,45 +107,6 @@ export class TypeCellCodeModel
         "releaseMonacoModel no more references, but we're not disposing yet"
       );
     }
-  }
-
-  public async getCompiledJavascriptCode() {
-    if (this.language === "typescript") {
-      const js = await compile(this, this.monacoInstance);
-      return js;
-    } else if (this.language === "markdown") {
-      // TODO: this is a hacky way to quickly support markdown. We compile markdown to JS so it can pass through the regular "evaluator".
-      // We should refactor to support different languages, probably by creating different CellEvaluators per language
-      return `define(["require", "exports", "markdown-it"], function (require, exports, markdown_it_1) {
-        "use strict";
-        Object.defineProperty(exports, "__esModule", { value: true });
-        const md = markdown_it_1.default({
-            html: true,
-            linkify: true,
-            typographer: true,
-        });
-        const render = md.render(${JSON.stringify(this.getValue())});
-        const el = document.createElement("div");
-        el.className = "markdown-body";
-        el.innerHTML = render;
-        exports.default = el;
-        ;
-    });`;
-    } else if (this.language === "css") {
-      // TODO: same as above comment for markdown
-      return `define(["require", "exports"], function (require, exports) {
-        "use strict";
-        Object.defineProperty(exports, "__esModule", { value: true });
-        const style = document.createElement("style");
-        style.setAttribute("type", "text/css");
-        style.appendChild(document.createTextNode(${JSON.stringify(
-          this.getValue()
-        )}));
-        exports.default = style;
-        ;
-    });`;
-    }
-    throw new Error("unsupported language");
   }
 
   public dispose() {

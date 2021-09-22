@@ -7,8 +7,8 @@ import {
   runInAction,
 } from "mobx";
 import { MATRIX_CONFIG } from "../../config/config";
-import { MatrixAuthStore } from "../../matrix-auth/MatrixAuthStore";
-import { MatrixClientPeg } from "../../matrix-auth/MatrixClientPeg";
+import { MatrixAuthStore } from "../../app/matrix-auth/MatrixAuthStore";
+import { MatrixClientPeg } from "../../app/matrix-auth/MatrixClientPeg";
 import { createMatrixGuestClient } from "@typecell-org/matrix-yjs";
 
 export class SessionStore {

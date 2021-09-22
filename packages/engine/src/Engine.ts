@@ -61,6 +61,18 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
     super();
   }
 
+  public registerModelProvider(provider: {
+    onDidCreateCompiledModel: event.Event<T>;
+    compiledModels: T[];
+  }) {
+    provider.compiledModels.forEach(this.registerModel);
+    this._register(
+      provider.onDidCreateCompiledModel((m) => {
+        this.registerModel(m);
+      })
+    );
+  }
+
   /**
    * Register a model to the engine. After registering, the model will be observed for changes and automatically re-evaluated.
    *
@@ -152,7 +164,10 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
       );
     }
     const evaluator = this.evaluatorCache.get(model)!;
-    let code = await model.getCompiledJavascriptCode();
+    if (model.language !== "javascript") {
+      throw new Error("can not evaluate non-javascript code");
+    }
+    let code = model.getValue();
     await evaluator.evaluate(code);
   }
 }

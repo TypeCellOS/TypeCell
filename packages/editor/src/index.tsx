@@ -8,7 +8,7 @@ import reportWebVitals from "./reportWebVitals";
 
 import * as yjsBindings from "@reactivedata/yjs-reactive-bindings";
 import * as mobx from "mobx";
-import Frame from "./frame/Frame";
+import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
 import { MATRIX_CONFIG } from "./config/config";
 
 if (process.env.NODE_ENV === "development") {

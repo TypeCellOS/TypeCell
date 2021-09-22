@@ -1,4 +1,4 @@
-import { MatrixAuthStore } from "../../matrix-auth/MatrixAuthStore";
+import { MatrixAuthStore } from "../../app/matrix-auth/MatrixAuthStore";
 import { NavigationStore } from "./navigationStore";
 import { SessionStore } from "./SessionStore";
 
