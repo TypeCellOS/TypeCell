@@ -145,16 +145,16 @@ export default async function setupTypecellTypeResolver(
   // Loads types for standard "typecell" helper library, as defined in typecellEngine/lib/exports
   await loadTypecellLibTypes(
     "typecell",
-    "./typecellEngine/lib/exports",
+    "./runtime/executor/lib/exports",
     monacoInstance
   ).catch(console.error);
 
   // Loads types for "typecell-plugin" helper library, as defined in pluginEngine/lib/exports
-  await loadTypecellLibTypes(
-    "typecell-plugin",
-    "./pluginEngine/lib/exports",
-    monacoInstance
-  ).catch(console.error);
+  // await loadTypecellLibTypes(
+  //   "typecell-plugin",
+  //   "./pluginEngine/lib/exports",
+  //   monacoInstance
+  // ).catch(console.error);
 
   addHelperFiles(monacoInstance);
 

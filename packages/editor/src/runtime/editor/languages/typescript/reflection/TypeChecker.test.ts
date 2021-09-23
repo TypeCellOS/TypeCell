@@ -35,14 +35,14 @@ it("Find correct visualizer and ignore others", async () => {
   //monaco.editor.createModel("// tesdft", "typescript");
 
   let m1 = new TypeCellCodeModel(
-    "!@doc/c1a.cell.tsx",
+    "!@mx://mx.typecell.org/@owner/doc/1.cell.tsx",
     "typescript",
     m1Code,
     monaco
   );
 
   let m2 = new TypeCellCodeModel(
-    "!@doc/c2.cell.tsx",
+    "!@mx://mx.typecell.org/@owner/doc/2.cell.tsx",
     "typescript",
     m2Code,
     monaco
@@ -57,9 +57,13 @@ it("Find correct visualizer and ignore others", async () => {
   // );
 
   await new Promise((resolve) => setTimeout(resolve, 1000));
-  const visualizers = await findMatchingVisualizers("doc", m1, monaco);
+  const visualizers = await findMatchingVisualizers(
+    "mx://mx.typecell.org/@owner/doc",
+    m1,
+    monaco
+  );
   expect(visualizers).toEqual(["numberVisualizer"]);
-  console.log(visualizers);
+  // console.log(visualizers);
 
   // await new Promise<void>((resolve) => {
   //   engine.onOutput((e) => {

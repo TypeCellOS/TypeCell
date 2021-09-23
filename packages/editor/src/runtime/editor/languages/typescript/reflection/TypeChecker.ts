@@ -54,12 +54,13 @@ export class TypeChecker extends lifecycle.Disposable {
   private async _findMatchingVisualizers(module: CodeModel) {
     const otherUri = this.monacoInstance.Uri.file(module.path);
     const uristring = otherUri.toString().replace(/(\.ts|\.tsx)$/, "");
+    // console.log(uristring, this.documentId.replace("//", "/"));
     const code = `
 
     import * as doc from "!@${this.documentId.replace("//", "/")}";
     import * as mod from "${uristring}";
     // import tc from "typecell";
-    import { TypeVisualizer } from "typecell/typecellEngine/lib/exports";
+    import { TypeVisualizer } from "typecell/runtime/executor/lib/exports";
 
     type truePropertyNames<T> = {
       [K in keyof T]: T[K] extends never ? never : K;

@@ -53,6 +53,7 @@ export default class SourceModelCompiler extends lifecycle.Disposable {
 
   private readonly _onDidCreateCompiledModel: event.Emitter<CompiledCodeModel> =
     this._register(new event.Emitter<CompiledCodeModel>());
+
   public readonly onDidCreateCompiledModel: event.Event<CompiledCodeModel> =
     this._onDidCreateCompiledModel.event;
 
