@@ -3,13 +3,18 @@ import ReactDOM from "react-dom";
 import * as reo from "react-error-overlay";
 import "@atlaskit/css-reset/dist/bundle.css";
 import "./index.css";
-import MatrixApp from "./MatrixApp";
+import App from "./app/App";
 import reportWebVitals from "./reportWebVitals";
 
 import * as yjsBindings from "@reactivedata/yjs-reactive-bindings";
 import * as mobx from "mobx";
 import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
 import { MATRIX_CONFIG } from "./config/config";
+import { setMonacoDefaults } from "./runtime/editor";
+import setupNpmTypeResolver from "./runtime/editor/languages/typescript/plugins/npmTypeResolver";
+import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/plugins/typecellTypeResolver";
+import { initializeStoreService } from "./store/local/stores";
+import * as monaco from "monaco-editor";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays
@@ -50,6 +55,7 @@ async function init() {
   //   locateFile: () => olmWasmPath,
   // });
   if (window.location.search.includes("frame")) {
+    // TODO: prevent monaco from loading in frame
     ReactDOM.render(
       <React.StrictMode>
         <Frame />
@@ -60,9 +66,14 @@ async function init() {
     yjsBindings.useMobxBindings(mobx);
     yjsBindings.makeYJSObservable();
 
+    initializeStoreService();
+    setMonacoDefaults(monaco);
+    setupTypecellTypeResolver(monaco);
+    setupNpmTypeResolver(monaco);
+
     ReactDOM.render(
       <React.StrictMode>
-        <MatrixApp config={cachedValidatedConfig} />
+        <App config={cachedValidatedConfig} />
       </React.StrictMode>,
       document.getElementById("root")
     );

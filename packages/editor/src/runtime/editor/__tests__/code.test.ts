@@ -1,11 +1,11 @@
+import { Engine } from "@typecell-org/engine";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 import "monaco-editor/esm/vs/language/typescript/monaco.contribution.js";
-import { Engine, CodeModel } from "@typecell-org/engine";
-import { TypeCellCodeModel } from "../../../models/TypeCellCodeModel";
-import * as Y from "yjs";
 import { event } from "vscode-lib";
-
+import * as Y from "yjs";
 import { setMonacoDefaults } from "..";
+import { TypeCellCodeModel } from "../../../models/TypeCellCodeModel";
+import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 import { getTypeCellResolver } from "../../executor/resolver/resolver";
 
 setMonacoDefaults(monaco);
@@ -21,10 +21,13 @@ it.skip("basic replace", async () => {
 
   let m1 = new TypeCellCodeModel("c1a.ts", "typescript", m1Code, monaco);
 
+  let compiler = new SourceModelCompiler(monaco);
+  compiler.registerModel(m1);
   // let m2 = new TypeCellCodeModel("c2.ts", "typescript", m2Code, monaco);
+  // compiler.registerModel(m2);
 
   let engine = new Engine(
-    getTypeCellResolver("docid", "testEngine", false, monaco)
+    getTypeCellResolver("docid", "testEngine", undefined)
   );
 
   engine.registerModel(m1);

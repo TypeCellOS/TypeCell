@@ -50,7 +50,7 @@ const cache = new Map<string, ResolvedImport>();
 export function getTypeCellResolver<T extends CodeModel>(
   documentId: string,
   cacheKey: string,
-  createTypeCellCompiledCodeProvider: (
+  createTypeCellCompiledCodeProvider?: (
     moduleName: string
   ) => TypeCellCompiledCodeProvider
 ) {
@@ -81,13 +81,18 @@ export function getTypeCellResolver<T extends CodeModel>(
 async function resolveImport(
   moduleName: string,
   cacheKey: string,
-  createTypeCellCompiledCodeProvider: (
+  createTypeCellCompiledCodeProvider?: (
     moduleName: string
   ) => TypeCellCompiledCodeProvider
 ): Promise<ResolvedImport> {
   if (!moduleName.startsWith("!@")) {
     return skypackResolver.resolveImport(moduleName);
   }
+
+  if (!createTypeCellCompiledCodeProvider) {
+    throw new Error("typecell modules not supported");
+  }
+
   const key = [cacheKey, moduleName].join("$$");
 
   const cached = cache.get(key);

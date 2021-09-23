@@ -1,10 +1,10 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
-import Host from "./app/host/Host";
-import LoginComponent from "./app/matrix-auth/auth/Login";
-import Registration from "./app/matrix-auth/auth/Registration";
-import { ValidatedServerConfig } from "./app/matrix-auth/auth/util/AutoDiscoveryUtils";
-import { getStoreService } from "./store/local/stores";
+import { getStoreService } from "../store/local/stores";
+import Main from "./main/Main";
+import LoginComponent from "./matrix-auth/auth/Login";
+import Registration from "./matrix-auth/auth/Registration";
+import { ValidatedServerConfig } from "./matrix-auth/auth/util/AutoDiscoveryUtils";
 
 
 function makeRegistrationUrl(params: any) {
@@ -24,7 +24,7 @@ function makeRegistrationUrl(params: any) {
   return url;
 }
 
-export const MatrixApp = observer(
+export const App = observer(
   (props: { config: ValidatedServerConfig }) => {
     const { sessionStore, matrixAuthStore, navigationStore } = getStoreService();
     if (sessionStore.user === "loading") {
@@ -70,11 +70,13 @@ export const MatrixApp = observer(
     } else if (navigationStore.currentPage.page === "recover") {
       return <div>Not implemented yet</div>;
     } else {
-      return <Host />;
+      return <Main currentPage={navigationStore.currentPage} />;
     }
   }
 );
-export default MatrixApp;
+export default App;
+
+
 
 //   // Before we continue, let's see if we're supposed to do an SSO redirect
 //   const [userId] = await Lifecycle.getStoredSessionOwner();

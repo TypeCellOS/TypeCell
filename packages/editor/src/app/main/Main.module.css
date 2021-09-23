@@ -1,4 +1,4 @@
-.host > header::after {
+.main > header::after {
   /* background: none; */
   background: linear-gradient(
     180deg,
@@ -10,13 +10,13 @@
   height: 5px;
 }
 
-.host {
+.main {
   display: flex;
   height: 100%;
   flex-direction: column;
   align-items: stretch;
 }
-.host > header {
+.main > header {
   z-index: 10000000;
   /* border-bottom: 1px solid rgb(239, 241, 244); */
   /* border-bottom: linear-gradient(

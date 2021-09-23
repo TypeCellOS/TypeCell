@@ -505,3 +505,60 @@ pluto-input > button > span {
 .dropruler.bottom {
   bottom: -10px;
 }
+
+/* Define a set of colors to be used throughout the app for consistency
+see https://atlassian.design/foundations/color for more info */
+:root {
+  --N800: #172b4d; /* Dark neutral used for tooltips and text on light background */
+  --N40: #dfe1e6; /* Light neutral used for subtle borders and text on dark background */
+}
+
+.collaboration-cursor__caret {
+  position: relative;
+  margin-left: -1px;
+  margin-right: -1px;
+  border-left: 1px solid #0d0d0d;
+  border-right: 1px solid #0d0d0d;
+  word-break: normal;
+  pointer-events: none;
+}
+
+/* Render the username above the caret */
+.collaboration-cursor__label {
+  position: absolute;
+  top: -1.4em;
+  left: -1px;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  user-select: none;
+  color: #0d0d0d;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px 3px 3px 0;
+  white-space: nowrap;
+}
+
+.yRemoteSelection {
+  background-color: rgb(250, 129, 0, 0.5);
+}
+.yRemoteSelectionHead {
+  position: absolute;
+  border-left: orange solid 2px;
+  border-top: orange solid 2px;
+  border-bottom: orange solid 2px;
+  height: 100%;
+  box-sizing: border-box;
+}
+.yRemoteSelectionHead::after {
+  position: absolute;
+  content: " ";
+  border: 3px solid orange;
+  border-radius: 4px;
+  left: -4px;
+  top: -5px;
+}
+
+:focus {
+  outline: none;
+}
