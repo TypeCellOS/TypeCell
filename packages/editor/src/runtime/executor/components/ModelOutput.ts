@@ -17,7 +17,7 @@ export class ModelOutput extends lifecycle.Disposable {
   private autorunDisposer: (() => void) | undefined;
   public value: any;
   public typeVisualizers = observable.map<string, {
-    get visualizer(): TypeVisualizer<any>  
+    get visualizer(): TypeVisualizer<any> | undefined 
   }>()
 
   constructor(private context: any) {

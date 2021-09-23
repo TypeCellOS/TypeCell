@@ -81,7 +81,7 @@ export class TypeChecker extends lifecycle.Disposable {
     //   type pluginTypes<T> = { [K in keyof T]: T[K] extends InstanceType<typeof tc["TypeVisualizer"]> ? T[K]["visualizer"]["function"] : never };
     type pluginTypes<T> = {
       [K in keyof T]: T[K] extends TypeVisualizer<infer R>
-        ? null extends T[K] // filter out "any" types
+        ? unknown extends R // filter out "any" types
           ? never
           : R
         : never;

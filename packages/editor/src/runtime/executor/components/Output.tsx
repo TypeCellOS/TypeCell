@@ -66,9 +66,9 @@ const Output: React.FC<Props> = observer((props) => {
   try {
     if (visualizer) {
       if (mainKey) {
-        mainExport = visualizer.function(mainExport);
+        mainExport = visualizer.func(mainExport);
       } else {
-        outputJS = visualizer.function(outputJS);
+        outputJS = visualizer.func(outputJS);
       }
     }
 
@@ -93,7 +93,6 @@ const Output: React.FC<Props> = observer((props) => {
             {Array.from(modelOutput?.typeVisualizers.entries()).map(([key, obj]) => (
               <button
                 key={key}
-                title={obj.visualizer.name}
                 className={
                   key === selectedVisualizer
                     ? "active"
@@ -107,7 +106,7 @@ const Output: React.FC<Props> = observer((props) => {
                 onClick={() => {
                   setSelectedVisualizer(key);
                 }}>
-                {obj.visualizer.name}
+                {obj.visualizer?.name || key}
               </button>
             ))}
           </div>

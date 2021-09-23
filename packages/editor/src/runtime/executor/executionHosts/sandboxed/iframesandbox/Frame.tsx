@@ -89,8 +89,7 @@ export const Frame = observer((props: {}) => {
               <div
                 style={{
                   maxWidth: "100%",
-                  width: "100%",
-                  overflowX: "auto",
+                  width: "100%"
                 }}>
                 <Output modelPath={id} outputs={connection.outputs} />
               </div>

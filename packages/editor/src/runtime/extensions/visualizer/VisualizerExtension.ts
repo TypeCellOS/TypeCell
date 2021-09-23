@@ -4,7 +4,7 @@ import { CompiledCodeModel } from "../../../models/CompiledCodeModel";
 import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 import { TypeChecker } from "./TypeChecker";
 
-type VisualizersByPath = { [key: string]: string[] };
+export type VisualizersByPath = { [key: string]: string[] };
 
 export class VisualizerExtension extends lifecycle.Disposable {
   private readonly typeChecker = new TypeChecker(

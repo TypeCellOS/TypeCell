@@ -1,13 +1,21 @@
 import { TypeVisualizer } from "../../../executor/lib/exports";
 
-export let stringVisualizer = new TypeVisualizer({
-  name: "test-string",
-  function: (x: string) => "hello",
-});
+// @ts-expect-error
+export let brokenVisualizer = new TypeVisualizer();
 
-export let numberVisualizer = new TypeVisualizer({
-  name: "test-number",
-  function: (x: number) => "hello",
-});
+export let anyVisualizer = new TypeVisualizer(
+  (x: any) => "hello",
+  "test-string"
+);
+
+export let stringVisualizer = new TypeVisualizer(
+  (x: string) => "hello",
+  "test-string"
+);
+
+export let numberVisualizer = new TypeVisualizer(
+  (x: number) => "hello",
+  "test-number"
+);
 
 export let anyValue = {} as any;

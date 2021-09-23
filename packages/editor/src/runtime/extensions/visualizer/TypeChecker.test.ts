@@ -15,15 +15,10 @@ it("Find correct visualizer and ignore others", async () => {
   const doc = new Y.Doc();
   const m1Code = new Y.Text(`export let y = 7;`);
   const m2Code = new Y.Text(`
-  export let stringVisualizer = new typecell.TypeVisualizer({
-    name: "test-string",
-    function: (x: string) => "hello"
-  });
+  export let brokenVisualizer = new typecell.TypeVisualizer(); // missing arg
+  export let stringVisualizer = new typecell.TypeVisualizer(x: string => "hello");
   
-  export let numberVisualizer = new typecell.TypeVisualizer({
-    name: "test-numbers",
-    function: (x: number) => "hello"
-  });
+  export let numberVisualizer = new typecell.TypeVisualizer((x: number) => "hello");
   export let anyValue: any = "";
   export let justANumber = 40;`);
   doc.getMap("map").set("m1", m1Code);

@@ -7,6 +7,7 @@ import { getTypeCellResolver } from "../../../resolver/resolver";
 import { ModelOutput } from "../../../components/ModelOutput";
 import type SandboxedExecutionHost from "../SandboxedExecutionHost";
 import { ModelReceiver } from "./ModelReceiver";
+import type { VisualizersByPath } from "../../../../extensions/visualizer/VisualizerExtension";
 
 let ENGINE_ID = 0;
 
@@ -155,6 +156,11 @@ export class FrameConnection extends lifecycle.Disposable {
     ping: () => {
       console.log("ping received, sending pong");
       return "pong";
+    },
+    updateVisualizers: (e: VisualizersByPath) => {
+      for (let [path, visualizers] of Object.entries(e)) {
+        this.outputs.get(path)!.updateVisualizers(visualizers);
+      }
     },
   };
   async initialize() {

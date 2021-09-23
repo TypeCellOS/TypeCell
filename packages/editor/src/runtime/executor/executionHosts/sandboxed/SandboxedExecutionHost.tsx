@@ -11,6 +11,7 @@ import type { FrameConnection } from "./iframesandbox/FrameConnection";
 import { ModelForwarder } from "./ModelForwarder";
 import OutputShadow from "./OutputShadow";
 import type * as monaco from "monaco-editor";
+import { VisualizerExtension } from "../../../extensions/visualizer/VisualizerExtension";
 
 // use 127.0.0.1 for iframe so that we make sure we run on a different origin
 const IFRAME_URL = "http://127.0.0.1:3000/?frame";
@@ -208,6 +209,12 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
       console.log("initial positions", this.positionCacheStore.get(model.path))
       await this.sendModelPositions(model, this.positionCacheStore.get(model.path)!);
     }
+
+    const visualizerExtension = this._register(new VisualizerExtension(this.compileEngine, this.documentId, this.monacoInstance));
+
+    this._register(visualizerExtension.onUpdateVisualizers(e => {
+      this.connectionMethods!.updateVisualizers(e);
+    }));
   }
 
   private async sendModelPositions(model: CompiledCodeModel, positions: { x: number, y: number }) {

@@ -25,22 +25,19 @@ export default function getExposeGlobalVariables(id: string) {
     TypeVisualizer,
   };
 }
-export type TypeVisualizerArgs<T> = {
-  name: string;
-  function: (arg: T) => any;
-};
 export class TypeVisualizer<T> {
-  public readonly name: string;
-  public readonly function: (arg: T) => any;
+  // public readonly name: string;
+  // public readonly function: (arg: T) => any;
 
-  constructor(visualizer: TypeVisualizerArgs<T>) {
+  constructor(
+    public readonly func: (arg: T) => any,
+    public readonly name?: string
+  ) {
     if (
-      strings.isFalsyOrWhitespace(visualizer.name) ||
-      typeof visualizer.function !== "function"
+      // strings.isFalsyOrWhitespace(visualizer.name) ||
+      typeof func !== "function"
     ) {
       throw new Error("invalid args");
     }
-    this.name = visualizer.name;
-    this.function = visualizer.function;
   }
 }
