@@ -2,14 +2,15 @@ import { Engine } from "@typecell-org/engine";
 import { observable } from "mobx";
 import type * as monaco from "monaco-editor";
 import { lifecycle } from "vscode-lib";
-import Output from "../Output";
+import Output from "../../components/Output";
 import { CompiledCodeModel } from "../../../../models/CompiledCodeModel";
 import { TypeCellCodeModel } from "../../../../models/TypeCellCodeModel";
-import { ModelOutput } from "../ModelOutput";
+import { ModelOutput } from "../../components/ModelOutput";
 import { getTypeCellResolver } from "../../resolver/resolver";
 import { ExecutionHost } from "../ExecutionHost";
 import SourceModelCompiler from "../../../compiler/SourceModelCompiler";
 import { TypeCellModuleCompiler } from "../../resolver/typecell/TypeCellModuleCompiler";
+import { VisualizerExtension } from "../../../extensions/visualizer/VisualizerExtension";
 
 let ENGINE_ID = 0;
 export default class LocalExecutionHost extends lifecycle.Disposable implements ExecutionHost {
@@ -39,14 +40,21 @@ export default class LocalExecutionHost extends lifecycle.Disposable implements 
     );
     this.engine.registerModelProvider(compileEngine);
 
+    const visualizerExtension = this._register(new VisualizerExtension(compileEngine, documentId, monacoInstance));
+
+    this._register(visualizerExtension.onUpdateVisualizers(e => {
+      for (let [path, visualizers] of Object.entries(e)) {
+        this.outputs.get(path)!.updateVisualizers(visualizers);
+      }
+    }));
+
     this._register(
       this.engine.onOutput(({ model, output }) => {
         let modelOutput = this.outputs.get(model.path);
         if (!modelOutput) {
           modelOutput = this._register(
             new ModelOutput(
-              this.documentId,
-              model
+              this.engine.observableContext.context
             )
           );
           this.outputs.set(model.path, modelOutput);

@@ -114,8 +114,8 @@ export default class SourceModelCompiler extends lifecycle.Disposable {
         if (!compiledModel) {
           throw new Error("unexpected: compiled model not found");
         }
-        compiledModel.dispose();
         this.registeredModels.delete(sourceModel.path);
+        compiledModel.dispose();
       })
     );
     this._onDidCreateCompiledModel.fire(compiledModel);

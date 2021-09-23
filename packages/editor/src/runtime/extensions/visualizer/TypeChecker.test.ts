@@ -1,14 +1,11 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 import "monaco-editor/esm/vs/language/typescript/monaco.contribution.js";
-import { Engine, CodeModel } from "@typecell-org/engine";
-import { TypeCellCodeModel } from "../../../../../models/TypeCellCodeModel";
 import * as Y from "yjs";
-import { event } from "vscode-lib";
-
-import { setMonacoDefaults } from "../../..";
-import { findMatchingVisualizers } from "./TypeChecker";
-import setupTypecellTypeResolver from "../plugins/typecellTypeResolver";
-import SourceModelCompiler from "../../../../compiler/SourceModelCompiler";
+import { TypeCellCodeModel } from "../../../models/TypeCellCodeModel";
+import SourceModelCompiler from "../../compiler/SourceModelCompiler";
+import { setMonacoDefaults } from "../../editor";
+import setupTypecellTypeResolver from "../../editor/languages/typescript/plugins/typecellTypeResolver";
+import { TypeChecker } from "./TypeChecker";
 
 setMonacoDefaults(monaco);
 
@@ -18,16 +15,16 @@ it("Find correct visualizer and ignore others", async () => {
   const doc = new Y.Doc();
   const m1Code = new Y.Text(`export let y = 7;`);
   const m2Code = new Y.Text(`
-  export let stringVisualizer = new typecell.TypeVisualizer<string>({
+  export let stringVisualizer = new typecell.TypeVisualizer({
     name: "test-string",
     function: (x: string) => "hello"
   });
   
-  export let numberVisualizer = new typecell.TypeVisualizer<number>({
+  export let numberVisualizer = new typecell.TypeVisualizer({
     name: "test-numbers",
     function: (x: number) => "hello"
   });
-  
+  export let anyValue: any = "";
   export let justANumber = 40;`);
   doc.getMap("map").set("m1", m1Code);
   doc.getMap("map").set("m2", m2Code);
@@ -57,11 +54,11 @@ it("Find correct visualizer and ignore others", async () => {
   // );
 
   await new Promise((resolve) => setTimeout(resolve, 1000));
-  const visualizers = await findMatchingVisualizers(
+  const typeChecker = new TypeChecker(
     "mx://mx.typecell.org/@owner/doc",
-    m1,
     monaco
   );
+  const visualizers = await typeChecker.findMatchingVisualizers(m1);
   expect(visualizers).toEqual(["numberVisualizer"]);
   // console.log(visualizers);
 

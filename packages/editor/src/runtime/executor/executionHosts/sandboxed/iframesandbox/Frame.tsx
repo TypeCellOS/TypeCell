@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
-import Output from "../../Output";
+import Output from "../../../components/Output";
 import { FrameConnection } from "./FrameConnection";
 import "./Frame.css";
 

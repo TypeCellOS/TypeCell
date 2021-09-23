@@ -30,12 +30,17 @@ export type TypeVisualizerArgs<T> = {
   function: (arg: T) => any;
 };
 export class TypeVisualizer<T> {
-  constructor(public visualizer: TypeVisualizerArgs<T>) {
+  public readonly name: string;
+  public readonly function: (arg: T) => any;
+
+  constructor(visualizer: TypeVisualizerArgs<T>) {
     if (
       strings.isFalsyOrWhitespace(visualizer.name) ||
       typeof visualizer.function !== "function"
     ) {
       throw new Error("invalid args");
     }
+    this.name = visualizer.name;
+    this.function = visualizer.function;
   }
 }

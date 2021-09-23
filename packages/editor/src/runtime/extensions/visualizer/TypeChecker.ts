@@ -8,20 +8,6 @@ type WorkerType = (
   ...uris: monaco.Uri[]
 ) => Promise<monaco.languages.typescript.TypeScriptWorker | undefined>;
 
-const cache = new Map<string, TypeChecker>();
-
-export async function findMatchingVisualizers(
-  documentId: string,
-  module: CodeModel,
-  monacoInstance: typeof monaco
-) {
-  if (!cache.has(documentId)) {
-    cache.set(documentId, new TypeChecker(documentId, monacoInstance));
-  }
-  let checker = cache.get(documentId)!;
-  return checker.findMatchingVisualizers(module);
-}
-
 export class TypeChecker extends lifecycle.Disposable {
   private worker: WorkerType | undefined;
   private readonly model: monaco.editor.ITextModel;
@@ -39,7 +25,8 @@ export class TypeChecker extends lifecycle.Disposable {
     this.model = monacoInstance.editor.getModel(uri)!;
 
     if (this.model) {
-      throw new Error("unexpected, TypeChecker model already exists");
+      //throw new Error("unexpected, TypeChecker model already exists");
+      return;
     }
 
     this.model = this._register(
@@ -93,7 +80,11 @@ export class TypeChecker extends lifecycle.Disposable {
     
     //   type pluginTypes<T> = { [K in keyof T]: T[K] extends InstanceType<typeof tc["TypeVisualizer"]> ? T[K]["visualizer"]["function"] : never };
     type pluginTypes<T> = {
-      [K in keyof T]: T[K] extends TypeVisualizer<infer R> ? R : never;
+      [K in keyof T]: T[K] extends TypeVisualizer<infer R>
+        ? null extends T[K] // filter out "any" types
+          ? never
+          : R
+        : never;
     };
     type docPluginTypes = pluginTypes<typeof doc>;
     

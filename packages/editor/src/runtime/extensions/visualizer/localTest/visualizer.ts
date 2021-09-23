@@ -1,4 +1,4 @@
-import { TypeVisualizer } from "../../../../../executor/lib/exports";
+import { TypeVisualizer } from "../../../executor/lib/exports";
 
 export let stringVisualizer = new TypeVisualizer({
   name: "test-string",
@@ -9,3 +9,5 @@ export let numberVisualizer = new TypeVisualizer({
   name: "test-number",
   function: (x: number) => "hello",
 });
+
+export let anyValue = {} as any;

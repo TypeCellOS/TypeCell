@@ -1,10 +1,9 @@
-import { parseIdentifier } from "../../../../identifiers";
-import { DocConnection } from "../../../../store/DocConnection";
-import type * as monaco from "monaco-editor";
-import SourceModelCompiler from "../../../compiler/SourceModelCompiler";
 import { autorun, untracked } from "mobx";
+import type * as monaco from "monaco-editor";
+import { parseIdentifier } from "../../../../identifiers";
 import { getTypeCellCodeModel } from "../../../../models/TypeCellCodeModel";
-import { lifecycle } from "vscode-lib";
+import { DocConnection } from "../../../../store/DocConnection";
+import SourceModelCompiler from "../../../compiler/SourceModelCompiler";
 
 export class TypeCellModuleCompiler extends SourceModelCompiler {
   private readonly connection: DocConnection;

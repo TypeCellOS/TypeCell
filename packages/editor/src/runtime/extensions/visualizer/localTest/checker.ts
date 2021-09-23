@@ -1,6 +1,6 @@
 import * as doc from "./visualizer";
 import * as mod from "./export";
-import { TypeVisualizer } from "../../../../../executor/lib/exports";
+import { TypeVisualizer } from "../../../executor/lib/exports";
 
 let tc = {
   TypeVisualizer,
@@ -41,7 +41,11 @@ type mainExportType<T> = T extends {
 
 //   type pluginTypes<T> = { [K in keyof T]: T[K] extends InstanceType<typeof tc["TypeVisualizer"]> ? T[K]["visualizer"]["function"] : never };
 type pluginTypes<T> = {
-  [K in keyof T]: T[K] extends TypeVisualizer<infer R> ? R : never;
+  [K in keyof T]: T[K] extends TypeVisualizer<infer R>
+    ? null extends T[K] // filter out "any" types
+      ? never
+      : R
+    : never;
 };
 type docPluginTypes = pluginTypes<typeof doc>;
 
@@ -52,6 +56,9 @@ type pluginsPossible = matchingPlugins<docPluginTypes, mainExportTypeModule>;
 // test
 let filteredPlugins: Pick<docPluginTypes, pluginsPossible> = {} as any;
 filteredPlugins.stringVisualizer;
+
+// @ts-expect-error
+filteredPlugins.anyValue;
 
 // @ts-expect-error
 filteredPlugins.numberVisualizer;

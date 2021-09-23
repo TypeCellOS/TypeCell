@@ -4,7 +4,7 @@ import { AsyncMethodReturns, Connection, connectToParent } from "penpal";
 import { lifecycle } from "vscode-lib";
 import { CompiledCodeModel } from "../../../../../models/CompiledCodeModel";
 import { getTypeCellResolver } from "../../../resolver/resolver";
-import { ModelOutput } from "../../ModelOutput";
+import { ModelOutput } from "../../../components/ModelOutput";
 import type SandboxedExecutionHost from "../SandboxedExecutionHost";
 import { ModelReceiver } from "./ModelReceiver";
 
@@ -67,7 +67,9 @@ export class FrameConnection extends lifecycle.Disposable {
       this.engine.onOutput(({ model, output }) => {
         let modelOutput = this.outputs.get(model.path);
         if (!modelOutput) {
-          modelOutput = this._register(new ModelOutput("", model));
+          modelOutput = this._register(
+            new ModelOutput(this.engine.observableContext.context)
+          );
           this.outputs.set(model.path, modelOutput);
         }
         modelOutput.updateValue(output);
