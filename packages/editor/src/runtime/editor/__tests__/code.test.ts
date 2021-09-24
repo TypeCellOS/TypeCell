@@ -10,7 +10,7 @@ import { getTypeCellResolver } from "../../executor/resolver/resolver";
 
 setMonacoDefaults(monaco);
 
-it.skip("basic replace", async () => {
+it("basic code execution", async () => {
   const doc = new Y.Doc();
   const m1Code = new Y.Text(`export let y = 43;`);
   const m2Code = new Y.Text(`export let x = 432;`);
@@ -30,9 +30,10 @@ it.skip("basic replace", async () => {
     getTypeCellResolver("docid", "testEngine", undefined)
   );
 
-  engine.registerModel(m1);
+  engine.registerModelProvider(compiler);
+  await event.Event.toPromise(engine.onOutput); // first compilation will be empty
   const result = await event.Event.toPromise(engine.onOutput);
-
+  console.log(result);
   expect(result.output.y).toBe(43);
 
   // await new Promise<void>((resolve) => {

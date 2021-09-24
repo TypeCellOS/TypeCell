@@ -65,7 +65,7 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
     onDidCreateCompiledModel: event.Event<T>;
     compiledModels: T[];
   }) {
-    provider.compiledModels.forEach(this.registerModel);
+    provider.compiledModels.forEach((m) => this.registerModel(m));
     this._register(
       provider.onDidCreateCompiledModel((m) => {
         this.registerModel(m);
@@ -168,6 +168,7 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
       throw new Error("can not evaluate non-javascript code");
     }
     let code = model.getValue();
+    console.log("evaluating", code);
     await evaluator.evaluate(code);
   }
 }

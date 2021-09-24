@@ -11,8 +11,8 @@ import * as mobx from "mobx";
 import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
 import { MATRIX_CONFIG } from "./config/config";
 import { setMonacoDefaults } from "./runtime/editor";
-import setupNpmTypeResolver from "./runtime/editor/languages/typescript/plugins/npmTypeResolver";
-import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/plugins/typecellTypeResolver";
+import setupNpmTypeResolver from "./runtime/editor/languages/typescript/npmTypeResolver";
+import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typecellTypeResolver";
 import { initializeStoreService } from "./store/local/stores";
 import * as monaco from "monaco-editor";
 

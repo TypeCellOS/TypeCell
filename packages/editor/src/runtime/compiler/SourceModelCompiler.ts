@@ -77,6 +77,7 @@ export default class SourceModelCompiler extends lifecycle.Disposable {
       console.warn("model already registered"); // TODO: shouldn't happen
       return;
     }
+    // TODO: perhaps not register empty compiled model?
     const compiledModel = new CompiledCodeModel(sourceModel.path, "");
     this.registeredModels.set(sourceModel.path, { sourceModel, compiledModel });
     const compile = async () => {
