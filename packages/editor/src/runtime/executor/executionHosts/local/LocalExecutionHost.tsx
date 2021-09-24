@@ -16,7 +16,6 @@ let ENGINE_ID = 0;
 export default class LocalExecutionHost extends lifecycle.Disposable implements ExecutionHost {
   private disposed: boolean = false;
 
-  // TODO: maybe observable map is not necessary / we can easily remove mobx dependency here
   private readonly outputs = observable.map<string, ModelOutput>(
     undefined,
     {

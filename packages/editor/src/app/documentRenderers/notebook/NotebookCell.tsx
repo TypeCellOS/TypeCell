@@ -222,11 +222,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
           className="output"
           contentEditable={false}
           style={{ position: "relative" }}>
-          {/* <CellContext.Provider value={{ cell: props.cell }}> */}
-          {/* <div>hello</div> */}
           {model && props.executionHost.renderOutput(model)}
-          {/* TODO: {props.cell.viewPluginsAvailable} */}
-          {/* </CellContext.Provider> */}
         </div>
       </div>
     </div>

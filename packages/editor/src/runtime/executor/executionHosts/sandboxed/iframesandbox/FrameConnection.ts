@@ -18,10 +18,10 @@ export class FrameConnection extends lifecycle.Disposable {
     | undefined;
 
   private readonly engine: Engine<CompiledCodeModel>;
+  private readonly modelReceivers = new Map<string, ModelReceiver>();
 
   public readonly id = ENGINE_ID++;
 
-  // TODO: maybe observable map is not necessary / we can easily remove mobx dependency here
   public readonly outputs = observable.map<string, ModelOutput>(undefined, {
     deep: false,
   });
@@ -34,8 +34,6 @@ export class FrameConnection extends lifecycle.Disposable {
         y: number;
       }
     >();
-
-  private readonly modelReceivers = new Map<string, ModelReceiver>();
 
   constructor() {
     super();

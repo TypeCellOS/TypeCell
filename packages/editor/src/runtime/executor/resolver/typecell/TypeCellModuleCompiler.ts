@@ -8,7 +8,6 @@ import SourceModelCompiler from "../../../compiler/SourceModelCompiler";
 export class TypeCellModuleCompiler extends SourceModelCompiler {
   private readonly connection: DocConnection;
   private releasePreviousModels: (() => void) | undefined;
-  // public readonly compiler: SourceModelCompiler;
 
   constructor(
     private readonly moduleName: string,
@@ -23,9 +22,6 @@ export class TypeCellModuleCompiler extends SourceModelCompiler {
 
     this.connection = DocConnection.load(identifier);
 
-    // this.compiler = new SourceModelCompiler(monacoInstance);
-
-    // TODO: refactor, and releaseModel()
     const disposeAutorun = autorun(() => {
       const cells = this.connection.tryDoc?.doc.cells;
       if (!cells) {
@@ -38,16 +34,12 @@ export class TypeCellModuleCompiler extends SourceModelCompiler {
           getTypeCellCodeModel(c, monacoInstance)
         );
         models.forEach((m) => {
-          // if (needsTypesInMonaco) {
           m.object.acquireMonacoModel();
-          // }
           this.registerModel(m.object);
         });
         this.releasePreviousModels = () => {
           models.forEach((m) => {
-            // if (needsTypesInMonaco) {
             m.object.releaseMonacoModel();
-            // }
             m.dispose();
           });
         };

@@ -4,7 +4,7 @@ import * as Y from "yjs";
 import { TypeCellCodeModel } from "../../../models/TypeCellCodeModel";
 import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 import { setMonacoDefaults } from "../../editor";
-import setupTypecellTypeResolver from "../../editor/languages/typescript/plugins/typecellTypeResolver";
+import setupTypecellTypeResolver from "../../editor/languages/typescript/typecellTypeResolver";
 import { TypeChecker } from "./TypeChecker";
 
 setMonacoDefaults(monaco);

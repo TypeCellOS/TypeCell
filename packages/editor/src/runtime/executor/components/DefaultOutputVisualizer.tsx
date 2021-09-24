@@ -1,11 +1,7 @@
-import { ObservableMap, toJS } from "mobx";
-import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import ObjectInspector from "react-inspector";
 import { ContainedElement } from "../../../util/ContainedElement";
 import RetryErrorBoundary from "../../../util/RetryErrorBoundary";
-import { TypeVisualizer } from "../lib/exports";
-import { ModelOutput } from "./ModelOutput";
 
 // TODO: later maybe also use https://github.com/samdenty/console-feed to capture console messages
 
