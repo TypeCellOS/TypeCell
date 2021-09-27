@@ -85,7 +85,7 @@ export interface IValidationResult {
 
 export interface IInputProps<T>
   extends IProps<T>,
-  Omit<InputHTMLAttributes<HTMLInputElement>, "defaultValue"> {
+  Omit<InputHTMLAttributes<HTMLInputElement>, "defaultValue" | "type"> {
   // The element to create. Defaults to "input".
   element?: "input";
 }
