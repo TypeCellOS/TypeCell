@@ -85,7 +85,7 @@ export interface IValidationResult {
 
 export interface IInputProps<T>
   extends IProps<T>,
-    Omit<InputHTMLAttributes<HTMLInputElement>, "defaultValue"> {
+  Omit<InputHTMLAttributes<HTMLInputElement>, "defaultValue"> {
   // The element to create. Defaults to "input".
   element?: "input";
 }
@@ -93,7 +93,7 @@ export interface IInputProps<T>
 // TODO: consider removing SelectHTMLAttributes extension and use custom props
 interface ISelectProps<FieldValue>
   extends IProps<FieldValue>,
-    Omit<SelectHTMLAttributes<HTMLSelectElement>, "defaultValue"> {
+  Omit<SelectHTMLAttributes<HTMLSelectElement>, "defaultValue" | "type"> {
   // To define options for a select, use <Field><option ... /></Field>
   element: "select";
   options?: OptionType[];
@@ -102,7 +102,7 @@ interface ISelectProps<FieldValue>
 
 interface ITextareaProps<FieldValue>
   extends IProps<FieldValue>,
-    Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "defaultValue"> {
+  Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "defaultValue"> {
   element: "textarea";
 }
 

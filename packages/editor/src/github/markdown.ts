@@ -41,7 +41,9 @@ export function markdownToNotebook(markdown: string) {
         type: "root",
         children: cell.nodes,
       };
-      const md = unified().use(remarkStringify).stringify(root) as string;
+      const md = unified()
+        .use(remarkStringify)
+        .stringify(root) as any as string;
       return md;
     }
     return cell;
