@@ -60,16 +60,6 @@ const Main = observer((props: Props) => {
               isOpen={navigationStore.isNewPageDialogVisible}
             />
           )}
-          {/* <FlagGroup>
-        <>
-          {notebookStore.showFreezeAlert && (
-            <FreezeAlert
-              onDismiss={notebookStore.dismissFreezeAlert}
-              onLoadSafeMode={notebookStore.loadSafeMode}
-            />
-          )}
-        </>
-      </FlagGroup> */}
         </div>
       </DndProvider>
     </MonacoContext.Provider>
@@ -79,38 +69,3 @@ const Main = observer((props: Props) => {
 export default Main;
 
 (window as any).DocumentResource = DocumentResource; // TODO: hacky
-
-// const notebookStore = new NotebookStore(userStore);
-/*
-const FreezeAlert = (props: {
-  onDismiss: () => void;
-  onLoadSafeMode: () => void;
-}) => {
-  return (
-    <Flag
-      css={{
-        zIndex: 2000,
-        backgroundColor: "rgb(222, 53, 11)",
-      }}
-      appearance="error"
-      icon={
-        <VscWarning
-          css={{
-            width: "24px",
-            height: "24px",
-            padding: "2px",
-          }}
-        />
-      }
-      id="error"
-      key="error"
-      title="The document is not responding"
-      description="It seems like your document has frozen. Perhaps there is an infinite loop in the code?
-    You can load the document in safe mode to fix any code errors."
-      actions={[
-        { content: "Dismiss", onClick: props.onDismiss },
-        { content: "Reload in safe mode", onClick: props.onLoadSafeMode },
-      ]}
-    />
-  );
-};*/

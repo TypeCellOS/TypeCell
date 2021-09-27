@@ -12,11 +12,14 @@ import { ModelForwarder } from "./ModelForwarder";
 import OutputShadow from "./OutputShadow";
 import type * as monaco from "monaco-editor";
 import { VisualizerExtension } from "../../../extensions/visualizer/VisualizerExtension";
+import { FreezeAlert } from "./FreezeAlert";
+import { FlagGroup } from "@atlaskit/flag";
+import { observer } from "mobx-react-lite";
 
 // use 127.0.0.1 for iframe so that we make sure we run on a different origin
 const IFRAME_URL = "http://127.0.0.1:3000/?frame";
 let ENGINE_ID = 0;
-
+const FREEZE_TIMEOUT = 3000;
 export default class SandboxedExecutionHost extends lifecycle.Disposable implements ExecutionHost {
   public readonly iframe: HTMLIFrameElement;
   private disposed: boolean = false;
@@ -45,6 +48,8 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
   }>();
 
   public readonly id = ENGINE_ID++;
+
+  public showFreezeAlert = observable.box(false);
 
   constructor(
     private readonly documentId: string,
@@ -215,6 +220,39 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
     this._register(visualizerExtension.onUpdateVisualizers(e => {
       this.connectionMethods!.updateVisualizers(e);
     }));
+
+    this.setupPing();
+  }
+
+  private setupPing() {
+    const handle = setInterval(async () => {
+      try {
+        await Promise.race([
+          this.pingFrame(),
+          new Promise((resolve, reject) => {
+            setTimeout(reject, FREEZE_TIMEOUT);
+          }),
+        ]);
+        runInAction(() => {
+          this.showFreezeAlert.set(false);
+        });
+      } catch {
+        runInAction(() => {
+          this.showFreezeAlert.set(true);
+        });
+      }
+    }, FREEZE_TIMEOUT);
+    this._register({
+      dispose: () => clearInterval(handle)
+    });
+  }
+
+  private async pingFrame() {
+    const result = await this.connectionMethods!.ping();
+    console.log("received ping result", result);
+    if (result !== "pong") {
+      throw new Error("invalid ping response")
+    }
   }
 
   private async sendModelPositions(model: CompiledCodeModel, positions: { x: number, y: number }) {
@@ -271,8 +309,24 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
     );
   }
 
+  private FlagComponent = observer((props: {}) => {
+    if (!this.showFreezeAlert.get()) {
+      return null;
+    }
+    const reload = () => {
+      window.location.href = window.location.href;
+    }
+    return <FlagGroup>
+      <FreezeAlert onReload={reload} ></FreezeAlert>
+    </FlagGroup>
+  });
+
   public renderContainer() {
-    return <ContainedElement element={this.iframe} />;
+    const FlagComponent = this.FlagComponent;
+    return <>
+      <FlagComponent />
+      <ContainedElement element={this.iframe} />
+    </>;
   }
 
   public renderOutput(model: TypeCellCodeModel) {
