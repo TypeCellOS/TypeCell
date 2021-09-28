@@ -110,7 +110,7 @@
     "emittypes": "rimraf public/types && tsc --declaration --stripInternal --emitDeclarationOnly --noEmit false --declarationDir public/types",
     "start": "npm run emittypes && react-scripts start",
     "build": "tsc -v && npm run emittypes",
-    "build-react": "cross-env NODE_OPTIONS=--max_old_space_size=4096 npm run emittypes && react-scripts build",
+    "build-react": "npm run emittypes && cross-env NODE_OPTIONS=--max_old_space_size=8192 react-scripts build",
     "test": "react-scripts test",
     "test-no-watch": "react-scripts test --watchAll=false",
     "eject": "react-scripts eject",
