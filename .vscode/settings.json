@@ -5,5 +5,9 @@
   "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "search.exclude": {
+    "packages/editor/public/types": true
+  },
+  
 }

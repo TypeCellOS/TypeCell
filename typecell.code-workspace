@@ -1,0 +1,35 @@
+{
+  "folders": [
+    {
+      "name": "ROOT",
+      "path": "."
+    },
+    {
+      "name": "packages/common",
+      "path": "packages/common"
+    },
+    {
+      "name": "packages/editor",
+      "path": "packages/editor"
+    },
+    {
+      "name": "packages/engine",
+      "path": "packages/engine"
+    },
+    {
+      "name": "packages/matrix-yjs",
+      "path": "packages/matrix-yjs"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "packages/": true
+    },
+    "jest.disabledWorkspaceFolders": [
+      "ROOT",
+      "packages/common",
+      "packages/engine"
+    ],
+    "typescript.tsdk": "ROOT/node_modules/typescript/lib"
+  }
+}
