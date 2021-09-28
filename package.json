@@ -12,7 +12,7 @@
     "bootstrap": "lerna bootstrap --hoist && patch-package",
     "test": "jest --coverage=true --config=jest.config.js && lerna run test-no-watch",
     "build": "lerna run build --concurrency 1",
-    "build-react": "lerna run build --concurrency 1",
+    "build-react": "lerna run build-react --concurrency 1",
     "watch": "npm run build && lerna run --parallel watch",
     "start": "lerna run --scope @typecell-org/editor start",
     "prepublishOnly": "npm run test && npm run build",
