@@ -1,0 +1,45 @@
+import * as _ from "lodash";
+import type * as Y from "yjs";
+import { CellListModel } from "../models/CellListModel";
+import { BaseResource, BaseResourceConnection } from "./BaseResource";
+
+/**
+ * A resource with multiple cells, used for either the Notebook or Richtext built-in types
+ */
+export class DocumentResource extends BaseResource {
+  /** @internal */
+  constructor(ydoc: Y.Doc, connection: BaseResourceConnection) {
+    super(ydoc, connection);
+    if (this.type !== "!notebook" && this.type !== "!richtext") {
+      throw new Error("invalid type for DocumentResource");
+    }
+  }
+
+  /** @internal */
+  public get title(): Y.Text {
+    return this.ydoc.getText("title");
+  }
+
+  /** @internal */
+  public get comments(): Y.Map<any> {
+    return this.ydoc.getMap("comments");
+  }
+
+  /** @internal */
+  public get data(): Y.XmlFragment {
+    let xml = this.ydoc.getXmlFragment("doc");
+    return xml;
+  }
+
+  private _getCellListMemoized = _.memoize(
+    (data: Y.XmlFragment) => new CellListModel(this.id, data)
+  );
+
+  public get cellList() {
+    return this._getCellListMemoized(this.data);
+  }
+
+  public get cells() {
+    return this.cellList.cells;
+  }
+}
