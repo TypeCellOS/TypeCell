@@ -58,6 +58,11 @@ jobs:
         env:
           CI: true
 
+      - name: Build react
+        run: npm run build-react
+        env:
+          CI: true
+
       - name: Run Tests
         run: npm run test
         env:
