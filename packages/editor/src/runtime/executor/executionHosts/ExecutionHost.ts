@@ -5,5 +5,8 @@ import { TypeCellCodeModel } from "../../../models/TypeCellCodeModel";
 export type ExecutionHost = lifecycle.IDisposable & {
   renderContainer(): React.ReactElement;
 
-  renderOutput(model: TypeCellCodeModel): React.ReactElement;
+  renderOutput(
+    model: TypeCellCodeModel,
+    setHovering?: (hover: boolean) => void
+  ): React.ReactElement;
 };

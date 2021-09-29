@@ -3,7 +3,7 @@ import { createAtom, makeObservable, observable, runInAction } from "mobx";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
-import GithubProvider from "../../github/GithubProvider";
+import GithubProvider from "../../integrations/github/GithubProvider";
 import { GithubIdentifier } from "../../identifiers/GithubIdentifier";
 import { Identifier } from "../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";

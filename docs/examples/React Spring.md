@@ -1,6 +1,7 @@
 # React Spring demo
 
-Some examples of animations using `react-spring`. The demoes come from https://react-spring.io/basics.
+Some examples of animations using `react-spring`. The demos come from https://react-spring.io/basics.
+
 
 ```typescript
 import { useSpring, animated } from "react-spring";
@@ -23,6 +24,7 @@ function Text() {
 export default <Text />;
 
 ```
+
 ```typescript
 import { useSpring, animated } from "react-spring";
 import { useState } from "react";
@@ -44,9 +46,12 @@ function Number() {
 export default <Number />;
 
 ```
+
 ## Parallax demo:
 
 See original @ https://react-spring.io/components/parallax.
+
+
 ```typescript
 import { Parallax, ParallaxLayer } from "@react-spring/parallax";
 

@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 
 import * as Y from "yjs";
-import { GithubIdentifier } from "../identifiers/GithubIdentifier";
+import { GithubIdentifier } from "../../identifiers/GithubIdentifier";
 
 import { uniqueId } from "@typecell-org/common";
 import { lifecycle, event } from "vscode-lib";
