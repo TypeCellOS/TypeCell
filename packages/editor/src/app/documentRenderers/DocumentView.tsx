@@ -59,9 +59,9 @@ const DocumentView = observer((props: Props) => {
       <>
         <MenuPortal>
           <DropdownItemGroup>
-            <DropdownItem onClick={() => saveDocumentToGithub(props.id)}>
+            {/* <DropdownItem onClick={() => saveDocumentToGithub(props.id)}>
               Sync to Github
-            </DropdownItem>
+            </DropdownItem> */}
             <DropdownItem onClick={() => openAsMarkdown(doc)}>
               Export as markdown
             </DropdownItem>
