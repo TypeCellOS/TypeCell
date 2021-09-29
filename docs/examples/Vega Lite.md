@@ -18,6 +18,7 @@ Now, let's calculate character occurences in entered text:
 import * as _ from "lodash";
 
 export let counts = _.countBy($.data.toLowerCase(), (a) => a);
+
 ```
 
 Let's transform the map to a format that's more easy to consume with Vega:
@@ -31,7 +32,7 @@ export let countArray = Object.entries($.counts).map((entry) => ({
 
 ```
 
-Now, we create a frequency chart using Vega-lite. __Try changing the text__ in the Textarea above to see how the chart updates live.
+Now, we create a frequency chart using Vega-lite. **Try changing the text** in the Textarea above to see how the chart updates live.
 
 <small>(Click the arrow on the side of the chart below to show the code)</small>
 
