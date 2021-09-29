@@ -10,7 +10,7 @@
   "scripts": {
     "--postinstall": "npm run bootstrap && patch-package",
     "bootstrap": "lerna bootstrap --hoist && patch-package",
-    "test": "lerna run test-no-watch",
+    "test": "jest --coverage=true --config=jest.config.js && lerna run test-no-watch",
     "build": "lerna run build --concurrency 1",
     "build-react": "lerna run build-react --concurrency 1 --stream",
     "lint": "lerna run lint --concurrency 1",
