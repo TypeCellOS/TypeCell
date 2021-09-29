@@ -42,5 +42,5 @@ export function xmlFragmentToMarkdown(xml: Y.XmlFragment) {
     }
   });
 
-  return elements.join("\n");
+  return elements.join("\n\n");
 }

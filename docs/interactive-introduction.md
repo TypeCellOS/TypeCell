@@ -9,10 +9,12 @@ In this introduction, we will go through the basics of using TypeCell Codebooks.
 
 Let's say you're like my grandma, and you have a lot of cats. Our story will be about them.
 
+
 ```typescript
-export let cat = { name: "@#$@#$" };
+export let cat = { name: "@2sd##$" };
 
 ```
+
 ```typescript
 // @default-collapsed
 
@@ -32,12 +34,14 @@ export default $.cat.name.match(/^[a-zA-Z0-9\s]+$/) ? (
 );
 
 ```
+
 ```typescript
 export default (
   <div>I feel like our cat needs a friend. Let's call him {$.friend.name}</div>
 );
 
 ```
+
 Uh oh, what's this? I forgot to add a cell defining our friend. Can you do it for me?
 
 A cell is a container for code & output. To add one, click on the + above or below another cell.
@@ -46,6 +50,7 @@ You can do it wherever you like.
 ## Feeding neighbors
 
 Our cats have some neighbors. Let's involve them in the story too!
+
 
 ```typescript
 export let neighbors = [
@@ -56,8 +61,10 @@ export let neighbors = [
 ];
 
 ```
+
 Now, if you're like my grandma, you're feeding the entire neighborhood by yourself.
 Let's see how many cans of food you need to prepare.
+
 
 ```typescript
 export function repeat(char: string, times: number) {
@@ -83,6 +90,7 @@ const cansAsString = repeat("🥫", cansToPrepare);
 export default <div>Cans to prepare for the cats: {cansAsString}</div>;
 
 ```
+
 We have now stored the number of cans required under `$.cansToPrepare`.
 Notice how we're using React / JSX in combination with a `default` export to
 make the display of a cell more meaningful to the user.
@@ -90,19 +98,27 @@ make the display of a cell more meaningful to the user.
 Next, we'll use an range slider to indicate how many cans we have prepared.
 The built-in TypeCell Input library makes this extremely easy:
 
+
 ```typescript
-export let numberOfCansPrepared = typecell.Input(
+export let numberOfCansPrepared = typecell.Input<number>(
   <input type="range" min={0} max={10} />,
   0
 );
 
-export default <div>Number of cans prepared: {numberOfCansPrepared}</div>;
+```
+
+```typescript
+// @default-collapsed
+
+export default <p>Number of cans prepared: {$.numberOfCansPrepared}.</p>;
 
 ```
+
 Now, you can play with the range above,
 and see whether we have prepared enough cans of food below!
 
 *Expand the cell below to see how it works*
+
 
 ```typescript
 // @default-collapsed
@@ -134,6 +150,7 @@ if (cansRemaining < 0) {
 export default message;
 
 ```
+
 ## Final notes
 
 We hope this introduction has given you a sense of how TypeCell Codebooks and

@@ -1,3 +1,4 @@
+import { computed } from "mobx";
 import { Input } from "./input/Input";
 
 // TODO: make sure only relevant types are exported
@@ -18,6 +19,7 @@ export default function getExposeGlobalVariables(id: string) {
     //   return createOneToManyReferenceDefinition(id, type, reverseType, sorted);
     // },
     TypeVisualizer,
+    computed: computed as (func: () => any) => any,
   };
 }
 export class TypeVisualizer<T> {
