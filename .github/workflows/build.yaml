@@ -58,6 +58,11 @@ jobs:
         env:
           CI: true
 
+      - name: Lint (we don't build React in CI, but at least lint it)
+        run: npm run lint
+        env:
+          CI: true
+
       - name: Run Tests
         run: npm run test
         env:
