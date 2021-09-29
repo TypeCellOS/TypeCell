@@ -19,7 +19,7 @@ export function filesToTreeNodes(arr: File[]): TreeNode[] {
         fileName: splitpath[i],
         isDirectory: true,
       };
-      if (i == splitpath.length - 1) {
+      if (i === splitpath.length - 1) {
         node.isDirectory = false;
       }
       ptr[splitpath[i]] = ptr[splitpath[i]] || node;
@@ -28,7 +28,7 @@ export function filesToTreeNodes(arr: File[]): TreeNode[] {
     }
   }
   function objectToArr(node: any) {
-    Object.keys(node || {}).map((k) => {
+    Object.keys(node || {}).forEach((k) => {
       if (node[k].children) {
         objectToArr(node[k]);
       }

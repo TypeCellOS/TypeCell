@@ -1,56 +1,52 @@
 import Bold from "@tiptap/extension-bold";
 import Code from "@tiptap/extension-code";
 import Collaboration from "@tiptap/extension-collaboration";
-import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import Document from "@tiptap/extension-document";
 import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
 import Placeholder from "@tiptap/extension-placeholder";
-import { useEditor, EditorContent } from "@tiptap/react";
+import Strike from "@tiptap/extension-strike";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import TableRow from "@tiptap/extension-table-row";
+import Text from "@tiptap/extension-text";
+import { EditorContent, useEditor } from "@tiptap/react";
 import { observer } from "mobx-react-lite";
 import React, { useContext, useEffect, useMemo, useRef } from "react";
-import Strike from "@tiptap/extension-strike";
-import Link from "@tiptap/extension-link";
-import Text from "@tiptap/extension-text";
+import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
+import { MonacoContext } from "../../../runtime/editor/MonacoContext";
+import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost";
 import { DocumentResource } from "../../../store/DocumentResource";
 import { AutoId } from "./extensions/autoid/AutoId";
-import { MultiSelection } from "./extensions/multiselection/MultiSelection";
-import { TrailingNode } from "./extensions/trailingnode";
 import {
   BlockQuoteBlock,
+  BulletList,
+  CodeBlockBlock,
   HeadingBlock,
   HorizontalRuleBlock,
   IndentItemBlock,
   ListItemBlock,
+  OrderedList,
   ParagraphBlock,
   TypeCellNodeBlock,
-  BulletList,
-  OrderedList,
-  CodeBlockBlock,
 } from "./extensions/blocktypes";
-import { TableBlock } from "./extensions/blocktypes/TableBlock";
 import ImageBlock from "./extensions/blocktypes/ImageBlock";
 import IndentGroup from "./extensions/blocktypes/IndentGroup";
-import { Underline } from "./extensions/marks/Underline";
-import { Mention, MentionType } from "./extensions/mentions";
-import MentionsExtension from "./extensions/mentions";
-import { Comment } from "./extensions/marks/Comment";
-import SlashCommandExtension from "./extensions/slashcommand";
-import "./RichTextRenderer.css";
-
-import { EngineContext } from "./extensions/typecellnode/EngineContext";
-import InlineMenu from "./menus/InlineMenu";
-import TableMenu from "./menus/TableInlineMenu";
-import TableCell from "@tiptap/extension-table-cell";
-import TableHeader from "@tiptap/extension-table-header";
-import TableRow from "@tiptap/extension-table-row";
+import { TableBlock } from "./extensions/blocktypes/TableBlock";
 import { Comments } from "./extensions/comments/Comments";
 import { CommentStore } from "./extensions/comments/CommentStore";
 import { CommentWrapper } from "./extensions/comments/CommentWrapper";
+import { Comment } from "./extensions/marks/Comment";
 import Hyperlink from "./extensions/marks/Hyperlink";
-import { MonacoContext } from "../../../runtime/editor/MonacoContext";
-import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost";
-import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
+import { Underline } from "./extensions/marks/Underline";
+import MentionsExtension, { Mention, MentionType } from "./extensions/mentions";
+import { MultiSelection } from "./extensions/multiselection/MultiSelection";
+import SlashCommandExtension from "./extensions/slashcommand";
+import { TrailingNode } from "./extensions/trailingnode";
+import { EngineContext } from "./extensions/typecellnode/EngineContext";
+import InlineMenu from "./menus/InlineMenu";
+import TableMenu from "./menus/TableInlineMenu";
+import "./RichTextRenderer.css";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -76,14 +72,18 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       disposer.current = undefined;
     }
     const newCompiler = new SourceModelCompiler(monaco);
-    const newExecutionHost = new LocalExecutionHost(props.document.id, newCompiler, monaco);
+    const newExecutionHost = new LocalExecutionHost(
+      props.document.id,
+      newCompiler,
+      monaco
+    );
     disposer.current = () => {
       newCompiler.dispose();
       newExecutionHost.dispose();
     };
 
     return [newCompiler, newExecutionHost];
-  }, [props.document.id]);
+  }, [props.document.id, monaco]);
 
   useEffect(() => {
     return () => {
@@ -195,7 +195,8 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       {editor != null ? (
         <CommentWrapper editor={editor} commentStore={commentStore} />
       ) : null}
-      <EngineContext.Provider value={{ compiler, executionHost, document: props.document }}>
+      <EngineContext.Provider
+        value={{ compiler, executionHost, document: props.document }}>
         <EditorContent editor={editor} />
       </EngineContext.Provider>
     </div>

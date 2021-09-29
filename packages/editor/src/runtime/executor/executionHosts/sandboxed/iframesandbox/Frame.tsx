@@ -57,6 +57,7 @@ export const Frame = observer((props: {}) => {
   // disposer
   useEffect(() => {
     return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       resizeObserver.current.disconnect();
     };
   }, []);
@@ -89,7 +90,7 @@ export const Frame = observer((props: {}) => {
               <div
                 style={{
                   maxWidth: "100%",
-                  width: "100%"
+                  width: "100%",
                 }}>
                 <Output modelPath={id} outputs={connection.outputs} />
               </div>

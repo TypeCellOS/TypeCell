@@ -283,7 +283,7 @@ export function SuggestionPlugin<T extends SuggestionItem>({
 
     props: {
       handleKeyDown(view, event) {
-        const { active, range } = this.getState(view.state);
+        const { active } = this.getState(view.state);
 
         if (!active) {
           // activate the popup on 'char' keypress (e.g. '/')

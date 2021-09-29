@@ -109,7 +109,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
         setEditor(newEditor);
       }
     },
-    [editor, props.initialFocus]
+    [editor, props.initialFocus, monaco.editor]
   );
 
   useEffect(() => {
@@ -127,7 +127,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
       setModel(undefined);
       setMonacoModel(undefined);
     };
-  }, [props.cell, props.compiler]);
+  }, [props.cell, props.compiler, monaco]);
 
   useEffect(() => {
     if (!editor || !monacoModel) {

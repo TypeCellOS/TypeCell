@@ -1,4 +1,4 @@
-import { Command, Mark, mergeAttributes } from "@tiptap/core";
+import { Mark, mergeAttributes } from "@tiptap/core";
 
 /**
  * This file structure is copied from the TipTap code for bold and italic

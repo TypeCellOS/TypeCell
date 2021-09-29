@@ -142,8 +142,6 @@ class _MatrixClientPeg implements IMatrixClientPeg {
   // used if we tear it down & recreate it with a different store
   private currentClientCreds: IMatrixClientCreds | undefined;
 
-  constructor() {}
-
   public setIndexedDbWorkerScript(script: string): void {
     (createMatrixClient as any).indexedDbWorkerScript = script;
   }

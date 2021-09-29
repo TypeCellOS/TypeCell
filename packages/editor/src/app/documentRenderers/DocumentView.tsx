@@ -2,10 +2,9 @@ import { DropdownItem, DropdownItemGroup } from "@atlaskit/dropdown-menu";
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useState } from "react";
-import { saveDocumentToGithub } from "../../integrations/github/github";
 import { Identifier } from "../../identifiers/Identifier";
+import { openAsMarkdown } from "../../integrations/markdown";
 import { DocConnection } from "../../store/DocConnection";
-
 import PluginResource from "../../store/PluginResource";
 import ProjectResource from "../../store/ProjectResource";
 import { MenuPortal } from "../portals/MenuPortal";
@@ -14,7 +13,6 @@ import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
 import ProjectRenderer from "./project/ProjectRenderer";
 import RichTextRenderer from "./richtext/RichTextRenderer";
-import { openAsMarkdown } from "../../integrations/markdown";
 
 type Props = {
   id: Identifier;

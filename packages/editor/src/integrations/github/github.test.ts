@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { getFileFromGithub, getTemplateTree } from "./github";
 jest.setTimeout(20000);
 

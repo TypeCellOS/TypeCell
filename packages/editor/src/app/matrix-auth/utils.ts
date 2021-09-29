@@ -363,8 +363,9 @@ export function isNumber(value: any): boolean {
 // Combining characters U+0300 - U+036F
 // Zero width no-break space (BOM) U+FEFF
 // eslint-disable-next-line no-misleading-character-class
-const removeHiddenCharsRegex =
-  /[\u2000-\u200F\u202A-\u202F\u0300-\u036F\uFEFF\u061C\s]/g;
+
+// const removeHiddenCharsRegex =
+// /[\u2000-\u200F\u202A-\u202F\u0300-\u036F\uFEFF\u061C\s]/g;
 
 export function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

@@ -15,15 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import Button from "@atlaskit/button";
+import Form from "@atlaskit/form";
 import React from "react";
-
-import PassphraseField from "./PassphraseField";
 import AuthStyles from "../AuthStyles.module.css";
 import Field from "../elements/Field";
 import { ValidatedServerConfig } from "../util/AutoDiscoveryUtils";
-import Form, { FormHeader } from "@atlaskit/form";
-import Button from "@atlaskit/button";
-import { FormState } from "final-form";
+import PassphraseField from "./PassphraseField";
 
 enum RegistrationField {
   Email = "field_email",
@@ -111,7 +109,7 @@ export default class RegistrationForm extends React.PureComponent<IProps> {
   private onUsernameValidate = (value?: string) => {
     if (!value) {
       return { error: "Enter username" };
-    } else if (!/^[a-z0-9_\-]+$/.test(value)) {
+    } else if (!/^[a-z0-9_-]+$/.test(value)) {
       return { error: "Some characters are not allowed" };
     } else {
       return {};
@@ -239,24 +237,24 @@ export default class RegistrationForm extends React.PureComponent<IProps> {
     );
 
     // TODO email registration has yet to be implemented
-    let emailHelperText: JSX.Element = <></>;
-    if (this.showEmail()) {
-      if (this.showPhoneNumber()) {
-        emailHelperText = (
-          <div>
-            Add an email to be able to reset your password. Use email or phone
-            to optionally be discoverable by existing contacts.
-          </div>
-        );
-      } else {
-        emailHelperText = (
-          <div>
-            Add an email to be able to reset your password. Use email to
-            optionally be discoverable by existing contacts.
-          </div>
-        );
-      }
-    }
+    // let emailHelperText: JSX.Element = <></>;
+    // if (this.showEmail()) {
+    //   if (this.showPhoneNumber()) {
+    //     emailHelperText = (
+    //       <div>
+    //         Add an email to be able to reset your password. Use email or phone
+    //         to optionally be discoverable by existing contacts.
+    //       </div>
+    //     );
+    //   } else {
+    //     emailHelperText = (
+    //       <div>
+    //         Add an email to be able to reset your password. Use email to
+    //         optionally be discoverable by existing contacts.
+    //       </div>
+    //     );
+    //   }
+    // }
 
     return (
       // Renders an Atlaskit form together with many other components,

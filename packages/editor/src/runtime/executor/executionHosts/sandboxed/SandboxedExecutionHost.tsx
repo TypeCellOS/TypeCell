@@ -345,6 +345,7 @@ export default class SandboxedExecutionHost
       return null;
     }
     const reload = () => {
+      // eslint-disable-next-line no-self-assign
       window.location.href = window.location.href;
     };
     return (

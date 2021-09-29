@@ -1,10 +1,6 @@
-import { CodeModel } from "@typecell-org/engine";
 import {
-  autorun,
   makeObservable,
-  observable,
-  ObservableMap,
-  runInAction,
+  observable, runInAction
 } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { TypeVisualizer } from "../lib/exports";

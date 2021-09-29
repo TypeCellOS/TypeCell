@@ -1,8 +1,8 @@
-import { Command, mergeAttributes, Node, findParentNode } from "@tiptap/core";
-import { isList } from "../../util/isList";
-import { findWrapping, canJoin } from "prosemirror-transform";
-import "./Block.module.css";
+import { findParentNode, mergeAttributes, Node } from "@tiptap/core";
 import { getNodeType } from "@tiptap/react";
+import { canJoin, findWrapping } from "prosemirror-transform";
+import { isList } from "../../util/isList";
+import "./Block.module.css";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -104,7 +104,7 @@ const IndentGroup = Node.create({
             // press tab at second line. Should join to same <div>
 
             let before = tr.doc.resolve(start).nodeBefore;
-            if (before && before.type == nodeType && canJoin(tr.doc, start)) {
+            if (before && before.type === nodeType && canJoin(tr.doc, start)) {
               tr.join(start);
             }
 
@@ -118,7 +118,7 @@ const IndentGroup = Node.create({
             let after = tr.doc.resolve(range.end + 4).nodeAfter;
             if (
               after &&
-              after.type == nodeType &&
+              after.type === nodeType &&
               canJoin(tr.doc, range.end + 4)
             ) {
               tr.join(range.end + 4);

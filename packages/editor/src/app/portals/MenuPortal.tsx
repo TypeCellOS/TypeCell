@@ -20,6 +20,7 @@ export const MenuPortal = observer((props: { children: any }) => {
     navigationStore.menuPortalChildren.push(parent.current!);
 
     return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       arrays.remove(navigationStore.menuPortalChildren, parent.current!);
     };
   }, []);

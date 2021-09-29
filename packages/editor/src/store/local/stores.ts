@@ -6,7 +6,6 @@ class StoreService {
   public matrixAuthStore = new MatrixAuthStore();
   public sessionStore = new SessionStore(this.matrixAuthStore);
   public navigationStore = new NavigationStore(this.sessionStore);
-  constructor() {}
 }
 
 let storeService: StoreService | undefined;
