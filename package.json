@@ -14,7 +14,7 @@
     "build": "lerna run build --concurrency 1",
     "build-react": "lerna run build-react --concurrency 1",
     "watch": "npm run build && lerna run --parallel watch",
-    "start": "lerna run --scope @typecell-org/editor start",
+    "start": "npx filebridge && lerna run --scope @typecell-org/editor start",
     "prepublishOnly": "npm run test && npm run build",
     "deploy": "lerna publish"
   }

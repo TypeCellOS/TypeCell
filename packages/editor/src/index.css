@@ -52,26 +52,10 @@ code {
   position: relative;
 }
 
-.cellList-add-top,
-.cellList-add-bottom {
-  visibility: hidden;
-  position: absolute;
-  top: -12px;
-}
-
 .cellList-add-single {
   position: absolute;
   left: 50%;
   top: 50%;
-}
-
-.cellList-add-bottom {
-  bottom: -12px;
-  top: inherit !important;
-}
-
-.cellList-item:hover > .cellList-add {
-  visibility: visible;
 }
 
 .cellList-add {
@@ -397,8 +381,8 @@ pluto-input > button > span {
     opacity: 0.5;
     transition: opacity 0.25s ease-in-out;
   }
-  .cellList-item:hover > button,
-  .cellList-item:hover > .shoulder > button {
+  .cellList-item.hover > button,
+  .cellList-item.hover > .shoulder > button {
     opacity: 0.25;
     transition: opacity 0.25s ease-in-out;
   }
@@ -478,7 +462,7 @@ pluto-input > button > span {
   visibility: hidden;
 }
 
-.cellList-item:hover .notebookCell.markdown.collapsed .notebookCell-sideIcon {
+.cellList-item.hover .notebookCell.markdown.collapsed .notebookCell-sideIcon {
   visibility: visible;
 }
 

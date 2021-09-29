@@ -1,8 +1,8 @@
 import * as octokit from "octokit";
 import { inc } from "semver";
-import { Identifier } from "../identifiers/Identifier";
-import { CellModel } from "../models/CellModel";
-import { DocConnection } from "../store/DocConnection";
+import { Identifier } from "../../identifiers/Identifier";
+import { CellModel } from "../../models/CellModel";
+import { DocConnection } from "../../store/DocConnection";
 
 import { base64 } from "@typecell-org/common";
 

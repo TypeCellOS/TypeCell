@@ -1,6 +1,12 @@
-import { action, computed, makeObservable, observable, reaction } from "mobx";
+import {
+  action,
+  computed,
+  IObservableArray,
+  makeObservable,
+  observable,
+  reaction,
+} from "mobx";
 import routing from "../../app/routing";
-
 import { BaseResource } from "../BaseResource";
 import { DocConnection } from "../DocConnection";
 import { SessionStore } from "./SessionStore";
@@ -10,6 +16,7 @@ export class NavigationStore {
 
   public isNewPageDialogVisible = false;
   public currentPage: ReturnType<typeof routing> = routing();
+  public menuPortalChildren: { children: IObservableArray<any> }[] = [];
 
   public get currentDocument() {
     if (this.currentPage.page === "document") {
@@ -26,7 +33,7 @@ export class NavigationStore {
       isNewPageDialogVisible: observable,
       showNewPageDialog: action,
       hideNewPageDialog: action,
-
+      menuPortalChildren: observable.shallow,
       currentDocument: computed,
       currentPage: observable.ref,
       navigateToDocument: action,

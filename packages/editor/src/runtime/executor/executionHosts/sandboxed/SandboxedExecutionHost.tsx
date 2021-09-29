@@ -20,12 +20,18 @@ import { observer } from "mobx-react-lite";
 const IFRAME_URL = "http://127.0.0.1:3000/?frame";
 let ENGINE_ID = 0;
 const FREEZE_TIMEOUT = 3000;
-export default class SandboxedExecutionHost extends lifecycle.Disposable implements ExecutionHost {
+export default class SandboxedExecutionHost
+  extends lifecycle.Disposable
+  implements ExecutionHost
+{
   public readonly iframe: HTMLIFrameElement;
   private disposed: boolean = false;
+  private resetHovering = () => {};
 
   private readonly connection: Connection<FrameConnection["methods"]>;
-  private connectionMethods: AsyncMethodReturns<FrameConnection["methods"]> | undefined;
+  private connectionMethods:
+    | AsyncMethodReturns<FrameConnection["methods"]>
+    | undefined;
 
   // private mousePosition: {
   //   x: number;
@@ -42,10 +48,13 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
     { x: number; y: number }
   >();
 
-  private moduleManagers = new Map<string, {
-    compiler: TypeCellModuleCompiler,
-    forwarder: ModelForwarder
-  }>();
+  private moduleManagers = new Map<
+    string,
+    {
+      compiler: TypeCellModuleCompiler;
+      forwarder: ModelForwarder;
+    }
+  >();
 
   public readonly id = ENGINE_ID++;
 
@@ -87,6 +96,7 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
     iframe.onmouseleave = () => {
       console.log("exit iframe");
       this.enablePointerEvents();
+      this.resetHovering();
     };
     this.iframe = iframe;
     this.connection = connectToChild({
@@ -96,36 +106,40 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
       methods: this.methods,
     });
 
-
     // document.addEventListener("mousemove", (e) => {
     //   this.mousePosition = { x: e.clientX, y: e.clientY };
     // });
 
     this.initialize().then(
-      () => { },
+      () => {},
       (e) => {
         console.error(e);
       }
     );
   }
 
-
-
   private methods = {
     registerTypeCellModuleCompiler: async (moduleName: string) => {
       if (this.moduleManagers.has(moduleName)) {
-        console.warn("already has moduleManager for", moduleName)
+        console.warn("already has moduleManager for", moduleName);
         return;
       }
-      const compiler = (new TypeCellModuleCompiler(moduleName, this.monacoInstance));
-      const forwarder = (new ModelForwarder("modules/" + moduleName, compiler, this.connectionMethods!));
+      const compiler = new TypeCellModuleCompiler(
+        moduleName,
+        this.monacoInstance
+      );
+      const forwarder = new ModelForwarder(
+        "modules/" + moduleName,
+        compiler,
+        this.connectionMethods!
+      );
       this.moduleManagers.set(moduleName, { compiler, forwarder });
       await forwarder.initialize();
     },
     unregisterTypeCellModuleCompiler: (moduleName: string) => {
       const moduleManager = this.moduleManagers.get(moduleName);
       if (!moduleManager) {
-        console.warn("no moduleManager for", moduleName)
+        console.warn("no moduleManager for", moduleName);
         return;
       }
       moduleManager.compiler.dispose();
@@ -141,9 +155,7 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
     ) => {
       const dimensionsToSet = this.dimensionStore.get(id);
       if (!dimensionsToSet) {
-        console.warn(
-          "setDimensions called, but for invalid or removed model?"
-        );
+        console.warn("setDimensions called, but for invalid or removed model?");
         return;
       }
       runInAction(() => {
@@ -151,7 +163,7 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
         dimensionsToSet.height = dimensions.height;
       });
     },
-  }
+  };
   // private checkMousePosition() {
   //   for (let [key, pos] of this.positionCacheStore.entries()) {
   //     if (this.mousePosition.x >= pos.x && this.mousePosition.y >= pos.y) {
@@ -196,7 +208,9 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
   async initialize() {
     console.log("initialize IFrameEngine");
 
-    this._register(this.compileEngine.onDidCreateCompiledModel((m) => this.registerModel(m)));
+    this._register(
+      this.compileEngine.onDidCreateCompiledModel((m) => this.registerModel(m))
+    );
     for (let model of this.compileEngine.compiledModels) {
       this.registerModel(model);
     }
@@ -206,20 +220,33 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
     // const result = await this.connectionMethods.ping();
     // console.log("received", result);
 
-    const forwarder = this._register(new ModelForwarder("main", this.compileEngine, this.connectionMethods));
+    const forwarder = this._register(
+      new ModelForwarder("main", this.compileEngine, this.connectionMethods)
+    );
     await forwarder.initialize();
 
     for (let model of this.compileEngine.compiledModels) {
       // send initial positions
-      console.log("initial positions", this.positionCacheStore.get(model.path))
-      await this.sendModelPositions(model, this.positionCacheStore.get(model.path)!);
+      console.log("initial positions", this.positionCacheStore.get(model.path));
+      await this.sendModelPositions(
+        model,
+        this.positionCacheStore.get(model.path)!
+      );
     }
 
-    const visualizerExtension = this._register(new VisualizerExtension(this.compileEngine, this.documentId, this.monacoInstance));
+    const visualizerExtension = this._register(
+      new VisualizerExtension(
+        this.compileEngine,
+        this.documentId,
+        this.monacoInstance
+      )
+    );
 
-    this._register(visualizerExtension.onUpdateVisualizers(e => {
-      this.connectionMethods!.updateVisualizers(e);
-    }));
+    this._register(
+      visualizerExtension.onUpdateVisualizers((e) => {
+        this.connectionMethods!.updateVisualizers(e);
+      })
+    );
 
     this.setupPing();
   }
@@ -243,7 +270,7 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
       }
     }, FREEZE_TIMEOUT);
     this._register({
-      dispose: () => clearInterval(handle)
+      dispose: () => clearInterval(handle),
     });
   }
 
@@ -251,11 +278,14 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
     const result = await this.connectionMethods!.ping();
     console.log("received ping result", result);
     if (result !== "pong") {
-      throw new Error("invalid ping response")
+      throw new Error("invalid ping response");
     }
   }
 
-  private async sendModelPositions(model: CompiledCodeModel, positions: { x: number, y: number }) {
+  private async sendModelPositions(
+    model: CompiledCodeModel,
+    positions: { x: number; y: number }
+  ) {
     console.log("send update positions", model.path, positions);
     await this.connectionMethods!.updatePositions(model.path, positions);
   }
@@ -287,17 +317,18 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
       makeObservable(positionCache, { x: observable.ref, y: observable.ref })
     );
 
-
     let dispose = autorun(() => {
       const positions = { x: positionCache.x, y: positionCache.y };
       if (this.connectionMethods) {
-        console.log("update positions", this.positionCacheStore.get(model.path))
+        console.log(
+          "update positions",
+          this.positionCacheStore.get(model.path)
+        );
         this.sendModelPositions(model, positions);
       } else {
-        console.log("delay sending positions, connection not established")
+        console.log("delay sending positions, connection not established");
       }
     });
-
 
     this._register(
       model.onWillDispose(() => {
@@ -315,27 +346,38 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
     }
     const reload = () => {
       window.location.href = window.location.href;
-    }
-    return <FlagGroup>
-      <FreezeAlert onReload={reload} ></FreezeAlert>
-    </FlagGroup>
+    };
+    return (
+      <FlagGroup>
+        <FreezeAlert onReload={reload}></FreezeAlert>
+      </FlagGroup>
+    );
   });
 
   public renderContainer() {
     const FlagComponent = this.FlagComponent;
-    return <>
-      <FlagComponent />
-      <ContainedElement element={this.iframe} />
-    </>;
+    return (
+      <>
+        <FlagComponent />
+        <ContainedElement element={this.iframe} />
+      </>
+    );
   }
 
-  public renderOutput(model: TypeCellCodeModel) {
+  public renderOutput(
+    model: TypeCellCodeModel,
+    setHovering: (hover: boolean) => void
+  ) {
     return (
       <OutputShadow
         dimensions={this.dimensionStore.get(model.path)!}
         positionOffsetElement={this.iframe}
         positions={this.positionCacheStore.get(model.path)!}
-        onMouseMove={this.disablePointerEvents}
+        onMouseMove={() => {
+          this.disablePointerEvents();
+          this.resetHovering = () => setHovering(false);
+          setHovering(true);
+        }}
       />
     );
   }
@@ -346,7 +388,7 @@ export default class SandboxedExecutionHost extends lifecycle.Disposable impleme
     }
     this.disposed = true;
 
-    this.moduleManagers.forEach(m => {
+    this.moduleManagers.forEach((m) => {
       m.forwarder.dispose();
       m.compiler.dispose();
     });

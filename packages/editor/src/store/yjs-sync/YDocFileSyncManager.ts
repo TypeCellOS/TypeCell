@@ -2,12 +2,13 @@ import * as _ from "lodash";
 import { makeObservable, observable } from "mobx";
 import * as Y from "yjs";
 import { readFile, saveFile, Watcher } from "filebridge-client";
-import { markdownToNotebook } from "../../github/markdown";
+import { markdownToNotebook } from "../../integrations/github/markdown";
 import { FileIdentifier } from "../../identifiers/FileIdentifier";
 import { uniqueId } from "@typecell-org/common";
 import { lifecycle } from "vscode-lib";
 
 import ProjectResource from "../ProjectResource";
+import { xmlFragmentToMarkdown } from "../../integrations/markdown";
 
 function isEmptyDoc(doc: Y.Doc) {
   return areDocsEqual(doc, new Y.Doc());
@@ -164,26 +165,8 @@ export class YDocFileSyncManager extends lifecycle.Disposable {
     }
 
     let xml = doc.getXmlFragment("doc");
-    const elements = xml.toArray().map((el) => {
-      if (!(el instanceof Y.XmlElement)) {
-        throw new Error("invalid type");
-      }
-      if (el.nodeName !== "typecell") {
-        throw new Error("invalid nodename");
-      }
-      const language = el.getAttribute("language");
-      if (!(el.firstChild instanceof Y.Text) || el.length !== 1) {
-        throw new Error("invalid typecell element");
-      }
-      const content = el.firstChild.toJSON() as string;
-      if (language === "markdown") {
-        return content;
-      } else {
-        return "```" + language + "\n" + content + "\n```";
-      }
-    });
 
-    return elements.join("\n");
+    return xmlFragmentToMarkdown(xml);
   }
 
   private documentUpdateListener = async (update: any, origin: any) => {

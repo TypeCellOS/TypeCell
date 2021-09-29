@@ -1,9 +1,11 @@
+import { Input } from "./input/Input";
+
 // TODO: make sure only relevant types are exported
 export default function getExposeGlobalVariables(id: string) {
   return {
     // routing,
     // // DocumentView,
-    // Input,
+    Input,
     // namespace: id, // TODO: naming
     // open: (identifier: string | { owner: string; document: string }) => {
     //   return DocConnection.load(identifier);
