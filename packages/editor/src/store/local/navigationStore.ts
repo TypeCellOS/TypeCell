@@ -16,8 +16,12 @@ export class NavigationStore {
 
   public isNewPageDialogVisible = false;
   public currentPage: ReturnType<typeof routing> = routing();
+
+  // See MenuPortal.tsx for explanation
   public menuPortalChildren: { children: IObservableArray<any> }[] = [];
 
+  // TODO: refactor so we don't need currentDocument. currentPage should be enough for the navigationStore.
+  // currentDocument is only used by Navigation.tsx, and we can solve that using Portals. This would remove dependency on DocConnection here, which would be nice
   public get currentDocument() {
     if (this.currentPage.page === "document") {
       const newConnection = DocConnection.load(this.currentPage.identifier);
@@ -41,7 +45,7 @@ export class NavigationStore {
     });
   }
 
-  public initialize() {
+  public async initialize() {
     if (this.initialized) {
       throw new Error("already initialized navigationStore");
     }
