@@ -111,6 +111,7 @@
     "start": "npm run emittypes && react-app-rewired start",
     "build": "tsc -v && npm run emittypes",
     "build-react": "npm run emittypes && cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=false react-app-rewired build",
+    "lint": "eslint src",
     "test": "react-app-rewired test",
     "test-no-watch": "react-app-rewired test --watchAll=false",
     "eject": "react-app-rewired eject",
