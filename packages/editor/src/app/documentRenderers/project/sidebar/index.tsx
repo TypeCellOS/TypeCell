@@ -241,7 +241,8 @@ export const SidebarTree = observer(
     useEffect(() => {
       console.log("debounce ", props.fileSet);
       update(props.fileSet);
-    }, [props.fileSet, update]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.fileSet]);
 
     const onExpand = (itemId: ItemId) => {
       setAktree(mutateTree(akTree, itemId, { isExpanded: true }));
