@@ -10,7 +10,7 @@ To run the project, open the command line in the project's root directory and en
 
     # Install all required npm modules, and bootstrap lerna packages
     npm install
-    npm bootstrap
+    npm run bootstrap
 
     # Initial build of all packages required by the main editor project
     npm run build
