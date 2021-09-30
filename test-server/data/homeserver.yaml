@@ -1522,7 +1522,7 @@ form_secret: ":KtdXlg*Ayy7ZmsQPYUmJieU6#Cig4TKQiX3L_@cqXFh5wNtk@"
 
 # Path to the signing key to sign messages with
 #
-signing_key_path: "/data/localhost:8888.signing.key"
+signing_key_path: "/data/localhost-8888.signing.key"
 
 # The keys that the server used to sign messages with but won't use
 # to sign new messages.
