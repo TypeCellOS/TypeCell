@@ -6,8 +6,8 @@ import {
 } from "@tiptap/react";
 import { makeAutoObservable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
-import { Node, DOMOutputSpec } from "prosemirror-model";
-import { TextSelection, Transaction } from "prosemirror-state";
+import { DOMOutputSpec, Node } from "prosemirror-model";
+import { TextSelection } from "prosemirror-state";
 import React, {
   ElementType,
   MouseEvent,
@@ -96,7 +96,7 @@ function Block(
     // if activeBlocks[id] is set, this block is being hovered over
     let hover = globalState.activeBlocks[id];
 
-    const [{ isDragging }, dragRef, dragPreview] = useDrag<
+    const [, dragRef, dragPreview] = useDrag<
       Array<DnDItemType>,
       any,
       any
@@ -113,11 +113,7 @@ function Block(
       };
     }, [props.getPos, props.node]);
 
-    const [{ isOver, canDrop, clientOffset }, drop] = useDrop<
-      Array<DnDItemType>,
-      any,
-      any
-    >(
+    const [{ canDrop }, drop] = useDrop<Array<DnDItemType>, any, any>(
       () => ({
         accept: "block",
         hover(item, monitor) {

@@ -69,6 +69,7 @@ export class AccessCancelledError extends Error {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function confirmToDismiss(): Promise<boolean> {
   throw new Error("not implemented");
   //   const QuestionDialog = sdk.getComponent("dialogs.QuestionDialog");
@@ -82,6 +83,7 @@ async function confirmToDismiss(): Promise<boolean> {
   //   return !sure;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function makeInputToKey(
   keyInfo: ISecretStorageKeyInfo
 ): (keyParams: {
@@ -316,7 +318,7 @@ export const crossSigningCallbacks: ICryptoCallbacks = {
 };
 
 export async function promptForBackupPassphrase(): Promise<Uint8Array> {
-  let key;
+  // let key;
   throw new Error("not implemented");
   //   const { finished } = Modal.createTrackedDialog(
   //     "Restore Backup",
@@ -448,7 +450,7 @@ export async function accessSecretStorage(
 
     // `return await` needed here to ensure `finally` block runs after the
     // inner operation completes.
-    return await func();
+    // return await func();
   } catch (e) {
     // SecurityCustomisations.catchAccessSecretStorageError?.(e);
     console.error(e);

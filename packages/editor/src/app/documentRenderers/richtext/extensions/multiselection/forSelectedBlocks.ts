@@ -1,5 +1,5 @@
+import { Node } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
-import { Node, NodeRange } from "prosemirror-model";
 import { isList } from "../../util/isList";
 
 /**

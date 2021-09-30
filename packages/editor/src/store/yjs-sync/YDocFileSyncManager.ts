@@ -18,11 +18,11 @@ function isEmptyDoc(doc: Y.Doc) {
 function areDocsEqual(doc1: Y.Doc, doc2: Y.Doc) {
   return _.eq(
     (doc1.getXmlFragment("doc").toJSON() as string).replaceAll(
-      /block\-id=".*"/g,
+      /block-id=".*"/g,
       ""
     ),
     (doc2.getXmlFragment("doc").toJSON() as string).replaceAll(
-      /block\-id=".*"/g,
+      /block-id=".*"/g,
       ""
     )
   );

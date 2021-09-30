@@ -25,7 +25,7 @@ const MarkdownBulletList = BulletList.extend({
           return convertedNode;
         },
         // any consecutive lines that start with - + or * and a space
-        new RegExp(`^\\s?[\-\+\*] `),
+        new RegExp(`^\\s?[\\-\\+\\*] `),
         this.editor
       ),
     ];

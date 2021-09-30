@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React, { createRef } from "react";
+import React from "react";
 
 const DIV_ID = "mx_recaptcha";
 
@@ -76,7 +76,7 @@ export default class CaptchaForm extends React.Component<Props, State> {
       console.error("No public key for recaptcha!");
       throw new Error(
         "This server has not supplied enough information for Recaptcha " +
-        "authentication"
+          "authentication"
       );
     }
 

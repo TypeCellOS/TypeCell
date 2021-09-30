@@ -1,6 +1,6 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 
-export interface IndentItem {
+export interface IIndentItem {
   HTMLAttributes: Record<string, any>;
 }
 
@@ -9,7 +9,7 @@ export interface IndentItem {
  * It can be seen as the equivallent of a ListItem, but then for IndentGroups
  * In fact, this file is almost a copy of TipTap's ListItem
  */
-export const IndentItem = Node.create<IndentItem>({
+export const IndentItem = Node.create<IIndentItem>({
   name: "indentItem",
 
   defaultOptions: {

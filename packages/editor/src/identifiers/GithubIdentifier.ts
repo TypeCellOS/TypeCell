@@ -1,9 +1,5 @@
 import { uri } from "vscode-lib";
-import {
-  Identifier,
-  IdentifierFactory,
-  stringWithoutInitialSlash,
-} from "./Identifier";
+import { Identifier, stringWithoutInitialSlash } from "./Identifier";
 
 export class GithubIdentifier extends Identifier {
   public static scheme = "github";

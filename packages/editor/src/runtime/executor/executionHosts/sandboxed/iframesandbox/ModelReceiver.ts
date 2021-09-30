@@ -15,10 +15,6 @@ export class ModelReceiver extends lifecycle.Disposable {
     return Array.from(this.registeredModels.values());
   }
 
-  constructor() {
-    super();
-  }
-
   public deleteModel(modelId: string) {
     console.log("deleteModel", modelId);
     let model = this.registeredModels.get(modelId);

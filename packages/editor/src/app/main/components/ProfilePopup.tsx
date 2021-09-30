@@ -11,13 +11,6 @@ import { NavigationStore } from "../../../store/local/navigationStore";
 import { SessionStore } from "../../../store/local/SessionStore";
 import { getStoreService } from "../../../store/local/stores";
 
-const imgCSS = {
-  borderRadius: "100%",
-  height: 24,
-  width: 24,
-  // border: "1px solid #6B778C"
-};
-
 export const ProfilePopup = observer(
   (props: { sessionStore: SessionStore; navigationStore: NavigationStore }) => {
     const [isOpen, setIsOpen] = useState(false);

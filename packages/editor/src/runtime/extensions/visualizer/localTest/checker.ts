@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import * as doc from "./visualizer";
 import * as mod from "./export";
 import { TypeVisualizer } from "../../../executor/lib/exports";
 
-let tc = {
-  TypeVisualizer,
-};
+// let tc = {
+//   TypeVisualizer,
+// };
 
-type arg0Type<T> = T extends (arg0: infer R, ...args: any[]) => void ? R : any;
+// type arg0Type<T> = T extends (arg0: infer R, ...args: any[]) => void ? R : any;
 
 type truePropertyNames<T> = {
   [K in keyof T]: T[K] extends never ? never : K;
@@ -55,6 +56,8 @@ type pluginsPossible = matchingPlugins<docPluginTypes, mainExportTypeModule>;
 // let test: Pick<docPluginTypes, pluginsPossible> = {} as any;
 // test
 let filteredPlugins: Pick<docPluginTypes, pluginsPossible> = {} as any;
+
+// eslint-disable @typescript-eslint/no-unused-expressions
 filteredPlugins.stringVisualizer;
 
 // @ts-expect-error

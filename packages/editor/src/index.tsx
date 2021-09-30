@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as reo from "react-error-overlay";
 import "@atlaskit/css-reset/dist/bundle.css";
 import "./index.css";

@@ -36,6 +36,7 @@ export const TableBubbleMenu: React.FC<TableBubbleMenuProps> = (props) => {
     return () => {
       editor.unregisterPlugin(TableBubbleMenuPluginKey);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
