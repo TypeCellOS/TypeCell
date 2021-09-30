@@ -1,3 +1,6 @@
 {
-  "routes": [{ "src": "/.*", "dest": "/", "status": 200 }]
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "/index.html" }
+  ]
 }
