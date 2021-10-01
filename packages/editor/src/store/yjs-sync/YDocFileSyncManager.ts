@@ -1,14 +1,12 @@
+import { readFile, saveFile, Watcher } from "filebridge-client";
 import * as _ from "lodash";
 import { makeObservable, observable } from "mobx";
-import * as Y from "yjs";
-import { readFile, saveFile, Watcher } from "filebridge-client";
-import { markdownToNotebook } from "../../integrations/github/markdown";
-import { FileIdentifier } from "../../identifiers/FileIdentifier";
-import { uniqueId } from "@typecell-org/common";
 import { lifecycle } from "vscode-lib";
-
+import * as Y from "yjs";
+import { FileIdentifier } from "../../identifiers/FileIdentifier";
+import { xmlFragmentToMarkdown } from "../../integrations/markdown/export";
+import { markdownToYDoc } from "../../integrations/markdown/import";
 import ProjectResource from "../ProjectResource";
-import { xmlFragmentToMarkdown } from "../../integrations/markdown";
 
 function isEmptyDoc(doc: Y.Doc) {
   return areDocsEqual(doc, new Y.Doc());
@@ -93,32 +91,8 @@ export class YDocFileSyncManager extends lifecycle.Disposable {
     }
   }
 
-  private getYDocFromContents(contents: string) {
-    const nbData = markdownToNotebook(contents);
-    const newDoc = new Y.Doc();
-    newDoc.getMap("meta").set("type", "!notebook");
-
-    let xml = newDoc.getXmlFragment("doc");
-    const elements = nbData.map((cell) => {
-      const element = new Y.XmlElement("typecell");
-      element.setAttribute("block-id", uniqueId.generate()); // TODO: do we want random blockids? for markdown sources?
-
-      if (typeof cell === "string") {
-        element.insert(0, [new Y.XmlText(cell)]);
-        element.setAttribute("language", "markdown");
-      } else {
-        element.insert(0, [new Y.XmlText(cell.node.value)]);
-        element.setAttribute("language", "typescript");
-      }
-
-      return element;
-    });
-    xml.insert(0, elements);
-    return newDoc;
-  }
-
   private async getNewYDocFromFile(contents: string) {
-    const newDoc = this.getYDocFromContents(contents);
+    const newDoc = markdownToYDoc(contents);
 
     if (isEmptyDoc(this._ydoc)) {
       const update = Y.encodeStateAsUpdate(newDoc);

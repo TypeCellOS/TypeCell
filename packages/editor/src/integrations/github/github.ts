@@ -306,14 +306,90 @@ export async function getUnusedBranch(repo: RepoOptions, branch: string) {
     }
   }
 }
+
 export async function getFileFromGithub(file: {
   repo: string;
   owner: string;
   path: string;
 }) {
+  const object = await getFileOrDirFromGithub(file);
+  if (object === "not-found" || object.type === "directory") {
+    throw new Error("not a file returned");
+  }
+  return object.data;
+}
+
+export async function getTreeFromGithub(dir: {
+  repo: string;
+  owner: string;
+  tree_sha: string;
+  recursive?: boolean;
+}) {
+  const ret = await githubClient.rest.git.getTree({
+    ...dir,
+    recursive: dir.recursive ? "true" : undefined,
+  });
+  return ret.data.tree;
+}
+
+export async function getFileOrDirFromGithub(file: {
+  repo: string;
+  owner: string;
+  path: string;
+}) {
   // const githubClient = new octokit.Octokit();
-  const ret = await githubClient.rest.repos.getContent(file);
-  return base64.decodeBase64UTF8((ret.data as any).content);
+  try {
+    const ret = await githubClient.rest.repos.getContent(file);
+
+    if (Array.isArray(ret.data)) {
+      // if we're requesting the root of a repository (empty file.path), the etag works as tree_sha for the required path
+      let tree_sha = ret.headers.etag!.match(/W\/"(.*)"/)![1];
+
+      if (file.path) {
+        // we're requesting a subdirectory. Unfortunately, we need to list the contents of the parentdirectory in
+        // order to get the tree_sha of the subdirectory
+        // (TODO: maybe check on github forums if there's an easier way, imo getContents should return the tree_sha of the requested dir)
+        const parent = file.path.split("/");
+        parent.pop();
+
+        const parentContent = await githubClient.rest.repos.getContent({
+          ...file,
+          path: parent.join("/"),
+        });
+        if (!Array.isArray(parentContent.data)) {
+          throw new Error("expected directory");
+        }
+        const directory = parentContent.data.find(
+          (el) => el.path === file.path
+        )!;
+        if (directory.type !== "dir") {
+          throw new Error("expected to find directory");
+        }
+        tree_sha = directory!.sha;
+      }
+      const tree = await getTreeFromGithub({
+        ...file,
+        tree_sha,
+        recursive: true,
+      });
+      return {
+        type: "directory" as "directory",
+        tree,
+      };
+    } else if (ret.data.type === "file") {
+      return {
+        type: "file" as "file",
+        data: base64.decodeBase64UTF8((ret.data as any).content),
+      };
+    } else {
+      throw new Error("unknown github response");
+    }
+  } catch (e) {
+    if (e.status === 404) {
+      return "not-found";
+    }
+    throw e;
+  }
 }
 
 /*

@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useState } from "react";
 import { Identifier } from "../../identifiers/Identifier";
-import { openAsMarkdown } from "../../integrations/markdown";
+import { openAsMarkdown } from "../../integrations/markdown/export";
 import { DocConnection } from "../../store/DocConnection";
 import PluginResource from "../../store/PluginResource";
 import ProjectResource from "../../store/ProjectResource";

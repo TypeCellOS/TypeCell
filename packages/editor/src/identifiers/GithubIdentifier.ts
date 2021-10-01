@@ -14,7 +14,7 @@ export class GithubIdentifier extends Identifier {
     ).split("/:/", 2);
 
     const parts = identifier.split("/");
-    if (parts.length < 3) {
+    if (parts.length < 2) {
       throw new Error("invalid identifier");
       // return "invalid-identifier" as "invalid-identifier";
     }
@@ -29,7 +29,7 @@ export class GithubIdentifier extends Identifier {
       uri.URI.from({
         scheme: uriToParse.scheme,
         authority: uriToParse.authority,
-        path: owner + "/" + repository + "/" + path,
+        path: owner + "/" + repository + (path.length ? "/" + path : ""),
       }),
       subPath
     );

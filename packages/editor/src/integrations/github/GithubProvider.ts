@@ -1,12 +1,10 @@
 import * as _ from "lodash";
-
+import { event, lifecycle } from "vscode-lib";
 import * as Y from "yjs";
 import { GithubIdentifier } from "../../identifiers/GithubIdentifier";
-
-import { uniqueId } from "@typecell-org/common";
-import { lifecycle, event } from "vscode-lib";
-import { getFileFromGithub } from "./github";
-import { markdownToNotebook } from "./markdown";
+import ProjectResource from "../../store/ProjectResource";
+import { markdownToYDoc } from "../markdown/import";
+import { getFileOrDirFromGithub } from "./github";
 
 function isEmptyDoc(doc: Y.Doc) {
   return areDocsEqual(doc, new Y.Doc());
@@ -84,39 +82,42 @@ export default class GithubProvider extends lifecycle.Disposable {
     }
   }
 
+  private async getNewYDocFromGithubDir(
+    tree: { type?: string; path?: string }[]
+  ) {
+    const newDoc = new Y.Doc();
+    newDoc.getMap("meta").set("type", "!project");
+    const project = new ProjectResource(newDoc, this.identifier);
+    tree.forEach((object) => {
+      if (object.type === "blob" && object.path?.endsWith(".md")) {
+        project.files.set(object.path, {});
+      }
+    });
+    return newDoc;
+  }
+
   private async getNewYDocFromGithub() {
-    const contents = await getFileFromGithub({
+    const object = await getFileOrDirFromGithub({
       owner: this.identifier.owner,
       path: this.identifier.path,
       repo: this.identifier.repository,
     });
-    const nbData = markdownToNotebook(contents);
-    const newDoc = new Y.Doc();
-    newDoc.getMap("meta").set("type", "!notebook");
 
-    let xml = newDoc.getXmlFragment("doc");
-    const elements = nbData.map((cell) => {
-      const element = new Y.XmlElement("typecell");
-      element.setAttribute("block-id", uniqueId.generate()); // TODO: do we want random blockids? for markdown sources?
-
-      if (typeof cell === "string") {
-        element.insert(0, [new Y.XmlText(cell)]);
-        element.setAttribute("language", "markdown");
-      } else {
-        element.insert(0, [new Y.XmlText(cell.node.value)]);
-        element.setAttribute("language", "typescript");
-      }
-
-      return element;
-    });
-    xml.insert(0, elements);
-
-    return newDoc;
+    if (object === "not-found") {
+      return undefined; // TODO
+    } else if (object.type === "file") {
+      return markdownToYDoc(object.data);
+    } else {
+      return this.getNewYDocFromGithubDir(object.tree);
+    }
   }
 
   private async initializeNoCatch() {
     try {
       const docData = await this.getNewYDocFromGithub();
+      if (!docData) {
+        return;
+      }
       if (isEmptyDoc(this.doc)) {
         const update = Y.encodeStateAsUpdate(docData);
         Y.applyUpdate(this.doc, update);
