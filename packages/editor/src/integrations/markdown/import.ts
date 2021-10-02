@@ -2,8 +2,10 @@ import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { Parent } from "unist";
+import * as Y from "yjs";
+import { uniqueId } from "@typecell-org/common";
 
-export function markdownToNotebook(markdown: string) {
+function markdownToNotebook(markdown: string) {
   const tree = unified().use(remarkParse).parse(markdown);
   const nodes = (tree as Parent).children;
   const markdownAndCodeCells: Array<
@@ -49,4 +51,29 @@ export function markdownToNotebook(markdown: string) {
     return cell;
   });
   return data;
+}
+
+export function markdownToYDoc(markdown: string) {
+  const nbData = markdownToNotebook(markdown);
+  const newDoc = new Y.Doc();
+  newDoc.getMap("meta").set("type", "!notebook");
+
+  let xml = newDoc.getXmlFragment("doc");
+  const elements = nbData.map((cell) => {
+    const element = new Y.XmlElement("typecell");
+    element.setAttribute("block-id", uniqueId.generate()); // TODO: do we want random blockids? for markdown sources?
+
+    if (typeof cell === "string") {
+      element.insert(0, [new Y.XmlText(cell)]);
+      element.setAttribute("language", "markdown");
+    } else {
+      element.insert(0, [new Y.XmlText(cell.node.value)]);
+      element.setAttribute("language", "typescript");
+    }
+
+    return element;
+  });
+  xml.insert(0, elements);
+
+  return newDoc;
 }

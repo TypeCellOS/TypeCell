@@ -1,10 +1,9 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { FileIdentifier } from "../../../identifiers/FileIdentifier";
+import { parseIdentifier } from "../../../identifiers";
 import ProjectResource from "../../../store/ProjectResource";
 import DocumentView from "../DocumentView";
 import SidebarTree from "./sidebar";
-
 type Props = {
   project: ProjectResource;
 };
@@ -12,9 +11,9 @@ type Props = {
 const ProjectRenderer: React.FC<Props> = observer((props) => {
   // const fileSet = useRef(new ObservableSet<string>());
   const identifier = props.project.identifier;
-  if (!(identifier instanceof FileIdentifier)) {
-    throw new Error("no file identifier");
-  }
+  // if (!(identifier instanceof FileIdentifier)) {
+  //   throw new Error("no file identifier");
+  // }
   // let subIdentifierStr = identifier.subIdentifier;
   // let subIdentifier = subIdentifierStr
   //   ? tryParseIdentifier(subIdentifierStr)
@@ -69,9 +68,7 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
       {identifier.subPath && (
         <DocumentView
           id={
-            new FileIdentifier(
-              identifier.uri.with({ path: identifier.subPath })
-            )
+            parseIdentifier(identifier.fullUriOfSubPath()!.toString())
           }
         />
       )}

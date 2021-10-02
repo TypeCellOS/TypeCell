@@ -12,7 +12,7 @@ import { lifecycle } from "vscode-lib";
 import { BaseResource } from "./BaseResource";
 
 import { existsLocally, getIDBIdentifier } from "./yjs-sync/IDBHelper";
-import { YDocFileSyncManager } from "./yjs-sync/YDocFileSyncManager";
+import { YDocFileSyncManager } from "./yjs-sync/FilebridgeSyncManager";
 import { YDocSyncManager } from "./yjs-sync/YDocSyncManager";
 import * as Y from "yjs";
 import { Identifier } from "../identifiers/Identifier";
@@ -22,6 +22,10 @@ import { MatrixIdentifier } from "../identifiers/MatrixIdentifier";
 import { uri } from "vscode-lib";
 import { parseIdentifier, tryParseIdentifier } from "../identifiers";
 import { getStoreService } from "./local/stores";
+import { SyncManager } from "./yjs-sync/SyncManager";
+import GithubSyncManager from "./yjs-sync/GithubSyncManager";
+import { HttpsIdentifier } from "../identifiers/HttpsIdentifier";
+import FetchSyncManager from "./yjs-sync/FetchSyncManager";
 
 const cache = new Map<string, DocConnection>();
 
@@ -33,7 +37,7 @@ export class DocConnection extends lifecycle.Disposable {
   private _refCount = 0;
 
   /** @internal */
-  private manager: YDocSyncManager | YDocFileSyncManager | undefined;
+  private manager: SyncManager | undefined = undefined;
   private _baseResourceCache:
     | undefined
     | {
@@ -51,10 +55,13 @@ export class DocConnection extends lifecycle.Disposable {
       if (this.identifier instanceof FileIdentifier) {
         this.manager = new YDocFileSyncManager(this.identifier);
         this.manager.initialize();
-      } else if (
-        this.identifier instanceof GithubIdentifier ||
-        this.identifier instanceof MatrixIdentifier
-      ) {
+      } else if (this.identifier instanceof GithubIdentifier) {
+        this.manager = new GithubSyncManager(this.identifier);
+        this.manager.initialize();
+      } else if (this.identifier instanceof HttpsIdentifier) {
+        this.manager = new FetchSyncManager(this.identifier);
+        this.manager.initialize();
+      } else if (this.identifier instanceof MatrixIdentifier) {
         if (typeof sessionStore.user !== "string") {
           this.manager = new YDocSyncManager(
             this.identifier,
@@ -159,8 +166,8 @@ export class DocConnection extends lifecycle.Disposable {
   }
 
   public async revert() {
-    if (this.manager instanceof YDocFileSyncManager) {
-      throw new Error("revert() not supported for YDocFileSyncManager");
+    if (!(this.manager instanceof YDocSyncManager)) {
+      throw new Error("revert() only supported on YDocSyncManager");
     }
     const manager = this.manager;
     if (!manager) {
@@ -179,6 +186,7 @@ export class DocConnection extends lifecycle.Disposable {
     let tryN = 1;
 
     do {
+      // TODO
       if (!(this.identifier instanceof MatrixIdentifier)) {
         throw new Error("not implemented");
       }

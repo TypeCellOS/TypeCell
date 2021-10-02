@@ -17,7 +17,7 @@
     "lint": "lerna run lint --concurrency 1",
     "watch": "npm run build && lerna run --parallel watch",
     "start": "npm run start-react",
-    "start-filebridge": "npx filebridge",
+    "start-filebridge": "npx filebridge docs",
     "start-react": "lerna run --scope @typecell-org/editor start",
     "prepublishOnly": "npm run test && npm run build",
     "deploy": "lerna publish"
