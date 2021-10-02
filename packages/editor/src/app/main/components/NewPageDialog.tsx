@@ -58,13 +58,14 @@ export const NewPageDialog = (props: {
                   throw new UnreachableCaseError(ret);
               }
             } else if (ret instanceof BaseResource) {
-              ret.create("!richtext");
-              // ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
-              // ret.doc.cellList.addCell(
-              //   1,
-              //   "typescript",
-              //   `export let message = "Hello World"`
-              // );
+              // ret.create("!richtext");
+              ret.create("!notebook");
+              ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
+              ret.doc.cellList.addCell(
+                1,
+                "typescript",
+                `export let message = "Hello World"`
+              );
               getStoreService().navigationStore.navigateToDocument(ret);
 
               // Bit hacky, dispose with timeout,
