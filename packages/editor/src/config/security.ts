@@ -40,7 +40,7 @@ export function validateFrameDomain() {
   if (ENVIRONMENT === "STAGING") {
     return hostname.match(/^typecell-next-[A-z0-9]+-yousefed.vercel.app$/);
   }
-  return hostname === "typescriptrepl.com";
+  return hostname.match(/^.*\.typescriptrepl\.com$/);
 }
 
 export function getFrameDomain() {
@@ -52,5 +52,6 @@ export function getFrameDomain() {
   if (ENVIRONMENT === "STAGING") {
     return window.location.hostname;
   }
-  return "typescriptrepl.com";
+  // TODO: now cookies / localstorage are still shared across notebooks. Should we use a unique subdomain per user or notebook?
+  return "code.typescriptrepl.com";
 }
