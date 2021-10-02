@@ -15,18 +15,16 @@ import { VisualizerExtension } from "../../../extensions/visualizer/VisualizerEx
 import { FreezeAlert } from "./FreezeAlert";
 import { FlagGroup } from "@atlaskit/flag";
 import { observer } from "mobx-react-lite";
+import { getFrameDomain } from "../../../../config/security";
 
-// use 127.0.0.1 for iframe so that we make sure we run on a different origin
-const IFRAME_URL = "http://127.0.0.1:3000/?frame";
 let ENGINE_ID = 0;
 const FREEZE_TIMEOUT = 3000;
 export default class SandboxedExecutionHost
   extends lifecycle.Disposable
-  implements ExecutionHost
-{
+  implements ExecutionHost {
   public readonly iframe: HTMLIFrameElement;
   private disposed: boolean = false;
-  private resetHovering = () => {};
+  private resetHovering = () => { };
 
   private readonly connection: Connection<FrameConnection["methods"]>;
   private connectionMethods:
@@ -88,7 +86,7 @@ export default class SandboxedExecutionHost
       "geolocation; microphone; camera; midi; encrypted-media; autoplay; accelerometer; magnetometer; gyroscope; vr";
     iframe.allowFullscreen = true;
     iframe.src =
-      IFRAME_URL +
+      window.location.protocol + "//" + getFrameDomain() + "/?frame" +
       "&documentId=" +
       encodeURIComponent(documentId) +
       (window.location.search.includes("noRun") ? "&noRun" : "");
@@ -111,7 +109,7 @@ export default class SandboxedExecutionHost
     // });
 
     this.initialize().then(
-      () => {},
+      () => { },
       (e) => {
         console.error(e);
       }

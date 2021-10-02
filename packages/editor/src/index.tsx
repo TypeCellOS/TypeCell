@@ -16,6 +16,7 @@ import setupNpmTypeResolver from "./runtime/editor/languages/typescript/npmTypeR
 import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typecellTypeResolver";
 import { initializeStoreService } from "./store/local/stores";
 import * as monaco from "monaco-editor";
+import { validateFrameDomain, validateHostDomain } from "./config/security";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays
@@ -57,6 +58,9 @@ async function init() {
   // });
   if (window.location.search.includes("frame")) {
     // TODO: prevent monaco from loading in frame
+    if (!validateFrameDomain()) {
+      throw new Error("invalid hostname for frame");
+    }
     ReactDOM.render(
       <React.StrictMode>
         <Frame />
@@ -64,6 +68,9 @@ async function init() {
       document.getElementById("root")
     );
   } else {
+    if (!validateHostDomain()) {
+      throw new Error("invalid hostname for host");
+    }
     yjsBindings.useMobxBindings(mobx);
     yjsBindings.makeYJSObservable();
 
