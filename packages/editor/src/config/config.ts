@@ -7,8 +7,12 @@ export const MATRIX_CONFIG = {
   defaultDeviceDisplayName: "TypeCell web",
 };
 
-export const ENVIRONMENT: "PROD" | "DEV" =
-  process.env.NODE_ENV === "production" ? "PROD" : "DEV";
+export const ENVIRONMENT: "PROD" | "DEV" | "STAGING" =
+  process.env.REACT_APP_STAGING === "true"
+    ? "STAGING"
+    : process.env.NODE_ENV === "production"
+    ? "PROD"
+    : "DEV";
 // export const DEFAULT_HOMESERVER_HOST = "matrix-client.matrix.org";
 
 // export const MATRIX_CONFIG = {
