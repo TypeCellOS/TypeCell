@@ -23,7 +23,7 @@ export default function routing() {
       ENVIRONMENT === "DEV"
         ? parseIdentifier("fs:" + (remainingPath ? "/:/" + remainingPath : ""))
         : parseIdentifier(
-            "github:yousefed/typecell-next" +
+            "github:yousefed/typecell-next/docs" +
               (remainingPath ? "/:/" + remainingPath : "")
           );
     // overwrite reverse route (bit hacky)
