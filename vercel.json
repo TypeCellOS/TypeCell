@@ -6,6 +6,9 @@
   "functions": {
     "api/docs.ts": {
       "includeFiles": "docs/**"
+    },
+    "packages/api/src/glob.ts": {
+      "includeFiles": "docs/**"
     }
   }
 }
