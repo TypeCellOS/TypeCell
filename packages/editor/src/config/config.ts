@@ -8,7 +8,7 @@ export const MATRIX_CONFIG = {
 };
 
 export const ENVIRONMENT: "PROD" | "DEV" | "STAGING" =
-  process.env.STAGING === "true"
+  process.env.REACT_APP_STAGING === "true"
     ? "STAGING"
     : process.env.NODE_ENV === "production"
     ? "PROD"
