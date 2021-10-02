@@ -38,9 +38,7 @@ export class YDocFileSyncManager
   private watcher: Watcher | undefined;
   public webrtcProvider: any;
 
-  public get canWrite() {
-    return true;
-  }
+  public canWrite = true;
 
   /**
    * Get the managed "doc". Returns:
