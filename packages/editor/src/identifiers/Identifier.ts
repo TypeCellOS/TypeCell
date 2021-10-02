@@ -1,20 +1,20 @@
 import { makeObservable, observable } from "mobx";
-import { uri } from "vscode-lib";
+import { uri, path } from "vscode-lib";
 
 export interface IdentifierFactory<T extends Identifier> {
   new (uri: uri.URI): T;
-  scheme: string;
+  schemes: string[];
 }
 
 export abstract class Identifier {
   public subPath?: string;
 
   protected constructor(
-    scheme: string,
+    schemes: string[],
     public readonly uri: uri.URI,
     subPath: string | undefined
   ) {
-    if (this.uri.scheme !== scheme) {
+    if (!schemes.includes(this.uri.scheme)) {
       throw new Error("scheme doesn't match");
     }
     this.subPath = subPath;
@@ -55,6 +55,15 @@ export abstract class Identifier {
 
   public equalsIncludingSub(other: Identifier) {
     return this.equals(other) && this.subPath === other.subPath;
+  }
+
+  public fullUriOfSubPath() {
+    if (!this.subPath) {
+      return undefined;
+    }
+    return this.uri.with({
+      path: path.join(this.uri.path, this.subPath),
+    });
   }
 }
 

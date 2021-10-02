@@ -4,7 +4,6 @@ import { parseIdentifier } from "../../../identifiers";
 import ProjectResource from "../../../store/ProjectResource";
 import DocumentView from "../DocumentView";
 import SidebarTree from "./sidebar";
-
 type Props = {
   project: ProjectResource;
 };
@@ -69,7 +68,7 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
       {identifier.subPath && (
         <DocumentView
           id={
-            parseIdentifier(identifier.uri.with({ path: (identifier.uri.path.length ? identifier.uri.path + "/" : "") + identifier.subPath }).toString())
+            parseIdentifier(identifier.fullUriOfSubPath()!.toString())
           }
         />
       )}

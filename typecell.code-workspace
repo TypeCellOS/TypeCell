@@ -19,10 +19,6 @@
     {
       "name": "packages/matrix-yjs",
       "path": "packages/matrix-yjs"
-    },
-    {
-      "name": "packages/api",
-      "path": "packages/api"
     }
   ],
   "settings": {

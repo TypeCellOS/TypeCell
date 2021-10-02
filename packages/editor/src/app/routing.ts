@@ -3,7 +3,9 @@ import { parseIdentifier, tryParseIdentifier } from "../identifiers";
 
 export default function routing() {
   const parts = window.location.pathname.split("/").filter((p) => p.length);
-  const path = parts.join("/"); // removes leading and trailing /
+  const path = window.location.pathname.startsWith("/")
+    ? window.location.pathname.substring(1)
+    : window.location.pathname;
 
   const parsedIdentifier = tryParseIdentifier(path);
   if (parsedIdentifier !== "invalid-identifier") {
@@ -22,10 +24,15 @@ export default function routing() {
     const id =
       ENVIRONMENT === "DEV"
         ? parseIdentifier("fs:" + (remainingPath ? "/:/" + remainingPath : ""))
-        : parseIdentifier(
+        : /*parseIdentifier(
             "github:yousefed/typecell-next/docs" +
               (remainingPath ? "/:/" + remainingPath : "")
+          );*/
+          parseIdentifier(
+            "http:/_docs/index.json" +
+              (remainingPath ? "/:/" + remainingPath : "")
           );
+
     // overwrite reverse route (bit hacky)
     id.toRouteString = () => {
       return "/docs" + (id.subPath ? "/" + id.subPath : "");

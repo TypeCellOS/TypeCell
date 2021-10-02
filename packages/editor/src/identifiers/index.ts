@@ -5,11 +5,19 @@ import { FileIdentifier } from "./FileIdentifier";
 import { GithubIdentifier } from "./GithubIdentifier";
 import { Identifier, IdentifierFactory } from "./Identifier";
 import { MatrixIdentifier } from "./MatrixIdentifier";
+import { HttpsIdentifier } from "./HttpsIdentifier";
 
 export const identifiers = new Map<string, IdentifierFactory<Identifier>>();
-const factories = [MatrixIdentifier, GithubIdentifier, FileIdentifier];
+const factories = [
+  MatrixIdentifier,
+  GithubIdentifier,
+  FileIdentifier,
+  HttpsIdentifier,
+];
 for (let factory of factories) {
-  identifiers.set(factory.scheme, factory);
+  for (let scheme of factory.schemes) {
+    identifiers.set(scheme, factory);
+  }
 }
 
 export function parseIdentifier(
@@ -26,7 +34,7 @@ export function parseIdentifier(
 
   if (identifier.startsWith("@")) {
     identifier =
-      MatrixIdentifier.scheme +
+      MatrixIdentifier.schemes[0] +
       "://" +
       DEFAULT_HOMESERVER_HOST +
       "/" +

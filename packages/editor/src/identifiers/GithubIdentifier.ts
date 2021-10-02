@@ -2,11 +2,10 @@ import { uri } from "vscode-lib";
 import { Identifier, stringWithoutInitialSlash } from "./Identifier";
 
 export class GithubIdentifier extends Identifier {
-  public static scheme = "github";
+  public static schemes = ["github"];
   public readonly owner: string;
   public readonly repository: string;
   public readonly path: string;
-  public readonly subIdentifier: string | undefined;
 
   constructor(uriToParse: uri.URI) {
     let [identifier, subPath] = stringWithoutInitialSlash(
@@ -25,7 +24,7 @@ export class GithubIdentifier extends Identifier {
 
     // call super to drop fragment, query, and make sure owner / repository is lowercase
     super(
-      GithubIdentifier.scheme,
+      GithubIdentifier.schemes,
       uri.URI.from({
         scheme: uriToParse.scheme,
         authority: uriToParse.authority,

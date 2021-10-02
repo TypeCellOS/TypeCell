@@ -7,6 +7,7 @@ import { FileIdentifier } from "../../identifiers/FileIdentifier";
 import { xmlFragmentToMarkdown } from "../../integrations/markdown/export";
 import { markdownToYDoc } from "../../integrations/markdown/import";
 import ProjectResource from "../ProjectResource";
+import { SyncManager } from "./SyncManager";
 
 function isEmptyDoc(doc: Y.Doc) {
   return areDocsEqual(doc, new Y.Doc());
@@ -29,7 +30,10 @@ function areDocsEqual(doc1: Y.Doc, doc2: Y.Doc) {
 /**
  * Given an identifier, manages local + remote syncing of a Y.Doc
  */
-export class YDocFileSyncManager extends lifecycle.Disposable {
+export class YDocFileSyncManager
+  extends lifecycle.Disposable
+  implements SyncManager
+{
   private _ydoc: Y.Doc;
   private watcher: Watcher | undefined;
   public webrtcProvider: any;
@@ -55,6 +59,7 @@ export class YDocFileSyncManager extends lifecycle.Disposable {
     super();
     makeObservable(this, {
       doc: observable.ref,
+      canWrite: observable.ref,
     });
 
     console.log("new docconnection", this.identifier.toString());

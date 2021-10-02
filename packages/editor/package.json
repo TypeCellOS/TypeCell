@@ -109,7 +109,8 @@
   "scripts": {
     "emittypes": "rimraf public/types && tsc --declaration --stripInternal --emitDeclarationOnly --noEmit false --declarationDir public/types",
     "start": "npm run emittypes && react-scripts start",
-    "build": "tsc -v && npm run emittypes",
+    "copy-docs": "rimraf public/_docs && mkdir public/_docs && node copy-docs.mjs > public/_docs/index.json && cp -rf ../../docs/. public/_docs",
+    "build": "tsc -v && npm run emittypes && npm run copy-docs",
     "build-react": "npm run emittypes && cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true react-scripts build",
     "lint": "eslint src",
     "test": "react-scripts test",
@@ -169,6 +170,7 @@
     "fake-indexeddb": "^3.1.2",
     "patch-package": "^6.4.7",
     "ts-node": "^10.1.0",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "glob": "^7.2.0"
   }
 }

@@ -4,7 +4,7 @@ import { Identifier, stringWithoutInitialSlash } from "./Identifier";
 const DEFAULT_AUTHORITY = "mx.typecell.org";
 
 export class MatrixIdentifier extends Identifier {
-  public static scheme = "mx";
+  public static schemes = ["mx"];
   public readonly owner: string;
   public readonly document: string;
 
@@ -32,7 +32,7 @@ export class MatrixIdentifier extends Identifier {
     }
     // call super to drop fragment, query, and make sure path is lowercase
     super(
-      MatrixIdentifier.scheme,
+      MatrixIdentifier.schemes,
       uri.URI.from({
         scheme: uriToParse.scheme,
         authority: uriToParse.authority || DEFAULT_AUTHORITY,
