@@ -111,7 +111,7 @@
     "start": "npm run emittypes && react-scripts start",
     "copy-docs": "rimraf public/_docs && mkdir public/_docs && node copy-docs.mjs > public/_docs/index.json && cp -rf ../../docs/. public/_docs",
     "build": "tsc -v && npm run emittypes && npm run copy-docs",
-    "build-react": "npm run emittypes && cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true react-scripts build",
+    "build-react": "cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true react-scripts build",
     "lint": "eslint src",
     "test": "react-scripts test",
     "test-no-watch": "react-scripts test --watchAll=false",
