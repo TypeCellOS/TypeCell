@@ -1,16 +1,16 @@
 import { Node, NodeConfig } from "@tiptap/core";
-import { ReactNodeViewRenderer, ReactRenderer } from "@tiptap/react";
-import Block from "./Block";
 import ListItem from "@tiptap/extension-list-item";
 import Paragraph from "@tiptap/extension-paragraph";
-import { IndentItem } from "./IndentItem";
-import { TypeCellNode } from "../typecellnode";
-import MarkdownHeading from "../markdownPasteRules/single/Heading";
-import MarkdownHorizontalRule from "../markdownPasteRules/single/Horizontal";
+import { ReactNodeViewRenderer } from "@tiptap/react";
 import MarkdownBlockquote from "../markdownPasteRules/multiple/BlockQuote";
 import MarkdownBulletList from "../markdownPasteRules/multiple/BulletList";
-import MarkdownOrderedList from "../markdownPasteRules/multiple/OrderedList";
 import MarkdownCodeBlock from "../markdownPasteRules/multiple/CodeBlock";
+import MarkdownOrderedList from "../markdownPasteRules/multiple/OrderedList";
+import MarkdownHeading from "../markdownPasteRules/single/Heading";
+import MarkdownHorizontalRule from "../markdownPasteRules/single/Horizontal";
+import { TypeCellNode } from "../typecellnode";
+import Block from "./Block";
+import { IndentItem } from "./IndentItem";
 
 type PlaceholderOptions = {
   placeholder?: string;

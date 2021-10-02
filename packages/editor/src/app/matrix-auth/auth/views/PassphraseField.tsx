@@ -15,8 +15,7 @@ limitations under the License.
 */
 
 import React, { PureComponent, RefCallback, RefObject } from "react";
-
-import Field, { IInputProps, IValidationResult } from "../elements/Field";
+import Field, { IInputProps } from "../elements/Field";
 
 interface IProps extends IInputProps<string> {
   autoFocus?: boolean;

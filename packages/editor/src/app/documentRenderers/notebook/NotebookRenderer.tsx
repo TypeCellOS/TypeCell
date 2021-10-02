@@ -41,7 +41,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
     };
 
     return [newCompiler, newExecutionHost];
-  }, [props.document.id]);
+  }, [props.document.id, monaco]);
 
   useEffect(() => {
     return () => {

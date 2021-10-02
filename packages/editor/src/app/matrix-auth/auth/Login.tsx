@@ -15,17 +15,12 @@ limitations under the License.
 */
 
 import Button from "@atlaskit/button";
-import Flag from "@atlaskit/flag";
 import { HelperMessage } from "@atlaskit/form";
-import ErrorIcon from "@atlaskit/icon/glyph/error";
 import SectionMessage from "@atlaskit/section-message";
 import Spinner from "@atlaskit/spinner";
-import { R400 } from "@atlaskit/theme/colors";
-import classNames from "classnames";
 import React, { Fragment, ReactNode } from "react";
 import AuthStyles from "./AuthStyles.module.css";
 import SSOButtons from "./elements/SSOButtons";
-
 import LoginHelper, { ISSOFlow, LoginFlow } from "./LoginHelper";
 import AutoDiscoveryUtils, {
   ValidatedServerConfig,
@@ -576,17 +571,17 @@ export default class LoginComponent extends React.PureComponent<
       );
     }
 
-    let serverDeadSection;
-    if (!this.state.serverIsAlive) {
-      const classes = classNames({
-        mx_Login_error: true,
-        mx_Login_serverError: true,
-        mx_Login_serverErrorNonFatal: !this.state.serverErrorIsFatal,
-      });
-      serverDeadSection = (
-        <div className={classes}>{this.state.serverDeadError}</div>
-      );
-    }
+    // let serverDeadSection;
+    // if (!this.state.serverIsAlive) {
+    //   const classes = classNames({
+    //     mx_Login_error: true,
+    //     mx_Login_serverError: true,
+    //     mx_Login_serverErrorNonFatal: !this.state.serverErrorIsFatal,
+    //   });
+    //   serverDeadSection = (
+    //     <div className={classes}>{this.state.serverDeadError}</div>
+    //   );
+    // }
 
     let footer;
     if (this.props.isSyncing || this.state.busyLoggingIn) {

@@ -1,3 +1,4 @@
+/* eslint-disable import/first */
 // mock necessary for monaco
 Object.defineProperty(window, "matchMedia", {
   writable: true,

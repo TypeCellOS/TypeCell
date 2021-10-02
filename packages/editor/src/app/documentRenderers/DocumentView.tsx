@@ -1,11 +1,13 @@
+import { DropdownItem, DropdownItemGroup } from "@atlaskit/dropdown-menu";
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useState } from "react";
 import { Identifier } from "../../identifiers/Identifier";
+import { openAsMarkdown } from "../../integrations/markdown/export";
 import { DocConnection } from "../../store/DocConnection";
-
 import PluginResource from "../../store/PluginResource";
 import ProjectResource from "../../store/ProjectResource";
+import { MenuPortal } from "../portals/MenuPortal";
 import { CustomRenderer } from "./custom/CustomRenderer";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
@@ -27,6 +29,10 @@ const DocumentView = observer((props: Props) => {
     const newConnection = DocConnection.load(props.id);
 
     setConnection(newConnection);
+    // for testing:
+    // setTimeout(() => {
+    //   setConnection(undefined);
+    // }, 10000);
     return () => {
       newConnection.dispose();
       setConnection(undefined);
@@ -46,8 +52,24 @@ const DocumentView = observer((props: Props) => {
     return <div>Loading</div>;
   }
   if (connection.doc.type === "!notebook") {
+    const doc = connection.doc.doc;
     return (
-      <NotebookRenderer key={connection.doc.id} document={connection.doc.doc} />
+      <>
+        <MenuPortal>
+          <DropdownItemGroup>
+            {/* <DropdownItem onClick={() => saveDocumentToGithub(props.id)}>
+              Sync to Github
+            </DropdownItem> */}
+            <DropdownItem onClick={() => openAsMarkdown(doc)}>
+              Export as markdown
+            </DropdownItem>
+          </DropdownItemGroup>
+        </MenuPortal>
+        <NotebookRenderer
+          key={connection.doc.id}
+          document={connection.doc.doc}
+        />
+      </>
     );
   } else if (connection.doc.type === "!project") {
     return (

@@ -2,7 +2,6 @@ import { ObservableMap, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import ObjectInspector from "react-inspector";
-import { TypeVisualizer } from "../lib/exports";
 import { DefaultOutputVisualizer } from "./DefaultOutputVisualizer";
 import { ModelOutput } from "./ModelOutput";
 
@@ -28,14 +27,13 @@ type Props = {
  * - All other values are rendered using ObjectInspector
  */
 const Output: React.FC<Props> = observer((props) => {
-  const [selectedVisualizer, setSelectedVisualizer] =
-    useState<string>();
+  const [selectedVisualizer, setSelectedVisualizer] = useState<string>();
 
   const modelOutput = props.outputs.get(props.modelPath);
 
   const visualizer =
     selectedVisualizer &&
-    modelOutput?.typeVisualizers.get(selectedVisualizer)?.visualizer
+    modelOutput?.typeVisualizers.get(selectedVisualizer)?.visualizer;
 
   let output = modelOutput?.value;
 
@@ -90,25 +88,19 @@ const Output: React.FC<Props> = observer((props) => {
               }}>
               Default
             </button>
-            {Array.from(modelOutput?.typeVisualizers.entries()).map(([key, obj]) => (
-              <button
-                key={key}
-                className={
-                  key === selectedVisualizer
-                    ? "active"
-                    : ""
-                }
-                style={
-                  key === selectedVisualizer
-                    ? btnStyleActive
-                    : btnStyle
-                }
-                onClick={() => {
-                  setSelectedVisualizer(key);
-                }}>
-                {obj.visualizer?.name || key}
-              </button>
-            ))}
+            {Array.from(modelOutput?.typeVisualizers.entries()).map(
+              ([key, obj]) => (
+                <button
+                  key={key}
+                  className={key === selectedVisualizer ? "active" : ""}
+                  style={key === selectedVisualizer ? btnStyleActive : btnStyle}
+                  onClick={() => {
+                    setSelectedVisualizer(key);
+                  }}>
+                  {obj.visualizer?.name || key}
+                </button>
+              )
+            )}
           </div>
         )}
       </>

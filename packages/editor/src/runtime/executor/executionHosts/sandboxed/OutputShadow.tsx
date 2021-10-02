@@ -1,6 +1,6 @@
 import { runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export const OutputShadow = observer(
   (props: {

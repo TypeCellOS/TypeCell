@@ -7,17 +7,9 @@ import {
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import Avatar from "react-avatar";
-import { SessionStore } from "../../../store/local/SessionStore";
 import { NavigationStore } from "../../../store/local/navigationStore";
-import { saveDocumentToGithub } from "../../../github/github";
+import { SessionStore } from "../../../store/local/SessionStore";
 import { getStoreService } from "../../../store/local/stores";
-
-const imgCSS = {
-  borderRadius: "100%",
-  height: 24,
-  width: 24,
-  // border: "1px solid #6B778C"
-};
 
 export const ProfilePopup = observer(
   (props: { sessionStore: SessionStore; navigationStore: NavigationStore }) => {
@@ -56,16 +48,7 @@ export const ProfilePopup = observer(
         <DropdownItem onClick={props.navigationStore.showNewPageDialog}>
           New page
         </DropdownItem>
-        {props.navigationStore.currentPage.page === "document" && (
-          <DropdownItem
-            onClick={() =>
-              saveDocumentToGithub(
-                props.navigationStore.currentPage.identifier!
-              )
-            }>
-            Sync to Github
-          </DropdownItem>
-        )}
+        {props.navigationStore.menuPortalChildren.map((c) => c.children)}
         <DropdownItemGroup title={props.sessionStore.loggedInUser!}>
           {" "}
           {/* @${props.authStore.user?.username} */}

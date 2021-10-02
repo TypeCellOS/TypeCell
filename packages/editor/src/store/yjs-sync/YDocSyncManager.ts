@@ -1,21 +1,22 @@
+import { MatrixProvider } from "@typecell-org/matrix-yjs";
 import { MatrixClient } from "matrix-js-sdk";
 import { createAtom, makeObservable, observable, runInAction } from "mobx";
+import { lifecycle } from "vscode-lib";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
-import GithubProvider from "../../github/GithubProvider";
-import { GithubIdentifier } from "../../identifiers/GithubIdentifier";
 import { Identifier } from "../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";
-import { MatrixProvider } from "@typecell-org/matrix-yjs";
-import { lifecycle } from "vscode-lib";
-
 import { existsLocally, getIDBIdentifier, waitForIDBSynced } from "./IDBHelper";
+import { SyncManager } from "./SyncManager";
 
 /**
  * Given an identifier, manages local + remote syncing of a Y.Doc
  */
-export class YDocSyncManager extends lifecycle.Disposable {
+export class YDocSyncManager
+  extends lifecycle.Disposable
+  implements SyncManager
+{
   private readonly _ydoc: Y.Doc;
   private initializeCalled = false;
   private _canWriteAtom = createAtom("_canWrite");
@@ -31,7 +32,7 @@ export class YDocSyncManager extends lifecycle.Disposable {
   }
 
   /** @internal */
-  public matrixProvider: MatrixProvider | GithubProvider | undefined;
+  public matrixProvider: MatrixProvider | undefined;
 
   /** @internal */
   public webrtcProvider: WebrtcProvider | undefined;
@@ -53,7 +54,7 @@ export class YDocSyncManager extends lifecycle.Disposable {
   public doc: "loading" | "not-found" | Y.Doc = "loading";
 
   public constructor(
-    public readonly identifier: MatrixIdentifier | GithubIdentifier,
+    public readonly identifier: MatrixIdentifier,
     private readonly mxClient: MatrixClient,
     private readonly userId: string | undefined,
     private readonly forkSourceIdentifier?: Identifier
@@ -67,7 +68,6 @@ export class YDocSyncManager extends lifecycle.Disposable {
       doc: observable.ref,
     });
 
-    console.log("new docconnection", this.identifier);
     this._ydoc = new Y.Doc({ guid: this.identifier.toString() });
   }
 
@@ -178,14 +178,12 @@ export class YDocSyncManager extends lifecycle.Disposable {
     }
 
     this.matrixProvider = this._register(
-      this.identifier instanceof MatrixIdentifier
-        ? new MatrixProvider(
-            this._ydoc,
-            this.mxClient,
-            this.identifier.roomName,
-            this.identifier.uri.authority
-          )
-        : new GithubProvider(this._ydoc, this.identifier)
+      new MatrixProvider(
+        this._ydoc,
+        this.mxClient,
+        this.identifier.roomName,
+        this.identifier.uri.authority
+      )
     );
     this.matrixProvider.initialize();
     this._canWriteAtom.reportChanged();

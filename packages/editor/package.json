@@ -72,9 +72,9 @@
     "mobx": "^6.2.0",
     "mobx-react-lite": "^3.2.0",
     "monaco-editor": "^0.27.0",
-    "octokit": "^1.0.6",
+    "octokit": "^1.6.1",
     "penpal": "^6.1.0",
-    "prettier": "^2.3.0",
+    "prettier": "^2.4.1",
     "qs": "^6.10.1",
     "react": "^17.0.2",
     "react-avatar": "^3.10.0",
@@ -109,8 +109,10 @@
   "scripts": {
     "emittypes": "rimraf public/types && tsc --declaration --stripInternal --emitDeclarationOnly --noEmit false --declarationDir public/types",
     "start": "npm run emittypes && react-scripts start",
-    "build": "tsc -v && npm run emittypes",
-    "build-react": "npm run emittypes && cross-env NODE_OPTIONS=--max_old_space_size=8192 react-scripts build",
+    "copy-docs": "rimraf public/_docs && mkdir public/_docs && node copy-docs.mjs > public/_docs/index.json && cp -rf ../../docs/. public/_docs",
+    "build": "tsc -v && npm run emittypes && npm run copy-docs",
+    "build-react": "cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true react-scripts build",
+    "lint": "eslint src",
     "test": "react-scripts test",
     "test-no-watch": "react-scripts test --watchAll=false",
     "eject": "react-scripts eject",
@@ -168,6 +170,7 @@
     "fake-indexeddb": "^3.1.2",
     "patch-package": "^6.4.7",
     "ts-node": "^10.1.0",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "glob": "^7.2.0"
   }
 }

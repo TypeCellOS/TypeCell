@@ -2,25 +2,31 @@ import { untracked } from "mobx";
 import { observer } from "mobx-react-lite";
 // import useCellModel from "./useCellModel.ts.bak";
 import type * as monaco from "monaco-editor";
-import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
 import { MonacoBinding } from "y-monaco";
 import { Awareness } from "y-protocols/awareness";
 import {
   getTypeCellCodeModel,
-  TypeCellCodeModel
+  TypeCellCodeModel,
 } from "../../../models/TypeCellCodeModel";
 import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import { ExecutionHost } from "../../../runtime/executor/executionHosts/ExecutionHost";
+import { HoverTrackerContext } from "./HoverTrackerContext";
 
 import { NotebookCellModel } from "./NotebookCellModel";
 
-
 type Props = {
   cell: NotebookCellModel;
-  compiler: SourceModelCompiler,
-  executionHost: ExecutionHost,
+  compiler: SourceModelCompiler;
+  executionHost: ExecutionHost;
   onRemove?: () => void;
   classList?: string;
   defaultCollapsed?: boolean;
@@ -41,7 +47,11 @@ const NotebookCell: React.FC<Props> = observer((props) => {
   const [codeVisible, setCodeVisible] = useState(
     untracked(
       () =>
-        !(props.defaultCollapsed === true || props.cell.language === "markdown")
+        !(
+          props.defaultCollapsed === true ||
+          props.cell.language === "markdown" ||
+          props.cell.code.toJSON().startsWith("// @default-collapsed")
+        )
     )
   );
 
@@ -99,7 +109,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
         setEditor(newEditor);
       }
     },
-    [editor, props.initialFocus]
+    [editor, props.initialFocus, monaco.editor]
   );
 
   useEffect(() => {
@@ -117,7 +127,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
       setModel(undefined);
       setMonacoModel(undefined);
     };
-  }, [props.cell, props.compiler]);
+  }, [props.cell, props.compiler, monaco]);
 
   useEffect(() => {
     if (!editor || !monacoModel) {
@@ -186,10 +196,13 @@ const NotebookCell: React.FC<Props> = observer((props) => {
   // [model, codeRefCallback.current]
   // );
 
+  const hoverTrackerContext = useContext(HoverTrackerContext);
+
   return (
     <div
-      className={`notebookCell ${codeVisible ? "expanded" : "collapsed"} ${props.cell.language
-        } ${props.classList || ""}`}
+      className={`notebookCell ${codeVisible ? "expanded" : "collapsed"} ${
+        props.cell.language
+      } ${props.classList || ""}`}
       style={{ display: "flex", flexDirection: "row" }}>
       {codeVisible ? (
         <VscChevronDown
@@ -222,7 +235,11 @@ const NotebookCell: React.FC<Props> = observer((props) => {
           className="output"
           contentEditable={false}
           style={{ position: "relative" }}>
-          {model && props.executionHost.renderOutput(model)}
+          {model &&
+            props.executionHost.renderOutput(
+              model,
+              hoverTrackerContext.setHover
+            )}
         </div>
       </div>
     </div>

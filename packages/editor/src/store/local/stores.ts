@@ -6,17 +6,14 @@ class StoreService {
   public matrixAuthStore = new MatrixAuthStore();
   public sessionStore = new SessionStore(this.matrixAuthStore);
   public navigationStore = new NavigationStore(this.sessionStore);
-  constructor() {
-    this.sessionStore.initialize().catch((e) => {
-      console.error("error initializing sessionstore", e);
-    });
-  }
 }
 
 let storeService: StoreService | undefined;
 
 export async function initializeStoreService() {
   storeService = new StoreService();
+  await storeService.sessionStore.initialize();
+  await storeService.navigationStore.initialize();
 }
 
 export function getStoreService() {

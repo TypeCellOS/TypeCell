@@ -95,7 +95,7 @@ function SuggestionComponent<T extends SuggestionItem>(
         block: "nearest",
       });
     }
-  }, [props.selectedIndex]);
+  }, [isButtonSelected]);
 
   return (
     <div className={styles.buttonItem}>

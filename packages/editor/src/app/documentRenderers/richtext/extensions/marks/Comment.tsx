@@ -1,4 +1,4 @@
-import { Command, Mark, mergeAttributes } from "@tiptap/core";
+import { Mark, mergeAttributes } from "@tiptap/core";
 import styles from "../comments/Comments.module.css";
 
 /**

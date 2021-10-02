@@ -1,32 +1,29 @@
+import Button from "@atlaskit/button";
 import Tree, {
+  ItemId,
   mutateTree,
   RenderItemParams,
-  TreeItem,
   TreeData,
-  ItemId,
-  Path,
 } from "@atlaskit/tree";
-
-import Button from "@atlaskit/button";
-import { filesToTreeNodes, TreeNode } from "./treeUtil";
-import { observer } from "mobx-react-lite";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { VscChevronDown, VscChevronRight, VscFile } from "react-icons/vsc";
 import _ from "lodash";
+import { observer } from "mobx-react-lite";
+import { useCallback, useEffect, useState } from "react";
+import { VscChevronDown, VscChevronRight, VscFile } from "react-icons/vsc";
+import { filesToTreeNodes, TreeNode } from "./treeUtil";
 
-const onExpand = (itemId: ItemId) => {
-  // const { tree }: State = this.state;
-  // this.setState({
-  //   tree: mutateTree(tree, itemId, { isExpanded: true }),
-  // });
-};
+// const onExpand = (itemId: ItemId) => {
+// const { tree }: State = this.state;
+// this.setState({
+//   tree: mutateTree(tree, itemId, { isExpanded: true }),
+// });
+// };
 
-const onCollapse = (itemId: ItemId) => {
-  // const { tree }: State = this.state;
-  // this.setState({
-  //   tree: mutateTree(tree, itemId, { isExpanded: false }),
-  // });
-};
+// const onCollapse = (itemId: ItemId) => {
+// const { tree }: State = this.state;
+// this.setState({
+//   tree: mutateTree(tree, itemId, { isExpanded: false }),
+// });
+// };
 
 export const tree: TreeData = {
   rootId: "1",
@@ -215,6 +212,7 @@ export const SidebarTree = observer(
       return treeToTreeData(tree);
     });
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const update = useCallback(
       _.debounce(
         (fileSet: string[]) => {
@@ -243,6 +241,7 @@ export const SidebarTree = observer(
     useEffect(() => {
       console.log("debounce ", props.fileSet);
       update(props.fileSet);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.fileSet]);
 
     const onExpand = (itemId: ItemId) => {

@@ -68,7 +68,7 @@ export class MatrixAuthStore {
     if (parts.length !== 2) {
       throw new Error("invalid user id");
     }
-    const [user, _host] = parts; // TODO: think out host for federation
+    const [user /*_host*/] = parts; // TODO: think out host for federation
     if (!user.startsWith("@") || user.length < 2) {
       throw new Error("invalid user id");
     }

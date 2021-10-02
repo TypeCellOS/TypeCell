@@ -2,7 +2,6 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 // import { getEngineForPlugin } from "../../../pluginEngine/pluginSystem.ts.bak";
 import PluginResource from "../../../store/PluginResource";
-import NotebookCell from "../notebook/NotebookCell";
 
 type Props = {
   plugin: PluginResource;

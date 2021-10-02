@@ -15,22 +15,18 @@ limitations under the License.
 */
 
 import Button from "@atlaskit/button";
-import SectionMessage from "@atlaskit/section-message";
 import { HelperMessage } from "@atlaskit/form";
-import ErrorIcon from "@atlaskit/icon/glyph/error";
-import { R400 } from "@atlaskit/theme/colors";
+import SectionMessage from "@atlaskit/section-message";
 import classNames from "classnames";
 import { createClient, MatrixClient } from "matrix-js-sdk";
 import React, { ReactNode } from "react";
 import { getStoredSessionOwner } from "../AuthStoreUtil";
 import { MatrixClientPeg } from "../MatrixClientPeg";
 import AuthStyles from "./AuthStyles.module.css";
-import AccessibleButton from "./elements/AccessibleButton";
 import Spinner from "./elements/Spinner";
 import SSOButtons from "./elements/SSOButtons";
 import InteractiveAuth from "./InteractiveAuth";
 import Login, { ISSOFlow } from "./LoginHelper";
-import styles from "./Registration.module.css";
 import AutoDiscoveryUtils, {
   ValidatedServerConfig,
 } from "./util/AutoDiscoveryUtils";
@@ -129,8 +125,8 @@ export default class Registration extends React.Component<IProps, IState> {
       errorText: undefined,
       formVals: this.props.email
         ? {
-          email: this.props.email,
-        }
+            email: this.props.email,
+          }
         : {},
       doingUIAuth: Boolean(this.props.sessionId),
       flows: undefined,
@@ -580,6 +576,7 @@ export default class Registration extends React.Component<IProps, IState> {
     let goBack;
     if (this.state.doingUIAuth) {
       goBack = (
+        // eslint-disable-next-line jsx-a11y/anchor-is-valid
         <a
           className="mx_AuthBody_changeFlow"
           onClick={this.onGoToFormClicked}

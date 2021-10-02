@@ -89,11 +89,12 @@ export async function runModule(
   let wouldLoopOnAutorun = false;
   let detectedLoop = false;
 
-  // if (window.location.hostname !== "127.0.0.1") {
-  //   throw new Error(
-  //     "failed security check, executor must be running on 127.0.0.1!"
-  //   );
-  // }
+  const hostname = window.location.hostname.toLowerCase();
+  if (hostname.includes("typecell.org") || hostname.includes("typecell.com")) {
+    throw new Error(
+      "failed security check, executor can not be running on these domains"
+    );
+  }
 
   const execute = async () => {
     try {

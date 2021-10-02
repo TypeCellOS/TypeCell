@@ -16,21 +16,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React, { createRef, FormEvent } from "react";
-import PropTypes from "prop-types";
-import { R400 } from "@atlaskit/theme/colors";
+import Button from "@atlaskit/button";
+import { Checkbox } from "@atlaskit/checkbox";
+import SectionMessage from "@atlaskit/section-message";
 import classnames from "classnames";
-
-import ErrorIcon from "@atlaskit/icon/glyph/error";
-
+import PropTypes from "prop-types";
+import React, { createRef, FormEvent } from "react";
 import AccessibleButton from "../elements/AccessibleButton";
-import CaptchaForm from "./CaptchaForm";
 import Field from "../elements/Field";
 import Spinner from "../elements/Spinner";
-import { Checkbox } from "@atlaskit/checkbox";
-import Button from "@atlaskit/button";
-import Flag from "@atlaskit/flag";
-import SectionMessage from "@atlaskit/section-message";
+import CaptchaForm from "./CaptchaForm";
 
 /* This file contains a collection of components which are used by the
  * InteractiveAuth to prompt the user to enter the information needed
@@ -591,7 +586,7 @@ export class MsisdnAuthEntry extends React.Component<
 
   _onFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (this.state.token == "") return;
+    if (this.state.token === "") return;
 
     this.setState({
       errorText: undefined,
@@ -921,8 +916,10 @@ export class FallbackAuthEntry extends React.Component<FallbackAuthEntryProps> {
         </div>
       );
     }
+
     return (
       <div>
+        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
         <a
           href=""
           ref={this._fallbackButton}

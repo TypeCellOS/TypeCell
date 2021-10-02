@@ -49,7 +49,11 @@ export const CustomRenderer = observer((props: Props) => {
     }
 
     const newEngine = new Engine(
-      getTypeCellResolver(rendererDocument.identifier.toString(), "CR", monaco as any) // TODO
+      getTypeCellResolver(
+        rendererDocument.identifier.toString(),
+        "CR",
+        monaco as any
+      ) // TODO
     );
     setEngine(newEngine);
 
@@ -67,6 +71,7 @@ export const CustomRenderer = observer((props: Props) => {
     rendererDocument?.identifier,
     rendererDocument?.tryDoc,
     rendererDocument?.tryDoc?.doc.cells,
+    monaco,
   ]); // TODO: does this create a new engine every time the doc changes?
 
   if (!renderer) {

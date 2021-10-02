@@ -532,11 +532,11 @@ retention:
 # instance, if using certbot, use `fullchain.pem` as your certificate,
 # not `cert.pem`).
 #
-#tls_certificate_path: "/data/localhost:8888.tls.crt"
+tls_certificate_path: "/data/localhost-8888.tls.crt"
 
 # PEM-encoded private key for TLS
 #
-#tls_private_key_path: "/data/localhost:8888.tls.key"
+tls_private_key_path: "/data/localhost-8888.tls.key"
 
 # Whether to verify TLS server certificates for outbound federation requests.
 #
@@ -811,7 +811,7 @@ database:
 # A yaml python logging config file as described by
 # https://docs.python.org/3.7/library/logging.config.html#configuration-dictionary-schema
 #
-log_config: "/data/localhost:8888.log.config"
+log_config: "/data/localhost-8888.log.config"
 
 ## Ratelimiting ##
 
@@ -1522,7 +1522,7 @@ form_secret: ":KtdXlg*Ayy7ZmsQPYUmJieU6#Cig4TKQiX3L_@cqXFh5wNtk@"
 
 # Path to the signing key to sign messages with
 #
-signing_key_path: "/data/localhost:8888.signing.key"
+signing_key_path: "/data/localhost-8888.signing.key"
 
 # The keys that the server used to sign messages with but won't use
 # to sign new messages.

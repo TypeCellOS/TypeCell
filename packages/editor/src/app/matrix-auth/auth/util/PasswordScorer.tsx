@@ -42,14 +42,14 @@ export function scorePassword(password: string) {
       zxcvbnResult = resultNoSpaces;
   }
 
-  for (let i = 0; i < zxcvbnResult.feedback.suggestions.length; ++i) {
-    // translate suggestions
-    zxcvbnResult.feedback.suggestions[i] = zxcvbnResult.feedback.suggestions[i];
-  }
+  // for (let i = 0; i < zxcvbnResult.feedback.suggestions.length; ++i) {
+  // translate suggestions
+  // zxcvbnResult.feedback.suggestions[i] = zxcvbnResult.feedback.suggestions[i];
+  // }
   // and warning, if any
-  if (zxcvbnResult.feedback.warning) {
-    zxcvbnResult.feedback.warning = zxcvbnResult.feedback.warning;
-  }
+  // if (zxcvbnResult.feedback.warning) {
+  // zxcvbnResult.feedback.warning = zxcvbnResult.feedback.warning;
+  // }
 
   return zxcvbnResult;
 }

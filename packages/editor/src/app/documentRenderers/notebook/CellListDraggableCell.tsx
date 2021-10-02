@@ -2,6 +2,7 @@ import { XYCoord } from "dnd-core";
 import { observer } from "mobx-react-lite";
 import React, { useRef, useState } from "react";
 import { DropTargetMonitor, useDrag, useDrop } from "react-dnd";
+import { HoverTrackerContext } from "./HoverTrackerContext";
 
 type Props = {
   index: number;
@@ -28,7 +29,7 @@ const CellListDraggableCell: React.FC<Props> = observer((props) => {
 
   const ref = useRef<HTMLDivElement>(null);
   const dragSourceRef = useRef<HTMLDivElement>(null);
-  const [hoverPos, setHoverPos] = useState<"top" | "bottom">("top");
+  const [dndHoverPos, setDndHoverPos] = useState<"top" | "bottom">("top");
 
   function calcDrag(item: DragItem, monitor: DropTargetMonitor) {
     if (!ref.current) {
@@ -78,7 +79,7 @@ const CellListDraggableCell: React.FC<Props> = observer((props) => {
     };
   }
 
-  const [{ hovered }, drop] = useDrop({
+  const [{ hovered: dndHovered }, drop] = useDrop({
     accept: "CELL",
 
     hover(item: DragItem, monitor: DropTargetMonitor) {
@@ -98,7 +99,7 @@ const CellListDraggableCell: React.FC<Props> = observer((props) => {
       // Get pixels to the top
       const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top;
 
-      setHoverPos(
+      setDndHoverPos(
         hoverClientY < hoverMiddleY ? ("top" as "top") : ("bottom" as "bottom")
       );
     },
@@ -120,29 +121,58 @@ const CellListDraggableCell: React.FC<Props> = observer((props) => {
   const opacity = isDragging ? 1 : 1;
   drag(dragSourceRef, {});
   drop(ref);
+
+  // When we're hovering over the cell in the parent frame (e.g.: code editor)
+  const [hovering, setHovering] = useState(false);
+
+  // When we're hovering over the cell output in a sandboxed frame (see SandboxedExecutionHost)
+  const [childHovering, setChildHovering] = useState(false);
+
   return (
-    <div className="cellList-item" ref={ref} style={{ opacity }}>
-      {hovered && hoverPos === "top" && <div className="dropruler top" />}
+    <HoverTrackerContext.Provider
+      value={{
+        setHover: (hover: boolean) => {
+          setChildHovering(hover);
+        },
+      }}>
       <div
-        className="shoulder"
-        draggable="true"
-        title="Drag to move cell"
-        ref={dragSourceRef}></div>
-      <button
-        onClick={props.onAddBefore}
-        className="add_cell before"
-        title="Add cell">
-        <span></span>
-      </button>
-      {props.children}
-      <button
-        onClick={props.onAddAfter}
-        className="add_cell after"
-        title="Add cell">
-        <span></span>
-      </button>
-      {hovered && hoverPos === "bottom" && <div className="dropruler bottom" />}
-    </div>
+        className={
+          "cellList-item " + (childHovering || hovering ? "hover" : "")
+        }
+        ref={ref}
+        style={{ opacity }}
+        onMouseOver={() => {
+          setHovering(true);
+        }}
+        onMouseLeave={() => {
+          setHovering(false);
+        }}>
+        {dndHovered && dndHoverPos === "top" && (
+          <div className="dropruler top" />
+        )}
+        <div
+          className="shoulder"
+          draggable="true"
+          title="Drag to move cell"
+          ref={dragSourceRef}></div>
+        <button
+          onClick={props.onAddBefore}
+          className="add_cell before"
+          title="Add cell">
+          <span></span>
+        </button>
+        {props.children}
+        <button
+          onClick={props.onAddAfter}
+          className="add_cell after"
+          title="Add cell">
+          <span></span>
+        </button>
+        {dndHovered && dndHoverPos === "bottom" && (
+          <div className="dropruler bottom" />
+        )}
+      </div>
+    </HoverTrackerContext.Provider>
   );
 });
 

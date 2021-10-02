@@ -17,11 +17,8 @@ limitations under the License.
 
 import { InteractiveAuth } from "matrix-js-sdk";
 import React, { createRef } from "react";
-import PropTypes from "prop-types";
-
-import * as sdk from "../../../index";
-import getEntryComponentForLoginType from "./views/InteractiveAuthEntryComponents";
 import Spinner from "./elements/Spinner";
+import getEntryComponentForLoginType from "./views/InteractiveAuthEntryComponents";
 
 export const ERROR_USER_CANCELLED = new Error("User cancelled auth session");
 

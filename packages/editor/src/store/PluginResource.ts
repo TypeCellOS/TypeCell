@@ -1,8 +1,7 @@
-import { CellModel } from "../models/CellModel";
-import { BaseResource, BaseResourceConnection } from "./BaseResource";
 import type * as Y from "yjs";
 import { NotebookCellModel } from "../app/documentRenderers/notebook/NotebookCellModel";
 import { Identifier } from "../identifiers/Identifier";
+import { BaseResource, BaseResourceConnection } from "./BaseResource";
 
 /**
  * A Resource defining a plugin. Plugins have a description and a single cell with code,

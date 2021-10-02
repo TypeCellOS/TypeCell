@@ -25,7 +25,7 @@ import { ValidatedServerConfig } from "../util/AutoDiscoveryUtils";
 import { looksValidEmail } from "../util/email";
 
 // For validating phone numbers without country codes
-const PHONE_NUMBER_REGEX = /^[0-9()\-\s]*$/;
+// const PHONE_NUMBER_REGEX = /^[0-9()\-\s]*$/;
 
 interface IProps {
   defaultUsernameOrEmail: string;
@@ -252,7 +252,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
     if (true) {
       const userNameOption = { label: "Username", value: LoginField.MatrixId };
       const emailOption = { label: "Email Address", value: LoginField.Email };
-      const phoneOption = { label: "Phone", value: LoginField.Phone };
+      // const phoneOption = { label: "Phone", value: LoginField.Phone };
       const options = [userNameOption, emailOption]; //, phoneOption];
       // Perhaps this should not be a <Field> but just a <select>, as it only changes the design of the form,
       // but we're not interested in the selected value itself
