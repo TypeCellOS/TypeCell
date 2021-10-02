@@ -45,7 +45,7 @@ export function extendAsBlock<NodeOptions>(
             // because it messes with drag events
             // (we don't use tiptap / PM draggable)
             stopEvent(event) {
-              const target = event.target as HTMLElement;
+              const target = event.event.target as HTMLElement;
               const isInContentDomElement = (
                 renderer as any
               ).contentDOM?.contains(target);
