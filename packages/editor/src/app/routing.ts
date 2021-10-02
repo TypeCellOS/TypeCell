@@ -29,7 +29,7 @@ export default function routing() {
               (remainingPath ? "/:/" + remainingPath : "")
           );*/
           parseIdentifier(
-            "http:/_docs/index.json" +
+            "https:/_docs/index.json" +
               (remainingPath ? "/:/" + remainingPath : "")
           );
 
