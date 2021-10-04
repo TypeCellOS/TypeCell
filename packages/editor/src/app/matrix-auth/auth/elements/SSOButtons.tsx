@@ -53,7 +53,7 @@ const getIcon = (brand: IdentityProviderBrand | string) => {
 const SSOButton: React.FC<ISSOButtonProps> = ({
   matrixClient,
   loginType,
-  fragmentAfterLogin,
+  pageAfterLogin,
   idp,
   primary,
   ...props
@@ -63,12 +63,7 @@ const SSOButton: React.FC<ISSOButtonProps> = ({
     : "Sign in with single sign-on";
 
   const onClick = () => {
-    startSingleSignOn(
-      matrixClient,
-      loginType as any,
-      fragmentAfterLogin,
-      idp?.id
-    );
+    startSingleSignOn(matrixClient, loginType as any, pageAfterLogin, idp?.id);
   };
 
   let icon;
@@ -119,7 +114,7 @@ interface IProps {
   matrixClient: MatrixClient;
   flow: ISSOFlow;
   loginType?: "sso" | "cas";
-  fragmentAfterLogin?: string;
+  pageAfterLogin?: string;
   primary?: boolean;
 }
 
@@ -127,7 +122,7 @@ const SSOButtons: React.FC<IProps> = ({
   matrixClient,
   flow,
   loginType,
-  fragmentAfterLogin,
+  pageAfterLogin,
   primary,
 }) => {
   const providers = flow.identity_providers || [];
@@ -139,7 +134,7 @@ const SSOButtons: React.FC<IProps> = ({
           key={idp.id}
           matrixClient={matrixClient}
           loginType={loginType}
-          fragmentAfterLogin={fragmentAfterLogin}
+          pageAfterLogin={pageAfterLogin}
           idp={idp}
           primary={primary}
         />

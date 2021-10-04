@@ -39,7 +39,7 @@ interface IProps {
   // different homeserver without confusing users.
   fallbackHsUrl?: string;
   defaultDeviceDisplayName?: string;
-  fragmentAfterLogin?: string;
+  pageAfterLogin?: string;
 
   // Called when the user has logged in. Params:
   // - The object returned by the login API
@@ -548,7 +548,7 @@ export default class LoginComponent extends React.PureComponent<
         matrixClient={this.loginLogic!.createTemporaryClient()}
         flow={flow}
         loginType={loginType as any}
-        fragmentAfterLogin={this.props.fragmentAfterLogin}
+        pageAfterLogin={this.props.pageAfterLogin}
         primary={
           !this.state.flows!.find((flow) => flow.type === "m.login.password")
         }

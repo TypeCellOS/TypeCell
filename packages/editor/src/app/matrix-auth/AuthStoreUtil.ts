@@ -349,10 +349,13 @@ export async function getStoredSessionOwner(): Promise<
   return hsUrl && userId && hasAccessToken ? [userId, isGuest] : undefined;
 }
 
-function getSSOCallbackUrl(fragmentAfterLogin?: string): URL {
-  const url = new URL(window.location.href);
-  url.hash = fragmentAfterLogin || "";
-  return url;
+function getSSOCallbackUrl(pageAfterLogin?: string): URL {
+  return pageAfterLogin
+    ? new URL(pageAfterLogin)
+    : new URL(window.location.href);
+  // const url = new URL(window.location.href);
+  // url.hash = pageAfterLogin || "";
+  // return url;
 }
 
 export const SSO_HOMESERVER_URL_KEY = "mx_sso_hs_url";

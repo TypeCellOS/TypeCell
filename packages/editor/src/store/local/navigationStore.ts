@@ -49,6 +49,7 @@ export class NavigationStore {
     if (this.initialized) {
       throw new Error("already initialized navigationStore");
     }
+
     this.initialized = true;
 
     // hide login / register screen when logged in
@@ -87,7 +88,9 @@ export class NavigationStore {
             this.currentPage = routing();
           }
         }
-      }
+      },
+      // fireimmediately in case we're entering on /login or /register while already logged in (this shouldn't occur in happy flow)
+      { fireImmediately: true }
     );
 
     reaction(
