@@ -21,10 +21,11 @@ let ENGINE_ID = 0;
 const FREEZE_TIMEOUT = 3000;
 export default class SandboxedExecutionHost
   extends lifecycle.Disposable
-  implements ExecutionHost {
+  implements ExecutionHost
+{
   public readonly iframe: HTMLIFrameElement;
   private disposed: boolean = false;
-  private resetHovering = () => { };
+  private resetHovering = () => {};
 
   private readonly connection: Connection<FrameConnection["methods"]>;
   private connectionMethods:
@@ -86,7 +87,10 @@ export default class SandboxedExecutionHost
       "geolocation; microphone; camera; midi; encrypted-media; autoplay; accelerometer; magnetometer; gyroscope; vr";
     iframe.allowFullscreen = true;
     iframe.src =
-      window.location.protocol + "//" + getFrameDomain() + "/?frame" +
+      window.location.protocol +
+      "//" +
+      getFrameDomain() +
+      "/?frame" +
       "&documentId=" +
       encodeURIComponent(documentId) +
       (window.location.search.includes("noRun") ? "&noRun" : "");
@@ -109,7 +113,7 @@ export default class SandboxedExecutionHost
     // });
 
     this.initialize().then(
-      () => { },
+      () => {},
       (e) => {
         console.error(e);
       }

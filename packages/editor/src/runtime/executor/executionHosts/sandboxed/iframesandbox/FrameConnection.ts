@@ -26,14 +26,13 @@ export class FrameConnection extends lifecycle.Disposable {
     deep: false,
   });
 
-  public readonly modelPositions =
-    observable.map<
-      string,
-      {
-        x: number;
-        y: number;
-      }
-    >();
+  public readonly modelPositions = observable.map<
+    string,
+    {
+      x: number;
+      y: number;
+    }
+  >();
 
   constructor() {
     super();
@@ -102,21 +101,32 @@ export class FrameConnection extends lifecycle.Disposable {
   }
 
   private methods = {
+    updateModels: async (
+      bridgeId: string,
+      models: { modelId: string; model: { value: string } }[]
+    ) => {
+      for (let model of models) {
+        await this.methods.updateModel(bridgeId, model.modelId, model.model);
+      }
+    },
     updateModel: async (
       bridgeId: string,
       modelId: string,
       model: { value: string }
     ) => {
+      console.log("register model", modelId);
       const modelReceiver = this.modelReceivers.get(bridgeId);
       if (modelReceiver) {
         if (bridgeId === "main" && !this.modelPositions.has(modelId)) {
-          this.modelPositions.set(
-            modelId,
-            observable({
-              x: 0,
-              y: 0,
-            })
-          );
+          runInAction(() => {
+            this.modelPositions.set(
+              modelId,
+              observable({
+                x: 0,
+                y: 0,
+              })
+            );
+          });
         }
         modelReceiver.updateModel(modelId, model);
       } else {
