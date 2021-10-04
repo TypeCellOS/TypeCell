@@ -7,14 +7,23 @@ type ModelProvider = {
 };
 
 export type MessageBridge = {
+  updateModels: (
+    bridgeId: string,
+    models: {
+      modelId: string;
+      model: {
+        value: string;
+      };
+    }[]
+  ) => Promise<void>;
   updateModel: (
     bridgeId: string,
     modelId: string,
     model: {
       value: string;
     }
-  ) => void;
-  deleteModel: (bridgeId: string, modelId: string) => void;
+  ) => Promise<void>;
+  deleteModel: (bridgeId: string, modelId: string) => Promise<void>;
 };
 
 export class ModelForwarder extends lifecycle.Disposable {
@@ -35,11 +44,19 @@ export class ModelForwarder extends lifecycle.Disposable {
 
   public async initialize() {
     for (let model of this.modelProvider.compiledModels) {
-      await this.registerModel(model);
+      await this.registerModel(model, false);
     }
+    // send in bulk
+    await this.messageBridge.updateModels(
+      this.bridgeId,
+      this.modelProvider.compiledModels.map((m) => ({
+        modelId: m.path,
+        model: { value: m.getValue() },
+      }))
+    );
   }
 
-  private async registerModel(model: CompiledCodeModel) {
+  private async registerModel(model: CompiledCodeModel, sendToBridge = true) {
     if (this.disposed) {
       throw new Error("registering model on disposed engine");
     }
@@ -58,9 +75,11 @@ export class ModelForwarder extends lifecycle.Disposable {
       })
     );
 
-    await this.messageBridge.updateModel(this.bridgeId, model.path, {
-      value: model.getValue(),
-    });
+    if (sendToBridge) {
+      await this.messageBridge.updateModel(this.bridgeId, model.path, {
+        value: model.getValue(),
+      });
+    }
   }
 
   public dispose() {
