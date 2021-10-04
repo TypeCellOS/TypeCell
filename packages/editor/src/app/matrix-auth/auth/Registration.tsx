@@ -41,7 +41,7 @@ interface IProps {
   clientSecret?: string;
   sessionId?: string;
   idSid?: string;
-  fragmentAfterLogin?: string;
+  pageAfterLogin?: string;
 
   // Called when the user has logged in. Params:
   // - object with userId, deviceId, homeserverUrl, identityServerUrl, accessToken
@@ -522,7 +522,7 @@ export default class Registration extends React.Component<IProps, IState> {
               loginType={
                 this.state.ssoFlow.type === "m.login.sso" ? "sso" : "cas"
               }
-              fragmentAfterLogin={this.props.fragmentAfterLogin}
+              pageAfterLogin={this.props.pageAfterLogin}
             />
           </React.Fragment>
         );

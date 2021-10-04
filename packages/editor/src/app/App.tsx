@@ -6,7 +6,6 @@ import LoginComponent from "./matrix-auth/auth/Login";
 import Registration from "./matrix-auth/auth/Registration";
 import { ValidatedServerConfig } from "./matrix-auth/auth/util/AutoDiscoveryUtils";
 
-
 function makeRegistrationUrl(params: any) {
   let url =
     window.location.protocol + "//" + window.location.host + "/register";
@@ -24,59 +23,61 @@ function makeRegistrationUrl(params: any) {
   return url;
 }
 
-export const App = observer(
-  (props: { config: ValidatedServerConfig }) => {
-    const { sessionStore, matrixAuthStore, navigationStore } = getStoreService();
-    if (sessionStore.user === "loading") {
-      return <div>Loading</div>;
-    } else if (navigationStore.currentPage.page === "login") {
-      return (
-        <LoginComponent
-          serverConfig={props.config}
-          onLoggedIn={matrixAuthStore.onUserCompletedLoginFlow}
-          onRegisterClick={() => {
-            navigationStore.showRegisterScreen();
-          }}
-          onServerConfigChange={() => {
-            // TODO
-            console.log("config change (not implemented)");
-          }}
-          onForgotPasswordClick={() => navigationStore.showForgotPassword()}
-        />
-      );
-    } else if (navigationStore.currentPage.page === "register") {
-      // const email = ThreepidInviteStore.instance.pickBestInvite()?.toEmail;
-      return (
-        <Registration
-          // clientSecret={this.state.register_client_secret}
-          // sessionId={this.state.register_session_id}
-          // idSid={this.state.register_id_sid}
-          email={undefined}
-          brand={"TypeCell"}
-          makeRegistrationUrl={makeRegistrationUrl}
-          onLoggedIn={matrixAuthStore.onUserCompletedLoginFlow}
-          onLoginClick={() => {
-            navigationStore.showLoginScreen();
-          }}
-          onServerConfigChange={() => {
-            // TODO
-            console.log("config change (not implemented)");
-          }}
-          defaultDeviceDisplayName={"TypeCell web"}
-          // fragmentAfterLogin={fragmentAfterLogin}
-          serverConfig={props.config}
-        />
-      );
-    } else if (navigationStore.currentPage.page === "recover") {
-      return <div>Not implemented yet</div>;
-    } else {
-      return <Main currentPage={navigationStore.currentPage} />;
-    }
+export const App = observer((props: { config: ValidatedServerConfig }) => {
+  const { sessionStore, matrixAuthStore, navigationStore } = getStoreService();
+  if (sessionStore.user === "loading") {
+    return <div>Loading</div>;
+  } else if (navigationStore.currentPage.page === "login") {
+    let pageAfterLogin = window.history.state?.prevUrl || "";
+
+    return (
+      <LoginComponent
+        serverConfig={props.config}
+        onLoggedIn={matrixAuthStore.onUserCompletedLoginFlow}
+        onRegisterClick={() => {
+          navigationStore.showRegisterScreen();
+        }}
+        onServerConfigChange={() => {
+          // TODO
+          console.log("config change (not implemented)");
+        }}
+        // TODO: does this work correctly after SSO login is declined?
+        pageAfterLogin={pageAfterLogin}
+        onForgotPasswordClick={() => navigationStore.showForgotPassword()}
+      />
+    );
+  } else if (navigationStore.currentPage.page === "register") {
+    let pageAfterLogin = window.history.state?.prevUrl || "";
+    // const email = ThreepidInviteStore.instance.pickBestInvite()?.toEmail;
+    return (
+      <Registration
+        // clientSecret={this.state.register_client_secret}
+        // sessionId={this.state.register_session_id}
+        // idSid={this.state.register_id_sid}
+        email={undefined}
+        brand={"TypeCell"}
+        makeRegistrationUrl={makeRegistrationUrl}
+        onLoggedIn={matrixAuthStore.onUserCompletedLoginFlow}
+        onLoginClick={() => {
+          navigationStore.showLoginScreen();
+        }}
+        onServerConfigChange={() => {
+          // TODO
+          console.log("config change (not implemented)");
+        }}
+        defaultDeviceDisplayName={"TypeCell web"}
+        // TODO: does this work correctly after SSO login is declined?
+        pageAfterLogin={pageAfterLogin}
+        serverConfig={props.config}
+      />
+    );
+  } else if (navigationStore.currentPage.page === "recover") {
+    return <div>Not implemented yet</div>;
+  } else {
+    return <Main currentPage={navigationStore.currentPage} />;
   }
-);
+});
 export default App;
-
-
 
 //   // Before we continue, let's see if we're supposed to do an SSO redirect
 //   const [userId] = await Lifecycle.getStoredSessionOwner();
