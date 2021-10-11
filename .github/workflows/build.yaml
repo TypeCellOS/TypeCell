@@ -40,7 +40,7 @@ jobs:
         run: docker logs synapse
 
       - name: Install Dependencies
-        run: npm install
+        run: npm run install-lerna
 
       - name: Bootstrap packages
         run: npm run bootstrap
