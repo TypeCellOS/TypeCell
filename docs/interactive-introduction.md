@@ -118,9 +118,10 @@ export function repeat(char: string, times: number) {
 }
 
 // Numbers indicating the number of wet food cans and dry food packs to prepare.
-// E.g. dryFoodToPrepare is the sum of cansPerWeek across neighbors where prefersDryFood is true.
-let dryFoodToPrepare = 0;
-let wetFoodToPrepare = 0;
+// E.g. dryFoodToPrepare is the sum of cansPerWeek across neighbors where
+// prefersDryFood is true.
+export let dryFoodToPrepare = 0;
+export let wetFoodToPrepare = 0;
 
 for (let i = 0; i < $.neighbors.length; i++) {
   if ($.neighbors[i] !== undefined && "foodPerWeek" in $.neighbors[i]) {
@@ -154,29 +155,43 @@ The built-in TypeCell Input library makes this extremely easy:
 
 
 ```typescript
-// Slider input
-let dryFoodPrepared = typecell.Input<number>(
+export let dryFoodPrepared = typecell.Input<number>(
   <input type="range" min="0" max="20" />,
   0
 );
 
-// Number input
-let wetFoodPrepared = typecell.Input<number>(
+// Notice again how we can export the values returned by our inputs...
+export let wetFoodPrepared = typecell.Input<number>(
   <input type="number" min="0" max="20" />,
   0
 );
 
-export let inputs = (
+// ...but can choose to only display the inputs themselves with a default export.
+export default (
   <div>
-    <div>Dry food packs prepared: {dryFoodPrepared}</div>
-    <div>Wet food packs prepared: {wetFoodPrepared}</div>
+    <div>
+      Number of dry food packs prepared:
+      {dryFoodPrepared}
+    </div>
+    <div>
+      Number of wet food cans prepared:
+      {wetFoodPrepared}
+    </div>
   </div>
 );
 
 ```
 
-Now, you can play with the range above,
-and see whether we have prepared enough cans of food below!
+Now, you can play with the range above to set how much dry food you want to
+prepare, while the number input can be used to set how much wet food you want
+to prepare!
+
+Feel free to play around with the range and number field until we have enough
+food to feed all the neighborhood cats.
+
+These are just 2 of the many input types that TypeCell supports. In fact, any
+HTML input element can be used within TypeCell! To see the other choices, make
+sure to visit https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input.
 
 *Expand the cell below to see how it works*
 
@@ -184,31 +199,70 @@ and see whether we have prepared enough cans of food below!
 ```typescript
 // @default-collapsed
 
-const dryFoodRemaining = $.numberOfCansPrepared - $.cansToPrepare;
+// Setting displayed message for dry food.
+const dryFoodRemaining = $.dryFoodPrepared - $.dryFoodToPrepare;
 
-let message = (
-  <strong>
-    Sweet! We prepared just enough food, the cats have eaten all the cans!
-  </strong>
+let dryFoodMessage = (
+  <p>Great! We prepared just enough dry food, there are no more packs left!</p>
 );
 
-if (cansRemaining < 0) {
-  message = (
-    <strong>
-      Oh no! We haven't prepared enough food. Move the slider up or remove some
-      cats!
-    </strong>
+if (dryFoodRemaining < 0) {
+  dryFoodMessage = (
+    <p>
+      Oh no! We haven't prepared enough dry food. Better move the slider up!
+    </p>
   );
-} else if (cansRemaining > 0) {
-  message = (
-    <strong>
-      Yummie!! The cats have eaten some cans and we still have {cansRemaining}{" "}
-      cans left: {$.repeat("🥫", cansRemaining)}
-    </strong>
+} else if (dryFoodRemaining > 0) {
+  dryFoodMessage = (
+    <p>
+      Yummie!! The cats have eaten a few packs and we still have{" "}
+      {dryFoodRemaining} packet(s) left: {$.repeat("🍱", dryFoodRemaining)}
+    </p>
   );
 }
 
-export default message;
+// Setting displayed message for wet food.
+const wetFoodRemaining = $.wetFoodPrepared - $.wetFoodToPrepare;
+
+let wetFoodMessage = (
+  <p>
+    Sweet! We prepared just enough wet food, the cats have eaten all the cans!
+  </p>
+);
+
+if (wetFoodRemaining < 0) {
+  wetFoodMessage = (
+    <p>
+      Oh no! We haven't prepared enough wet food. Try increasing the value in
+      the number field!
+    </p>
+  );
+} else if (wetFoodRemaining > 0) {
+  wetFoodMessage = (
+    <p>
+      Delicious!! The cats have eaten some cans and we still have{" "}
+      {wetFoodRemaining} can(s) left: {$.repeat("🥫", wetFoodRemaining)}
+    </p>
+  );
+}
+
+// Setting displayed message for having prepared enough food.
+let finalMessage =
+  dryFoodRemaining >= 0 && wetFoodRemaining >= 0 ? (
+    <p>
+      <strong>Great job, you fed all the neighborhood cats!</strong>
+    </p>
+  ) : (
+    <strong />
+  );
+
+export default (
+  <div>
+    <p>{dryFoodMessage}</p>
+    <p>{wetFoodMessage}</p>
+    <p>{finalMessage}</p>
+  </div>
+);
 
 ```
 
