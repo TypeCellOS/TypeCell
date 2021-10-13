@@ -99,6 +99,10 @@ export let neighbors = [
 ];
 
 ```
+Great, but what are these `$` symbols? Whenever you `export` a variable, you can access it across 
+the document by using the `$` symbol. In other words, `$` is a store for all variables that you want  
+to access across cells! `export` also displays the variable below the cell, but you might not always
+want this. In this case, you can use `export default` to overwrite what's displayed below the cell.
 
 Now, if you're like my grandma, you're feeding the entire neighborhood by yourself, but you don't
 yet know if our friend prefers dry/wet food or how many cans they eat per week. Go ahead and add
@@ -145,10 +149,16 @@ export default (
 );
 
 ```
+We have now stored the number of dry & wet food required and can display that data in 
+a more user-friendly way using React & JSX. This can be seen in the default `export` of 
+the previous code cell.
 
-We have now stored the number of cans required under `$.cansToPrepare`.
-Notice how we're using React / JSX in combination with a `default` export to
-make the display of a cell more meaningful to the user.
+React? JSX? What's this now? React is a Javascript/Typescript framework that's used 
+to create reactive user interfaces. We won't go too in depth on it here, but you can 
+check out the documentation at https://reactjs.org/docs/getting-started.html.
+
+JSX is part of React, and allows for creating HTML elements as variables, making it super 
+easy to display data in code cells using `export`s.
 
 Next, we'll create some user input fields to indicate how much food we have prepared.
 The built-in TypeCell Input library makes this extremely easy:
