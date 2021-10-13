@@ -12,7 +12,7 @@ Let's say you're like my grandma, and you have a lot of cats. Our story will be 
 
 ```typescript
 export let cat = {
-  name: "1",
+  name: "",
   prefersDryFood: false,
   foodPerWeek: 4,
 };
@@ -60,15 +60,6 @@ export default (
 
 ```
 
-```typescript
-export let friend = {
-  name: "2",
-  prefersDryFood: true,
-  foodPerWeek: 3,
-};
-
-```
-
 Uh oh, what's this? I forgot to add a cell defining our friend. Can you do it for me?
 
 A cell is a container for code & output. To add one, click on the + above or below another cell.
@@ -99,8 +90,9 @@ export let neighbors = [
 ];
 
 ```
-Great, but what are these `$` symbols? Whenever you `export` a variable, you can access it across 
-the document by using the `$` symbol. In other words, `$` is a store for all variables that you want  
+
+Great, but what are these `$` symbols? Whenever you `export` a variable, you can access it across
+the document by using the `$` symbol. In other words, `$` is a store for all variables that you want\
 to access across cells! `export` also displays the variable below the cell, but you might not always
 want this. In this case, you can use `export default` to overwrite what's displayed below the cell.
 
@@ -149,15 +141,16 @@ export default (
 );
 
 ```
-We have now stored the number of dry & wet food required and can display that data in 
-a more user-friendly way using React & JSX. This can be seen in the default `export` of 
+
+We have now stored the number of dry & wet food required and can display that data in
+a more user-friendly way using React & JSX. This can be seen in the default `export` of
 the previous code cell.
 
-React? JSX? What's this now? React is a Javascript/Typescript framework that's used 
-to create reactive user interfaces. We won't go too in depth on it here, but you can 
+React? JSX? What's this now? React is a Javascript/Typescript framework that's used
+to create reactive user interfaces. We won't go too in depth on it here, but you can
 check out the documentation at https://reactjs.org/docs/getting-started.html.
 
-JSX is part of React, and allows for creating HTML elements as variables, making it super 
+JSX is part of React, and allows for creating HTML elements as variables, making it super
 easy to display data in code cells using `export`s.
 
 Next, we'll create some user input fields to indicate how much food we have prepared.
