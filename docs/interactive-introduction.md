@@ -150,7 +150,7 @@ We have now stored the number of cans required under `$.cansToPrepare`.
 Notice how we're using React / JSX in combination with a `default` export to
 make the display of a cell more meaningful to the user.
 
-Next, we'll use an range slider to indicate how many cans we have prepared.
+Next, we'll create some user input fields to indicate how much food we have prepared.
 The built-in TypeCell Input library makes this extremely easy:
 
 
@@ -189,18 +189,17 @@ to prepare!
 Feel free to play around with the range and number field until we have enough
 food to feed all the neighborhood cats.
 
-These are just 2 of the many input types that TypeCell supports. In fact, any
-HTML input element can be used within TypeCell! To see the other choices, make
-sure to visit https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input.
+These are just 2 of the many input types that TypeCell supports. To see the
+other choices, make sure to visit try the TypeCell inputs tutorial!
 
-*Expand the cell below to see how it works*
+*Expand the cells below to see how they work*
 
 
 ```typescript
 // @default-collapsed
 
 // Setting displayed message for dry food.
-const dryFoodRemaining = $.dryFoodPrepared - $.dryFoodToPrepare;
+export const dryFoodRemaining = $.dryFoodPrepared - $.dryFoodToPrepare;
 
 let dryFoodMessage = (
   <p>Great! We prepared just enough dry food, there are no more packs left!</p>
@@ -221,8 +220,15 @@ if (dryFoodRemaining < 0) {
   );
 }
 
+export default dryFoodMessage;
+
+```
+
+```typescript
+// @default-collapsed
+
 // Setting displayed message for wet food.
-const wetFoodRemaining = $.wetFoodPrepared - $.wetFoodToPrepare;
+export const wetFoodRemaining = $.wetFoodPrepared - $.wetFoodToPrepare;
 
 let wetFoodMessage = (
   <p>
@@ -246,20 +252,29 @@ if (wetFoodRemaining < 0) {
   );
 }
 
+export default wetFoodMessage;
+
+```
+
+```typescript
+// @default-collapsed
+
 // Setting displayed message for having prepared enough food.
-let finalMessage =
-  dryFoodRemaining >= 0 && wetFoodRemaining >= 0 ? (
+export let finalMessage =
+  $.dryFoodRemaining >= 0 && $.wetFoodRemaining >= 0 ? (
     <p>
       <strong>Great job, you fed all the neighborhood cats!</strong>
     </p>
   ) : (
-    <strong />
+    <p>
+      <strong>
+        Looks like we need more food! Some cats are still hungry...
+      </strong>
+    </p>
   );
 
 export default (
   <div>
-    <p>{dryFoodMessage}</p>
-    <p>{wetFoodMessage}</p>
     <p>{finalMessage}</p>
   </div>
 );
