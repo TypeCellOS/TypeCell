@@ -1,7 +1,7 @@
 import Tippy from "@tippyjs/react";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { VscFile, VscFileCode, VscFileMedia, VscTrash } from "react-icons/vsc";
+import { VscFile, VscFileCode, VscFileMedia } from "react-icons/vsc";
 import { CellLanguage } from "../../../models/CellModel";
 
 type Props = {
