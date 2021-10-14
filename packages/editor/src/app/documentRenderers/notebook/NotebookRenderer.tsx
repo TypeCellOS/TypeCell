@@ -1,12 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React, { useContext, useEffect, useMemo, useRef } from "react";
-import {
-  VscDiffAdded,
-  VscFile,
-  VscFileCode,
-  VscFileMedia,
-  VscTrash,
-} from "react-icons/vsc";
+import { VscDiffAdded } from "react-icons/vsc";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import { DocumentResource } from "../../../store/DocumentResource";
 import SandboxedExecutionHost from "../../../runtime/executor/executionHosts/sandboxed/SandboxedExecutionHost";
@@ -15,6 +9,7 @@ import NotebookCell from "./NotebookCell";
 import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost";
 import { ExecutionHost } from "../../../runtime/executor/executionHosts/ExecutionHost";
 import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
+import NotebookToolbar from "./LanguageSelector";
 
 type Props = {
   document: DocumentResource;
@@ -73,46 +68,25 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
             className="cellList-add-single"
           />
         )}
-        {cells.map((e, i: number) => (
+        {cells.map((cell, i: number) => (
           <CellListDraggableCell
-            key={e.id} // TODO: good that we use id here, but NotebookCell should also be robust to using "i" as key, which it currently isn't
+            key={cell.id} // TODO: good that we use id here, but NotebookCell should also be robust to using "i" as key, which it currently isn't
             onAddBefore={() => onAdd(i)}
             onAddAfter={() => onAdd(i + 1)}
             onRemove={() => remove(i)}
             index={i}
             moveCard={props.document.cellList.moveCell}>
             <NotebookCell
-              cell={e}
+              cell={cell}
               executionHost={executionHost}
               compiler={compiler}
               awareness={props.document.webrtcProvider?.awareness}
-              toolbarContent={
-                <>
-                  <button
-                    title="TypeScript"
-                    className={e.language === "typescript" ? "active" : ""}>
-                    <VscFileCode onClick={() => e.setLanguage("typescript")} />
-                  </button>
-                  {/* <button title="TypeScript (node)" className={props.cell.language === "node-typescript" ? "active" : ""}>
-                <VscServerProcess onClick={() => props.cell.setLanguage("node-typescript")} />
-              </button> */}
-                  <button
-                    title="Markdown"
-                    className={e.language === "markdown" ? "active" : ""}>
-                    <VscFile onClick={() => e.setLanguage("markdown")} />
-                  </button>
-                  <button
-                    title="Markdown"
-                    className={e.language === "css" ? "active" : ""}>
-                    <VscFileMedia onClick={() => e.setLanguage("css")} />
-                  </button>
-                  <button title="Delete" onClick={() => remove(i)}>
-                    <VscTrash />
-                  </button>
-                  {/* <button title="More">
-                <VscEllipsis />
-              </button> */}
-                </>
+              toolbar={
+                <NotebookToolbar
+                  language={cell.language}
+                  onChangeLanguage={(language) => cell.setLanguage(language)}
+                  // onRemove={() => remove(i)}
+                />
               }
             />
           </CellListDraggableCell>
