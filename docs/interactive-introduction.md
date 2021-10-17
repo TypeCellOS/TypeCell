@@ -19,6 +19,9 @@ export let cat = {
 
 ```
 
+<strong>Step 1:</strong> Give your cat a name!
+
+
 ```typescript
 // @default-collapsed
 
@@ -26,11 +29,7 @@ let message;
 
 // Notice how exported variables are made available under the $-sign.
 if ($.cat.name === "") {
-  message = (
-    <div>
-      Give your cat a name! Try changing the "name" field in the code above.
-    </div>
-  );
+  message = <div>Try changing the "name" field in the code above.</div>;
 } else if (!$.cat.name.match(/^[a-zA-Z0-9\s]+$/)) {
   message = (
     <div>
@@ -61,6 +60,8 @@ export default (
 ```
 
 Uh oh, what's this? I forgot to add a cell defining our friend. Can you do it for me?
+
+<strong>Step 2: </strong> Create a second cat in a new cell under the variable 'friend'.
 
 A cell is a container for code & output. To add one, click on the + above or below another cell.
 You can do it wherever you like.
@@ -97,8 +98,9 @@ to access across cells! `export` also displays the variable below the cell, but 
 want this. In this case, you can use `export default` to overwrite what's displayed below the cell.
 
 Now, if you're like my grandma, you're feeding the entire neighborhood by yourself, but you don't
-yet know if our friend prefers dry/wet food or how many cans they eat per week. Go ahead and add
-the `prefersDryFood` and `foodPerWeek` fields to our friend that we defined earlier!
+yet know if our friend prefers dry/wet food or how many cans they eat per week.
+
+<strong>Step 3:</strong> Add the `prefersDryFood` and `foodPerWeek` fields to our friend that you defined earlier!
 
 Once you've done that, let's see how much food you need to prepare.
 
@@ -150,11 +152,11 @@ React? JSX? What's this now? React is a Javascript/Typescript framework that's u
 to create reactive user interfaces. We won't go too in depth on it here, but you can
 check out the documentation at https://reactjs.org/docs/getting-started.html.
 
-JSX is part of React, and allows for creating HTML elements as variables, making it super
+JSX is part of React, and allows for creating HTML elements as variables, making it
 easy to display data in code cells using `export`s.
 
 Next, we'll create some user input fields to indicate how much food we have prepared.
-The built-in TypeCell Input library makes this extremely easy:
+The built-in TypeCell Input library makes this easy:
 
 
 ```typescript
