@@ -272,7 +272,8 @@ code {
   margin-top: 17px;
   position: relative;
 }
-.shoulder > button,
+
+/* .shoulder > button, */
 .cellList-item > button {
   position: absolute;
   margin: 0px;
@@ -312,14 +313,14 @@ code {
   background-clip: padding-box;
 }
 
-.shoulder > button {
+/* .shoulder > button {
   flex: 0 0 auto;
   position: sticky;
   top: 0px;
   margin-top: 4px;
   margin-right: 5px;
   padding: 0px 1px;
-}
+} */
 
 pluto-cell:focus-within > .shoulder > button {
   /* we use padding instead of 4px extra margin to move the eye to the left so that the hitbox becomes grows - you want to be able to double click the button */

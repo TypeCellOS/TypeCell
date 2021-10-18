@@ -9,7 +9,7 @@ import NotebookCell from "./NotebookCell";
 import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost";
 import { ExecutionHost } from "../../../runtime/executor/executionHosts/ExecutionHost";
 import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
-import NotebookToolbar from "./LanguageSelector";
+import NotebookLanguageSelector from "./LanguageSelector";
 
 type Props = {
   document: DocumentResource;
@@ -82,7 +82,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
               compiler={compiler}
               awareness={props.document.webrtcProvider?.awareness}
               toolbar={
-                <NotebookToolbar
+                <NotebookLanguageSelector
                   language={cell.language}
                   onChangeLanguage={(language) => cell.setLanguage(language)}
                   // onRemove={() => remove(i)}

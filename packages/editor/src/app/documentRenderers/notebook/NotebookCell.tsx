@@ -217,6 +217,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
           onClick={() => setCodeVisible(true)}
         />
       )}
+      {}
       <div style={{ flex: 1 }} className="notebookCell-content">
         {codeVisible && (
           <div className="notebookCell-codeContainer">

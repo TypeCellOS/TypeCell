@@ -2,7 +2,9 @@ import { XYCoord } from "dnd-core";
 import { observer } from "mobx-react-lite";
 import React, { useRef, useState } from "react";
 import { DropTargetMonitor, useDrag, useDrop } from "react-dnd";
+import { VscTrash } from "react-icons/vsc";
 import { HoverTrackerContext } from "./HoverTrackerContext";
+import styles from "./CellListDraggableCell.module.css";
 
 type Props = {
   index: number;
@@ -154,7 +156,15 @@ const CellListDraggableCell: React.FC<Props> = observer((props) => {
           className="shoulder"
           draggable="true"
           title="Drag to move cell"
-          ref={dragSourceRef}></div>
+          ref={dragSourceRef}>
+          <button
+            className={styles.delete}
+            title="Delete"
+            onClick={() => props.onRemove()}>
+            <VscTrash />
+          </button>
+        </div>
+
         <button
           onClick={props.onAddBefore}
           className="add_cell before"
