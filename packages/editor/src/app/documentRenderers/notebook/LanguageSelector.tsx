@@ -1,7 +1,7 @@
 import Tippy from "@tippyjs/react";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { VscFile, VscFileCode, VscFileMedia } from "react-icons/vsc";
+import { SiMarkdown, SiTypescript, SiCss3 } from "react-icons/si";
 import { CellLanguage } from "../../../models/CellModel";
 import styles from "./LanguageSelector.module.css";
 
@@ -30,17 +30,18 @@ const NotebookLanguageSelector: React.FC<Props> = observer((props) => {
             <button
               title="TypeScript"
               onClick={() => props.onChangeLanguage("typescript")}>
-              <VscFileCode
-                onClick={() => props.onChangeLanguage("typescript")}
-              />
+              <SiTypescript className={styles["icon"]} />
+              TypeScript
             </button>
             <button
               title="Markdown"
               onClick={() => props.onChangeLanguage("markdown")}>
-              <VscFile />
+              <SiMarkdown className={styles["icon"]} />
+              Markdown
             </button>
             <button title="CSS" onClick={() => props.onChangeLanguage("css")}>
-              <VscFileMedia />
+              <SiCss3 className={styles["icon"]} />
+              CSS
             </button>
           </div>
         }

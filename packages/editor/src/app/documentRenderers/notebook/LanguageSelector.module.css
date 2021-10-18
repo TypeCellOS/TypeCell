@@ -30,12 +30,19 @@
   align-items: baseline;
   border-width: 0px;
   box-sizing: border-box;
-  display: inline-block;
+  display: flex;
   white-space: nowrap;
   cursor: pointer;
   background-color: transparent;
   color: rgba(66, 82, 110, 1);
   transition: color 0.1s ease-out 0s;
+
+  align-items: center;
+  justify-content: start;
+}
+
+.icon {
+  margin-right: 3px;
 }
 
 .language-options > button:hover {
