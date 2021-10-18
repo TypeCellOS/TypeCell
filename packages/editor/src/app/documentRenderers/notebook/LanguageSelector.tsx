@@ -56,9 +56,6 @@ const NotebookLanguageSelector: React.FC<Props> = observer((props) => {
           {languageName(props.language)}
         </button>
       </Tippy>
-      {/* <button title="Delete" onClick={() => props.onRemove()}>
-        <VscTrash />
-      </button> */}
     </>
   );
 });

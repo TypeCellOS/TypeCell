@@ -37,6 +37,8 @@
   color: rgba(66, 82, 110, 1);
   transition: color 0.1s ease-out 0s;
 
+  width: 100%;
+
   align-items: center;
   justify-content: start;
 }
