@@ -196,85 +196,6 @@ code {
   color: rgb(100, 100, 100);
 }
 
-.language-selector {
-  position: absolute;
-  z-index: 100;
-  bottom: 3px;
-  right: 0;
-
-  display: inline-block;
-  border: none;
-  margin: 0;
-  text-decoration: none;
-  color: rgb(66, 82, 110);
-  background-color: transparent;
-  font-family: monospace;
-  font-size: 0.8rem;
-  cursor: pointer;
-  text-align: center;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-}
-
-.language-options {
-  background-color: rgb(255, 255, 255);
-  box-shadow: 0 4px 8px -2px rgb(9 30 66 / 25%), 0 0 1px rgb(9 30 66 / 31%);
-  padding: 2px;
-  border-radius: 5px;
-}
-
-.language-options > button {
-  padding: 3px 5px;
-  align-items: baseline;
-  border-width: 0px;
-  box-sizing: border-box;
-  display: inline-block;
-  white-space: nowrap;
-  cursor: pointer;
-  background-color: transparent;
-  color: rgba(66, 82, 110, 1);
-  transition: color 0.1s ease-out 0s;
-}
-
-.language-options > button:hover {
-  color: rgba(66, 82, 110, 0.7);
-}
-
-.code-toolbar {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  z-index: 100;
-  background: rgb(235, 236, 240);
-  border-radius: 0 5px 0 0;
-}
-
-.code-toolbar > button {
-  padding: 5px;
-  align-items: baseline;
-  border-width: 0px;
-  border-radius: 3px;
-  box-sizing: border-box;
-  display: inline-block;
-  transition: background 0.1s ease-out 0s,
-    box-shadow 0.15s cubic-bezier(0.47, 0.03, 0.49, 1.38) 0s;
-  white-space: nowrap;
-  cursor: pointer;
-  height: auto;
-  line-height: inherit;
-  color: rgb(66, 82, 110) !important;
-}
-
-.code-toolbar > button:hover,
-.code-toolbar > button.active {
-  background: rgba(9, 30, 66, 0.08);
-  transition-duration: 0s, 0.15s;
-  color: rgb(66, 82, 110) !important;
-}
-.code-toolbar > button:focus,
-.code-toolbar > button:active {
-  outline: none;
-}
 /* .field {
   transform:
     scale(0.75)
@@ -514,10 +435,10 @@ pluto-input > button > span {
 /* // https://github.com/react-dnd/react-dnd/issues/832#issuecomment-442071628
 // TODO: should only be set when dragging */
 
-.cellList-item,
+/* .cellList-item,
 .cellList-item .notebookCell {
-  /* transform: translate3d(0, 0, 0); */
-}
+  transform: translate3d(0, 0, 0);
+} */
 
 .dropruler {
   position: absolute;

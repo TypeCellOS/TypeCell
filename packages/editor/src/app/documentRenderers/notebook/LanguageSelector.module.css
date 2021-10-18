@@ -1,0 +1,43 @@
+.language-selector {
+  position: absolute;
+  z-index: 100;
+  bottom: 3px;
+  right: 0;
+
+  display: inline-block;
+  border: none;
+  margin: 0;
+  text-decoration: none;
+  color: rgb(66, 82, 110);
+  background-color: transparent;
+  font-family: monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-align: center;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.language-options {
+  background-color: rgb(255, 255, 255);
+  box-shadow: 0 4px 8px -2px rgb(9 30 66 / 25%), 0 0 1px rgb(9 30 66 / 31%);
+  padding: 2px;
+  border-radius: 5px;
+}
+
+.language-options > button {
+  padding: 3px 5px;
+  align-items: baseline;
+  border-width: 0px;
+  box-sizing: border-box;
+  display: inline-block;
+  white-space: nowrap;
+  cursor: pointer;
+  background-color: transparent;
+  color: rgba(66, 82, 110, 1);
+  transition: color 0.1s ease-out 0s;
+}
+
+.language-options > button:hover {
+  color: rgba(66, 82, 110, 0.7);
+}

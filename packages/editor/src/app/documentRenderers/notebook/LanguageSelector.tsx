@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { VscFile, VscFileCode, VscFileMedia } from "react-icons/vsc";
 import { CellLanguage } from "../../../models/CellModel";
+import styles from "./LanguageSelector.module.css";
 
 type Props = {
   language: CellLanguage;
@@ -25,25 +26,20 @@ const NotebookLanguageSelector: React.FC<Props> = observer((props) => {
     <>
       <Tippy
         content={
-          <div className="language-options">
+          <div className={styles["language-options"]}>
             <button
               title="TypeScript"
-              onClick={() => props.onChangeLanguage("typescript")}
-              className={props.language === "typescript" ? "active" : ""}>
+              onClick={() => props.onChangeLanguage("typescript")}>
               <VscFileCode
                 onClick={() => props.onChangeLanguage("typescript")}
               />
             </button>
             <button
               title="Markdown"
-              onClick={() => props.onChangeLanguage("markdown")}
-              className={props.language === "markdown" ? "active" : ""}>
+              onClick={() => props.onChangeLanguage("markdown")}>
               <VscFile />
             </button>
-            <button
-              title="Style"
-              onClick={() => props.onChangeLanguage("css")}
-              className={props.language === "css" ? "active" : ""}>
+            <button title="CSS" onClick={() => props.onChangeLanguage("css")}>
               <VscFileMedia />
             </button>
           </div>
@@ -55,7 +51,7 @@ const NotebookLanguageSelector: React.FC<Props> = observer((props) => {
         interactive={true}>
         <button
           title={languageName(props.language)}
-          className="language-selector">
+          className={styles["language-selector"]}>
           {languageName(props.language)}
         </button>
       </Tippy>
