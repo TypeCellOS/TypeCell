@@ -8,8 +8,8 @@ Node.js is required to run this project. To download Node.js, visit [nodejs.org]
 
 To run the project, open the command line in the project's root directory and enter the following commends:
 
-    # Install all required npm modules, and bootstrap lerna packages
-    npm install
+    # Install all required npm modules for lerna, and bootstrap lerna packages
+    npm run install-lerna
     npm run bootstrap
 
     # Initial build of all packages required by the main editor project
