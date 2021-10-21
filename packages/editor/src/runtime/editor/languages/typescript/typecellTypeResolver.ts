@@ -1,4 +1,4 @@
-import { detectNewImportsToAcquireTypeFor } from "./typeAcquisition";
+// import { detectNewImportsToAcquireTypeFor } from "./typeAcquisition";
 import type * as monaco from "monaco-editor";
 import { parseIdentifier } from "../../../../identifiers";
 /**
@@ -24,15 +24,15 @@ async function loadTypecellLibTypes(
     `file:///node_modules/@types/${moduleName}/index.d.ts`
   );
 
-  await detectNewImportsToAcquireTypeFor(
-    lib,
-    monacoInstance.languages.typescript.typescriptDefaults.addExtraLib.bind(
-      monacoInstance.languages.typescript.typescriptDefaults
-    ),
-    window.fetch.bind(window),
-    console, // TODO
-    moduleName
-  );
+  // await detectNewImportsToAcquireTypeFor(
+  //   lib,
+  //   monacoInstance.languages.typescript.typescriptDefaults.addExtraLib.bind(
+  //     monacoInstance.languages.typescript.typescriptDefaults
+  //   ),
+  //   window.fetch.bind(window),
+  //   console, // TODO
+  //   moduleName
+  // );
 }
 
 function refreshUserModelTypes(folder: string, monacoInstance: typeof monaco) {

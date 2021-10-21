@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@typescript/ata": "^0.9.0",
     "@typecell-org/engine": "*",
     "@typecell-org/matrix-yjs": "*",
     "@typecell-org/common": "*",
