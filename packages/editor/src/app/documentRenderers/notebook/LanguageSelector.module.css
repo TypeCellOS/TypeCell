@@ -1,4 +1,4 @@
-.language-selector {
+.languageSelector {
   position: absolute;
   z-index: 100;
   bottom: 3px;
@@ -10,7 +10,7 @@
   text-decoration: none;
   color: rgb(66, 82, 110);
   background-color: transparent;
-  font-family: monospace;
+  font-family: "Roboto Mono", monospace;
   font-size: 0.8rem;
   cursor: pointer;
   text-align: center;
@@ -18,15 +18,15 @@
   -moz-appearance: none;
 }
 
-.language-options {
+.languageOptions {
   background-color: rgb(255, 255, 255);
   box-shadow: 0 4px 8px -2px rgb(9 30 66 / 25%), 0 0 1px rgb(9 30 66 / 31%);
-  padding: 2px;
+  /* padding: 2px; */
   border-radius: 5px;
 }
 
-.language-options > button {
-  padding: 3px 5px;
+.languageOptions > button {
+  padding: 6px 8px;
   align-items: baseline;
   border-width: 0px;
   box-sizing: border-box;
@@ -35,7 +35,7 @@
   cursor: pointer;
   background-color: transparent;
   color: rgba(66, 82, 110, 1);
-  transition: color 0.1s ease-out 0s;
+  font-family: "Roboto Mono", monospace;
 
   width: 100%;
 
@@ -47,6 +47,7 @@
   margin-right: 3px;
 }
 
-.language-options > button:hover {
-  color: rgba(66, 82, 110, 0.7);
+.languageOptions > button:hover {
+  /* This color is "Gram's hair" from https://atlassian.design/foundations/color */
+  background: #f4f5f7;
 }

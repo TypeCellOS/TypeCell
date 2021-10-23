@@ -11,7 +11,7 @@
   cursor: pointer;
   color: black;
   font-family: "Segoe UI Emoji", "Roboto Mono", monospace;
-  font-size: 1.2em;
+  font-size: 1em;
 }
 
 /* WARNING: A lot of styles are still defined in index.css, mostly related to hovering behavior */

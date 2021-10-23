@@ -26,33 +26,34 @@ const NotebookLanguageSelector: React.FC<Props> = observer((props) => {
     <>
       <Tippy
         content={
-          <div className={styles["language-options"]}>
+          <div className={styles.languageOptions}>
             <button
               title="TypeScript"
               onClick={() => props.onChangeLanguage("typescript")}>
-              <SiTypescript className={styles["icon"]} />
+              <SiTypescript className={styles.icon} />
               TypeScript
             </button>
             <button
               title="Markdown"
               onClick={() => props.onChangeLanguage("markdown")}>
-              <SiMarkdown className={styles["icon"]} />
+              <SiMarkdown className={styles.icon} />
               Markdown
             </button>
             <button title="CSS" onClick={() => props.onChangeLanguage("css")}>
-              <SiCss3 className={styles["icon"]} />
+              <SiCss3 className={styles.icon} />
               CSS
             </button>
           </div>
         }
         placement={"bottom-end"}
         trigger={"click"}
+        hideOnClick={true}
         duration={0}
         offset={[0, 3]}
         interactive={true}>
         <button
-          title={languageName(props.language)}
-          className={styles["language-selector"]}>
+          title={"Click to change language"}
+          className={styles.languageSelector}>
           {languageName(props.language)}
         </button>
       </Tippy>
