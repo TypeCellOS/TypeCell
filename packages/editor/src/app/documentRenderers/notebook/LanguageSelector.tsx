@@ -47,7 +47,6 @@ const NotebookLanguageSelector: React.FC<Props> = observer((props) => {
         }
         placement={"bottom-end"}
         trigger={"click"}
-        hideOnClick={true}
         duration={0}
         offset={[0, 3]}
         interactive={true}>
