@@ -1,11 +1,9 @@
 import * as encoding from "lib0/encoding";
 import * as logging from "lib0/logging";
-import * as awarenessProtocol from "y-protocols/awareness";
-import * as syncProtocol from "y-protocols/sync";
-import { announceSignalingInfo } from "./globalResources";
-import { messageSync, messageAwareness } from "./messageConstants";
-import { Room } from "./Room";
 import Peer from "simple-peer";
+import { announceSignalingInfo } from "./globalResources";
+import { customMessage } from "./messageConstants";
+import { Room } from "./Room";
 
 const log = logging.createModuleLogger("y-webrtc");
 
@@ -31,33 +29,6 @@ export class WebrtcConn {
     } catch (e) {}
   }
 
-  private readPeerMessage(buf: Uint8Array) {
-    const room = this.room;
-    log(
-      "received message from ",
-      logging.BOLD,
-      this.remotePeerId,
-      logging.GREY,
-      " (",
-      room.name,
-      ")",
-      logging.UNBOLD,
-      logging.UNCOLOR
-    );
-    return room.readMessage(buf, () => {
-      this.synced = true;
-      log(
-        "synced ",
-        logging.BOLD,
-        room.name,
-        logging.UNBOLD,
-        " with ",
-        logging.BOLD,
-        this.remotePeerId
-      );
-      room.checkIsSynced();
-    });
-  }
   public readonly peer: Peer.Instance;
   /**
    * @param {SignalingConn} signalingConn
@@ -77,6 +48,18 @@ export class WebrtcConn {
      */
     this.peer = new Peer({ initiator, ...room.provider.peerOpts });
     this.peer.on("signal", (signal: any) => {
+      // log(
+      //   "signal log ",
+      //   logging.BOLD,
+      //   "from ",
+      //   room.peerId,
+      //   "to ",
+      //   remotePeerId,
+      //   "initiator ",
+      //   initiator,
+      //   "signal ",
+      //   signal
+      // );
       signalingConn.publishSignalingMessage(room, {
         to: remotePeerId,
         from: room.peerId,
@@ -88,26 +71,33 @@ export class WebrtcConn {
       log("connected to ", logging.BOLD, remotePeerId);
       this.connected = true;
       // send sync step 1
-      const provider = room.provider;
-      const doc = provider.doc;
-      const awareness = room.awareness;
-      const encoder = encoding.createEncoder();
-      encoding.writeVarUint(encoder, messageSync);
-      syncProtocol.writeSyncStep1(encoder, doc);
-      this.sendWebrtcConn(encoder);
-      const awarenessStates = awareness.getStates();
-      if (awarenessStates.size > 0) {
+      // const provider = room.provider;
+      // const doc = provider.doc;
+      // const awareness = room.awareness;
+      // const encoder = encoding.createEncoder();
+      // encoding.writeVarUint(encoder, messageSync);
+      // syncProtocol.writeSyncStep1(encoder, doc);
+      // this.sendWebrtcConn(encoder);
+      room.onPeerConnected((reply) => {
         const encoder = encoding.createEncoder();
-        encoding.writeVarUint(encoder, messageAwareness);
-        encoding.writeVarUint8Array(
-          encoder,
-          awarenessProtocol.encodeAwarenessUpdate(
-            awareness,
-            Array.from(awarenessStates.keys())
-          )
-        );
+        encoding.writeVarUint(encoder, customMessage);
+        encoding.writeVarUint8Array(encoder, reply);
         this.sendWebrtcConn(encoder);
-      }
+      });
+
+      // const awarenessStates = awareness.getStates();
+      // if (awarenessStates.size > 0) {
+      //   const encoder = encoding.createEncoder();
+      //   encoding.writeVarUint(encoder, messageAwareness);
+      //   encoding.writeVarUint8Array(
+      //     encoder,
+      //     awarenessProtocol.encodeAwarenessUpdate(
+      //       awareness,
+      //       Array.from(awarenessStates.keys())
+      //     )
+      //   );
+      //   this.sendWebrtcConn(encoder);
+      // }
     });
     this.peer.on("close", () => {
       this.connected = false;
@@ -123,7 +113,7 @@ export class WebrtcConn {
           },
         ]);
       }
-      room.checkIsSynced();
+      // room.checkIsSynced();
       this.peer.destroy();
       log("closed connection to ", logging.BOLD, remotePeerId);
       announceSignalingInfo(room);
@@ -133,10 +123,21 @@ export class WebrtcConn {
       announceSignalingInfo(room);
     });
     this.peer.on("data", (data: Uint8Array) => {
-      const answer = this.readPeerMessage(data);
-      if (answer !== null) {
-        this.sendWebrtcConn(answer);
-      }
+      log(
+        "received message from ",
+        logging.BOLD,
+        this.remotePeerId,
+        logging.GREY,
+        " (",
+        room.name,
+        ")",
+        logging.UNBOLD,
+        logging.UNCOLOR
+      );
+
+      this.room.readMessage(data, (reply: encoding.Encoder) => {
+        this.sendWebrtcConn(reply);
+      });
     });
   }
 

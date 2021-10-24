@@ -1,6 +1,7 @@
 import Bold from "@tiptap/extension-bold";
 import Code from "@tiptap/extension-code";
 import Collaboration from "@tiptap/extension-collaboration";
+import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import Document from "@tiptap/extension-document";
 import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
@@ -100,10 +101,10 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
     },
     extensions: [
       // TODO
-      // CollaborationCursor.configure({
-      //   provider: props.document.webrtcProvider,
-      //   user: { name: "Hello", color: "#f783ac" },
-      // }),
+      CollaborationCursor.configure({
+        provider: props.document.webrtcProvider,
+        user: { name: "Hello" + Math.random(), color: "#f783ac" },
+      }),
       Collaboration.configure({
         fragment: props.document.data,
       }),

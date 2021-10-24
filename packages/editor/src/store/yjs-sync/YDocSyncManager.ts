@@ -1,9 +1,8 @@
-import { MatrixProvider } from "@typecell-org/matrix-yjs";
+import { MatrixProvider, DocWebrtcProvider } from "@typecell-org/matrix-yjs";
 import { MatrixClient } from "matrix-js-sdk";
 import { createAtom, makeObservable, observable, runInAction } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { IndexeddbPersistence } from "y-indexeddb";
-import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
 import { Identifier } from "../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";
@@ -35,7 +34,7 @@ export class YDocSyncManager
   public matrixProvider: MatrixProvider | undefined;
 
   /** @internal */
-  public webrtcProvider: WebrtcProvider | undefined;
+  public webrtcProvider: DocWebrtcProvider | undefined;
 
   /** @internal */
   public indexedDBProvider: IndexeddbPersistence | undefined;
@@ -143,7 +142,10 @@ export class YDocSyncManager
     if (this.webrtcProvider) {
       throw new Error("already has webrtcProvider");
     }
-    // this.webrtcProvider = new WebrtcProvider(this.identifier.id, this._ydoc);
+    this.webrtcProvider = new DocWebrtcProvider(
+      this.identifier.toString(),
+      this._ydoc
+    );
     runInAction(() => {
       this.doc = this._ydoc;
     });

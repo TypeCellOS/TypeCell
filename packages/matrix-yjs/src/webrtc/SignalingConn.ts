@@ -70,6 +70,7 @@ export class SignalingConn extends ws.WebsocketClient {
                 break;
               case "signal":
                 if (data.to === peerId) {
+                  // log("peer.signal", data.signal);
                   map
                     .setIfUndefined(
                       webrtcConns,
