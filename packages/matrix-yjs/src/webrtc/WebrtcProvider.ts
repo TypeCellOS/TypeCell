@@ -4,10 +4,10 @@ import * as map from "lib0/map";
 import * as math from "lib0/math";
 import { Observable } from "lib0/observable";
 import * as random from "lib0/random";
-import * as cryptoutils from "./crypto.js";
-import { globalRooms, globalSignalingConns } from "./globalResources.js";
-import { Room } from "./Room.js";
-import { SignalingConn } from "./SignalingConn.js";
+import * as cryptoutils from "./crypto";
+import { globalRooms, globalSignalingConns } from "./globalResources";
+import { Room } from "./Room";
+import { SignalingConn } from "./SignalingConn";
 
 const log = logging.createModuleLogger("y-webrtc");
 

@@ -1,4 +1,4 @@
-import { createClient } from "matrix-js-sdk";
+import { createClient, MemoryStore } from "matrix-js-sdk";
 import { uniqueId } from "@typecell-org/common";
 import { createMatrixDocument } from "../matrixRoomManager";
 import * as http from "http";
@@ -73,9 +73,12 @@ export async function createMatrixUser(username: string, password: string) {
   let matrixClientLoggedIn = createClient({
     baseUrl: matrixTestConfig.baseUrl,
     accessToken: loginResult.access_token,
-    // userId: user_id,
-    // deviceId: device_id,
+    sessionStore: new MemoryStore(),
+    userId: loginResult.user_id,
+    deviceId: loginResult.device_id,
   });
+
+  matrixClientLoggedIn.initCrypto();
   matrixClientLoggedIn.canSupportVoip = false;
   matrixClientLoggedIn.clientOpts = {
     lazyLoadMembers: false,

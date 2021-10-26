@@ -1,25 +1,22 @@
 import { generateKeyBetween } from "fractional-indexing";
-import { DocConnection } from "./DocConnection";
-import {
-  ReferenceDefinition,
-  Ref,
-  validateRef,
-  getHashForReference,
-  createRef,
-  reverseReferenceDefinition,
-} from "./Ref";
-
 import type * as Y from "yjs";
-
-import { DocumentResource } from "./DocumentResource";
-import type { DocWebrtcProvider } from "@typecell-org/matrix-yjs";
 import { Identifier } from "../identifiers/Identifier";
+import { DocConnection } from "./DocConnection";
+import { DocumentResource } from "./DocumentResource";
+import {
+  createRef,
+  getHashForReference,
+  Ref,
+  ReferenceDefinition,
+  reverseReferenceDefinition,
+  validateRef,
+} from "./Ref";
 
 export type BaseResourceConnection = {
   identifier: Identifier;
   dispose: () => void;
   /** @internal */
-  webrtcProvider: DocWebrtcProvider | undefined; // TODO
+  webrtcProvider: { awareness: any } | undefined; // TODO
 };
 /**
  * A resource is an entity definied by a unique id.

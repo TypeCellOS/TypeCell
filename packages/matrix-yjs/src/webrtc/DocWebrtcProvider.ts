@@ -4,7 +4,7 @@ import * as encoding from "lib0/encoding";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as syncProtocol from "y-protocols/sync";
 import * as Y from "yjs"; // eslint-disable-line
-import { globalRooms } from "./globalResources.js";
+import { globalRooms } from "./globalResources";
 import { WebrtcProvider } from "./WebrtcProvider";
 import * as logging from "lib0/logging";
 
@@ -72,13 +72,13 @@ export class DocWebrtcProvider extends WebrtcProvider {
     if (awarenessStates.size > 0) {
       encoding.writeVarUint(encoder2, messageAwareness);
       encoding.writeVarUint8Array(
-        encoder,
+        encoder2,
         awarenessProtocol.encodeAwarenessUpdate(
           this.awareness,
           Array.from(awarenessStates.keys())
         )
       );
-      reply(encoding.toUint8Array(encoder));
+      reply(encoding.toUint8Array(encoder2));
     }
 
     // old bc code:
@@ -142,7 +142,7 @@ export class DocWebrtcProvider extends WebrtcProvider {
     opts?: any,
     public readonly awareness = new awarenessProtocol.Awareness(doc)
   ) {
-    super(roomName, { peerOpts: { iceServers: [] } });
+    super(roomName, opts);
 
     doc.on("destroy", this.destroy.bind(this));
 

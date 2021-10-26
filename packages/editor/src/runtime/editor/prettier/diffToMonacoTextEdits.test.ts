@@ -10,7 +10,7 @@ function applyTest(v1: string, v2: string) {
   return edits;
 }
 
-describe.skip("diffToMonacoTextEdits", () => {
+describe("diffToMonacoTextEdits", () => {
   it("basic replace", () => {
     const edits = applyTest("hello", "hi");
     expect(edits).toHaveLength(1);

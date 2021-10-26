@@ -48,10 +48,12 @@ async function getRoomAndTwoUsers(opts: {
     alice: {
       doc,
       provider,
+      client: setup.client,
     },
     bob: {
       doc: doc2,
       provider: provider2,
+      client: client2,
     },
   };
 }
@@ -69,10 +71,13 @@ async function validateOneWaySync(
 
   // validate initial state
   await event.Event.toPromise(bob.provider.onDocumentAvailable);
-  expect(bob.doc.getMap("test").get("contents").toJSON()).toEqual("hello");
+  expect((bob.doc.getMap("test").get("contents") as any).toJSON()).toEqual(
+    "hello"
+  );
   expect(bob.doc.getMap("test2")).toBeUndefined;
 
   // send an update from provider and validate sync
+  console.log("Alice sending change", alice.client.credentials.userId);
   alice.doc.getMap("test2").set("key", 1);
   await alice.provider.waitForFlush();
   await event.Event.toPromise(bob.provider.onReceivedEvents);
@@ -102,16 +107,20 @@ async function validateTwoWaySync(
 
   // validate initial state
   await event.Event.toPromise(bob.provider.onDocumentAvailable);
-  expect(bob.doc.getMap("test").get("contents").toJSON()).toEqual("hello");
+  expect((bob.doc.getMap("test").get("contents") as any).toJSON()).toEqual(
+    "hello"
+  );
   expect(bob.doc.getMap("test2")).toBeUndefined;
 
   // send an update from provider and validate sync
+  console.log("Alice sending change", alice.client.credentials.userId);
   alice.doc.getMap("test2").set("key", 1);
   await alice.provider.waitForFlush();
   await event.Event.toPromise(bob.provider.onReceivedEvents);
   expect(bob.doc.getMap("test2").get("key")).toBe(1);
 
   // validate bob can write
+  console.log("Bob sending change", bob.client.credentials.userId);
   expect(bob.provider.canWrite).toBe(true);
   bob.doc.getMap("test3").set("key", 1);
   await bob.provider.waitForFlush();

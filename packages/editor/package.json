@@ -36,6 +36,8 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "@tippyjs/react": "^4.2.5",
+    "@craco/craco": "^6.1.2",
+    "wasm-loader": "^1.3.0",
     "@tiptap/core": "2.0.0-beta.116",
     "@tiptap/extension-bubble-menu": "2.0.0-beta.38",
     "@tiptap/extension-code-block-lowlight": "2.0.0-beta.40",
@@ -102,20 +104,20 @@
     "y-indexeddb": "^9.0.6",
     "y-monaco": "^0.1.2",
     "y-webrtc": "^10.1.8",
-    "yjs": "npm:type-created-yjs@13.5.11",
+    "yjs": "^13.5.16",
     "zxcvbn": "^4.4.2",
     "vscode-lib": "^0.1.0"
   },
   "scripts": {
     "emittypes": "rimraf public/types && tsc --declaration --stripInternal --emitDeclarationOnly --noEmit false --declarationDir public/types",
-    "start": "npm run emittypes && react-scripts start",
+    "start": "npm run emittypes && craco start",
     "copy-docs": "rimraf public/_docs && mkdir public/_docs && node copy-docs.mjs > public/_docs/index.json && cp -rf ../../docs/. public/_docs",
     "build": "tsc -v && npm run emittypes && npm run copy-docs",
-    "build-react": "cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true react-scripts build",
+    "build-react": "cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true craco build",
     "lint": "eslint src",
-    "test": "react-scripts test",
-    "test-no-watch": "react-scripts test --watchAll=false",
-    "eject": "react-scripts eject",
+    "test": "craco test",
+    "test-no-watch": "craco test --watchAll=false",
+    "eject": "craco eject",
     "bench": "NODE_OPTIONS='--max-old-space-size=4096' ts-node --files -O '{\"module\":\"commonjs\"}' src/matrix-yjs/benchmark/benchmarkTest.ts ",
     "cannon": "autocannon -c 10 http://localhost:8080",
     "cannon2": "autocannon -c 1000 -a 1000 -t 20 http://localhost:8888/_matrix/static/"
@@ -144,7 +146,10 @@
       ".*typescriptServifces.*"
     ],
     "moduleNameMapper": {
-      "workerize-loader(\\?.*)?!(.*)": "identity-obj-proxy"
+      "workerize-loader(\\?.*)?!(.*)": "identity-obj-proxy",
+      "@typecell-org/common": "<rootDir>/../common/src",
+      "^lib0/([a-zA-Z-]*)$": "<rootDir>/../../node_modules/lib0/dist/$1.cjs",
+      "^y-protocols/([a-zA-Z-]*)$": "<rootDir>/../../node_modules/y-protocols/dist/$1.cjs"
     },
     "transform": {
       "workerize-loader(\\?.*)?!(.*)": "<rootDir>/workerize-jest.js",

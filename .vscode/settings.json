@@ -8,6 +8,5 @@
   },
   "search.exclude": {
     "packages/editor/public/types": true
-  },
-  
+  }
 }

@@ -36,7 +36,6 @@ export class YDocFileSyncManager
 {
   private _ydoc: Y.Doc;
   private watcher: Watcher | undefined;
-  public webrtcProvider: any;
 
   public canWrite = true;
 
@@ -52,6 +51,8 @@ export class YDocFileSyncManager
    * @memberof DocConnection
    */
   public doc: "loading" | "not-found" | Y.Doc = "loading";
+
+  public readonly awareness: any = undefined;
 
   public constructor(public readonly identifier: FileIdentifier) {
     super();
@@ -171,4 +172,6 @@ export class YDocFileSyncManager
     super.dispose();
     this._ydoc.off("update", this.documentUpdateListener);
   }
+
+  public on() {}
 }

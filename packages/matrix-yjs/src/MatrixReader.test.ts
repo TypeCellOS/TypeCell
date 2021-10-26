@@ -4,13 +4,14 @@ import * as qs from "qs";
 import { autocannonSeparateProcess } from "./benchmark/util";
 import { createMatrixGuestClient } from "./matrixGuestClient";
 import { MatrixReader } from "./MatrixReader";
+import { sendMessage } from "./matrixUtil";
 import { createRandomMatrixClientAndRoom } from "./test-utils/matrixTestUtil";
 import {
   ensureMatrixIsRunning,
   HOMESERVER_NAME,
   matrixTestConfig,
 } from "./test-utils/matrixTestUtilServer";
-import { sendMessage } from "./matrixUtil";
+
 const { Worker, isMainThread } = require("worker_threads");
 
 // change http client in matrix, this is faster than request when we have many outgoing requests

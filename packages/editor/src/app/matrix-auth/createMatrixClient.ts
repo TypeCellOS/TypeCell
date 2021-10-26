@@ -61,9 +61,9 @@ export default function createMatrixClient(opts: any) {
 
   storeOpts.store = new MemoryStore();
 
-  if (localStorage) {
-    storeOpts.sessionStore = new WebStorageSessionStore(localStorage);
-  }
+  // if (localStorage) {
+  storeOpts.sessionStore = new WebStorageSessionStore(localStorage);
+  // }
 
   if (indexedDB) {
     storeOpts.cryptoStore = new IndexedDBCryptoStore(

@@ -14,10 +14,12 @@ import Text from "@tiptap/extension-text";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { observer } from "mobx-react-lite";
 import React, { useContext, useEffect, useMemo, useRef } from "react";
+import { arrays } from "vscode-lib";
 import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost";
 import { DocumentResource } from "../../../store/DocumentResource";
+import { getStoreService } from "../../../store/local/stores";
 import { AutoId } from "./extensions/autoid/AutoId";
 import {
   BlockQuoteBlock,
@@ -48,6 +50,16 @@ import { EngineContext } from "./extensions/typecellnode/EngineContext";
 import InlineMenu from "./menus/InlineMenu";
 import TableMenu from "./menus/TableInlineMenu";
 import "./RichTextRenderer.css";
+
+const colors = [
+  "#958DF1",
+  "#F98181",
+  "#FBBC88",
+  "#FAF594",
+  "#70CFF8",
+  "#94FADB",
+  "#B9F18D",
+];
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -103,7 +115,10 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       // TODO
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,
-        user: { name: "Hello" + Math.random(), color: "#f783ac" },
+        user: {
+          name: getStoreService().sessionStore.loggedInUser || "Anonymous",
+          color: arrays.getRandomElement(colors),
+        },
       }),
       Collaboration.configure({
         fragment: props.document.data,

@@ -18,7 +18,7 @@ export class MatrixReader extends lifecycle.Disposable {
 
   public constructor(
     private matrixClient: MatrixClient,
-    private roomId: string
+    public readonly roomId: string
   ) {
     super();
     // TODO: catch events for when room has been deleted or user has been kicked
@@ -41,12 +41,7 @@ export class MatrixReader extends lifecycle.Disposable {
     if (room.roomId !== this.roomId) {
       return;
     }
-    if (event.getType() !== "m.room.message") {
-      return; // only use messages
-    }
-    if (!event.event.content?.body) {
-      return; // redacted / deleted?
-    }
+
     if (event.status === "sending") {
       return; // event we're sending ourselves
     }
@@ -104,15 +99,10 @@ export class MatrixReader extends lifecycle.Disposable {
     for (let i = 0; i < events.length; i++) {
       const event = events[i];
 
-      if (event.type !== "m.room.message") {
-        continue;
-      }
       if (event.room_id !== this.roomId) {
         continue;
       }
-      if (!event.content?.body) {
-        continue; // redacted / deleted?
-      }
+
       // if (event.event_id === sinceEventId) {
       //   return ret;
       // }
@@ -134,7 +124,11 @@ export class MatrixReader extends lifecycle.Disposable {
         "b"
       );
       // res.end !== res.start
-      ret.push.apply(ret, this.getMessagesFromResults(res));
+      let messages = this.getMessagesFromResults(res);
+      messages = messages.filter(
+        (m) => m.type === "m.room.message" && m.content?.body
+      );
+      ret.push.apply(ret, messages);
       token = res.end;
       if (!this.latestToken) {
         this.latestToken = res.start;
@@ -150,6 +144,10 @@ export class MatrixReader extends lifecycle.Disposable {
     }
     this.polling = true;
     this.peekPoll();
+  }
+
+  public get isStarted() {
+    return this.polling;
   }
 
   public dispose() {

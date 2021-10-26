@@ -17,6 +17,9 @@ import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typ
 import { initializeStoreService } from "./store/local/stores";
 import * as monaco from "monaco-editor";
 import { validateFrameDomain, validateHostDomain } from "./config/security";
+// @ts-ignore
+import olmWasmPath from "@matrix-org/olm/olm.wasm";
+import Olm from "@matrix-org/olm";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays
@@ -53,9 +56,9 @@ const cachedValidatedConfig = {
 async function init() {
   // TODO
 
-  // await Olm.init({
-  //   locateFile: () => olmWasmPath,
-  // });
+  await Olm.init({
+    locateFile: () => olmWasmPath,
+  });
   if (window.location.search.includes("frame")) {
     // TODO: prevent monaco from loading in frame
     if (!validateFrameDomain()) {
