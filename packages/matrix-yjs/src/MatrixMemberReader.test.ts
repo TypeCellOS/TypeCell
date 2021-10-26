@@ -37,6 +37,8 @@ it("handles room joins", async () => {
   await new Promise((resolve) => setTimeout(resolve, 1500));
 
   expect(memberC.hasWriteAccess(userB.client.credentials.userId)).toBe(true);
+
+  readerC.dispose();
 });
 
 it("handles room power levels", async () => {
@@ -82,4 +84,6 @@ it("handles room power levels", async () => {
   await new Promise((resolve) => setTimeout(resolve, 1500));
   expect(memberC.hasWriteAccess(setupA.client.credentials.userId)).toBe(true);
   expect(memberC.hasWriteAccess(userB.client.credentials.userId)).toBe(true);
+
+  readerC.dispose();
 });
