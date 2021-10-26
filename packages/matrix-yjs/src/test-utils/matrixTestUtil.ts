@@ -54,7 +54,7 @@ export async function createMatrixUser(username: string, password: string) {
   try {
     const result = await matrixClient.register(username, password);
     // console.log(result);
-  } catch (e) {
+  } catch (e: any) {
     // console.log(e);
     sessionId = e.data.session;
   }

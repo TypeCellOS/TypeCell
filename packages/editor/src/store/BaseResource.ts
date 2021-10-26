@@ -48,7 +48,7 @@ export class BaseResource {
   }
 
   public get type(): string {
-    return this.ydoc.getMap("meta").get("type");
+    return this.ydoc.getMap("meta").get("type") as any;
   }
 
   // TODO: do / how do we want to expose this?
@@ -102,7 +102,7 @@ export class BaseResource {
     // this.ydoc.getMap("refs").forEach((val, key) => {
     //   this.ydoc.getMap("refs").delete(key);
     // });
-    this.ydoc.getMap("refs").forEach((val) => {
+    this.ydoc.getMap("refs").forEach((val: any) => {
       if (
         val.namespace !== definition.namespace ||
         val.type !== definition.type
