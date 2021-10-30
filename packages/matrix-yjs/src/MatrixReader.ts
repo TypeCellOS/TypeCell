@@ -59,16 +59,15 @@ export class MatrixReader extends lifecycle.Disposable {
 
   // TODO validate order is [old...new]
   private processEvents(events: any[]) {
-    debugger;
     let shouldSendSnapshot = false;
     for (let event of events) {
-      if (event.room_id !== this.roomId) {
-        throw new Error("event received with invalid roomid");
-      }
-      if (event.event_type === "m.room.messages") {
+      if (event.type === "m.room.message") {
+        if (event.room_id !== this.roomId) {
+          throw new Error("event received with invalid roomid");
+        }
         this.messagesSinceSnapshot++;
         if (
-          this.messagesSinceSnapshot % SNAPSHOT_INTERVAL &&
+          this.messagesSinceSnapshot % SNAPSHOT_INTERVAL === 0 &&
           event.user_id === this.matrixClient.credentials.userId
         ) {
           // We don't want multiple users send a snapshot at the same time,
@@ -136,7 +135,6 @@ export class MatrixReader extends lifecycle.Disposable {
   public async getInitialDocumentUpdateEvents() {
     let ret: any[] = [];
     let token = "";
-
     let hasNextPage = true;
     let lastEventInSnapshot: string | undefined;
     while (hasNextPage) {
@@ -150,11 +148,13 @@ export class MatrixReader extends lifecycle.Disposable {
 
       for (let event of res.chunk) {
         if (event.type === "m.room.snapshot") {
-          debugger;
           ret.push(event);
-          lastEventInSnapshot = event.last_event_id;
+          lastEventInSnapshot = event.content.last_event_id;
         } else if (event.type === "m.room.message" && event.content?.body) {
-          if (lastEventInSnapshot === event.id) {
+          if (lastEventInSnapshot && lastEventInSnapshot === event.event_id) {
+            if (!this.latestToken) {
+              this.latestToken = res.start;
+            }
             return ret.reverse();
           }
           this.messagesSinceSnapshot++;

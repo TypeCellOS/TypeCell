@@ -167,17 +167,19 @@ it("syncs with intermediate snapshots ", async () => {
   const text = new Y.Text("hello");
   alice.doc.getMap("test").set("contents", text);
 
-  alice.provider.initialize();
-  await alice.provider.waitForFlush();
+  await alice.provider.initialize();
 
   for (let i = 0; i < 100; i++) {
     text.insert(text.length, "-" + i);
     await alice.provider.waitForFlush();
   }
-
+  await new Promise((resolve) => setTimeout(resolve, 2000));
   await bob.provider.initialize();
 
-  const val = bob.doc.getMap("test").get("contents");
-  bob.provider.totalEventsReceived;
-  debugger;
+  const val = bob.doc.getMap("test").get("contents") as any;
+  expect(val.toJSON()).toEqual(text.toJSON());
+  expect(bob.provider.totalEventsReceived).toBeLessThan(20);
+
+  alice.provider.dispose();
+  bob.provider.dispose();
 });

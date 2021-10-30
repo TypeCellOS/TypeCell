@@ -102,8 +102,8 @@ export class MatrixProvider extends lifecycle.Disposable {
     //   messages.length
     // );
     events = events.filter((m) => {
-      if (m.type !== "m.room.message") {
-        return false; // only use messages
+      if (m.type !== "m.room.message" && m.type !== "m.room.snapshot") {
+        return false; // only use messages / snapshots
       }
       if (!m.content?.body) {
         return false; // redacted / deleted?
@@ -135,7 +135,6 @@ export class MatrixProvider extends lifecycle.Disposable {
       // A snapshot _could_ also contain events after last_event_id,
       // for example if the local document contains changes that haven't been flushed to Matrix yet.
 
-      debugger;
       sendMessage(
         this.matrixClient,
         this.roomId!,
