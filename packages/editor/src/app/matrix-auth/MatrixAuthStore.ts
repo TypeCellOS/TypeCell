@@ -614,10 +614,10 @@ export class MatrixAuthStore {
       // index (e.g. the FilePanel), therefore initialize the event index
       // before the client.
       //   await EventIndexPeg.init();
-      await MatrixClientPeg.start();
+      //await MatrixClientPeg.start();
     } else {
-      console.warn("Caller requested only auxiliary services be started");
-      await MatrixClientPeg.assign();
+      // console.warn("Caller requested only auxiliary services be started");
+      //await MatrixClientPeg.assign();
     }
 
     // This needs to be started after crypto is set up
@@ -634,6 +634,11 @@ export class MatrixAuthStore {
     // dispatch that we finished starting up to wire up any other bits
     // of the matrix client that cannot be set prior to starting up.
     //   dis.dispatch({action: 'client_started'});
+
+    await MatrixClientPeg.get().initCrypto();
+    await MatrixClientPeg.get().crypto.uploadDeviceKeys();
+    MatrixClientPeg.get().crypto.start();
+
     this.onClientStarted();
 
     if (isSoftLogout()) {

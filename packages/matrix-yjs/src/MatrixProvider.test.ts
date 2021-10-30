@@ -155,3 +155,31 @@ it("syncs two users writing ", async () => {
   });
   await validateTwoWaySync(users);
 });
+
+it("syncs with intermediate snapshots ", async () => {
+  const users = await getRoomAndTwoUsers({
+    bobIsGuest: false,
+    roomAccess: "public-read-write",
+  });
+
+  const { alice, bob } = users;
+
+  const text = new Y.Text("hello");
+  alice.doc.getMap("test").set("contents", text);
+
+  await alice.provider.initialize();
+
+  for (let i = 0; i < 100; i++) {
+    text.insert(text.length, "-" + i);
+    await alice.provider.waitForFlush();
+  }
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  await bob.provider.initialize();
+
+  const val = bob.doc.getMap("test").get("contents") as any;
+  expect(val.toJSON()).toEqual(text.toJSON());
+  expect(bob.provider.totalEventsReceived).toBeLessThan(20);
+
+  alice.provider.dispose();
+  bob.provider.dispose();
+});

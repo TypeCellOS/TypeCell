@@ -15,7 +15,7 @@ export async function createMatrixGuestClient(config: { baseUrl: string }) {
   // hardcoded overwrites
   matrixClient.canSupportVoip = false;
   matrixClient.clientOpts = {
-    lazyLoadMembers: false,
+    lazyLoadMembers: true,
   };
 
   matrixClient.setGuest(true);

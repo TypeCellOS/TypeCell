@@ -8,6 +8,8 @@ type Member = {
 };
 
 /**
+ * TODO: possible to replace with matrixClient maySendMessage / maySendEvent?
+ *
  * Keeps track of Members in a room with write access
  *
  * Use hasWriteAccess to validate whether a user has write access to the room.
@@ -36,9 +38,7 @@ export class MatrixMemberReader extends lifecycle.Disposable {
   ) {
     super();
     this._register(
-      this.reader.onMessages((events) =>
-        events.forEach((e) => this.processEvent(e))
-      )
+      this.reader.onEvents((e) => e.events.forEach((e) => this.processEvent(e)))
     );
   }
 
