@@ -25,7 +25,7 @@ it("handles room joins", async () => {
 
   const readerC = new MatrixReader(guestClient, setupA.roomId);
   const memberC = new MatrixMemberReader(guestClient, readerC);
-  await readerC.getAllInitialEvents();
+  await readerC.getInitialDocumentUpdateEvents();
   await readerC.startPolling();
   await memberC.initialize();
 
@@ -48,7 +48,7 @@ it("handles room power levels", async () => {
 
   const readerC = new MatrixReader(guestClient, setupA.roomId);
   const memberC = new MatrixMemberReader(guestClient, readerC);
-  await readerC.getAllInitialEvents();
+  await readerC.getInitialDocumentUpdateEvents();
   await readerC.startPolling();
   await memberC.initialize();
 

@@ -6,6 +6,7 @@ import * as Y from "yjs";
 import { signObject, verifyObject } from "./authUtil";
 import { MatrixMemberReader } from "./MatrixMemberReader";
 import { MatrixReader } from "./MatrixReader";
+import { sendMessage } from "./matrixUtil";
 import { SignedWebrtcProvider } from "./SignedWebrtcProvider";
 import { ThrottledMatrixWriter } from "./ThrottledMatrixWriter";
 
@@ -61,6 +62,8 @@ export class MatrixProvider extends lifecycle.Disposable {
     return this.throttledWriter.canWrite;
   }
 
+  public totalEventsReceived = 0;
+
   public constructor(
     private doc: Y.Doc,
     private matrixClient: MatrixClient,
@@ -89,13 +92,16 @@ export class MatrixProvider extends lifecycle.Disposable {
     // setTimeout(() => this.throttledWriter.writeUpdate(update), 0); // setTimeout 0 so waitForFlush works if we call it just after setting doc. TODO: necessary?
   };
 
-  private processIncomingMessages = (messages: any[]) => {
+  private processIncomingEvents = (
+    events: any[],
+    shouldSendSnapshot = false
+  ) => {
     // console.log(
     //   "processIncomingMessages",
     //   JSON.stringify(messages),
     //   messages.length
     // );
-    messages = messages.filter((m) => {
+    events = events.filter((m) => {
       if (m.type !== "m.room.message") {
         return false; // only use messages
       }
@@ -105,16 +111,47 @@ export class MatrixProvider extends lifecycle.Disposable {
       return true;
     });
 
-    const updates = messages.map(
-      (message) => new Uint8Array(base64.decodeBase64(message.content.body))
+    this.totalEventsReceived += events.length;
+
+    const updates = events.map(
+      (e) => new Uint8Array(base64.decodeBase64(e.content.body))
     );
+
+    // TODO: this is a bit of a weird code-path, as
+    // updates can be an empty array on initial room load
     const update = Y.mergeUpdates(updates);
 
     // Apply latest state from server
     Y.applyUpdate(this.doc, update, this);
 
-    const remoteMessages = messages.filter(
-      (m) => m.user_id !== this.matrixClient.credentials.userId
+    if (events.length && shouldSendSnapshot) {
+      const lastEvent = events[events.length - 1];
+      const update = Y.encodeStateAsUpdate(this.doc);
+      const str = base64.encodeBase64(update);
+
+      // Note: a snapshot is a representation of the document
+      // which is guarantueed to contain all events in the room
+      // up to and including last_event_id.
+      // A snapshot _could_ also contain events after last_event_id,
+      // for example if the local document contains changes that haven't been flushed to Matrix yet.
+
+      debugger;
+      sendMessage(
+        this.matrixClient,
+        this.roomId!,
+        {
+          body: str,
+          msgtype: "m.text",
+          last_event_id: lastEvent.event_id,
+        } as any,
+        "m.room.snapshot"
+      ).catch((e) => {
+        console.error("failed to send snapshot");
+      });
+    }
+
+    const remoteMessages = events.filter(
+      (e) => e.user_id !== this.matrixClient.credentials.userId
     );
     if (remoteMessages.length) {
       this._onReceivedEvents.fire();
@@ -140,13 +177,13 @@ export class MatrixProvider extends lifecycle.Disposable {
     );
 
     this._register(
-      this.reader.onMessages((messages) =>
-        this.processIncomingMessages(messages)
+      this.reader.onEvents((e) =>
+        this.processIncomingEvents(e.events, e.shouldSendSnapshot)
       )
     );
-    const events = await this.reader.getAllInitialEvents();
+    const events = await this.reader.getInitialDocumentUpdateEvents();
     this.reader.startPolling();
-    return this.processIncomingMessages(events);
+    return this.processIncomingEvents(events);
   }
 
   public async initialize() {

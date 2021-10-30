@@ -3,6 +3,7 @@ import { event, lifecycle } from "vscode-lib";
 
 const PEEK_POLL_TIMEOUT = 30 * 1000;
 const PEEK_POLL_ERROR_TIMEOUT = 30 * 1000;
+const SNAPSHOT_INTERVAL = 30; // snapshot after 30 events
 
 export class MatrixReader extends lifecycle.Disposable {
   public latestToken: string | undefined;
@@ -10,11 +11,15 @@ export class MatrixReader extends lifecycle.Disposable {
   private polling = false;
   private pendingPollRequest: any;
   private pollRetryTimeout: ReturnType<typeof setTimeout> | undefined;
+  private messagesSinceSnapshot = 0;
 
-  private readonly _onMessages: event.Emitter<any[]> = this._register(
-    new event.Emitter<any[]>()
+  private readonly _onEvents = this._register(
+    new event.Emitter<{ events: any[]; shouldSendSnapshot: boolean }>()
   );
-  public readonly onMessages: event.Event<any[]> = this._onMessages.event;
+  public readonly onEvents: event.Event<{
+    events: any[];
+    shouldSendSnapshot: boolean;
+  }> = this._onEvents.event;
 
   public constructor(
     private matrixClient: MatrixClient,
@@ -29,25 +34,59 @@ export class MatrixReader extends lifecycle.Disposable {
    * Only receives messages from rooms the user has joined, and after startClient() has been called
    * (i.e.: they're received via the sync API).
    *
-   * TODO: Maybe we can disable support for this and only use the peek API
+   * At this moment, we only poll for events using the /events endpoint.
+   * I.e. the Sync API should not be used (and startClient() should not be called).
    *
-   * TODO: unit test
+   * We do this because we don't want the MatrixClient to keep all events in memory.
+   * For yjs, this is not necessary, as events are document updates which are accumulated in the yjs
+   * document, so already stored there.
+   *
+   * In a later version, it might be more efficient to call the /sync API manually
+   * (without relying on the Timeline / sync system in the matrix-js-sdk),
+   * because it allows us to retrieve events for multiple rooms simultaneously, instead of
+   * a seperate /events poll per room
    */
   private matrixRoomListener = (
     event: any,
     room: any,
     toStartOfTimeline: boolean
   ) => {
-    if (room.roomId !== this.roomId) {
-      return;
-    }
-
-    if (event.status === "sending") {
-      return; // event we're sending ourselves
-    }
-    // TODO: doesn't set latesttoken
-    this._onMessages.fire([event.event]);
+    console.error("not expected; ");
+    throw new Error(
+      "unexpected, we don't use /sync calls for MatrixReader, startClient should not be used on the Matrix client"
+    );
   };
+
+  // TODO validate order is [old...new]
+  private processEvents(events: any[]) {
+    debugger;
+    let shouldSendSnapshot = false;
+    for (let event of events) {
+      if (event.room_id !== this.roomId) {
+        throw new Error("event received with invalid roomid");
+      }
+      if (event.event_type === "m.room.messages") {
+        this.messagesSinceSnapshot++;
+        if (
+          this.messagesSinceSnapshot % SNAPSHOT_INTERVAL &&
+          event.user_id === this.matrixClient.credentials.userId
+        ) {
+          // We don't want multiple users send a snapshot at the same time,
+          // to prevent this, we have a simple (probably not fool-proof) "snapshot user election"
+          // system which says that the user who sent a message SNAPSHOT_INTERVAL events since
+          // the last snapshot is responsible for posting a new snapshot.
+
+          // In case a user fails to do so,
+          // we use % to make sure we retry this on the next SNAPSHOT_INTERVAL
+          shouldSendSnapshot = true;
+        }
+      } else if (event.event_type === "m.room.snapshot") {
+        this.messagesSinceSnapshot = 0;
+        shouldSendSnapshot = false;
+      }
+    }
+    return shouldSendSnapshot;
+  }
 
   private async peekPoll() {
     if (!this.latestToken) {
@@ -75,9 +114,10 @@ export class MatrixReader extends lifecycle.Disposable {
         return;
       }
 
-      const messages = this.getMessagesFromResults(results);
-      if (messages.length) {
-        this._onMessages.fire(messages);
+      const shouldSendSnapshot = this.processEvents(results.chunk);
+
+      if (results.chunk.length) {
+        this._onEvents.fire({ events: results.chunk, shouldSendSnapshot });
       }
 
       this.latestToken = results.end;
@@ -93,42 +133,35 @@ export class MatrixReader extends lifecycle.Disposable {
     }
   }
 
-  private getMessagesFromResults(res: any) {
-    const ret: any[] = [];
-    const events = res.chunk;
-    for (let i = 0; i < events.length; i++) {
-      const event = events[i];
-
-      if (event.room_id !== this.roomId) {
-        continue;
-      }
-
-      // if (event.event_id === sinceEventId) {
-      //   return ret;
-      // }
-      ret.push(event);
-    }
-    return ret;
-  }
-
-  public async getAllInitialEvents() {
+  public async getInitialDocumentUpdateEvents() {
     let ret: any[] = [];
     let token = "";
 
     let hasNextPage = true;
+    let lastEventInSnapshot: string | undefined;
     while (hasNextPage) {
       const res = await this.matrixClient.createMessagesRequest(
         this.roomId,
         token,
         30,
         "b"
+        // TODO: filter?
       );
-      // res.end !== res.start
-      let messages = this.getMessagesFromResults(res);
-      messages = messages.filter(
-        (m) => m.type === "m.room.message" && m.content?.body
-      );
-      ret.push.apply(ret, messages);
+
+      for (let event of res.chunk) {
+        if (event.type === "m.room.snapshot") {
+          debugger;
+          ret.push(event);
+          lastEventInSnapshot = event.last_event_id;
+        } else if (event.type === "m.room.message" && event.content?.body) {
+          if (lastEventInSnapshot === event.id) {
+            return ret.reverse();
+          }
+          this.messagesSinceSnapshot++;
+          ret.push(event);
+        }
+      }
+
       token = res.end;
       if (!this.latestToken) {
         this.latestToken = res.start;
