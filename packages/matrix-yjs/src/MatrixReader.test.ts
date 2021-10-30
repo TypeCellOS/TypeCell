@@ -62,10 +62,15 @@ it("handles initial and live messages", async () => {
   const guestClient = await createMatrixGuestClient(matrixTestConfig);
   const reader = new MatrixReader(guestClient, setup.roomId);
   try {
-    const messages = await reader.getInitialDocumentUpdateEvents();
+    const messages = await reader.getInitialDocumentUpdateEvents(
+      "m.room.message"
+    );
 
     reader.onEvents((msgs) => {
-      messages.push.apply(messages, msgs.events);
+      messages.push.apply(
+        messages,
+        msgs.events.filter((e) => e.type === "m.room.message")
+      );
     });
     reader.startPolling();
 

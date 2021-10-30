@@ -133,7 +133,7 @@ export class MatrixReader extends lifecycle.Disposable {
     }
   }
 
-  public async getInitialDocumentUpdateEvents() {
+  public async getInitialDocumentUpdateEvents(typeFilter?: string) {
     let ret: any[] = [];
     let token = "";
     let hasNextPage = true;
@@ -148,7 +148,11 @@ export class MatrixReader extends lifecycle.Disposable {
       );
 
       for (let event of res.chunk) {
-        if (isSnapshotEvent(event)) {
+        if (typeFilter) {
+          if (event.type === typeFilter) {
+            ret.push(event);
+          }
+        } else if (isSnapshotEvent(event)) {
           ret.push(event);
           lastEventInSnapshot = event.content.last_event_id;
         } else if (isUpdateEvent(event)) {
