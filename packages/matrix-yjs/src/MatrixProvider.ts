@@ -6,7 +6,7 @@ import * as Y from "yjs";
 import { signObject, verifyObject } from "./authUtil";
 import { MatrixMemberReader } from "./MatrixMemberReader";
 import { MatrixReader } from "./MatrixReader";
-import { sendMessage } from "./matrixUtil";
+import { isSnapshotEvent, isUpdateEvent, sendSnapshot } from "./matrixUtil";
 import { SignedWebrtcProvider } from "./SignedWebrtcProvider";
 import { ThrottledMatrixWriter } from "./ThrottledMatrixWriter";
 
@@ -101,12 +101,9 @@ export class MatrixProvider extends lifecycle.Disposable {
     //   JSON.stringify(messages),
     //   messages.length
     // );
-    events = events.filter((m) => {
-      if (m.type !== "m.room.message" && m.type !== "m.room.snapshot") {
+    events = events.filter((e) => {
+      if (!isUpdateEvent(e) && !isSnapshotEvent(e)) {
         return false; // only use messages / snapshots
-      }
-      if (!m.content?.body) {
-        return false; // redacted / deleted?
       }
       return true;
     });
@@ -114,7 +111,7 @@ export class MatrixProvider extends lifecycle.Disposable {
     this.totalEventsReceived += events.length;
 
     const updates = events.map(
-      (e) => new Uint8Array(base64.decodeBase64(e.content.body))
+      (e) => new Uint8Array(base64.decodeBase64(e.content.update))
     );
 
     // TODO: this is a bit of a weird code-path, as
@@ -127,7 +124,6 @@ export class MatrixProvider extends lifecycle.Disposable {
     if (events.length && shouldSendSnapshot) {
       const lastEvent = events[events.length - 1];
       const update = Y.encodeStateAsUpdate(this.doc);
-      const str = base64.encodeBase64(update);
 
       // Note: a snapshot is a representation of the document
       // which is guarantueed to contain all events in the room
@@ -135,15 +131,11 @@ export class MatrixProvider extends lifecycle.Disposable {
       // A snapshot _could_ also contain events after last_event_id,
       // for example if the local document contains changes that haven't been flushed to Matrix yet.
 
-      sendMessage(
+      sendSnapshot(
         this.matrixClient,
         this.roomId!,
-        {
-          body: str,
-          msgtype: "m.text",
-          last_event_id: lastEvent.event_id,
-        } as any,
-        "m.room.snapshot"
+        update,
+        lastEvent.event_id
       ).catch((e) => {
         console.error("failed to send snapshot");
       });

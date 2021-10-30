@@ -1,5 +1,6 @@
 import { MatrixClient } from "matrix-js-sdk";
 import { event, lifecycle } from "vscode-lib";
+import { isSnapshotEvent, isUpdateEvent } from "./matrixUtil";
 
 const PEEK_POLL_TIMEOUT = 30 * 1000;
 const PEEK_POLL_ERROR_TIMEOUT = 30 * 1000;
@@ -61,7 +62,7 @@ export class MatrixReader extends lifecycle.Disposable {
   private processEvents(events: any[]) {
     let shouldSendSnapshot = false;
     for (let event of events) {
-      if (event.type === "m.room.message") {
+      if (isUpdateEvent(event)) {
         if (event.room_id !== this.roomId) {
           throw new Error("event received with invalid roomid");
         }
@@ -79,7 +80,7 @@ export class MatrixReader extends lifecycle.Disposable {
           // we use % to make sure we retry this on the next SNAPSHOT_INTERVAL
           shouldSendSnapshot = true;
         }
-      } else if (event.event_type === "m.room.snapshot") {
+      } else if (isSnapshotEvent(event)) {
         this.messagesSinceSnapshot = 0;
         shouldSendSnapshot = false;
       }
@@ -147,10 +148,10 @@ export class MatrixReader extends lifecycle.Disposable {
       );
 
       for (let event of res.chunk) {
-        if (event.type === "m.room.snapshot") {
+        if (isSnapshotEvent(event)) {
           ret.push(event);
           lastEventInSnapshot = event.content.last_event_id;
-        } else if (event.type === "m.room.message" && event.content?.body) {
+        } else if (isUpdateEvent(event)) {
           if (lastEventInSnapshot && lastEventInSnapshot === event.event_id) {
             if (!this.latestToken) {
               this.latestToken = res.start;

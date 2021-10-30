@@ -4,7 +4,7 @@ import * as qs from "qs";
 import { autocannonSeparateProcess } from "./benchmark/util";
 import { createMatrixGuestClient } from "./matrixGuestClient";
 import { MatrixReader } from "./MatrixReader";
-import { sendMessage } from "./matrixUtil";
+import { sendMessage, sendSnapshot } from "./matrixUtil";
 import { createRandomMatrixClientAndRoom } from "./test-utils/matrixTestUtil";
 import {
   ensureMatrixIsRunning,

@@ -1,5 +1,6 @@
 import { MatrixClient } from "matrix-js-sdk";
 import { MatrixMemberReader } from "./MatrixMemberReader";
+import { WRAPPED_EVENT_TYPE } from "./matrixUtil";
 import { verifySignature } from "./olmlib";
 
 /**
@@ -27,7 +28,7 @@ export async function verifyObject(
     throw new Error("invalid signature");
   }
   const userId = Object.keys(obj.signatures)[0];
-  if (!memberReader.hasWriteAccess(userId)) {
+  if (!memberReader.hasWriteAccess(userId, WRAPPED_EVENT_TYPE)) {
     throw new Error("user doesn't have write access");
   }
 

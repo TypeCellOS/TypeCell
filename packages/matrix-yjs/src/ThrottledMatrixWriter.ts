@@ -1,9 +1,8 @@
-import { base64 } from "@typecell-org/common";
 import * as _ from "lodash";
 import { MatrixClient } from "matrix-js-sdk";
 import { event, lifecycle } from "vscode-lib";
 import * as Y from "yjs";
-import { sendMessage } from "./matrixUtil";
+import { sendUpdate } from "./matrixUtil";
 
 const DEFAULT_FLUSH_INTERVAL = process.env.NODE_ENV === "test" ? 100 : 1000 * 5;
 const FORBIDDEN_FLUSH_INTERVAL = 1000 * 30; // TODO: raise to 1 min
@@ -54,11 +53,11 @@ export class ThrottledMatrixWriter extends lifecycle.Disposable {
     // const encoder = encoding.createEncoder();
     // encoding.writeVarUint8Array(encoder, merged);
     // encoding.writeVarUint(encoder, 0);
-    const str = base64.encodeBase64(merged);
+
     let retryImmediately = false;
     try {
       console.log("Sending updates");
-      await sendMessage(this.matrixClient, this.roomId, str);
+      await sendUpdate(this.matrixClient, this.roomId, merged);
       this.setCanWrite(true);
       console.log("sent updates");
     } catch (e: any) {
