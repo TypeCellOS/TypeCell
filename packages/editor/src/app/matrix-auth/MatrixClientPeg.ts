@@ -324,6 +324,12 @@ class _MatrixClientPeg implements IMatrixClientPeg {
 
     this.matrixClient = createMatrixClient(opts);
 
+    // overwrites because we don't call .start();
+    this.matrixClient.canSupportVoip = false;
+    this.matrixClient.clientOpts = {
+      lazyLoadMembers: true,
+    };
+
     // we're going to add eventlisteners for each matrix event tile, so the
     // potential number of event listeners is quite high.
     this.matrixClient.setMaxListeners(500);

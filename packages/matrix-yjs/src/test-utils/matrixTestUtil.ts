@@ -81,7 +81,7 @@ export async function createMatrixUser(username: string, password: string) {
   matrixClientLoggedIn.initCrypto();
   matrixClientLoggedIn.canSupportVoip = false;
   matrixClientLoggedIn.clientOpts = {
-    lazyLoadMembers: false,
+    lazyLoadMembers: true,
   };
   return matrixClientLoggedIn;
 }
