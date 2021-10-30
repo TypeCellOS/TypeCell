@@ -85,6 +85,7 @@ code {
 }
 
 .notebookCell-codeContainer {
+  position: relative;
   padding-left: 10px;
   background: #f4f5f7;
   width: 100%; /* todo: fix when making window smaller */
@@ -195,41 +196,6 @@ code {
   color: rgb(100, 100, 100);
 }
 
-.code-toolbar {
-  position: absolute;
-  right: 0;
-  top: 0;
-  z-index: 100;
-  background: rgb(235, 236, 240);
-  border-radius: 0 5px 0 0;
-}
-
-.code-toolbar > button {
-  padding: 5px;
-  align-items: baseline;
-  border-width: 0px;
-  border-radius: 3px;
-  box-sizing: border-box;
-  display: inline-block;
-  transition: background 0.1s ease-out 0s,
-    box-shadow 0.15s cubic-bezier(0.47, 0.03, 0.49, 1.38) 0s;
-  white-space: nowrap;
-  cursor: pointer;
-  height: auto;
-  line-height: inherit;
-  color: rgb(66, 82, 110) !important;
-}
-
-.code-toolbar > button:hover,
-.code-toolbar > button.active {
-  background: rgba(9, 30, 66, 0.08);
-  transition-duration: 0s, 0.15s;
-  color: rgb(66, 82, 110) !important;
-}
-.code-toolbar > button:focus,
-.code-toolbar > button:active {
-  outline: none;
-}
 /* .field {
   transform:
     scale(0.75)
@@ -306,7 +272,8 @@ code {
   margin-top: 17px;
   position: relative;
 }
-.shoulder > button,
+
+/* .shoulder > button, */
 .cellList-item > button {
   position: absolute;
   margin: 0px;
@@ -346,14 +313,14 @@ code {
   background-clip: padding-box;
 }
 
-.shoulder > button {
+/* .shoulder > button {
   flex: 0 0 auto;
   position: sticky;
   top: 0px;
   margin-top: 4px;
   margin-right: 5px;
   padding: 0px 1px;
-}
+} */
 
 pluto-cell:focus-within > .shoulder > button {
   /* we use padding instead of 4px extra margin to move the eye to the left so that the hitbox becomes grows - you want to be able to double click the button */
@@ -469,10 +436,10 @@ pluto-input > button > span {
 /* // https://github.com/react-dnd/react-dnd/issues/832#issuecomment-442071628
 // TODO: should only be set when dragging */
 
-.cellList-item,
+/* .cellList-item,
 .cellList-item .notebookCell {
-  /* transform: translate3d(0, 0, 0); */
-}
+  transform: translate3d(0, 0, 0);
+} */
 
 .dropruler {
   position: absolute;

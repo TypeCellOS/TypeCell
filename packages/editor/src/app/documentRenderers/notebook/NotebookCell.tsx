@@ -32,7 +32,7 @@ type Props = {
   defaultCollapsed?: boolean;
   initialFocus?: boolean;
   awareness: Awareness | undefined;
-  toolbarContent?: React.ReactElement;
+  toolbar?: React.ReactElement;
 };
 
 const NotebookCell: React.FC<Props> = observer((props) => {
@@ -217,13 +217,11 @@ const NotebookCell: React.FC<Props> = observer((props) => {
           onClick={() => setCodeVisible(true)}
         />
       )}
+      {}
       <div style={{ flex: 1 }} className="notebookCell-content">
         {codeVisible && (
           <div className="notebookCell-codeContainer">
-            {props.toolbarContent && (
-              <div className="code-toolbar">{props.toolbarContent}</div>
-            )}
-            {/* <div>{Math.random()}</div> */}
+            {props.toolbar && props.toolbar}
             <div
               className="code"
               ref={codeRefCallback}
