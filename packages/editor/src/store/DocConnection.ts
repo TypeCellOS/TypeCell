@@ -124,7 +124,7 @@ export class DocConnection extends lifecycle.Disposable {
 
   /** @internal */
   public get webrtcProvider() {
-    return this.manager?.webrtcProvider;
+    return this.manager;
   }
 
   public get needsFork() {

@@ -1,4 +1,5 @@
-import { createClient } from "matrix-js-sdk";
+global.Olm = require("@matrix-org/olm");
+import { createClient, MemoryStore } from "matrix-js-sdk";
 
 export async function createMatrixGuestClient(config: { baseUrl: string }) {
   const tmpClient = await createClient(config);
@@ -8,16 +9,17 @@ export async function createMatrixGuestClient(config: { baseUrl: string }) {
     accessToken: access_token,
     userId: user_id,
     deviceId: device_id,
+    sessionStore: new MemoryStore(),
   });
 
   // hardcoded overwrites
   matrixClient.canSupportVoip = false;
   matrixClient.clientOpts = {
-    lazyLoadMembers: false,
+    lazyLoadMembers: true,
   };
 
   matrixClient.setGuest(true);
-
+  await matrixClient.initCrypto();
   // don't use startClient (because it will sync periodically), when we're in guest / readonly mode
   // in guest mode we only use the matrixclient to fetch initial room state, but receive updates via WebRTCProvider
 

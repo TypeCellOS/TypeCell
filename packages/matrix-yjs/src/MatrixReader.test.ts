@@ -4,13 +4,14 @@ import * as qs from "qs";
 import { autocannonSeparateProcess } from "./benchmark/util";
 import { createMatrixGuestClient } from "./matrixGuestClient";
 import { MatrixReader } from "./MatrixReader";
+import { sendMessage, sendSnapshot } from "./matrixUtil";
 import { createRandomMatrixClientAndRoom } from "./test-utils/matrixTestUtil";
 import {
   ensureMatrixIsRunning,
   HOMESERVER_NAME,
   matrixTestConfig,
 } from "./test-utils/matrixTestUtilServer";
-import { sendMessage } from "./matrixUtil";
+
 const { Worker, isMainThread } = require("worker_threads");
 
 // change http client in matrix, this is faster than request when we have many outgoing requests
@@ -61,10 +62,15 @@ it("handles initial and live messages", async () => {
   const guestClient = await createMatrixGuestClient(matrixTestConfig);
   const reader = new MatrixReader(guestClient, setup.roomId);
   try {
-    const messages = await reader.getAllInitialEvents();
+    const messages = await reader.getInitialDocumentUpdateEvents(
+      "m.room.message"
+    );
 
-    reader.onMessages((msgs) => {
-      messages.push.apply(messages, msgs);
+    reader.onEvents((msgs) => {
+      messages.push.apply(
+        messages,
+        msgs.events.filter((e) => e.type === "m.room.message")
+      );
     });
     reader.startPolling();
 
@@ -95,11 +101,11 @@ class TestReader {
       this.client || (await createMatrixGuestClient(matrixTestConfig));
     this.reader = new MatrixReader(guestClient, this.roomId);
 
-    this.messages = await this.reader.getAllInitialEvents();
+    this.messages = await this.reader.getInitialDocumentUpdateEvents();
     console.log("created", TestReader.CREATED++);
-    this.reader.onMessages((msgs) => {
+    this.reader.onEvents((msgs) => {
       // console.log("on message");
-      this.messages!.push.apply(this.messages, msgs);
+      this.messages!.push.apply(this.messages, msgs.events);
     });
     this.reader.startPolling();
   }
@@ -152,7 +158,7 @@ it.skip("handles parallel live messages autocannon", async () => {
   const client = await createMatrixGuestClient(matrixTestConfig);
   const reader = new MatrixReader(client, setup.roomId);
   try {
-    await reader.getAllInitialEvents();
+    await reader.getInitialDocumentUpdateEvents();
 
     const params = {
       access_token: client.http.opts.accessToken,

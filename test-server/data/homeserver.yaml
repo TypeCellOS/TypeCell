@@ -854,28 +854,28 @@ rc_registration:
   per_second: 100000
   burst_count: 100000
 #
-#rc_login:
-#  address:
-#    per_second: 0.17
-#    burst_count: 3
-#  account:
-#    per_second: 0.17
-#    burst_count: 3
-#  failed_attempts:
-#    per_second: 0.17
-#    burst_count: 3
+rc_login:
+  address:
+    per_second: 10
+    burst_count: 10
+  account:
+    per_second: 10
+    burst_count: 10
+  failed_attempts:
+    per_second: 5
+    burst_count: 5
 #
 #rc_admin_redaction:
 #  per_second: 1
 #  burst_count: 50
 #
-#rc_joins:
-#  local:
-#    per_second: 0.1
-#    burst_count: 10
-#  remote:
-#    per_second: 0.01
-#    burst_count: 10
+rc_joins:
+  local:
+    per_second: 10
+    burst_count: 10
+  remote:
+    per_second: 0.01
+    burst_count: 10
 #
 #rc_3pid_validation:
 #  per_second: 0.003

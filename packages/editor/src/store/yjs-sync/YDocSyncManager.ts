@@ -3,13 +3,12 @@ import { MatrixClient } from "matrix-js-sdk";
 import { createAtom, makeObservable, observable, runInAction } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { IndexeddbPersistence } from "y-indexeddb";
-import { WebrtcProvider } from "y-webrtc";
+import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
 import { Identifier } from "../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";
 import { existsLocally, getIDBIdentifier, waitForIDBSynced } from "./IDBHelper";
 import { SyncManager } from "./SyncManager";
-
 /**
  * Given an identifier, manages local + remote syncing of a Y.Doc
  */
@@ -21,6 +20,7 @@ export class YDocSyncManager
   private initializeCalled = false;
   private _canWriteAtom = createAtom("_canWrite");
 
+  public readonly awareness: awarenessProtocol.Awareness;
   public readonly idbIdentifier: string;
 
   public get canWrite() {
@@ -35,7 +35,7 @@ export class YDocSyncManager
   public matrixProvider: MatrixProvider | undefined;
 
   /** @internal */
-  public webrtcProvider: WebrtcProvider | undefined;
+  public webrtcProvider: { awareness: any } | undefined;
 
   /** @internal */
   public indexedDBProvider: IndexeddbPersistence | undefined;
@@ -69,6 +69,7 @@ export class YDocSyncManager
     });
 
     this._ydoc = new Y.Doc({ guid: this.identifier.toString() });
+    this.awareness = new awarenessProtocol.Awareness(this._ydoc);
   }
 
   public async initialize() {
@@ -143,7 +144,6 @@ export class YDocSyncManager
     if (this.webrtcProvider) {
       throw new Error("already has webrtcProvider");
     }
-    // this.webrtcProvider = new WebrtcProvider(this.identifier.id, this._ydoc);
     runInAction(() => {
       this.doc = this._ydoc;
     });
@@ -182,9 +182,11 @@ export class YDocSyncManager
         this._ydoc,
         this.mxClient,
         this.identifier.roomName,
-        this.identifier.uri.authority
+        this.identifier.uri.authority,
+        this.awareness
       )
     );
+
     this.matrixProvider.initialize();
     this._canWriteAtom.reportChanged();
 
@@ -209,7 +211,6 @@ export class YDocSyncManager
           this.doc = "not-found";
         });
         this.indexedDBProvider?.destroy();
-        this.webrtcProvider?.destroy();
         this.indexedDBProvider = undefined;
         this.webrtcProvider = undefined;
       })
@@ -219,9 +220,10 @@ export class YDocSyncManager
   public dispose() {
     super.dispose();
     this.indexedDBProvider?.destroy();
-    this.webrtcProvider?.destroy();
     this.indexedDBProvider = undefined;
     this.webrtcProvider = undefined;
     this.matrixProvider = undefined;
   }
+
+  public on() {}
 }

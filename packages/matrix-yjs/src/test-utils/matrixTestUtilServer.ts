@@ -40,10 +40,16 @@ export async function ensureMatrixIsRunning() {
     }
   }
 
-  if (!matrixStarted && !process.env.CI) {
+  if (
+    !matrixStarted &&
+    (!process.env.CI || process.env.CI === "vscode-jest-tests")
+  ) {
     matrixStarted = true;
     console.log("Starting matrix using docker-compose");
-    cp.execSync("docker compose up -d", { cwd: "../../test-server/" });
+    const ret = cp.execSync("docker compose up -d", {
+      cwd: "./test-server/",
+    });
+    console.log(ret.toString("utf-8"));
   }
 
   await waitForMatrixStart();

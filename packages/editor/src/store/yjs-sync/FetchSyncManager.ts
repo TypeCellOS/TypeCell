@@ -14,7 +14,7 @@ export default class FetchSyncManager
 
   public doc: "loading" | "not-found" | Y.Doc = "loading";
 
-  public readonly webrtcProvider = undefined;
+  public readonly awareness: any = undefined;
 
   public constructor(private identifier: HttpsIdentifier) {
     super();
@@ -92,4 +92,6 @@ export default class FetchSyncManager
     }
     this.doc = "loading";
   }
+
+  public on() {}
 }

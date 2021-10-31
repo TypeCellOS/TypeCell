@@ -1,24 +1,23 @@
+import { makeYDocObservable } from "@reactivedata/yjs-reactive-bindings";
 import { generateKeyBetween } from "fractional-indexing";
-import { DocConnection } from "./DocConnection";
-import {
-  ReferenceDefinition,
-  Ref,
-  validateRef,
-  getHashForReference,
-  createRef,
-  reverseReferenceDefinition,
-} from "./Ref";
-
 import type * as Y from "yjs";
-import { DocumentResource } from "./DocumentResource";
-import type { WebrtcProvider } from "y-webrtc";
 import { Identifier } from "../identifiers/Identifier";
+import { DocConnection } from "./DocConnection";
+import { DocumentResource } from "./DocumentResource";
+import {
+  createRef,
+  getHashForReference,
+  Ref,
+  ReferenceDefinition,
+  reverseReferenceDefinition,
+  validateRef,
+} from "./Ref";
 
 export type BaseResourceConnection = {
   identifier: Identifier;
   dispose: () => void;
   /** @internal */
-  webrtcProvider: WebrtcProvider | undefined; // TODO
+  webrtcProvider: { awareness: any } | undefined; // TODO
 };
 /**
  * A resource is an entity definied by a unique id.
@@ -33,6 +32,7 @@ export class BaseResource {
     /** @internal */ protected readonly ydoc: Y.Doc,
     connectionOrIdentifier: BaseResourceConnection | Identifier
   ) {
+    makeYDocObservable(ydoc);
     if ((connectionOrIdentifier as any).identifier) {
       this.connection = connectionOrIdentifier as BaseResourceConnection;
       this._identifier = this.connection.identifier;
@@ -50,7 +50,7 @@ export class BaseResource {
   }
 
   public get type(): string {
-    return this.ydoc.getMap("meta").get("type");
+    return this.ydoc.getMap("meta").get("type") as any;
   }
 
   // TODO: do / how do we want to expose this?
@@ -104,7 +104,7 @@ export class BaseResource {
     // this.ydoc.getMap("refs").forEach((val, key) => {
     //   this.ydoc.getMap("refs").delete(key);
     // });
-    this.ydoc.getMap("refs").forEach((val) => {
+    this.ydoc.getMap("refs").forEach((val: any) => {
       if (
         val.namespace !== definition.namespace ||
         val.type !== definition.type

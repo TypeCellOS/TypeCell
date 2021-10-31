@@ -1,5 +1,4 @@
 import { lifecycle } from "vscode-lib";
-import { WebrtcProvider } from "y-webrtc";
 import * as Y from "yjs";
 
 export type SyncManager = lifecycle.IDisposable & {
@@ -8,6 +7,6 @@ export type SyncManager = lifecycle.IDisposable & {
 
   initialize(): Promise<void>;
 
-  /** @internal */
-  webrtcProvider: WebrtcProvider | undefined;
+  awareness: any;
+  on: () => void;
 };

@@ -26,6 +26,6 @@ declare module "matrix-js-sdk" {
   export const deriveKey: any;
   export const decodeRecoveryKey: any;
   // export const encodeBase64: any;
-
+  export const MatrixEvent: any;
   export = x;
 }

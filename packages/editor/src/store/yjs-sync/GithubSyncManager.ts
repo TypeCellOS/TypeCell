@@ -15,7 +15,7 @@ export default class GithubSyncManager
 
   public doc: "loading" | "not-found" | Y.Doc = "loading";
 
-  public readonly webrtcProvider = undefined;
+  public readonly awareness: any = undefined;
 
   public constructor(private identifier: GithubIdentifier) {
     super();
@@ -98,4 +98,6 @@ export default class GithubSyncManager
     }
     this.doc = "loading";
   }
+
+  public on() {}
 }
