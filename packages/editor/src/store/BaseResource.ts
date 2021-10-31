@@ -1,3 +1,4 @@
+import { makeYDocObservable } from "@reactivedata/yjs-reactive-bindings";
 import { generateKeyBetween } from "fractional-indexing";
 import type * as Y from "yjs";
 import { Identifier } from "../identifiers/Identifier";
@@ -31,6 +32,7 @@ export class BaseResource {
     /** @internal */ protected readonly ydoc: Y.Doc,
     connectionOrIdentifier: BaseResourceConnection | Identifier
   ) {
+    makeYDocObservable(ydoc);
     if ((connectionOrIdentifier as any).identifier) {
       this.connection = connectionOrIdentifier as BaseResourceConnection;
       this._identifier = this.connection.identifier;

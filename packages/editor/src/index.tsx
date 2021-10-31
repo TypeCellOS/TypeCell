@@ -75,7 +75,6 @@ async function init() {
       throw new Error("invalid hostname for host");
     }
     yjsBindings.useMobxBindings(mobx);
-    yjsBindings.makeYJSObservable();
 
     initializeStoreService();
     setMonacoDefaults(monaco);
