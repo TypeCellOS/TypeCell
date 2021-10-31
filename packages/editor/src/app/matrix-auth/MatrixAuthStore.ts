@@ -906,7 +906,7 @@ export class MatrixAuthStore {
       this._loggedIn = true;
     }
 
-    const promisesList = [this.firstSyncPromise!];
+    const promisesList = []; //[this.firstSyncPromise!];
     if (cryptoEnabled) {
       // wait for the client to finish downloading cross-signing keys for us so we
       // know whether or not we have keys set up on this account
