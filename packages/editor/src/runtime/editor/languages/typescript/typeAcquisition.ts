@@ -170,14 +170,22 @@ const addTypecellModuleToRuntime = async (
   path: string,
   config: ATAConfig
 ) => {
+  const typecellPath = mod === "typecell" ? "@typecell-org/editor" : mod;
+
   let content: string;
   if (process.env.NODE_ENV === "test") {
     // TODO: extract this case
     let fs = require("fs");
-    content = fs.readFileSync("public/types/" + path, "utf-8");
+    content = fs.readFileSync(
+      "public/types/" + typecellPath + "/" + path,
+      "utf-8"
+    );
   } else {
+    debugger;
     content = await (
-      await config.fetcher(process.env.PUBLIC_URL + "/types/" + path)
+      await config.fetcher(
+        process.env.PUBLIC_URL + "/types/" + typecellPath + "/" + path
+      )
     ).text();
   }
   if (!content) {
@@ -521,18 +529,26 @@ const getDependenciesForModule = async (
       return;
       // config.addLibraryToRuntime(code.dtsCode, moduleToDownload+".d.ts");
     } else if (isPackageRootImport) {
-      // So it doesn't run twice for a package
-      acquiredTypeDefs[moduleID] = null;
+      if (moduleToDownload.startsWith("@typecell-org/")) {
+        await addTypecellModuleToRuntime(
+          moduleToDownload,
+          "index.d.ts",
+          config
+        );
+      } else {
+        // So it doesn't run twice for a package
+        acquiredTypeDefs[moduleID] = null;
 
-      // E.g. import danger from "danger"
-      const packageDef = await getModuleAndRootDefTypePath(
-        moduleToDownload,
-        config
-      );
+        // E.g. import danger from "danger"
+        const packageDef = await getModuleAndRootDefTypePath(
+          moduleToDownload,
+          config
+        );
 
-      if (packageDef) {
-        acquiredTypeDefs[moduleID] = packageDef.packageJSON;
-        await addModuleToRuntime(packageDef.mod, packageDef.path, config);
+        if (packageDef) {
+          acquiredTypeDefs[moduleID] = packageDef.packageJSON;
+          await addModuleToRuntime(packageDef.mod, packageDef.path, config);
+        }
       }
     } else if (isDenoModule) {
       // E.g. import { serve } from "https://deno.land/std@v0.12/http/server.ts";
@@ -569,7 +585,10 @@ const getDependenciesForModule = async (
         ? absolutePathForModule
         : absolutePathForModule + ".d.ts";
 
-      if (moduleName?.startsWith("typecell")) {
+      if (
+        moduleName?.startsWith("typecell") ||
+        moduleName?.startsWith("@typecell-org/")
+      ) {
         await addTypecellModuleToRuntime(moduleName!, resolvedFilepath, config);
       } else {
         await addModuleToRuntime(moduleName!, resolvedFilepath, config);

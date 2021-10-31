@@ -109,10 +109,13 @@
     "vscode-lib": "^0.1.0"
   },
   "scripts": {
-    "emittypes": "rimraf public/types && tsc --declaration --stripInternal --emitDeclarationOnly --noEmit false --declarationDir public/types",
-    "start": "npm run emittypes && craco start",
+    "copytypes:self": "rimraf public/types && tsc --declaration --stripInternal --emitDeclarationOnly --noEmit false --declarationDir public/types/@typecell-org/editor",
+    "copytypes:dep": "mkdir -p public/types/@typecell-org/$npm_config_pkgname && cp -rf ../$npm_config_pkgname/types/. public/types/@typecell-org/$npm_config_pkgname",
+    "copytypes:alldeps": "npm run copytypes:dep --pkgname=matrix-yjs && npm run copytypes:dep --pkgname=common && npm run copytypes:dep --pkgname=engine",
+    "copytypes": "npm run copytypes:self && npm run copytypes:alldeps",
+    "start": "npm run copytypes && craco start",
     "copy-docs": "rimraf public/_docs && mkdir public/_docs && node copy-docs.mjs > public/_docs/index.json && cp -rf ../../docs/. public/_docs",
-    "build": "tsc -v && npm run emittypes && npm run copy-docs",
+    "build": "tsc -v && npm run copytypes && npm run copy-docs",
     "build-react": "cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true craco build",
     "lint": "eslint src",
     "test": "craco test",
