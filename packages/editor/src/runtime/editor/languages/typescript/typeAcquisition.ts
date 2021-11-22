@@ -181,7 +181,6 @@ const addTypecellModuleToRuntime = async (
       "utf-8"
     );
   } else {
-    debugger;
     content = await (
       await config.fetcher(
         process.env.PUBLIC_URL + "/types/" + typecellPath + "/" + path
