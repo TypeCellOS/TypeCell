@@ -27,7 +27,7 @@ if (process.env.NODE_ENV === "development") {
   // user-defined react components. It's annoying (and slow) to get the React error overlay
   // while editing TypeCell cells
   // Note that this breaks hot reloading
-  // (reo as any).stopReportingRuntimeErrors();
+  (reo as any).stopReportingRuntimeErrors();
 }
 
 // const config = {
