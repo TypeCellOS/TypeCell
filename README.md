@@ -18,9 +18,15 @@ To run the project, open the command line in the project's root directory and en
     # Start the editor project
     npm start
 
-## Adding / updating packages
+## Updating packages
 
-If you've modified any `package.json`, or pulled changes from git, use `npm run bootstrap` instead of `npm install` to install updated dependencies!
+If you've pulled changes from git that add new dependencies, use `npm run bootstrap` instead of `npm install` to install updated dependencies!
+
+## Adding packages
+
+- Add the dependency to the relevant `package.json` file (packages/xxx/packages.json)
+- run `npm run install-new-packages`
+- Double check `package-lock.json` to make sure only the relevant packages have been affected
 
 # Development
 

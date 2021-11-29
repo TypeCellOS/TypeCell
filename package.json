@@ -12,6 +12,7 @@
     "--postinstall": "npm run bootstrap && patch-package",
     "install-lerna": "npm install --no-package-lock",
     "bootstrap": "lerna bootstrap --hoist --ci && patch-package",
+    "install-new-packages": "lerna bootstrap --hoist && patch-package",
     "test": "jest --coverage=true --config=jest.config.js && lerna run test-no-watch",
     "build": "lerna run build --concurrency 1",
     "build-react": "lerna run build-react --concurrency 1 --stream",
