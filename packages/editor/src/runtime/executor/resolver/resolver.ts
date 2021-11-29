@@ -9,6 +9,7 @@ import * as react from "react";
 import * as reactdnd from "react-dnd";
 import * as reactdom from "react-dom";
 import * as probe from "probe.gl";
+import * as dreact from "@deck.gl/react";
 
 import getExposeGlobalVariables from "../lib/exports";
 import { TypeCellCompiledCodeProvider } from "./typecell/TypeCellCompiledCodeProvider";
@@ -41,6 +42,13 @@ function resolveNestedModule(id: string) {
 
   if (isModule(id, "react-dnd")) {
     return reactdnd;
+  }
+
+  // We might want to remove hardcoded dependency for deckgl... We can't do this for every library..
+
+  if (isModule(id, "@deck.gl/react")) {
+    // workaround for https://github.com/skypackjs/skypack-cdn/issues/242
+    return dreact;
   }
 
   if (isModule(id, "probe.gl")) {

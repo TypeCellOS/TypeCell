@@ -37,6 +37,7 @@
     "@testing-library/user-event": "^12.1.10",
     "@tippyjs/react": "^4.2.5",
     "@loaders.gl/core": "^3.0.12",
+    "@deck.gl/react": "^8.6.4",
     "@deck.gl/core": "^8.6.4",
     "@deck.gl/layers": "^8.6.4",
     "@deck.gl/aggregation-layers": "^8.6.4",
