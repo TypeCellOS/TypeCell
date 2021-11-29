@@ -80,7 +80,7 @@ export const DefaultOutputVisualizer = (props: {
             expandLevel={0}></ObjectInspector>
         </span>
       );
-    } else if (mainExport instanceof HTMLElement) {
+    } else if (mainExport instanceof HTMLElement || mainExport instanceof SVGElement) {
       return (
         <ContainedElement
           className="typecell-output"

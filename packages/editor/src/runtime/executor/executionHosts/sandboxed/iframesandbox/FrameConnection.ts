@@ -95,9 +95,9 @@ export class FrameConnection extends lifecycle.Disposable {
     this.connectionMethods!.setDimensions(path, dimensions);
   }
 
-  public mouseLeave(path: string) {
+  public mouseLeave() {
     console.log("mouseLeave");
-    this.connectionMethods!.mouseLeave(path);
+    this.connectionMethods!.mouseLeave();
   }
 
   private methods = {
@@ -171,6 +171,7 @@ export class FrameConnection extends lifecycle.Disposable {
       }
     },
   };
+
   async initialize() {
     console.log("initialize FrameConnection");
     this.connectionMethods = await this.connection.promise;
