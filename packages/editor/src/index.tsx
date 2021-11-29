@@ -53,12 +53,11 @@ const cachedValidatedConfig = {
   warning: null,
 };
 
-async function init() {
-  // TODO
+console.log("Loading", window.location.href);
 
-  await Olm.init({
-    locateFile: () => olmWasmPath,
-  });
+async function init() {
+  // TODO: separate code from iframe and parent window?
+
   if (window.location.search.includes("frame")) {
     // TODO: prevent monaco from loading in frame
     if (!validateFrameDomain()) {
@@ -71,6 +70,9 @@ async function init() {
       document.getElementById("root")
     );
   } else {
+    await Olm.init({
+      locateFile: () => olmWasmPath,
+    });
     if (!validateHostDomain()) {
       throw new Error("invalid hostname for host");
     }
