@@ -2,7 +2,7 @@ import { useCallback } from "react";
 
 export function ContainedElement(
   props: {
-    element: HTMLElement;
+    element: HTMLElement | SVGElement;
   } & React.DetailedHTMLProps<
     React.HTMLAttributes<HTMLDivElement>,
     HTMLDivElement
