@@ -196,9 +196,8 @@ export class DocConnection extends lifecycle.Disposable {
           scheme: this.identifier.uri.scheme,
           // TODO: use user authority,
           path:
-            "@" +
             getStoreService().sessionStore.loggedInUser +
-            " / " +
+            "/" +
             this.identifier.document +
             (tryN > 1 ? "-" + tryN : ""),
         })

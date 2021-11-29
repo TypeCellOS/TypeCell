@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { lifecycle, event } from "vscode-lib";
 import { createCellEvaluator } from "./CellEvaluator";
 import { CodeModel } from "./CodeModel";
@@ -56,7 +57,8 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
     private resolveImport: (
       module: string,
       forModel: T
-    ) => Promise<ResolvedImport>
+    ) => Promise<ResolvedImport>,
+    private debounceMillis = 100
   ) {
     super();
   }
@@ -106,19 +108,20 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
     };
     let prevValue: string | undefined = model.getValue();
 
-    this._register(
-      model.onDidChangeContent((_event) => {
-        if (model.getValue() !== prevValue) {
-          // make sure there were actual changes from the previous value
+    // TODO: maybe only debounce (or increase debounce timeout) if an execution is still pending?
+    const reEvaluate = _.debounce(() => {
+      if (model.getValue() !== prevValue) {
+        // make sure there were actual changes from the previous value
 
-          prevValue = model.getValue();
-          evaluate();
-        } else {
-          // TODO: inspect when this is the case. For initialization it makes sense,
-          // but why do we get duplicate events more often?
-        }
-      })
-    );
+        prevValue = model.getValue();
+        evaluate();
+      } else {
+        // TODO: inspect when this is the case. For initialization it makes sense,
+        // but why do we get duplicate events more often?
+      }
+    }, this.debounceMillis);
+
+    this._register(model.onDidChangeContent(reEvaluate));
 
     // evaluate initial
     evaluate();
