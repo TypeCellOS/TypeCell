@@ -171,6 +171,7 @@ export class FrameConnection extends lifecycle.Disposable {
       }
     },
   };
+
   async initialize() {
     console.log("initialize FrameConnection");
     this.connectionMethods = await this.connection.promise;
