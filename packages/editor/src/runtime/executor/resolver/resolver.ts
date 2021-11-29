@@ -8,9 +8,14 @@ import * as markdownit from "markdown-it";
 import * as react from "react";
 import * as reactdnd from "react-dnd";
 import * as reactdom from "react-dom";
+import * as probe from "probe.gl";
+
 import getExposeGlobalVariables from "../lib/exports";
 import { TypeCellCompiledCodeProvider } from "./typecell/TypeCellCompiledCodeProvider";
 
+const agg = require("@deck.gl/aggregation-layers") as any;
+const lutil = require("@loaders.gl/core") as any;
+const limg = require("@loaders.gl/images") as any;
 const sz = require("frontend-collective-react-dnd-scrollzone");
 
 function resolveNestedModule(id: string) {
@@ -36,6 +41,26 @@ function resolveNestedModule(id: string) {
 
   if (isModule(id, "react-dnd")) {
     return reactdnd;
+  }
+
+  if (isModule(id, "probe.gl")) {
+    // workaround for https://github.com/skypackjs/skypack-cdn/issues/242
+    return probe;
+  }
+
+  if (isModule(id, "@loaders.gl/core")) {
+    // workaround for https://github.com/skypackjs/skypack-cdn/issues/242
+    return lutil;
+  }
+
+  if (isModule(id, "@deck.gl/aggregation-layers")) {
+    // workaround for https://github.com/skypackjs/skypack-cdn/issues/242
+    return agg;
+  }
+
+  if (isModule(id, "@loaders.gl/images")) {
+    // workaround for https://github.com/skypackjs/skypack-cdn/issues/242
+    return limg;
   }
 
   return undefined;
