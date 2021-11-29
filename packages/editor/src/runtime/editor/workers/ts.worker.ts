@@ -46,13 +46,13 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
         import type { OnlyViews, Values } from "typecell-helpers";
 
         // @ts-ignore
-        import type * as $ from "${folder}";
+        import type * as $types from "${folder}";
         
         // @ts-ignore
-        declare let $: Values<typeof $>;
+        declare let $: Values<typeof $types>;
 
         // @ts-ignore
-        declare let $views: OnlyViews<typeof $>;
+        declare let $views: OnlyViews<typeof $types>;
 
         // @ts-ignore
         import typecell from "typecell";
