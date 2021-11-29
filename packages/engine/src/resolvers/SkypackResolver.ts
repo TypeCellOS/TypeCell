@@ -41,7 +41,7 @@ export class SkypackResolver {
     if (moduleName.startsWith("/-/")) {
       // skypack, e.g.: https://cdn.skypack.dev/-/react-sortable-tree@v2.8.0-nFKv1Y1I3NJ65IUkUWwI/dist=es2020,mode=imports/unoptimized/dist/index.cjs.js
       // TODO: should also pass version identifier (@xx)
-      let matches = moduleName.match(/^\/-\/(.+)@/);
+      let matches = moduleName.match(/^\/-\/(.+)@v[\d.]+-/);
       if (!matches || !matches[1]) {
         throw new Error("couldn't match url");
       }
@@ -54,7 +54,9 @@ export class SkypackResolver {
     if (module) {
       const safeName = moduleName.replaceAll(/[^a-zA-Z0-9_]/g, "$");
       (window as any)["__typecell_" + safeName] = module;
-      const list = Object.keys(module).filter((key) => key !== "default");
+      const list = Object.keys(module).filter(
+        (key) => key !== "default" && key !== "window"
+      );
 
       const url = createBlob(`
       const ${safeName} = window.__typecell_${safeName};
@@ -95,7 +97,14 @@ export class SkypackResolver {
 
       let ret = this.memoizedResolveNestedModule(id);
       if (!ret) {
-        ret = resolve(id, parent);
+        if (
+          parent.startsWith("https://cdn.skypack.dev/-/react-map-gl") &&
+          id.startsWith("/-/mapbox-gl@")
+        ) {
+          ret = resolve("https://cdn.skypack.dev/maplibre-gl", parent);
+        } else {
+          ret = resolve(id, parent);
+        }
       }
       return ret;
     };
