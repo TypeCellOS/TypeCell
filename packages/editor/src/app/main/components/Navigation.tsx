@@ -4,13 +4,17 @@ import {
   AtlassianNavigation,
   PrimaryButton,
 } from "@atlaskit/atlassian-navigation";
+import DropdownMenu, {DropdownItem, DropdownItemGroup} from "@atlaskit/dropdown-menu";
+import RestrictionsDialog from '../components/RestrictionsDialog'
 import { observer } from "mobx-react-lite";
-import React from "react";
+import React, {useCallback, useState} from "react";
 import { VscSignIn } from "react-icons/vsc";
 import { BaseResource } from "../../../store/BaseResource";
 import { getStoreService } from "../../../store/local/stores";
 import { UnreachableCaseError } from "../../../util/UnreachableCaseError";
 import { ProfilePopup } from "./ProfilePopup";
+import RestrictionsButton from "./RestrictionsButton";
+import DocumentSettings from "./DocumentSettings";
 
 const ProductHome = () => {
   return (
@@ -79,6 +83,9 @@ export const Navigation = observer(() => {
             </div>
           )}
         </>
+      ))}
+      renderSettings={observer(() => (
+        <DocumentSettings/>
       ))}
       renderProfile={observer(() => (
         <>
