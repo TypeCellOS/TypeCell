@@ -148,7 +148,7 @@ export default class SandboxedExecutionHost
       moduleManager.forwarder.dispose();
       this.moduleManagers.delete(moduleName);
     },
-    mouseLeave: (id: string) => {
+    mouseLeave: () => {
       this.enablePointerEvents();
     },
     setDimensions: (
