@@ -1,0 +1,23 @@
+.room {
+    padding: 8px 12px;
+    border-radius: 4px;
+    box-shadow: var(--ds-card,0 1px 1px rgba(9,30,66,0.25),0 0 1px 0 rgba(9,30,66,0.31));
+    margin: 8px 0;
+}
+
+.room .roomName {
+    font-size: 1em;
+}
+
+.room .user {
+    font-size: 0.8em;
+}
+
+.wrapper {
+    margin: 0 auto;
+    width: 731px;
+}
+
+.title {
+    text-align: center;
+}

@@ -26,3 +26,9 @@
     rgba(255, 255, 255, 1) 100%
   ); */
 }
+
+/* Page wrapper styles */
+.page {
+  overflow: auto;
+  padding: 8px;
+}

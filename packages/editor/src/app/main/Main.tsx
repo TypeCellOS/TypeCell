@@ -11,6 +11,7 @@ import { getStoreService } from "../../store/local/stores";
 import { UnreachableCaseError } from "../../util/UnreachableCaseError";
 import DocumentView from "../documentRenderers/DocumentView";
 import { Navigation } from "./components/Navigation";
+import { NotebookOverview } from "./components/NotebookOverview";
 import NewPageDialog from "./components/NewPageDialog";
 import styles from "./Main.module.css";
 
@@ -28,16 +29,25 @@ type Props = {
 }
 
 const Page = observer((props: Props) => {
+  let content;
+
   switch (props.currentPage.page) {
     case "root":
-      return <div>Welcome to Typecell</div>;
+      content = <NotebookOverview></NotebookOverview>
+      break;
     case "document":
-      return <DocumentView id={props.currentPage.identifier} />;
+      content = <DocumentView id={props.currentPage.identifier} />;
+      break
     case "owner":
-      return <div>Profile: {props.currentPage.owner}</div>
+      content = <div>Profile: {props.currentPage.owner}</div>;
+      break;
     default:
       throw new UnreachableCaseError(props.currentPage);
   }
+
+  return <div className={styles.page}>
+    {content}
+  </div>
 })
 
 const Main = observer((props: Props) => {
