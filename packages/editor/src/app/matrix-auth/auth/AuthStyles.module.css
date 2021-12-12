@@ -9,19 +9,15 @@
 .AuthHeader {
   width: 100%;
   height: 100px;
+  padding-top: 15px;
 }
 
 .AuthHeaderLogo {
-  margin: auto;
-  width: 200px;
-  height: 100%;
   display: flex;
-}
-
-.AuthHeaderLogoSpan {
-  color: var(--N800);
-  font-size: 32px;
-  margin: auto;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
 }
 
 /* .AuthBody {
