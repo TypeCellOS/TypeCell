@@ -11,7 +11,6 @@ import { getStoreService } from "../../store/local/stores";
 import { UnreachableCaseError } from "../../util/UnreachableCaseError";
 import DocumentView from "../documentRenderers/DocumentView";
 import { Navigation } from "./components/Navigation";
-import { NotebookOverview } from "./components/NotebookOverview";
 import NewPageDialog from "./components/NewPageDialog";
 import styles from "./Main.module.css";
 import Profile from "./components/Profile";

@@ -59,17 +59,17 @@ export const NotebookOverview = observer(function (props: NotebookOverviewProps)
             };
         }
 
-        async function resolveRoom(roomId: string): Promise<Room | undefined> {
-            const result = await matrixClient.http.authedRequest(
-                undefined,
-                "GET",
-                `/rooms/${roomId}/aliases`,
-            )
+        // async function resolveRoom(roomId: string): Promise<Room | undefined> {
+        //     const result = await matrixClient.http.authedRequest(
+        //         undefined,
+        //         "GET",
+        //         `/rooms/${roomId}/aliases`,
+        //     )
 
-            const rawAlias = result.aliases[0] as string;
+        //     const rawAlias = result.aliases[0] as string;
 
-            return parseRoomFromAlias(rawAlias);
-        }
+        //     return parseRoomFromAlias(rawAlias);
+        // }
 
         async function fetchNotebooks() {
             try {
