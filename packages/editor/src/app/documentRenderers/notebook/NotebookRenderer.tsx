@@ -42,11 +42,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
   const monaco = useContext(MonacoContext).monaco;
   const [colorStore, setColorStore] = useState<Set<number>>(new Set())
 
-  console.log("rerender");
-  console.log(colorStore);
-
   const addClientColor = (clientID: number) => {
-    console.log(clientID);
     if (!colorStore.has(clientID)) {
       generateColorClass(clientID);
 
