@@ -149,13 +149,6 @@ function listenForTypecellUserModels(monacoInstance: typeof monaco) {
 export default async function setupTypecellTypeResolver(
   monacoInstance: typeof monaco
 ) {
-  // Loads types for standard "typecell" helper library, as defined in typecellEngine/lib/exports
-  loadTypecellLibTypes(
-    "typecell",
-    "./runtime/executor/lib/exports",
-    monacoInstance
-  ).catch(console.error);
-
   // Loads types for "typecell-plugin" helper library, as defined in pluginEngine/lib/exports
   // await loadTypecellLibTypes(
   //   "typecell-plugin",
@@ -167,4 +160,11 @@ export default async function setupTypecellTypeResolver(
 
   // Loads types for $ context variables
   listenForTypecellUserModels(monacoInstance);
+
+  // Loads types for standard "typecell" helper library, as defined in typecellEngine/lib/exports
+  await loadTypecellLibTypes(
+    "typecell",
+    "./runtime/executor/lib/exports",
+    monacoInstance
+  ).catch(console.error);
 }
