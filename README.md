@@ -1,4 +1,4 @@
-# 🌐 TypeCell
+![TypeCell Logo](./packages/editor/public/assets/logo_with_text.svg?raw=true)
 
 Welcome to TypeCell! Let's reimagine how we can make it easier to understand, build and share knowledge.
 

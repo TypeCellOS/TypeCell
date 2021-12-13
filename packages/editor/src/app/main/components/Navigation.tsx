@@ -15,13 +15,10 @@ import { UnreachableCaseError } from "../../../util/UnreachableCaseError";
 import { ProfilePopup } from "./ProfilePopup";
 import RestrictionsButton from "./RestrictionsButton";
 import DocumentSettings from "./DocumentSettings";
+import { Logo } from "./Logo";
 
 const ProductHome = () => {
-  return (
-    <span style={{ fontFamily: "Open Sans, sans-serif" }}>
-      🌐&nbsp;&nbsp;TypeCell
-    </span>
-  );
+  return <Logo></Logo>;
 };
 
 const AN = AtlassianNavigation as any;

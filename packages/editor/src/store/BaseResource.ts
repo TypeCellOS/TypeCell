@@ -1,4 +1,4 @@
-import { makeYDocObservable } from "@reactivedata/yjs-reactive-bindings";
+import { makeYDocObservable } from "@syncedstore/yjs-reactive-bindings";
 import { generateKeyBetween } from "fractional-indexing";
 import type * as Y from "yjs";
 import { Identifier } from "../identifiers/Identifier";

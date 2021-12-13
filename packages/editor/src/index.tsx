@@ -7,7 +7,7 @@ import "./index.css";
 import App from "./app/App";
 import reportWebVitals from "./reportWebVitals";
 
-import * as yjsBindings from "@reactivedata/yjs-reactive-bindings";
+import * as yjsBindings from "@syncedstore/yjs-reactive-bindings";
 import * as mobx from "mobx";
 import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
 import { MATRIX_CONFIG } from "./config/config";
@@ -76,7 +76,7 @@ async function init() {
     if (!validateHostDomain()) {
       throw new Error("invalid hostname for host");
     }
-    yjsBindings.useMobxBindings(mobx);
+    yjsBindings.enableMobxBindings(mobx);
 
     initializeStoreService();
     setMonacoDefaults(monaco);
