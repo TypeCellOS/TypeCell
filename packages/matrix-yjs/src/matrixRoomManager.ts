@@ -8,7 +8,7 @@ export async function createMatrixDocument(
   try {
     const ret = await matrixClient.createRoom({
       room_alias_name: roomName,
-      visibility: "private",
+      visibility: "public", // Whether this room is visible to the /publicRooms API or not." One of: ["private", "public"]
       name: roomName,
       topic: "",
     });
