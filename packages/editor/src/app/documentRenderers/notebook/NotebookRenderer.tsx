@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { useContext, useEffect, useMemo, useRef } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { VscDiffAdded } from "react-icons/vsc";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import { DocumentResource } from "../../../store/DocumentResource";
@@ -15,11 +15,47 @@ type Props = {
   document: DocumentResource;
 };
 
+function generateColorClass(clientID: number, color?: string) {
+  // Generate a random class name
+  const className = `color-${clientID}`
+
+  if (!color) {
+    color = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+  }
+
+  const css =
+    `.${className}, .${className}::after, .${className}::before {
+       background-color: ${color} !important;
+       border-color: ${color} !important;
+     }`.trim();
+
+  const styleElement = document.createElement("style");
+
+  styleElement.innerText = css;
+  document.head.appendChild(styleElement);
+}
+
 const USE_SAFE_IFRAME = true;
 
 const NotebookRenderer: React.FC<Props> = observer((props) => {
   const disposer = useRef<() => void>();
   const monaco = useContext(MonacoContext).monaco;
+  const [colorStore, setColorStore] = useState<Set<number>>(new Set())
+
+  console.log("rerender");
+  console.log(colorStore);
+
+  const addClientColor = (clientID: number) => {
+    console.log(clientID);
+    if (!colorStore.has(clientID)) {
+      generateColorClass(clientID);
+
+      colorStore.add(clientID);
+
+      setColorStore(colorStore);
+    }
+  }
+
   const [compiler, executionHost] = useMemo(() => {
     if (disposer.current) {
       disposer.current();
@@ -81,11 +117,12 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
               executionHost={executionHost}
               compiler={compiler}
               awareness={props.document.webrtcProvider?.awareness}
+              addClientColor={addClientColor}
               toolbar={
                 <NotebookLanguageSelector
                   language={cell.language}
                   onChangeLanguage={(language) => cell.setLanguage(language)}
-                  // onRemove={() => remove(i)}
+                // onRemove={() => remove(i)}
                 />
               }
             />

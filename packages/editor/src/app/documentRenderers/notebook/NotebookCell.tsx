@@ -10,7 +10,8 @@ import React, {
   useState,
 } from "react";
 import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
-import { MonacoBinding } from "y-monaco";
+// import { MonacoBinding } from "y-monaco";
+import { MonacoBinding } from "./y-monaco";
 import { Awareness } from "y-protocols/awareness";
 import {
   getTypeCellCodeModel,
@@ -33,12 +34,13 @@ type Props = {
   initialFocus?: boolean;
   awareness: Awareness | undefined;
   toolbar?: React.ReactElement;
+  addClientColor?: (clientID: number) => void
 };
 
 const NotebookCell: React.FC<Props> = observer((props) => {
   const initial = useRef(true);
   const [model, setModel] = useState<TypeCellCodeModel>();
-  const [monacoModel, setMonacoModel] = useState<any>();
+  const [monacoModel, setMonacoModel] = useState<monaco.editor.ITextModel | undefined>();
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
   const disposeHandlers = useRef<Array<() => void>>();
   const monaco = useContext(MonacoContext).monaco;
@@ -135,11 +137,22 @@ const NotebookCell: React.FC<Props> = observer((props) => {
     }
     editor.setModel(monacoModel);
 
+    // Whenever an awareness change occurs a new client might have joined
+    // so a new color has to be generated
+    props.awareness?.on('change', () => {
+      props.awareness?.getStates().forEach((_, clientID) => {
+        if (clientID !== props.awareness?.clientID && props.addClientColor) {
+          props.addClientColor(clientID);
+        }
+      })
+    })
+
     const monacoBinding = new MonacoBinding(
       props.cell.code,
       monacoModel,
       new Set([editor]),
-      props.awareness || null // TODO: fix reference to doc
+      props.awareness || null, // TODO: fix reference to doc
+      "Some user" // TODO: change this to be the username
     );
 
     // This is a bit of a hack. MonacoBinding sets an eventListener to cell.code.
@@ -158,7 +171,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
       monacoBinding.destroy();
       // releaseModel(props.cell);
     };
-  }, [editor, monacoModel, props.cell.code, props.compiler, props.awareness]);
+  }, [editor, monacoModel, props, props.cell.code, props.compiler, props.awareness]);
 
   // Disabled, feels weird, work on UX
   // editor.current.onKeyUp((e) => {
@@ -200,9 +213,8 @@ const NotebookCell: React.FC<Props> = observer((props) => {
 
   return (
     <div
-      className={`notebookCell ${codeVisible ? "expanded" : "collapsed"} ${
-        props.cell.language
-      } ${props.classList || ""}`}
+      className={`notebookCell ${codeVisible ? "expanded" : "collapsed"} ${props.cell.language
+        } ${props.classList || ""}`}
       style={{ display: "flex", flexDirection: "row" }}>
       {codeVisible ? (
         <VscChevronDown
@@ -217,7 +229,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
           onClick={() => setCodeVisible(true)}
         />
       )}
-      {}
+      { }
       <div style={{ flex: 1 }} className="notebookCell-content">
         {codeVisible && (
           <div className="notebookCell-codeContainer">
