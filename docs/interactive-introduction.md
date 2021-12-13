@@ -9,6 +9,7 @@ In this introduction, we will go through the basics of using TypeCell Codebooks.
 
 Let's say you're like my grandma, and you have a lot of cats. Our story will be about them.
 
+### Step 1: give your cat a name!
 
 ```typescript
 export let cat = {
@@ -16,11 +17,7 @@ export let cat = {
   prefersDryFood: false,
   foodPerWeek: 4,
 };
-
 ```
-
-<strong>Step 1:</strong> Give your cat a name!
-
 
 ```typescript
 // @default-collapsed
@@ -29,50 +26,69 @@ let message;
 
 // Notice how exported variables are made available under the $-sign.
 if ($.cat.name === "") {
-  message = <div>Try changing the "name" field in the code above.</div>;
+  message = <div>❌ Try changing the "name" field in the code above.</div>;
 } else if (!$.cat.name.match(/^[a-zA-Z0-9\s]+$/)) {
   message = (
     <div>
-      Oh no! Someone messed with my pretty introduction. Change the code above
-      to give our cat a proper name (without special characters)!
+      ❌ Oh no! Someone messed with my pretty introduction. Change the code
+      above to give our cat a proper name (without special characters)!
     </div>
   );
 } else {
   message = (
     <div>
-      <strong>Well done, your cat is called {$.cat.name} now.</strong> This text
-      gets updated every time you change the name -{" "}
-      <em>instantly, as you type</em>. To see how the magic works, click on the
-      arrow (&rsaquo;) to the left of this text.
+      <strong>✅ Well done, your cat is called {$.cat.name} now.</strong> This
+      text gets updated every time you change the name -{" "}
+      <em>instantly, as you type</em>. To see how the magic works,{" "}
+      <strong>click on the arrow (&rsaquo;) to the left of this text.</strong>
     </div>
   );
 }
 
 export default message;
-
 ```
+
+### Step 2: Friends
 
 ```typescript
 export default (
   <div>I feel like our cat needs a friend. Let's call him {$.friend.name}.</div>
 );
-
 ```
 
 Uh oh, what's this? I forgot to add a cell defining our friend. Can you do it for me?
 
-<strong>Step 2: </strong> Create a second cat in a new cell under the variable 'friend'.
-
 A cell is a container for code & output. To add one, click on the + above or below another cell.
 You can do it wherever you like.
 
-<strong>Hint:</strong> Our friend only needs a name for now. Use the same structure as you already
-used for your cat, but only include the `name` field.
+```typescript
+// @default-collapsed
+
+let completeEmoji = $.friend && $.friend.name ? "✅" : "❌";
+
+export default (
+  <div>
+    <strong>{completeEmoji} Step 2: </strong> Create a second cat in a new cell
+    and export it as variable 'friend'.
+  </div>
+);
+```
+
+<small><strong>Hint:</strong> Our friend only needs a name for now. Use the same structure as you already
+used for your cat, but only include the `name` field.</small>
+
+Notice how we use `$.friend.name` in the cell above. Whenever you `export` a variable, you can access it across
+the document by using the `$` symbol. In other words, `$` is a store for all variables that you want
+to access across cells! Exported variables are also displayed below the cell.
+
+Code cells automatically run when:
+
+- You change the code of a cell
+- Any of the reactive variables the cell references (from `$`) are changed
 
 ## Feeding neighbors
 
 Our cats have some neighbors. Let's involve them in the story too!
-
 
 ```typescript
 export let neighbors = [
@@ -89,21 +105,31 @@ export let neighbors = [
     foodPerWeek: 4,
   },
 ];
-
 ```
-
-Great, but what are these `$` symbols? Whenever you `export` a variable, you can access it across
-the document by using the `$` symbol. In other words, `$` is a store for all variables that you want\
-to access across cells! `export` also displays the variable below the cell, but you might not always
-want this. In this case, you can use `export default` to overwrite what's displayed below the cell.
 
 Now, if you're like my grandma, you're feeding the entire neighborhood by yourself, but you don't
 yet know if our friend prefers dry/wet food or how many cans they eat per week.
 
-<strong>Step 3:</strong> Add the `prefersDryFood` and `foodPerWeek` fields to our friend that you defined earlier!
+```typescript
+// @default-collapsed
 
-Once you've done that, let's see how much food you need to prepare.
+let completeEmoji =
+  $.friend?.prefersDryFood !== undefined && isFinite($.friend?.foodPerWeek)
+    ? "✅"
+    : "❌";
 
+export default (
+  <div>
+    <strong>{completeEmoji} Step 3: </strong> Add the{" "}
+    <code>prefersDryFood</code> and <code>foodPerWeek</code> fields to our
+    friend that you defined earlier!
+  </div>
+);
+```
+
+### Feeding the cats
+
+Alright, once you've completed steps 1 - 3, let's see how much food you need to prepare. We do this in the cell below:
 
 ```typescript
 // Repeats a character a number of times and returns the string.
@@ -122,10 +148,12 @@ export let dryFoodToPrepare = 0;
 export let wetFoodToPrepare = 0;
 
 for (let i = 0; i < $.neighbors.length; i++) {
-  if ($.neighbors[i] !== undefined && "foodPerWeek" in $.neighbors[i]) {
-    $.neighbors[i].prefersDryFood
-      ? (dryFoodToPrepare += $.neighbors[i].foodPerWeek)
-      : (wetFoodToPrepare += $.neighbors[i].foodPerWeek);
+  if ($.neighbors[i] !== undefined && $.neighbors[i].foodPerWeek) {
+    if ($.neighbors[i].prefersDryFood) {
+      dryFoodToPrepare += $.neighbors[i].foodPerWeek;
+    } else {
+      wetFoodToPrepare += $.neighbors[i].foodPerWeek;
+    }
   }
 }
 
@@ -135,29 +163,27 @@ const wetFoodAsString = repeat("🥫", wetFoodToPrepare);
 // Note:
 // - How we're using JSX to render output
 // - A "default" export indicates how to display the output of the cell
+//   (you can try removing the lines below to see all exported variables)
 export default (
   <div>
     <div>Dry food packs to prepare for the cats: {dryFoodAsString}.</div>
     <div>Wet food cans to prepare for the cats: {wetFoodAsString}.</div>
   </div>
 );
-
 ```
 
-We have now stored the number of dry & wet food required and can display that data in
-a more user-friendly way using React & JSX. This can be seen in the default `export` of
-the previous code cell.
+We have now stored the number of dry & wet food required (we exported variables `dryFoodToPrepare` and `wetFoodToPrepare`).
+We also visualize them nicely with a friendly message and emojis using React & JSX.
+See the default `export` at the end of the cell above.
 
-React? JSX? What's this now? React is a Javascript/Typescript framework that's used
-to create reactive user interfaces. We won't go too in depth on it here, but you can
+<small>React? JSX? What's this now? React is a Javascript framework that's used
+to create user interfaces. We won't go too in depth on it here, but you can
 check out the documentation at https://reactjs.org/docs/getting-started.html.
 
-JSX is part of React, and allows for creating HTML elements as variables, making it
-easy to display data in code cells using `export`s.
+JSX is part of React, and makes it easy to create type-safe HTML elements. In TypeCell, just `export` JSX elements to create user interfaces or visualize data in your notebook.</small>
 
 Next, we'll create some user input fields to indicate how much food we have prepared.
 The built-in TypeCell Input library makes this easy:
-
 
 ```typescript
 export let dryFoodPrepared = typecell.Input<number>(
@@ -184,21 +210,9 @@ export default (
     </div>
   </div>
 );
-
 ```
 
-Now, you can play with the range above to set how much dry food you want to
-prepare, while the number input can be used to set how much wet food you want
-to prepare!
-
-Feel free to play around with the range and number field until we have enough
-food to feed all the neighborhood cats.
-
-These are just 2 of the many input types that TypeCell supports. To see the
-other choices, make sure to visit try the TypeCell inputs tutorial!
-
-*Expand the cells below to see how they work*
-
+Now, let's also create some cells to calculate whether we have prepared enough food:
 
 ```typescript
 // @default-collapsed
@@ -226,7 +240,6 @@ if (dryFoodRemaining < 0) {
 }
 
 export default dryFoodMessage;
-
 ```
 
 ```typescript
@@ -258,7 +271,6 @@ if (wetFoodRemaining < 0) {
 }
 
 export default wetFoodMessage;
-
 ```
 
 ```typescript
@@ -268,12 +280,12 @@ export default wetFoodMessage;
 export let finalMessage =
   $.dryFoodRemaining >= 0 && $.wetFoodRemaining >= 0 ? (
     <p>
-      <strong>Great job, you fed all the neighborhood cats!</strong>
+      <strong>✅ Great job, you fed all the neighborhood cats!</strong>
     </p>
   ) : (
     <p>
       <strong>
-        Looks like we need more food! Some cats are still hungry...
+        ❌ Looks like we need more food! Some cats are still hungry...
       </strong>
     </p>
   );
@@ -283,8 +295,14 @@ export default (
     <p>{finalMessage}</p>
   </div>
 );
-
 ```
+
+<strong>Go ahead, play with the inputs above to adjust how much food to prepare!</strong>
+
+These are just 2 of the many input types that TypeCell supports. To see the
+other choices, make sure to try the TypeCell inputs tutorial.
+
+_<strong>Tip:</strong> expand the 3 cells above to see how they work._
 
 ## Final notes
 
