@@ -69,13 +69,22 @@ let completeEmoji = $.friend && $.friend.name ? "✅" : "❌";
 export default (
   <div>
     <strong>{completeEmoji} Step 2: </strong> Create a second cat in a new cell
-    under the variable 'friend'.
+    and export it as variable 'friend'.
   </div>
 );
 ```
 
 <small><strong>Hint:</strong> Our friend only needs a name for now. Use the same structure as you already
 used for your cat, but only include the `name` field.</small>
+
+Notice how we use `$.friend.name` in the cell above. Whenever you `export` a variable, you can access it across
+the document by using the `$` symbol. In other words, `$` is a store for all variables that you want
+to access across cells! Exported variables are also displayed below the cell.
+
+Code cells automatically run when:
+
+- You change the code of a cell
+- Any of the reactive variables the cell references (from `$`) are changed
 
 ## Feeding neighbors
 
@@ -97,10 +106,6 @@ export let neighbors = [
   },
 ];
 ```
-
-Great, but what are these `$` symbols? Whenever you `export` a variable, you can access it across
-the document by using the `$` symbol. In other words, `$` is a store for all variables that you want
-to access across cells! `export` also displays the variable below the cell.
 
 Now, if you're like my grandma, you're feeding the entire neighborhood by yourself, but you don't
 yet know if our friend prefers dry/wet food or how many cans they eat per week.
@@ -168,8 +173,7 @@ export default (
 ```
 
 We have now stored the number of dry & wet food required (we exported variables `dryFoodToPrepare` and `wetFoodToPrepare`).
-Normally, the output of the cell would display those variables, but here we show it in
-a more user-friendly way using React & JSX.
+We also visualize them nicely with a friendly message and emojis using React & JSX.
 See the default `export` at the end of the cell above.
 
 <small>React? JSX? What's this now? React is a Javascript framework that's used
