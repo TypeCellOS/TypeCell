@@ -13,7 +13,7 @@ STAGING:
  Ideally, we'd use a different staging domain, or a wildcard subdomain (but vercel doesn't support this for previews)
 
 PROD:
-  On prod, sandbox is loaded from typescriptrepl.com, and the host is loaded from codebooks.typecell.org
+  On prod, sandbox is loaded from typescriptrepl.com, and the host is loaded from notebooks.typecell.org
   Prod is deployed to both domains
 
  */
@@ -27,7 +27,7 @@ export function validateHostDomain() {
   if (ENVIRONMENT === "STAGING") {
     return hostname.match(/^typecell-next-[A-z0-9-]+-yousefed.vercel.app$/);
   }
-  return hostname === "codebooks.typecell.org";
+  return hostname === "notebooks.typecell.org";
 }
 
 export function validateFrameDomain() {

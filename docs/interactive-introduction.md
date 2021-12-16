@@ -1,9 +1,9 @@
-# Introduction to TypeCell Codebooks
+# Introduction to TypeCell Notebooks
 
-Welcome to TypeCell Codebooks. A codebook is a live, interactive programming environment for Javascript / Typescript
+Welcome to TypeCell Notebooks. A notebook is a live, interactive programming environment for Javascript / Typescript
 running in your browser.
 
-In this introduction, we will go through the basics of using TypeCell Codebooks.
+In this introduction, we will go through the basics of using TypeCell Notebooks.
 
 ## Cats
 
@@ -306,14 +306,13 @@ _<strong>Tip:</strong> expand the 3 cells above to see how they work._
 
 ## Final notes
 
-We hope this introduction has given you a sense of how TypeCell Codebooks and
-reactive notebooks work.
+We hope this introduction has given you a sense of how TypeCell and reactive notebooks work.
 
 The live feedback and Reactive programming model should be pretty powerful.
 There are a lot more features to discover, for example,
 did you know you can import any NPM package you like, or even compose different notebooks?
 Try creating your own notebook to give it a try, or have a look at the other examples.
 
-**Have fun using TypeCell Codebooks!**
+**Have fun using TypeCell Notebooks!**
 
 <small>This tutorial is inspired by [pluto.jl](https://github.com/fonsp/Pluto.jl), thanks Fons & Nicholas!</small>
