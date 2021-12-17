@@ -1,0 +1,81 @@
+.menu {
+  width: 100%;
+  height: 42px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  padding: 2px 12px 0 12px;
+  border-bottom: 1px solid #f3f3f3;
+}
+
+.menu * {
+  font-size: 12px;
+  font-weight: bold;
+  color: #c9c9c9;
+  /* Override breadcrumb animation */
+  transition: 350ms color ease !important;
+}
+
+.menu:hover * {
+  color: #858585;
+}
+
+.menu > .actions {
+  height: 100%;
+  margin-left: auto;
+  padding-right: 2px; /* Correct profile image padding */
+}
+
+.actions > ul,
+.actions > ul li {
+  display: flex;
+  height: 100%;
+  align-items: center;
+}
+
+.actions > ul {
+  list-style-type: none;
+}
+
+.actions > ul .item,
+.actions > ul .separator {
+  padding: 0 12px;
+}
+
+.actions > ul .item {
+  transition: 350ms all ease;
+}
+
+.actions > ul .item:hover {
+  cursor: pointer;
+  background-color: #f4f5f7;
+}
+
+.actions > ul .item .icon {
+  padding: 9px 6px 6px 0;
+}
+
+.actions > ul .separator:after {
+  content: "";
+  height: 50%;
+  display: block;
+  border-right: 1px solid #e0e0e0;
+}
+
+.actions > ul .options * {
+  font-weight: normal;
+}
+
+.actions > ul .options * :active {
+  background-color: #f4f5f7;
+  color: #858585;
+  fill: #f4f5f7;
+}
+
+.actions > ul .options:hover {
+  cursor: pointer;
+}
+
+.actions > ul li + li {
+  margin: 0;
+}
