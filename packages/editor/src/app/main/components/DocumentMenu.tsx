@@ -2,9 +2,7 @@
 /** @jsxImportSource @emotion/react */
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { BaseResource } from "../../../store/BaseResource";
 import { getStoreService } from "../../../store/local/stores";
-import { UnreachableCaseError } from "../../../util/UnreachableCaseError";
 import styles from "./DocumentMenu.module.css";
 import Breadcrumbs, { BreadcrumbsItem } from "@atlaskit/breadcrumbs";
 import { DocConnection } from "../../../store/DocConnection";
@@ -40,41 +38,42 @@ type Props = {
 };
 
 export const DocumentMenu: React.FC<Props> = observer((props) => {
-  const sessionStore = getStoreService().sessionStore;
   const navigationStore = getStoreService().navigationStore;
+  //   const sessionStore = getStoreService().sessionStore;
 
-  const forkAction = sessionStore.isLoggedIn ? (
-    <a
-      href=""
-      onClick={async (e) => {
-        e.preventDefault();
-        if (!navigationStore.currentDocument) {
-          throw new Error("unexpected, forking without currentDocument");
-        }
-        const result = await navigationStore.currentDocument.fork();
-        if (result instanceof BaseResource) {
-          navigationStore.navigateToDocument(result);
-        } else {
-          if (result.status !== "error") {
-            throw new UnreachableCaseError(result.status);
-          }
-          throw new Error("error while forking");
-        }
-        return false;
-      }}>
-      save a copy
-    </a>
-  ) : (
-    <a
-      href=""
-      onClick={(e) => {
-        navigationStore.showLoginScreen();
-        e.preventDefault();
-        return false;
-      }}>
-      sign in to save a copy
-    </a>
-  );
+  //   const forkAction = sessionStore.isLoggedIn ? (
+  //     <a
+  //       href=""
+  //       onClick={async (e) => {
+  //         e.preventDefault();
+  //         if (!navigationStore.currentDocument) {
+  //           throw new Error("unexpected, forking without currentDocument");
+  //         }
+  //         const result = await navigationStore.currentDocument.fork();
+  //         if (result instanceof BaseResource) {
+  //           navigationStore.navigateToDocument(result);
+  //         } else {
+  //           if (result.status !== "error") {
+  //             throw new UnreachableCaseError(result.status);
+  //           }
+  //           throw new Error("error while forking");
+  //         }
+  //         return false;
+  //       }}>
+  //       save a copy
+  //     </a>
+  //   ) : (
+  //     <a
+  //       href=""
+  //       onClick={(e) => {
+  //         navigationStore.showLoginScreen();
+  //         e.preventDefault();
+  //         return false;
+  //       }}>
+  //       sign in to save a copy
+  //     </a>
+  //   );
+
   return (
     <nav className={styles.menu}>
       <div>
