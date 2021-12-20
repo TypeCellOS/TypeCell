@@ -64,7 +64,9 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
     return (
       navigationStore.currentDocument?.needsFork && (
         <div className={styles.fork_alert}>
-          <EditorWarningIcon size="small" label="Warning"></EditorWarningIcon>
+          <div style={{ paddingTop: 1, marginRight: 3 }}>
+            <EditorWarningIcon size="small" label="Warning" />
+          </div>
           Usaved changes ({forkAction}/
           <a
             href=""
