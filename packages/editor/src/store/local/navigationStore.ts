@@ -194,6 +194,25 @@ export class NavigationStore {
     );
   };
 
+  showProfilePage = (owner: string) => {
+    this.currentPage = {
+      page: "owner",
+      owner,
+    };
+    const url = "/" + owner;
+    window.history.pushState(
+      {
+        url,
+        prevUrl:
+          window.history.state?.prevUrl ||
+          window.history.state?.url ||
+          window.location.href,
+      },
+      "",
+      url
+    );
+  };
+
   showNewPageDialog = () => {
     this.isNewPageDialogVisible = true;
   };

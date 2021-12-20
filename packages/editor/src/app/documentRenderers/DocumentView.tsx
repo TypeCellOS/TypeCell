@@ -11,6 +11,7 @@ import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
 import ProjectRenderer from "./project/ProjectRenderer";
 import RichTextRenderer from "./richtext/RichTextRenderer";
+import styles from "./DocumentView.module.css";
 
 type Props = {
   id: Identifier;
@@ -53,10 +54,10 @@ const DocumentView = observer((props: Props) => {
     const doc = connection.doc.doc;
 
     return (
-      <>
+      <div className={styles.view}>
         <DocumentMenu document={doc}></DocumentMenu>
         <NotebookRenderer key={connection.doc.id} document={doc} />
-      </>
+      </div>
     );
   } else if (connection.doc.type === "!project") {
     return (
@@ -67,7 +68,13 @@ const DocumentView = observer((props: Props) => {
     );
   } else if (connection.doc.type === "!richtext") {
     return (
-      <RichTextRenderer key={connection.doc.id} document={connection.doc.doc} />
+      <div className={styles.view}>
+        <DocumentMenu document={connection.doc.doc}></DocumentMenu>
+        <RichTextRenderer
+          key={connection.doc.id}
+          document={connection.doc.doc}
+        />
+      </div>
     );
   } else if (connection.doc.type === "!plugin") {
     return (

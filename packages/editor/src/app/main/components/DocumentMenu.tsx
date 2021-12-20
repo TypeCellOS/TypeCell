@@ -16,23 +16,6 @@ import DropdownMenu, { DropdownItem } from "@atlaskit/dropdown-menu";
 import { openAsMarkdown } from "../../../integrations/markdown/export";
 import { DocumentResource } from "../../../store/DocumentResource";
 
-function getBreadcrumbItems(docConnection: DocConnection) {
-  const { identifier } = docConnection;
-  const { path } = identifier.uri;
-
-  if (
-    identifier instanceof FileIdentifier ||
-    identifier instanceof GithubIdentifier ||
-    identifier instanceof HttpsIdentifier
-  ) {
-    // Show path as single item
-    return <BreadcrumbsItem text={path} />;
-  } else if (identifier instanceof MatrixIdentifier) {
-    const items = path.split("/");
-    return items.map((item) => <BreadcrumbsItem href="" text={item} />);
-  }
-}
-
 type Props = {
   document: DocumentResource;
 };
@@ -73,6 +56,42 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
   //       sign in to save a copy
   //     </a>
   //   );
+
+  const getBreadcrumbItems = function (docConnection: DocConnection) {
+    const { identifier } = docConnection;
+    const { path } = identifier.uri;
+
+    if (
+      identifier instanceof FileIdentifier ||
+      identifier instanceof GithubIdentifier ||
+      identifier instanceof HttpsIdentifier
+    ) {
+      // Show path as single item
+      return (
+        <BreadcrumbsItem
+          text={path} // Replace default componnent so it doesn't render as a link
+          component={() => <span>{path}</span>}
+        />
+      );
+    } else if (identifier instanceof MatrixIdentifier) {
+      return (
+        <>
+          <BreadcrumbsItem
+            href=""
+            text={identifier.owner}
+            onClick={() => {
+              navigationStore.showProfilePage(identifier.owner);
+            }}
+          />
+          <BreadcrumbsItem
+            text={identifier.document}
+            // Replace default componnent so it doesn't render as a link
+            component={() => <span>{identifier.document}</span>}
+          />
+        </>
+      );
+    }
+  };
 
   return (
     <nav className={styles.menu}>
