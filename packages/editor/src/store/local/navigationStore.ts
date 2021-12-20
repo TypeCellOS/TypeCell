@@ -136,6 +136,24 @@ export class NavigationStore {
     }
   };
 
+  showStartScreen = () => {
+    this.currentPage = {
+      page: "root",
+    };
+    const url = "/";
+    window.history.pushState(
+      {
+        url,
+        prevUrl:
+          window.history.state?.prevUrl ||
+          window.history.state?.url ||
+          window.location.href,
+      },
+      "",
+      url
+    );
+  };
+
   // hideLoginScreen = () => {
   //   this.isLoginScreenVisible = false;
   // };

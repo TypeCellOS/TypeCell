@@ -12,33 +12,36 @@ import { UnreachableCaseError } from "../../util/UnreachableCaseError";
 import DocumentView from "../documentRenderers/DocumentView";
 import { Navigation } from "./components/Navigation";
 import NewPageDialog from "./components/NewPageDialog";
+import { StartScreen } from "./components/StartScreen";
 import styles from "./Main.module.css";
 
 type Props = {
-  currentPage: {
-    page: "document",
-    identifier: Identifier
-  } | {
-    page: "root"
-  } |
-  {
-    page: "owner",
-    owner: string
-  }
-}
+  currentPage:
+    | {
+        page: "document";
+        identifier: Identifier;
+      }
+    | {
+        page: "root";
+      }
+    | {
+        page: "owner";
+        owner: string;
+      };
+};
 
 const Page = observer((props: Props) => {
   switch (props.currentPage.page) {
     case "root":
-      return <div>Welcome to Typecell</div>;
+      return <StartScreen></StartScreen>;
     case "document":
       return <DocumentView id={props.currentPage.identifier} />;
     case "owner":
-      return <div>Profile: {props.currentPage.owner}</div>
+      return <div>Profile: {props.currentPage.owner}</div>;
     default:
       throw new UnreachableCaseError(props.currentPage);
   }
-})
+});
 
 const Main = observer((props: Props) => {
   const sessionStore = getStoreService().sessionStore;
@@ -52,7 +55,9 @@ const Main = observer((props: Props) => {
             <div>Loading</div>
           ) : sessionStore.user === "offlineNoUser" ? (
             <div>Offline</div>
-          ) : <Page currentPage={props.currentPage} />}
+          ) : (
+            <Page currentPage={props.currentPage} />
+          )}
           {sessionStore.loggedInUser && (
             <NewPageDialog
               ownerId={sessionStore.loggedInUser}
