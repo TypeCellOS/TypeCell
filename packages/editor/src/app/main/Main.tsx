@@ -12,6 +12,7 @@ import { UnreachableCaseError } from "../../util/UnreachableCaseError";
 import DocumentView from "../documentRenderers/DocumentView";
 import { Navigation } from "./components/Navigation";
 import NewNotebookDialog from "./components/NewNotebookDialog";
+import { StartScreen } from "./components/StartScreen";
 import styles from "./Main.module.css";
 
 type Props = {
@@ -32,7 +33,7 @@ type Props = {
 const Page = observer((props: Props) => {
   switch (props.currentPage.page) {
     case "root":
-      return <div>Welcome to Typecell</div>;
+      return <StartScreen></StartScreen>;
     case "document":
       return <DocumentView id={props.currentPage.identifier} />;
     case "owner":
