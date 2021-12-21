@@ -11,7 +11,7 @@ import { getStoreService } from "../../store/local/stores";
 import { UnreachableCaseError } from "../../util/UnreachableCaseError";
 import DocumentView from "../documentRenderers/DocumentView";
 import { Navigation } from "./components/Navigation";
-import NewPageDialog from "./components/NewPageDialog";
+import NewNotebookDialog from "./components/NewNotebookDialog";
 import { StartScreen } from "./components/StartScreen";
 import styles from "./Main.module.css";
 
@@ -59,10 +59,10 @@ const Main = observer((props: Props) => {
             <Page currentPage={props.currentPage} />
           )}
           {sessionStore.loggedInUser && (
-            <NewPageDialog
+            <NewNotebookDialog
               ownerId={sessionStore.loggedInUser}
-              close={navigationStore.hideNewPageDialog}
-              isOpen={navigationStore.isNewPageDialogVisible}
+              close={navigationStore.hideNewNotebookDialog}
+              isOpen={navigationStore.isNewNotebookDialogVisible}
             />
           )}
         </div>
