@@ -15,11 +15,11 @@ import { setMonacoDefaults } from "./runtime/editor";
 import setupNpmTypeResolver from "./runtime/editor/languages/typescript/npmTypeResolver";
 import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typecellTypeResolver";
 import { initializeStoreService } from "./store/local/stores";
-import * as monaco from "monaco-editor";
+
 import { validateFrameDomain, validateHostDomain } from "./config/security";
 // @ts-ignore
 import olmWasmPath from "@matrix-org/olm/olm.wasm";
-import Olm from "@matrix-org/olm";
+import { MonacoContext } from "./runtime/editor/MonacoContext";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays
@@ -70,6 +70,10 @@ async function init() {
       document.getElementById("root")
     );
   } else {
+    const [Olm, monaco] = await Promise.all([
+      import("@matrix-org/olm"),
+      import("monaco-editor"),
+    ]);
     await Olm.init({
       locateFile: () => olmWasmPath,
     });
@@ -85,7 +89,9 @@ async function init() {
 
     ReactDOM.render(
       <React.StrictMode>
-        <App config={cachedValidatedConfig} />
+        <MonacoContext.Provider value={{ monaco }}>
+          <App config={cachedValidatedConfig} />
+        </MonacoContext.Provider>
       </React.StrictMode>,
       document.getElementById("root")
     );

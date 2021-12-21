@@ -1,11 +1,9 @@
 /** @jsxImportSource @emotion/react */
 import { observer } from "mobx-react-lite";
-import * as monaco from "monaco-editor";
 import React from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Identifier } from "../../identifiers/Identifier";
-import { MonacoContext } from "../../runtime/editor/MonacoContext";
 import { DocumentResource } from "../../store/DocumentResource";
 import { getStoreService } from "../../store/local/stores";
 import { UnreachableCaseError } from "../../util/UnreachableCaseError";
@@ -47,27 +45,25 @@ const Main = observer((props: Props) => {
   const sessionStore = getStoreService().sessionStore;
   const navigationStore = getStoreService().navigationStore;
   return (
-    <MonacoContext.Provider value={{ monaco }}>
-      <DndProvider backend={HTML5Backend}>
-        <div className={styles.main}>
-          <Navigation />
-          {sessionStore.user === "loading" ? (
-            <div>Loading</div>
-          ) : sessionStore.user === "offlineNoUser" ? (
-            <div>Offline</div>
-          ) : (
-            <Page currentPage={props.currentPage} />
-          )}
-          {sessionStore.loggedInUser && (
-            <NewNotebookDialog
-              ownerId={sessionStore.loggedInUser}
-              close={navigationStore.hideNewNotebookDialog}
-              isOpen={navigationStore.isNewNotebookDialogVisible}
-            />
-          )}
-        </div>
-      </DndProvider>
-    </MonacoContext.Provider>
+    <DndProvider backend={HTML5Backend}>
+      <div className={styles.main}>
+        <Navigation />
+        {sessionStore.user === "loading" ? (
+          <div>Loading</div>
+        ) : sessionStore.user === "offlineNoUser" ? (
+          <div>Offline</div>
+        ) : (
+          <Page currentPage={props.currentPage} />
+        )}
+        {sessionStore.loggedInUser && (
+          <NewNotebookDialog
+            ownerId={sessionStore.loggedInUser}
+            close={navigationStore.hideNewNotebookDialog}
+            isOpen={navigationStore.isNewNotebookDialogVisible}
+          />
+        )}
+      </div>
+    </DndProvider>
   );
 });
 
