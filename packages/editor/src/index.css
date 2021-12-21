@@ -16,6 +16,11 @@ html {
   box-sizing: inherit;
 }
 
+a:active,
+a:focus {
+  outline: none;
+}
+
 /* @import "~react-resizable/css/styles.css"; */
 body {
   margin: 0;
@@ -37,6 +42,10 @@ body,
   height: 100%;
 }
 
+.page {
+  overflow-y: auto;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
@@ -45,6 +54,50 @@ code {
 .react-draggable {
   position: absolute;
 }
+
+.button {
+  border-radius: 6px;
+  padding: 1em 2em;
+  background-color: #1e2328;
+  color: white;
+  font-weight: bold;
+
+  transition: 150ms all ease-in-out;
+}
+
+.button:hover {
+  color: white;
+  text-decoration: none;
+}
+
+.button.primary {
+  background-color: #1fb597;
+}
+
+.button.primary:hover {
+  background-color: #13cca7;
+}
+
+.button.secondary {
+  background-color: #7897ab;
+}
+
+.button.secondary:hover {
+  background-color: #8aa8bd;
+}
+/* Some generic layout classes */
+.row {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.container {
+  margin: 0 auto;
+  max-width: calc(731px);
+}
+
 .cellList-item {
   padding-left: 100px;
   /* border:1px solid black; */
