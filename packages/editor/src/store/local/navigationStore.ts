@@ -14,7 +14,7 @@ import { SessionStore } from "./SessionStore";
 export class NavigationStore {
   private initialized = false;
 
-  public isNewPageDialogVisible = false;
+  public isNewNotebookDialogVisible = false;
   public currentPage: ReturnType<typeof routing> = routing();
 
   // See MenuPortal.tsx for explanation
@@ -34,9 +34,9 @@ export class NavigationStore {
     // This can be done using identifier.toRouteString()
 
     makeObservable(this, {
-      isNewPageDialogVisible: observable,
-      showNewPageDialog: action,
-      hideNewPageDialog: action,
+      isNewNotebookDialogVisible: observable,
+      showNewNotebookDialog: action,
+      hideNewNotebookDialog: action,
       menuPortalChildren: observable.shallow,
       currentDocument: computed,
       currentPage: observable.ref,
@@ -97,7 +97,7 @@ export class NavigationStore {
       () => !!this.sessionStore.loggedInUser,
       (val) => {
         if (!val) {
-          this.isNewPageDialogVisible = false;
+          this.isNewNotebookDialogVisible = false;
         }
       }
     );
@@ -134,6 +134,24 @@ export class NavigationStore {
     } else {
       this.currentPage = newPage;
     }
+  };
+
+  showStartScreen = () => {
+    this.currentPage = {
+      page: "root",
+    };
+    const url = "/";
+    window.history.pushState(
+      {
+        url,
+        prevUrl:
+          window.history.state?.prevUrl ||
+          window.history.state?.url ||
+          window.location.href,
+      },
+      "",
+      url
+    );
   };
 
   // hideLoginScreen = () => {
@@ -213,12 +231,12 @@ export class NavigationStore {
     );
   };
 
-  showNewPageDialog = () => {
-    this.isNewPageDialogVisible = true;
+  showNewNotebookDialog = () => {
+    this.isNewNotebookDialogVisible = true;
   };
 
-  hideNewPageDialog = () => {
-    this.isNewPageDialogVisible = false;
+  hideNewNotebookDialog = () => {
+    this.isNewNotebookDialogVisible = false;
   };
 
   navigateToDocument = (doc: BaseResource) => {
