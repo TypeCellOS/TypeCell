@@ -1,6 +1,7 @@
-type TS = typeof import("monaco-editor").languages.typescript;
-type CompilerOptions = import("monaco-editor").languages.typescript.CompilerOptions;
+import type * as Monaco from "monaco-editor";
 
+type TS = typeof Monaco.languages.typescript;
+type CompilerOptions = Monaco.languages.typescript.CompilerOptions;
 /**
  * These are the defaults, but they also act as the list of all compiler options
  * which are parsed in the query params.

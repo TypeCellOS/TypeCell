@@ -19,6 +19,7 @@ const lutil = require("@loaders.gl/core") as any;
 const limg = require("@loaders.gl/images") as any;
 const sz = require("frontend-collective-react-dnd-scrollzone");
 
+// TODO: make async
 function resolveNestedModule(id: string) {
   function isModule(id: string, moduleName: string) {
     return id === moduleName || id === "https://cdn.skypack.dev/" + moduleName;
