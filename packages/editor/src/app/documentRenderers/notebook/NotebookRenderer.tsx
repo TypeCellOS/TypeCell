@@ -6,7 +6,7 @@ import { DocumentResource } from "../../../store/DocumentResource";
 import SandboxedExecutionHost from "../../../runtime/executor/executionHosts/sandboxed/SandboxedExecutionHost";
 import CellListDraggableCell from "./CellListDraggableCell";
 import NotebookCell from "./NotebookCell";
-import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost";
+// import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost";
 import { ExecutionHost } from "../../../runtime/executor/executionHosts/ExecutionHost";
 import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
 import NotebookLanguageSelector from "./LanguageSelector";
@@ -26,9 +26,18 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
       disposer.current = undefined;
     }
     const newCompiler = new SourceModelCompiler(monaco);
-    const newExecutionHost: ExecutionHost = USE_SAFE_IFRAME
-      ? new SandboxedExecutionHost(props.document.id, newCompiler, monaco)
-      : new LocalExecutionHost(props.document.id, newCompiler, monaco);
+
+    if (!USE_SAFE_IFRAME) {
+      throw new Error(
+        "LocalExecutionHost disabled to prevent large bundle size"
+      );
+      // newExecutionHost = new LocalExecutionHost(props.document.id, newCompiler, monaco);
+    }
+    const newExecutionHost: ExecutionHost = new SandboxedExecutionHost(
+      props.document.id,
+      newCompiler,
+      monaco
+    );
 
     disposer.current = () => {
       newCompiler.dispose();

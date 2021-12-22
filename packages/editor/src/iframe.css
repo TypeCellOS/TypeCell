@@ -1,0 +1,34 @@
+/* @import-normalize; */
+
+@import "github-markdown.css";
+
+html {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  -webkit-box-sizing: inherit;
+  -moz-box-sizing: inherit;
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  color: rgb(60, 65, 73);
+}
+
+html,
+body,
+#root,
+.fullSize {
+  width: 100%;
+  height: 100%;
+}
