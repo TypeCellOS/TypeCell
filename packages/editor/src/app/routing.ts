@@ -23,14 +23,18 @@ export default function routing() {
 
     const id =
       ENVIRONMENT === "DEV"
-        ? parseIdentifier("fs:" + (remainingPath ? "/:/" + remainingPath : ""))
+        ? parseIdentifier(
+            "fs:" + (remainingPath ? "/:/" + remainingPath : ""),
+            "Docs"
+          )
         : /*parseIdentifier(
             "github:yousefed/typecell-next/docs" +
               (remainingPath ? "/:/" + remainingPath : "")
           );*/
           parseIdentifier(
             "https:/_docs/index.json" +
-              (remainingPath ? "/:/" + remainingPath : "")
+              (remainingPath ? "/:/" + remainingPath : ""),
+            "Docs"
           );
 
     // overwrite reverse route (bit hacky)

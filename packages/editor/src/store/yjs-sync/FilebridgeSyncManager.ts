@@ -75,10 +75,15 @@ export class YDocFileSyncManager
     );
     this._register(
       this.watcher.onWatchEvent(async (e) => {
+        let path = e.path;
+        if (this.identifier.path && !path.startsWith(this.identifier.path)) {
+          throw new Error("file returned with invalid path");
+        }
+        path = path.substring(this.identifier.path.length);
         if (e.event === "add") {
-          project.files.set(e.path, {});
+          project.files.set(path, {});
         } else if (e.event === "unlink") {
-          project.files.delete(e.path);
+          project.files.delete(path);
         }
       })
     );

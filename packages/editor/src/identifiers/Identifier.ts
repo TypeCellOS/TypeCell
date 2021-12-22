@@ -2,7 +2,7 @@ import { makeObservable, observable } from "mobx";
 import { uri, path } from "vscode-lib";
 
 export interface IdentifierFactory<T extends Identifier> {
-  new (uri: uri.URI): T;
+  new (uri: uri.URI, title?: string): T;
   schemes: string[];
 }
 
@@ -12,7 +12,8 @@ export abstract class Identifier {
   protected constructor(
     schemes: string[],
     public readonly uri: uri.URI,
-    subPath: string | undefined
+    subPath: string | undefined,
+    public readonly title?: string
   ) {
     if (!schemes.includes(this.uri.scheme)) {
       throw new Error("scheme doesn't match");

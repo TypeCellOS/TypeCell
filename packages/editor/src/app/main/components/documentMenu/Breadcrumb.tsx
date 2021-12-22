@@ -10,7 +10,6 @@ import { getStoreService } from "../../../../store/local/stores";
 
 const getBreadcrumbItems = function (navigationStore: NavigationStore) {
   const { identifier } = navigationStore.currentDocument!;
-  const { path } = identifier.uri;
 
   const items: JSX.Element[] = [];
 
@@ -19,8 +18,8 @@ const getBreadcrumbItems = function (navigationStore: NavigationStore) {
     // Show path as single item
     items.push(
       <BreadcrumbsItem
-        iconBefore={<VscFile />}
-        text={path}
+        iconBefore={<VscFile style={{ marginRight: 5, marginTop: -2 }} />}
+        text={identifier.title || identifier.uri.toString()}
         onClick={() => (identifier.subPath = "")}
       />
     );
@@ -31,16 +30,16 @@ const getBreadcrumbItems = function (navigationStore: NavigationStore) {
         iconBefore={<VscGithub style={{ marginRight: 5 }} />}
         href=""
         onClick={() => (identifier.subPath = "")}
-        text={path}
+        text={identifier.title || identifier.uri.toString()}
       />
     );
   } else if (identifier instanceof HttpsIdentifier) {
     // Show path as single item
     items.push(
       <BreadcrumbsItem
-        iconBefore={<VscGlobe />}
+        iconBefore={<VscGlobe style={{ marginRight: 5 }} />}
         href=""
-        text={path}
+        text={identifier.title || identifier.uri.toString()}
         onClick={() => (identifier.subPath = "")}
       />
     );

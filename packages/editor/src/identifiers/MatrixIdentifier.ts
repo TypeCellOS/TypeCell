@@ -8,7 +8,7 @@ export class MatrixIdentifier extends Identifier {
   public readonly owner: string;
   public readonly document: string;
 
-  constructor(uriToParse: uri.URI) {
+  constructor(uriToParse: uri.URI, title?: string) {
     let [identifier, subPath] = stringWithoutInitialSlash(
       uriToParse.path
     ).split("/:/", 2);
@@ -38,7 +38,8 @@ export class MatrixIdentifier extends Identifier {
         authority: uriToParse.authority || DEFAULT_AUTHORITY,
         path: "/" + owner + "/" + document,
       }),
-      subPath
+      subPath,
+      title
     );
     this.owner = owner;
     this.document = document;

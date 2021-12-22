@@ -6,7 +6,7 @@ export class FileIdentifier extends Identifier {
 
   public readonly path: string;
 
-  constructor(uriToParse: uri.URI) {
+  constructor(uriToParse: uri.URI, title?: string) {
     let [identifier, subPath] = uriToParse.path.split("/:/", 2);
 
     // call super to drop fragment, query, and make sure path is lowercase
@@ -17,7 +17,8 @@ export class FileIdentifier extends Identifier {
         authority: uriToParse.authority,
         path: identifier,
       }),
-      subPath
+      subPath,
+      title
     );
 
     this.path = stringWithoutInitialSlash(identifier);

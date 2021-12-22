@@ -6,6 +6,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { VscEllipsis } from "react-icons/vsc";
 import { openAsMarkdown } from "../../../../integrations/markdown/export";
+import { BaseResource } from "../../../../store/BaseResource";
 import { DocumentResource } from "../../../../store/DocumentResource";
 import { getStoreService } from "../../../../store/local/stores";
 import { Breadcrumb } from "./Breadcrumb";
@@ -13,7 +14,7 @@ import styles from "./DocumentMenu.module.css";
 import { ForkAlert } from "./ForkAlert";
 
 type Props = {
-  document: DocumentResource;
+  document: BaseResource;
 };
 
 export const DocumentMenu: React.FC<Props> = observer((props) => {
@@ -32,7 +33,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
             </div> */}
             <span>Share</span>
           </li>
-          {props.document.type === "!notebook" ? (
+          {props.document instanceof DocumentResource ? (
             <>
               <li className={styles.options}>
                 <DropdownMenu
@@ -44,7 +45,8 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
                     />
                   }
                   position="bottom right">
-                  <DropdownItem onClick={() => openAsMarkdown(props.document)}>
+                  <DropdownItem
+                    onClick={() => openAsMarkdown(props.document.doc)}>
                     Export as markdown
                   </DropdownItem>
                   {/* TODO <DropdownItem>Change permissions</DropdownItem> */}
