@@ -12,7 +12,7 @@ import { getStoreService } from "../../../store/local/stores";
 
 import { UnreachableCaseError } from "../../../util/UnreachableCaseError";
 
-export const NewPageDialog = (props: {
+export const NewNotebookDialog = (props: {
   isOpen: boolean;
   close: () => void;
   ownerId: string;
@@ -81,7 +81,7 @@ export const NewPageDialog = (props: {
                 throw new UnreachableCaseError(ret.status);
               }
               console.error(ret);
-              setError("Unknown error while creating new page.");
+              setError("Unknown error while creating new notebook.");
             }
             //   setName(obj.name);
             //   setIsOpen(false);
@@ -106,11 +106,11 @@ export const NewPageDialog = (props: {
               Container: CustomContainer,
             }}
             onClose={props.close}
-            heading="New page">
+            heading="New notebook">
             <Field
               id="title"
               name="title"
-              label="Enter a title for your new page:">
+              label="Enter a title for your new notebook:">
               {({ fieldProps }) => (
                 <>
                   <Textfield
@@ -130,7 +130,7 @@ export const NewPageDialog = (props: {
   );
 };
 
-export default NewPageDialog;
+export default NewNotebookDialog;
 
 // {warning && (
 //   // <InlineMessage

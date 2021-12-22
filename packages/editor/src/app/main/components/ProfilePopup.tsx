@@ -45,8 +45,8 @@ export const ProfilePopup = observer(
           />
         }
         position="bottom right">
-        <DropdownItem onClick={props.navigationStore.showNewPageDialog}>
-          New page
+        <DropdownItem onClick={props.navigationStore.showNewNotebookDialog}>
+          New notebook
         </DropdownItem>
         {props.navigationStore.menuPortalChildren.map((c) => c.children)}
         <DropdownItemGroup title={props.sessionStore.loggedInUser!}>
