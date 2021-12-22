@@ -1,0 +1,33 @@
+.fork_alert {
+  display: flex;
+  align-items: center;
+  background-color: #fff8e6;
+  border-radius: 3px;
+  padding: 0 5px;
+  color: #bf7e00;
+}
+
+.fork_alert span {
+  text-decoration: underline;
+}
+
+.fork_alert a:hover {
+  text-decoration: none;
+}
+
+.fork_alert a:focus {
+  outline: none;
+}
+
+.fork_alert a:before,
+.fork_alert a:after {
+  content: "\00a0 ";
+  display: inline;
+}
+
+.fork_alert,
+.fork_alert *,
+.fork_alert:hover,
+.fork_alert:hover * {
+  color: #bf7e00 !important;
+}
