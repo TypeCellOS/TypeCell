@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { validateFrameDomain } from "./config/security";
 import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
+import "@atlaskit/css-reset/dist/bundle.css";
 import "./iframe.css";
 
 console.log("Loading iframe", window.location.href);
