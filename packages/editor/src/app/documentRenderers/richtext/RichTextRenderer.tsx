@@ -17,7 +17,8 @@ import React, { useContext, useEffect, useMemo, useRef } from "react";
 import { arrays } from "vscode-lib";
 import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
-import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost";
+import SandboxedExecutionHost from "../../../runtime/executor/executionHosts/sandboxed/SandboxedExecutionHost";
+// import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost";
 import { DocumentResource } from "../../../store/DocumentResource";
 import { getStoreService } from "../../../store/local/stores";
 import { AutoId } from "./extensions/autoid/AutoId";
@@ -85,7 +86,7 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       disposer.current = undefined;
     }
     const newCompiler = new SourceModelCompiler(monaco);
-    const newExecutionHost = new LocalExecutionHost(
+    const newExecutionHost = new SandboxedExecutionHost(
       props.document.id,
       newCompiler,
       monaco

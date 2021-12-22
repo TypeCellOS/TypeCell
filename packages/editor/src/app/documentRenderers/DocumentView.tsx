@@ -6,7 +6,7 @@ import { DocConnection } from "../../store/DocConnection";
 import PluginResource from "../../store/PluginResource";
 import ProjectResource from "../../store/ProjectResource";
 import { DocumentMenu } from "../main/components/DocumentMenu";
-import { CustomRenderer } from "./custom/CustomRenderer";
+// import { CustomRenderer } from "./custom/CustomRenderer";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
 import ProjectRenderer from "./project/ProjectRenderer";
@@ -86,7 +86,8 @@ const DocumentView = observer((props: Props) => {
   } else if (connection.doc.type.startsWith("!")) {
     throw new Error("invalid built in type");
   } else {
-    return <CustomRenderer key={connection.doc.id} document={connection.doc} />;
+    throw new Error("CustomRenderer not implemented");
+    // return <CustomRenderer key={connection.doc.id} document={connection.doc} />;
   }
 });
 
