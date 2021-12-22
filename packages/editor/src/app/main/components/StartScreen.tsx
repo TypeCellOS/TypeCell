@@ -9,7 +9,7 @@ export const StartScreen = observer(() => {
   function onNewNotebookClick(e: any) {
     e.preventDefault();
     if (sessionStore.isLoggedIn) {
-      navigationStore.showNewPageDialog();
+      navigationStore.showNewNotebookDialog();
     } else {
       // TODO: implement for non logged-in
     }
@@ -32,8 +32,8 @@ export const StartScreen = observer(() => {
             <div className={styles.row + " row"}>
               <img
                 className={styles.logo}
-                src="/assets/logo.svg"
-                alt="TypeCell Logo Big"
+                src="/assets/app_logo.svg"
+                alt="TypeCell app logo"
               />
             </div>
             <div className={styles.row + " row"}>
@@ -51,9 +51,7 @@ export const StartScreen = observer(() => {
                 href="/docs/interactive-introduction.md">
                 Try interactive tutorial
               </a>
-              <div className={styles.separator}>
-                <span>/</span>
-              </div>
+
               <a
                 className="button secondary"
                 href="/"
@@ -64,46 +62,32 @@ export const StartScreen = observer(() => {
           </div>
         </section>
 
-        <section className={styles.start_building}>
+        <section className={styles.demo}>
           <div className="container">
-            <div className={styles.block}>
-              <div className="row">
-                <div className="row">
-                  <h2>Start Building</h2>
-                </div>
-                <div className="row">
-                  <span className={styles.subtitle}>
-                    We are excited to see what you will do with TypeCell.
-                    <br></br>Start your own notebook from scratch or start from
-                    one of our examples.
-                  </span>
-                </div>
-                <div className={styles.actions + " row"}>
-                  <div className={styles.action}>
-                    <a href="/" onClick={onNewNotebookClick}>
-                      <div className={styles.icon}></div>
-                      <span>Start from scratch</span>
-                    </a>
-                  </div>
-                  {
-                    // TODO: Implement
-                  }
-                  <div className={styles.action}>
-                    <a href="/">
-                      <div className={styles.icon}></div>
-                      <span>Start from example</span>
-                    </a>
-                  </div>
-                  <div className={styles.action}>
-                    {
-                      // TODO: Use react navigation
-                    }
-                    <a href="/docs/interactive-introduction.md">
-                      <div className={styles.icon}></div>
-                      <span>Start with demo</span>
-                    </a>
-                  </div>
-                </div>
+            <div className={styles.code_block}>
+              <img src="/assets/demo.png" alt="TypeCell Demo" />
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.perks}>
+          <div className="container">
+            <div className={styles.perk_row + " row"}>
+              <div className={styles.perk}>
+                <div className={styles.icon}></div>
+                <span>
+                  Execute code changes in realtime, directly in your browser
+                </span>
+              </div>
+              <div className={styles.separator}></div>
+              <div className={styles.perk}>
+                <div className={styles.icon}></div>
+                <span>Instantly use npm modules in your notebook</span>
+              </div>
+              <div className={styles.separator}></div>
+              <div className={styles.perk}>
+                <div className={styles.icon}></div>
+                <span>Colaborate with anyone in an instant</span>
               </div>
             </div>
           </div>

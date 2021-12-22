@@ -57,10 +57,11 @@ code {
 
 .button {
   border-radius: 6px;
-  padding: 1em 2em;
+  padding: 0.5em 1em;
   background-color: #1e2328;
   color: white;
   font-weight: bold;
+  font-size: 1em;
 
   transition: 150ms all ease-in-out;
 }

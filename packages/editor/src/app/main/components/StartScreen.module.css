@@ -1,7 +1,7 @@
 .introduction {
-  background: linear-gradient(62.45deg, #2b4869 28.75%, #162738 102.33%);
-  padding: 3em 0;
+  padding: 3em 0 12em 0;
   position: relative;
+  background: linear-gradient(0deg, #eff7fc, #eff7fc);
 }
 
 .introduction .github {
@@ -18,8 +18,8 @@
 
 .introduction .logo {
   margin-top: 1em;
-  margin-bottom: 3em;
-  width: 120px;
+  margin-bottom: 2em;
+  width: 60px;
 }
 
 .introduction .buttons {
@@ -27,73 +27,64 @@
   display: flex;
 }
 
-.introduction .buttons a {
-  min-width: 210px;
+.introduction .buttons a:first-child {
+  margin-right: 1em;
 }
 
 .introduction h1 {
-  color: white;
-  font-size: 1.7em;
+  color: #2b4869;
+  font-size: 1.9em;
   line-height: 1.5em;
+  font-weight: bold;
 }
 
-.introduction .separator {
-  min-height: 100%;
-  padding: 0 1em;
-  color: white;
-  align-items: center;
+.demo {
+  background-color: #fcfcfc;
+  position: relative;
   display: flex;
-  font-size: 1.2em;
-}
-
-.start_building {
-  margin: 3em 0;
-}
-
-.start_building * {
   justify-content: center;
-  text-align: center;
 }
 
-.start_building .block {
-  border: 1px solid rgb(216, 216, 216);
-  padding: 3em 4em;
+.demo .code_block {
+  position: relative;
+  top: -8em;
 }
 
-.start_building .subtitle {
-  color: #a4a4a4;
-  margin: 2em 0;
-  font-weight: medium;
-  display: block;
-  font-size: 1.1em;
+.perks {
+  background-color: #fcfcfc;
+  padding: 4em 0;
+  position: relative;
+  top: -8em;
+  box-shadow: 0 4px 3px -3px rgba(0, 0, 0, 0.1);
 }
 
-.start_building .actions {
-  flex-direction: row;
+.perks .perk_row {
+  justify-content: center;
 }
 
-.start_building .actions .action {
+.perks .perk {
   display: flex;
   flex-direction: column;
+  flex: 1 1;
+  align-items: center;
+  text-align: center;
   padding: 0 2em;
-  flex: 1;
 }
 
-.action a:hover {
-  text-decoration: none;
-}
-
-.start_building .actions span {
-  font-weight: bold;
-  font-size: 1em;
-  color: rgb(23, 43, 77);
-}
-
-.start_building .actions .icon {
-  background-color: #e1e1e1;
-  border-radius: 100%;
-  height: 0;
-  padding-bottom: 100%;
-  width: 100%;
+.perks .perk .icon {
+  width: 20px;
+  height: 20px;
   margin-bottom: 2em;
+  border: 1px solid rgb(202, 202, 202);
+}
+
+.perks .perk span {
+  color: #a0a0a0;
+  font-weight: bold;
+}
+
+.perks .separator {
+  min-height: 100%;
+  width: 1px;
+  background-color: rgb(230, 230, 230);
 }
