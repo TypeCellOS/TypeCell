@@ -5,7 +5,7 @@ import { Identifier } from "../../identifiers/Identifier";
 import { DocConnection } from "../../store/DocConnection";
 import PluginResource from "../../store/PluginResource";
 import ProjectResource from "../../store/ProjectResource";
-import { DocumentMenu } from "../main/components/DocumentMenu";
+import DocumentMenu from "../main/components/documentMenu";
 // import { CustomRenderer } from "./custom/CustomRenderer";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
