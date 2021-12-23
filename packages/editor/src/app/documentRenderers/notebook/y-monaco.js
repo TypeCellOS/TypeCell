@@ -105,22 +105,21 @@ export class MonacoBinding {
                             const headAbs = Y.createAbsolutePositionFromRelativePosition(state.selection.head, this.doc)
                             if (anchorAbs !== null && headAbs !== null && anchorAbs.type === ytext && headAbs.type === ytext) {
                                 let start, end, afterContentClassName, beforeContentClassName
-                                if (anchorAbs.index < headAbs.index) {
+                                if (anchorAbs.index <= headAbs.index) {
                                     start = monacoModel.getPositionAt(anchorAbs.index)
                                     end = monacoModel.getPositionAt(headAbs.index)
-                                    afterContentClassName = `yRemoteSelectionHead user-selection-head-${state.user.clientID}`
+                                    afterContentClassName = `yRemoteSelectionHead user-selection-head-${state.user.clientID} after`
                                     beforeContentClassName = null
                                 } else {
                                     start = monacoModel.getPositionAt(headAbs.index)
                                     end = monacoModel.getPositionAt(anchorAbs.index)
                                     afterContentClassName = null
-                                    beforeContentClassName = `yRemoteSelectionHead user-selection-head-${state.user.clientID}`
+                                    beforeContentClassName = `yRemoteSelectionHead user-selection-head-${state.user.clientID} before`
                                 }
                                 newDecorations.push({
                                     range: new monaco.Range(start.lineNumber, start.column, end.lineNumber, end.column),
                                     options: {
                                         className: `yRemoteSelection user-selection-${state.user.clientID}`,
-                                        hoverMessage: { value: `${state.user.name} ${state.user.color}` },
                                         afterContentClassName,
                                         beforeContentClassName
                                     }

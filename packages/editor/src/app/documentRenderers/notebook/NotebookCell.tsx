@@ -156,8 +156,8 @@ const NotebookCell: React.FC<Props> = observer((props) => {
       }
 
       props.awareness?.on('update', () => {
-        props.awareness?.getStates().forEach((state, _) => {
-          if (state.user && props.addUserAwarenessCSS) {
+        props.awareness?.getStates().forEach((state, clientID) => {
+          if (state.user && props.awareness?.clientID !== clientID && props.addUserAwarenessCSS) {
             props.addUserAwarenessCSS(state.user.clientID, state.user.name, state.user.color)
           }
         })

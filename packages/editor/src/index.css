@@ -491,12 +491,30 @@ see https://atlassian.design/foundations/color for more info */
 }
 
 .yRemoteSelection {
+  position: relative;
   background-color: rgb(250, 129, 0);
   opacity: 0.5;
 }
-.yRemoteSelection::after {
-  display: none;
+.yRemoteSelectionHead::after {
+  box-sizing: border-box;
+  z-index: 1000000;
+  opacity: 1;
+  position: absolute;
+  left: 2px;
+  top: -2px;
+  border-radius: 4px;
+  padding: 0 4px;
+  color: black;
+  font-size: 0.8em;
 }
+
+.yRemoteSelectionHead.before::after {
+  left: unset;
+  right: 4px;
+}
+/* .yRemoteSelection:hover::after {
+  opacity: 1;
+} */
 .yRemoteSelectionHead {
   position: absolute;
   border-left: orange solid 2px;
@@ -504,14 +522,6 @@ see https://atlassian.design/foundations/color for more info */
   border-bottom: orange solid 2px;
   height: 100%;
   box-sizing: border-box;
-}
-.yRemoteSelectionHead::after {
-  position: absolute;
-  content: " ";
-  border: 3px solid orange;
-  border-radius: 4px;
-  left: -4px;
-  top: -5px;
 }
 
 :focus {

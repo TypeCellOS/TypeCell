@@ -45,7 +45,7 @@ function generateUserAwarenessCSS(user: User) {
        border-color: ${user.color} !important;
      }
      
-     .${selectionClassName}::after {
+     .${headClassName}::after {
        content: '${user.name}'
      }
      `.trim();
