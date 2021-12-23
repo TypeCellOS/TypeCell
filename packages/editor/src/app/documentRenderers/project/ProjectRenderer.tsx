@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
+import { path } from "vscode-lib";
 import { parseIdentifier } from "../../../identifiers";
 import { Identifier } from "../../../identifiers/Identifier";
 import { getStoreService } from "../../../store/local/stores";
@@ -31,7 +32,7 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
       navigationStore.currentDocument!.identifier.subPath = item;
     } else {
       let subPath = navigationStore.currentDocument!.identifier.subPath;
-      subPath = subPath ? subPath + "/" + item : item;
+      subPath = subPath ? path.join(subPath, item) : item;
       navigationStore.currentDocument!.identifier.subPath = subPath;
     }
     // identifier.subPath = item;
