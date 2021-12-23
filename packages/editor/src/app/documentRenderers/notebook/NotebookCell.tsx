@@ -24,12 +24,13 @@ import { HoverTrackerContext } from "./HoverTrackerContext";
 
 import { NotebookCellModel } from "./NotebookCellModel";
 import { getStoreService } from "../../../store/local/stores";
+import { arrays } from "vscode-lib";
 
 type Props = {
   cell: NotebookCellModel;
   compiler: SourceModelCompiler;
   executionHost: ExecutionHost;
-  addUserAwarenessCSS?: (clientID: number, name: string, color?: string) => string;
+  addUserAwarenessCSSIfMissing?: (user: { clientID: number, name: string, color: string }) => string;
   onRemove?: () => void;
   classList?: string;
   defaultCollapsed?: boolean;
@@ -37,6 +38,16 @@ type Props = {
   awareness: Awareness | undefined;
   toolbar?: React.ReactElement;
 };
+
+const colors = [
+  "#958DF1",
+  "#F98181",
+  "#FBBC88",
+  "#FAF594",
+  "#70CFF8",
+  "#94FADB",
+  "#B9F18D",
+];
 
 const NotebookCell: React.FC<Props> = observer((props) => {
   const initial = useRef(true);
@@ -145,23 +156,26 @@ const NotebookCell: React.FC<Props> = observer((props) => {
     // so a new color has to be generated
     const localState = props.awareness?.getLocalState();
 
-    if (localState && props.addUserAwarenessCSS && user) {
-      if (!localState.user || localState.user.name !== user) {
-        const clientID = props.awareness!.clientID;
-        props.awareness?.setLocalStateField('user', {
-          clientID: clientID,
-          name: user,
-          color: props.addUserAwarenessCSS(clientID, user),
-        })
-      }
-
+    if (localState && props.addUserAwarenessCSSIfMissing && user) {
       props.awareness?.on('update', () => {
         props.awareness?.getStates().forEach((state, clientID) => {
-          if (state.user && props.awareness?.clientID !== clientID && props.addUserAwarenessCSS) {
-            props.addUserAwarenessCSS(state.user.clientID, state.user.name, state.user.color)
+          if (state.user && props.addUserAwarenessCSSIfMissing) {
+            props.addUserAwarenessCSSIfMissing({
+              clientID,
+              name: state.user.name,
+              color: state.user.color,
+            })
           }
         })
       })
+
+      if (!localState.user || localState.user.name !== user) {
+        // const color = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+        props.awareness?.setLocalStateField('user', {
+          name: user,
+          color: arrays.getRandomElement(colors)!,
+        })
+      }
     }
 
     const monacoBinding = new MonacoBinding(
