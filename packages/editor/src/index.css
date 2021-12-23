@@ -491,7 +491,11 @@ see https://atlassian.design/foundations/color for more info */
 }
 
 .yRemoteSelection {
-  background-color: rgb(250, 129, 0, 0.5);
+  background-color: rgb(250, 129, 0);
+  opacity: 0.5;
+}
+.yRemoteSelection::after {
+  display: none;
 }
 .yRemoteSelectionHead {
   position: absolute;

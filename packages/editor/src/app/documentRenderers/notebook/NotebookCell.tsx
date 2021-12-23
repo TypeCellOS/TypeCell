@@ -10,7 +10,8 @@ import React, {
   useState,
 } from "react";
 import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
-import { MonacoBinding } from "y-monaco";
+// import { MonacoBinding } from "y-monaco";
+import { MonacoBinding } from "./y-monaco";
 import { Awareness } from "y-protocols/awareness";
 import {
   getTypeCellCodeModel,
@@ -22,11 +23,13 @@ import { ExecutionHost } from "../../../runtime/executor/executionHosts/Executio
 import { HoverTrackerContext } from "./HoverTrackerContext";
 
 import { NotebookCellModel } from "./NotebookCellModel";
+import { getStoreService } from "../../../store/local/stores";
 
 type Props = {
   cell: NotebookCellModel;
   compiler: SourceModelCompiler;
   executionHost: ExecutionHost;
+  addUserAwarenessCSS?: (clientID: number, name: string, color?: string) => string;
   onRemove?: () => void;
   classList?: string;
   defaultCollapsed?: boolean;
@@ -38,11 +41,14 @@ type Props = {
 const NotebookCell: React.FC<Props> = observer((props) => {
   const initial = useRef(true);
   const [model, setModel] = useState<TypeCellCodeModel>();
-  const [monacoModel, setMonacoModel] = useState<any>();
+  const [monacoModel, setMonacoModel] = useState<monaco.editor.ITextModel | undefined>();
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
   const disposeHandlers = useRef<Array<() => void>>();
   const monaco = useContext(MonacoContext).monaco;
   // const [codeRef, setCodeRef] = useState<HTMLDivElement>();
+
+  const sessionStore = getStoreService().sessionStore;
+  const user = sessionStore.loggedInUser;
 
   const [codeVisible, setCodeVisible] = useState(
     untracked(
@@ -135,11 +141,34 @@ const NotebookCell: React.FC<Props> = observer((props) => {
     }
     editor.setModel(monacoModel);
 
+    // Whenever an awareness change occurs a new client might have joined
+    // so a new color has to be generated
+    const localState = props.awareness?.getLocalState();
+
+    if (localState && props.addUserAwarenessCSS && user) {
+      if (!localState.user || localState.user.name !== user) {
+        const clientID = props.awareness!.clientID;
+        props.awareness?.setLocalStateField('user', {
+          clientID: clientID,
+          name: user,
+          color: props.addUserAwarenessCSS(clientID, user),
+        })
+      }
+
+      props.awareness?.on('update', () => {
+        props.awareness?.getStates().forEach((state, _) => {
+          if (state.user && props.addUserAwarenessCSS) {
+            props.addUserAwarenessCSS(state.user.clientID, state.user.name, state.user.color)
+          }
+        })
+      })
+    }
+
     const monacoBinding = new MonacoBinding(
       props.cell.code,
       monacoModel,
       new Set([editor]),
-      props.awareness || null // TODO: fix reference to doc
+      props.awareness || null, // TODO: fix reference to doc
     );
 
     // This is a bit of a hack. MonacoBinding sets an eventListener to cell.code.
@@ -158,7 +187,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
       monacoBinding.destroy();
       // releaseModel(props.cell);
     };
-  }, [editor, monacoModel, props.cell.code, props.compiler, props.awareness]);
+  }, [editor, monacoModel, user, props, props.cell.code, props.compiler, props.awareness]);
 
   // Disabled, feels weird, work on UX
   // editor.current.onKeyUp((e) => {
@@ -200,9 +229,8 @@ const NotebookCell: React.FC<Props> = observer((props) => {
 
   return (
     <div
-      className={`notebookCell ${codeVisible ? "expanded" : "collapsed"} ${
-        props.cell.language
-      } ${props.classList || ""}`}
+      className={`notebookCell ${codeVisible ? "expanded" : "collapsed"} ${props.cell.language
+        } ${props.classList || ""}`}
       style={{ display: "flex", flexDirection: "row" }}>
       {codeVisible ? (
         <VscChevronDown
@@ -217,7 +245,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
           onClick={() => setCodeVisible(true)}
         />
       )}
-      {}
+      { }
       <div style={{ flex: 1 }} className="notebookCell-content">
         {codeVisible && (
           <div className="notebookCell-codeContainer">
