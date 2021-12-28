@@ -1,66 +1,46 @@
 import { observer } from "mobx-react-lite";
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef } from "react";
 import { VscDiffAdded } from "react-icons/vsc";
+import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
-import { DocumentResource } from "../../../store/DocumentResource";
-import SandboxedExecutionHost from "../../../runtime/executor/executionHosts/sandboxed/SandboxedExecutionHost";
-import CellListDraggableCell from "./CellListDraggableCell";
-import NotebookCell from "./NotebookCell";
 // import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost"
 import { ExecutionHost } from "../../../runtime/executor/executionHosts/ExecutionHost";
-import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
+import SandboxedExecutionHost from "../../../runtime/executor/executionHosts/sandboxed/SandboxedExecutionHost";
+import { DocumentResource } from "../../../store/DocumentResource";
+import CellListDraggableCell from "./CellListDraggableCell";
 import NotebookLanguageSelector from "./LanguageSelector";
+import NotebookCell from "./NotebookCell";
+import { MonacoColorManager } from "./MonacoColorManager";
+import { getStoreService } from "../../../store/local/stores";
 
 type Props = {
   document: DocumentResource;
 };
 
-type User = {
-  name: string;
-  color: string;
-  clientID: number;
-};
-
-function generateUserAwarenessCSS(user: User) {
-  console.log(user);
-  const selectionClassName = `user-selection-${user.clientID}`;
-  const headClassName = `user-selection-head-${user.clientID}`;
-
-  const css =
-    `.${selectionClassName}, .${selectionClassName}::after, .${selectionClassName}::before,
-     .${headClassName}, .${headClassName}::after, .${headClassName}::before
-     {
-       background-color: ${user.color} !important;
-       border-color: ${user.color} !important;
-     }
-     
-     .${selectionClassName}::after {
-       content: '${user.name}'
-     }
-     `.trim();
-
-  const styleElement = document.createElement("style");
-
-  styleElement.innerText = css;
-  document.head.appendChild(styleElement);
-}
-
 const USE_SAFE_IFRAME = true;
 
 const NotebookRenderer: React.FC<Props> = observer((props) => {
+  const sessionStore = getStoreService().sessionStore;
   const disposer = useRef<() => void>();
   const monaco = useContext(MonacoContext).monaco;
-  const [userStore] = useState<Map<number, User>>(new Map())
 
-  const addUserAwarenessCSSIfMissing = (user: User): string => {
-    if (!userStore.has(user.clientID)) {
-      generateUserAwarenessCSS(user);
-
-      userStore.set(user.clientID, user);
+  useEffect(() => {
+    // make sure color info is broadcast, and color info from other users are reflected in monaco editor styles
+    if (props.document.webrtcProvider?.awareness) {
+      const colorManager = new MonacoColorManager(
+        props.document.webrtcProvider.awareness,
+        sessionStore.loggedInUser || "Anonymous",
+        sessionStore.userColor
+      );
+      return () => {
+        colorManager.dispose();
+      };
     }
-
-    return userStore.get(user.clientID)!.color;
-  }
+  }, [
+    props.document.webrtcProvider?.awareness,
+    sessionStore.loggedInUser,
+    sessionStore.userColor,
+  ]);
 
   const [compiler, executionHost] = useMemo(() => {
     if (disposer.current) {
@@ -131,12 +111,11 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
               executionHost={executionHost}
               compiler={compiler}
               awareness={props.document.webrtcProvider?.awareness}
-              addUserAwarenessCSSIfMissing={addUserAwarenessCSSIfMissing}
               toolbar={
                 <NotebookLanguageSelector
                   language={cell.language}
                   onChangeLanguage={(language) => cell.setLanguage(language)}
-                // onRemove={() => remove(i)}
+                  // onRemove={() => remove(i)}
                 />
               }
             />

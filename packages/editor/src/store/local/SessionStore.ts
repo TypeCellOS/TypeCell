@@ -10,8 +10,20 @@ import { MATRIX_CONFIG } from "../../config/config";
 import { MatrixAuthStore } from "../../app/matrix-auth/MatrixAuthStore";
 import { MatrixClientPeg } from "../../app/matrix-auth/MatrixClientPeg";
 import { createMatrixGuestClient } from "@typecell-org/matrix-yjs";
+import { arrays } from "vscode-lib";
 
+const colors = [
+  "#958DF1",
+  "#F98181",
+  "#FBBC88",
+  "#FAF594",
+  "#70CFF8",
+  "#94FADB",
+  "#B9F18D",
+];
 export class SessionStore {
+  public userColor = arrays.getRandomElement(colors)!;
+
   public user:
     | "loading"
     | "offlineNoUser"
@@ -36,6 +48,7 @@ export class SessionStore {
   public get loggedInUser() {
     return this.matrixAuthStore.loggedInUser;
   }
+
   public logout = this.matrixAuthStore.logout;
   public matrixClient: MatrixClient;
 

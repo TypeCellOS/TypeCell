@@ -120,7 +120,6 @@ export class MonacoBinding {
                                     range: new monaco.Range(start.lineNumber, start.column, end.lineNumber, end.column),
                                     options: {
                                         className: `yRemoteSelection user-selection-${clientID}`,
-                                        hoverMessage: { value: `${state.user.name} ${state.user.color}` },
                                         afterContentClassName,
                                         beforeContentClassName
                                     }
