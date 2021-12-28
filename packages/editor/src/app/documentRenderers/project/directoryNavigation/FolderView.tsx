@@ -1,6 +1,6 @@
 import Button from "@atlaskit/button";
 import { observer } from "mobx-react-lite";
-import React, { useCallback } from "react";
+import React from "react";
 import { AiFillFolder } from "react-icons/ai";
 import { VscFile } from "react-icons/vsc";
 import styles from "./FolderView.module.css";
