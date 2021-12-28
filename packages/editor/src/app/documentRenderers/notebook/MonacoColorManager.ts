@@ -7,7 +7,6 @@ type User = {
 };
 
 function generateUserAwarenessCSS(clientId: number, user: User) {
-  console.log(user);
   const selectionClassName = `yRemoteSelection-${clientId}`;
   const headClassName = `yRemoteSelectionHead-${clientId}`;
 
@@ -41,9 +40,9 @@ export class MonacoColorManager extends lifecycle.Disposable {
   >();
 
   constructor(
-    private readonly awareness: Awareness,
-    private readonly localUsername: string,
-    private readonly localUserColor: string
+    awareness: Awareness,
+    localUsername: string,
+    localUserColor: string
   ) {
     super();
 
