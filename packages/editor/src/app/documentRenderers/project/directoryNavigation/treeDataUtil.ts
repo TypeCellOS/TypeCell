@@ -1,5 +1,5 @@
 import { TreeData } from "@atlaskit/tree";
-import { sortTreeItems, TreeNode } from "./treeNodeUtil";
+import { TreeNode } from "./treeNodeUtil";
 
 /**
  * Convert a TreeNode[] tree to Atlaskit TreeData format
