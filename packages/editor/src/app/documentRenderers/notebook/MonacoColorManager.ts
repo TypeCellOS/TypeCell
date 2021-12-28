@@ -8,8 +8,8 @@ type User = {
 
 function generateUserAwarenessCSS(clientId: number, user: User) {
   console.log(user);
-  const selectionClassName = `user-selection-${clientId}`;
-  const headClassName = `user-selection-head-${clientId}`;
+  const selectionClassName = `yRemoteSelection-${clientId}`;
+  const headClassName = `yRemoteSelectionHead-${clientId}`;
 
   const css =
     `.${selectionClassName}, .${selectionClassName}::after, .${selectionClassName}::before,
