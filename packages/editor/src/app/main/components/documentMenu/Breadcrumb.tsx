@@ -14,7 +14,6 @@ const getBreadcrumbItems = function (navigationStore: NavigationStore) {
   const items: JSX.Element[] = [];
 
   if (identifier instanceof FileIdentifier) {
-    debugger;
     // Show path as single item
     items.push(
       <BreadcrumbsItem

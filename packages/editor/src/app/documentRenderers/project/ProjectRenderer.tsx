@@ -6,8 +6,10 @@ import { Identifier } from "../../../identifiers/Identifier";
 import { getStoreService } from "../../../store/local/stores";
 import ProjectResource from "../../../store/ProjectResource";
 import DocumentView from "../DocumentView";
-import SidebarTree from "./sidebar";
-
+import FolderView from "./directoryNavigation/FolderView";
+import SidebarTree from "./directoryNavigation/SidebarTree";
+import { filesToTreeNodes } from "./directoryNavigation/treeNodeUtil";
+import styles from "./ProjectRenderer.module.css";
 type Props = {
   project: ProjectResource;
   isNested?: boolean;
@@ -25,6 +27,13 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
   //   : undefined;
 
   const files = Array.from(props.project.files.keys()).sort();
+
+  const tree = filesToTreeNodes(
+    files.map((f) => ({
+      fileName: f,
+    }))
+  );
+
   const navigationStore = getStoreService().navigationStore;
 
   const onClick = (item: string) => {
@@ -37,27 +46,8 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
     }
     // identifier.subPath = item;
   };
-  // useEffect(() => {
-  //   const watcher = new Watcher("./**/*.md"); // TODO
-  //   const events: any[] = [];
-  //   watcher.onWatchEvent((e) => {
-  //     events.push(e);
-  //   });
-  //   setInterval(() => {
-  //     let e: any;
-  //     runInAction(() => {
-  //       while ((e = events.pop())) {
-  //         if (e.event === "unlink") {
-  //           fileSet.current.delete(e.path);
-  //         } else if (e.event === "add") {
-  //           fileSet.current.add(e.path);
-  //         }
-  //       }
-  //     });
-  //   }, 1000);
-  // }, [identifier]);
 
-  let mainContent = <div>No content.</div>;
+  let mainContent = <div></div>; // no content by default
   let documentIdentifier: Identifier | undefined;
 
   if (identifier.subPath) {
@@ -85,32 +75,25 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
     }
   }
 
-  return (
-    <div
-      style={{
-        height: "100%",
-        display: "flex",
-        flexDirection: props.isNested ? "column" : "row",
-        alignItems: "stretch",
-        overflow: "hidden",
-      }}>
-      <div
-        style={{
-          maxWidth: !props.isNested ? "400px" : "",
-          minWidth: "250px",
-          position: "relative",
-          zIndex: 9999999,
-          background: "white",
-          borderRight: !props.isNested ? "1px solid rgb(239, 241, 244)" : "",
-          borderBottom: props.isNested ? "1px solid rgb(239, 241, 244)" : "",
-          padding: "20px",
-          overflowY: !props.isNested ? "auto" : undefined,
-        }}>
-        <SidebarTree onClick={onClick} fileSet={files} />
+  if (props.isNested) {
+    return (
+      <div>
+        <div className={styles.folderContainer}>
+          <FolderView onClick={onClick} tree={tree} />
+        </div>
+        {mainContent}
       </div>
-      {mainContent}
-    </div>
-  );
+    );
+  } else {
+    return (
+      <div className={styles.projectContainer}>
+        <div className={styles.sidebarContainer}>
+          <SidebarTree onClick={onClick} tree={tree} />
+        </div>
+        {mainContent}
+      </div>
+    );
+  }
 });
 
 export default ProjectRenderer;

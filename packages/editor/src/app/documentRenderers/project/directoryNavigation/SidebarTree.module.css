@@ -1,0 +1,18 @@
+.sidebarButton {
+  width: 100% !important;
+  text-align: left !important;
+  font-weight: normal !important;
+  font-size: 13px !important;
+  height: 2.1em !important;
+}
+
+.chevron {
+  width: 20px;
+  height: 20px;
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.chevron:hover {
+  background-color: #d8dadf;
+}
