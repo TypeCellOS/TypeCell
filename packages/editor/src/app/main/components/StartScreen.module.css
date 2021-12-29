@@ -10,7 +10,7 @@
 .introduction {
   padding: 3em 0 11em 0;
   position: relative;
-  background: url(../../../assets/logo.svg),
+  background: url(./startscreen/assets/background_pattern.svg),
     linear-gradient(0deg, #eff7fc, #eff7fc);
   /* background: linear-gradient(0deg, #eff7fc, #eff7fc); */
 }
