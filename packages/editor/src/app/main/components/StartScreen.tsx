@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite";
 import styles from "./StartScreen.module.css";
 import GitHubButton from "react-github-btn";
 import { getStoreService } from "../../../store/local/stores";
+import { NotebookOverviewItem } from "./NotebookOverviewItem";
 
 export const StartScreen = observer(() => {
   const { navigationStore, sessionStore } = getStoreService();
@@ -65,7 +66,7 @@ export const StartScreen = observer(() => {
         <section className={styles.demo}>
           <div className="container">
             <div className={styles.code_block}>
-              <img src="/assets/demo.png" alt="TypeCell Demo" />
+              <img src="/assets/intro.gif" alt="TypeCell Demo" />
             </div>
           </div>
         </section>
@@ -74,24 +75,115 @@ export const StartScreen = observer(() => {
           <div className="container">
             <div className={styles.perk_row + " row"}>
               <div className={styles.perk}>
-                <div className={styles.icon}></div>
+                <div className={styles.icon}>
+                  <img src="/assets/lightning.svg" alt="Lightning icon" />
+                </div>
                 <span>
                   Execute code changes in realtime, directly in your browser
                 </span>
               </div>
               <div className={styles.separator}></div>
               <div className={styles.perk}>
-                <div className={styles.icon}></div>
+                <div className={styles.icon}>
+                  <img src="/assets/npm.svg" alt="NPM logo" />
+                </div>
                 <span>Instantly use npm modules in your notebook</span>
               </div>
               <div className={styles.separator}></div>
               <div className={styles.perk}>
-                <div className={styles.icon}></div>
+                <div className={styles.icon}>
+                  <img src="/assets/globe.svg" alt="Globe icon" />
+                </div>
                 <span>Colaborate with anyone in an instant</span>
               </div>
             </div>
           </div>
         </section>
+
+        <section className={styles.notebooks}>
+          <div className="container">
+            <div className="row">
+              <h2>Community Notebooks</h2>
+              <p className={styles.text}>
+                With TypeCell you can easily share your work with others. Below
+                we listed the Notebooks made by some of our users. View and
+                interact with a Notebook or use it as a starting point for your
+                next project.
+              </p>
+            </div>
+
+            <div className={styles.overview + " row"}>
+              <NotebookOverviewItem
+                title="Import & transform CSV"
+                description="See if we can import and manipulate some data"
+                previewImageUrl="/assets/notebook_preview.jpg"
+                author={{
+                  username: "Niklas",
+                  profileImageUrl: "",
+                }}
+                onClick={() => {
+                  alert("x");
+                }}></NotebookOverviewItem>
+              <NotebookOverviewItem
+                title="3D prototype. Work with new models and cameras"
+                description="Load a 3D model with adjustable camera interface"
+                previewImageUrl="/assets/notebook_preview.jpg"
+                author={{
+                  username: "Yousef",
+                  profileImageUrl: "",
+                }}
+                onClick={() => {
+                  alert("x");
+                }}></NotebookOverviewItem>
+              <NotebookOverviewItem
+                title="Use React graphs"
+                description="Use React graph library to display various bar charts"
+                previewImageUrl="/assets/notebook_preview.jpg"
+                author={{
+                  username: "Pieter",
+                  profileImageUrl: "",
+                }}
+                onClick={() => {
+                  alert("x");
+                }}></NotebookOverviewItem>
+            </div>
+          </div>
+        </section>
+
+        <div className={styles.section_separator}></div>
+
+        <section className={styles.build}>
+          <div className="container">
+            <div className="row">
+              <h2>Or start building yourself</h2>
+
+              <p>
+                We are excited to see what you will do with TypeCell. <br></br>
+                Start your own notebook from scratch or start from one of our
+                examples.
+              </p>
+            </div>
+            <div className={styles.buttons}>
+              <div className="row">
+                <a href="/docs/interactive-introduction.md" className="button">
+                  Try interactive tutorial
+                </a>
+              </div>
+              <div className="row">
+                <a
+                  className={styles.link}
+                  onClick={onNewNotebookClick}
+                  href="/">
+                  Create new Notebook
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <footer className={styles.footer}>
+          <div className="container"></div>
+        </footer>
       </div>
     </>
   );

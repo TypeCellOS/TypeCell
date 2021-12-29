@@ -60,7 +60,7 @@ code {
   padding: 0.5em 1em;
   background-color: #1e2328;
   color: white;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 1em;
 
   transition: 150ms all ease-in-out;
@@ -80,12 +80,23 @@ code {
 }
 
 .button.secondary {
-  background-color: #7897ab;
+  background-color: #467ea1;
 }
 
 .button.secondary:hover {
-  background-color: #8aa8bd;
+  background-color: rgb(77, 154, 202);
 }
+
+.button.inverted {
+  color: #676767;
+  background-color: transparent;
+  border: 1px solid #676767;
+}
+
+.button.inverted:hover {
+  border: 1px solid #676767;
+}
+
 /* Some generic layout classes */
 .row {
   display: flex;
@@ -96,7 +107,7 @@ code {
 
 .container {
   margin: 0 auto;
-  max-width: calc(731px);
+  max-width: calc(1024px);
 }
 
 .cellList-item {
