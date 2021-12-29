@@ -3,6 +3,11 @@ import styles from "./StartScreen.module.css";
 import GitHubButton from "react-github-btn";
 import { getStoreService } from "../../../store/local/stores";
 import { NotebookOverviewItem } from "./NotebookOverviewItem";
+import app_logo from "../../../assets/app_logo.svg";
+import intro from "./startscreen/assets/intro.gif";
+import lightning from "./startscreen/assets/lightning.svg";
+import globe from "./startscreen/assets/globe.svg";
+import npm from "./startscreen/assets/npm.svg";
 
 export const StartScreen = observer(() => {
   const { navigationStore, sessionStore } = getStoreService();
@@ -33,7 +38,7 @@ export const StartScreen = observer(() => {
             <div className={styles.row + " row"}>
               <img
                 className={styles.logo}
-                src="/assets/app_logo.svg"
+                src={app_logo}
                 alt="TypeCell app logo"
               />
             </div>
@@ -66,7 +71,7 @@ export const StartScreen = observer(() => {
         <section className={styles.demo}>
           <div className="container">
             <div className={styles.code_block}>
-              <img src="/assets/intro.gif" alt="TypeCell Demo" />
+              <img src={intro} alt="TypeCell Demo" />
             </div>
           </div>
         </section>
@@ -76,7 +81,7 @@ export const StartScreen = observer(() => {
             <div className={styles.perk_row + " row"}>
               <div className={styles.perk}>
                 <div className={styles.icon}>
-                  <img src="/assets/lightning.svg" alt="Lightning icon" />
+                  <img src={lightning} alt="Lightning icon" />
                 </div>
                 <span>
                   Execute code changes in realtime, directly in your browser
@@ -85,14 +90,14 @@ export const StartScreen = observer(() => {
               <div className={styles.separator}></div>
               <div className={styles.perk}>
                 <div className={styles.icon}>
-                  <img src="/assets/npm.svg" alt="NPM logo" />
+                  <img src={npm} alt="NPM logo" />
                 </div>
                 <span>Instantly use npm modules in your notebook</span>
               </div>
               <div className={styles.separator}></div>
               <div className={styles.perk}>
                 <div className={styles.icon}>
-                  <img src="/assets/globe.svg" alt="Globe icon" />
+                  <img src={globe} alt="Globe icon" />
                 </div>
                 <span>Colaborate with anyone in an instant</span>
               </div>
