@@ -1,9 +1,6 @@
 .item {
-  flex: 1 1;
-  padding: 0 2em;
-  max-width: 100%;
-  overflow: hidden;
   text-align: left;
+  width: 100%;
 }
 
 .item a:hover {

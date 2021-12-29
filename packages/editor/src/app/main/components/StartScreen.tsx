@@ -113,39 +113,45 @@ export const StartScreen = observer(() => {
             </div>
 
             <div className={styles.overview + " row"}>
-              <NotebookOverviewItem
-                title="Import & transform CSV"
-                description="See if we can import and manipulate some data"
-                previewImageUrl="/assets/notebook_preview.jpg"
-                author={{
-                  username: "Niklas",
-                  profileImageUrl: "",
-                }}
-                onClick={() => {
-                  alert("x");
-                }}></NotebookOverviewItem>
-              <NotebookOverviewItem
-                title="3D prototype. Work with new models and cameras"
-                description="Load a 3D model with adjustable camera interface"
-                previewImageUrl="/assets/notebook_preview.jpg"
-                author={{
-                  username: "Yousef",
-                  profileImageUrl: "",
-                }}
-                onClick={() => {
-                  alert("x");
-                }}></NotebookOverviewItem>
-              <NotebookOverviewItem
-                title="Use React graphs"
-                description="Use React graph library to display various bar charts"
-                previewImageUrl="/assets/notebook_preview.jpg"
-                author={{
-                  username: "Pieter",
-                  profileImageUrl: "",
-                }}
-                onClick={() => {
-                  alert("x");
-                }}></NotebookOverviewItem>
+              <div className={styles.notebook}>
+                <NotebookOverviewItem
+                  title="Import & transform CSV"
+                  description="See if we can import and manipulate some data"
+                  previewImageUrl="/assets/notebook_preview.jpg"
+                  author={{
+                    username: "Niklas",
+                    profileImageUrl: "",
+                  }}
+                  onClick={() => {
+                    alert("x");
+                  }}></NotebookOverviewItem>
+              </div>
+              <div className={styles.notebook}>
+                <NotebookOverviewItem
+                  title="3D prototype. Work with new models and cameras"
+                  description="Load a 3D model with adjustable camera interface"
+                  previewImageUrl="/assets/notebook_preview.jpg"
+                  author={{
+                    username: "Yousef",
+                    profileImageUrl: "",
+                  }}
+                  onClick={() => {
+                    alert("x");
+                  }}></NotebookOverviewItem>
+              </div>
+              <div className={styles.notebook}>
+                <NotebookOverviewItem
+                  title="Use React graphs"
+                  description="Use React graph library to display various bar charts"
+                  previewImageUrl="/assets/notebook_preview.jpg"
+                  author={{
+                    username: "Pieter",
+                    profileImageUrl: "",
+                  }}
+                  onClick={() => {
+                    alert("x");
+                  }}></NotebookOverviewItem>
+              </div>
             </div>
           </div>
         </section>

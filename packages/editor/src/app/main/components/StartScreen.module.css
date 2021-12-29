@@ -135,6 +135,13 @@
   justify-content: space-evenly;
 }
 
+.notebooks .notebook {
+  padding: 0 2em;
+  flex: 1 1;
+  max-width: 100%;
+  overflow: hidden;
+}
+
 .section_separator {
   margin: 0 auto;
   height: 1px;
@@ -177,4 +184,84 @@
 .footer {
   padding: 6em 0;
   background-color: #f6f6f6;
+}
+
+@media only screen and (max-width: 768px) {
+  .introduction {
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+
+  .introduction h1 {
+    font-size: 1.6em;
+  }
+
+  .introduction .buttons {
+    flex-direction: column;
+  }
+
+  .introduction .buttons a:first-child {
+    margin-bottom: 1em;
+    margin-right: 0;
+  }
+
+  .demo {
+    display: none;
+  }
+
+  .perks {
+    padding: 2em 1em;
+  }
+
+  .perks .perk_row {
+    flex-direction: column;
+  }
+
+  .perks .perk {
+    width: 100%;
+    padding: 0 !important;
+    flex-grow: 1 1;
+    margin-bottom: 1em;
+  }
+
+  .notebooks {
+    padding: 2em 0 0 0;
+  }
+
+  .notebooks h2 {
+    margin-bottom: 0;
+  }
+
+  .notebooks .text {
+    padding: 1em;
+  }
+
+  .notebooks .overview {
+    flex-direction: column;
+    padding: 2em;
+    margin-top: 0;
+    justify-content: center;
+  }
+
+  .notebooks .notebook {
+    padding: 0;
+    flex: 1 1;
+    width: 100%;
+    overflow: hidden;
+    margin: 0 auto 3em auto;
+    max-width: 350px;
+  }
+
+  .notebooks .notebook:last-child {
+    margin-bottom: 1em;
+  }
+
+  .build {
+    padding: 3em 1em;
+  }
+
+  .build .buttons a {
+    width: 100%;
+    text-align: center;
+  }
 }
