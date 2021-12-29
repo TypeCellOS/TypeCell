@@ -1,16 +1,16 @@
 import { observer } from "mobx-react-lite";
-import { getStoreService } from "../../../store/local/stores";
+// import { getStoreService } from "../../../store/local/stores";
 import styles from "./NotebookOverviewItem.module.css";
 
 export const NotebookOverviewItem = observer(
   (props: {
     title: string;
     description: string;
-    previewImageUrl: string;
+    previewImage: string;
     onClick: () => void;
     author: { username: string; profileImageUrl?: string };
   }) => {
-    const { navigationStore } = getStoreService();
+    // const { navigationStore } = getStoreService();
 
     function onClick(e: any) {
       e.preventDefault();
@@ -21,7 +21,7 @@ export const NotebookOverviewItem = observer(
       <article className={styles.item}>
         <div className={styles.previewImage}>
           <a href="/" onClick={onClick}>
-            <img src={props.previewImageUrl} alt="Notebook preview" />
+            <img src={props.previewImage} alt="Notebook preview" />
           </a>
         </div>
         <div className="row">

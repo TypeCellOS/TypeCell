@@ -1,13 +1,14 @@
 import { observer } from "mobx-react-lite";
 import styles from "./StartScreen.module.css";
 import GitHubButton from "react-github-btn";
-import { getStoreService } from "../../../store/local/stores";
-import { NotebookOverviewItem } from "./NotebookOverviewItem";
-import app_logo from "../../../assets/app_logo.svg";
-import intro from "./startscreen/assets/intro.gif";
-import lightning from "./startscreen/assets/lightning.svg";
-import globe from "./startscreen/assets/globe.svg";
-import npm from "./startscreen/assets/npm.svg";
+import { getStoreService } from "../../../../store/local/stores";
+import { NotebookOverviewItem } from "../NotebookOverviewItem";
+import app_logo from "../../../../assets/app_logo.svg";
+import intro from "./assets/intro.gif";
+import lightning from "./assets/lightning.svg";
+import globe from "./assets/globe.svg";
+import npm from "./assets/npm.svg";
+import previewImage from "./assets/notebook_preview.jpg";
 
 export const StartScreen = observer(() => {
   const { navigationStore, sessionStore } = getStoreService();
@@ -122,7 +123,7 @@ export const StartScreen = observer(() => {
                 <NotebookOverviewItem
                   title="Import & transform CSV"
                   description="See if we can import and manipulate some data"
-                  previewImageUrl="/assets/notebook_preview.jpg"
+                  previewImage={previewImage}
                   author={{
                     username: "Niklas",
                     profileImageUrl: "",
@@ -135,7 +136,7 @@ export const StartScreen = observer(() => {
                 <NotebookOverviewItem
                   title="3D prototype. Work with new models and cameras"
                   description="Load a 3D model with adjustable camera interface"
-                  previewImageUrl="/assets/notebook_preview.jpg"
+                  previewImage={previewImage}
                   author={{
                     username: "Yousef",
                     profileImageUrl: "",
@@ -148,7 +149,7 @@ export const StartScreen = observer(() => {
                 <NotebookOverviewItem
                   title="Use React graphs"
                   description="Use React graph library to display various bar charts"
-                  previewImageUrl="/assets/notebook_preview.jpg"
+                  previewImage={previewImage}
                   author={{
                     username: "Pieter",
                     profileImageUrl: "",
