@@ -179,7 +179,7 @@ export class DocConnection extends lifecycle.Disposable {
 
   // TODO: fork github or file sources
   public async fork() {
-    if (!getStoreService().sessionStore.loggedInUser) {
+    if (!getStoreService().sessionStore.loggedInUserId) {
       throw new Error("not logged in");
     }
 
@@ -196,7 +196,7 @@ export class DocConnection extends lifecycle.Disposable {
           scheme: this.identifier.uri.scheme,
           // TODO: use user authority,
           path:
-            getStoreService().sessionStore.loggedInUser +
+            getStoreService().sessionStore.loggedInUserId +
             "/" +
             this.identifier.document +
             (tryN > 1 ? "-" + tryN : ""),
@@ -245,7 +245,7 @@ export class DocConnection extends lifecycle.Disposable {
     forkSourceIdentifier?: Identifier
   ) {
     const sessionStore = getStoreService().sessionStore;
-    if (!sessionStore.loggedInUser) {
+    if (!sessionStore.loggedInUserId) {
       throw new Error("no user available on create document");
     }
     const identifier = tryParseIdentifier(id);
@@ -259,13 +259,13 @@ export class DocConnection extends lifecycle.Disposable {
     }
 
     // TODO: check authority
-    if (identifier.owner !== sessionStore.loggedInUser) {
+    if (identifier.owner !== sessionStore.loggedInUserId) {
       throw new Error("not authorized to create this document");
     }
 
     if (
       await existsLocally(
-        getIDBIdentifier(identifier.toString(), sessionStore.loggedInUser)
+        getIDBIdentifier(identifier.toString(), sessionStore.loggedInUserId)
       )
     ) {
       return "already-exists";
