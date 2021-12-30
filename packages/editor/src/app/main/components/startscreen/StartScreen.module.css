@@ -39,7 +39,7 @@
 }
 
 .introduction .buttons a:first-child {
-  margin-right: 1em;
+  margin-right: 2em;
 }
 
 .introduction h1 {
@@ -80,6 +80,7 @@
 
 .perks .perk_row {
   justify-content: center;
+  padding: 0 3em;
 }
 
 .perks .perk {
@@ -88,7 +89,7 @@
   flex: 1 1;
   align-items: center;
   text-align: center;
-  padding: 0 6em;
+  padding: 0 3em;
 }
 
 .perks .perk:first-child {
@@ -106,6 +107,7 @@
 
 .perks .perk span {
   color: #919191;
+  line-height: 1.9em;
   font-weight: 600;
 }
 
@@ -217,6 +219,7 @@
 
   .perks .perk_row {
     flex-direction: column;
+    padding: 0 1em;
   }
 
   .perks .perk {
