@@ -10,6 +10,7 @@ import routing from "../../app/routing";
 import { BaseResource } from "../BaseResource";
 import { DocConnection } from "../DocConnection";
 import { SessionStore } from "./SessionStore";
+import { parseIdentifier } from "../../identifiers/index";
 
 export class NavigationStore {
   private initialized = false;
@@ -224,6 +225,13 @@ export class NavigationStore {
     this.currentPage = {
       page: "document",
       identifier: doc.identifier,
+    };
+  };
+
+  navigateToNewGuestNotebook = () => {
+    this.currentPage = {
+      page: "document",
+      identifier: parseIdentifier("@typecell/new"),
     };
   };
 }

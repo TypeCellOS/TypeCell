@@ -68,6 +68,7 @@ code {
 
 .button:hover {
   color: white;
+  background-color: #3e454b;
   text-decoration: none;
 }
 
@@ -94,7 +95,7 @@ code {
 }
 
 .button.inverted:hover {
-  border: 1px solid #676767;
+  background-color: #f3f3f3;
 }
 
 /* Some generic layout classes */

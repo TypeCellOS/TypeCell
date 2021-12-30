@@ -18,7 +18,7 @@ export const StartScreen = observer(() => {
     if (sessionStore.isLoggedIn) {
       navigationStore.showNewNotebookDialog();
     } else {
-      // TODO: implement for non logged-in
+      navigationStore.navigateToNewGuestNotebook();
     }
   }
 
