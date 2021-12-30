@@ -30,15 +30,29 @@ export class SessionStore extends lifecycle.Disposable {
         matrixClient: MatrixClient;
       } = "loading";
 
+  /**
+   * returns a logged in user or a guest user when available
+   * otherwise undefined
+   */
   public get tryUser() {
     return typeof this.user === "string" ? undefined : this.user;
   }
 
+  /**
+   * returns true if the user is logged in to his own matrix identity.
+   * returns false if only a guest user or no user is available.
+   *
+   * Note that this definition of loggedin is different than in the Matrix-related code,
+   * in Matrix code (e.g. MatrixAuthStore.loggedIn), a guest user is also considered logged in ("as guest")
+   */
   public get isLoggedIn() {
     return typeof this.user !== "string" && this.user.type === "matrix-user";
   }
 
-  public get loggedInUser() {
+  /**
+   * Returns the userId (e.g.: @bret) when logged in, undefined otherwise
+   */
+  public get loggedInUserId() {
     return typeof this.user !== "string" && this.user.type === "matrix-user"
       ? this.user.userId
       : undefined;
@@ -53,13 +67,11 @@ export class SessionStore extends lifecycle.Disposable {
     // after logging out, call initialize() to sign in as a guest
     await this.matrixAuthStore.initialize();
   };
-  public matrixClient: MatrixClient;
 
   constructor(private matrixAuthStore: MatrixAuthStore) {
     super();
     makeObservable(this, {
       user: observable.ref,
-      matrixClient: observable.ref,
       isLoggedIn: computed,
     });
   }
@@ -90,6 +102,9 @@ export class SessionStore extends lifecycle.Disposable {
     }
   }
 
+  /**
+   * Updates the state of sessionStore based on the internal matrixAuthStore.loggedIn
+   */
   private async updateStateFromAuthStore() {
     if (this.matrixAuthStore.loggedIn) {
       const matrixClient = MatrixClientPeg.get();

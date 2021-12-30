@@ -55,9 +55,9 @@ const Main = observer((props: Props) => {
         ) : (
           <Page currentPage={props.currentPage} />
         )}
-        {sessionStore.loggedInUser && (
+        {sessionStore.loggedInUserId && (
           <NewNotebookDialog
-            ownerId={sessionStore.loggedInUser}
+            ownerId={sessionStore.loggedInUserId}
             close={navigationStore.hideNewNotebookDialog}
             isOpen={navigationStore.isNewNotebookDialogVisible}
           />

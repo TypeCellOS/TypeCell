@@ -17,14 +17,14 @@ export type CommentType = {
 
 // This class provides commands to easily manipulate and retrieve comment data in browser cache.
 export class CommentStore {
-  constructor(private readonly map: Y.Map<CommentType>) { }
+  constructor(private readonly map: Y.Map<CommentType>) {}
 
   // Creates a new, empty comment in browser cache.
   public createComment() {
     const comment = {
       id: v4(), // Newly generated UUID V4 ID string.
       comment: "", // Empty comment, for obvious reasons.
-      user: getStoreService().sessionStore.loggedInUser!, // The current logged in user.
+      user: getStoreService().sessionStore.loggedInUserId!, // The current logged in user.
       date: Date.now(), // Time in ms since UNIX epoch.
     };
     this.map.set(comment.id, comment);
