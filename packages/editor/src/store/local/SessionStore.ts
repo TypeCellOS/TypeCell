@@ -16,6 +16,11 @@ function getUserFromMatrixId(matrixId: string) {
 
   return user;
 }
+
+/**
+ * The sessionStore keeps track of user related data
+ * (e.g.: is the user logged in, what is the user name, etc)
+ */
 export class SessionStore extends lifecycle.Disposable {
   public user:
     | "loading"
