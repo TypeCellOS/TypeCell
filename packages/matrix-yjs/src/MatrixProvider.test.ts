@@ -1,6 +1,6 @@
 import * as Y from "yjs";
 import { event } from "vscode-lib";
-import { createMatrixGuestClient } from "./matrixGuestClient";
+import { createMatrixGuestClient } from "./test-utils/matrixGuestClient";
 import { MatrixProvider } from "./MatrixProvider";
 import {
   createRandomMatrixClient,

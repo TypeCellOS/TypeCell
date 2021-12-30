@@ -3,7 +3,7 @@ import * as https from "https";
 import { MatrixClient } from "matrix-js-sdk";
 import * as Y from "yjs";
 import { event } from "vscode-lib";
-import { createMatrixGuestClient } from "../matrixGuestClient";
+import { createMatrixGuestClient } from "../test-utils/matrixGuestClient";
 import { MatrixProvider } from "../MatrixProvider";
 import { createRandomMatrixClientAndRoom } from "../test-utils/matrixTestUtil";
 import {

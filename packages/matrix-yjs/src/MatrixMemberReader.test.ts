@@ -1,6 +1,6 @@
 import { MatrixEvent } from "matrix-js-sdk";
 
-import { createMatrixGuestClient } from "./matrixGuestClient";
+import { createMatrixGuestClient } from "./test-utils/matrixGuestClient";
 import { MatrixMemberReader } from "./MatrixMemberReader";
 import { MatrixReader } from "./MatrixReader";
 import {

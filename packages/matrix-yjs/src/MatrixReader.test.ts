@@ -2,7 +2,7 @@ import got from "got";
 import { MatrixClient, request } from "matrix-js-sdk";
 import * as qs from "qs";
 import { autocannonSeparateProcess } from "./benchmark/util";
-import { createMatrixGuestClient } from "./matrixGuestClient";
+import { createMatrixGuestClient } from "./test-utils/matrixGuestClient";
 import { MatrixReader } from "./MatrixReader";
 import { sendMessage, sendSnapshot } from "./matrixUtil";
 import { createRandomMatrixClientAndRoom } from "./test-utils/matrixTestUtil";
