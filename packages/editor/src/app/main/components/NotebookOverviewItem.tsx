@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-// import { getStoreService } from "../../../store/local/stores";
+import { getStoreService } from "../../../store/local/stores";
 import styles from "./NotebookOverviewItem.module.css";
 
 export const NotebookOverviewItem = observer(
@@ -10,7 +10,7 @@ export const NotebookOverviewItem = observer(
     onClick: () => void;
     author: { username: string; profileImageUrl?: string };
   }) => {
-    // const { navigationStore } = getStoreService();
+    const { navigationStore } = getStoreService();
 
     function onClick(e: any) {
       e.preventDefault();
@@ -33,7 +33,7 @@ export const NotebookOverviewItem = observer(
             href="/"
             onClick={(e) => {
               e.preventDefault();
-              // TODO: Show profile page
+              navigationStore.showProfilePage("@" + props.author.username);
             }}
             className={styles.owner}>
             <div className={styles.profileImage}>
@@ -41,11 +41,11 @@ export const NotebookOverviewItem = observer(
                 <img src={props.author.profileImageUrl} alt="Notebook author" />
               ) : (
                 <div>
-                  <span>{props.author.username.charAt(0)}</span>
+                  <span>{props.author.username.charAt(0).toUpperCase()}</span>
                 </div>
               )}
             </div>
-            <span>{props.author.username}</span>
+            <span className={styles.username}>{props.author.username}</span>
           </a>
 
           <a className="button inverted" href="/" onClick={onClick}>

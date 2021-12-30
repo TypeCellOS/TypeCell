@@ -234,4 +234,23 @@ export class NavigationStore {
       identifier: parseIdentifier("@typecell/new"),
     };
   };
+
+  showProfilePage = (owner: string) => {
+    this.currentPage = {
+      page: "owner",
+      owner,
+    };
+    const url = "/" + owner;
+    window.history.pushState(
+      {
+        url,
+        prevUrl:
+          window.history.state?.prevUrl ||
+          window.history.state?.url ||
+          window.location.href,
+      },
+      "",
+      url
+    );
+  };
 }

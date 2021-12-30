@@ -125,7 +125,7 @@ export const StartScreen = observer(() => {
                   description="See if we can import and manipulate some data"
                   previewImage={previewImage}
                   author={{
-                    username: "Niklas",
+                    username: "niklas",
                     profileImageUrl: "",
                   }}
                   onClick={() => {
@@ -138,7 +138,7 @@ export const StartScreen = observer(() => {
                   description="Load a 3D model with adjustable camera interface"
                   previewImage={previewImage}
                   author={{
-                    username: "Yousef",
+                    username: "yousef",
                     profileImageUrl: "",
                   }}
                   onClick={() => {
@@ -151,7 +151,7 @@ export const StartScreen = observer(() => {
                   description="Use React graph library to display various bar charts"
                   previewImage={previewImage}
                   author={{
-                    username: "Pieter",
+                    username: "pieter",
                     profileImageUrl: "",
                   }}
                   onClick={() => {
