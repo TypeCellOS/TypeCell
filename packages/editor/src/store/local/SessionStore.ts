@@ -44,7 +44,7 @@ export class SessionStore extends lifecycle.Disposable {
       : undefined;
   }
 
-  public async logout() {
+  public logout = async () => {
     if (!this.isLoggedIn) {
       throw new Error("can't logout when not logged in");
     }
@@ -52,7 +52,7 @@ export class SessionStore extends lifecycle.Disposable {
 
     // after logging out, call initialize() to sign in as a guest
     await this.matrixAuthStore.initialize();
-  }
+  };
   public matrixClient: MatrixClient;
 
   constructor(private matrixAuthStore: MatrixAuthStore) {
