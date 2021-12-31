@@ -181,9 +181,16 @@ export class YDocSyncManager
       new MatrixProvider(
         this._ydoc,
         this.mxClient,
-        this.identifier.roomName,
-        this.identifier.uri.authority,
-        this.awareness
+        {
+          type: "alias",
+          alias:
+            "#" +
+            this.identifier.roomName +
+            ":" +
+            this.identifier.uri.authority,
+        },
+        this.awareness,
+        { enableExperimentalWebrtcSync: true }
       )
     );
 

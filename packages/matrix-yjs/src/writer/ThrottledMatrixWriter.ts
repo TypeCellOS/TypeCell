@@ -2,13 +2,20 @@ import * as _ from "lodash";
 import { MatrixClient } from "matrix-js-sdk";
 import { event, lifecycle } from "vscode-lib";
 import * as Y from "yjs";
-import { sendUpdate } from "./matrixUtil";
+import { sendUpdate } from "../util/matrixUtil";
 
-const DEFAULT_FLUSH_INTERVAL = process.env.NODE_ENV === "test" ? 100 : 1000 * 5;
-const FORBIDDEN_FLUSH_INTERVAL = 1000 * 30; // TODO: raise to 1 min
+const DEFAULT_OPTIONS = {
+  flushInterval: process.env.NODE_ENV === "test" ? 100 : 1000 * 5,
+  retryIfForbiddenInterval: 1000 * 30,
+};
 
+export type ThrottledMatrixWriterOptions = Partial<typeof DEFAULT_OPTIONS>;
+
+/**
+ * A class that writes updates in the form of Uint8Array to Matrix.
+ */
 export class ThrottledMatrixWriter extends lifecycle.Disposable {
-  private pendingUpdates: any[] = [];
+  private pendingUpdates: Uint8Array[] = [];
   private isSendingUpdates = false;
   private _canWrite = true;
   private retryTimeoutHandler: any;
@@ -17,6 +24,7 @@ export class ThrottledMatrixWriter extends lifecycle.Disposable {
   private readonly _onCanWriteChanged: event.Emitter<void> = this._register(
     new event.Emitter<void>()
   );
+
   public readonly onCanWriteChanged: event.Event<void> =
     this._onCanWriteChanged.event;
 
@@ -27,8 +35,24 @@ export class ThrottledMatrixWriter extends lifecycle.Disposable {
   private readonly onSentAllEvents: event.Event<void> =
     this._onSentAllEvents.event;
 
-  constructor(private readonly matrixClient: MatrixClient) {
+  private readonly throttledFlushUpdatesToMatrix: _.DebouncedFunc<
+    () => Promise<void>
+  >;
+
+  private readonly opts: typeof DEFAULT_OPTIONS;
+
+  constructor(
+    private readonly matrixClient: MatrixClient,
+    opts: ThrottledMatrixWriterOptions = {}
+  ) {
     super();
+    this.opts = { ...DEFAULT_OPTIONS, ...opts };
+    this.throttledFlushUpdatesToMatrix = _.throttle(
+      this.flushUpdatesToMatrix,
+      this.canWrite
+        ? this.opts.flushInterval
+        : this.opts.retryIfForbiddenInterval
+    );
   }
 
   private setCanWrite(value: boolean) {
@@ -50,9 +74,6 @@ export class ThrottledMatrixWriter extends lifecycle.Disposable {
     this.isSendingUpdates = true;
     const merged = Y.mergeUpdates(this.pendingUpdates);
     this.pendingUpdates = [];
-    // const encoder = encoding.createEncoder();
-    // encoding.writeVarUint8Array(encoder, merged);
-    // encoding.writeVarUint(encoder, 0);
 
     let retryImmediately = false;
     try {
@@ -91,21 +112,14 @@ export class ThrottledMatrixWriter extends lifecycle.Disposable {
         retryImmediately
           ? 0
           : this.canWrite
-          ? DEFAULT_FLUSH_INTERVAL
-          : FORBIDDEN_FLUSH_INTERVAL
+          ? this.opts.flushInterval
+          : this.opts.retryIfForbiddenInterval
       );
     } else {
       console.log("_onSentAllEvents");
       this._onSentAllEvents.fire();
     }
-    // syncProtocol.writeUpdate(encoder, update);
-    // broadcastMessage(this, encoding.toUint8Array(encoder));
   };
-
-  private throttledFlushUpdatesToMatrix = _.throttle(
-    this.flushUpdatesToMatrix,
-    this.canWrite ? DEFAULT_FLUSH_INTERVAL : FORBIDDEN_FLUSH_INTERVAL
-  );
 
   public async initialize(roomId: string) {
     this.roomId = roomId;
@@ -116,11 +130,12 @@ export class ThrottledMatrixWriter extends lifecycle.Disposable {
     return this._canWrite;
   }
 
-  public writeUpdate(update: any) {
+  public writeUpdate(update: Uint8Array) {
     this.pendingUpdates.push(update);
     this.throttledFlushUpdatesToMatrix();
   }
 
+  // Helper method that's mainly used in unit tests
   public async waitForFlush() {
     if (!this.pendingUpdates.length && !this.isSendingUpdates) {
       return;

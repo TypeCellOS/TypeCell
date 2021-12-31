@@ -1,6 +1,6 @@
 import { createClient, MemoryStore } from "matrix-js-sdk";
 import { uniqueId } from "@typecell-org/common";
-import { createMatrixDocument } from "../matrixRoomManager";
+import { createMatrixRoom } from "../createMatrixRoom";
 import * as http from "http";
 import * as https from "https";
 import { matrixTestConfig } from "./matrixTestUtilServer";
@@ -27,7 +27,7 @@ export async function createRandomMatrixClientAndRoom(
 ) {
   const { client, username } = await createRandomMatrixClient();
   const roomName = "@" + username + "/test";
-  const result = await createMatrixDocument(client, "", roomName, access);
+  const result = await createMatrixRoom(client, roomName, access);
 
   if (typeof result === "string" || result.status !== "ok") {
     throw new Error("couldn't create room");

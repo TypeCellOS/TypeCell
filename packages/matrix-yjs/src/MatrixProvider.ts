@@ -3,24 +3,30 @@ import { MatrixClient } from "matrix-js-sdk";
 import { event, lifecycle } from "vscode-lib";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
-import { signObject, verifyObject } from "./authUtil";
-import { MatrixMemberReader } from "./MatrixMemberReader";
-import { MatrixReader } from "./MatrixReader";
-import { isSnapshotEvent, isUpdateEvent, sendSnapshot } from "./matrixUtil";
+import { signObject, verifyObject } from "./util/authUtil";
+import { MatrixMemberReader } from "./memberReader/MatrixMemberReader";
+import { MatrixReader, MatrixReaderOptions } from "./reader/MatrixReader";
+import {
+  isSnapshotEvent,
+  isUpdateEvent,
+  sendSnapshot,
+} from "./util/matrixUtil";
 import { SignedWebrtcProvider } from "./SignedWebrtcProvider";
-import { ThrottledMatrixWriter } from "./ThrottledMatrixWriter";
+import {
+  ThrottledMatrixWriter,
+  ThrottledMatrixWriterOptions,
+} from "./writer/ThrottledMatrixWriter";
+
+const DEFAULT_OPTIONS = {
+  enableExperimentalWebrtcSync: false,
+  reader: {} as MatrixReaderOptions,
+  writer: {} as ThrottledMatrixWriterOptions,
+};
+
+export type MatrixProviderOptions = Partial<typeof DEFAULT_OPTIONS>;
 
 /**
  * Syncs a Matrix room with a Yjs document.
- *
- * Note that when the MatrixClient is a guest-account, we don't receive updates via MatrixProvider, so in that case MatrixProvider
- * is only used to fetch the initial document state.
- *
- * A couple of notes on our MatrixClient:
- * - TypeCell takes care itself of local caching of yjs documents. So all localstorage caches of MatrixClient should be disabled.
- *    so, we've disabled the Matrix IndexedDB store and use a MemoryStore instead.
- *    (otherwise we have both local persistence logic in the matrix client, and in the Yjs doc that's stored via y-indexeddb)
- * - We've also disabled "detached" pendingEventOrdering (use "chronological" instead) for the same reason
  */
 export class MatrixProvider extends lifecycle.Disposable {
   private disposed = false;
@@ -29,19 +35,18 @@ export class MatrixProvider extends lifecycle.Disposable {
 
   private initializedResolve: any;
 
+  // TODO: rewrite to remove initializedPromise and use async / await instead
   private readonly initializedPromise = new Promise<void>((resolve) => {
     this.initializedResolve = resolve;
   });
 
   private webrtcProvider: SignedWebrtcProvider | undefined;
   private reader: MatrixReader | undefined;
-  private throttledWriter = new ThrottledMatrixWriter(this.matrixClient);
+  private readonly throttledWriter: ThrottledMatrixWriter;
 
   private readonly _onDocumentAvailable: event.Emitter<void> = this._register(
     new event.Emitter<void>()
   );
-  public readonly onDocumentAvailable: event.Event<void> =
-    this._onDocumentAvailable.event;
 
   private readonly _onDocumentUnavailable: event.Emitter<void> = this._register(
     new event.Emitter<void>()
@@ -51,32 +56,71 @@ export class MatrixProvider extends lifecycle.Disposable {
     new event.Emitter<void>()
   );
 
+  private readonly opts: typeof DEFAULT_OPTIONS;
+
+  public readonly onDocumentAvailable: event.Event<void> =
+    this._onDocumentAvailable.event;
+
   public readonly onReceivedEvents: event.Event<void> =
     this._onReceivedEvents.event;
 
   public readonly onDocumentUnavailable: event.Event<void> =
     this._onDocumentUnavailable.event;
 
-  public readonly onCanWriteChanged = this.throttledWriter.onCanWriteChanged;
+  public get onCanWriteChanged() {
+    return this.throttledWriter.onCanWriteChanged;
+  }
+
   public get canWrite() {
     return this.throttledWriter.canWrite;
   }
 
   public totalEventsReceived = 0;
 
+  /**
+   *Creates an instance of MatrixProvider.
+   * @param {Y.Doc} doc
+   * @param {MatrixClient} matrixClient
+   * @param {({
+   *           type: "id";
+   *           id: string;
+   *         }
+   *       | { type: "alias"; alias: string })} A room alias (e.g.: #room_alias:domain) or room id (e.g.: !qporfwt:matrix.org) to sync the document with.
+   * @param {string} homeserver
+   * @param {awarenessProtocol.Awareness} [awareness]
+   * @memberof MatrixProvider
+   */
   public constructor(
     private doc: Y.Doc,
     private matrixClient: MatrixClient,
-    private roomName: string,
-    private homeserver: string,
-    private readonly awareness?: awarenessProtocol.Awareness
+    private room:
+      | {
+          type: "id";
+          id: string;
+        }
+      | { type: "alias"; alias: string },
+    private readonly awareness?: awarenessProtocol.Awareness,
+    opts: MatrixProviderOptions = {}
   ) {
-    // TODO: check authority of identifier
     super();
+    if (awareness && !opts.enableExperimentalWebrtcSync) {
+      throw new Error(
+        "awareness is only supported when using enableExperimentalWebrtcSync=true"
+      );
+    }
+    this.opts = { ...DEFAULT_OPTIONS, ...opts };
+    this.throttledWriter = new ThrottledMatrixWriter(
+      this.matrixClient,
+      this.opts.writer
+    );
     doc.on("update", this.documentUpdateListener);
   }
 
-  private documentUpdateListener = async (update: any, origin: any) => {
+  /**
+   * Listener for changes to the Yjs document.
+   * Forwards changes to the Matrix Room if applicable
+   */
+  private documentUpdateListener = async (update: Uint8Array, origin: any) => {
     if (
       origin === this ||
       (this.webrtcProvider && origin === this.webrtcProvider)
@@ -89,18 +133,16 @@ export class MatrixProvider extends lifecycle.Disposable {
       return;
     }
     this.throttledWriter.writeUpdate(update);
-    // setTimeout(() => this.throttledWriter.writeUpdate(update), 0); // setTimeout 0 so waitForFlush works if we call it just after setting doc. TODO: necessary?
   };
 
+  /**
+   * Handles incoming events from MatrixReader
+   */
   private processIncomingEvents = (
     events: any[],
     shouldSendSnapshot = false
   ) => {
-    // console.log(
-    //   "processIncomingMessages",
-    //   JSON.stringify(messages),
-    //   messages.length
-    // );
+    // Filter only relevant events
     events = events.filter((e) => {
       if (!isUpdateEvent(e) && !isSnapshotEvent(e)) {
         return false; // only use messages / snapshots
@@ -110,18 +152,25 @@ export class MatrixProvider extends lifecycle.Disposable {
 
     this.totalEventsReceived += events.length;
 
+    // Create a yjs update from the events
     const updates = events.map(
       (e) => new Uint8Array(base64.decodeBase64(e.content.update))
     );
 
-    // TODO: this is a bit of a weird code-path, as
-    // updates can be an empty array on initial room load
     const update = Y.mergeUpdates(updates);
+
+    if (!updates.length) {
+      // We still return an empty "update" here, because this is
+      // used to compare the initial document state in initialization.
+      // (maybe we can rewrite to a clearer code-path)
+      return update;
+    }
 
     // Apply latest state from server
     Y.applyUpdate(this.doc, update, this);
 
-    if (events.length && shouldSendSnapshot) {
+    // Create and send a snapsnot if necessary
+    if (shouldSendSnapshot) {
       const lastEvent = events[events.length - 1];
       const update = Y.encodeStateAsUpdate(this.doc);
 
@@ -141,6 +190,7 @@ export class MatrixProvider extends lifecycle.Disposable {
       });
     }
 
+    // fire _onReceivedEvents if applicable
     const remoteMessages = events.filter(
       (e) => e.user_id !== this.matrixClient.credentials.userId
     );
@@ -150,46 +200,13 @@ export class MatrixProvider extends lifecycle.Disposable {
     return update;
   };
 
-  public async waitForFlush() {
-    await this.initializedPromise;
-    await this.throttledWriter.waitForFlush();
-  }
-
-  public async initializeReader() {
-    if (this.reader) {
-      throw new Error("already initialized reader");
-    }
-    if (!this.roomId) {
-      throw new Error("no roomId");
-    }
-
-    this.reader = this._register(
-      new MatrixReader(this.matrixClient, this.roomId)
-    );
-
-    this._register(
-      this.reader.onEvents((e) =>
-        this.processIncomingEvents(e.events, e.shouldSendSnapshot)
-      )
-    );
-    const events = await this.reader.getInitialDocumentUpdateEvents();
-    this.reader.startPolling();
-    return this.processIncomingEvents(events);
-  }
-
-  public async initialize() {
-    try {
-      await this.initializeNoCatch();
-      await this.initializedPromise;
-      if (!this.disposed && process.env.NODE_ENV !== "test") {
-        await this.initializeWebrtc();
-      }
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
-  }
-
+  /**
+   * Experimental; we can use WebRTC to sync updates instantly over WebRTC.
+   *
+   * The default Matrix-writer only flushes events every 5 seconds.
+   * WebRTC can also sync awareness updates which is not available via Matrix yet.
+   * See SignedWebrtcProvider.ts for more details + motivation
+   */
   private async initializeWebrtc() {
     if (!this.roomId) {
       throw new Error("not initialized");
@@ -197,7 +214,7 @@ export class MatrixProvider extends lifecycle.Disposable {
     /*
     TODO:
     - implement password
-
+    - allow options to be passed to WebRtcprovider (e.g.: signalling servers which now default to those supplied by yjs)
     */
     if (!this.reader) {
       throw new Error("needs reader to initialize webrtc");
@@ -227,11 +244,16 @@ export class MatrixProvider extends lifecycle.Disposable {
   }
 
   private async initializeNoCatch() {
+    const roomLogName: string =
+      this.room.type === "id" ? this.room.id : this.room.alias;
     try {
-      const ret = await this.matrixClient.getRoomIdForAlias(
-        "#" + this.roomName + ":" + this.homeserver // TODO
-      );
-      this.roomId = ret.room_id;
+      if (this.room.type === "id") {
+        this.roomId = this.room.id;
+      } else if (this.room.type === "alias") {
+        const ret = await this.matrixClient.getRoomIdForAlias(this.room.alias);
+        this.roomId = ret.room_id;
+      }
+
       if (!this.roomId) {
         throw new Error("error receiving room id");
       }
@@ -240,12 +262,12 @@ export class MatrixProvider extends lifecycle.Disposable {
     } catch (e: any) {
       let timeout = 5 * 1000;
       if (e.errcode === "M_NOT_FOUND") {
-        console.log("room not found", this.roomName);
+        console.log("room not found", roomLogName);
         this._onDocumentUnavailable.fire();
       } else if (e.name === "ConnectionError") {
-        console.log("room not found (offline)", this.roomName);
+        console.log("room not found (offline)", roomLogName);
       } else {
-        console.error("error retrieving room", this.roomName, e);
+        console.error("error retrieving room", roomLogName, e);
         timeout = 30 * 1000;
         this._onDocumentUnavailable.fire();
       }
@@ -256,6 +278,9 @@ export class MatrixProvider extends lifecycle.Disposable {
       }, timeout);
       return;
     }
+
+    // We have resolved the roomAlias (if necessary)
+    // Now fetch all relevant events for the room to initialize the YDoc
 
     let initialLocalState = Y.encodeStateAsUpdate(this.doc);
     const initialLocalStateVector =
@@ -305,6 +330,52 @@ export class MatrixProvider extends lifecycle.Disposable {
     }
 
     this.initializedResolve();
+  }
+
+  /**
+   * Get all initial events from the room + start polling
+   */
+  private async initializeReader() {
+    if (this.reader) {
+      throw new Error("already initialized reader");
+    }
+    if (!this.roomId) {
+      throw new Error("no roomId");
+    }
+
+    this.reader = this._register(
+      new MatrixReader(this.matrixClient, this.roomId, this.opts.reader)
+    );
+
+    this._register(
+      this.reader.onEvents((e) =>
+        this.processIncomingEvents(e.events, e.shouldSendSnapshot)
+      )
+    );
+    const events = await this.reader.getInitialDocumentUpdateEvents();
+    this.reader.startPolling();
+    return this.processIncomingEvents(events);
+  }
+
+  /**
+   * For testing purposes; make sure pending events have been flushed to Matrix
+   */
+  public async waitForFlush() {
+    await this.initializedPromise;
+    await this.throttledWriter.waitForFlush();
+  }
+
+  public async initialize() {
+    try {
+      await this.initializeNoCatch();
+      await this.initializedPromise;
+      if (!this.disposed && this.opts.enableExperimentalWebrtcSync) {
+        await this.initializeWebrtc();
+      }
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 
   public dispose() {

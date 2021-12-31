@@ -1,16 +1,16 @@
 import { MatrixEvent } from "matrix-js-sdk";
 
-import { createMatrixGuestClient } from "./test-utils/matrixGuestClient";
+import { createMatrixGuestClient } from "../test-utils/matrixGuestClient";
 import { MatrixMemberReader } from "./MatrixMemberReader";
-import { MatrixReader } from "./MatrixReader";
+import { MatrixReader } from "../reader/MatrixReader";
 import {
   createRandomMatrixClient,
   createRandomMatrixClientAndRoom,
-} from "./test-utils/matrixTestUtil";
+} from "../test-utils/matrixTestUtil";
 import {
   ensureMatrixIsRunning,
   matrixTestConfig,
-} from "./test-utils/matrixTestUtilServer";
+} from "../test-utils/matrixTestUtilServer";
 
 jest.setTimeout(30000);
 
