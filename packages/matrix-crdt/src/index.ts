@@ -1,3 +1,3 @@
 export * from "./MatrixProvider";
-export * from "./matrixRoomManager";
+export * from "./createMatrixRoom";
 export * from "./webrtc/DocWebrtcProvider";

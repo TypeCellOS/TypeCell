@@ -1,16 +1,16 @@
 import got from "got";
 import { MatrixClient, request } from "matrix-js-sdk";
 import * as qs from "qs";
-import { autocannonSeparateProcess } from "./benchmark/util";
-import { createMatrixGuestClient } from "./test-utils/matrixGuestClient";
-import { MatrixReader } from "./MatrixReader";
-import { sendMessage, sendSnapshot } from "./matrixUtil";
-import { createRandomMatrixClientAndRoom } from "./test-utils/matrixTestUtil";
+import { autocannonSeparateProcess } from "../benchmark/util";
+import { createMatrixGuestClient } from "../test-utils/matrixGuestClient";
+import { createRandomMatrixClientAndRoom } from "../test-utils/matrixTestUtil";
 import {
   ensureMatrixIsRunning,
   HOMESERVER_NAME,
   matrixTestConfig,
-} from "./test-utils/matrixTestUtilServer";
+} from "../test-utils/matrixTestUtilServer";
+import { sendMessage } from "../util/matrixUtil";
+import { MatrixReader } from "./MatrixReader";
 
 const { Worker, isMainThread } = require("worker_threads");
 

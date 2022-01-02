@@ -1,5 +1,5 @@
 import { MatrixClient } from "matrix-js-sdk";
-import { MatrixMemberReader } from "./MatrixMemberReader";
+import { MatrixMemberReader } from "../memberReader/MatrixMemberReader";
 import { WRAPPED_EVENT_TYPE } from "./matrixUtil";
 import { verifySignature } from "./olmlib";
 

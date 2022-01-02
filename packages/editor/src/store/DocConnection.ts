@@ -7,7 +7,7 @@ import {
   when,
 } from "mobx";
 import { MatrixClientPeg } from "../app/matrix-auth/MatrixClientPeg";
-import { createMatrixDocument } from "@typecell-org/matrix-yjs";
+import { createMatrixRoom } from "matrix-crdt";
 import { lifecycle } from "vscode-lib";
 import { BaseResource } from "./BaseResource";
 
@@ -271,9 +271,9 @@ export class DocConnection extends lifecycle.Disposable {
       return "already-exists";
     }
 
-    const remoteResult = await createMatrixDocument(
+    // TODO (security): user2 can create a room @user1/doc
+    const remoteResult = await createMatrixRoom(
       MatrixClientPeg.get(),
-      identifier.owner,
       identifier.roomName,
       "public-read"
     );
