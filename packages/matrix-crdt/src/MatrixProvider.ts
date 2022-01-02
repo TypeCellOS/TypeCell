@@ -1,4 +1,3 @@
-import { binary } from "@typecell-org/common";
 import { MatrixClient } from "matrix-js-sdk";
 import { event, lifecycle } from "vscode-lib";
 import * as awarenessProtocol from "y-protocols/awareness";
