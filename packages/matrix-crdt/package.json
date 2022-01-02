@@ -26,6 +26,10 @@
   "peerDependencies": {
     "matrix-js-sdk": "*"
   },
+  "files": [
+    "/dist",
+    "/types"
+  ],
   "source": "src/index.ts",
   "types": "types/index.d.ts",
   "main": "dist/index.js",
