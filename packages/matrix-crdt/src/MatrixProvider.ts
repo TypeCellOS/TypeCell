@@ -80,20 +80,25 @@ export class MatrixProvider extends lifecycle.Disposable {
 
   /**
    *Creates an instance of MatrixProvider.
-   * @param {Y.Doc} doc
-   * @param {MatrixClient} matrixClient
+   * @param {Y.Doc} doc The Y.Doc to sync over the Matrix Room
+   * @param {MatrixClient} matrixClient A matrix-js-sdk client with
+   * permissions to read (and/or write) from the room
    * @param {({
    *           type: "id";
    *           id: string;
    *         }
-   *       | { type: "alias"; alias: string })} A room alias (e.g.: #room_alias:domain) or room id (e.g.: !qporfwt:matrix.org) to sync the document with.
-   * @param {string} homeserver
+   *       | { type: "alias"; alias: string })}
+   *          A room alias (e.g.: #room_alias:domain) or
+   *          room id (e.g.: !qporfwt:matrix.org)
+   *          to sync the document with.
    * @param {awarenessProtocol.Awareness} [awareness]
+   * @param {MatrixProviderOptions} [opts={}]
    * @memberof MatrixProvider
    */
   public constructor(
     private doc: Y.Doc,
     private matrixClient: MatrixClient,
+
     private room:
       | {
           type: "id";
