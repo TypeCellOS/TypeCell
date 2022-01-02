@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@typecell-org/engine": "*",
-    "@typecell-org/matrix-yjs": "*",
+    "matrix-crdt": "*",
     "@typecell-org/common": "*",
     "@atlaskit/atlassian-navigation": "^1.0.0",
     "@atlaskit/avatar": "^20.3.0",
@@ -119,7 +119,7 @@
   "scripts": {
     "copytypes:self": "rimraf public/types && tsc --declaration --stripInternal --emitDeclarationOnly --noEmit false --declarationDir public/types/@typecell-org/editor",
     "copytypes:dep": "mkdir -p public/types/@typecell-org/$npm_config_pkgname && cp -rf ../$npm_config_pkgname/types/. public/types/@typecell-org/$npm_config_pkgname",
-    "copytypes:alldeps": "npm run copytypes:dep --pkgname=matrix-yjs && npm run copytypes:dep --pkgname=common && npm run copytypes:dep --pkgname=engine",
+    "copytypes:alldeps": "npm run copytypes:dep --pkgname=matrix-crdt && npm run copytypes:dep --pkgname=common && npm run copytypes:dep --pkgname=engine",
     "copytypes": "npm run copytypes:self && npm run copytypes:alldeps",
     "start": "npm run copytypes && craco start",
     "copy-docs": "rimraf public/_docs && mkdir public/_docs && node copy-docs.mjs > public/_docs/index.json && cp -rf ../../docs/. public/_docs",
@@ -129,7 +129,7 @@
     "test": "craco test",
     "test-no-watch": "craco test --watchAll=false",
     "eject": "craco eject",
-    "bench": "NODE_OPTIONS='--max-old-space-size=4096' ts-node --files -O '{\"module\":\"commonjs\"}' src/matrix-yjs/benchmark/benchmarkTest.ts ",
+    "bench": "NODE_OPTIONS='--max-old-space-size=4096' ts-node --files -O '{\"module\":\"commonjs\"}' src/matrix-crdt/benchmark/benchmarkTest.ts ",
     "cannon": "autocannon -c 10 http://localhost:8080",
     "cannon2": "autocannon -c 1000 -a 1000 -t 20 http://localhost:8888/_matrix/static/"
   },

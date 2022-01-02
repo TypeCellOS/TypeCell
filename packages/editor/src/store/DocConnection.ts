@@ -7,7 +7,7 @@ import {
   when,
 } from "mobx";
 import { MatrixClientPeg } from "../app/matrix-auth/MatrixClientPeg";
-import { createMatrixRoom } from "@typecell-org/matrix-yjs";
+import { createMatrixRoom } from "matrix-crdt";
 import { lifecycle } from "vscode-lib";
 import { BaseResource } from "./BaseResource";
 

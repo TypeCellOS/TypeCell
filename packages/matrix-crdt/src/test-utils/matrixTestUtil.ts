@@ -1,5 +1,5 @@
 import { createClient, MemoryStore } from "matrix-js-sdk";
-import { uniqueId } from "@typecell-org/common";
+import { uuid } from "vscode-lib";
 import { createMatrixRoom } from "../createMatrixRoom";
 import * as http from "http";
 import * as https from "https";
@@ -11,7 +11,7 @@ https.globalAgent.maxSockets = 2000;
 const TEST_PASSWORD = "testpass";
 
 export async function createRandomMatrixClient() {
-  const testId = uniqueId.generate();
+  const testId = uuid.generateUuid();
   const username = "testuser_" + testId;
 
   const client = await createMatrixUser(username, TEST_PASSWORD);

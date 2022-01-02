@@ -1,4 +1,4 @@
-import { base64, binary } from "@typecell-org/common";
+import { binary } from "@typecell-org/common";
 import { MatrixClient } from "matrix-js-sdk";
 import { event, lifecycle } from "vscode-lib";
 import * as awarenessProtocol from "y-protocols/awareness";
@@ -16,6 +16,8 @@ import {
   ThrottledMatrixWriter,
   ThrottledMatrixWriterOptions,
 } from "./writer/ThrottledMatrixWriter";
+import { decodeBase64 } from "./util/olmlib";
+import { arrayBuffersAreEqual } from "./util/binary";
 
 const DEFAULT_OPTIONS = {
   enableExperimentalWebrtcSync: false,
@@ -154,7 +156,7 @@ export class MatrixProvider extends lifecycle.Disposable {
 
     // Create a yjs update from the events
     const updates = events.map(
-      (e) => new Uint8Array(base64.decodeBase64(e.content.update))
+      (e) => new Uint8Array(decodeBase64(e.content.update))
     );
 
     const update = Y.mergeUpdates(updates);
@@ -206,6 +208,9 @@ export class MatrixProvider extends lifecycle.Disposable {
    * The default Matrix-writer only flushes events every 5 seconds.
    * WebRTC can also sync awareness updates which is not available via Matrix yet.
    * See SignedWebrtcProvider.ts for more details + motivation
+   *
+   * TODO: we should probably extract this from MatrixProvider so that
+   * API consumers can instantiate / configure this seperately
    */
   private async initializeWebrtc() {
     if (!this.roomId) {
@@ -308,10 +313,7 @@ export class MatrixProvider extends lifecycle.Disposable {
     // deletes that already exist on the server
 
     if (
-      binary.arrayBuffersAreEqual(
-        deleteSetOnlyUpdate.buffer,
-        missingOnServer.buffer
-      )
+      arrayBuffersAreEqual(deleteSetOnlyUpdate.buffer, missingOnServer.buffer)
     ) {
       // TODO: instead of next 3 lines, we can probably get deleteSet directly from "update"
       let serverDoc = new Y.Doc();

@@ -1,9 +1,8 @@
 {
-  "name": "@typecell-org/matrix-yjs",
+  "name": "matrix-crdt",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@typecell-org/common": "*",
     "vscode-lib": "^0.1.0",
     "simple-peer": "^9.11.0",
     "y-protocols": "^1.0.5",

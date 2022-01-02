@@ -1,4 +1,4 @@
-import { MatrixProvider } from "@typecell-org/matrix-yjs";
+import { MatrixProvider } from "matrix-crdt";
 import { MatrixClient } from "matrix-js-sdk";
 import { createAtom, makeObservable, observable, runInAction } from "mobx";
 import { lifecycle } from "vscode-lib";
