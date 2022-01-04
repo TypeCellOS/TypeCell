@@ -2,6 +2,7 @@
   "name": "@typecell-org/editor",
   "version": "0.0.3",
   "private": true,
+  "// ": "For local matrix-crdt, use 'matrix-crdt': 'file:../Matrix-CRDT/packages/matrix-crdt',",
   "dependencies": {
     "@atlaskit/atlassian-navigation": "^1.0.0",
     "@atlaskit/avatar": "^20.3.0",
@@ -111,13 +112,14 @@
     "y-indexeddb": "^9.0.6",
     "y-monaco": "^0.1.2",
     "y-webrtc": "^10.1.8",
+    "y-protocols": "^1.0.5",
     "yjs": "^13.5.16",
     "zxcvbn": "^4.4.2"
   },
   "scripts": {
     "copytypes:self": "rimraf public/types && tsc --declaration --stripInternal --emitDeclarationOnly --noEmit false --declarationDir public/types/@typecell-org/editor",
     "copytypes:dep": "mkdir -p public/types/@typecell-org/$npm_config_pkgname && cp -rf ../$npm_config_pkgname/types/. public/types/@typecell-org/$npm_config_pkgname",
-    "copytypes:alldeps": "npm run copytypes:dep --pkgname=matrix-crdt && npm run copytypes:dep --pkgname=common && npm run copytypes:dep --pkgname=engine",
+    "copytypes:alldeps": "npm run copytypes:dep --pkgname=common && npm run copytypes:dep --pkgname=engine",
     "copytypes": "npm run copytypes:self && npm run copytypes:alldeps",
     "start": "npm run copytypes && craco start",
     "copy-docs": "rimraf public/_docs && mkdir public/_docs && node copy-docs.mjs > public/_docs/index.json && cp -rf ../../docs/. public/_docs",
@@ -126,8 +128,7 @@
     "lint": "eslint src",
     "test": "craco test",
     "test-no-watch": "craco test --watchAll=false",
-    "eject": "craco eject",
-    "bench": "NODE_OPTIONS='--max-old-space-size=4096' ts-node --files -O '{\"module\":\"commonjs\"}' src/matrix-crdt/benchmark/benchmarkTest.ts "
+    "eject": "craco eject"
   },
   "eslintConfig": {
     "extends": [
