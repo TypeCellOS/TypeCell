@@ -606,7 +606,8 @@ export class MatrixAuthStore extends lifecycle.Disposable {
       // index (e.g. the FilePanel), therefore initialize the event index
       // before the client.
       //   await EventIndexPeg.init();
-      //await MatrixClientPeg.start();
+      // start client for e2ee support
+      // await MatrixClientPeg.start();
     } else {
       // console.warn("Caller requested only auxiliary services be started");
       //await MatrixClientPeg.assign();
@@ -923,7 +924,8 @@ export class MatrixAuthStore extends lifecycle.Disposable {
       // be aware of will be signalled through the room shield
       // changing colour. More advanced behaviour will come once
       // we implement more settings.
-      // cli.setGlobalErrorOnUnknownDevices(false);
+      // TODO: determine if we want this when enabling e2ee
+      cli.setGlobalErrorOnUnknownDevices(false);
     }
   }
 

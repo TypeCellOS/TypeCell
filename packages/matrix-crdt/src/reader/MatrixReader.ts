@@ -1,4 +1,4 @@
-import { MatrixClient } from "matrix-js-sdk";
+import { MatrixClient, MatrixEvent } from "matrix-js-sdk";
 import { event, lifecycle } from "vscode-lib";
 import { MatrixCRDTEventTranslator } from "../MatrixCRDTEventTranslator";
 
@@ -67,6 +67,8 @@ export class MatrixReader extends lifecycle.Disposable {
     _toStartOfTimeline: boolean
   ) => {
     console.error("not expected; Room.timeline on MatrixClient");
+    // (disable error when testing / developing e2ee support,
+    // in that case startClient is necessary)
     throw new Error(
       "unexpected, we don't use /sync calls for MatrixReader, startClient should not be used on the Matrix client"
     );
@@ -107,6 +109,22 @@ export class MatrixReader extends lifecycle.Disposable {
     return shouldSendSnapshot;
   }
 
+  private async decryptRawEventsIfNecessary(rawEvents: any[]) {
+    const events = await Promise.all(
+      rawEvents.map(async (event: any) => {
+        if (event.type === "m.room.encrypted") {
+          const decrypted = (
+            await this.matrixClient.crypto.decryptEvent(new MatrixEvent(event))
+          ).clearEvent;
+          return decrypted;
+        } else {
+          return event;
+        }
+      })
+    );
+    return events;
+  }
+
   /**
    * Peek for new room events using the Matrix /events API (long-polling)
    * This function automatically keeps polling until MatrixReader.dispose() is called
@@ -137,12 +155,12 @@ export class MatrixReader extends lifecycle.Disposable {
         return;
       }
 
-      const shouldSendSnapshot = this.processIncomingEventsForSnapshot(
-        results.chunk
-      );
+      const events = await this.decryptRawEventsIfNecessary(results.chunk);
 
-      if (results.chunk.length) {
-        this._onEvents.fire({ events: results.chunk, shouldSendSnapshot });
+      const shouldSendSnapshot = this.processIncomingEventsForSnapshot(events);
+
+      if (events.length) {
+        this._onEvents.fire({ events: events, shouldSendSnapshot });
       }
 
       this.latestToken = results.end;
@@ -183,7 +201,9 @@ export class MatrixReader extends lifecycle.Disposable {
         // TODO: filter?
       );
 
-      for (let event of res.chunk) {
+      const events = await this.decryptRawEventsIfNecessary(res.chunk);
+
+      for (let event of events) {
         if (typeFilter) {
           if (event.type === typeFilter) {
             ret.push(event);

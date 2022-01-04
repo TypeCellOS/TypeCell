@@ -38,6 +38,15 @@ export async function createMatrixRoom(
       },
     });
 
+    // for e2ee
+    // initial_state.push({
+    //   type: "m.room.encryption",
+    //   state_key: "",
+    //   content: {
+    //     algorithm: "m.megolm.v1.aes-sha2",
+    //   },
+    // });
+
     const ret = await matrixClient.createRoom({
       room_alias_name: roomName,
       visibility: "public", // Whether this room is visible to the /publicRooms API or not." One of: ["private", "public"]
