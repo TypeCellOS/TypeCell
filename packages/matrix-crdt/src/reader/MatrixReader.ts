@@ -1,11 +1,20 @@
-import { MatrixClient } from "matrix-js-sdk";
+import { MatrixClient, MatrixEvent } from "matrix-js-sdk";
 import { event, lifecycle } from "vscode-lib";
-import { isSnapshotEvent, isUpdateEvent } from "./matrixUtil";
+import { MatrixCRDTEventTranslator } from "../MatrixCRDTEventTranslator";
 
 const PEEK_POLL_TIMEOUT = 30 * 1000;
 const PEEK_POLL_ERROR_TIMEOUT = 30 * 1000;
-const SNAPSHOT_INTERVAL = 30; // snapshot after 30 events
 
+const DEFAULT_OPTIONS = {
+  snapshotInterval: 30, // send a snapshot after 30 events
+};
+
+export type MatrixReaderOptions = Partial<typeof DEFAULT_OPTIONS>;
+
+/**
+ * A helper class to read messages from Matrix using a MatrixClient,
+ * without relying on the sync protocol.
+ */
 export class MatrixReader extends lifecycle.Disposable {
   public latestToken: string | undefined;
   private disposed = false;
@@ -22,11 +31,16 @@ export class MatrixReader extends lifecycle.Disposable {
     shouldSendSnapshot: boolean;
   }> = this._onEvents.event;
 
+  private readonly opts: typeof DEFAULT_OPTIONS;
+
   public constructor(
     private matrixClient: MatrixClient,
-    public readonly roomId: string
+    public readonly roomId: string,
+    private readonly translator: MatrixCRDTEventTranslator,
+    opts: MatrixReaderOptions = {}
   ) {
     super();
+    this.opts = { ...DEFAULT_OPTIONS, ...opts };
     // TODO: catch events for when room has been deleted or user has been kicked
     this.matrixClient.on("Room.timeline", this.matrixRoomListener);
   }
@@ -48,27 +62,34 @@ export class MatrixReader extends lifecycle.Disposable {
    * a seperate /events poll per room
    */
   private matrixRoomListener = (
-    event: any,
-    room: any,
-    toStartOfTimeline: boolean
+    _event: any,
+    _room: any,
+    _toStartOfTimeline: boolean
   ) => {
-    console.error("not expected; ");
+    console.error("not expected; Room.timeline on MatrixClient");
+    // (disable error when testing / developing e2ee support,
+    // in that case startClient is necessary)
     throw new Error(
       "unexpected, we don't use /sync calls for MatrixReader, startClient should not be used on the Matrix client"
     );
   };
 
-  // TODO validate order is [old...new]
-  private processEvents(events: any[]) {
+  /**
+   * Handle incoming events to determine whether a snapshot message needs to be sent
+   *
+   * MatrixReader keeps an internal counter of messages received.
+   * every opts.snapshotInterval messages, we send a snapshot of the entire document state.
+   */
+  private processIncomingEventsForSnapshot(events: any[]) {
     let shouldSendSnapshot = false;
     for (let event of events) {
-      if (isUpdateEvent(event)) {
+      if (this.translator.isUpdateEvent(event)) {
         if (event.room_id !== this.roomId) {
           throw new Error("event received with invalid roomid");
         }
         this.messagesSinceSnapshot++;
         if (
-          this.messagesSinceSnapshot % SNAPSHOT_INTERVAL === 0 &&
+          this.messagesSinceSnapshot % this.opts.snapshotInterval === 0 &&
           event.user_id === this.matrixClient.credentials.userId
         ) {
           // We don't want multiple users send a snapshot at the same time,
@@ -80,7 +101,7 @@ export class MatrixReader extends lifecycle.Disposable {
           // we use % to make sure we retry this on the next SNAPSHOT_INTERVAL
           shouldSendSnapshot = true;
         }
-      } else if (isSnapshotEvent(event)) {
+      } else if (this.translator.isSnapshotEvent(event)) {
         this.messagesSinceSnapshot = 0;
         shouldSendSnapshot = false;
       }
@@ -88,6 +109,26 @@ export class MatrixReader extends lifecycle.Disposable {
     return shouldSendSnapshot;
   }
 
+  private async decryptRawEventsIfNecessary(rawEvents: any[]) {
+    const events = await Promise.all(
+      rawEvents.map(async (event: any) => {
+        if (event.type === "m.room.encrypted") {
+          const decrypted = (
+            await this.matrixClient.crypto.decryptEvent(new MatrixEvent(event))
+          ).clearEvent;
+          return decrypted;
+        } else {
+          return event;
+        }
+      })
+    );
+    return events;
+  }
+
+  /**
+   * Peek for new room events using the Matrix /events API (long-polling)
+   * This function automatically keeps polling until MatrixReader.dispose() is called
+   */
   private async peekPoll() {
     if (!this.latestToken) {
       throw new Error("polling but no pagination token");
@@ -114,10 +155,12 @@ export class MatrixReader extends lifecycle.Disposable {
         return;
       }
 
-      const shouldSendSnapshot = this.processEvents(results.chunk);
+      const events = await this.decryptRawEventsIfNecessary(results.chunk);
 
-      if (results.chunk.length) {
-        this._onEvents.fire({ events: results.chunk, shouldSendSnapshot });
+      const shouldSendSnapshot = this.processIncomingEventsForSnapshot(events);
+
+      if (events.length) {
+        this._onEvents.fire({ events: events, shouldSendSnapshot });
       }
 
       this.latestToken = results.end;
@@ -133,6 +176,17 @@ export class MatrixReader extends lifecycle.Disposable {
     }
   }
 
+  /**
+   * Before starting polling, call getInitialDocumentUpdateEvents to get the history of events
+   * when coming online.
+   *
+   * This methods paginates back until
+   * - (a) all events in the room have been received. In that case we return all events.
+   * - (b) it encounters a snapshot. In this case we return the snapshot event and all update events
+   *        that occur after that latest snapshot
+   *
+   * (if typeFilter is set we retrieve all events of that type. TODO: can we deprecate this param?)
+   */
   public async getInitialDocumentUpdateEvents(typeFilter?: string) {
     let ret: any[] = [];
     let token = "";
@@ -147,15 +201,17 @@ export class MatrixReader extends lifecycle.Disposable {
         // TODO: filter?
       );
 
-      for (let event of res.chunk) {
+      const events = await this.decryptRawEventsIfNecessary(res.chunk);
+
+      for (let event of events) {
         if (typeFilter) {
           if (event.type === typeFilter) {
             ret.push(event);
           }
-        } else if (isSnapshotEvent(event)) {
+        } else if (this.translator.isSnapshotEvent(event)) {
           ret.push(event);
           lastEventInSnapshot = event.content.last_event_id;
-        } else if (isUpdateEvent(event)) {
+        } else if (this.translator.isUpdateEvent(event)) {
           if (lastEventInSnapshot && lastEventInSnapshot === event.event_id) {
             if (!this.latestToken) {
               this.latestToken = res.start;
@@ -176,6 +232,9 @@ export class MatrixReader extends lifecycle.Disposable {
     return ret.reverse();
   }
 
+  /**
+   * Start polling the room for messages
+   */
   public startPolling() {
     if (this.polling) {
       throw new Error("already polling");

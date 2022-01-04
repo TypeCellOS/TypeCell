@@ -1,6 +1,6 @@
 {
   "name": "@typecell-org/editor",
-  "version": "0.1.0",
+  "version": "0.0.3",
   "private": true,
   "dependencies": {
     "@atlaskit/atlassian-navigation": "^1.0.0",
@@ -57,9 +57,8 @@
     "@tiptap/react": "2.0.0-beta.77",
     "@tiptap/starter-kit": "2.0.0-beta.115",
     "@tiptap/suggestion": "2.0.0-beta.71",
-    "@typecell-org/common": "*",
-    "@typecell-org/engine": "*",
-    "@typecell-org/matrix-yjs": "*",
+    "@typecell-org/common": "^0.0.3",
+    "@typecell-org/engine": "^0.0.3",
     "@types/markdown-it": "^10.0.3",
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
@@ -76,6 +75,7 @@
     "lowlight": "^1.20.0",
     "lz-string": "^1.4.4",
     "markdown-it": "^12.0.2",
+    "matrix-crdt": "^0.0.3",
     "matrix-js-sdk": "^12.4.0",
     "mobx": "^6.2.0",
     "mobx-react-lite": "^3.2.0",
@@ -120,7 +120,7 @@
   "scripts": {
     "copytypes:self": "rimraf public/types && tsc --declaration --stripInternal --emitDeclarationOnly --noEmit false --declarationDir public/types/@typecell-org/editor",
     "copytypes:dep": "mkdir -p public/types/@typecell-org/$npm_config_pkgname && cp -rf ../$npm_config_pkgname/types/. public/types/@typecell-org/$npm_config_pkgname",
-    "copytypes:alldeps": "npm run copytypes:dep --pkgname=matrix-yjs && npm run copytypes:dep --pkgname=common && npm run copytypes:dep --pkgname=engine",
+    "copytypes:alldeps": "npm run copytypes:dep --pkgname=matrix-crdt && npm run copytypes:dep --pkgname=common && npm run copytypes:dep --pkgname=engine",
     "copytypes": "npm run copytypes:self && npm run copytypes:alldeps",
     "start": "npm run copytypes && craco start",
     "copy-docs": "rimraf public/_docs && mkdir public/_docs && node copy-docs.mjs > public/_docs/index.json && cp -rf ../../docs/. public/_docs",
@@ -130,7 +130,7 @@
     "test": "craco test",
     "test-no-watch": "craco test --watchAll=false",
     "eject": "craco eject",
-    "bench": "NODE_OPTIONS='--max-old-space-size=4096' ts-node --files -O '{\"module\":\"commonjs\"}' src/matrix-yjs/benchmark/benchmarkTest.ts ",
+    "bench": "NODE_OPTIONS='--max-old-space-size=4096' ts-node --files -O '{\"module\":\"commonjs\"}' src/matrix-crdt/benchmark/benchmarkTest.ts ",
     "cannon": "autocannon -c 10 http://localhost:8080",
     "cannon2": "autocannon -c 1000 -a 1000 -t 20 http://localhost:8888/_matrix/static/"
   },

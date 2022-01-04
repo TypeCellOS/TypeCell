@@ -3,7 +3,7 @@ import * as https from "https";
 import { MatrixClient } from "matrix-js-sdk";
 import * as Y from "yjs";
 import { event } from "vscode-lib";
-import { createMatrixGuestClient } from "../matrixGuestClient";
+import { createMatrixGuestClient } from "../test-utils/matrixGuestClient";
 import { MatrixProvider } from "../MatrixProvider";
 import { createRandomMatrixClientAndRoom } from "../test-utils/matrixTestUtil";
 import {
@@ -17,7 +17,10 @@ https.globalAgent.maxSockets = 2000;
 async function setRoomContents(client: MatrixClient, roomName: string) {
   const doc = new Y.Doc();
   doc.getMap("test").set("contents", new Y.Text("hello"));
-  const provider = new MatrixProvider(doc, client, roomName, HOMESERVER_NAME);
+  const provider = new MatrixProvider(doc, client, {
+    type: "alias",
+    alias: "#" + roomName + ":" + HOMESERVER_NAME,
+  });
   provider.initialize();
   await provider.waitForFlush();
 }
@@ -28,7 +31,10 @@ async function readRoom(roomName: string) {
     client = await createMatrixGuestClient(matrixTestConfig);
   }
   const doc = new Y.Doc();
-  const provider = new MatrixProvider(doc, client, roomName, HOMESERVER_NAME);
+  const provider = new MatrixProvider(doc, client, {
+    type: "alias",
+    alias: "#" + roomName + ":" + HOMESERVER_NAME,
+  });
   provider.initialize();
   await event.Event.toPromise(provider.onDocumentAvailable);
   const text = doc.getMap("test").get("contents") as Y.Text;
