@@ -37,10 +37,12 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
                 <DropdownMenu
                   shouldFlip
                   trigger={
-                    <VscKebabVertical
-                      title="Options"
-                      style={{ fontSize: "14px", transform: "scale(1.3)" }}
-                    />
+                    <div style={{ paddingRight: "0.5em", paddingLeft: "1em;" }}>
+                      <VscKebabVertical
+                        title="Options"
+                        style={{ fontSize: "14px", transform: "scale(1.3)" }}
+                      />
+                    </div>
                   }
                   position="bottom right">
                   <DropdownItem onClick={() => openAsMarkdown(props.document)}>

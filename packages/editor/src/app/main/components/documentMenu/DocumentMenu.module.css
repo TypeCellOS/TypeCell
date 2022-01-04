@@ -71,14 +71,14 @@
 }
 
 .actions > ul .options {
-  padding: 0 0.5em 0 1em;
+  /* padding: 0 0.5em 0 1em; */
 }
 
 .actions > ul .options * {
   font-weight: normal;
 }
 
-.actions > ul .options:hover {
+.actions > ul .options > div:hover {
   cursor: pointer;
 }
 
