@@ -1,6 +1,6 @@
 import * as Y from "yjs";
 import { event } from "vscode-lib";
-import { createMatrixGuestClient } from "./matrixGuestClient";
+import { createMatrixGuestClient } from "./test-utils/matrixGuestClient";
 import { MatrixProvider } from "./MatrixProvider";
 import {
   createRandomMatrixClient,
@@ -26,23 +26,19 @@ async function getRoomAndTwoUsers(opts: {
 }) {
   const setup = await createRandomMatrixClientAndRoom(opts.roomAccess);
   const doc = new Y.Doc();
-  const provider = new MatrixProvider(
-    doc,
-    setup.client,
-    setup.roomName,
-    HOMESERVER_NAME
-  );
+  const provider = new MatrixProvider(doc, setup.client, {
+    type: "alias",
+    alias: "#" + setup.roomName + ":" + HOMESERVER_NAME,
+  });
 
   const client2 = opts.bobIsGuest
     ? await createMatrixGuestClient(matrixTestConfig)
     : (await createRandomMatrixClient()).client;
   const doc2 = new Y.Doc();
-  const provider2 = new MatrixProvider(
-    doc2,
-    client2,
-    setup.roomName,
-    HOMESERVER_NAME
-  );
+  const provider2 = new MatrixProvider(doc2, client2, {
+    type: "alias",
+    alias: "#" + setup.roomName + ":" + HOMESERVER_NAME,
+  });
 
   return {
     alice: {

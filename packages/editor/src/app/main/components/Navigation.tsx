@@ -44,7 +44,10 @@ export const Navigation = observer(() => {
                 <VscSignIn style={{ width: "16px", height: "16px" }} />
               }>
               {" "}
-              Sign in
+              Sign in{" "}
+              {/* {typeof sessionStore.user === "string"
+                ? sessionStore.user
+                : sessionStore.user.type} */}
             </PrimaryButton>
           )}
         </>
