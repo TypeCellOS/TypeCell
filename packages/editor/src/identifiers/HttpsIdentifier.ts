@@ -5,7 +5,7 @@ export class HttpsIdentifier extends Identifier {
   public static schemes = ["http", "https"];
   public readonly subIdentifier: string | undefined;
 
-  constructor(uriToParse: uri.URI) {
+  constructor(uriToParse: uri.URI, title?: string) {
     let [identifier, subPath] = stringWithoutInitialSlash(
       uriToParse.path
     ).split("/:/", 2);
@@ -18,7 +18,8 @@ export class HttpsIdentifier extends Identifier {
         authority: uriToParse.authority,
         path: identifier,
       }),
-      subPath
+      subPath,
+      title
     );
   }
 

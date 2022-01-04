@@ -15,6 +15,8 @@ import styles from "./DocumentView.module.css";
 
 type Props = {
   id: Identifier;
+  isNested?: boolean;
+  hideDocumentMenu?: boolean;
 };
 
 /**
@@ -55,21 +57,40 @@ const DocumentView = observer((props: Props) => {
 
     return (
       <div className={styles.view}>
-        <DocumentMenu document={doc}></DocumentMenu>
+        {!props.hideDocumentMenu && (
+          <DocumentMenu document={doc}></DocumentMenu>
+        )}
         <NotebookRenderer key={connection.doc.id} document={doc} />
       </div>
     );
   } else if (connection.doc.type === "!project") {
-    return (
-      <ProjectRenderer
-        key={connection.doc.id}
-        project={connection.doc.getSpecificType(ProjectResource)!}
-      />
-    );
+    if (props.isNested) {
+      return (
+        <div className={styles.view}>
+          {!props.hideDocumentMenu && (
+            <DocumentMenu document={connection.doc}></DocumentMenu>
+          )}
+          <ProjectRenderer
+            isNested={true}
+            key={connection.doc.id}
+            project={connection.doc.getSpecificType(ProjectResource)!}
+          />
+        </div>
+      );
+    } else {
+      return (
+        <ProjectRenderer
+          key={connection.doc.id}
+          project={connection.doc.getSpecificType(ProjectResource)!}
+        />
+      );
+    }
   } else if (connection.doc.type === "!richtext") {
     return (
       <div className={styles.view}>
-        <DocumentMenu document={connection.doc.doc}></DocumentMenu>
+        {!props.hideDocumentMenu && (
+          <DocumentMenu document={connection.doc}></DocumentMenu>
+        )}
         <RichTextRenderer
           key={connection.doc.id}
           document={connection.doc.doc}
