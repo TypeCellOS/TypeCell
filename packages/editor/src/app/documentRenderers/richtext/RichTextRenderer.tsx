@@ -117,7 +117,7 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,
         user: {
-          name: getStoreService().sessionStore.loggedInUser || "Anonymous",
+          name: getStoreService().sessionStore.loggedInUserId || "Anonymous",
           color: arrays.getRandomElement(colors),
         },
       }),

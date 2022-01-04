@@ -1,4 +1,4 @@
-import { MatrixProvider } from "@typecell-org/matrix-yjs";
+import { MatrixProvider } from "matrix-crdt";
 import { MatrixClient } from "matrix-js-sdk";
 import { createAtom, makeObservable, observable, runInAction } from "mobx";
 import { lifecycle } from "vscode-lib";
@@ -181,9 +181,16 @@ export class YDocSyncManager
       new MatrixProvider(
         this._ydoc,
         this.mxClient,
-        this.identifier.roomName,
-        this.identifier.uri.authority,
-        this.awareness
+        {
+          type: "alias",
+          alias:
+            "#" +
+            this.identifier.roomName +
+            ":" +
+            this.identifier.uri.authority,
+        },
+        this.awareness,
+        { enableExperimentalWebrtcSync: true }
       )
     );
 

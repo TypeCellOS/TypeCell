@@ -1,5 +1,5 @@
-import { base64 } from "@typecell-org/common";
 import { MatrixClient } from "matrix-js-sdk";
+import { encodeBase64 } from "./olmlib";
 
 export const MESSAGE_EVENT_TYPE = "m.room.message";
 export const UPDATE_EVENT_TYPE = "org.typecell.doc_update";
@@ -32,7 +32,7 @@ export async function sendUpdate(
   roomId: string,
   update: Uint8Array
 ) {
-  const encoded = base64.encodeBase64(update);
+  const encoded = encodeBase64(update);
   const content = {
     update: encoded,
   };
@@ -55,7 +55,7 @@ export async function sendSnapshot(
   snapshot: Uint8Array,
   lastEventId: string
 ) {
-  const encoded = base64.encodeBase64(snapshot);
+  const encoded = encodeBase64(snapshot);
   const content = {
     update: encoded,
     last_event_id: lastEventId,
