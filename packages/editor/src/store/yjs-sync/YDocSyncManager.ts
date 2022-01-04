@@ -190,7 +190,14 @@ export class YDocSyncManager
             this.identifier.uri.authority,
         },
         this.awareness,
-        { enableExperimentalWebrtcSync: true }
+        {
+          enableExperimentalWebrtcSync: true,
+          translator: {
+            updatesAsRegularMessages: false,
+            updateEventType: "org.typecell.doc_update",
+            snapshotEventType: "org.typecell.doc_snapshot",
+          },
+        }
       )
     );
 

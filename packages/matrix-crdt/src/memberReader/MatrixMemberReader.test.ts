@@ -11,6 +11,7 @@ import {
   ensureMatrixIsRunning,
   matrixTestConfig,
 } from "../test-utils/matrixTestUtilServer";
+import { MatrixCRDTEventTranslator } from "../MatrixCRDTEventTranslator";
 
 jest.setTimeout(30000);
 
@@ -23,7 +24,11 @@ it("handles room joins", async () => {
   const userB = await createRandomMatrixClient();
   const guestClient = await createMatrixGuestClient(matrixTestConfig);
 
-  const readerC = new MatrixReader(guestClient, setupA.roomId);
+  const readerC = new MatrixReader(
+    guestClient,
+    setupA.roomId,
+    new MatrixCRDTEventTranslator()
+  );
   const memberC = new MatrixMemberReader(guestClient, readerC);
   await readerC.getInitialDocumentUpdateEvents();
   await readerC.startPolling();
@@ -46,7 +51,11 @@ it("handles room power levels", async () => {
   const userB = await createRandomMatrixClient();
   const guestClient = await createMatrixGuestClient(matrixTestConfig);
 
-  const readerC = new MatrixReader(guestClient, setupA.roomId);
+  const readerC = new MatrixReader(
+    guestClient,
+    setupA.roomId,
+    new MatrixCRDTEventTranslator()
+  );
   const memberC = new MatrixMemberReader(guestClient, readerC);
   await readerC.getInitialDocumentUpdateEvents();
   await readerC.startPolling();

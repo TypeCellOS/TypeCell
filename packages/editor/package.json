@@ -1,6 +1,6 @@
 {
   "name": "@typecell-org/editor",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "dependencies": {
     "@atlaskit/atlassian-navigation": "^1.0.0",
@@ -56,8 +56,8 @@
     "@tiptap/react": "2.0.0-beta.77",
     "@tiptap/starter-kit": "2.0.0-beta.115",
     "@tiptap/suggestion": "2.0.0-beta.71",
-    "@typecell-org/common": "^0.0.2",
-    "@typecell-org/engine": "^0.0.2",
+    "@typecell-org/common": "^0.0.3",
+    "@typecell-org/engine": "^0.0.3",
     "@types/markdown-it": "^10.0.3",
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
@@ -74,7 +74,7 @@
     "lowlight": "^1.20.0",
     "lz-string": "^1.4.4",
     "markdown-it": "^12.0.2",
-    "matrix-crdt": "^0.0.2",
+    "matrix-crdt": "^0.0.3",
     "matrix-js-sdk": "^12.4.0",
     "mobx": "^6.2.0",
     "mobx-react-lite": "^3.2.0",
