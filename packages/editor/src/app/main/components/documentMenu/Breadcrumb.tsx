@@ -13,13 +13,17 @@ const getBreadcrumbItems = function (navigationStore: NavigationStore) {
 
   const items: JSX.Element[] = [];
 
+  function clearSubPath() {
+    identifier.subPath = "";
+  }
+
   if (identifier instanceof FileIdentifier) {
     // Show path as single item
     items.push(
       <BreadcrumbsItem
         iconBefore={<VscFile style={{ marginRight: 5, marginTop: -2 }} />}
         text={identifier.title || identifier.uri.toString()}
-        onClick={() => (identifier.subPath = "")}
+        onClick={clearSubPath}
       />
     );
   } else if (identifier instanceof GithubIdentifier) {
@@ -28,7 +32,7 @@ const getBreadcrumbItems = function (navigationStore: NavigationStore) {
       <BreadcrumbsItem
         iconBefore={<VscGithub style={{ marginRight: 5 }} />}
         href=""
-        onClick={() => (identifier.subPath = "")}
+        onClick={clearSubPath}
         text={identifier.title || identifier.uri.toString()}
       />
     );
@@ -39,7 +43,7 @@ const getBreadcrumbItems = function (navigationStore: NavigationStore) {
         iconBefore={<VscGlobe style={{ marginRight: 5 }} />}
         href=""
         text={identifier.title || identifier.uri.toString()}
-        onClick={() => (identifier.subPath = "")}
+        onClick={clearSubPath}
       />
     );
   } else if (identifier instanceof MatrixIdentifier) {
@@ -80,10 +84,11 @@ const getBreadcrumbItems = function (navigationStore: NavigationStore) {
     subItems.reverse();
     items.push.apply(items, subItems);
   }
+
   return items;
 };
 
-export const Breadcrumb: React.FC<{}> = observer((props) => {
+export const Breadcrumb: React.FC<{}> = observer(() => {
   const navigationStore = getStoreService().navigationStore;
 
   return <Breadcrumbs>{getBreadcrumbItems(navigationStore)}</Breadcrumbs>;

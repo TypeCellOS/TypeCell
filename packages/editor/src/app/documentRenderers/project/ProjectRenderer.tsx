@@ -67,7 +67,7 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
       );
       mainContent = (
         <DocumentView
-          hideBreadcrumb={true}
+          hideDocumentMenu={true}
           id={documentIdentifier}
           isNested={true}
         />
