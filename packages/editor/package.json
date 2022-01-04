@@ -2,7 +2,6 @@
   "name": "@typecell-org/editor",
   "version": "0.0.3",
   "private": true,
-  "// ": "For local matrix-crdt, use 'matrix-crdt': 'file:../Matrix-CRDT/packages/matrix-crdt',",
   "dependencies": {
     "@atlaskit/atlassian-navigation": "^1.0.0",
     "@atlaskit/avatar": "^20.3.0",
