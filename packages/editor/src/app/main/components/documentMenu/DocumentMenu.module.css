@@ -7,6 +7,9 @@
   padding: 2px 12px 0 12px;
   border-bottom: 1px solid #f3f3f3;
   justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 99;
 }
 
 .menu * {
@@ -73,9 +76,6 @@
 
 .actions > ul .options * {
   font-weight: normal;
-}
-
-.actions > ul .options * :active {
 }
 
 .actions > ul .options:hover {
