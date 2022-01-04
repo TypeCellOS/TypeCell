@@ -39,7 +39,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
                   trigger={
                     <VscKebabVertical
                       title="Options"
-                      style={{ fontSize: "14px", transform: "scale(1.5)" }}
+                      style={{ fontSize: "14px", transform: "scale(1.3)" }}
                     />
                   }
                   position="bottom right">

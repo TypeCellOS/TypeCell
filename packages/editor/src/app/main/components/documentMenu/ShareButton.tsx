@@ -16,7 +16,7 @@ export const ShareButton: React.FC = observer(() => {
       }}>
       <VscCloudUpload
         style={{
-          transform: "scale(1.6 )",
+          transform: "scale(1.6)",
           marginRight: "8px",
           paddingTop: "2px",
         }}
