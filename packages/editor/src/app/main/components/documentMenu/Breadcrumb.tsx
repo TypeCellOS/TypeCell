@@ -10,8 +10,24 @@ import { getStoreService } from "../../../../store/local/stores";
 
 const getBreadcrumbItems = function (navigationStore: NavigationStore) {
   const { identifier } = navigationStore.currentDocument!;
-
   const items: JSX.Element[] = [];
+
+  const buttonStyle = {
+    alignItems: "baseline",
+    borderWidth: 0,
+    display: "inline-flex",
+    maxWidth: "100%",
+    textDecoration: "none",
+    background: "none",
+    height: "auto",
+    lineHeight: "inherit",
+    padding: 0,
+    verticalAlign: "baseline",
+    width: "auto",
+    justifyContent: "center",
+    fontWeight: 400,
+    minWidth: 0,
+  };
 
   function clearSubPath() {
     identifier.subPath = "";
@@ -57,8 +73,12 @@ const getBreadcrumbItems = function (navigationStore: NavigationStore) {
       />,
       <BreadcrumbsItem
         text={identifier.document}
-        // Replace default component so it doesn't render as a link
-        component={() => <span>{identifier.document}</span>}
+        component={() => (
+          // Replace default component so it doesn't render as a link
+          <button style={{ ...buttonStyle, cursor: "normal" }}>
+            <span>{identifier.document}</span>
+          </button>
+        )}
       />
     );
   } else {

@@ -12,6 +12,16 @@
   z-index: 99;
 }
 
+/* Targets atlaskit Breadcrumb separators */
+.menu > nav li:after {
+  padding: 0 !important;
+}
+.menu > nav button {
+  border: none;
+  background: none;
+  padding: 0 !important;
+}
+
 .menu * {
   font-size: 12px;
   font-weight: bold;
