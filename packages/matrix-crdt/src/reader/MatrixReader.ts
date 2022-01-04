@@ -1,6 +1,6 @@
 import { MatrixClient } from "matrix-js-sdk";
 import { event, lifecycle } from "vscode-lib";
-import { isSnapshotEvent, isUpdateEvent } from "../util/matrixUtil";
+import { MatrixCRDTEventTranslator } from "../MatrixCRDTEventTranslator";
 
 const PEEK_POLL_TIMEOUT = 30 * 1000;
 const PEEK_POLL_ERROR_TIMEOUT = 30 * 1000;
@@ -36,6 +36,7 @@ export class MatrixReader extends lifecycle.Disposable {
   public constructor(
     private matrixClient: MatrixClient,
     public readonly roomId: string,
+    private readonly translator: MatrixCRDTEventTranslator,
     opts: MatrixReaderOptions = {}
   ) {
     super();
@@ -80,7 +81,7 @@ export class MatrixReader extends lifecycle.Disposable {
   private processIncomingEventsForSnapshot(events: any[]) {
     let shouldSendSnapshot = false;
     for (let event of events) {
-      if (isUpdateEvent(event)) {
+      if (this.translator.isUpdateEvent(event)) {
         if (event.room_id !== this.roomId) {
           throw new Error("event received with invalid roomid");
         }
@@ -98,7 +99,7 @@ export class MatrixReader extends lifecycle.Disposable {
           // we use % to make sure we retry this on the next SNAPSHOT_INTERVAL
           shouldSendSnapshot = true;
         }
-      } else if (isSnapshotEvent(event)) {
+      } else if (this.translator.isSnapshotEvent(event)) {
         this.messagesSinceSnapshot = 0;
         shouldSendSnapshot = false;
       }
@@ -187,10 +188,10 @@ export class MatrixReader extends lifecycle.Disposable {
           if (event.type === typeFilter) {
             ret.push(event);
           }
-        } else if (isSnapshotEvent(event)) {
+        } else if (this.translator.isSnapshotEvent(event)) {
           ret.push(event);
           lastEventInSnapshot = event.content.last_event_id;
-        } else if (isUpdateEvent(event)) {
+        } else if (this.translator.isUpdateEvent(event)) {
           if (lastEventInSnapshot && lastEventInSnapshot === event.event_id) {
             if (!this.latestToken) {
               this.latestToken = res.start;
