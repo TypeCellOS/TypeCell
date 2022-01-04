@@ -69,7 +69,7 @@ export class YDocSyncManager
     });
 
     this._ydoc = new Y.Doc({ guid: this.identifier.toString() });
-    this.awareness = new awarenessProtocol.Awareness(this._ydoc as any);
+    this.awareness = new awarenessProtocol.Awareness(this._ydoc);
   }
 
   public async initialize() {
@@ -179,7 +179,7 @@ export class YDocSyncManager
 
     this.matrixProvider = this._register(
       new MatrixProvider(
-        this._ydoc as any,
+        this._ydoc,
         this.mxClient,
         {
           type: "alias",
