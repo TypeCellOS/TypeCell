@@ -186,8 +186,51 @@
 }
 
 .footer {
-  padding: 6em 0;
   background-color: #f6f6f6;
+  position: relative;
+  padding: 0 1em;
+}
+
+.footer > div {
+  height: 100%;
+}
+
+.footer .links {
+  display: flex;
+  flex: 1 1;
+  width: 100%;
+  padding: 6em 0;
+}
+
+.footer .links ul {
+  list-style: none;
+  padding: 0;
+}
+
+.links ul a {
+  color: #a4a4a4;
+}
+
+.links ul a:hover {
+  text-decoration: none;
+}
+
+.links ul a span {
+  text-decoration: underline;
+}
+
+.links ul a:before {
+  content: "> ";
+  display: inline;
+  text-decoration: none;
+}
+
+.footer .bottom {
+  font-size: 0.9em;
+  bottom: 0;
+  width: 100%;
+  color: #b8b8b8;
+  padding: 0 0 0.5em 0;
 }
 
 @media only screen and (max-width: 768px) {

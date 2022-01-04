@@ -194,7 +194,33 @@ export const StartScreen = observer(() => {
         </section>
 
         <footer className={styles.footer}>
-          <div className="container"></div>
+          <div className="container">
+            <div className="row">
+              <div className={styles.links}>
+                <ul>
+                  <li>
+                    <a href="/docs/interactive-introduction.md">
+                      <span>Interactive introduction</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href="https://github.com/YousefED/typecell-next">
+                      <span>Find us on GitHub</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div className={styles.bottom}>
+                <span>
+                  {new Date().getFullYear()} TypeCell the online Notebook
+                  community
+                </span>
+              </div>
+            </div>
+          </div>
         </footer>
       </div>
     </>
