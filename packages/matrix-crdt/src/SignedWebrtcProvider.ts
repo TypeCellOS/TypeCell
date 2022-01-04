@@ -7,7 +7,7 @@ import * as Y from "yjs"; // eslint-disable-line
 import * as logging from "lib0/logging";
 import { WebrtcProvider } from "./webrtc/WebrtcProvider";
 import { globalRooms } from "./webrtc/globalResources";
-import { decodeBase64, encodeBase64 } from "./olmlib";
+import { decodeBase64, encodeBase64 } from "./util/olmlib";
 
 const log = logging.createModuleLogger("y-webrtc");
 

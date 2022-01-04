@@ -1,16 +1,17 @@
 import { MatrixEvent } from "matrix-js-sdk";
 
-import { createMatrixGuestClient } from "./matrixGuestClient";
+import { createMatrixGuestClient } from "../test-utils/matrixGuestClient";
 import { MatrixMemberReader } from "./MatrixMemberReader";
-import { MatrixReader } from "./MatrixReader";
+import { MatrixReader } from "../reader/MatrixReader";
 import {
   createRandomMatrixClient,
   createRandomMatrixClientAndRoom,
-} from "./test-utils/matrixTestUtil";
+} from "../test-utils/matrixTestUtil";
 import {
   ensureMatrixIsRunning,
   matrixTestConfig,
-} from "./test-utils/matrixTestUtilServer";
+} from "../test-utils/matrixTestUtilServer";
+import { MatrixCRDTEventTranslator } from "../MatrixCRDTEventTranslator";
 
 jest.setTimeout(30000);
 
@@ -23,7 +24,11 @@ it("handles room joins", async () => {
   const userB = await createRandomMatrixClient();
   const guestClient = await createMatrixGuestClient(matrixTestConfig);
 
-  const readerC = new MatrixReader(guestClient, setupA.roomId);
+  const readerC = new MatrixReader(
+    guestClient,
+    setupA.roomId,
+    new MatrixCRDTEventTranslator()
+  );
   const memberC = new MatrixMemberReader(guestClient, readerC);
   await readerC.getInitialDocumentUpdateEvents();
   await readerC.startPolling();
@@ -46,7 +51,11 @@ it("handles room power levels", async () => {
   const userB = await createRandomMatrixClient();
   const guestClient = await createMatrixGuestClient(matrixTestConfig);
 
-  const readerC = new MatrixReader(guestClient, setupA.roomId);
+  const readerC = new MatrixReader(
+    guestClient,
+    setupA.roomId,
+    new MatrixCRDTEventTranslator()
+  );
   const memberC = new MatrixMemberReader(guestClient, readerC);
   await readerC.getInitialDocumentUpdateEvents();
   await readerC.startPolling();

@@ -58,7 +58,7 @@ export class NavigationStore {
       () =>
         (this.currentPage.page === "login" ||
           this.currentPage.page === "register") &&
-        this.sessionStore.loggedInUser,
+        this.sessionStore.loggedInUserId,
       (val) => {
         if (val) {
           const prevUrl = window.history.state?.prevUrl || "/";
@@ -95,7 +95,7 @@ export class NavigationStore {
     );
 
     reaction(
-      () => !!this.sessionStore.loggedInUser,
+      () => !!this.sessionStore.loggedInUserId,
       (val) => {
         if (!val) {
           this.isNewNotebookDialogVisible = false;

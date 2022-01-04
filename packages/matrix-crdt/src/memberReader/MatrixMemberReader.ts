@@ -1,6 +1,6 @@
 import { MatrixClient } from "matrix-js-sdk";
 import { event, lifecycle } from "vscode-lib";
-import { MatrixReader } from "./MatrixReader";
+import { MatrixReader } from "../reader/MatrixReader";
 
 type Member = {
   displayname: string;

@@ -1,16 +1,17 @@
 import got from "got";
 import { MatrixClient, request } from "matrix-js-sdk";
 import * as qs from "qs";
-import { autocannonSeparateProcess } from "./benchmark/util";
-import { createMatrixGuestClient } from "./matrixGuestClient";
-import { MatrixReader } from "./MatrixReader";
-import { sendMessage, sendSnapshot } from "./matrixUtil";
-import { createRandomMatrixClientAndRoom } from "./test-utils/matrixTestUtil";
+import { autocannonSeparateProcess } from "../benchmark/util";
+import { createMatrixGuestClient } from "../test-utils/matrixGuestClient";
+import { createRandomMatrixClientAndRoom } from "../test-utils/matrixTestUtil";
 import {
   ensureMatrixIsRunning,
   HOMESERVER_NAME,
   matrixTestConfig,
-} from "./test-utils/matrixTestUtilServer";
+} from "../test-utils/matrixTestUtilServer";
+import { MatrixCRDTEventTranslator } from "../MatrixCRDTEventTranslator";
+import { MatrixReader } from "./MatrixReader";
+import { sendMessage } from "../util/matrixUtil";
 
 const { Worker, isMainThread } = require("worker_threads");
 
@@ -60,7 +61,11 @@ it("handles initial and live messages", async () => {
   }
 
   const guestClient = await createMatrixGuestClient(matrixTestConfig);
-  const reader = new MatrixReader(guestClient, setup.roomId);
+  const reader = new MatrixReader(
+    guestClient,
+    setup.roomId,
+    new MatrixCRDTEventTranslator()
+  );
   try {
     const messages = await reader.getInitialDocumentUpdateEvents(
       "m.room.message"
@@ -99,7 +104,11 @@ class TestReader {
   async initialize() {
     const guestClient =
       this.client || (await createMatrixGuestClient(matrixTestConfig));
-    this.reader = new MatrixReader(guestClient, this.roomId);
+    this.reader = new MatrixReader(
+      guestClient,
+      this.roomId,
+      new MatrixCRDTEventTranslator()
+    );
 
     this.messages = await this.reader.getInitialDocumentUpdateEvents();
     console.log("created", TestReader.CREATED++);
@@ -156,7 +165,11 @@ it.skip("handles parallel live messages autocannon", async () => {
   const setup = await createRandomMatrixClientAndRoom("public-read");
 
   const client = await createMatrixGuestClient(matrixTestConfig);
-  const reader = new MatrixReader(client, setup.roomId);
+  const reader = new MatrixReader(
+    client,
+    setup.roomId,
+    new MatrixCRDTEventTranslator()
+  );
   try {
     await reader.getInitialDocumentUpdateEvents();
 
