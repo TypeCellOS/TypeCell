@@ -16,7 +16,7 @@ import styles from "./DocumentView.module.css";
 type Props = {
   id: Identifier;
   isNested?: boolean;
-  hideBreadcrumb?: boolean;
+  hideDocumentMenu?: boolean;
 };
 
 /**
@@ -57,7 +57,9 @@ const DocumentView = observer((props: Props) => {
 
     return (
       <div className={styles.view}>
-        {!props.hideBreadcrumb && <DocumentMenu document={doc}></DocumentMenu>}
+        {!props.hideDocumentMenu && (
+          <DocumentMenu document={doc}></DocumentMenu>
+        )}
         <NotebookRenderer key={connection.doc.id} document={doc} />
       </div>
     );
@@ -65,7 +67,7 @@ const DocumentView = observer((props: Props) => {
     if (props.isNested) {
       return (
         <div className={styles.view}>
-          {!props.hideBreadcrumb && (
+          {!props.hideDocumentMenu && (
             <DocumentMenu document={connection.doc}></DocumentMenu>
           )}
           <ProjectRenderer
@@ -86,7 +88,7 @@ const DocumentView = observer((props: Props) => {
   } else if (connection.doc.type === "!richtext") {
     return (
       <div className={styles.view}>
-        {!props.hideBreadcrumb && (
+        {!props.hideDocumentMenu && (
           <DocumentMenu document={connection.doc}></DocumentMenu>
         )}
         <RichTextRenderer
