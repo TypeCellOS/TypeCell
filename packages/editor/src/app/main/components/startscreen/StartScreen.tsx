@@ -24,7 +24,7 @@ export const StartScreen = observer(() => {
 
   function onDocsClick(e: any) {
     e.preventDefault();
-    navigationStore.navigateToDocs();
+    navigationStore.navigateToTutorial();
   }
 
   return (
