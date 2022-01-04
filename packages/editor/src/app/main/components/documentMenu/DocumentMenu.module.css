@@ -17,8 +17,10 @@
   transition: 350ms color ease !important;
 }
 
-.menu:hover * {
+.menu:hover *,
+.menu:hover .separator:after {
   color: #858585;
+  border-right-color: #a7a7a7;
 }
 
 .menu > .actions {
@@ -40,6 +42,7 @@
 
 .actions > ul .item,
 .actions > ul .separator {
+  position: relative;
   padding: 0 12px;
 }
 
@@ -57,10 +60,15 @@
 }
 
 .actions > ul .separator:after {
+  transition: 350ms all ease !important;
   content: "";
   height: 50%;
   display: block;
   border-right: 1px solid #e0e0e0;
+}
+
+.actions > ul .options {
+  padding: 0 0.5em 0 1em;
 }
 
 .actions > ul .options * {
@@ -68,9 +76,6 @@
 }
 
 .actions > ul .options * :active {
-  background-color: #f4f5f7;
-  color: #858585;
-  fill: #f4f5f7;
 }
 
 .actions > ul .options:hover {
