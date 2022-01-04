@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import { MatrixClient } from "matrix-js-sdk";
 import { event, lifecycle } from "vscode-lib";
 import * as Y from "yjs";
-import { sendUpdate } from "../util/matrixUtil";
+import { MatrixCRDTEventTranslator } from "../MatrixCRDTEventTranslator";
 
 const DEFAULT_OPTIONS = {
   flushInterval: process.env.NODE_ENV === "test" ? 100 : 1000 * 5,
@@ -43,6 +43,7 @@ export class ThrottledMatrixWriter extends lifecycle.Disposable {
 
   constructor(
     private readonly matrixClient: MatrixClient,
+    private readonly translator: MatrixCRDTEventTranslator,
     opts: ThrottledMatrixWriterOptions = {}
   ) {
     super();
@@ -78,7 +79,7 @@ export class ThrottledMatrixWriter extends lifecycle.Disposable {
     let retryImmediately = false;
     try {
       console.log("Sending updates");
-      await sendUpdate(this.matrixClient, this.roomId, merged);
+      await this.translator.sendUpdate(this.matrixClient, this.roomId, merged);
       this.setCanWrite(true);
       console.log("sent updates");
     } catch (e: any) {

@@ -5,11 +5,6 @@ import * as Y from "yjs";
 import { signObject, verifyObject } from "./util/authUtil";
 import { MatrixMemberReader } from "./memberReader/MatrixMemberReader";
 import { MatrixReader, MatrixReaderOptions } from "./reader/MatrixReader";
-import {
-  isSnapshotEvent,
-  isUpdateEvent,
-  sendSnapshot,
-} from "./util/matrixUtil";
 import { SignedWebrtcProvider } from "./SignedWebrtcProvider";
 import {
   ThrottledMatrixWriter,
@@ -17,11 +12,16 @@ import {
 } from "./writer/ThrottledMatrixWriter";
 import { decodeBase64 } from "./util/olmlib";
 import { arrayBuffersAreEqual } from "./util/binary";
+import {
+  MatrixCRDTEventTranslator,
+  MatrixCRDTEventTranslatorOptions,
+} from "./MatrixCRDTEventTranslator";
 
 const DEFAULT_OPTIONS = {
   enableExperimentalWebrtcSync: false,
   reader: {} as MatrixReaderOptions,
   writer: {} as ThrottledMatrixWriterOptions,
+  translator: {} as MatrixCRDTEventTranslatorOptions,
 };
 
 export type MatrixProviderOptions = Partial<typeof DEFAULT_OPTIONS>;
@@ -44,6 +44,7 @@ export class MatrixProvider extends lifecycle.Disposable {
   private webrtcProvider: SignedWebrtcProvider | undefined;
   private reader: MatrixReader | undefined;
   private readonly throttledWriter: ThrottledMatrixWriter;
+  private readonly translator: MatrixCRDTEventTranslator;
 
   private readonly _onDocumentAvailable: event.Emitter<void> = this._register(
     new event.Emitter<void>()
@@ -115,10 +116,15 @@ export class MatrixProvider extends lifecycle.Disposable {
       );
     }
     this.opts = { ...DEFAULT_OPTIONS, ...opts };
+
+    this.translator = new MatrixCRDTEventTranslator(this.opts.translator);
+
     this.throttledWriter = new ThrottledMatrixWriter(
       this.matrixClient,
+      this.translator,
       this.opts.writer
     );
+
     doc.on("update", this.documentUpdateListener);
   }
 
@@ -150,7 +156,10 @@ export class MatrixProvider extends lifecycle.Disposable {
   ) => {
     // Filter only relevant events
     events = events.filter((e) => {
-      if (!isUpdateEvent(e) && !isSnapshotEvent(e)) {
+      if (
+        !this.translator.isUpdateEvent(e) &&
+        !this.translator.isSnapshotEvent(e)
+      ) {
         return false; // only use messages / snapshots
       }
       return true;
@@ -186,14 +195,16 @@ export class MatrixProvider extends lifecycle.Disposable {
       // A snapshot _could_ also contain events after last_event_id,
       // for example if the local document contains changes that haven't been flushed to Matrix yet.
 
-      sendSnapshot(
-        this.matrixClient,
-        this.roomId!,
-        update,
-        lastEvent.event_id
-      ).catch((e) => {
-        console.error("failed to send snapshot");
-      });
+      this.translator
+        .sendSnapshot(
+          this.matrixClient,
+          this.roomId!,
+          update,
+          lastEvent.event_id
+        )
+        .catch((e) => {
+          console.error("failed to send snapshot");
+        });
     }
 
     // fire _onReceivedEvents if applicable
@@ -245,7 +256,12 @@ export class MatrixProvider extends lifecycle.Disposable {
         await signObject(this.matrixClient, obj);
       },
       async (obj) => {
-        await verifyObject(this.matrixClient, memberReader, obj);
+        await verifyObject(
+          this.matrixClient,
+          memberReader,
+          obj,
+          this.translator.WrappedEventType
+        );
       },
       undefined,
       this.awareness
@@ -350,7 +366,12 @@ export class MatrixProvider extends lifecycle.Disposable {
     }
 
     this.reader = this._register(
-      new MatrixReader(this.matrixClient, this.roomId, this.opts.reader)
+      new MatrixReader(
+        this.matrixClient,
+        this.roomId,
+        this.translator,
+        this.opts.reader
+      )
     );
 
     this._register(
