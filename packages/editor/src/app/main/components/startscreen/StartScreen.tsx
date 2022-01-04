@@ -22,6 +22,11 @@ export const StartScreen = observer(() => {
     }
   }
 
+  function onDocsClick(e: any) {
+    e.preventDefault();
+    navigationStore.navigateToDocs();
+  }
+
   return (
     <>
       <div className="page">
@@ -55,7 +60,8 @@ export const StartScreen = observer(() => {
               }
               <a
                 className="button primary"
-                href="/docs/interactive-introduction.md">
+                href="/docs/interactive-introduction.md"
+                onClick={onDocsClick}>
                 Try interactive tutorial
               </a>
 

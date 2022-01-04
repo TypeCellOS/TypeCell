@@ -113,6 +113,7 @@ export class NavigationStore {
       }
     );
 
+    // TODO: document
     reaction(
       () => this.currentPage.identifier?.toRouteString(),
       (newVal, oldVal) => {
@@ -124,6 +125,7 @@ export class NavigationStore {
     window.addEventListener("popstate", this.onPopState);
   }
 
+  // TODO: document
   onPopState = (e: PopStateEvent) => {
     const newPage = routing();
     if (
@@ -137,11 +139,11 @@ export class NavigationStore {
     }
   };
 
-  showStartScreen = () => {
-    this.currentPage = {
-      page: "root",
-    };
-    const url = "/";
+  private navigateToURLByPath(path: string) {
+    if (!path.startsWith("/")) {
+      throw new Error("navigateToURLByPath should start with /");
+    }
+    const url = path;
     window.history.pushState(
       {
         url,
@@ -153,6 +155,11 @@ export class NavigationStore {
       "",
       url
     );
+    this.currentPage = routing();
+  }
+
+  showStartScreen = () => {
+    this.navigateToURLByPath("/");
   };
 
   // hideLoginScreen = () => {
@@ -160,57 +167,23 @@ export class NavigationStore {
   // };
 
   showLoginScreen = () => {
-    this.currentPage = {
-      page: "login",
-    };
-    const url = "/login";
-    window.history.pushState(
-      {
-        url,
-        prevUrl:
-          window.history.state?.prevUrl ||
-          window.history.state?.url ||
-          window.location.href,
-      },
-      "",
-      url
-    );
+    this.navigateToURLByPath("/login");
   };
 
   showRegisterScreen = () => {
-    this.currentPage = {
-      page: "register",
-    };
-    const url = "/register";
-    window.history.pushState(
-      {
-        url,
-        prevUrl:
-          window.history.state?.prevUrl ||
-          window.history.state?.url ||
-          window.location.href,
-      },
-      "",
-      url
-    );
+    this.navigateToURLByPath("/register");
   };
 
   showForgotPassword = () => {
-    this.currentPage = {
-      page: "recover",
-    };
-    const url = "/recover";
-    window.history.pushState(
-      {
-        url,
-        prevUrl:
-          window.history.state?.prevUrl ||
-          window.history.state?.url ||
-          window.location.href,
-      },
-      "",
-      url
-    );
+    this.navigateToURLByPath("/recover");
+  };
+
+  navigateToDocs = () => {
+    this.navigateToURLByPath("/docs");
+  };
+
+  navigateToTutorial = () => {
+    this.navigateToURLByPath("/docs/interactive-introduction.md");
   };
 
   showNewNotebookDialog = () => {
