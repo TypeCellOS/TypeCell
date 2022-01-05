@@ -1,4 +1,4 @@
-![TypeCell Logo](./packages/editor/public/assets/logo_with_text.svg?raw=true)
+![TypeCell Logo](./packages/editor/src/assets/logo_with_text.svg?raw=true)
 
 Welcome to TypeCell! Let's reimagine how we can make it easier to understand, build and share knowledge.
 
@@ -14,7 +14,7 @@ To run the project, open the command line in the project's root directory and en
 
     # Install all required npm modules for lerna, and bootstrap lerna packages
     npm run install-lerna
-    npm run bootstrap
+    npm run bootstrap --force
 
     # Initial build of all packages required by the main editor project
     npm run build

@@ -10,7 +10,7 @@ import { UnreachableCaseError } from "../../util/UnreachableCaseError";
 import DocumentView from "../documentRenderers/DocumentView";
 import { Navigation } from "./components/Navigation";
 import NewNotebookDialog from "./components/NewNotebookDialog";
-import { StartScreen } from "./components/StartScreen";
+import { StartScreen } from "./components/startscreen/StartScreen";
 import styles from "./Main.module.css";
 
 type Props = {

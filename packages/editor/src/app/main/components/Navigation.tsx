@@ -14,7 +14,15 @@ import { ProfilePopup } from "./ProfilePopup";
 import { Logo } from "./Logo";
 
 const ProductHome = () => {
-  return <Logo></Logo>;
+  return (
+    <>
+      <Logo></Logo>
+      <span style={{ fontWeight: "bold", marginTop: 3, marginLeft: 10 }}>
+        {" "}
+        Alpha community preview
+      </span>
+    </>
+  );
 };
 
 const AN = AtlassianNavigation as any;
