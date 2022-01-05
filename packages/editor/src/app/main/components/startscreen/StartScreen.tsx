@@ -199,11 +199,16 @@ export const StartScreen = observer(() => {
         <section className={styles.build}>
           <div className="container">
             <h2>Start building yourself</h2>
-
             <p>
-              We are excited to see what you will do with TypeCell. <br></br>
-              Start your own notebook from scratch or start from one of our
-              examples.
+              We are excited to see what you will do with TypeCell.<br></br>
+              We'd love to get your feedback and ideas, so{" "}
+              <a
+                target="_blank"
+                href="https://discord.gg/TcJ9TRC3SV"
+                rel="noreferrer">
+                <span>join us on Discord</span>
+              </a>
+              .
             </p>
 
             <div className={styles.buttons}>
