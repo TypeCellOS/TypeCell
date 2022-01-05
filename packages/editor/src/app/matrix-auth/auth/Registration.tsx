@@ -20,6 +20,7 @@ import SectionMessage from "@atlaskit/section-message";
 import classNames from "classnames";
 import { createClient, MatrixClient } from "matrix-js-sdk";
 import React, { ReactNode } from "react";
+import { Logo } from "../../main/components/Logo";
 import { getStoredSessionOwner } from "../AuthStoreUtil";
 import { MatrixClientPeg } from "../MatrixClientPeg";
 import AuthStyles from "./AuthStyles.module.css";
@@ -670,7 +671,7 @@ export default class Registration extends React.Component<IProps, IState> {
       <div className={AuthStyles.AuthPage}>
         <div className={AuthStyles.AuthHeader}>
           <div className={AuthStyles.AuthHeaderLogo}>
-            <span className={AuthStyles.AuthHeaderLogoSpan}>🌐 TypeCell</span>
+            <Logo></Logo>
           </div>
         </div>
         <div className={AuthStyles.AuthBody}>

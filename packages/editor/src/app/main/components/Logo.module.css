@@ -1,0 +1,14 @@
+.logo {
+  padding: 15px 0;
+  height: 100%;
+  max-width: 100%;
+}
+
+.logo:focus {
+  outline: none;
+}
+
+.logo > img {
+  height: 100%;
+  width: 100%;
+}

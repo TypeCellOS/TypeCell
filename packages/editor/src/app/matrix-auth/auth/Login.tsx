@@ -19,6 +19,7 @@ import { HelperMessage } from "@atlaskit/form";
 import SectionMessage from "@atlaskit/section-message";
 import Spinner from "@atlaskit/spinner";
 import React, { Fragment, ReactNode } from "react";
+import { Logo } from "../../main/components/Logo";
 import AuthStyles from "./AuthStyles.module.css";
 import SSOButtons from "./elements/SSOButtons";
 import LoginHelper, { ISSOFlow, LoginFlow } from "./LoginHelper";
@@ -621,7 +622,7 @@ export default class LoginComponent extends React.PureComponent<
       <div className={AuthStyles.AuthPage}>
         <div className={AuthStyles.AuthHeader}>
           <div className={AuthStyles.AuthHeaderLogo}>
-            <span className={AuthStyles.AuthHeaderLogoSpan}>🌐 TypeCell</span>
+            <Logo></Logo>
           </div>
         </div>
         <div className={AuthStyles.AuthBody}>

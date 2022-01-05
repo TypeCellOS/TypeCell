@@ -10,11 +10,12 @@ import routing from "../../app/routing";
 import { BaseResource } from "../BaseResource";
 import { DocConnection } from "../DocConnection";
 import { SessionStore } from "./SessionStore";
+import { parseIdentifier } from "../../identifiers/index";
 
 export class NavigationStore {
   private initialized = false;
 
-  public isNewPageDialogVisible = false;
+  public isNewNotebookDialogVisible = false;
   public currentPage: ReturnType<typeof routing> = routing();
 
   // See MenuPortal.tsx for explanation
@@ -34,9 +35,9 @@ export class NavigationStore {
     // This can be done using identifier.toRouteString()
 
     makeObservable(this, {
-      isNewPageDialogVisible: observable,
-      showNewPageDialog: action,
-      hideNewPageDialog: action,
+      isNewNotebookDialogVisible: observable,
+      showNewNotebookDialog: action,
+      hideNewNotebookDialog: action,
       menuPortalChildren: observable.shallow,
       currentDocument: computed,
       currentPage: observable.ref,
@@ -57,7 +58,7 @@ export class NavigationStore {
       () =>
         (this.currentPage.page === "login" ||
           this.currentPage.page === "register") &&
-        this.sessionStore.loggedInUser,
+        this.sessionStore.loggedInUserId,
       (val) => {
         if (val) {
           const prevUrl = window.history.state?.prevUrl || "/";
@@ -94,10 +95,10 @@ export class NavigationStore {
     );
 
     reaction(
-      () => !!this.sessionStore.loggedInUser,
+      () => !!this.sessionStore.loggedInUserId,
       (val) => {
         if (!val) {
-          this.isNewPageDialogVisible = false;
+          this.isNewNotebookDialogVisible = false;
         }
       }
     );
@@ -112,6 +113,7 @@ export class NavigationStore {
       }
     );
 
+    // TODO: document
     reaction(
       () => this.currentPage.identifier?.toRouteString(),
       (newVal, oldVal) => {
@@ -123,6 +125,7 @@ export class NavigationStore {
     window.addEventListener("popstate", this.onPopState);
   }
 
+  // TODO: document
   onPopState = (e: PopStateEvent) => {
     const newPage = routing();
     if (
@@ -136,70 +139,59 @@ export class NavigationStore {
     }
   };
 
+  private navigateToURLByPath(path: string) {
+    if (!path.startsWith("/")) {
+      throw new Error("navigateToURLByPath should start with /");
+    }
+    const url = path;
+    window.history.pushState(
+      {
+        url,
+        prevUrl:
+          window.history.state?.prevUrl ||
+          window.history.state?.url ||
+          window.location.href,
+      },
+      "",
+      url
+    );
+    this.currentPage = routing();
+  }
+
+  showStartScreen = () => {
+    this.navigateToURLByPath("/");
+  };
+
   // hideLoginScreen = () => {
   //   this.isLoginScreenVisible = false;
   // };
 
   showLoginScreen = () => {
-    this.currentPage = {
-      page: "login",
-    };
-    const url = "/login";
-    window.history.pushState(
-      {
-        url,
-        prevUrl:
-          window.history.state?.prevUrl ||
-          window.history.state?.url ||
-          window.location.href,
-      },
-      "",
-      url
-    );
+    this.navigateToURLByPath("/login");
   };
 
   showRegisterScreen = () => {
-    this.currentPage = {
-      page: "register",
-    };
-    const url = "/register";
-    window.history.pushState(
-      {
-        url,
-        prevUrl:
-          window.history.state?.prevUrl ||
-          window.history.state?.url ||
-          window.location.href,
-      },
-      "",
-      url
-    );
+    this.navigateToURLByPath("/register");
   };
 
   showForgotPassword = () => {
-    this.currentPage = {
-      page: "recover",
-    };
-    const url = "/recover";
-    window.history.pushState(
-      {
-        url,
-        prevUrl:
-          window.history.state?.prevUrl ||
-          window.history.state?.url ||
-          window.location.href,
-      },
-      "",
-      url
-    );
+    this.navigateToURLByPath("/recover");
   };
 
-  showNewPageDialog = () => {
-    this.isNewPageDialogVisible = true;
+  navigateToDocs = () => {
+    this.navigateToURLByPath("/docs");
   };
 
-  hideNewPageDialog = () => {
-    this.isNewPageDialogVisible = false;
+  navigateToTutorial = () => {
+    this.navigateToURLByPath("/docs/interactive-introduction.md");
+  };
+
+  showNewNotebookDialog = () => {
+    this.isNewNotebookDialogVisible = true;
+  };
+
+  hideNewNotebookDialog = () => {
+    this.isNewNotebookDialogVisible = false;
   };
 
   navigateToDocument = (doc: BaseResource) => {
@@ -207,5 +199,31 @@ export class NavigationStore {
       page: "document",
       identifier: doc.identifier,
     };
+  };
+
+  navigateToNewGuestNotebook = () => {
+    this.currentPage = {
+      page: "document",
+      identifier: parseIdentifier("@typecell/new"),
+    };
+  };
+
+  showProfilePage = (owner: string) => {
+    this.currentPage = {
+      page: "owner",
+      owner,
+    };
+    const url = "/" + owner;
+    window.history.pushState(
+      {
+        url,
+        prevUrl:
+          window.history.state?.prevUrl ||
+          window.history.state?.url ||
+          window.location.href,
+      },
+      "",
+      url
+    );
   };
 }

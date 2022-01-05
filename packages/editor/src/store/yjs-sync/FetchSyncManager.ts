@@ -1,5 +1,6 @@
 import { makeObservable, observable, runInAction } from "mobx";
-import { lifecycle } from "vscode-lib";
+import { lifecycle, strings } from "vscode-lib";
+
 import * as Y from "yjs";
 import { HttpsIdentifier } from "../../identifiers/HttpsIdentifier";
 import { markdownToYDoc } from "../../integrations/markdown/import";
@@ -66,8 +67,23 @@ export default class FetchSyncManager
         await fetch(this.identifier.uri.toString())
       ).text();
       return markdownToYDoc(contents);
+    } else {
+      // TODO: this is hacky. We should use json from parent route instead. Revise routing?
+      const [root, ...remainders] = strings
+        .trim(this.identifier.uri.path, "/")
+        .split("/");
+      const index = this.identifier.uri.with({ path: root + "/index.json" });
+      let json = (await (await fetch(index.toString())).json()) as string[];
+
+      const prefix = remainders.join("/") + "/";
+      json = json.filter((path) => path.startsWith(prefix));
+      json = json.map((path) => path.substring(prefix.length));
+
+      if (!json.length) {
+        return "not-found" as "not-found";
+      }
+      return this.getNewYDocFromDir(json);
     }
-    return "not-found" as "not-found";
   }
 
   private async initializeNoCatch() {
