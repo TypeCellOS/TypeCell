@@ -162,6 +162,10 @@
   justify-content: center;
 }
 
+.build iframe {
+  border: none;
+}
+
 .build p {
   text-align: center;
   width: 100%;
