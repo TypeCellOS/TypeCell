@@ -145,7 +145,7 @@ export const StartScreen = observer(() => {
                     profileImageUrl: "",
                   }}
                   onClick={() => {
-                    alert("x");
+                    alert("todo");
                   }}></NotebookOverviewItem>
               </div>
               <div className={styles.notebook}>
@@ -158,7 +158,7 @@ export const StartScreen = observer(() => {
                     profileImageUrl: "",
                   }}
                   onClick={() => {
-                    alert("x");
+                    alert("todo");
                   }}></NotebookOverviewItem>
               </div>
               <div className={styles.notebook}>
@@ -171,7 +171,7 @@ export const StartScreen = observer(() => {
                     profileImageUrl: "",
                   }}
                   onClick={() => {
-                    alert("x");
+                    alert("todo");
                   }}></NotebookOverviewItem>
               </div>
             </div>
