@@ -42,6 +42,10 @@ body,
   height: 100%;
 }
 
+.centered {
+  text-align: center;
+}
+
 .page {
   overflow-y: auto;
 }
