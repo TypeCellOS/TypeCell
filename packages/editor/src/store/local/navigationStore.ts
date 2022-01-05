@@ -11,6 +11,7 @@ import { BaseResource } from "../BaseResource";
 import { DocConnection } from "../DocConnection";
 import { SessionStore } from "./SessionStore";
 import { parseIdentifier } from "../../identifiers/index";
+import { Identifier } from "../../identifiers/Identifier";
 
 export class NavigationStore {
   private initialized = false;
@@ -201,11 +202,15 @@ export class NavigationStore {
     };
   };
 
-  navigateToNewGuestNotebook = () => {
+  navigateToIdentifier = (identifier: Identifier) => {
     this.currentPage = {
       page: "document",
-      identifier: parseIdentifier("@typecell/new"),
+      identifier,
     };
+  };
+
+  navigateToNewGuestNotebook = () => {
+    this.navigateToIdentifier(parseIdentifier("@typecell/new"));
   };
 
   showProfilePage = (owner: string) => {

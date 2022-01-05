@@ -1,36 +1,40 @@
 .room {
-    padding: 8px 12px;
-    border-radius: 4px;
-    box-shadow: var(--ds-card,0 1px 1px rgba(9,30,66,0.25),0 0 1px 0 rgba(9,30,66,0.31));
-    margin: 4px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  box-shadow: var(
+    --ds-card,
+    0 1px 1px rgba(9, 30, 66, 0.25),
+    0 0 1px 0 rgba(9, 30, 66, 0.31)
+  );
+  margin: 4px;
 }
 
 .room .roomName {
-    font-size: 1em;
+  font-size: 1em;
 }
 
 .room .user {
-    font-size: 0.8em;
+  font-size: 0.8em;
 }
 
 .notebookList {
-    margin-top: 4px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    max-height: 600px;
-    align-content: flex-start;
+  margin-top: 4px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-height: 600px;
+  align-content: flex-start;
 }
 
 .notebookList > * {
-    width: calc(25% - 8px);
+  width: calc(25% - 8px);
 }
 
 /* 900px is an arbitrary number, but make sure it's the same as the width 
  for determining notebookListLimit in NotebookOverview.tsx */
 @media screen and (max-width: 731px) {
-    .notebookList > * {
-        width: calc(50% - 8px);
-    }
+  .notebookList > * {
+    width: calc(50% - 8px);
+  }
 }

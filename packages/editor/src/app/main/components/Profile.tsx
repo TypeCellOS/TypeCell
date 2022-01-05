@@ -1,14 +1,20 @@
+import DocumentMenu from "./documentMenu";
 import { NotebookOverview } from "./NotebookOverview";
 import styles from "./Profile.module.css";
 
 interface ProfileProps {
-    owner: string,
+  owner: string;
 }
 
 export const Profile = function (props: ProfileProps) {
-    return <div className={styles.wrapper}>
+  return (
+    <>
+      <DocumentMenu />
+      <div className={styles.wrapper}>
         <NotebookOverview owner={props.owner} />
-    </div>;
-}
+      </div>
+    </>
+  );
+};
 
 export default Profile;
