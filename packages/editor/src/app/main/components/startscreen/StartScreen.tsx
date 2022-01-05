@@ -117,22 +117,21 @@ export const StartScreen = observer(() => {
             <div className="row">
               <h2>Community Notebooks</h2>
               <p className={styles.text}>
-                <a
-                  href="https://discord.gg/TcJ9TRC3SV"
-                  target="_blank"
-                  rel="noreferrer">
-                  <img
-                    alt="Discord"
-                    src="https://img.shields.io/badge/Join us on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"
-                  />
-                </a>
-              </p>
-              <p className={styles.text}>
                 With TypeCell you can easily share your work with others. Below
                 we listed the Notebooks made by some of our users. View and
                 interact with a Notebook or use it as a starting point for your
                 next project.
               </p>
+              <a
+                className={styles.discord}
+                href="https://discord.gg/TcJ9TRC3SV"
+                target="_blank"
+                rel="noreferrer">
+                <img
+                  alt="Discord"
+                  src="https://img.shields.io/badge/Join us on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"
+                />
+              </a>
             </div>
 
             <div className={styles.overview + " row"}>
