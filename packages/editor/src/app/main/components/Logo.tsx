@@ -1,4 +1,5 @@
 import { getStoreService } from "../../../store/local/stores";
+import logo_with_text from "../../../assets/logo_with_text.svg";
 import styles from "./Logo.module.css";
 
 export const Logo = () => {
@@ -12,7 +13,7 @@ export const Logo = () => {
         e.preventDefault();
         navigationStore.showStartScreen();
       }}>
-      <img src="/assets/logo_with_text.svg" alt="TypeCell Logo" />
+      <img src={logo_with_text} alt="TypeCell Logo" />
     </a>
   );
 };

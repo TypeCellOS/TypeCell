@@ -16,6 +16,11 @@ html {
   box-sizing: inherit;
 }
 
+a:active,
+a:focus {
+  outline: none;
+}
+
 /* @import "~react-resizable/css/styles.css"; */
 body {
   margin: 0;
@@ -37,14 +42,88 @@ body,
   height: 100%;
 }
 
+.centered {
+  text-align: center;
+}
+
+.page {
+  overflow-y: auto;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #3a3a3a;
+}
+
 .react-draggable {
   position: absolute;
 }
+
+.button {
+  border-radius: 6px;
+  padding: 0.5em 1em;
+  background-color: #1e2328;
+  color: white;
+  font-weight: 600;
+  font-size: 1em;
+
+  transition: 150ms all ease-in-out;
+}
+
+.button:hover {
+  color: white;
+  background-color: #3e454b;
+  text-decoration: none;
+}
+
+.button.primary {
+  background-color: #1fb597;
+}
+
+.button.primary:hover {
+  background-color: #13cca7;
+}
+
+.button.secondary {
+  background-color: #467ea1;
+}
+
+.button.secondary:hover {
+  background-color: rgb(77, 154, 202);
+}
+
+.button.inverted {
+  color: #676767;
+  background-color: transparent;
+  border: 1px solid #676767;
+}
+
+.button.inverted:hover {
+  background-color: #f3f3f3;
+}
+
+/* Some generic layout classes */
+.row {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.container {
+  margin: 0 auto;
+  max-width: calc(1024px);
+}
+
 .cellList-item {
   padding-left: 100px;
   /* border:1px solid black; */
