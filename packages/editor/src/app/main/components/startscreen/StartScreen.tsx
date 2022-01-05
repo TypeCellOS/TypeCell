@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import styles from "./StartScreen.module.css";
-import GitHubButton from "react-github-btn";
+// import GitHubButton from "react-github-btn";
 import { getStoreService } from "../../../../store/local/stores";
 import { NotebookOverviewItem } from "../NotebookOverviewItem";
 import app_logo from "../../../../assets/app_logo.svg";
@@ -29,9 +29,9 @@ export const StartScreen = observer(() => {
 
   return (
     <>
-      <div className="page">
+      <div className="page centered">
         <section className={styles.introduction}>
-          <div className={styles.github}>
+          {/* <div className={styles.github}>
             <GitHubButton
               href="https://github.com/YousefED/typecell-next"
               data-color-scheme="no-preference: dark; light: light; dark: dark;"
@@ -39,25 +39,22 @@ export const StartScreen = observer(() => {
               aria-label="Star YousefED/typecell-next on GitHub">
               Star
             </GitHubButton>
-          </div>
+          </div> */}
           <div className="container">
-            <div className={styles.row + " row"}>
+            <div className={styles.row}>
               <img
                 className={styles.logo}
                 src={app_logo}
                 alt="TypeCell app logo"
               />
             </div>
-            <div className={styles.row + " row"}>
+            <div className={styles.row}>
               <h1>
-                Explore, develop & share <br></br>with the online interactive
-                notebook
+                Explore, develop & share. <br></br> Live coding with interactive
+                notebooks.
               </h1>
             </div>
             <div className={styles.row + " " + styles.buttons + " row"}>
-              {
-                // TODO: Use react navigation
-              }
               <a
                 className="button primary"
                 href="/docs/interactive-introduction.md"
@@ -91,7 +88,8 @@ export const StartScreen = observer(() => {
                   <img src={lightning} alt="Lightning icon" />
                 </div>
                 <span>
-                  Execute code changes in realtime, directly in your browser
+                  The Reactive Runtime evaluates as-you-type, directly in your
+                  browser.
                 </span>
               </div>
               <div className={styles.separator}></div>
@@ -99,14 +97,16 @@ export const StartScreen = observer(() => {
                 <div className={styles.icon}>
                   <img src={npm} alt="NPM logo" />
                 </div>
-                <span>Instantly use npm modules in your notebook</span>
+                <span>
+                  Built-in support for TypeScript, React, NPM and more.
+                </span>
               </div>
               <div className={styles.separator}></div>
               <div className={styles.perk}>
                 <div className={styles.icon}>
                   <img src={globe} alt="Globe icon" />
                 </div>
-                <span>Colaborate with anyone in an instant</span>
+                <span>Share your notebooks and collaborate in real-time.</span>
               </div>
             </div>
           </div>
@@ -116,6 +116,17 @@ export const StartScreen = observer(() => {
           <div className="container">
             <div className="row">
               <h2>Community Notebooks</h2>
+              <p className={styles.text}>
+                <a
+                  href="https://discord.gg/TcJ9TRC3SV"
+                  target="_blank"
+                  rel="noreferrer">
+                  <img
+                    alt="Discord"
+                    src="https://img.shields.io/badge/Join us on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"
+                  />
+                </a>
+              </p>
               <p className={styles.text}>
                 With TypeCell you can easily share your work with others. Below
                 we listed the Notebooks made by some of our users. View and
@@ -169,25 +180,47 @@ export const StartScreen = observer(() => {
         </section>
 
         <div className={styles.section_separator}></div>
-
         <section className={styles.build}>
           <div className="container">
-            <div className="row">
-              <h2>Or start building yourself</h2>
+            <div>
+              <h2>Intro @ LiveProg 2021</h2>
 
-              <p>
-                We are excited to see what you will do with TypeCell. <br></br>
-                Start your own notebook from scratch or start from one of our
-                examples.
-              </p>
+              <iframe
+                width="560"
+                height="315"
+                src="https://www.youtube.com/embed/paLS2M-XP6M"
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen></iframe>
             </div>
+          </div>
+        </section>
+        <div className={styles.section_separator}></div>
+        <section className={styles.build}>
+          <div className="container">
+            <h2>Start building yourself</h2>
+            <p>
+              We are excited to see what you will do with TypeCell.<br></br>
+              We'd love to get your feedback and ideas, so{" "}
+              <a
+                target="_blank"
+                href="https://discord.gg/TcJ9TRC3SV"
+                rel="noreferrer">
+                <span>join us on Discord</span>
+              </a>
+              .
+            </p>
+
             <div className={styles.buttons}>
-              <div className="row">
-                <a href="/docs/interactive-introduction.md" className="button">
+              <div>
+                <a
+                  href="/docs/interactive-introduction.md"
+                  onClick={onDocsClick}
+                  className="button">
                   Try interactive tutorial
                 </a>
               </div>
-              <div className="row">
+              <div>
                 <a
                   className={styles.link}
                   onClick={onNewNotebookClick}
@@ -201,30 +234,35 @@ export const StartScreen = observer(() => {
 
         <footer className={styles.footer}>
           <div className="container">
-            <div className="row">
-              <div className={styles.links}>
-                <ul>
-                  <li>
-                    <a href="/docs/interactive-introduction.md">
-                      <span>Interactive introduction</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      target="_blank"
-                      rel="noreferrer"
-                      href="https://github.com/YousefED/typecell-next">
-                      <span>Find us on GitHub</span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div className={styles.bottom}>
-                <span>
-                  {new Date().getFullYear()} TypeCell the online Notebook
-                  community
-                </span>
-              </div>
+            <div className={styles.links}>
+              <ul>
+                <li>
+                  <a
+                    href="/docs/interactive-introduction.md"
+                    onClick={onDocsClick}>
+                    <span>Interactive introduction</span>
+                  </a>
+                </li>
+                {/* <li>
+                  <a
+                    target="_blank"
+                    href="https://github.com/YousefED/typecell-next"
+                    rel="noreferrer">
+                    <span>Find us on GitHub</span>
+                  </a>
+                </li> */}
+                <li>
+                  <a
+                    target="_blank"
+                    href="https://discord.gg/TcJ9TRC3SV"
+                    rel="noreferrer">
+                    <span>Chat on discord</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div className={styles.bottom}>
+              <span>{new Date().getFullYear()} TypeCell live programming</span>
             </div>
           </div>
         </footer>

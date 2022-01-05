@@ -162,6 +162,10 @@
   justify-content: center;
 }
 
+.build iframe {
+  border: none;
+}
+
 .build p {
   text-align: center;
   width: 100%;
@@ -186,9 +190,10 @@
 }
 
 .footer {
+  text-align: left;
   background-color: #f6f6f6;
   position: relative;
-  padding: 4em 0 3em 0;
+  padding: 1em 0 1em 0;
 }
 
 .footer > div {
@@ -199,7 +204,7 @@
   display: flex;
   flex: 1 1;
   width: 100%;
-  padding: 6em 0;
+  padding: 1em 0;
 }
 
 .footer .links ul {
@@ -220,7 +225,7 @@
 }
 
 .links ul a:before {
-  content: "> ";
+  content: "› ";
   display: inline;
   text-decoration: none;
 }
