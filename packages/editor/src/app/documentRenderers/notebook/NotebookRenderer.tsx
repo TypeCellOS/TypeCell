@@ -29,7 +29,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
     if (props.document.webrtcProvider?.awareness) {
       const colorManager = new MonacoColorManager(
         props.document.webrtcProvider.awareness,
-        sessionStore.loggedInUser || "Anonymous",
+        sessionStore.loggedInUserId || "Anonymous",
         sessionStore.userColor
       );
       return () => {
@@ -38,7 +38,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
     }
   }, [
     props.document.webrtcProvider?.awareness,
-    sessionStore.loggedInUser,
+    sessionStore.loggedInUserId,
     sessionStore.userColor,
   ]);
 

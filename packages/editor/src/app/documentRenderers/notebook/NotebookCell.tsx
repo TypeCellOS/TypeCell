@@ -47,7 +47,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
   // const [codeRef, setCodeRef] = useState<HTMLDivElement>();
 
   const sessionStore = getStoreService().sessionStore;
-  const user = sessionStore.loggedInUser;
+  const user = sessionStore.loggedInUserId;
 
   const [codeVisible, setCodeVisible] = useState(
     untracked(
