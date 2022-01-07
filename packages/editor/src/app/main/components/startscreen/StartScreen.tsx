@@ -187,7 +187,7 @@ export const StartScreen = observer(() => {
               <iframe
                 width="560"
                 height="315"
-                src="https://www.youtube-nocookie.com//embed/paLS2M-XP6M"
+                src="https://www.youtube-nocookie.com/embed/paLS2M-XP6M"
                 title="YouTube video player"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen></iframe>
