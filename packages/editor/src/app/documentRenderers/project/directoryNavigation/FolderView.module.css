@@ -1,0 +1,46 @@
+.container {
+  margin: 0 auto;
+  max-width: 731px;
+  border: 1px solid rgb(239, 241, 244);
+  border-radius: 3px;
+}
+
+.item {
+  border-radius: 0 !important;
+  border-bottom: 1px solid rgb(239, 241, 244) !important;
+  /* padding: 10px; */
+  width: 100% !important;
+  text-align: left !important;
+  font-weight: normal !important;
+  font-size: 15px !important;
+  height: 2.1em !important;
+  background: none !important;
+}
+
+.item:last-child {
+  border: 0 !important;
+}
+
+.item:hover {
+  background: rgba(9, 30, 66, 0.08) !important;
+  /* padding: 10px; */
+  /* background: rgba(9, 30, 66, 0.08); */
+}
+
+.icon {
+  width: 12px;
+  height: 12px;
+  margin-right: 5px;
+  margin-top: 2px;
+}
+
+.folder .icon {
+  color: #54aeff;
+  width: 16px;
+  height: 16px;
+  margin-right: 3px;
+}
+
+.folder {
+  padding-left: 8px !important;
+}

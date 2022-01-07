@@ -16,6 +16,19 @@ import { MonacoContext } from "./runtime/editor/MonacoContext";
 import { initializeStoreService } from "./store/local/stores";
 import * as monaco from "monaco-editor";
 import * as Olm from "@matrix-org/olm";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import * as reo from "react-error-overlay";
+
+if (process.env.NODE_ENV === "development") {
+  // disables error overlays
+  // We make use of React Error Boundaries to catch exceptions during rendering of
+  // user-defined react components. It's annoying (and slow) to get the React error overlay
+  // while editing TypeCell cells
+  // Note that this breaks hot reloading
+  // (reo as any).stopReportingRuntimeErrors();
+}
+
 // const config = {
 //   default_server_config: {
 //     "m.homeserver": {
