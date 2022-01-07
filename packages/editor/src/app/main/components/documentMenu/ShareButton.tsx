@@ -12,6 +12,11 @@ export const ShareButton: React.FC = observer(() => {
       onClick={() => {
         setShareMessageVisible(true);
         navigator.clipboard.writeText(window.location.href);
+        /*
+        TODO: migrate to
+        
+        https://atlassian.design/components/tooltip/code or https://atlaskit.atlassian.com/packages/design-system/popper
+        */
         setTimeout(() => setShareMessageVisible(false), 3000);
       }}>
       <VscCloudUpload
