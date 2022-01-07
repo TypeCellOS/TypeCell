@@ -1,26 +1,33 @@
-import React from "react";
+import React, {useState} from "react";
 import Button from "@atlaskit/button";
 import Select from "@atlaskit/select";
 import styles from "./DocumentSettings.module.css";
 import Avatar from "react-avatar";
-import {DocPermission, UserPermission} from "../PermissionsStore";
+import {DocPermission, permissionsStore, UserPermission} from "../PermissionsStore";
+import {lockPermission, permissionMap } from "./PermissionSettings";
 
-export default function Permission(props: {name: string, userPermission: UserPermission, docPermission: DocPermission}) {
-    const permissionMap = new Map<UserPermission, {label: string, value: string}>([
-        [UserPermission.View, { label: 'Can view', value: 'view' }],
-        [UserPermission.Edit, { label: 'Can edit', value: 'edit '}]
-    ])
+export default function Permission(props: {
+    name: string,
+    userPermission: UserPermission,
+    docPermission: DocPermission,
+    editCallback: (user: string, permission: UserPermission) => void,
+    removeCallback: (user: string) => void}) {
 
-    function maxUserPermission() {
-        if (props.docPermission == DocPermission.Public || props.docPermission == DocPermission.PrivateEdit) {
-            return UserPermission.Edit;
-        }
+    // State and functions for storing & updating whether each specific user can read/write to the page.
+    const [permission, setPermission] = useState(lockPermission(props.docPermission) ?
+        UserPermission.Edit :
+        props.userPermission);
 
-        return props.userPermission;
+    function updatePermission(permission: {label: string, value: string} | null) {
+        setPermission(permission!.value as UserPermission);
     }
 
-    function isDisabled() {
-        return props.docPermission == DocPermission.Public || props.docPermission == DocPermission.PrivateEdit;
+    function edit(e: any) {
+        props.editCallback(props.name, permission);
+    }
+
+    function remove(e: any) {
+        props.removeCallback(props.name);
     }
 
     return (
@@ -43,18 +50,23 @@ export default function Permission(props: {name: string, userPermission: UserPer
                     className={`${styles.select} ${styles.restriction_select}`}
                     classNamePrefix='react-select'
                     inputValue={''} // For disabling user keyboard input.
-                    defaultValue={permissionMap.get(props.userPermission)}
-                    value={permissionMap.get(maxUserPermission())}
-                    isDisabled={isDisabled()}
+                    defaultValue={permissionMap.get(permission)}
+                    value={lockPermission(props.docPermission) ?
+                        permissionMap.get(UserPermission.Edit) :
+                        permissionMap.get(permission)}
+                    isDisabled={lockPermission(props.docPermission)}
+
+                    onChange={updatePermission}
 
                     options={[
-                        { label: 'Can view', value: 'read' },
-                        { label: 'Can edit', value: 'write' },
+                        { label: 'Can view', value: 'view' },
+                        { label: 'Can edit', value: 'edit' },
                     ]}
                 />
                 <Button
                     appearance='subtle'
                     style={{height: '2.5rem', width: '50%', alignItems: 'center'}}
+                    onClick={remove}
                 >
                     Remove
                 </Button>

@@ -80,7 +80,10 @@ export const Navigation = observer(() => {
         </>
       ))}
       renderSettings={observer(() => (
-        <DocumentSettings/>
+          <>
+          {navigationStore.currentPage.page != 'root' &&
+                  (<DocumentSettings currentPage={navigationStore.currentPage}/>)}
+          </>
       ))}
       renderProfile={observer(() => (
         <>
