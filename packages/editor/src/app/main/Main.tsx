@@ -12,6 +12,7 @@ import { Navigation } from "./components/Navigation";
 import NewNotebookDialog from "./components/NewNotebookDialog";
 import { StartScreen } from "./components/startscreen/StartScreen";
 import styles from "./Main.module.css";
+import Profile from "./components/Profile";
 
 type Props = {
   currentPage:
@@ -35,7 +36,7 @@ const Page = observer((props: Props) => {
     case "document":
       return <DocumentView id={props.currentPage.identifier} />;
     case "owner":
-      return <div>Profile: {props.currentPage.owner}</div>;
+      return <Profile owner={props.currentPage.owner} />;
     default:
       throw new UnreachableCaseError(props.currentPage);
   }

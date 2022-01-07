@@ -15,9 +15,13 @@ import { ForkAlert } from "./ForkAlert";
 import { ShareButton } from "./ShareButton";
 
 type Props = {
-  document: BaseResource;
+  document?: BaseResource;
 };
 
+// TODO: the DocumentMenu is now also used on profile pages.
+// This is a bit hacky, but probably we either want to:
+// (a) make profiles also "documents"
+// (b) extract the menu / breadcrumbs and create a ProfileMenu / GenericMenu or the like
 export const DocumentMenu: React.FC<Props> = observer((props) => {
   const navigationStore = getStoreService().navigationStore;
 
@@ -26,39 +30,42 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
       <Breadcrumb />
       {navigationStore.currentDocument?.needsFork && <ForkAlert />}
 
-      <aside className={styles.actions}>
-        <ul>
-          <li className={styles.item}>
-            <ShareButton />
-          </li>
-          {props.document instanceof DocumentResource ? (
-            <>
-              <li className={styles.separator}></li>
-              <li className={styles.options}>
-                <DropdownMenu
-                  shouldFlip
-                  trigger={
-                    <div style={{ paddingRight: "0.5em", paddingLeft: "1em;" }}>
-                      <VscKebabVertical
-                        title="Options"
-                        style={{ fontSize: "14px", transform: "scale(1.3)" }}
-                      />
-                    </div>
-                  }
-                  position="bottom right">
-                  <DropdownItem
-                    onClick={() => openAsMarkdown(props.document.doc)}>
-                    Export as markdown
-                  </DropdownItem>
-                  {/* TODO <DropdownItem>Change permissions</DropdownItem> */}
-                </DropdownMenu>
-              </li>
-            </>
-          ) : (
-            ""
-          )}
-        </ul>
-      </aside>
+      {props.document && (
+        <aside className={styles.actions}>
+          <ul>
+            <li className={styles.item}>
+              <ShareButton />
+            </li>
+            {props.document instanceof DocumentResource ? (
+              <>
+                <li className={styles.separator}></li>
+                <li className={styles.options}>
+                  <DropdownMenu
+                    shouldFlip
+                    trigger={
+                      <div
+                        style={{ paddingRight: "0.5em", paddingLeft: "1em;" }}>
+                        <VscKebabVertical
+                          title="Options"
+                          style={{ fontSize: "14px", transform: "scale(1.3)" }}
+                        />
+                      </div>
+                    }
+                    position="bottom right">
+                    <DropdownItem
+                      onClick={() => openAsMarkdown(props.document!.doc)}>
+                      Export as markdown
+                    </DropdownItem>
+                    {/* TODO <DropdownItem>Change permissions</DropdownItem> */}
+                  </DropdownMenu>
+                </li>
+              </>
+            ) : (
+              ""
+            )}
+          </ul>
+        </aside>
+      )}
     </nav>
   );
 });
