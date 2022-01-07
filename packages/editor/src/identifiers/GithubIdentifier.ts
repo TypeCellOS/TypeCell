@@ -7,7 +7,7 @@ export class GithubIdentifier extends Identifier {
   public readonly repository: string;
   public readonly path: string;
 
-  constructor(uriToParse: uri.URI) {
+  constructor(uriToParse: uri.URI, title?: string) {
     let [identifier, subPath] = stringWithoutInitialSlash(
       uriToParse.path
     ).split("/:/", 2);
@@ -30,7 +30,8 @@ export class GithubIdentifier extends Identifier {
         authority: uriToParse.authority,
         path: owner + "/" + repository + (path.length ? "/" + path : ""),
       }),
-      subPath
+      subPath,
+      title
     );
     this.path = path;
     this.owner = owner;

@@ -1,11 +1,5 @@
-import { MatrixClient } from "matrix-js-sdk";
-import {
-  action,
-  computed,
-  makeObservable,
-  observable,
-  runInAction,
-} from "mobx";
+import { createClient, MatrixClient } from "matrix-js-sdk";
+import { event, lifecycle } from "vscode-lib";
 import { MATRIX_CONFIG } from "../../config/config";
 import { sendLoginRequest } from "./auth/LoginHelper";
 import { IMatrixClientCreds } from "./auth/util/matrix";
@@ -45,45 +39,31 @@ export interface IStoredSession {
   isGuest: boolean;
 }
 
-export class MatrixAuthStore {
+export class MatrixAuthStore extends lifecycle.Disposable {
   private accountPassword: string | undefined;
   private accountPasswordTimer: ReturnType<typeof setTimeout> | undefined;
   private firstSyncPromise: Promise<void> | undefined;
   private firstSyncComplete: boolean = false;
   private _isLoggingOut = false;
+  private _loggedIn = false;
+
+  public get loggedIn() {
+    return this._loggedIn;
+  }
+
   public pendingInitialSyncAndKeySync = true;
-  public _loggedIn = false;
 
   public needsCompleteSecurity = false;
   public needsE2ESetup = false;
 
-  // TODO: test with logout and then login
-  public get loggedInUser() {
-    if (!this._loggedIn) {
-      return undefined;
-    }
-    const currentUserId = MatrixClientPeg.get().getUserId() as string;
+  private readonly _onLoggedInChanged: event.Emitter<boolean> = this._register(
+    new event.Emitter<boolean>()
+  );
 
-    const parts = currentUserId.split(":");
-    if (parts.length !== 2) {
-      throw new Error("invalid user id");
-    }
-    const [user /*_host*/] = parts; // TODO: think out host for federation
-    if (!user.startsWith("@") || user.length < 2) {
-      throw new Error("invalid user id");
-    }
+  public readonly onLoggedInChanged: event.Event<boolean> =
+    this._onLoggedInChanged.event;
 
-    return user;
-  }
-
-  constructor() {
-    makeObservable(this, {
-      _loggedIn: observable,
-      postLoginSetup: action,
-      loggedInUser: computed,
-    });
-  }
-
+  // based on https://github.com/matrix-org/matrix-react-sdk/blob/96e16940bb9d30fbbbb1133fae796c1021e871f3/src/components/structures/MatrixChat.tsx#L350
   public async initialize() {
     const params = decodeParams(window.location.search.substring(1));
     const loggedIn = await this.attemptTokenLogin(
@@ -106,11 +86,24 @@ export class MatrixAuthStore {
         ignoreGuest: true,
       });
       await this.postLoginSetup();
-      // TODO: handle and display errors
+      return true;
     } else {
-      await this.loadSession();
+      return await this.loadSession({
+        enableGuest: true,
+        defaultDeviceDisplayName: MATRIX_CONFIG.defaultDeviceDisplayName,
+        guestHsUrl: MATRIX_CONFIG.hsUrl,
+        guestIsUrl: MATRIX_CONFIG.isUrl,
+      });
     }
   }
+
+  private setLoggedInState(value: boolean) {
+    if (this._loggedIn !== value) {
+      this._loggedIn = value;
+      this._onLoggedInChanged.fire(this._loggedIn);
+    }
+  }
+
   /**
    * fires on_logging_in, optionally clears localstorage, persists new credentials
    * to localstorage, starts the new client.
@@ -206,7 +199,7 @@ export class MatrixAuthStore {
     // dis.dispatch({ action: "on_logged_in" });
 
     await this.startMatrixClient(/*startSyncing=*/ !softLogout);
-    this._loggedIn = true; // originally this would be above startMatrixClient
+    this.setLoggedInState(true); // originally this would be above startMatrixClient
     return client;
   }
 
@@ -363,9 +356,8 @@ export class MatrixAuthStore {
 
     cli.on("Session.logged_out", (errObj: any) => {
       console.log("Session.logged_out");
-      runInAction(() => {
-        this._loggedIn = false;
-      });
+      this.setLoggedInState(false);
+
       if (this._isLoggingOut) return;
 
       // A modal might have been open when we were logged out by the server
@@ -614,7 +606,8 @@ export class MatrixAuthStore {
       // index (e.g. the FilePanel), therefore initialize the event index
       // before the client.
       //   await EventIndexPeg.init();
-      //await MatrixClientPeg.start();
+      // start client for e2ee support
+      // await MatrixClientPeg.start();
     } else {
       // console.warn("Caller requested only auxiliary services be started");
       //await MatrixClientPeg.assign();
@@ -636,7 +629,11 @@ export class MatrixAuthStore {
     //   dis.dispatch({action: 'client_started'});
 
     await MatrixClientPeg.get().initCrypto();
-    await MatrixClientPeg.get().crypto.uploadDeviceKeys();
+    try {
+      await MatrixClientPeg.get().crypto.uploadDeviceKeys();
+    } catch (e) {
+      console.error("upload device keys failed", e);
+    }
     MatrixClientPeg.get().crypto.start();
 
     this.onClientStarted();
@@ -716,16 +713,14 @@ export class MatrixAuthStore {
       }
 
       if (enableGuest) {
-        // We handle this manually in SessionStore
-        // throw new Error("not implemented");
-        // if (!guestHsUrl || !guestIsUrl || !defaultDeviceDisplayName) {
-        //   throw new Error("enable guest with invalid params");
-        // }
-        // return this.registerAsGuest(
-        //   guestHsUrl,
-        //   guestIsUrl,
-        //   defaultDeviceDisplayName
-        // );
+        if (!guestHsUrl || !guestIsUrl || !opts.defaultDeviceDisplayName) {
+          throw new Error("enable guest with invalid params");
+        }
+        return this.registerAsGuest(
+          guestHsUrl,
+          guestIsUrl,
+          opts.defaultDeviceDisplayName
+        );
       }
 
       // fall back to welcome screen
@@ -741,6 +736,43 @@ export class MatrixAuthStore {
     }
   }
 
+  private async registerAsGuest(
+    hsUrl: string,
+    isUrl: string,
+    defaultDeviceDisplayName: string
+  ): Promise<boolean> {
+    console.log(`Doing guest login on ${hsUrl}`);
+
+    // create a temporary MatrixClient to do the login
+    const client = createClient({
+      baseUrl: hsUrl,
+    });
+
+    try {
+      const creds = await client.registerGuest({
+        body: {
+          initial_device_display_name: defaultDeviceDisplayName,
+        },
+      });
+
+      console.log(`Registered as guest: ${creds.user_id}`);
+      await this.doSetLoggedIn(
+        {
+          userId: creds.user_id,
+          deviceId: creds.device_id,
+          accessToken: creds.access_token,
+          homeserverUrl: hsUrl,
+          identityServerUrl: isUrl,
+          guest: true,
+        },
+        true
+      );
+      return true;
+    } catch (err) {
+      console.error("Failed to register as guest", err);
+      return false;
+    }
+  }
   /**
    * @param {Object} queryParams    string->string map of the
    *     query-parameters extracted from the real query-string of the starting
@@ -892,7 +924,8 @@ export class MatrixAuthStore {
       // be aware of will be signalled through the room shield
       // changing colour. More advanced behaviour will come once
       // we implement more settings.
-      // cli.setGlobalErrorOnUnknownDevices(false);
+      // TODO: determine if we want this when enabling e2ee
+      cli.setGlobalErrorOnUnknownDevices(false);
     }
   }
 
@@ -903,7 +936,7 @@ export class MatrixAuthStore {
     if (!cryptoEnabled) {
       // this.onLoggedIn();
       StorageManager.tryPersistStorage();
-      this._loggedIn = true;
+      this.setLoggedInState(true);
     }
 
     const promisesList = []; //[this.firstSyncPromise!];
@@ -942,7 +975,7 @@ export class MatrixAuthStore {
     } else {
       // this.onLoggedIn();
       StorageManager.tryPersistStorage();
-      this._loggedIn = true;
+      this.setLoggedInState(true);
     }
     this.pendingInitialSyncAndKeySync = false;
   };
@@ -982,7 +1015,7 @@ export class MatrixAuthStore {
       // change your password).
       console.log("Failed to call logout API: token will not be invalidated");
     } finally {
-      this.onLoggedOut();
+      await this.onLoggedOut();
     }
   };
 
@@ -1007,7 +1040,7 @@ export class MatrixAuthStore {
     // dis.dispatch({ action: "on_client_not_viable" }); // generic version of on_logged_out
     // this.onSoftLogout();
     this.stopMatrixClient(/*unsetClient=*/ false);
-    this._loggedIn = false;
+    this.setLoggedInState(false);
 
     // DO NOT CALL LOGOUT. A soft logout preserves data, logout does not.
   }
@@ -1019,7 +1052,7 @@ export class MatrixAuthStore {
   public async onLoggedOut(): Promise<void> {
     console.log("onLoggedOut");
     this._isLoggingOut = false;
-    this._loggedIn = false;
+    this.setLoggedInState(false);
     // Ensure that we dispatch a view change **before** stopping the client so
     // so that React components unmount first. This avoids React soft crashes
     // that can occur when components try to use a null client.

@@ -1,9 +1,20 @@
+import "@atlaskit/css-reset/dist/bundle.css";
 import React from "react";
 import ReactDOM from "react-dom";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import * as reo from "react-error-overlay";
 import { validateFrameDomain } from "./config/security";
-import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
-import "@atlaskit/css-reset/dist/bundle.css";
 import "./iframe.css";
+import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
+
+if (process.env.NODE_ENV === "development") {
+  // disables error overlays
+  // We make use of React Error Boundaries to catch exceptions during rendering of
+  // user-defined react components. It's annoying (and slow) to get the React error overlay
+  // while editing TypeCell cells
+  // Note that this breaks hot reloading
+  (reo as any).stopReportingRuntimeErrors();
+}
 
 console.log("Loading iframe", window.location.href);
 

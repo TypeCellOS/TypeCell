@@ -6,6 +6,7 @@ import {
 } from "@typecell-org/engine";
 import * as markdownit from "markdown-it";
 import * as react from "react";
+import * as jsxruntime from "react/jsx-runtime";
 import * as reactdnd from "react-dnd";
 import * as reactdom from "react-dom";
 import * as probe from "probe.gl";
@@ -20,7 +21,7 @@ const limg = require("@loaders.gl/images") as any;
 const sz = require("frontend-collective-react-dnd-scrollzone");
 
 // TODO: make async
-function resolveNestedModule(id: string) {
+function resolveNestedModule(id: string, mode?: string) {
   function isModule(id: string, moduleName: string) {
     return id === moduleName || id === "https://cdn.skypack.dev/" + moduleName;
   }
@@ -29,8 +30,12 @@ function resolveNestedModule(id: string) {
     return markdownit;
   }
 
-  if (isModule(id, "react")) {
+  if (isModule(id, "react") && mode === "imports/optimized/react.js") {
     return react;
+  }
+
+  if (isModule(id, "react") && mode === "imports/unoptimized/jsx-runtime.js") {
+    return jsxruntime;
   }
 
   if (isModule(id, "react-dom")) {
