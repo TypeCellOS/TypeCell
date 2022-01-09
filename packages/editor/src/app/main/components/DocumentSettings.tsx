@@ -24,24 +24,7 @@ export default function DocumentSettings(props: {currentPage: ReturnType<typeof 
 			</DropdownMenu>
 
 			<ModalTransition>
-				{isOpen && (
-					<Modal onClose={closeModal} height={600} width={804}>
-						<ModalHeader>
-							<ModalTitle>Restrictions</ModalTitle>
-						</ModalHeader>
-						<ModalBody className={styles.body}>
-							<PermissionSettings/>
-						</ModalBody>
-						<ModalFooter>
-							<Button appearance="subtle" onClick={closeModal}>
-								Cancel
-							</Button>
-							<Button appearance='primary' onClick={closeModal} autoFocus>
-								Apply
-							</Button>
-						</ModalFooter>
-					</Modal>
-				)}
+				{isOpen && (<PermissionSettings closeCallback={closeModal}/>)}
 			</ModalTransition>
 		</>
 	)

@@ -3,8 +3,7 @@ import Button from "@atlaskit/button";
 import Select from "@atlaskit/select";
 import styles from "./DocumentSettings.module.css";
 import Avatar from "react-avatar";
-import {DocPermission, permissionsStore, UserPermission} from "../PermissionsStore";
-import {lockPermission, permissionMap } from "./PermissionSettings";
+import {DocPermission, lockPermission, UserPermission, userPermissionLabels} from "../PermissionUtils";
 
 export default function Permission(props: {
     name: string,
@@ -14,21 +13,21 @@ export default function Permission(props: {
     removeCallback: (user: string) => void}) {
 
     // State and functions for storing & updating whether each specific user can read/write to the page.
-    const [permission, setPermission] = useState(lockPermission(props.docPermission) ?
+    const [userPermission, setUserPermission] = useState(lockPermission(props.docPermission) ?
         UserPermission.Edit :
-        props.userPermission);
+        props.userPermission
+    );
 
-    function updatePermission(permission: {label: string, value: string} | null) {
-        setPermission(permission!.value as UserPermission);
-    }
-
-    function edit(e: any) {
-        props.editCallback(props.name, permission);
+    function edit(permission: {label: string, value: string} | null) {
+        setUserPermission(permission!.value as UserPermission);
+        props.editCallback(props.name, permission!.value as UserPermission);
     }
 
     function remove(e: any) {
         props.removeCallback(props.name);
     }
+
+    console.log(props.name + ' ' + userPermission);
 
     return (
         <div className={styles.user}>
@@ -50,17 +49,21 @@ export default function Permission(props: {
                     className={`${styles.select} ${styles.restriction_select}`}
                     classNamePrefix='react-select'
                     inputValue={''} // For disabling user keyboard input.
-                    defaultValue={permissionMap.get(permission)}
+                    defaultValue={{
+                        label: userPermissionLabels.get(userPermission)!,
+                        value: userPermission
+                    }}
                     value={lockPermission(props.docPermission) ?
-                        permissionMap.get(UserPermission.Edit) :
-                        permissionMap.get(permission)}
+                        {label: userPermissionLabels.get(UserPermission.Edit)!, value: UserPermission.Edit} :
+                        {label: userPermissionLabels.get(userPermission)!, value: userPermission}
+                    }
                     isDisabled={lockPermission(props.docPermission)}
 
-                    onChange={updatePermission}
+                    onChange={edit}
 
                     options={[
-                        { label: 'Can view', value: 'view' },
-                        { label: 'Can edit', value: 'edit' },
+                        { label: userPermissionLabels.get(UserPermission.View)!, value: UserPermission.View },
+                        { label: userPermissionLabels.get(UserPermission.Edit)!, value: UserPermission.Edit },
                     ]}
                 />
                 <Button
