@@ -176,7 +176,7 @@ export default function PermissionSettings(props: {closeCallback: () => void}) {
 					options={[
 						{ label: docPermissionLabels.get(DocPermission.Public)!, value: DocPermission.Public },
 						{ label: docPermissionLabels.get(DocPermission.PrivateEdit)!, value: DocPermission.PrivateEdit },
-						{ label: docPermissionLabels.get(DocPermission.Private)!, value: DocPermission.Private },
+						{ label: docPermissionLabels.get(DocPermission.Private)!, value: DocPermission.Private, isDisabled: true },
 					]}
 				/>
 				<div className={styles.user}>
