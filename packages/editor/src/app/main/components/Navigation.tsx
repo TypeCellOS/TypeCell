@@ -5,7 +5,6 @@ import {
   PrimaryButton,
 } from "@atlaskit/atlassian-navigation";
 import { observer } from "mobx-react-lite";
-import React from "react";
 import { VscSignIn } from "react-icons/vsc";
 import { getStoreService } from "../../../store/local/stores";
 import { ProfilePopup } from "./ProfilePopup";

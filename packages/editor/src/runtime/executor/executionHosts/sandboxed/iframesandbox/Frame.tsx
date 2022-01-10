@@ -108,7 +108,7 @@ const getOutputOuterStyle = (x: number, y: number) => ({
   left: x,
   top: y,
   position: "absolute" as "absolute",
-  padding: "10px",
+  padding: 0,
   width: "100%",
 });
 

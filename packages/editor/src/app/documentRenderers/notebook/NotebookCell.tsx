@@ -243,7 +243,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
         <div
           className="output"
           contentEditable={false}
-          style={{ position: "relative" }}>
+          style={{ position: "relative", padding: "10px" }}>
           {model &&
             props.executionHost.renderOutput(
               model,
