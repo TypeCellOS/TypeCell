@@ -570,12 +570,11 @@ see https://atlassian.design/foundations/color for more info */
 }
 
 .yRemoteSelection {
+  position: relative;
   background-color: rgb(250, 129, 0);
   opacity: 0.5;
 }
-.yRemoteSelection::after {
-  display: none;
-}
+
 .yRemoteSelectionHead {
   position: absolute;
   border-left: orange solid 2px;
@@ -584,13 +583,18 @@ see https://atlassian.design/foundations/color for more info */
   height: 100%;
   box-sizing: border-box;
 }
+
 .yRemoteSelectionHead::after {
+  box-sizing: border-box;
+  z-index: 10000;
+  opacity: 1;
   position: absolute;
-  content: " ";
-  border: 3px solid orange;
-  border-radius: 4px;
-  left: -4px;
-  top: -5px;
+  left: -2px;
+  top: 100%;
+  border-radius: 3px;
+  border-top-left-radius: 0;
+  padding: 0 5px;
+  color: #0d0d0d;
 }
 
 :focus {
