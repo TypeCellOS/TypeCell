@@ -1,17 +1,39 @@
 import { MatrixClient } from "matrix-js-sdk";
-import {
-  computed,
-  makeObservable,
-  observable,
-  reaction,
-  runInAction,
-} from "mobx";
-import { MATRIX_CONFIG } from "../../config/config";
+import { computed, makeObservable, observable, runInAction } from "mobx";
+import { arrays, lifecycle } from "vscode-lib";
 import { MatrixAuthStore } from "../../app/matrix-auth/MatrixAuthStore";
 import { MatrixClientPeg } from "../../app/matrix-auth/MatrixClientPeg";
-import { createMatrixGuestClient } from "@typecell-org/matrix-yjs";
 
-export class SessionStore {
+function getUserFromMatrixId(matrixId: string) {
+  const parts = matrixId.split(":");
+  if (parts.length !== 2) {
+    throw new Error("invalid user id");
+  }
+  const [user /*_host*/] = parts; // TODO: think out host for federation
+  if (!user.startsWith("@") || user.length < 2) {
+    throw new Error("invalid user id");
+  }
+
+  return user;
+}
+
+const colors = [
+  "#958DF1",
+  "#F98181",
+  "#FBBC88",
+  "#FAF594",
+  "#70CFF8",
+  "#94FADB",
+  "#B9F18D",
+];
+
+/**
+ * The sessionStore keeps track of user related data
+ * (e.g.: is the user logged in, what is the user name, etc)
+ */
+export class SessionStore extends lifecycle.Disposable {
+  public userColor = arrays.getRandomElement(colors)!;
+
   public user:
     | "loading"
     | "offlineNoUser"
@@ -25,72 +47,103 @@ export class SessionStore {
         matrixClient: MatrixClient;
       } = "loading";
 
+  /**
+   * returns a logged in user or a guest user when available
+   * otherwise undefined
+   */
   public get tryUser() {
     return typeof this.user === "string" ? undefined : this.user;
   }
 
+  /**
+   * returns true if the user is logged in to his own matrix identity.
+   * returns false if only a guest user or no user is available.
+   *
+   * Note that this definition of loggedin is different than in the Matrix-related code,
+   * in Matrix code (e.g. MatrixAuthStore.loggedIn), a guest user is also considered logged in ("as guest")
+   */
   public get isLoggedIn() {
     return typeof this.user !== "string" && this.user.type === "matrix-user";
   }
 
-  public get loggedInUser() {
-    return this.matrixAuthStore.loggedInUser;
+  /**
+   * Returns the userId (e.g.: @bret) when logged in, undefined otherwise
+   */
+  public get loggedInUserId() {
+    return typeof this.user !== "string" && this.user.type === "matrix-user"
+      ? this.user.userId
+      : undefined;
   }
-  public logout = this.matrixAuthStore.logout;
-  public matrixClient: MatrixClient;
+
+  public logout = async () => {
+    if (!this.isLoggedIn) {
+      throw new Error("can't logout when not logged in");
+    }
+    await this.matrixAuthStore.logout();
+
+    // after logging out, call initialize() to sign in as a guest
+    await this.matrixAuthStore.initialize();
+  };
 
   constructor(private matrixAuthStore: MatrixAuthStore) {
+    super();
     makeObservable(this, {
       user: observable.ref,
-      matrixClient: observable.ref,
       isLoggedIn: computed,
     });
   }
 
   public async initialize() {
-    await this.matrixAuthStore.initialize();
+    try {
+      // returns true when:
+      // - successfully created / restored a user (or guest)
+      // returns false when:
+      // - failed restore / create user (e.g.: wanted to register a guest, but offline)
+      // throws error when:
+      // - unexpected
+      await this.matrixAuthStore.initialize();
 
-    reaction(
-      () => this.matrixAuthStore.loggedInUser,
-      () => {
-        this.updateStateFromAuthStore().catch((e) => {
-          console.error("error initializing sessionstore", e);
-        });
-      },
-      { fireImmediately: true }
-    );
+      // catch future login state changes triggered by the sdk
+      this._register(
+        this.matrixAuthStore.onLoggedInChanged(() => {
+          this.updateStateFromAuthStore().catch((e) => {
+            console.error("error initializing sessionstore", e);
+          });
+        })
+      );
+
+      this.updateStateFromAuthStore();
+    } catch (err) {
+      // keep state as "loading"
+      console.error("error loading session from matrix", err);
+    }
   }
 
+  /**
+   * Updates the state of sessionStore based on the internal matrixAuthStore.loggedIn
+   */
   private async updateStateFromAuthStore() {
-    if (this.matrixAuthStore.loggedInUser) {
-      // signed in as a real user
-      const userId = this.matrixAuthStore.loggedInUser;
-      runInAction(() => {
-        this.user = {
-          type: "matrix-user",
-          matrixClient: MatrixClientPeg.get(),
-          userId,
-        };
-      });
-      return;
-    }
+    if (this.matrixAuthStore.loggedIn) {
+      const matrixClient = MatrixClientPeg.get();
 
-    // TODO: don't register as guest on home page, when no matrix is needed
-    try {
-      const config = {
-        baseUrl: MATRIX_CONFIG.hsUrl,
-        // idBaseUrl: "https://vector.im",
-      };
-
-      const matrixClient = await createMatrixGuestClient(config);
-
-      runInAction(() => {
-        this.user = {
-          type: "guest-user",
-          matrixClient,
-        };
-      });
-    } catch (e) {
+      if (matrixClient.isGuestAccount) {
+        runInAction(() => {
+          this.user = {
+            type: "guest-user",
+            matrixClient,
+          };
+        });
+      } else {
+        // signed in as a real user
+        runInAction(() => {
+          this.user = {
+            type: "matrix-user",
+            matrixClient,
+            userId: getUserFromMatrixId(matrixClient.getUserId() as string),
+          };
+        });
+      }
+    } else {
       runInAction(() => {
         this.user = "offlineNoUser";
       });

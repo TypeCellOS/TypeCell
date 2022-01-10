@@ -12,7 +12,7 @@ export class SkypackResolver {
   private importShim: any;
 
   public constructor(
-    private resolveNestedModule?: (moduleName: string) => any
+    private resolveNestedModule?: (moduleName: string, mode?: string) => any
   ) {
     if (resolverCreated) {
       throw new Error(
@@ -38,21 +38,28 @@ export class SkypackResolver {
   }
 
   private memoizedResolveNestedModule = _.memoize((moduleName: string) => {
+    let mode: string | undefined;
     if (moduleName.startsWith("/-/")) {
       // skypack, e.g.: https://cdn.skypack.dev/-/react-sortable-tree@v2.8.0-nFKv1Y1I3NJ65IUkUWwI/dist=es2020,mode=imports/unoptimized/dist/index.cjs.js
       // TODO: should also pass version identifier (@xx)
-      let matches = moduleName.match(/^\/-\/(.+)@v[\d.]+-/);
+      let matches = moduleName.match(/^\/-\/(.+)@v[\d.]+-.*mode=(.*)$/);
       if (!matches || !matches[1]) {
         throw new Error("couldn't match url");
       }
       moduleName = matches[1];
+
+      // mode is necessary for jsx-runtime, e.g.: @yousef/use-p2
+      mode = matches[2];
     }
 
     const module =
-      this.resolveNestedModule && this.resolveNestedModule(moduleName);
+      this.resolveNestedModule && this.resolveNestedModule(moduleName, mode);
 
     if (module) {
-      const safeName = moduleName.replaceAll(/[^a-zA-Z0-9_]/g, "$");
+      const safeName = (moduleName + "/" + mode).replaceAll(
+        /[^a-zA-Z0-9_]/g,
+        "$"
+      );
       (window as any)["__typecell_" + safeName] = module;
       const list = Object.keys(module).filter(
         (key) => key !== "default" && key !== "window"

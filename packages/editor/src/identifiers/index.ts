@@ -21,7 +21,8 @@ for (let factory of factories) {
 }
 
 export function parseIdentifier(
-  identifier: string | { owner: string; document: string }
+  identifier: string | { owner: string; document: string },
+  title?: string
 ) {
   if (typeof identifier !== "string") {
     if (!identifier.owner.length || !identifier.document.length) {
@@ -46,15 +47,16 @@ export function parseIdentifier(
   if (!identifierType) {
     throw new Error("identifier not found");
   }
-  const id = new identifierType(parsedUri);
+  const id = new identifierType(parsedUri, title);
   return id;
 }
 
 export function tryParseIdentifier(
-  identifier: string | { owner: string; document: string }
+  identifier: string | { owner: string; document: string },
+  title?: string
 ) {
   try {
-    return parseIdentifier(identifier);
+    return parseIdentifier(identifier, title);
   } catch (e) {
     console.warn("invalid identifier", identifier, e);
     return "invalid-identifier" as "invalid-identifier";

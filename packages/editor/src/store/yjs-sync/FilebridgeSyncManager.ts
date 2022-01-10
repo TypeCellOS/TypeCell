@@ -1,7 +1,7 @@
 import { readFile, saveFile, Watcher } from "filebridge-client";
 import * as _ from "lodash";
 import { makeObservable, observable } from "mobx";
-import { lifecycle } from "vscode-lib";
+import { lifecycle, strings } from "vscode-lib";
 import * as Y from "yjs";
 import { FileIdentifier } from "../../identifiers/FileIdentifier";
 import { xmlFragmentToMarkdown } from "../../integrations/markdown/export";
@@ -66,19 +66,28 @@ export class YDocFileSyncManager
   }
 
   private async getNewYDocFromDir() {
+    const pathWithTrailingSlash = this.identifier.path
+      ? strings.trim(this.identifier.path, "/") + "/"
+      : "";
+
     const newDoc = new Y.Doc();
     newDoc.getMap("meta").set("type", "!project");
     const project = new ProjectResource(newDoc, this.identifier);
 
     this.watcher = this._register(
-      new Watcher(this.identifier.path + "/**/*.md")
+      new Watcher(pathWithTrailingSlash + "**/*.md")
     );
     this._register(
       this.watcher.onWatchEvent(async (e) => {
+        let path = e.path;
+        if (pathWithTrailingSlash && !path.startsWith(pathWithTrailingSlash)) {
+          throw new Error("file returned with invalid path");
+        }
+        path = path.substring(pathWithTrailingSlash.length);
         if (e.event === "add") {
-          project.files.set(e.path, {});
+          project.files.set(path, {});
         } else if (e.event === "unlink") {
-          project.files.delete(e.path);
+          project.files.delete(path);
         }
       })
     );

@@ -10,8 +10,6 @@ import React, {
   useState,
 } from "react";
 import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
-// import { MonacoBinding } from "y-monaco";
-import { MonacoBinding } from "./y-monaco";
 import { Awareness } from "y-protocols/awareness";
 import {
   getTypeCellCodeModel,
@@ -20,11 +18,10 @@ import {
 import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import { ExecutionHost } from "../../../runtime/executor/executionHosts/ExecutionHost";
-import { HoverTrackerContext } from "./HoverTrackerContext";
-
-import { NotebookCellModel } from "./NotebookCellModel";
 import { getStoreService } from "../../../store/local/stores";
-import { arrays } from "vscode-lib";
+import { HoverTrackerContext } from "./HoverTrackerContext";
+import { NotebookCellModel } from "./NotebookCellModel";
+import { MonacoBinding } from "y-monaco";
 
 type Props = {
   cell: NotebookCellModel;
@@ -39,27 +36,19 @@ type Props = {
   toolbar?: React.ReactElement;
 };
 
-const colors = [
-  "#958DF1",
-  "#F98181",
-  "#FBBC88",
-  "#FAF594",
-  "#70CFF8",
-  "#94FADB",
-  "#B9F18D",
-];
-
 const NotebookCell: React.FC<Props> = observer((props) => {
   const initial = useRef(true);
   const [model, setModel] = useState<TypeCellCodeModel>();
-  const [monacoModel, setMonacoModel] = useState<monaco.editor.ITextModel | undefined>();
+  const [monacoModel, setMonacoModel] = useState<
+    monaco.editor.ITextModel | undefined
+  >();
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
   const disposeHandlers = useRef<Array<() => void>>();
   const monaco = useContext(MonacoContext).monaco;
   // const [codeRef, setCodeRef] = useState<HTMLDivElement>();
 
   const sessionStore = getStoreService().sessionStore;
-  const user = sessionStore.loggedInUser;
+  const user = sessionStore.loggedInUserId;
 
   const [codeVisible, setCodeVisible] = useState(
     untracked(
@@ -154,29 +143,29 @@ const NotebookCell: React.FC<Props> = observer((props) => {
 
     // Whenever an awareness change occurs a new client might have joined
     // so a new color has to be generated
-    const localState = props.awareness?.getLocalState();
+    // const localState = props.awareness?.getLocalState();
 
-    if (localState && props.addUserAwarenessCSSIfMissing && user) {
-      props.awareness?.on('update', () => {
-        props.awareness?.getStates().forEach((state, clientID) => {
-          if (state.user && props.addUserAwarenessCSSIfMissing) {
-            props.addUserAwarenessCSSIfMissing({
-              clientID,
-              name: state.user.name,
-              color: state.user.color,
-            })
-          }
-        })
-      })
+    // if (localState && props.addUserAwarenessCSSIfMissing && user) {
+    //   props.awareness?.on('update', () => {
+    //     props.awareness?.getStates().forEach((state, clientID) => {
+    //       if (state.user && props.addUserAwarenessCSSIfMissing) {
+    //         props.addUserAwarenessCSSIfMissing({
+    //           clientID,
+    //           name: state.user.name,
+    //           color: state.user.color,
+    //         })
+    //       }
+    //     })
+    //   })
 
-      if (!localState.user || localState.user.name !== user) {
-        // const color = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-        props.awareness?.setLocalStateField('user', {
-          name: user,
-          color: arrays.getRandomElement(colors)!,
-        })
-      }
-    }
+    //   if (!localState.user || localState.user.name !== user) {
+    //     // const color = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+    //     props.awareness?.setLocalStateField('user', {
+    //       name: user,
+    //       color: arrays.getRandomElement(colors)!,
+    //     })
+    //   }
+    // }
 
     const monacoBinding = new MonacoBinding(
       props.cell.code,
@@ -201,7 +190,15 @@ const NotebookCell: React.FC<Props> = observer((props) => {
       monacoBinding.destroy();
       // releaseModel(props.cell);
     };
-  }, [editor, monacoModel, user, props, props.cell.code, props.compiler, props.awareness]);
+  }, [
+    editor,
+    monacoModel,
+    user,
+    props,
+    props.cell.code,
+    props.compiler,
+    props.awareness,
+  ]);
 
   // Disabled, feels weird, work on UX
   // editor.current.onKeyUp((e) => {

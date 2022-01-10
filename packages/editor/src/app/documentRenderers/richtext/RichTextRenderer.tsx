@@ -14,7 +14,6 @@ import Text from "@tiptap/extension-text";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { observer } from "mobx-react-lite";
 import React, { useContext, useEffect, useMemo, useRef } from "react";
-import { arrays } from "vscode-lib";
 import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import SandboxedExecutionHost from "../../../runtime/executor/executionHosts/sandboxed/SandboxedExecutionHost";
@@ -52,16 +51,6 @@ import InlineMenu from "./menus/InlineMenu";
 import TableMenu from "./menus/TableInlineMenu";
 import "./RichTextRenderer.css";
 
-const colors = [
-  "#958DF1",
-  "#F98181",
-  "#FBBC88",
-  "#FAF594",
-  "#70CFF8",
-  "#94FADB",
-  "#B9F18D",
-];
-
 // This is a temporary array to show off mentions
 const PEOPLE = [
   new Mention("Pepijn Vunderink", MentionType.PEOPLE),
@@ -80,6 +69,7 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
   const commentStore = new CommentStore(props.document.comments);
   const disposer = useRef<() => void>();
   const monaco = useContext(MonacoContext).monaco;
+  const sessionStore = getStoreService().sessionStore;
   const [compiler, executionHost] = useMemo(() => {
     if (disposer.current) {
       disposer.current();
@@ -117,8 +107,8 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,
         user: {
-          name: getStoreService().sessionStore.loggedInUser || "Anonymous",
-          color: arrays.getRandomElement(colors),
+          name: sessionStore.loggedInUserId || "Anonymous",
+          color: sessionStore.userColor,
         },
       }),
       Collaboration.configure({
