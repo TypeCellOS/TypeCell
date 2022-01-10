@@ -1,6 +1,6 @@
 .languageSelector {
   position: absolute;
-  z-index: 100;
+  z-index: 10;
   bottom: 3px;
   right: 0;
 
