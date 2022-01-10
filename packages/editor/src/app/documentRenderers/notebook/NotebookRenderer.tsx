@@ -115,7 +115,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
                 <NotebookLanguageSelector
                   language={cell.language}
                   onChangeLanguage={(language) => cell.setLanguage(language)}
-                // onRemove={() => remove(i)}
+                  // onRemove={() => remove(i)}
                 />
               }
             />

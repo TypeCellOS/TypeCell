@@ -213,8 +213,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
 
   return (
     <div
-      className={`notebookCell ${codeVisible ? "expanded" : "collapsed"} ${props.cell.language
-        } ${props.classList || ""}`}
+      className={`notebookCell ${codeVisible ? "expanded" : "collapsed"} ${props.cell.language} ${props.classList || ""}`}
       style={{ display: "flex", flexDirection: "row" }}>
       {codeVisible ? (
         <VscChevronDown
