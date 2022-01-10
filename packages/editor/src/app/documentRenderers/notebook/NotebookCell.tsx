@@ -27,7 +27,6 @@ type Props = {
   cell: NotebookCellModel;
   compiler: SourceModelCompiler;
   executionHost: ExecutionHost;
-  addUserAwarenessCSSIfMissing?: (user: { clientID: number, name: string, color: string }) => string;
   onRemove?: () => void;
   classList?: string;
   defaultCollapsed?: boolean;

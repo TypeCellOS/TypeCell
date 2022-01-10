@@ -585,7 +585,6 @@ see https://atlassian.design/foundations/color for more info */
   border-top-left-radius: 0;
   padding: 0 5px;
   color: #0d0d0d;
-  font-weight: 600;
 }
 
 /* .yRemoteSelection:hover::after {
