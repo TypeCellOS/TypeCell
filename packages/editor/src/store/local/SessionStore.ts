@@ -1,6 +1,6 @@
 import { MatrixClient } from "matrix-js-sdk";
 import { computed, makeObservable, observable, runInAction } from "mobx";
-import { lifecycle } from "vscode-lib";
+import { arrays, lifecycle } from "vscode-lib";
 import { MatrixAuthStore } from "../../app/matrix-auth/MatrixAuthStore";
 import { MatrixClientPeg } from "../../app/matrix-auth/MatrixClientPeg";
 
@@ -17,11 +17,23 @@ function getUserFromMatrixId(matrixId: string) {
   return user;
 }
 
+const colors = [
+  "#958DF1",
+  "#F98181",
+  "#FBBC88",
+  "#FAF594",
+  "#70CFF8",
+  "#94FADB",
+  "#B9F18D",
+];
+
 /**
  * The sessionStore keeps track of user related data
  * (e.g.: is the user logged in, what is the user name, etc)
  */
 export class SessionStore extends lifecycle.Disposable {
+  public userColor = arrays.getRandomElement(colors)!;
+
   public user:
     | "loading"
     | "offlineNoUser"
