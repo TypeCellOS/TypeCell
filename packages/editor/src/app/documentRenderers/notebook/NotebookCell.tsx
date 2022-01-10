@@ -144,7 +144,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
       props.cell.code,
       monacoModel,
       new Set([editor]),
-      props.awareness || null, // TODO: fix reference to doc
+      props.awareness || null // TODO: fix reference to doc
     );
 
     // This is a bit of a hack. MonacoBinding sets an eventListener to cell.code.
@@ -213,7 +213,9 @@ const NotebookCell: React.FC<Props> = observer((props) => {
 
   return (
     <div
-      className={`notebookCell ${codeVisible ? "expanded" : "collapsed"} ${props.cell.language} ${props.classList || ""}`}
+      className={`notebookCell ${codeVisible ? "expanded" : "collapsed"} ${
+        props.cell.language
+      } ${props.classList || ""}`}
       style={{ display: "flex", flexDirection: "row" }}>
       {codeVisible ? (
         <VscChevronDown
@@ -228,7 +230,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
           onClick={() => setCodeVisible(true)}
         />
       )}
-      { }
+      {}
       <div style={{ flex: 1 }} className="notebookCell-content">
         {codeVisible && (
           <div className="notebookCell-codeContainer">
@@ -243,7 +245,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
         <div
           className="output"
           contentEditable={false}
-          style={{ position: "relative", padding: "10px" }}>
+          style={{ position: "relative" }}>
           {model &&
             props.executionHost.renderOutput(
               model,

@@ -35,8 +35,8 @@ export const Frame = observer((props: {}) => {
           });
         } else {
           connection.setDimensions(path, {
-            width: entry.contentRect.width,
-            height: entry.contentRect.height,
+            width: entry.contentRect.left + entry.contentRect.right,
+            height: entry.contentRect.top + entry.contentRect.bottom,
           });
         }
       }
@@ -108,7 +108,7 @@ const getOutputOuterStyle = (x: number, y: number) => ({
   left: x,
   top: y,
   position: "absolute" as "absolute",
-  padding: 0,
+  padding: "10px",
   width: "100%",
 });
 
