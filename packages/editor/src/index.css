@@ -580,11 +580,11 @@ see https://atlassian.design/foundations/color for more info */
   opacity: 1;
   position: absolute;
   left: -2px;
-  top: calc(100% + 2px);
+  top: calc(100%);
   border-radius: 3px;
   border-top-left-radius: 0;
-  padding: 0 4px;
-  color: black;
+  padding: 1px 5px;
+  color: #0d0d0d;
   font-weight: 600;
   font-size: 1em;
 }
