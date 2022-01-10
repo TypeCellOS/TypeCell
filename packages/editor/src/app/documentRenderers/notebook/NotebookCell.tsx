@@ -141,32 +141,6 @@ const NotebookCell: React.FC<Props> = observer((props) => {
     }
     editor.setModel(monacoModel);
 
-    // Whenever an awareness change occurs a new client might have joined
-    // so a new color has to be generated
-    // const localState = props.awareness?.getLocalState();
-
-    // if (localState && props.addUserAwarenessCSSIfMissing && user) {
-    //   props.awareness?.on('update', () => {
-    //     props.awareness?.getStates().forEach((state, clientID) => {
-    //       if (state.user && props.addUserAwarenessCSSIfMissing) {
-    //         props.addUserAwarenessCSSIfMissing({
-    //           clientID,
-    //           name: state.user.name,
-    //           color: state.user.color,
-    //         })
-    //       }
-    //     })
-    //   })
-
-    //   if (!localState.user || localState.user.name !== user) {
-    //     // const color = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-    //     props.awareness?.setLocalStateField('user', {
-    //       name: user,
-    //       color: arrays.getRandomElement(colors)!,
-    //     })
-    //   }
-    // }
-
     const monacoBinding = new MonacoBinding(
       props.cell.code,
       monacoModel,
