@@ -576,21 +576,19 @@ see https://atlassian.design/foundations/color for more info */
 }
 .yRemoteSelectionHead::after {
   box-sizing: border-box;
-  z-index: 1000000;
+  z-index: 10000;
   opacity: 1;
   position: absolute;
-  left: 2px;
-  top: -2px;
-  border-radius: 4px;
+  left: -2px;
+  top: calc(100% + 2px);
+  border-radius: 3px;
+  border-top-left-radius: 0;
   padding: 0 4px;
   color: black;
-  font-size: 0.8em;
+  font-weight: 600;
+  font-size: 1em;
 }
 
-.yRemoteSelectionHead.before::after {
-  left: unset;
-  right: 4px;
-}
 /* .yRemoteSelection:hover::after {
   opacity: 1;
 } */
