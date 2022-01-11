@@ -11,7 +11,7 @@
     "@atlaskit/checkbox": "^12.3.0",
     "@atlaskit/comment": "^10.0.7",
     "@atlaskit/css-reset": "^6.0.5",
-    "@atlaskit/user-picker": "^8.0.0",
+    "@atlaskit/user-picker": "^8.3.0",
     "@atlaskit/dropdown-menu": "^10.1.6",
     "@atlaskit/flag": "^14.3.0",
     "@atlaskit/form": "^8.2.2",
