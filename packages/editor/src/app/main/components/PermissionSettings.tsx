@@ -55,7 +55,7 @@ export default function PermissionSettings(props: {user: string | undefined, clo
 
 	function addUserPermission(user: string, permission: UserPermission) {
 		// User already in permissions list.
-		if (userPermissions.filter(permission => permission.user == user).length > 0) {
+		if (userPermissions.filter(permission => permission.user === user).length > 0) {
 			return;
 		}
 
@@ -69,7 +69,7 @@ export default function PermissionSettings(props: {user: string | undefined, clo
 		let updatedUserPermissions: {user: string, permission: UserPermission}[] = [];
 
 		for (let i = 0; i < userPermissions.length; i++) {
-			if (userPermissions[i].user == user) {
+			if (userPermissions[i].user === user) {
 				updatedUserPermissions.push({user: user, permission: permission});
 			} else {
 				updatedUserPermissions.push(userPermissions[i]);
@@ -83,7 +83,7 @@ export default function PermissionSettings(props: {user: string | undefined, clo
 		let updatedUserPermissions: {user: string, permission: UserPermission}[] = [];
 
 		for (let i = 0; i < userPermissions.length; i++) {
-			if (userPermissions[i].user != user) {
+			if (userPermissions[i].user !== user) {
 				updatedUserPermissions.push(userPermissions[i]);
 			}
 		}
@@ -97,7 +97,7 @@ export default function PermissionSettings(props: {user: string | undefined, clo
 	async function searchUsers(query: string = "") {
 		const peg = MatrixClientPeg.get();
 
-		if (!peg || query == "") {
+		if (!peg || query === "") {
 			setDisplayedUsers([]);
 		} else {
 			const ret = await peg.searchUserDirectory({
@@ -106,7 +106,7 @@ export default function PermissionSettings(props: {user: string | undefined, clo
 			});
 
 			const results: User[] = ret.results.filter(
-				(result: any) => (result.display_name != props.user)
+				(result: any) => (result.display_name !== props.user)
 			).map(
 				(result: any) => ({
 					id: result.display_name,
@@ -209,8 +209,8 @@ export default function PermissionSettings(props: {user: string | undefined, clo
 								{label: userPermissionLabels.get(UserPermission.Edit)!, value: UserPermission.Edit} :
 								{label: userPermissionLabels.get(permissionType)!, value: permissionType}
 							}
-							isDisabled={docPermission == DocPermission.Public
-								|| docPermission == DocPermission.PrivateEdit}
+							isDisabled={docPermission === DocPermission.Public
+								|| docPermission === DocPermission.PrivateEdit}
 
 							onChange={updatePermissionType}
 

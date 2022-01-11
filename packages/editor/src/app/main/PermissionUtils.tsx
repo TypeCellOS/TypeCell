@@ -21,7 +21,7 @@ export const userPermissionLabels = new Map<UserPermission, string>([
 ])
 
 export function lockPermission(docPermission: DocPermission) {
-	return docPermission == DocPermission.Public || docPermission == DocPermission.PrivateEdit
+	return docPermission === DocPermission.Public || docPermission === DocPermission.PrivateEdit
 }
 
 class PermissionStore {

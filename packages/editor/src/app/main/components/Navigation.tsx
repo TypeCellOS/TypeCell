@@ -32,7 +32,7 @@ function userIsPageOwner(sessionStore: SessionStore, navigationStore: Navigation
     const id = navigationStore.currentPage.identifier as MatrixIdentifier;
     console.log(id)
     console.log(sessionStore.loggedInUserId)
-    return sessionStore.loggedInUserId == id.owner;
+    return sessionStore.loggedInUserId === id.owner;
 }
 
 export const Navigation = observer(() => {
@@ -55,7 +55,7 @@ export const Navigation = observer(() => {
       ))}
       renderSettings={observer(() => (
         <>
-          {navigationStore.currentPage.page != 'root' &&
+          {navigationStore.currentPage.page !== 'root' &&
           userIsPageOwner(sessionStore, navigationStore) &&
           (<DocumentSettings user={sessionStore.loggedInUserId}/>)}
         </>

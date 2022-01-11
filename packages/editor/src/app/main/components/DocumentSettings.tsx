@@ -1,10 +1,7 @@
 import DropdownMenu, {DropdownItem} from "@atlaskit/dropdown-menu";
-import Modal, {ModalBody, ModalFooter, ModalHeader, ModalTitle, ModalTransition,} from '@atlaskit/modal-dialog';
+import {ModalTransition} from '@atlaskit/modal-dialog';
 import MoreIcon from '@atlaskit/icon/glyph/editor/more';
 import React, {useCallback, useState} from "react";
-import Button from "@atlaskit/button";
-import styles from "./DocumentSettings.module.css";
-import routing from "../../routing";
 import PermissionSettings from "./PermissionSettings";
 
 export default function DocumentSettings(props: {user: string | undefined}) {
