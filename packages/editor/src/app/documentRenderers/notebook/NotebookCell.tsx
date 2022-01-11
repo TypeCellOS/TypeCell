@@ -10,7 +10,6 @@ import React, {
   useState,
 } from "react";
 import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
-import { MonacoBinding } from "y-monaco";
 import { Awareness } from "y-protocols/awareness";
 import {
   getTypeCellCodeModel,
@@ -19,9 +18,10 @@ import {
 import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import { ExecutionHost } from "../../../runtime/executor/executionHosts/ExecutionHost";
+import { getStoreService } from "../../../store/local/stores";
 import { HoverTrackerContext } from "./HoverTrackerContext";
-
 import { NotebookCellModel } from "./NotebookCellModel";
+import { MonacoBinding } from "y-monaco";
 
 type Props = {
   cell: NotebookCellModel;
@@ -38,11 +38,16 @@ type Props = {
 const NotebookCell: React.FC<Props> = observer((props) => {
   const initial = useRef(true);
   const [model, setModel] = useState<TypeCellCodeModel>();
-  const [monacoModel, setMonacoModel] = useState<any>();
+  const [monacoModel, setMonacoModel] = useState<
+    monaco.editor.ITextModel | undefined
+  >();
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
   const disposeHandlers = useRef<Array<() => void>>();
   const monaco = useContext(MonacoContext).monaco;
   // const [codeRef, setCodeRef] = useState<HTMLDivElement>();
+
+  const sessionStore = getStoreService().sessionStore;
+  const user = sessionStore.loggedInUserId;
 
   const [codeVisible, setCodeVisible] = useState(
     untracked(
@@ -158,7 +163,15 @@ const NotebookCell: React.FC<Props> = observer((props) => {
       monacoBinding.destroy();
       // releaseModel(props.cell);
     };
-  }, [editor, monacoModel, props.cell.code, props.compiler, props.awareness]);
+  }, [
+    editor,
+    monacoModel,
+    user,
+    props,
+    props.cell.code,
+    props.compiler,
+    props.awareness,
+  ]);
 
   // Disabled, feels weird, work on UX
   // editor.current.onKeyUp((e) => {

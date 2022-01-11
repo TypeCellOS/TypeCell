@@ -17,8 +17,8 @@
       "path": "packages/engine"
     },
     {
-      "name": "packages/matrix-yjs",
-      "path": "packages/matrix-yjs"
+      "name": "packages/matrix-crdt",
+      "path": "packages/matrix-crdt"
     }
   ],
   "settings": {

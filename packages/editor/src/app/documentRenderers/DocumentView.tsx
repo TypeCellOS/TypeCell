@@ -1,21 +1,22 @@
-import { DropdownItem, DropdownItemGroup } from "@atlaskit/dropdown-menu";
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useState } from "react";
 import { Identifier } from "../../identifiers/Identifier";
-import { openAsMarkdown } from "../../integrations/markdown/export";
 import { DocConnection } from "../../store/DocConnection";
 import PluginResource from "../../store/PluginResource";
 import ProjectResource from "../../store/ProjectResource";
-import { MenuPortal } from "../portals/MenuPortal";
-import { CustomRenderer } from "./custom/CustomRenderer";
+import DocumentMenu from "../main/components/documentMenu";
+// import { CustomRenderer } from "./custom/CustomRenderer";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
 import ProjectRenderer from "./project/ProjectRenderer";
 import RichTextRenderer from "./richtext/RichTextRenderer";
+import styles from "./DocumentView.module.css";
 
 type Props = {
   id: Identifier;
+  isNested?: boolean;
+  hideDocumentMenu?: boolean;
 };
 
 /**
@@ -53,34 +54,48 @@ const DocumentView = observer((props: Props) => {
   }
   if (connection.doc.type === "!notebook") {
     const doc = connection.doc.doc;
+
     return (
-      <>
-        <MenuPortal>
-          <DropdownItemGroup>
-            {/* <DropdownItem onClick={() => saveDocumentToGithub(props.id)}>
-              Sync to Github
-            </DropdownItem> */}
-            <DropdownItem onClick={() => openAsMarkdown(doc)}>
-              Export as markdown
-            </DropdownItem>
-          </DropdownItemGroup>
-        </MenuPortal>
-        <NotebookRenderer
+      <div className={styles.view}>
+        {!props.hideDocumentMenu && (
+          <DocumentMenu document={doc}></DocumentMenu>
+        )}
+        <NotebookRenderer key={connection.doc.id} document={doc} />
+      </div>
+    );
+  } else if (connection.doc.type === "!project") {
+    if (props.isNested) {
+      return (
+        <div className={styles.view}>
+          {!props.hideDocumentMenu && (
+            <DocumentMenu document={connection.doc}></DocumentMenu>
+          )}
+          <ProjectRenderer
+            isNested={true}
+            key={connection.doc.id}
+            project={connection.doc.getSpecificType(ProjectResource)!}
+          />
+        </div>
+      );
+    } else {
+      return (
+        <ProjectRenderer
+          key={connection.doc.id}
+          project={connection.doc.getSpecificType(ProjectResource)!}
+        />
+      );
+    }
+  } else if (connection.doc.type === "!richtext") {
+    return (
+      <div className={styles.view}>
+        {!props.hideDocumentMenu && (
+          <DocumentMenu document={connection.doc}></DocumentMenu>
+        )}
+        <RichTextRenderer
           key={connection.doc.id}
           document={connection.doc.doc}
         />
-      </>
-    );
-  } else if (connection.doc.type === "!project") {
-    return (
-      <ProjectRenderer
-        key={connection.doc.id}
-        project={connection.doc.getSpecificType(ProjectResource)!}
-      />
-    );
-  } else if (connection.doc.type === "!richtext") {
-    return (
-      <RichTextRenderer key={connection.doc.id} document={connection.doc.doc} />
+      </div>
     );
   } else if (connection.doc.type === "!plugin") {
     return (
@@ -92,7 +107,8 @@ const DocumentView = observer((props: Props) => {
   } else if (connection.doc.type.startsWith("!")) {
     throw new Error("invalid built in type");
   } else {
-    return <CustomRenderer key={connection.doc.id} document={connection.doc} />;
+    throw new Error("CustomRenderer not implemented");
+    // return <CustomRenderer key={connection.doc.id} document={connection.doc} />;
   }
 });
 

@@ -35,8 +35,8 @@ export const Frame = observer((props: {}) => {
           });
         } else {
           connection.setDimensions(path, {
-            width: entry.contentRect.width,
-            height: entry.contentRect.height,
+            width: entry.contentRect.left + entry.contentRect.right,
+            height: entry.contentRect.top + entry.contentRect.bottom,
           });
         }
       }

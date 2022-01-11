@@ -16,6 +16,11 @@ html {
   box-sizing: inherit;
 }
 
+a:active,
+a:focus {
+  outline: none;
+}
+
 /* @import "~react-resizable/css/styles.css"; */
 body {
   margin: 0;
@@ -37,14 +42,88 @@ body,
   height: 100%;
 }
 
+.centered {
+  text-align: center;
+}
+
+.page {
+  overflow-y: auto;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #3a3a3a;
+}
+
 .react-draggable {
   position: absolute;
 }
+
+.button {
+  border-radius: 6px;
+  padding: 0.5em 1em;
+  background-color: #1e2328;
+  color: white;
+  font-weight: 600;
+  font-size: 1em;
+
+  transition: 150ms all ease-in-out;
+}
+
+.button:hover {
+  color: white;
+  background-color: #3e454b;
+  text-decoration: none;
+}
+
+.button.primary {
+  background-color: #1fb597;
+}
+
+.button.primary:hover {
+  background-color: #13cca7;
+}
+
+.button.secondary {
+  background-color: #467ea1;
+}
+
+.button.secondary:hover {
+  background-color: rgb(77, 154, 202);
+}
+
+.button.inverted {
+  color: #676767;
+  background-color: transparent;
+  border: 1px solid #676767;
+}
+
+.button.inverted:hover {
+  background-color: #f3f3f3;
+}
+
+/* Some generic layout classes */
+.row {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.container {
+  margin: 0 auto;
+  max-width: calc(1024px);
+}
+
 .cellList-item {
   padding-left: 100px;
   /* border:1px solid black; */
@@ -251,7 +330,7 @@ code {
 .cellList {
   padding-top: 20px;
   padding-bottom: 4rem;
-  padding-left: 25px;
+  padding-left: 6px;
   padding-right: 6px;
   align-content: center;
   width: 100%;
@@ -491,8 +570,11 @@ see https://atlassian.design/foundations/color for more info */
 }
 
 .yRemoteSelection {
-  background-color: rgb(250, 129, 0, 0.5);
+  position: relative;
+  background-color: rgb(250, 129, 0);
+  opacity: 0.5;
 }
+
 .yRemoteSelectionHead {
   position: absolute;
   border-left: orange solid 2px;
@@ -501,13 +583,18 @@ see https://atlassian.design/foundations/color for more info */
   height: 100%;
   box-sizing: border-box;
 }
+
 .yRemoteSelectionHead::after {
+  box-sizing: border-box;
+  z-index: 10000;
+  opacity: 1;
   position: absolute;
-  content: " ";
-  border: 3px solid orange;
-  border-radius: 4px;
-  left: -4px;
-  top: -5px;
+  left: -2px;
+  top: 100%;
+  border-radius: 3px;
+  border-top-left-radius: 0;
+  padding: 0 5px;
+  color: #0d0d0d;
 }
 
 :focus {

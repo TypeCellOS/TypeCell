@@ -113,6 +113,13 @@ export type Values<T> = {
  * This exposes the types of the context to the monaco runtime
  */
 function listenForTypecellUserModels(monacoInstance: typeof monaco) {
+  if (monacoInstance.editor.getModels().length > 0) {
+    // Note / improve: only listens for new models, doesn't inspect already
+    // registered models. For now ok as it's called on startup (before models are added)
+    console.error(
+      "unexpected, listenForTypecellUserModels should be called before models are registered"
+    );
+  }
   monacoInstance.editor.onDidCreateModel((model) => {
     if (!model.uri.path.startsWith("/!@")) {
       return;
@@ -142,13 +149,6 @@ function listenForTypecellUserModels(monacoInstance: typeof monaco) {
 export default async function setupTypecellTypeResolver(
   monacoInstance: typeof monaco
 ) {
-  // Loads types for standard "typecell" helper library, as defined in typecellEngine/lib/exports
-  await loadTypecellLibTypes(
-    "typecell",
-    "./runtime/executor/lib/exports",
-    monacoInstance
-  ).catch(console.error);
-
   // Loads types for "typecell-plugin" helper library, as defined in pluginEngine/lib/exports
   // await loadTypecellLibTypes(
   //   "typecell-plugin",
@@ -160,4 +160,11 @@ export default async function setupTypecellTypeResolver(
 
   // Loads types for $ context variables
   listenForTypecellUserModels(monacoInstance);
+
+  // Loads types for standard "typecell" helper library, as defined in typecellEngine/lib/exports
+  await loadTypecellLibTypes(
+    "typecell",
+    "./runtime/executor/lib/exports",
+    monacoInstance
+  ).catch(console.error);
 }

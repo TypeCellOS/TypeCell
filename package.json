@@ -13,7 +13,7 @@
     "install-lerna": "npm install --no-package-lock",
     "bootstrap": "lerna bootstrap --hoist --ci && patch-package",
     "install-new-packages": "lerna bootstrap --hoist && patch-package",
-    "test": "jest --coverage=true --config=jest.config.js && lerna run test-no-watch",
+    "test": "lerna run test-no-watch",
     "build": "lerna run build --concurrency 1",
     "build-react": "lerna run build-react --concurrency 1 --stream",
     "lint": "lerna run lint --concurrency 1",
@@ -22,6 +22,7 @@
     "start-filebridge": "npx filebridge docs",
     "start-react": "lerna run --scope @typecell-org/editor start",
     "prepublishOnly": "npm run test && npm run build",
-    "deploy": "lerna publish"
+    "deploy": "lerna publish",
+    "link-matrix-crdt": "npm run ../matrix-crdt"
   }
 }
