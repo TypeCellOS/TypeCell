@@ -26,7 +26,7 @@ type User = {
 	// lozenge: string
 }
 
-export default function PermissionSettings(props: {closeCallback: () => void}) {
+export default function PermissionSettings(props: {user: string | undefined, closeCallback: () => void}) {
 	// State and functions for storing & updating whether the page can be read/written to by others.
 	const [docPermission, setDocPermission] = useState(initDocPermission);
 
@@ -105,7 +105,9 @@ export default function PermissionSettings(props: {closeCallback: () => void}) {
 				limit: 10,
 			});
 
-			const results: User[] = ret.results.map(
+			const results: User[] = ret.results.filter(
+				(result: any) => (result.display_name != props.user)
+			).map(
 				(result: any) => ({
 					id: result.display_name,
 					name: result.display_name
@@ -226,7 +228,6 @@ export default function PermissionSettings(props: {closeCallback: () => void}) {
 					</div>
 				</div>
 				{userPermissions.map(function(permission: {user: string, permission: UserPermission}){
-					console.log(permission)
 					return (<Permission
 						name={permission.user}
 						userPermission={permission.permission}

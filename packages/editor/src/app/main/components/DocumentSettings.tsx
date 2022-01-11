@@ -7,7 +7,7 @@ import styles from "./DocumentSettings.module.css";
 import routing from "../../routing";
 import PermissionSettings from "./PermissionSettings";
 
-export default function DocumentSettings(props: {currentPage: ReturnType<typeof routing>}) {
+export default function DocumentSettings(props: {user: string | undefined}) {
 	const [isOpen, setIsOpen] = useState(false); // User restrictions modal dialog
 	const openModal = useCallback(() => setIsOpen(true), []);
 	const closeModal = useCallback(() => setIsOpen(false), []);
@@ -24,7 +24,7 @@ export default function DocumentSettings(props: {currentPage: ReturnType<typeof 
 			</DropdownMenu>
 
 			<ModalTransition>
-				{isOpen && (<PermissionSettings closeCallback={closeModal}/>)}
+				{isOpen && (<PermissionSettings user={props.user?.substring(1)} closeCallback={closeModal}/>)}
 			</ModalTransition>
 		</>
 	)

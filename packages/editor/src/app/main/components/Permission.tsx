@@ -27,8 +27,6 @@ export default function Permission(props: {
         props.removeCallback(props.name);
     }
 
-    console.log(props.name + ' ' + userPermission);
-
     return (
         <div className={styles.user}>
             <div className={styles.info}>
