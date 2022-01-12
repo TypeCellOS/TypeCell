@@ -36,6 +36,8 @@ type Props = {
 };
 
 const NotebookCell: React.FC<Props> = observer((props) => {
+  const { cell, awareness, compiler, initialFocus } = props;
+
   const initial = useRef(true);
   const [model, setModel] = useState<TypeCellCodeModel>();
   const [monacoModel, setMonacoModel] = useState<
@@ -91,7 +93,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
           theme: "typecellTheme",
         });
 
-        if (props.initialFocus && initial.current) {
+        if (initialFocus && initial.current) {
           initial.current = false;
           // newEditor.focus();
         }
@@ -114,37 +116,37 @@ const NotebookCell: React.FC<Props> = observer((props) => {
         setEditor(newEditor);
       }
     },
-    [editor, props.initialFocus, monaco.editor]
+    [editor, initialFocus, monaco.editor]
   );
 
   useEffect(() => {
-    const newModel = getTypeCellCodeModel(props.cell, monaco);
+    const newModel = getTypeCellCodeModel(cell, monaco);
     // TODO: do we want to do this here? At least for PluginRenderer, it will register twice
     // (currently this is ignored in the engine and only logs a warning)
-    props.compiler.registerModel(newModel.object);
+    compiler.registerModel(newModel.object);
     const monacoModel = newModel.object.acquireMonacoModel();
     setModel(newModel.object);
     setMonacoModel(monacoModel);
     return () => {
-      console.log("dispose newModel", props.cell.path);
       newModel.object.releaseMonacoModel();
       newModel.dispose();
       setModel(undefined);
       setMonacoModel(undefined);
     };
-  }, [props.cell, props.compiler, monaco]);
+  }, [cell, compiler, monaco]);
 
   useEffect(() => {
     if (!editor || !monacoModel) {
       return;
     }
+
     editor.setModel(monacoModel);
 
     const monacoBinding = new MonacoBinding(
-      props.cell.code,
+      cell.code,
       monacoModel,
       new Set([editor]),
-      props.awareness || null // TODO: fix reference to doc
+      awareness || null // TODO: fix reference to doc
     );
 
     // This is a bit of a hack. MonacoBinding sets an eventListener to cell.code.
@@ -156,22 +158,14 @@ const NotebookCell: React.FC<Props> = observer((props) => {
     // - first: the autorun is called, calling monacomodel.setValue()
     // - then, the edits are applied
     // ---> model value is messed up and we can end up in an infinite loop
-    const old = props.cell.code._eH.l.pop()!;
-    props.cell.code._eH.l.unshift(old);
+    const old = cell.code._eH.l.pop()!;
+    cell.code._eH.l.unshift(old);
 
     return () => {
       monacoBinding.destroy();
       // releaseModel(props.cell);
     };
-  }, [
-    editor,
-    monacoModel,
-    user,
-    props,
-    props.cell.code,
-    props.compiler,
-    props.awareness,
-  ]);
+  }, [editor, monacoModel, user, awareness, cell.code]);
 
   // Disabled, feels weird, work on UX
   // editor.current.onKeyUp((e) => {
