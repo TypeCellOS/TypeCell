@@ -31,7 +31,8 @@ export class SkypackResolver {
 
     const importShim = await this.getImportShim();
     return {
-      module: importShim(`https://cdn.skypack.dev/${moduleName}`),
+      module: importShim(`https://esm.sh/${moduleName}`),
+      // module: importShim(`https://cdn.skypack.dev/${moduleName}`),
       dispose: () => {},
     };
     // return importShim(`https://jspm.dev/${moduleName}`);

@@ -1,16 +1,17 @@
 # Deck GL Demo
 
+
 ```typescript
 import React, { useState, useEffect } from "react";
 import { render } from "react-dom";
 import { StaticMap } from "react-map-gl";
-import { AmbientLight, PointLight, LightingEffect } from "@deck.gl/core";
-import DeckGL from "@deck.gl/react";
-import { PolygonLayer } from "@deck.gl/layers";
-import { TripsLayer } from "@deck.gl/geo-layers";
-
+import { AmbientLight, PointLight, LightingEffect } from "@deck.gl/core@8.6.5";
+import DeckGL from "@deck.gl/react@8.6.5?deps=@deck.gl/core@8.6.5";
+import { PolygonLayer } from "@deck.gl/layers@8.6.5?deps=@deck.gl/core@8.6.5";
+import { TripsLayer } from "@deck.gl/geo-layers@8.6.5?deps=@deck.gl/core@8.6.5";
+// export default DeckGL;
 // Source data CSV
-const DATA_URL = {
+const DATfA_URL = {
   BUILDINGS:
     "https://raw.githubusercontent.com/visgl/deck.gl-data/master/examples/trips/buildings.json", // eslint-disable-line
   TRIPS:
