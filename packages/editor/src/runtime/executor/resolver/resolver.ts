@@ -11,12 +11,15 @@ import * as reactdnd from "react-dnd";
 import * as reactdom from "react-dom";
 import * as probe from "probe.gl";
 import * as dreact from "@deck.gl/react";
+// import * as dlayers from "@deck.gl/layers";
+// import * as dcore from "@deck.gl/core";
 
 import getExposeGlobalVariables from "../lib/exports";
 import { TypeCellCompiledCodeProvider } from "./typecell/TypeCellCompiledCodeProvider";
 
 const agg = require("@deck.gl/aggregation-layers") as any;
 const lutil = require("@loaders.gl/core") as any;
+const lumacore = require("@luma.gl/core") as any;
 const limg = require("@loaders.gl/images") as any;
 const sz = require("frontend-collective-react-dnd-scrollzone");
 
@@ -72,6 +75,16 @@ function resolveNestedModule(id: string, mode?: string) {
     return agg;
   }
 
+  if (isModule(id, "@luma.gl/core")) {
+    // workaround for https://github.com/skypackjs/skypack-cdn/issues/242
+    return lumacore;
+  }
+
+  // if (isModule(id, "@deck.gl/layers")) {
+  //   // workaround for https://github.com/skypackjs/skypack-cdn/issues/242
+  //   return dlayers;
+  // }
+
   if (isModule(id, "@loaders.gl/images")) {
     // workaround for https://github.com/skypackjs/skypack-cdn/issues/242
     return limg;
@@ -125,6 +138,9 @@ async function resolveImport(
   ) => TypeCellCompiledCodeProvider
 ): Promise<ResolvedImport> {
   if (!moduleName.startsWith("!@")) {
+    if (moduleName.startsWith("@deck.gl/")) {
+      moduleName += "@8.6.4";
+    }
     return skypackResolver.resolveImport(moduleName);
   }
 
