@@ -47,15 +47,19 @@ export const DefaultOutputVisualizer = (props: {
       // we loop over all rules
       for (let i = 0; i < rules.length; i++) {
         let rule = rules[i];
+        if (rule instanceof CSSStyleRule) {
+          let selector = rule.selectorText;
+          let def = rule.cssText.replace(selector, "");
 
-        let selector = (rule as any).selectorText;
-        let def = rule.cssText.replace(selector, "");
+          // we update the selector
+          let selector2 = selector.replace(
+            /([^,]+,?)/g,
+            ".typecell-output $1 "
+          );
 
-        // we update the selector
-        let selector2 = selector.replace(/([^,]+,?)/g, ".typecell-output $1 ");
-
-        sheet.deleteRule(i); // we remove the old
-        sheet.insertRule(selector2 + def, i); // we add the new
+          sheet.deleteRule(i); // we remove the old
+          sheet.insertRule(selector2 + def, i); // we add the new
+        }
       }
       setStyleElement(sheet);
     }
@@ -80,7 +84,10 @@ export const DefaultOutputVisualizer = (props: {
             expandLevel={0}></ObjectInspector>
         </span>
       );
-    } else if (mainExport instanceof HTMLElement || mainExport instanceof SVGElement) {
+    } else if (
+      mainExport instanceof HTMLElement ||
+      mainExport instanceof SVGElement
+    ) {
       return (
         <ContainedElement
           className="typecell-output"
