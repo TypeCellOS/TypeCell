@@ -973,6 +973,8 @@ export class MatrixAuthStore extends lifecycle.Disposable {
     ) {
       this.needsE2ESetup = true;
       // this.setStateForNewView({ view: Views.E2E_SETUP });
+      StorageManager.tryPersistStorage();
+      this.setLoggedInState(true);
     } else {
       // this.onLoggedIn();
       StorageManager.tryPersistStorage();
