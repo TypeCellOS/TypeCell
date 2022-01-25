@@ -14,6 +14,8 @@ Modify `homeserver.yaml`
 - set allow_guest_access: true
 - add github / google oidc providers (https://github.com/matrix-org/synapse/blob/master/docs/openid.md)
 - set public_baseurl: https://mx.typecell.org
+- set registrations_require_3pid to "email"
+- Set SMTP server settings (from sendgrid)
 
 # setup server
 

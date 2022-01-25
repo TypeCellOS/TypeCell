@@ -1,9 +1,10 @@
 export const DEFAULT_HOMESERVER_HOST = "mx.typecell.org";
+// export const DEFAULT_HOMESERVER_HOST = "localhost:8008";
 
 export const MATRIX_CONFIG = {
   hsName: "typecell.org",
-  hsUrl: "https://" + DEFAULT_HOMESERVER_HOST,
-  isUrl: "https://vector.im",
+  hsUrl: "http://" + DEFAULT_HOMESERVER_HOST,
+  isUrl: undefined as any, // "https://vector.im",
   defaultDeviceDisplayName: "TypeCell web",
 };
 
