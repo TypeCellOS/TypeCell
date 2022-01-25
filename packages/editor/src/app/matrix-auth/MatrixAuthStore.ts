@@ -794,8 +794,9 @@ export class MatrixAuthStore extends lifecycle.Disposable {
     }
 
     const homeserver = localStorage.getItem(SSO_HOMESERVER_URL_KEY);
-    const identityServer = localStorage.getItem(SSO_ID_SERVER_URL_KEY);
-    if (!homeserver || !identityServer) {
+    const identityServer =
+      localStorage.getItem(SSO_ID_SERVER_URL_KEY) || undefined;
+    if (!homeserver) {
       console.warn("Cannot log in with token: can't determine HS URL to use");
       throw new Error("unknown hs");
     }
