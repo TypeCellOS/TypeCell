@@ -156,11 +156,11 @@ export const StartScreen = observer(() => {
                   description="Visualize weather data with two React chart libraries"
                   previewImage={chartsPreviewImage}
                   author={{
-                    username: "niklas",
+                    username: "yousef",
                     profileImageUrl: "",
                   }}
                   onClick={() => {
-                    navigationStore.navigateToNotebook("@niklas/charts");
+                    navigationStore.navigateToNotebook("@yousef/charts");
                   }}></NotebookOverviewItem>
               </div>
               <div className={styles.notebook}>
