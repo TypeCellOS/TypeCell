@@ -713,7 +713,7 @@ export class MatrixAuthStore extends lifecycle.Disposable {
       }
 
       if (enableGuest) {
-        if (!guestHsUrl || !guestIsUrl || !opts.defaultDeviceDisplayName) {
+        if (!guestHsUrl || !opts.defaultDeviceDisplayName) {
           throw new Error("enable guest with invalid params");
         }
         return this.registerAsGuest(
@@ -738,7 +738,7 @@ export class MatrixAuthStore extends lifecycle.Disposable {
 
   private async registerAsGuest(
     hsUrl: string,
-    isUrl: string,
+    isUrl: string | undefined,
     defaultDeviceDisplayName: string
   ): Promise<boolean> {
     console.log(`Doing guest login on ${hsUrl}`);

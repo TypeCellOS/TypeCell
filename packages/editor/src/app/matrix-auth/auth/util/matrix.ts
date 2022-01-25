@@ -1,6 +1,6 @@
 export interface IMatrixClientCreds {
   homeserverUrl: string;
-  identityServerUrl: string;
+  identityServerUrl: string | undefined;
   userId: string;
   deviceId?: string;
   accessToken: string;
