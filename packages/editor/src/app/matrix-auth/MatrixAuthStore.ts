@@ -221,6 +221,7 @@ export class MatrixAuthStore extends lifecycle.Disposable {
   private async setLoggedIn(
     credentials: IMatrixClientCreds
   ): Promise<MatrixClient> {
+    this.setLoggedInState(false);
     credentials.freshLogin = true;
     this.stopMatrixClient();
     const pickleKey =
@@ -961,6 +962,7 @@ export class MatrixAuthStore extends lifecycle.Disposable {
     const crossSigningIsSetUp = cli.getStoredCrossSigningForUser(
       cli.getUserId()
     );
+
     if (crossSigningIsSetUp) {
       // if (SecurityCustomisations.SHOW_ENCRYPTION_SETUP_UI === false) {
       // this.onLoggedIn();
