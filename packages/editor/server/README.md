@@ -16,6 +16,7 @@ Modify `homeserver.yaml`
 - set public_baseurl: https://mx.typecell.org
 - set registrations_require_3pid to "email"
 - Set SMTP server settings (from sendgrid)
+- Set notif_from and app_name
 
 # setup server
 
