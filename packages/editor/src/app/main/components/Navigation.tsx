@@ -15,7 +15,7 @@ const ProductHome = () => {
   return (
     <>
       <Logo></Logo>
-      <span className={styles.sub}> Alpha community preview</span>
+      <span className={styles.sub}> Alpha preview</span>
       <div className={styles.separator}></div>
     </>
   );
@@ -31,9 +31,18 @@ export const Navigation = observer(() => {
     <AN
       renderProductHome={ProductHome}
       primaryItems={[
-        <PrimaryButton onClick={navigationStore.navigateToDocs}>
+        <a
+          href="/docs"
+          className={styles.link}
+          onClick={(e) => {
+            e.preventDefault();
+            navigationStore.navigateToDocs();
+          }}>
           Documentation
-        </PrimaryButton>,
+        </a>,
+        // <PrimaryButton onClick={navigationStore.navigateToDocs}>
+        //   Documentation
+        // </PrimaryButton>,
       ]}
       renderProfile={observer(() => (
         <>
