@@ -166,7 +166,7 @@ export const StartScreen = observer(() => {
               <div className={styles.notebook}>
                 <NotebookOverviewItem
                   title="File upload using API"
-                  description="Connecting a React file uploader with an API"
+                  description="Connect a React file uploader with an API"
                   previewImage={apiPreviewImage}
                   author={{
                     username: "niklas",
