@@ -1,0 +1,17 @@
+.sub {
+  font-weight: bold;
+  margin: 3px 0 0 10px;
+  font-size: 0.9em;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.separator {
+  height: 70%;
+  width: 1px;
+  background-color: #f3f3f3;
+  margin-left: 1.6em;
+  margin-right: 1em;
+}
