@@ -8,7 +8,9 @@ import intro from "./assets/intro.gif";
 import lightning from "./assets/lightning.svg";
 import globe from "./assets/globe.svg";
 import npm from "./assets/npm.svg";
-import previewImage from "./assets/notebook_preview.jpg";
+import timePreviewImage from "./assets/time_preview.jpg";
+import chartsPreviewImage from "./assets/charts_preview.jpg";
+import apiPreviewImage from "./assets/api_preview.jpg";
 
 export const StartScreen = observer(() => {
   const { navigationStore, sessionStore } = getStoreService();
@@ -137,41 +139,41 @@ export const StartScreen = observer(() => {
             <div className={styles.overview + " row"}>
               <div className={styles.notebook}>
                 <NotebookOverviewItem
-                  title="Import & transform CSV"
-                  description="See if we can import and manipulate some data"
-                  previewImage={previewImage}
+                  title="It’s all about timing"
+                  description="Explore TypeCell's reactivity with the help of time"
+                  previewImage={timePreviewImage}
                   author={{
                     username: "niklas",
                     profileImageUrl: "",
                   }}
                   onClick={() => {
-                    alert("todo");
+                    navigationStore.navigateToNotebook("@niklas/time");
                   }}></NotebookOverviewItem>
               </div>
               <div className={styles.notebook}>
                 <NotebookOverviewItem
-                  title="3D prototype. Work with new models and cameras"
-                  description="Load a 3D model with adjustable camera interface"
-                  previewImage={previewImage}
+                  title="Fun with charts"
+                  description="Visualize weather data with two React chart libraries"
+                  previewImage={chartsPreviewImage}
                   author={{
                     username: "yousef",
                     profileImageUrl: "",
                   }}
                   onClick={() => {
-                    alert("todo");
+                    navigationStore.navigateToNotebook("@yousef/charts");
                   }}></NotebookOverviewItem>
               </div>
               <div className={styles.notebook}>
                 <NotebookOverviewItem
-                  title="Use React graphs"
-                  description="Use React graph library to display various bar charts"
-                  previewImage={previewImage}
+                  title="File upload using API"
+                  description="Connect a React file uploader with an API"
+                  previewImage={apiPreviewImage}
                   author={{
-                    username: "pieter",
+                    username: "niklas",
                     profileImageUrl: "",
                   }}
                   onClick={() => {
-                    alert("todo");
+                    navigationStore.navigateToNotebook("@niklas/api");
                   }}></NotebookOverviewItem>
               </div>
             </div>
