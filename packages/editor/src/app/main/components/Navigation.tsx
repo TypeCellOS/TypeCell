@@ -7,12 +7,8 @@ import {
 import { observer } from "mobx-react-lite";
 import { VscSignIn } from "react-icons/vsc";
 import { getStoreService } from "../../../store/local/stores";
-import { ProfilePopup } from "./ProfilePopup";
-import DocumentSettings from "./DocumentSettings";
 import { Logo } from "./Logo";
-import {SessionStore} from "../../../store/local/SessionStore";
-import {NavigationStore} from "../../../store/local/navigationStore";
-import {MatrixIdentifier} from "../../../identifiers/MatrixIdentifier";
+import { ProfilePopup } from "./ProfilePopup";
 
 const ProductHome = () => {
   return (
@@ -27,13 +23,6 @@ const ProductHome = () => {
 };
 
 const AN = AtlassianNavigation as any;
-
-function userIsPageOwner(sessionStore: SessionStore, navigationStore: NavigationStore) {
-    const id = navigationStore.currentPage.identifier as MatrixIdentifier;
-    console.log(id)
-    console.log(sessionStore.loggedInUserId)
-    return sessionStore.loggedInUserId === id.owner;
-}
 
 export const Navigation = observer(() => {
   const sessionStore = getStoreService().sessionStore;
@@ -51,13 +40,6 @@ export const Navigation = observer(() => {
               sessionStore={sessionStore}
             />
           )}
-        </>
-      ))}
-      renderSettings={observer(() => (
-        <>
-          {navigationStore.currentPage.page !== 'root' &&
-          userIsPageOwner(sessionStore, navigationStore) &&
-          (<DocumentSettings user={sessionStore.loggedInUserId}/>)}
         </>
       ))}
       renderSignIn={observer(() => (

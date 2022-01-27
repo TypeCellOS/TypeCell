@@ -56,7 +56,12 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
                       onClick={() => openAsMarkdown(props.document!.doc)}>
                       Export as markdown
                     </DropdownItem>
-                    {/* TODO <DropdownItem>Change permissions</DropdownItem> */}
+                    {navigationStore.userCanEditPermissions && (
+                      <DropdownItem
+                        onClick={navigationStore.showPermissionsDialog}>
+                        Permissions
+                      </DropdownItem>
+                    )}
                   </DropdownMenu>
                 </li>
               </>

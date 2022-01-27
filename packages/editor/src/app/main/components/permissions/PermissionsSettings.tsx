@@ -6,7 +6,7 @@ import {
   permissionsStore,
   UserPermission,
   userPermissionLabels,
-} from "../PermissionUtils";
+} from "../../PermissionUtils";
 import Permission from "./Permission";
 import React, { useState } from "react";
 
@@ -14,7 +14,7 @@ import Select from "@atlaskit/select";
 import Button from "@atlaskit/button";
 import UserPicker, { OptionData, Value } from "@atlaskit/user-picker";
 import { IntlProvider } from "react-intl-next";
-import { MatrixClientPeg } from "../../matrix-auth/MatrixClientPeg";
+import { MatrixClientPeg } from "../../../matrix-auth/MatrixClientPeg";
 import Modal, {
   ModalBody,
   ModalFooter,
@@ -31,7 +31,7 @@ type User = {
   // lozenge: string
 };
 
-export default function PermissionSettings(props: {
+export default function PermissionsSettings(props: {
   user: string | undefined;
   closeCallback: () => void;
 }) {
@@ -181,14 +181,14 @@ export default function PermissionSettings(props: {
   }
 
   return (
-    <Modal onClose={props.closeCallback} height={600} width={804}>
+    <Modal css={{ overflow: "visible" }} onClose={props.closeCallback}>
       <ModalHeader>
-        <ModalTitle>Restrictions</ModalTitle>
+        <ModalTitle>Sharing & Permissions</ModalTitle>
       </ModalHeader>
       <ModalBody className={styles.body}>
         <Select
           inputId="single-select-example"
-          className={`${styles.select} ${styles.user_select}`}
+          className={`${styles.select} ${styles.userSelect}`}
           inputValue={""}
           defaultValue={{
             label: docPermissionLabels.get(docPermission)!,
@@ -211,62 +211,63 @@ export default function PermissionSettings(props: {
             },
           ]}
         />
-        <div className={styles.user}>
-          <div className={styles.info}>
+        <div className={styles.userRow}>
+          <div className={styles.pickerContainer}>
             <IntlProvider locale="en">
               <UserPicker
                 fieldId="add-user"
+                width={"auto"}
                 allowEmail={true}
                 noOptionsMessage={() => null}
                 onInputChange={searchUsers}
                 onChange={updateSelectedUser}
                 options={displayedUsers}
+                menuPosition="fixed"
               />
             </IntlProvider>
           </div>
-          <div className={styles.actions}>
-            <Select
-              id="add-permission"
-              className={`${styles.select} ${styles.restriction_select}`}
-              classNamePrefix="react-select"
-              inputValue={""}
-              defaultValue={{
+          {/* <div className={styles.actions}> */}
+          <Select
+            id="add-permission"
+            className={`${styles.select} ${styles.restrictionSelect}`}
+            classNamePrefix="react-select"
+            menuPosition="fixed"
+            inputValue={""}
+            defaultValue={{
+              label: userPermissionLabels.get(UserPermission.Edit)!,
+              value: UserPermission.Edit,
+            }}
+            value={
+              lockPermission(docPermission)
+                ? {
+                    label: userPermissionLabels.get(UserPermission.Edit)!,
+                    value: UserPermission.Edit,
+                  }
+                : {
+                    label: userPermissionLabels.get(permissionType)!,
+                    value: permissionType,
+                  }
+            }
+            isDisabled={
+              docPermission === DocPermission.Public ||
+              docPermission === DocPermission.PrivateEdit
+            }
+            onChange={updatePermissionType}
+            options={[
+              {
+                label: userPermissionLabels.get(UserPermission.View)!,
+                value: UserPermission.View,
+              },
+              {
                 label: userPermissionLabels.get(UserPermission.Edit)!,
                 value: UserPermission.Edit,
-              }}
-              value={
-                lockPermission(docPermission)
-                  ? {
-                      label: userPermissionLabels.get(UserPermission.Edit)!,
-                      value: UserPermission.Edit,
-                    }
-                  : {
-                      label: userPermissionLabels.get(permissionType)!,
-                      value: permissionType,
-                    }
-              }
-              isDisabled={
-                docPermission === DocPermission.Public ||
-                docPermission === DocPermission.PrivateEdit
-              }
-              onChange={updatePermissionType}
-              options={[
-                {
-                  label: userPermissionLabels.get(UserPermission.View)!,
-                  value: UserPermission.View,
-                },
-                {
-                  label: userPermissionLabels.get(UserPermission.Edit)!,
-                  value: UserPermission.Edit,
-                },
-              ]}
-            />
-            <Button
-              style={{ height: "2.5rem", width: "50%", alignItems: "center" }}
-              onClick={addPermission}>
-              Add
-            </Button>
-          </div>
+              },
+            ]}
+          />
+          <Button onClick={addPermission} className={styles.addButton}>
+            Add
+          </Button>
+          {/* </div> */}
         </div>
         {userPermissions.map(function (permission: {
           user: string;

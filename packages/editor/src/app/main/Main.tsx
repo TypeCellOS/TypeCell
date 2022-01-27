@@ -13,6 +13,7 @@ import NewNotebookDialog from "./components/NewNotebookDialog";
 import { StartScreen } from "./components/startscreen/StartScreen";
 import styles from "./Main.module.css";
 import Profile from "./components/Profile";
+import PermissionsDialog from "./components/permissions/PermissionsDialog";
 
 type Props = {
   currentPage:
@@ -56,6 +57,21 @@ const Main = observer((props: Props) => {
         ) : (
           <Page currentPage={props.currentPage} />
         )}
+        {sessionStore.loggedInUserId && (
+          <NewNotebookDialog
+            ownerId={sessionStore.loggedInUserId}
+            close={navigationStore.hideNewNotebookDialog}
+            isOpen={navigationStore.isNewNotebookDialogVisible}
+          />
+        )}
+        {navigationStore.userCanEditPermissions && (
+          <PermissionsDialog
+            user={sessionStore.loggedInUserId?.substring(1)}
+            close={navigationStore.hidePermissionsDialog}
+            isOpen={navigationStore.isPermissionsDialogVisible}
+          />
+        )}
+
         {sessionStore.loggedInUserId && (
           <NewNotebookDialog
             ownerId={sessionStore.loggedInUserId}
