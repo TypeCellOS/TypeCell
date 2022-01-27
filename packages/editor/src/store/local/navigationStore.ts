@@ -210,7 +210,11 @@ export class NavigationStore {
   };
 
   navigateToNewGuestNotebook = () => {
-    this.navigateToIdentifier(parseIdentifier("@typecell/new"));
+    this.navigateToNotebook("@typecell/new");
+  };
+
+  navigateToNotebook = (identifier: string) => {
+    this.navigateToIdentifier(parseIdentifier(identifier));
   };
 
   showProfilePage = (owner: string) => {

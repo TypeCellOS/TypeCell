@@ -161,13 +161,13 @@ export default class RegistrationForm extends React.PureComponent<IProps> {
     if (!this.showEmail()) {
       return null;
     }
-    const emailPlaceholder = this.authStepIsRequired("m.login.email.identity")
-      ? "Email"
-      : "Email (optional)";
+    const isRequired = this.authStepIsRequired("m.login.email.identity");
+    const emailPlaceholder = isRequired ? "Email" : "Email (optional)";
     return (
       <Field
         ref={(field) => (this[RegistrationField.Email] = field)}
         type="email"
+        isRequired={isRequired}
         defaultValue={this.props.defaultEmail}
         label={emailPlaceholder}
         name="email"
@@ -212,7 +212,7 @@ export default class RegistrationForm extends React.PureComponent<IProps> {
         name="username"
         type="text"
         label={"Username"}
-        placeholder={"Username".toLocaleLowerCase()}
+        placeholder={"Username"}
         defaultValue={this.props.defaultUsername}
         isRequired
         onValidate={this.onUsernameValidate}

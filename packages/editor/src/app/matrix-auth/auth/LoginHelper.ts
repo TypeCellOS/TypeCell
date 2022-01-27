@@ -215,7 +215,7 @@ export default class LoginHelper {
  */
 export async function sendLoginRequest(
   hsUrl: string,
-  isUrl: string,
+  isUrl: string | undefined,
   loginType: string,
   loginParams: ILoginParams
 ): Promise<IMatrixClientCreds> {

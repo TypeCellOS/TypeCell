@@ -1,5 +1,7 @@
 import { observer } from "mobx-react-lite";
+import qs from "qs";
 import React from "react";
+import { MATRIX_CONFIG } from "../config/config";
 import { getStoreService } from "../store/local/stores";
 import Main from "./main/Main";
 import LoginComponent from "./matrix-auth/auth/Login";
@@ -10,7 +12,11 @@ function makeRegistrationUrl(params: any) {
   let url =
     window.location.protocol + "//" + window.location.host + "/register";
 
-  const keys = Object.keys(params);
+  let keys = Object.keys(params);
+
+  // if any of the params (in our case, is_url) is undefined, don't include it in url
+  keys = keys.filter((key) => params[key] !== undefined);
+
   for (let i = 0; i < keys.length; ++i) {
     if (i === 0) {
       url += "?";
@@ -47,13 +53,23 @@ export const App = observer((props: { config: ValidatedServerConfig }) => {
       />
     );
   } else if (navigationStore.currentPage.page === "register") {
+    const params = qs.parse(window.location.search);
+
+    if (params.hs_url && params.hs_url !== MATRIX_CONFIG.hsUrl) {
+      throw new Error("different homeserver not supported");
+    }
+
+    if (params.is_url && params.is_url !== MATRIX_CONFIG.isUrl) {
+      throw new Error("different identity server not supported");
+    }
+
     let pageAfterLogin = window.history.state?.prevUrl || "";
     // const email = ThreepidInviteStore.instance.pickBestInvite()?.toEmail;
     return (
       <Registration
-        // clientSecret={this.state.register_client_secret}
-        // sessionId={this.state.register_session_id}
-        // idSid={this.state.register_id_sid}
+        clientSecret={params.client_secret as string | undefined}
+        sessionId={params.session_id as string | undefined}
+        idSid={params.sid as string | undefined}
         email={undefined}
         brand={"TypeCell"}
         makeRegistrationUrl={makeRegistrationUrl}
