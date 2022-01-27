@@ -1,4 +1,4 @@
-import styles from "./DocumentSettings.module.css";
+import styles from "./PermissionsSettings.module.css";
 import {
   DocPermission,
   docPermissionLabels,

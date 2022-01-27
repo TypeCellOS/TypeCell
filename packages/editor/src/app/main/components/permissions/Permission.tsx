@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Button from "@atlaskit/button";
 import Select from "@atlaskit/select";
-import styles from "./DocumentSettings.module.css";
+import styles from "./PermissionsSettings.module.css";
 import Avatar from "react-avatar";
 import {
   DocPermission,

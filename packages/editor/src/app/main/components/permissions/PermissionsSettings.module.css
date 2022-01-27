@@ -23,8 +23,11 @@ body {
 .pickerContainer,
 .userInfo {
   flex: 4;
-  display: flex;
   height: 2.5rem;
+}
+
+.userInfo {
+  display: flex;
   align-items: center;
   column-gap: 0.5rem;
 }
@@ -42,8 +45,8 @@ body {
 .removeButton {
   flex: 1;
   min-width: 100px;
-  height: 100%;
-  line-height: 2.5rem;
+  height: 100% !important;
+  line-height: 2.5rem !important;
 }
 
 .body > * {
