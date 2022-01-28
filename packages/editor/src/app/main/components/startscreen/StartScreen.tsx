@@ -24,9 +24,14 @@ export const StartScreen = observer(() => {
     }
   }
 
-  function onDocsClick(e: any) {
+  function onTutorialClick(e: any) {
     e.preventDefault();
     navigationStore.navigateToTutorial();
+  }
+
+  function onDocsClick(e: any) {
+    e.preventDefault();
+    navigationStore.navigateToDocs();
   }
 
   return (
@@ -60,7 +65,7 @@ export const StartScreen = observer(() => {
               <a
                 className="button primary"
                 href="/docs/interactive-introduction.md"
-                onClick={onDocsClick}>
+                onClick={onTutorialClick}>
                 Try interactive tutorial
               </a>
 
@@ -216,7 +221,7 @@ export const StartScreen = observer(() => {
               <div>
                 <a
                   href="/docs/interactive-introduction.md"
-                  onClick={onDocsClick}
+                  onClick={onTutorialClick}
                   className="button">
                   Try interactive tutorial
                 </a>
@@ -240,10 +245,16 @@ export const StartScreen = observer(() => {
                 <li>
                   <a
                     href="/docs/interactive-introduction.md"
-                    onClick={onDocsClick}>
+                    onClick={onTutorialClick}>
                     <span>Interactive introduction</span>
                   </a>
                 </li>
+                <li>
+                  <a href="/docs" onClick={onDocsClick}>
+                    <span>Documentation</span>
+                  </a>
+                </li>
+
                 {/* <li>
                   <a
                     target="_blank"

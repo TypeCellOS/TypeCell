@@ -21,6 +21,10 @@ a:focus {
   outline: none;
 }
 
+a {
+  color: #2c73c5;
+}
+
 /* @import "~react-resizable/css/styles.css"; */
 body {
   margin: 0;
