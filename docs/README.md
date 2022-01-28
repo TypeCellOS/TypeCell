@@ -8,7 +8,7 @@ This guide should help you to get started, and learn more about the ins & outs.
 
 A good way to get started is by going through the intro tutorial:
 
-» [Interactive introduction](interactive-introduction.md)
+» [Interactive introduction](/docs/interactive-introduction.md)
 
 ## Reference manual
 
