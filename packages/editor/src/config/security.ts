@@ -55,3 +55,15 @@ export function getFrameDomain() {
   // TODO: now cookies / localstorage are still shared across notebooks. Should we use a unique subdomain per user or notebook?
   return "code.typescriptrepl.com";
 }
+
+export function getMainDomainFromIframe() {
+  if (ENVIRONMENT === "DEV") {
+    const port = window.location.host.match(/^127\.0\.0\.1:(\d+)$/)![1];
+    return "localhost:" + port;
+  }
+
+  if (ENVIRONMENT === "STAGING") {
+    return window.location.hostname;
+  }
+  return "notebooks.typecell.org";
+}

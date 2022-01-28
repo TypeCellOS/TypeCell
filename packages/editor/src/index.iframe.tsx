@@ -3,7 +3,10 @@ import React from "react";
 import ReactDOM from "react-dom";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as reo from "react-error-overlay";
-import { validateFrameDomain } from "./config/security";
+import {
+  getMainDomainFromIframe,
+  validateFrameDomain,
+} from "./config/security";
 import "./iframe.css";
 import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
 
@@ -20,6 +23,7 @@ console.log("Loading iframe", window.location.href);
 
 // make sure links open in new window instead of iframe
 const base = document.createElement("base");
+base.setAttribute("href", "//" + getMainDomainFromIframe());
 base.setAttribute("target", "_blank");
 document.head.appendChild(base);
 
