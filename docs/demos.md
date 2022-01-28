@@ -1,5 +1,8 @@
 # Demos
 
-
+- [Create an interactive map with Leaflet](/@niklas/maps)
 - [Interactive character counter using Vega Lite](/@yousef/character-counter)
-- TODO
+- [Visualize weather data with two React chart libraries](/@yousef/charts)
+- [Explore TypeCell's reactivity with the help of time](/@niklas/time)
+- [Connect React file uploader with an API](/@niklas/api)
+- [Working with a CSV dataset](/@niklas/csv)
