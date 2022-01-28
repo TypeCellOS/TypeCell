@@ -18,6 +18,11 @@ if (process.env.NODE_ENV === "development") {
 
 console.log("Loading iframe", window.location.href);
 
+// make sure links open in new window instead of iframe
+const base = document.createElement("base");
+base.setAttribute("target", "_blank");
+document.head.appendChild(base);
+
 async function init() {
   // TODO: prevent monaco from loading in frame
   if (!validateFrameDomain()) {
