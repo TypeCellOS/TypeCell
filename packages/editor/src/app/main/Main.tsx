@@ -66,7 +66,6 @@ const Main = observer((props: Props) => {
         )}
         {navigationStore.userCanEditPermissions && (
           <PermissionsDialog
-            user={sessionStore.loggedInUserId?.substring(1)}
             close={navigationStore.hidePermissionsDialog}
             isOpen={navigationStore.isPermissionsDialogVisible}
           />

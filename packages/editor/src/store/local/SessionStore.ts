@@ -43,6 +43,7 @@ export class SessionStore extends lifecycle.Disposable {
       }
     | {
         type: "matrix-user";
+        fullUserId: string;
         userId: string;
         matrixClient: MatrixClient;
       } = "loading";
@@ -140,6 +141,7 @@ export class SessionStore extends lifecycle.Disposable {
             type: "matrix-user",
             matrixClient,
             userId: getUserFromMatrixId(matrixClient.getUserId() as string),
+            fullUserId: matrixClient.getUserId(), // TODO: nicer to remove make userId represent the full matrix id instead of having a separate property
           };
         });
       }

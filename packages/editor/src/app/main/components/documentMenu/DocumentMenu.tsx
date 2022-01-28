@@ -44,7 +44,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
                     shouldFlip
                     trigger={
                       <div
-                        style={{ paddingRight: "0.5em", paddingLeft: "1em;" }}>
+                        style={{ paddingRight: "0.5em", paddingLeft: "1em" }}>
                         <VscKebabVertical
                           title="Options"
                           style={{ fontSize: "14px", transform: "scale(1.3)" }}

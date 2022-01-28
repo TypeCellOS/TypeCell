@@ -1,297 +1,228 @@
+import Button from "@atlaskit/button";
+import Modal, {
+  ModalBody,
+  ModalHeader,
+  ModalTitle,
+} from "@atlaskit/modal-dialog";
+import Select from "@atlaskit/select";
+import { observer } from "mobx-react-lite";
+import React, { useState } from "react";
+import { MatrixUserPicker } from "./MatrixUserPicker";
+import UserPermissionRow from "./UserPermissionRow";
 import styles from "./PermissionsSettings.module.css";
 import {
   DocPermission,
   docPermissionLabels,
-  lockPermission,
-  permissionsStore,
+  PermissionData,
+  updatePermissionData,
   UserPermission,
   userPermissionLabels,
-} from "../../PermissionUtils";
-import Permission from "./Permission";
-import React, { useState } from "react";
+} from "./permissionUtils";
+import { User } from "./userUtils";
 
-import Select from "@atlaskit/select";
-import Button from "@atlaskit/button";
-import UserPicker, { OptionData, Value } from "@atlaskit/user-picker";
-import { IntlProvider } from "react-intl-next";
-import { MatrixClientPeg } from "../../../matrix-auth/MatrixClientPeg";
-import Modal, {
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-} from "@atlaskit/modal-dialog";
+const PermissionsSettings = observer(
+  (props: {
+    currentUserId: string;
+    matrixClient: any;
+    roomId: string;
+    permissionData: PermissionData;
+    closeCallback: (newPermissionData?: PermissionData) => void;
+  }) => {
+    const [isSaving, setIsSaving] = useState(false);
 
-type User = {
-  // avatarUrl: any,
-  id: string;
-  name: string;
-  // type: "user" | "team" | "email" | "group",
-  // fixed: boolean,
-  // lozenge: string
-};
+    // State for storing & updating the currently selected user from the user picker.
+    const [newUser, setNewUser] = useState<User | undefined>();
 
-export default function PermissionsSettings(props: {
-  user: string | undefined;
-  closeCallback: () => void;
-}) {
-  // State and functions for storing & updating whether the page can be read/written to by others.
-  const [docPermission, setDocPermission] = useState(initDocPermission);
+    // State and functions for storing & updating the permission type for the user that is being added.
+    const [newUserPermission, setNewUserPermission] =
+      useState<UserPermission>("edit");
 
-  function initDocPermission() {
-    if (!permissionsStore.docIsInitialized()) {
-      permissionsStore.initializeDoc();
-    }
-
-    return permissionsStore.getDocPermission() as DocPermission;
-  }
-
-  function updateDocPermission(
-    permission: { label: string; value: string } | null
-  ) {
-    setDocPermission(permission!.value as DocPermission);
-  }
-
-  // State and functions for storing & updating whether each specific user can read/write to the page.
-  const [userPermissions, setUserPermissions] = useState(initUserPermissions);
-
-  function initUserPermissions() {
-    if (!permissionsStore.usersAreInitialized()) {
-      permissionsStore.initializeUsers();
-    }
-
-    return permissionsStore.getUserPermissions();
-  }
-
-  function addUserPermission(user: string, permission: UserPermission) {
-    // User already in permissions list.
-    if (
-      userPermissions.filter((permission) => permission.user === user).length >
-      0
-    ) {
-      return;
-    }
-
-    let updatedUserPermissions = JSON.parse(JSON.stringify(userPermissions)); // Deep copy
-    updatedUserPermissions.push({ user, permission });
-
-    setUserPermissions(updatedUserPermissions);
-  }
-
-  function editUserPermission(user: string, permission: UserPermission) {
-    let updatedUserPermissions: { user: string; permission: UserPermission }[] =
-      [];
-
-    for (let i = 0; i < userPermissions.length; i++) {
-      if (userPermissions[i].user === user) {
-        updatedUserPermissions.push({ user: user, permission: permission });
-      } else {
-        updatedUserPermissions.push(userPermissions[i]);
-      }
-    }
-
-    setUserPermissions(updatedUserPermissions);
-  }
-
-  function removeUserPermission(user: string) {
-    let updatedUserPermissions: { user: string; permission: UserPermission }[] =
-      [];
-
-    for (let i = 0; i < userPermissions.length; i++) {
-      if (userPermissions[i].user !== user) {
-        updatedUserPermissions.push(userPermissions[i]);
-      }
-    }
-
-    setUserPermissions(updatedUserPermissions);
-  }
-
-  // State and function for storing & updating the users to display in the user picker.
-  const [displayedUsers, setDisplayedUsers] = useState<User[]>([]);
-
-  async function searchUsers(query: string = "") {
-    const peg = MatrixClientPeg.get();
-
-    if (!peg || query === "") {
-      setDisplayedUsers([]);
-    } else {
-      const ret = await peg.searchUserDirectory({
-        term: query || "mx", // mx is a trick to return all users on mx.typecell.org
-        limit: 10,
+    const [editingPermissionData, setEditingPermissionData] =
+      useState<PermissionData>({
+        doc: props.permissionData.doc,
+        // deep clone:
+        users: new Map(
+          JSON.parse(JSON.stringify(Array.from(props.permissionData.users)))
+        ),
       });
 
-      const results: User[] = ret.results
-        .filter((result: any) => result.display_name !== props.user)
-        .map((result: any) => ({
-          id: result.display_name,
-          name: result.display_name,
-        }));
-
-      setDisplayedUsers(results);
+    function updateDocPermission(
+      permission: { label: string; value: string } | null
+    ) {
+      setEditingPermissionData({
+        doc: permission!.value as DocPermission,
+        users: editingPermissionData.users,
+      });
     }
-  }
 
-  // State and function for storing & updating the currently selected user from the user picker.
-  const [selectedUser, setSelectedUser] = useState("");
-
-  function updateSelectedUser(value: Value) {
-    value = value as OptionData;
-    setSelectedUser(value.name);
-  }
-
-  // State and functions for storing & updating the permission type for the currently selected user.
-  const [permissionType, setPermissionType] = useState(UserPermission.Edit);
-
-  function updatePermissionType(
-    value: { label: string; value: string } | null
-  ) {
-    setPermissionType(value!.value as UserPermission);
-  }
-
-  // Callback for adding a permission.
-  function addPermission() {
-    addUserPermission(selectedUser, permissionType);
-  }
-
-  // Functions to save changes made to permissions.
-  function save() {
-    permissionsStore.setDocPermission(docPermission);
-
-    // If the user accidentally switches the document permissions, this makes sure their previous user permissions
-    // are not lost.
-    if (lockPermission(docPermission)) {
-      let updatedUserPermissions: {
-        user: string;
-        permission: UserPermission;
-      }[] = [];
-
-      for (let i = 0; i < userPermissions.length; i++) {
-        updatedUserPermissions.push({
-          user: userPermissions[i].user,
-          permission: UserPermission.Edit,
-        });
+    function addUserPermission(userId: string, permission: UserPermission) {
+      // User already in permissions list.
+      if (editingPermissionData.users.has(userId)) {
+        return;
       }
 
-      permissionsStore.setUserPermissions(updatedUserPermissions);
-    } else {
-      permissionsStore.setUserPermissions(userPermissions);
+      editingPermissionData.users.set(userId, permission);
+
+      setEditingPermissionData({
+        doc: editingPermissionData.doc,
+        users: editingPermissionData.users,
+      });
     }
 
-    props.closeCallback();
-  }
+    function editUserPermission(user: string, permission: UserPermission) {
+      editingPermissionData.users.set(user, permission);
 
-  return (
-    <Modal css={{ overflow: "visible" }} onClose={props.closeCallback}>
-      <ModalHeader>
-        <ModalTitle>Sharing & Permissions</ModalTitle>
-      </ModalHeader>
-      <ModalBody className={styles.body}>
-        <Select
-          inputId="single-select-example"
-          className={`${styles.select} ${styles.userSelect}`}
-          inputValue={""}
-          defaultValue={{
-            label: docPermissionLabels.get(docPermission)!,
-            value: docPermission,
-          }}
-          onChange={updateDocPermission}
-          options={[
-            {
-              label: docPermissionLabels.get(DocPermission.Public)!,
-              value: DocPermission.Public,
-            },
-            {
-              label: docPermissionLabels.get(DocPermission.PrivateEdit)!,
-              value: DocPermission.PrivateEdit,
-            },
-            {
-              label: docPermissionLabels.get(DocPermission.Private)!,
-              value: DocPermission.Private,
-              isDisabled: true,
-            },
-          ]}
-        />
-        <div className={styles.userRow}>
-          <div className={styles.pickerContainer}>
-            <IntlProvider locale="en">
-              <UserPicker
-                fieldId="add-user"
-                width={"auto"}
-                allowEmail={true}
-                noOptionsMessage={() => null}
-                onInputChange={searchUsers}
-                onChange={updateSelectedUser}
-                options={displayedUsers}
-                menuPosition="fixed"
-              />
-            </IntlProvider>
-          </div>
-          {/* <div className={styles.actions}> */}
+      setEditingPermissionData({
+        doc: editingPermissionData.doc,
+        users: editingPermissionData.users,
+      });
+    }
+
+    function removeUserPermission(user: string) {
+      editingPermissionData.users.delete(user);
+
+      setEditingPermissionData({
+        doc: editingPermissionData.doc,
+        users: editingPermissionData.users,
+      });
+    }
+
+    function updateSelectedUser(user: User | undefined) {
+      setNewUser(user);
+    }
+
+    function updatePermissionType(
+      value: { label: string; value: string } | null
+    ) {
+      setNewUserPermission(value!.value as UserPermission);
+    }
+
+    // Callback for adding a permission.
+    function addPermission() {
+      if (!newUser) {
+        throw new Error("no user selected");
+      }
+      addUserPermission(newUser.id, newUserPermission);
+    }
+
+    function save() {
+      setIsSaving(true);
+
+      (async () => {
+        await updatePermissionData(
+          props.matrixClient,
+          props.roomId,
+          props.permissionData,
+          editingPermissionData
+        );
+
+        setIsSaving(false);
+        props.closeCallback();
+      })();
+    }
+
+    return (
+      <Modal
+        css={{ overflow: "visible" }}
+        onClose={() => props.closeCallback()}
+        actions={[
+          {
+            text: "Apply",
+            type: "submit",
+            onClick: () => save(),
+            isLoading: isSaving,
+          },
+          { text: "Cancel", onClick: () => props.closeCallback() },
+        ]}>
+        <ModalHeader>
+          <ModalTitle>Sharing & Permissions</ModalTitle>
+        </ModalHeader>
+        <ModalBody className={styles.body}>
           <Select
-            id="add-permission"
-            className={`${styles.select} ${styles.restrictionSelect}`}
-            classNamePrefix="react-select"
             menuPosition="fixed"
+            inputId="single-select-example"
+            className={`${styles.select} ${styles.userSelect}`}
             inputValue={""}
             defaultValue={{
-              label: userPermissionLabels.get(UserPermission.Edit)!,
-              value: UserPermission.Edit,
+              label: docPermissionLabels.get(editingPermissionData.doc)!,
+              value: editingPermissionData.doc,
             }}
-            value={
-              lockPermission(docPermission)
-                ? {
-                    label: userPermissionLabels.get(UserPermission.Edit)!,
-                    value: UserPermission.Edit,
-                  }
-                : {
-                    label: userPermissionLabels.get(permissionType)!,
-                    value: permissionType,
-                  }
-            }
-            isDisabled={
-              docPermission === DocPermission.Public ||
-              docPermission === DocPermission.PrivateEdit
-            }
-            onChange={updatePermissionType}
+            onChange={updateDocPermission}
             options={[
               {
-                label: userPermissionLabels.get(UserPermission.View)!,
-                value: UserPermission.View,
+                label: docPermissionLabels.get("public-read-write")!,
+                value: "public-read-write",
               },
               {
-                label: userPermissionLabels.get(UserPermission.Edit)!,
-                value: UserPermission.Edit,
+                label: docPermissionLabels.get("public-read")!,
+                value: "public-read",
+              },
+              {
+                label: docPermissionLabels.get("private")!,
+                value: "private",
+                isDisabled: true,
               },
             ]}
           />
-          <Button onClick={addPermission} className={styles.addButton}>
-            Add
-          </Button>
-          {/* </div> */}
-        </div>
-        {userPermissions.map(function (permission: {
-          user: string;
-          permission: UserPermission;
-        }) {
-          return (
-            <Permission
-              name={permission.user}
-              userPermission={permission.permission}
-              docPermission={docPermission}
-              editCallback={editUserPermission}
-              removeCallback={removeUserPermission}
-            />
-          );
-        })}
-      </ModalBody>
-      <ModalFooter>
-        <Button appearance="subtle" onClick={props.closeCallback}>
-          Cancel
-        </Button>
-        <Button appearance="primary" onClick={save} autoFocus>
-          Apply
-        </Button>
-      </ModalFooter>
-    </Modal>
-  );
-}
+          {editingPermissionData.doc !== "public-read-write" && (
+            <>
+              <div className={styles.userRow}>
+                <div className={styles.pickerContainer}>
+                  <MatrixUserPicker updateSelectedUser={updateSelectedUser} />
+                </div>
+                {/* <div className={styles.actions}> */}
+                <Select
+                  id="add-permission"
+                  className={`${styles.select} ${styles.restrictionSelect}`}
+                  classNamePrefix="react-select"
+                  menuPosition="fixed"
+                  inputValue={""}
+                  defaultValue={{
+                    label: userPermissionLabels.get("edit")!,
+                    value: "edit",
+                  }}
+                  isDisabled={true}
+                  onChange={updatePermissionType}
+                  options={[
+                    {
+                      label: userPermissionLabels.get("view")!,
+                      value: "view",
+                    },
+                    {
+                      label: userPermissionLabels.get("edit")!,
+                      value: "edit",
+                    },
+                  ]}
+                />
+                <Button
+                  onClick={addPermission}
+                  className={styles.addButton}
+                  isDisabled={newUser === undefined}>
+                  Add
+                </Button>
+              </div>
+              {Array.from(editingPermissionData.users.entries()).map(
+                ([user, permission]) => {
+                  return user === props.currentUserId ? (
+                    <></>
+                  ) : (
+                    <UserPermissionRow
+                      key={user}
+                      userId={user}
+                      userPermission={permission}
+                      docPermission={editingPermissionData.doc}
+                      editCallback={editUserPermission}
+                      removeCallback={removeUserPermission}
+                    />
+                  );
+                }
+              )}
+            </>
+          )}
+        </ModalBody>
+      </Modal>
+    );
+  }
+);
+
+export default PermissionsSettings;
