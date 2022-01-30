@@ -1,0 +1,34 @@
+import ImportShimResolver from "./ImportShimResolver";
+import { LocalModuleResolver } from "./LocalModuleResolver";
+import SkypackResolver from "./SkypackResolver";
+
+import { MockBlob, mockCreateObjectURL } from "./mock.js";
+
+// mock indexeddb, because jest browser does not handle it.
+// Blobs in indexeddb are created using URL.createObjectURL(), but jest does not handle this function. Thus we also need to mock it.
+// createObjectURL is synchronous, whereas convering Blob to array is asynchronous, thus we need to mock Blob.
+(global as any).Blob = MockBlob;
+(global as any).URL.createObjectURL = mockCreateObjectURL;
+
+const localResolver = new LocalModuleResolver(async (moduleName) => {
+  if (moduleName === "react") {
+    return "fakereact";
+  }
+  return undefined;
+});
+
+const resolvers: any[] = [new SkypackResolver()];
+const resolver = new ImportShimResolver(resolvers, localResolver);
+
+jest.setTimeout(30000);
+describe("import tests", () => {
+  // it("directly importing a local module", async () => {
+  //   const ret = await resolver.resolveImport("react");
+  //   expect(ret.module).toBe("fakereact");
+  // });
+
+  it("directly importing a module", async () => {
+    const ret = await resolver.resolveImport("preact");
+    expect(ret).toBe("fakereact");
+  });
+});

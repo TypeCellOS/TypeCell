@@ -3,6 +3,8 @@ import {
   Engine,
   ResolvedImport,
   SkypackResolver,
+  ImportShimResolver,
+  LocalModuleResolver,
 } from "@typecell-org/engine";
 import * as markdownit from "markdown-it";
 import * as react from "react";
@@ -25,12 +27,15 @@ function resolveNestedModule(id: string, mode?: string) {
   function isModule(id: string, moduleName: string) {
     return id === moduleName || id === "https://cdn.skypack.dev/" + moduleName;
   }
-
+  debugger;
   if (isModule(id, "markdown-it")) {
     return markdownit;
   }
 
-  if (isModule(id, "react") && mode === "imports/optimized/react.js") {
+  if (
+    isModule(id, "react") &&
+    (!mode || mode === "imports/optimized/react.js")
+  ) {
     return react;
   }
 
@@ -80,8 +85,11 @@ function resolveNestedModule(id: string, mode?: string) {
   return undefined;
 }
 
-const skypackResolver = new SkypackResolver(resolveNestedModule);
-
+const skypackResolver = new SkypackResolver();
+const importShimResolver = new ImportShimResolver(
+  [skypackResolver],
+  new LocalModuleResolver(resolveNestedModule)
+);
 // todo: caches
 
 const cache = new Map<string, ResolvedImport>();
@@ -125,7 +133,7 @@ async function resolveImport(
   ) => TypeCellCompiledCodeProvider
 ): Promise<ResolvedImport> {
   if (!moduleName.startsWith("!@")) {
-    return skypackResolver.resolveImport(moduleName);
+    return importShimResolver.resolveImport(moduleName);
   }
 
   if (!createTypeCellCompiledCodeProvider) {

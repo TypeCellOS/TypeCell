@@ -17,7 +17,7 @@ export default class SourceModelCompiler extends lifecycle.Disposable {
       return `define(["require", "exports", "markdown-it"], function (require, exports, markdown_it_1) {
           "use strict";
           Object.defineProperty(exports, "__esModule", { value: true });
-          const md = markdown_it_1.default({
+          const md = markdown_it_1({
               html: true,
               linkify: true,
               typographer: true,
