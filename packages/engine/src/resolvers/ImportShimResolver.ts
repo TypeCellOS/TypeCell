@@ -58,10 +58,12 @@ export class ImportShimResolver {
     // first try to see if the LocalResolver wants to resolve this module
     const localURL = await this.tryLocalResolver(moduleName);
     if (localURL) {
-      throw new Error(
-        "unexpected, this case should have been handled in doResolveImport"
-      );
-      // return localURL;
+      // Normally this doesn't happen because the local version
+      // would already be resolved in doResolveImport.
+      // But if the user imports an ESM URL directly, it can occur,
+      // e.g.: import Button from "https://framer.com/m/Button-Nfl9.js@oZJd59CIUVxKzU9MSJos";
+      console.warn("local package found directly in doResolveImportURL");
+      return localURL;
     }
 
     // use es-module-shims to find the module url.

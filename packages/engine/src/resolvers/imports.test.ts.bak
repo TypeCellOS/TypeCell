@@ -14,10 +14,10 @@ const resolver = new ImportShimResolver(resolvers, localResolver);
 
 jest.setTimeout(30000);
 describe("import tests", () => {
-  // it("directly importing a local module", async () => {
-  //   const ret = await resolver.resolveImport("react");
-  //   expect(ret.module).toBe("fakereact");
-  // });
+  it("directly importing a local module", async () => {
+    const ret = await resolver.resolveImport("react");
+    expect(ret.module).toBe("fakereact");
+  });
 
   it("directly importing a module", async () => {
     const ret = await resolver.resolveImport("preact");
