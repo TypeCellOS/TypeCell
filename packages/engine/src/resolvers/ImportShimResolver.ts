@@ -12,7 +12,6 @@ function createBlob(source: string) {
 
 export class ImportShimResolver {
   private importShim: any;
-  // private importShimOriginalResolve: any;
 
   public constructor(
     private readonly resolvers: ExternalModuleResolver[],
@@ -25,6 +24,12 @@ export class ImportShimResolver {
     }
     importShimCreated = true;
   }
+
+  /**
+   * Resolve a moduleName (e.g.: "lodash", "d3") to the actual module
+   * using the resolvers passed to the constructor
+   */
+  public resolveImport = _.memoize(this.doResolveImport);
 
   private async doResolveImport(moduleName: string) {
     await this.initializeImportShim();
@@ -42,37 +47,96 @@ export class ImportShimResolver {
     };
   }
 
+  /**
+   * This is called by es-module-shims whenever it wants to resolve an Import.
+   */
   private async doResolveImportURL(
-    moduleName: string,
-    parent: string,
-    importShimResolve: any
-  ) {
+    moduleName: string, // can be a relative URL, absolute URL, or "package name"
+    parent: string, // the parent URL the package is loaded from
+    importShimResolve: any // the original resolve function from es-module-shims
+  ): Promise<string> {
+    // first try to see if the LocalResolver wants to resolve this module
+    const localURL = await this.tryLocalResolver(moduleName);
+    if (localURL) {
+      throw new Error(
+        "unexpected, this case should have been handled in doResolveImport"
+      );
+      // return localURL;
+    }
+
+    // use es-module-shims to find the module url.
+    // This basically resolves the URL (parent+moduleName) to an absolute identifier
+    // It also takes into account Import Maps, but we don't use those
+    const defaultURL = await importShimResolve(moduleName, parent);
+
+    // Try the registered resolvers
     for (let resolver of this.resolvers) {
-      const result = await resolver.getModuleInformation(moduleName, parent);
-      if (result) {
-        if (result.type === "module") {
-          const local = await this.localResolver.getModule(
-            result.module,
-            result.mode
+      if (defaultURL) {
+        // Does the URL we're trying to load match with the resolver?
+        const parsedModule = await resolver.getModuleInfoFromURL(defaultURL);
+        if (parsedModule) {
+          // Maybe we're trying to load a nested Package,
+          // that we want to override with a package from LocalResolver
+          const localURL = await this.tryLocalResolver(
+            parsedModule.module,
+            parsedModule.mode
           );
-          if (local) {
-            return this.getLocalURLForModule(local, result.module, result.mode);
-          } else {
-            // continue with original url
-            return importShimResolve(moduleName, parent);
+          if (localURL) {
+            return localURL;
+          }
+
+          // hack to use maplibre instead of mapbox for react-map-gl
+          if (parsedModule.module === "mapbox-gl") {
+            const parsedParent = await resolver.getModuleInfoFromURL(parent);
+            if (parsedParent?.module === "react-map-gl") {
+              return this.doResolveImportURL(
+                "maplibre-gl",
+                parent,
+                importShimResolve
+              );
+            }
           }
         }
-        return result.url; //this.importShimOriginalResolve(result.url);
+      } else {
+        // moduleName + parent combination couldn't be resolved by es-module-shims
+        // (i.e.: it's not an absolute URL, but just a package name like "lodash")
+        // Try to get a CDN URL from our resolver
+        const resolverURL = await resolver.getURLForModule(moduleName, parent);
+        if (resolverURL) {
+          return resolverURL;
+        }
       }
     }
 
-    if (moduleName.startsWith("https://")) {
-      return moduleName;
-    }
-    //return undefined;
-    throw new Error("can't resolve " + moduleName);
+    return defaultURL;
   }
 
+  private async tryLocalResolver(
+    moduleName: string,
+    mode?: string
+  ): Promise<string | undefined> {
+    const local = await this.localResolver.getModule(moduleName, mode);
+    if (local) {
+      console.log("loading local package", moduleName);
+      return this.getLocalURLForModule(local, moduleName, mode);
+    }
+    return undefined;
+  }
+
+  /**
+   * Let's say we always want to use the "react" package shipped with TypeCell, so
+   * we don't get multiple react packages in the tree (this breaks React).
+   *
+   * The LocalResolver can return our instance of react for moduleName "react".
+   *
+   * We then use this function to create a Blob that refers to our react instance.
+   *
+   * We create a blob so that if we load a library that depends on React from a CDN
+   * (e.g.: a react component), we can rewrite the nested dependency to React to use our Blob URL.
+   *
+   * This function returns the Blob URL, the rewriting is done using es-module-shims and
+   * the logic in doResolveImportURL.
+   */
   private getLocalURLForModule(
     loadedModule: any,
     moduleName: string,
@@ -82,20 +146,26 @@ export class ImportShimResolver {
       /[^a-zA-Z0-9_]/g,
       "$"
     );
-    (window as any)["__typecell_" + safeName] = loadedModule;
+
+    if ((window as any)["__typecell_url_" + safeName]) {
+      // already loaded
+      return (window as any)["__typecell_url_" + safeName];
+    }
+
+    (window as any)["__typecell_pkg_" + safeName] = loadedModule;
     const list = Object.keys(loadedModule).filter(
       (key) => key !== "default" && key !== "window"
     );
 
     const url = createBlob(`
-      const ${safeName} = window.__typecell_${safeName};
+      const ${safeName} = window.__typecell_pkg_${safeName};
       const { ${list.join(",")} } = ${safeName};
       export { ${list.join(",")} };
       export default ${safeName};
     `);
+    (window as any)["__typecell_url_" + safeName] = url;
     return url;
   }
-  public resolveImport = _.memoize(this.doResolveImport);
 
   private onImportShimResolve = async (
     id: string,
@@ -122,33 +192,5 @@ export class ImportShimResolver {
 
     await import("es-module-shims");
     this.importShim = window.importShim as any;
-
-    // this.importShim.skip = /none/;
-    // const dynamicImport = importShim.dynamicImport;
-    // importShim.dynamicImport = async (id: any) => {
-    //   const res = await dynamicImport(id);
-    //   return res;
-    // };
-
-    // this.importShimOriginalResolve = this.importShim.resolve;
-    // this.importShim.resolve = this.onImportShimResolve;
-    // this.importShim.resolve = (id: string, parent: string) => {
-    //   //   if (moduleName.startsWith("/npm:")) {
-    //   //     // jspm, e.g.: https://ga.jspm.io/npm:es-module-shims@0.10.1/dist/es-module-shims.min.js
-    //   //   } else
-    //   debugger;
-    //   let ret = this.memoizedResolveNestedModule(id);
-    //   if (!ret) {
-    //     if (
-    //       parent.startsWith("https://cdn.skypack.dev/-/react-map-gl") &&
-    //       id.startsWith("/-/mapbox-gl@")
-    //     ) {
-    //       ret = resolve("https://cdn.skypack.dev/maplibre-gl", parent);
-    //     } else {
-    //       ret = resolve(id, parent);
-    //     }
-    //   }
-    //   return ret;
-    // };
   }
 }

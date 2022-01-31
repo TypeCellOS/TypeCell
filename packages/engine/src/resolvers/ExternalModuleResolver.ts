@@ -1,14 +1,11 @@
 export abstract class ExternalModuleResolver {
-  public abstract getModuleInformation(
+  public abstract getURLForModule(
     moduleName: string,
     parent: string
-  ): Promise<
+  ): Promise<undefined | string>;
+
+  public abstract getModuleInfoFromURL(url: string): Promise<
     | {
-        type: "url";
-        url: string;
-      }
-    | {
-        type: "module";
         module: string;
         mode?: string;
       }

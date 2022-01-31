@@ -1,96 +1,19 @@
 import {
   CodeModel,
   Engine,
+  ImportShimResolver,
   ResolvedImport,
   SkypackResolver,
-  ImportShimResolver,
-  LocalModuleResolver,
 } from "@typecell-org/engine";
-import * as markdownit from "markdown-it";
-import * as react from "react";
-import * as jsxruntime from "react/jsx-runtime";
-import * as reactdnd from "react-dnd";
-import * as reactdom from "react-dom";
-import * as probe from "probe.gl";
-import * as dreact from "@deck.gl/react";
-
 import getExposeGlobalVariables from "../lib/exports";
+import { LocalResolver } from "./LocalResolver";
 import { TypeCellCompiledCodeProvider } from "./typecell/TypeCellCompiledCodeProvider";
-
-const agg = require("@deck.gl/aggregation-layers") as any;
-const lutil = require("@loaders.gl/core") as any;
-const limg = require("@loaders.gl/images") as any;
-const sz = require("frontend-collective-react-dnd-scrollzone");
-
-// TODO: make async
-function resolveNestedModule(id: string, mode?: string) {
-  function isModule(id: string, moduleName: string) {
-    return id === moduleName || id === "https://cdn.skypack.dev/" + moduleName;
-  }
-  debugger;
-  if (isModule(id, "markdown-it")) {
-    return markdownit;
-  }
-
-  if (
-    isModule(id, "react") &&
-    (!mode || mode === "imports/optimized/react.js")
-  ) {
-    return react;
-  }
-
-  if (isModule(id, "react") && mode === "imports/unoptimized/jsx-runtime.js") {
-    return jsxruntime;
-  }
-
-  if (isModule(id, "react-dom")) {
-    return reactdom;
-  }
-
-  if (isModule(id, "frontend-collective-react-dnd-scrollzone")) {
-    return sz;
-  }
-
-  if (isModule(id, "react-dnd")) {
-    return reactdnd;
-  }
-
-  // We might want to remove hardcoded dependency for deckgl... We can't do this for every library..
-
-  if (isModule(id, "@deck.gl/react")) {
-    // workaround for https://github.com/skypackjs/skypack-cdn/issues/242
-    return dreact;
-  }
-
-  if (isModule(id, "probe.gl")) {
-    // workaround for https://github.com/skypackjs/skypack-cdn/issues/242
-    return probe;
-  }
-
-  if (isModule(id, "@loaders.gl/core")) {
-    // workaround for https://github.com/skypackjs/skypack-cdn/issues/242
-    return lutil;
-  }
-
-  if (isModule(id, "@deck.gl/aggregation-layers")) {
-    // workaround for https://github.com/skypackjs/skypack-cdn/issues/242
-    return agg;
-  }
-
-  if (isModule(id, "@loaders.gl/images")) {
-    // workaround for https://github.com/skypackjs/skypack-cdn/issues/242
-    return limg;
-  }
-
-  return undefined;
-}
 
 const skypackResolver = new SkypackResolver();
 const importShimResolver = new ImportShimResolver(
   [skypackResolver],
-  new LocalModuleResolver(resolveNestedModule)
+  LocalResolver
 );
-// todo: caches
 
 const cache = new Map<string, ResolvedImport>();
 
