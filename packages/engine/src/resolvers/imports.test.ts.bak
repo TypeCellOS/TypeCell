@@ -1,0 +1,26 @@
+import ImportShimResolver from "./ImportShimResolver";
+import { LocalModuleResolver } from "./LocalModuleResolver";
+import SkypackResolver from "./SkypackResolver";
+
+const localResolver = new LocalModuleResolver(async (moduleName) => {
+  if (moduleName === "react") {
+    return "fakereact";
+  }
+  return undefined;
+});
+
+const resolvers: any[] = [new SkypackResolver()];
+const resolver = new ImportShimResolver(resolvers, localResolver);
+
+jest.setTimeout(30000);
+describe("import tests", () => {
+  it("directly importing a local module", async () => {
+    const ret = await resolver.resolveImport("react");
+    expect(ret.module).toBe("fakereact");
+  });
+
+  it("directly importing a module", async () => {
+    const ret = await resolver.resolveImport("preact");
+    expect(ret).toBe("fakereact");
+  });
+});

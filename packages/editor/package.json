@@ -126,6 +126,7 @@
     "copy-docs": "rimraf public/_docs && mkdir public/_docs && node copy-docs.mjs > public/_docs/index.json && cp -rf ../../docs/. public/_docs",
     "build": "tsc -v && npm run copytypes && npm run copy-docs",
     "build-react": "cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true craco build",
+    "build-react-stats": "npm run build-react -- --stats && npx webpack-bundle-analyzer build/bundle-stats.json",
     "lint": "eslint src",
     "test": "craco test",
     "test-no-watch": "craco test --watchAll=false",

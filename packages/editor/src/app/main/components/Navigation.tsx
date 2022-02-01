@@ -9,15 +9,14 @@ import { VscSignIn } from "react-icons/vsc";
 import { getStoreService } from "../../../store/local/stores";
 import { Logo } from "./Logo";
 import { ProfilePopup } from "./ProfilePopup";
+import styles from "./Navigation.module.css";
 
 const ProductHome = () => {
   return (
     <>
       <Logo></Logo>
-      <span style={{ fontWeight: "bold", marginTop: 3, marginLeft: 10 }}>
-        {" "}
-        Alpha community preview
-      </span>
+      <span className={styles.sub}> Alpha preview</span>
+      <div className={styles.separator}></div>
     </>
   );
 };
@@ -31,7 +30,20 @@ export const Navigation = observer(() => {
   return (
     <AN
       renderProductHome={ProductHome}
-      primaryItems={[]}
+      primaryItems={[
+        <a
+          href="/docs"
+          className={styles.link}
+          onClick={(e) => {
+            e.preventDefault();
+            navigationStore.navigateToDocs();
+          }}>
+          Documentation
+        </a>,
+        // <PrimaryButton onClick={navigationStore.navigateToDocs}>
+        //   Documentation
+        // </PrimaryButton>,
+      ]}
       renderProfile={observer(() => (
         <>
           {sessionStore.isLoggedIn && (

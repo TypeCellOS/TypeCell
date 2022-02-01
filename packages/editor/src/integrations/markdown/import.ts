@@ -68,7 +68,7 @@ export function markdownToYDoc(markdown: string) {
       element.setAttribute("language", "markdown");
     } else {
       element.insert(0, [new Y.XmlText(cell.node.value)]);
-      element.setAttribute("language", "typescript");
+      element.setAttribute("language", cell.node.lang || "typescript");
     }
 
     return element;
