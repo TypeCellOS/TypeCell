@@ -9,6 +9,7 @@ import getExposeGlobalVariables from "../lib/exports";
 import { LocalResolver } from "./LocalResolver";
 import { TypeCellCompiledCodeProvider } from "./typecell/TypeCellCompiledCodeProvider";
 
+// Used for resolving NPM imports
 const skypackResolver = new SkypackResolver();
 const importShimResolver = new ImportShimResolver(
   [skypackResolver],
@@ -17,6 +18,30 @@ const importShimResolver = new ImportShimResolver(
 
 const cache = new Map<string, ResolvedImport>();
 
+/**
+ * The resolver is responsible for resolving imports from user code.
+ *
+ * This resolver supports the following:
+ *
+ * 1. TypeCell library imports
+ *
+ *  import * as typecell from "typecell";
+ *
+ * This resolves to the object from ../lib/exports
+ *
+ * 2. NPM imports
+ *
+ *  import * as _ from "lodash";
+ *
+ * This uses the `importShimResolver` to resolve the module via Skypack
+ * (with some exceptions that are loaded locally via LocalResolver)
+ *
+ * 3. TypeCell Notebook imports
+ *
+ *  import * as nb from "!@username/notebook"
+ *
+ * This loads a notebook from TypeCell + compiles and executes it whenever it changes
+ */
 export function getTypeCellResolver<T extends CodeModel>(
   documentId: string,
   cacheKey: string,
@@ -30,6 +55,7 @@ export function getTypeCellResolver<T extends CodeModel>(
     forModel: T
   ): Promise<ResolvedImport> => {
     if (moduleName === "typecell") {
+      // Resolve the typecell helper library
       return {
         module: {
           default: getExposeGlobalVariables(documentId),
@@ -56,9 +82,11 @@ async function resolveImport(
   ) => TypeCellCompiledCodeProvider
 ): Promise<ResolvedImport> {
   if (!moduleName.startsWith("!@")) {
+    // It's a regular NPM import like `import * as _ from "lodash"`;
     return importShimResolver.resolveImport(moduleName);
   }
 
+  // We're loading a TypeCell notebook (e.g.: `import * as nb from "!@user/notebook"`)
   if (!createTypeCellCompiledCodeProvider) {
     throw new Error("typecell modules not supported");
   }
