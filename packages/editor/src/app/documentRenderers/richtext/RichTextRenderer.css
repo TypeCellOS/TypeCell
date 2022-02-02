@@ -6,6 +6,9 @@
 }
 
 .editor {
+  /* margin: 0 auto; */
+  /* max-width: 731px; */
+  padding: 0 calc((100% - 731px) / 2);
   padding-bottom: 1rem; /*ensures drop indicator fits at the bottom of the editor*/
 }
 
@@ -34,7 +37,7 @@
 }
 
 .ProseMirror blockquote.is-empty::before {
-  margin-top: 0.5rem; /* same margin as paragraph, because we want to show it in the exact same position as child paragraph */
+  padding-top: 0.5rem; /* same margin as paragraph, because we want to show it in the exact same position as child paragraph */
 }
 
 .ProseMirror pre {
@@ -47,16 +50,13 @@
 .ProseMirror blockquote {
   border-left: 2px solid #262626;
   color: #262626;
+  margin: 0;
 }
 
 .ProseMirror hr {
   border: 1px solid #262626;
   border-radius: 5px;
   background-color: #262626;
-}
-
-blockquote {
-  margin: 0;
 }
 
 .ProseMirror ul,

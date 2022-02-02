@@ -32,43 +32,43 @@ export function extendAsBlock<NodeOptions>(
       };
     },
 
-    addNodeView() {
-      return (props) => {
-        if (!props.node.attrs["block-id"]) {
-          // If we don't have a block-id, we don't really need the node-view wrapper with all corresponding <div>s
-          return undefined as any;
-        }
-        const renderer = ReactNodeViewRenderer(
-          Block(this.type.spec.toDOM!, this.options),
-          {
-            // don't use the built-in stopEvent from TipTap
-            // because it messes with drag events
-            // (we don't use tiptap / PM draggable)
-            stopEvent(event) {
-              const target = event.event.target as HTMLElement;
-              const isInContentDomElement = (
-                renderer as any
-              ).contentDOM?.contains(target);
-              if (isInContentDomElement) {
-                // the event is in the contentDOM element.
-                // Events there (e.g. paste, clicks) should be handled by PM
-                return false;
-              }
-              const isInDomElement = (renderer as any).dom?.contains(target);
+    // addNodeView() {
+    //   return (props) => {
+    //     if (!props.node.attrs["block-id"]) {
+    //       // If we don't have a block-id, we don't really need the node-view wrapper with all corresponding <div>s
+    //       return undefined as any;
+    //     }
+    //     const renderer = ReactNodeViewRenderer(
+    //       Block(this.type.spec.toDOM!, this.options),
+    //       {
+    //         // don't use the built-in stopEvent from TipTap
+    //         // because it messes with drag events
+    //         // (we don't use tiptap / PM draggable)
+    //         stopEvent(event) {
+    //           const target = event.event.target as HTMLElement;
+    //           const isInContentDomElement = (
+    //             renderer as any
+    //           ).contentDOM?.contains(target);
+    //           if (isInContentDomElement) {
+    //             // the event is in the contentDOM element.
+    //             // Events there (e.g. paste, clicks) should be handled by PM
+    //             return false;
+    //           }
+    //           const isInDomElement = (renderer as any).dom?.contains(target);
 
-              if (!isInDomElement) {
-                console.warn("unexpected, received event not in dom element");
-              }
-              // The event is in the element, but not in the contentDOM.
-              // In this case we expect to handle the event in the React code of the NodeView
-              // (e.g.: drag handle clicks)
-              return true;
-            },
-          }
-        )(props);
-        return renderer;
-      };
-    },
+    //           if (!isInDomElement) {
+    //             console.warn("unexpected, received event not in dom element");
+    //           }
+    //           // The event is in the element, but not in the contentDOM.
+    //           // In this case we expect to handle the event in the React code of the NodeView
+    //           // (e.g.: drag handle clicks)
+    //           return true;
+    //         },
+    //       }
+    //     )(props);
+    //     return renderer;
+    //   };
+    // },
 
     addKeyboardShortcuts() {
       // These extra keyboard shortcuts are similar to ListItem

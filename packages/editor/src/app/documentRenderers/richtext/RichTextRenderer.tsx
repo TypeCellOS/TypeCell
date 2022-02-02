@@ -7,6 +7,7 @@ import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
 import Placeholder from "@tiptap/extension-placeholder";
 import Strike from "@tiptap/extension-strike";
+import DropCursor from "@tiptap/extension-dropcursor";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
@@ -39,6 +40,7 @@ import { TableBlock } from "./extensions/blocktypes/TableBlock";
 import { Comments } from "./extensions/comments/Comments";
 import { CommentStore } from "./extensions/comments/CommentStore";
 import { CommentWrapper } from "./extensions/comments/CommentWrapper";
+import { DraggableBlocksExtension } from "./extensions/draggableBlocks/DraggableBlocksExtension";
 import { Comment } from "./extensions/marks/Comment";
 import Hyperlink from "./extensions/marks/Hyperlink";
 import { Underline } from "./extensions/marks/Underline";
@@ -168,7 +170,8 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       TableHeader,
       TableRow,
       TypeCellNodeBlock,
-
+      DraggableBlocksExtension,
+      DropCursor.configure({ width: 5, color: "#ddeeff" }),
       // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
       // should be handled before Enter handlers in other components like splitListItem
       SlashCommandExtension.configure({
