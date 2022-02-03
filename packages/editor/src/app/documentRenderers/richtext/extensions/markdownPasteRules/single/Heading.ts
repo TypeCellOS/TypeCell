@@ -5,7 +5,7 @@ import singleLineMarkdownRuleBuilder from "./markdownSingleLine";
  * Configure Heading for markdown(# or ## etc.) parsing
  */
 const MarkdownHeading = Heading.extend({
-  addPasteRules() {
+  addProseMirrorPlugins() {
     return [
       singleLineMarkdownRuleBuilder(
         "mdHeading",

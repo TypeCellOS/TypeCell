@@ -7,7 +7,7 @@ import "./CodeBlock.module.css";
  * Configure CodeBlockLowlight for markdown(4 whitespaces/tab) parsing
  */
 const MarkdownCodeBlock = CodeBlockLowlight.configure({ lowlight }).extend({
-  addPasteRules() {
+  addProseMirrorPlugins() {
     return [
       multipleLineMarkdownRuleBuilder(
         "mdCodeBlock",

@@ -37,7 +37,7 @@ export function getNearestComment(state: EditorState) {
 
   // IDs of comment marks which the cursor is in.
   const markIds = new Set(
-    getMarksBetween(commentRange.from, commentRange.to, state).map(
+    getMarksBetween(commentRange.from, commentRange.to, state.doc).map(
       (mark) => mark.mark.attrs["id"]
     )
   );

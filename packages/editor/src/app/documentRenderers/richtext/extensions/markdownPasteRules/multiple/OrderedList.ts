@@ -5,7 +5,7 @@ import multipleLineMarkdownRuleBuilder from "./markdownMultipleLines";
  * Configure OrderedList for markdown(1. or 2. etc.) parsing
  */
 const MarkdownOrderedList = OrderedList.extend({
-  addPasteRules() {
+  addProseMirrorPlugins() {
     return [
       multipleLineMarkdownRuleBuilder(
         "mdOrderedList",

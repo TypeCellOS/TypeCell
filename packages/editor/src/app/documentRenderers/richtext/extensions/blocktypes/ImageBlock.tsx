@@ -12,7 +12,7 @@ const ImageBlock = extendAsBlock(Image, {
 
   // Code of Slava Vishnyakov
   // https://gist.github.com/slava-vishnyakov/16076dff1a77ddaca93c4bccd4ec4521
-  addPasteRules() {
+  addProseMirrorPlugins() {
     return [
       new Plugin({
         key: new PluginKey("imagePasteRule"),

@@ -41,7 +41,7 @@ export const CommentWrapper: React.FC<CommentWrapperProps> = (props) => {
         getMarksBetween(
           commentRange.from,
           commentRange.to,
-          props.editor.state
+          props.editor.state.doc
         ).map((mark) => mark.mark.attrs["id"])
       ),
     ];

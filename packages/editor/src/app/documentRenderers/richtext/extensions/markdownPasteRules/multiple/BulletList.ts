@@ -5,7 +5,7 @@ import multipleLineMarkdownRuleBuilder from "./markdownMultipleLines";
  * Configure BulletList for markdown(* or - or + ) parsing
  */
 const MarkdownBulletList = BulletList.extend({
-  addPasteRules() {
+  addProseMirrorPlugins() {
     return [
       multipleLineMarkdownRuleBuilder(
         "mdBulletList",

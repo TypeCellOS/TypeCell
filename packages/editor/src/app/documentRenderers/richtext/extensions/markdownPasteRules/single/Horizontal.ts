@@ -5,7 +5,7 @@ import singleLineMarkdownRuleBuilder from "./markdownSingleLine";
  * Configure HorizontalRule for markdown(--- or ___ or ***) parsing
  */
 const MarkdownHorizontalRule = HorizontalRule.extend({
-  addPasteRules() {
+  addProseMirrorPlugins() {
     return [
       singleLineMarkdownRuleBuilder(
         "mdHorizontal",

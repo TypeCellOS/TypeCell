@@ -5,7 +5,7 @@ import multipleLineMarkdownRuleBuilder from "./markdownMultipleLines";
  * Configure Blockquote for markdown(> ) parsing
  */
 const MarkdownBlockquote = Blockquote.extend({
-  addPasteRules() {
+  addProseMirrorPlugins() {
     return [
       multipleLineMarkdownRuleBuilder(
         "mdBlockquote",

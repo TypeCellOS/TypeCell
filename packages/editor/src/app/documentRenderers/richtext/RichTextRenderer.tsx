@@ -11,6 +11,7 @@ import DropCursor from "@tiptap/extension-dropcursor";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
+import GapCursor from "@tiptap/extension-gapcursor";
 import Text from "@tiptap/extension-text";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { observer } from "mobx-react-lite";
@@ -21,7 +22,7 @@ import SandboxedExecutionHost from "../../../runtime/executor/executionHosts/san
 // import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost";
 import { DocumentResource } from "../../../store/DocumentResource";
 import { getStoreService } from "../../../store/local/stores";
-import { AutoId } from "./extensions/autoid/AutoId";
+import { UniqueID } from "./extensions/autoid/UniqueID";
 import {
   BlockQuoteBlock,
   BulletList,
@@ -52,6 +53,8 @@ import { EngineContext } from "./extensions/typecellnode/EngineContext";
 import InlineMenu from "./menus/InlineMenu";
 import TableMenu from "./menus/TableInlineMenu";
 import "./RichTextRenderer.css";
+import { blocks } from "./extensions/newblocks";
+import { extensions } from "@tiptap/core";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -105,6 +108,12 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       console.log(editor.getJSON());
     },
     extensions: [
+      extensions.ClipboardTextSerializer,
+      extensions.Commands,
+      extensions.Editable,
+      extensions.FocusEvents,
+      extensions.Tabindex,
+      GapCursor,
       // TODO
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,
@@ -124,14 +133,23 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
         placeholder: "", // actual placeholders are defined per block
         showOnlyCurrent: true, // use showOnlyCurrent to make sure the nodeviews are rerendered when cursor moves
       }),
-      AutoId,
+      UniqueID.configure({
+        types: [
+          "paragraph",
+          "block",
+          "tcblock",
+          "bulletList",
+          "listItem",
+          "heading",
+        ],
+      }),
       HardBreak,
       Comments,
       MultiSelection,
 
       // basics:
       Text,
-      Document,
+      // Document,
 
       // marks:
       Bold,
@@ -143,33 +161,34 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       Hyperlink,
 
       // custom blocks:
-      ImageBlock,
-      BlockQuoteBlock.configure({ placeholder: "Empty quote" }),
-      CodeBlockBlock,
-      HeadingBlock.configure({ placeholder: "Heading" }),
-      HorizontalRuleBlock,
-      ParagraphBlock.configure({
-        placeholder: "Enter text or type '/' for commands",
-        placeholderOnlyWhenSelected: true,
-      }),
-      ListItemBlock.configure({ placeholder: "List item" }),
-      TableBlock,
-      IndentItemBlock.configure({
-        HTMLAttributes: {
-          class: "indent",
-        },
-      }),
-      BulletList,
-      OrderedList,
+      ...blocks,
+      // ImageBlock,
+      // BlockQuoteBlock.configure({ placeholder: "Empty quote" }),
+      // CodeBlockBlock,
+      // HeadingBlock.configure({ placeholder: "Heading" }),
+      // HorizontalRuleBlock,
+      // ParagraphBlock.configure({
+      //   placeholder: "Enter text or type '/' for commands",
+      //   placeholderOnlyWhenSelected: true,
+      // }),
+      // ListItemBlock.configure({ placeholder: "List item" }),
+      // TableBlock,
+      // IndentItemBlock.configure({
+      //   HTMLAttributes: {
+      //     class: "indent",
+      //   },
+      // }),
+      // BulletList,
+      // OrderedList,
 
       // custom containers:
-      IndentGroup,
+      // IndentGroup,
 
       // from tiptap (unmodified)
-      TableCell,
-      TableHeader,
-      TableRow,
-      TypeCellNodeBlock,
+      // TableCell,
+      // TableHeader,
+      // TableRow,
+      // TypeCellNodeBlock,
       DraggableBlocksExtension,
       DropCursor.configure({ width: 5, color: "#ddeeff" }),
       // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
@@ -185,10 +204,11 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
           },
         },
       }),
-      TrailingNode,
+      // TrailingNode,
     ],
     enableInputRules: true,
     enablePasteRules: true,
+    enableCoreExtensions: false,
     editorProps: {
       attributes: {
         class: "editor",

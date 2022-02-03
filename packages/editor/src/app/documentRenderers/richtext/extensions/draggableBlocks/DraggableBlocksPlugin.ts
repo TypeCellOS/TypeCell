@@ -55,7 +55,12 @@ function getDraggableNodeFromCoords(
     return undefined;
   }
 
-  while (node && node.parentNode && node.parentNode !== view.dom) {
+  while (
+    node &&
+    node.parentNode &&
+    node.parentNode !== view.dom &&
+    !node.hasAttribute?.("data-id")
+  ) {
     node = node.parentNode as HTMLElement;
   }
   return node;
