@@ -1,0 +1,29 @@
+.userInfo {
+    width: 30%;
+}
+
+.textInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.link {
+    margin-bottom: 5px;
+}
+
+.formButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 15px;
+}
+
+.separator {
+    border-top: 1px solid #bbb;
+}
+
+a {
+    color: inherit;
+}

@@ -1,3 +1,7 @@
+.notebookOverview {
+  width: 70%;
+}
+
 .room {
   padding: 8px 12px;
   border-radius: 4px;
@@ -19,7 +23,7 @@
 
 .notebookList {
   margin-top: 4px;
-  width: 100%;
+  /*flex-grow: 2;*/
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;

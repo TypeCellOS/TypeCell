@@ -155,8 +155,9 @@ export const NotebookOverview = observer(function (
   );
 
   return (
-    <div>
-      {/* <div className="header">{props.owner}'s notebooks</div> */}
+    <div className={styles.notebookOverview}>
+      {/* <div clashsName="header">{props.owner}'s notebooks</div> */}
+      <h5>Public Documents</h5>
       <Textfield
         placeholder="Type to filter notebooks..."
         onChange={function (event) {
