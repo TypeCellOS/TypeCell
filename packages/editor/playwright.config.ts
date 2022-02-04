@@ -53,12 +53,12 @@ const config: PlaywrightTestConfig = {
       },
     },
 
-    {
-      name: "firefox",
-      use: {
-        ...devices["Desktop Firefox"],
-      },
-    },
+    // {
+    //   name: "firefox",
+    //   use: {
+    //     ...devices["Desktop Firefox"],
+    //   },
+    // },
 
     {
       name: "webkit",
@@ -103,7 +103,7 @@ const config: PlaywrightTestConfig = {
   webServer: {
     command: "npm start",
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 180 * 1000,
     port: 3000,
   },
 };
