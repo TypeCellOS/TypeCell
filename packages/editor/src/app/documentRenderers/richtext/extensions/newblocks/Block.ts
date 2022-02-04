@@ -103,6 +103,16 @@ export const Block = Node.create<IBlock>({
         },
         parseHTML: (element) => element.getAttribute("data-blockStyle"),
       },
+      headingType: {
+        default: undefined,
+        keepOnSplit: false,
+        renderHTML: (attributes) => {
+          return {
+            "data-headingType": attributes.headingType,
+          };
+        },
+        parseHTML: (element) => element.getAttribute("data-headingType"),
+      },
     };
   },
 
@@ -132,12 +142,12 @@ export const Block = Node.create<IBlock>({
 
   addInputRules() {
     return [
-      ...[1].map((level) => {
+      ...[1, 2, 3].map((level) => {
         return textblockTypeInputRuleSameNodeType({
           find: new RegExp(`^(#{1,${level}})\\s$`),
           type: this.type,
           getAttributes: {
-            listType: "li",
+            headingType: level,
           },
         });
       }),

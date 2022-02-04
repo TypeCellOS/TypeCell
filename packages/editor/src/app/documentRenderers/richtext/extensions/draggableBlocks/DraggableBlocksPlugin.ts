@@ -87,7 +87,9 @@ function dragStart(e: DragEvent, view: EditorView) {
     e.dataTransfer.clearData();
     e.dataTransfer.setData("text/html", dom.innerHTML);
     e.dataTransfer.setData("text/plain", text);
-
+    e.dataTransfer.effectAllowed = "move";
+    const node = getDraggableNodeFromCoords(coords, view);
+    e.dataTransfer.setDragImage(node as any, 0, 0);
     view.dragging = { slice, move: true };
   }
 }
@@ -121,6 +123,9 @@ export const CreateDraggableBlocksPlugin = () => {
       };
     },
     props: {
+      // handleDOMEvents: {
+
+      // },
       //   handleDOMEvents: {
       //     dragend(view, event) {
       //       //   setTimeout(() => {
@@ -139,6 +144,10 @@ export const CreateDraggableBlocksPlugin = () => {
         return false;
       },
       handleDOMEvents: {
+        // drag(view, event) {
+        //   // event.dataTransfer!.;
+        //   return false;
+        // },
         mouseleave(view, event) {
           if (!dropElement) {
             throw new Error("unexpected");

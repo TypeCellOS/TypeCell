@@ -27,7 +27,7 @@ export const PreviousBlockTypePlugin = () => {
             view.dispatch(
               view.state.tr.setMeta(PLUGIN_KEY, { clearUpdate: true })
             );
-            // }, 2000);
+            // }, 10000);
           }
         },
       };
@@ -81,6 +81,7 @@ export const PreviousBlockTypePlugin = () => {
                 listType: node.node.attrs.listType,
                 blockColor: node.node.attrs.blockColor,
                 blockStyle: node.node.attrs.blockStyle,
+                headingType: node.node.attrs.headingType,
                 depth: newState.doc.resolve(node.pos).depth,
               };
 
@@ -88,6 +89,7 @@ export const PreviousBlockTypePlugin = () => {
                 listType: oldNode.node.attrs.listType,
                 blockColor: oldNode.node.attrs.blockColor,
                 blockStyle: oldNode.node.attrs.blockStyle,
+                headingType: oldNode.node.attrs.headingType,
                 depth: oldState.doc.resolve(oldNode.pos).depth,
               };
 

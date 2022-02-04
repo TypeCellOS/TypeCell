@@ -45,12 +45,37 @@
 .block > div:first-child {
   /* display: inline-block; */
   padding: 3px 0;
+  transition: font-size 0.2s;
 }
 
 .block > div:first-child::before {
   content: "";
   transition: all 0.2s;
   margin: 0px;
+}
+
+.blockOuter[data-prev-headingtype="1"] > .block > div:first-child,
+.blockOuter[data-headingtype="1"]:not([data-prev-headingtype])
+  > .block
+  > div:first-child {
+  font-size: 3em;
+  font-weight: bold;
+}
+
+.blockOuter[data-prev-headingtype="2"] > .block > div:first-child,
+.blockOuter[data-headingtype="2"]:not([data-prev-headingtype])
+  > .block
+  > div:first-child {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.blockOuter[data-prev-headingtype="3"] > .block > div:first-child,
+.blockOuter[data-headingtype="3"]:not([data-prev-headingtype])
+  > .block
+  > div:first-child {
+  font-size: 1.3em;
+  font-weight: bold;
 }
 
 [data-prev-depthchange="1"] {
