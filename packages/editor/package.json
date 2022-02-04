@@ -128,7 +128,7 @@
     "lint": "eslint src",
     "test": "craco test",
     "test-no-watch": "craco test --watchAll=false",
-    "eject": "craco eject"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
