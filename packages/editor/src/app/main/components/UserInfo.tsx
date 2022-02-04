@@ -132,20 +132,20 @@ export const UserInfo = function (props: {user: string}) {
           <div>{props.user}</div>
         </div>
         <div className={styles.separator}/>
-        {editableInfo.bio != "" ?
+        {editableInfo.bio !== "" ?
           <>
             <div className={styles.infoBlock}>{editableInfo.bio}</div>
             <div className={styles.separator}/>
           </> : <></>}
-        {editableInfo.github != "" || editableInfo.twitter != "" ?
+        {editableInfo.github !== "" || editableInfo.twitter != "" ?
           <>
             <div className={styles.infoBlock}>
-              {editableInfo.github != "" ? <div><a href={editableInfo.github}>GitHub</a></div> : <></>}
-              {editableInfo.twitter != "" ? <div><a href={editableInfo.twitter}>Twitter</a></div> : <></>}
+              {editableInfo.github !== "" ? <div><a href={editableInfo.github}>GitHub</a></div> : <></>}
+              {editableInfo.twitter !== "" ? <div><a href={editableInfo.twitter}>Twitter</a></div> : <></>}
               <div className={styles.separator}/>
             </div>
           </> : <></>}
-        {getStoreService().sessionStore.isLoggedIn && props.user == getStoreService().sessionStore.loggedInUserId ?
+        {getStoreService().sessionStore.isLoggedIn && props.user === getStoreService().sessionStore.loggedInUserId ?
           <Button onClick={() => setEditing(true)}>Edit Profile</Button> :
           <></>
         }
