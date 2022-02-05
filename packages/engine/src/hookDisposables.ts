@@ -4,8 +4,59 @@ type FunctionPropertyNames<T> = {
 
 type Hook = {
   disposeAll: () => void;
-  unHook: () => void;
 };
+
+const glob = typeof window === "undefined" ? global : window;
+
+function globalFunctionOverride(
+  method: string,
+  disposes: Array<() => void>,
+  disposer: (ret: any, args: IArguments) => void
+) {
+  const originalFunction = (glob as any)[method];
+
+  return function (this: any) {
+    const args = arguments;
+    const ret = (originalFunction as any).apply(this, args); // TODO: fix any?
+    const ctx = this;
+    disposes.push(() => disposer.call(ctx, ret, args));
+    return ret;
+  };
+}
+
+export function executeWithHooks<T>(
+  execution: () => T,
+  disposers: Array<() => void>
+) {
+  const execute = () => {
+    // manipulate execution scope
+    (setTimeout as any) = globalFunctionOverride(
+      "setTimeout",
+      disposers,
+      (ret) => {
+        console.log("DISPOSING");
+        clearTimeout(ret as any);
+      }
+    );
+    (setInterval as any) = globalFunctionOverride(
+      "setInterval",
+      disposers,
+      (ret) => {
+        console.log("DISPOSING interval yo");
+        clearInterval(ret as any);
+      }
+    );
+
+    const executionPromise = execution();
+    return executionPromise;
+  };
+
+  console.log(disposers);
+
+  return {
+    execute,
+  };
+}
 
 function installHook<T, K extends FunctionPropertyNames<T>>(
   obj: T,
@@ -27,19 +78,16 @@ function installHook<T, K extends FunctionPropertyNames<T>>(
     disposeAll: () => {
       disposes.forEach((d) => d());
     },
-    unHook: () => {
-      obj[method] = originalFunction;
-    },
   };
 }
 
-const wnd = typeof window === "undefined" ? global : window;
-
 export function installHooks() {
   const hooks: Hook[] = [];
-  hooks.push(installHook(wnd, "setTimeout", (ret) => clearTimeout(ret as any)));
   hooks.push(
-    installHook(wnd, "setInterval", (ret) => clearInterval(ret as any))
+    installHook(glob, "setTimeout", (ret) => clearTimeout(ret as any))
+  );
+  hooks.push(
+    installHook(glob, "setInterval", (ret) => clearInterval(ret as any))
   );
 
   if (typeof EventTarget !== "undefined") {
@@ -57,9 +105,6 @@ export function installHooks() {
   return {
     disposeAll: () => {
       hooks.forEach((h) => h.disposeAll());
-    },
-    unHookAll: () => {
-      hooks.forEach((h) => h.unHook());
     },
   };
 }
