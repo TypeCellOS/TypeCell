@@ -1,14 +1,14 @@
 import styles from "./UserInfo.module.css";
-import React, {Fragment, useState} from "react";
+import React, { Fragment, useState } from "react";
 import Avatar from "react-avatar";
 import Button from "@atlaskit/button";
 import Textfield from "@atlaskit/textfield";
 import Form, { Field } from "@atlaskit/form";
 import TextArea from "@atlaskit/textarea";
-import {UserProfileData, userStore} from "../ProfileUtils";
-import {getStoreService} from "../../../store/local/stores";
+import { UserProfileData, userStore } from "../ProfileUtils";
+import { getStoreService } from "../../../store/local/stores";
 
-export const UserInfo = function (props: {user: string}) {
+export const UserInfo = function (props: { user: string }) {
   const [editing, setEditing] = useState(false);
   const [editableInfo, setEditableInfo] = useState(getUserProfileData);
 
@@ -20,7 +20,7 @@ export const UserInfo = function (props: {user: string}) {
   }
 
   function setUserProfileData(newInfo: UserProfileData) {
-    userStore.setUserProfileData(props.user, newInfo)
+    userStore.setUserProfileData(props.user, newInfo);
     setEditableInfo(newInfo);
     setEditing(false);
   }
@@ -41,22 +41,14 @@ export const UserInfo = function (props: {user: string}) {
               <Field
                 label={"Name"}
                 name={"name"}
-                defaultValue={editableInfo.name}
-              >
+                defaultValue={editableInfo.name}>
                 {({ fieldProps }: any) => (
                   <Fragment>
-                    <Textfield
-                      placeholder={"Name"}
-                      {...fieldProps}
-                    />
+                    <Textfield placeholder={"Name"} {...fieldProps} />
                   </Fragment>
                 )}
               </Field>
-              <Field
-                label={"Bio"}
-                name={"bio"}
-                defaultValue={editableInfo.bio}
-              >
+              <Field label={"Bio"} name={"bio"} defaultValue={editableInfo.bio}>
                 {({ fieldProps }: any) => (
                   <Fragment>
                     <TextArea
@@ -70,8 +62,7 @@ export const UserInfo = function (props: {user: string}) {
               <Field
                 label={"Links"}
                 name={"github"}
-                defaultValue={editableInfo.github}
-              >
+                defaultValue={editableInfo.github}>
                 {({ fieldProps }: any) => (
                   <Fragment>
                     <Textfield
@@ -82,10 +73,7 @@ export const UserInfo = function (props: {user: string}) {
                   </Fragment>
                 )}
               </Field>
-              <Field
-                name={"twitter"}
-                defaultValue={editableInfo.twitter}
-              >
+              <Field name={"twitter"} defaultValue={editableInfo.twitter}>
                 {({ fieldProps }: any) => (
                   <Fragment>
                     <Textfield
@@ -97,16 +85,10 @@ export const UserInfo = function (props: {user: string}) {
                 )}
               </Field>
               <div className={styles.formButtons}>
-                <Button
-                  onClick={() => setEditing(false)}
-                  appearance={"subtle"}
-                >
+                <Button onClick={() => setEditing(false)} appearance={"subtle"}>
                   Cancel
                 </Button>
-                <Button
-                  type={"submit"}
-                  appearance={"primary"}
-                >
+                <Button type={"submit"} appearance={"primary"}>
                   Save
                 </Button>
               </div>
@@ -131,24 +113,44 @@ export const UserInfo = function (props: {user: string}) {
           <h3>{editableInfo.name}</h3>
           <div>{props.user}</div>
         </div>
-        <div className={styles.separator}/>
-        {editableInfo.bio !== "" ?
+        <div className={styles.separator} />
+        {editableInfo.bio !== "" ? (
           <>
             <div className={styles.infoBlock}>{editableInfo.bio}</div>
-            <div className={styles.separator}/>
-          </> : <></>}
-        {editableInfo.github !== "" || editableInfo.twitter != "" ?
+            <div className={styles.separator} />
+          </>
+        ) : (
+          <></>
+        )}
+        {editableInfo.github !== "" || editableInfo.twitter !== "" ? (
           <>
             <div className={styles.infoBlock}>
-              {editableInfo.github !== "" ? <div><a href={editableInfo.github}>GitHub</a></div> : <></>}
-              {editableInfo.twitter !== "" ? <div><a href={editableInfo.twitter}>Twitter</a></div> : <></>}
-              <div className={styles.separator}/>
+              {editableInfo.github !== "" ? (
+                <div>
+                  <a href={editableInfo.github}>GitHub</a>
+                </div>
+              ) : (
+                <></>
+              )}
+              {editableInfo.twitter !== "" ? (
+                <div>
+                  <a href={editableInfo.twitter}>Twitter</a>
+                </div>
+              ) : (
+                <></>
+              )}
+              <div className={styles.separator} />
             </div>
-          </> : <></>}
-        {getStoreService().sessionStore.isLoggedIn && props.user === getStoreService().sessionStore.loggedInUserId ?
-          <Button onClick={() => setEditing(true)}>Edit Profile</Button> :
+          </>
+        ) : (
           <></>
-        }
+        )}
+        {getStoreService().sessionStore.isLoggedIn &&
+        props.user === getStoreService().sessionStore.loggedInUserId ? (
+          <Button onClick={() => setEditing(true)}>Edit Profile</Button>
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   );
