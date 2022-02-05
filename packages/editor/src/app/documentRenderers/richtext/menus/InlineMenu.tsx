@@ -14,6 +14,7 @@ import { Underline } from "../extensions/marks/Underline";
 import { BubbleMenuButton, ButtonStyleDetails } from "./BubbleMenuButton";
 import LinkBubbleMenuButton from "./LinkBubbleMenuButton";
 import styles from "./InlineMenu.module.css";
+import Button from "@atlaskit/button";
 
 type InlineMenuProps = { editor: Editor; commentStore: CommentStore };
 
@@ -110,8 +111,24 @@ class InlineMenu extends React.Component<InlineMenuProps> {
         <BubbleMenu className={styles.hidden} editor={this.props.editor} />
       );
     } else {
+      const isActive = this.props.editor.isActive("tcblock", {
+        headingType: 1,
+      });
       return (
         <BubbleMenu className={styles.bubbleMenu} editor={this.props.editor}>
+          <Button
+            appearance="subtle"
+            onClick={() =>
+              this.props.editor
+                .chain()
+                .focus()
+                .toggleBlockHeading({ level: 1 })
+                .run()
+            }
+            isSelected={isActive}
+            // iconBefore={addSelectedStyling(ButtonIcon, isSelected)}
+          />
+
           <BubbleMenuButton
             editor={this.props.editor}
             onClick={() => this.props.editor.chain().focus().toggleBold().run()}

@@ -10,6 +10,23 @@ export interface IBlock {
   HTMLAttributes: Record<string, any>;
 }
 
+export type Level = 1 | 2 | 3;
+
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    blockHeading: {
+      /**
+       * Set a heading node
+       */
+      setBlockHeading: (attributes: { headingType: Level }) => ReturnType;
+      /**
+       * Toggle a heading node
+       */
+      toggleBlockHeading: (attributes: { level: Level }) => ReturnType;
+    };
+  }
+}
+
 export const ContentBlock = Node.create<IBlock>({
   name: "tccontent",
 
@@ -161,6 +178,25 @@ export const Block = Node.create<IBlock>({
     ];
   },
 
+  addCommands() {
+    return {
+      setBlockHeading:
+        (attributes) =>
+        ({ commands }) => {
+          // TODO
+          return false;
+          // return commands.setNode(this.name, attributes);
+        },
+      toggleBlockHeading:
+        (attributes) =>
+        ({ commands }) => {
+          // TODO
+          return commands.updateAttributes(this.name, {
+            headingType: attributes.level,
+          });
+        },
+    };
+  },
   addProseMirrorPlugins() {
     return [PreviousBlockTypePlugin()];
   },
@@ -204,7 +240,10 @@ export const Block = Node.create<IBlock>({
         // () => {
         //   commands.command(({}))
         // },
-        () => commands.joinBackward(),
+        () => {
+          const first = commands.joinBackward();
+          return first;
+        },
         () => commands.selectNodeBackward(),
         // () => true,
       ]);
