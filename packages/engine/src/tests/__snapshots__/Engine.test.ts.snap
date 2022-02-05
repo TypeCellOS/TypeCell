@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`engine class should re-evaluate other models when global variable changes 1`] = `
+Array [
+  Object {
+    "output": Object {
+      "default": 10,
+    },
+    "path": "model1",
+  },
+  Object {
+    "output": Object {
+      "default": 5,
+    },
+    "path": "model2",
+  },
+  Object {
+    "output": Object {
+      "default": 5,
+    },
+    "path": "model2",
+  },
+  Object {
+    "output": Object {
+      "default": 6,
+    },
+    "path": "model1",
+  },
+  Object {
+    "output": Object {
+      "default": 1,
+    },
+    "path": "model2",
+  },
+]
+`;
