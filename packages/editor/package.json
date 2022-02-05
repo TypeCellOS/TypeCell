@@ -79,7 +79,7 @@
     "monaco-editor": "^0.27.0",
     "octokit": "^1.6.1",
     "penpal": "^6.1.0",
-    "prettier": "^2.4.1",
+    "prettier": "2.4.1",
     "probe.gl": "^3.1.4",
     "qs": "^6.10.1",
     "react": "^17.0.2",
@@ -128,7 +128,7 @@
     "lint": "eslint src",
     "test": "craco test",
     "test-no-watch": "craco test --watchAll=false",
-    "eject": "craco eject"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
