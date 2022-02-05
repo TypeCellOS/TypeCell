@@ -1,4 +1,0 @@
-- clear distinction between model (better name?) and module
-- document different classes
-- document architecture (how to calculate positions, how does iframe work)
-- RenderContainer in executionhost, make clear where it points to and where code resumes (index.iframe)

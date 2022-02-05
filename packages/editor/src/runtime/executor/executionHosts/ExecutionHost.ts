@@ -12,6 +12,8 @@ import { TypeCellCodeModel } from "../../../models/TypeCellCodeModel";
  *
  * The LocalExecutionHost just renders output in the same document as the container, and can be used for testing
  * The SandboxExecutionHost renders an iframe and evaluates end-user code in there, to isolate the code execution in a different domain.
+ *
+ * ExecutionHosts are called from NotebookRenderer (which renders the monaco editors for cells)
  */
 export type ExecutionHost = lifecycle.IDisposable & {
   /**
