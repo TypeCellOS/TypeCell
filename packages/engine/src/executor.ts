@@ -1,6 +1,6 @@
 import { autorun, runInAction } from "mobx";
 import { TypeCellContext } from "./context";
-import { executeWithHooks, installHooks } from "./hookDisposables";
+import { executeWithHooks } from "./hooks";
 import { Module } from "./modules";
 import { isStored } from "./storage/stored";
 import { isView } from "./view";
@@ -96,7 +96,7 @@ export async function runModule(
     );
   }
 
-  const execute = async () => {
+  async function execute(this: any) {
     try {
       if (wouldLoopOnAutorun) {
         detectedLoop = true;
@@ -115,31 +115,20 @@ export async function runModule(
 
       beforeExecuting();
 
-      console.log(disposeEveryRun);
-
-      let executionPromise: Promise<any>;
-      let disposers: Array<() => void> = [];
-
-      const { execute } = executeWithHooks(
-        () => mod.factoryFunction.apply(undefined, argsToCallFunctionWith), // TODO: what happens with disposers if a rerun of this function is slow / delayed?
-        disposers
+      const { executeModel, disposeHooks } = executeWithHooks(
+        (hookContext) =>
+          mod.factoryFunction.apply(hookContext, argsToCallFunctionWith) // TODO: what happens with disposers if a rerun of this function is slow / delayed?
       );
 
-      disposeEveryRun.push(() => {
-        disposers.forEach((d) => d());
-      });
+      disposeEveryRun.push(disposeHooks);
 
       try {
-        executionPromise = execute();
+        await executeModel();
       } finally {
-        // Hooks are only installed for sync code. Ideally, we'd want to run it for all code, but then we have the chance hooks will affect other parts of the TypeCell (non-user) code
-        // (we ran into this that notebooks wouldn't be saved (_.debounce), and also that setTimeout of Monaco blink cursor would be hooked)
         if (previousVariableDisposer) {
           previousVariableDisposer(exports);
         }
       }
-
-      await executionPromise;
 
       // Running the assignments to `context` in action should be a performance improvement to prevent triggering observers one-by-one
       wouldLoopOnAutorun = true;
@@ -219,7 +208,7 @@ export async function runModule(
       //reject(e);
       resolve();
     }
-  };
+  }
 
   const autorunDisposer = autorun(() => execute());
 
