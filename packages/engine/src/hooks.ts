@@ -1,12 +1,10 @@
-const glob = typeof window === "undefined" ? global : window;
-
 // These will be injected in the compiled function and link to hookContext
 export const overrideFunctions = [
   "setTimeout",
   "setInterval",
   "console",
   "EventTarget",
-];
+] as const;
 
 function applyDisposer<T, Y>(
   original: (...args: T[]) => Y,
@@ -28,7 +26,7 @@ export function executeWithHooks<T>(
   const disposers: Array<() => void> = [];
 
   const executeModel = async function (this: any) {
-    const hookContext = {
+    const hookContext: { [K in typeof overrideFunctions[number]]: any } = {
       setTimeout: applyDisposer(setTimeout, disposers, (ret) => {
         clearTimeout(ret);
       }),
@@ -36,9 +34,10 @@ export function executeWithHooks<T>(
         clearInterval(ret);
       }),
       console: {
-        ...glob.console,
-        log: () => {
+        ...console,
+        log: (...args: any) => {
           // TODO: broadcast output to console view
+          console.log(...args);
         },
       },
       EventTarget: undefined,
@@ -46,9 +45,9 @@ export function executeWithHooks<T>(
 
     if (typeof EventTarget !== "undefined") {
       (hookContext.EventTarget as any) = {
-        ...glob.EventTarget,
+        EventTarget,
         prototype: {
-          ...glob.EventTarget.prototype,
+          ...EventTarget.prototype,
           addEventListener: applyDisposer(
             EventTarget.prototype.addEventListener as any,
             disposers,
