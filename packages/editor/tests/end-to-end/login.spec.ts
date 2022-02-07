@@ -1,4 +1,23 @@
+// https://github.com/developit/microbundle/issues/708, otherwise vscode-lib fails
+import "regenerator-runtime/runtime.js";
+import { uri } from "vscode-lib";
+import { ensureMatrixIsRunning } from "../util/startMatrixServer";
 import { test, expect } from "@playwright/test";
+
+test.beforeAll(async () => {
+  await ensureMatrixIsRunning();
+});
+
+test.beforeEach(({ context }) => {
+  // make sure tests don't do requests to production environment
+  context.on("request", (request) => {
+    const host = uri.URI.parse(request.url()).authority;
+    console.log(host);
+    expect(host).not.toBe("typecell.org");
+    expect(host).not.toBe("www.typecell.org");
+    expect(host).not.toBe("mx.typecell.org");
+  });
+});
 
 test("Sign in button exists", async ({ page }) => {
   await page.goto("/");
@@ -30,3 +49,6 @@ test("Sign in by email", async ({ page }) => {
 
   await expect(profileButton).toBeVisible();
 });
+function waitForMatrixStart() {
+  throw new Error("Function not implemented.");
+}
