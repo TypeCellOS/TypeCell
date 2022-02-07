@@ -58,15 +58,24 @@ jobs:
         env:
           CI: true
 
+      - name: Run server
+        run: npm start & npx wait-on http://localhost:3000
+        env:
+          CI: true
+
       - name: Lint (we don't build React in CI, but at least lint it)
         run: npm run lint
         env:
           CI: true
 
-      - name: Install Playwright
+      - name: Install Playwright (editor)
         run: npx playwright install --with-deps
         working-directory: packages/editor
-      - name: Run Playwright tests
+      - name: Install Playwright (engine)
+        run: npx playwright install --with-deps
+        working-directory: packages/engine
+
+      - name: Run Playwright tests (editor)
         run: npx playwright test
         working-directory: packages/editor
       - uses: actions/upload-artifact@v2
@@ -74,6 +83,16 @@ jobs:
         with:
           name: playwright-report
           path: packages/editor/playwright-report/
+          retention-days: 30
+
+      - name: Run Playwright tests (engine)
+        run: npx playwright test
+        working-directory: packages/engine
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: playwright-report
+          path: packages/engine/playwright-report/
           retention-days: 30
 
       - name: Run Tests

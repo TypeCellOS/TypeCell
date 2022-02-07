@@ -8,7 +8,7 @@ test("Sign in button exists", async ({ page }) => {
 
 test("Sign in by email", async ({ page }) => {
   await page.goto("/");
-  const button = await page.locator("button", { hasText: "Sign in" });
+  const button = page.locator("button", { hasText: "Sign in" });
 
   await button.click();
 
