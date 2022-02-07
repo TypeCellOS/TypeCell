@@ -49,7 +49,7 @@ pid_file: /data/homeserver.pid
 # Otherwise, it should be the URL to reach Synapse's client HTTP listener (see
 # 'listeners' below).
 #
-#public_baseurl: https://example.com/
+public_baseurl: http://test.typecell.org/
 
 # Set the soft limit on the number of file descriptors synapse can use
 # Zero is used to indicate synapse should set the soft limit to the
@@ -1167,7 +1167,7 @@ enable_registration: true
 
 # The user must provide all of the below types of 3PID when registering.
 #
-#registrations_require_3pid:
+# registrations_require_3pid:
 #  - email
 #  - msisdn
 
@@ -2595,7 +2595,7 @@ user_directory:
   # Uncomment to return search results containing all known users, even if that
   # user does not share a room with the requester.
   #
-  #search_all_users: true
+  search_all_users: true
 
   # Defines whether to prefer local users in search query results.
   # If True, local users are more likely to appear above remote users
