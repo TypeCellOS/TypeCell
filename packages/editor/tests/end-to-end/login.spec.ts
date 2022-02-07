@@ -49,6 +49,3 @@ test("Sign in by email", async ({ page }) => {
 
   await expect(profileButton).toBeVisible();
 });
-function waitForMatrixStart() {
-  throw new Error("Function not implemented.");
-}
