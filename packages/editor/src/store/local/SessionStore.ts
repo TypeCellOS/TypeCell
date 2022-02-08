@@ -5,11 +5,12 @@ import { MatrixAuthStore } from "../../app/matrix-auth/MatrixAuthStore";
 import { MatrixClientPeg } from "../../app/matrix-auth/MatrixClientPeg";
 
 function getUserFromMatrixId(matrixId: string) {
-  const parts = matrixId.split(":");
-  if (parts.length !== 2) {
+  // @username:hostname:port (port is optional)
+  const parts = matrixId.match(/^(@[a-z0-9\-]+):([a-z]+(:\d+)?)$/);
+  if (!parts) {
     throw new Error("invalid user id");
   }
-  const [user /*_host*/] = parts; // TODO: think out host for federation
+  const user = parts[1]; // TODO: what to do with host for federation?
   if (!user.startsWith("@") || user.length < 2) {
     throw new Error("invalid user id");
   }

@@ -6,7 +6,7 @@ import { devices } from "@playwright/test";
  */
 const config: PlaywrightTestConfig = {
   testDir: "./tests",
-
+  globalSetup: "./tests/end-to-end/setup/globalSetup.ts",
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
 
@@ -49,6 +49,7 @@ const config: PlaywrightTestConfig = {
 
       /* Project-specific settings. */
       use: {
+        headless: false,
         ...devices["Desktop Chrome"],
       },
     },
@@ -100,11 +101,11 @@ const config: PlaywrightTestConfig = {
   // outputDir: 'test-results/',
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: "npm run start:local",
-    reuseExistingServer: !process.env.CI,
-    timeout: 240 * 1000,
-    port: 3000,
-  },
+  // webServer: {
+  //   command: "npm run start",
+  //   reuseExistingServer: !process.env.CI,
+  //   timeout: 1240 * 1000,
+  //   port: 3000,
+  // },
 };
 export default config;

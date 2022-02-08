@@ -1,0 +1,44 @@
+import { uri } from "vscode-lib";
+import { ensureMatrixIsRunning } from "../util/startMatrixServer";
+import { test, expect } from "@playwright/test";
+import { delay } from "lodash";
+
+test.beforeAll(async () => {
+  await ensureMatrixIsRunning();
+});
+
+test.beforeEach(({ context, browser }) => {
+  // make sure tests don't do requests to production environment
+  context.on("request", (request) => {
+    const host = uri.URI.parse(request.url()).authority;
+    console.log(host);
+    expect(host).not.toBe("typecell.org");
+    expect(host).not.toBe("www.typecell.org");
+    expect(host).not.toBe("mx.typecell.org");
+  });
+});
+
+test("Register", async ({ page, browser }) => {
+  await page.goto("/register");
+  const field = await page.waitForSelector("input[name='username']");
+  await field.type("alice");
+  const pwField = page.locator("input[name='password']");
+  await pwField.type("myPw123ABC@#$");
+
+  const confirmField = page.locator("input[name='confirmPassword']");
+  await confirmField.type("myPw123ABC@#$");
+
+  const registerBtn = page.locator("button[value='Register']");
+  await registerBtn.click();
+  // await page.waitForTimeout(10000);
+
+  await page.waitForSelector("button[data-testid='profile-button']");
+
+  // await expect(profileButton).toBeVisible();
+
+  //   await delay(() => {}, 10000);
+  // await expect(button).toHaveText("Sign in");
+
+  // const bobContext = await browser.newContext();
+  // const bobPage = await bobContext.newPage();
+});
