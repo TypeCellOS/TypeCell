@@ -4,6 +4,7 @@ export const overrideFunctions = [
   "setInterval",
   "console",
   "EventTarget",
+  "window",
 ] as const;
 
 function applyDisposer<T, Y>(
@@ -41,6 +42,7 @@ export function executeWithHooks<T>(
         },
       },
       EventTarget: undefined,
+      window: undefined,
     };
 
     if (typeof EventTarget !== "undefined") {
@@ -56,6 +58,16 @@ export function executeWithHooks<T>(
             }
           ),
         },
+      };
+    }
+
+    if (typeof window !== "undefined") {
+      hookContext.window = {
+        ...window,
+        setTimeout: hookContext.setTimeout,
+        setInterval: hookContext.setInterval,
+        console: hookContext.console,
+        EventTarget: hookContext.EventTarget,
       };
     }
 

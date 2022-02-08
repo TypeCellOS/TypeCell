@@ -118,7 +118,7 @@ export function getModulesFromTypeCellCode(compiledCode: string, scope: any) {
   totalCode = totalCode.replace(
     /("use strict";)/,
     `"use strict";
-// Override functinos
+// Override functions
 ${overrideFunctions
   .map((hook: string) => `let ${hook} = this.${hook};`)
   .join("\n")}\n`
