@@ -1,6 +1,4 @@
-import { BrowserContext } from "@playwright/test";
-
-import { test, expect } from "./setup/userFixtures";
+import { expect, test } from "./setup/userFixtures";
 
 test("is logged in to right account", async ({ aliceContext, aliceUser }) => {
   const page = await aliceContext.newPage();

@@ -11,6 +11,9 @@ export type TestUser = {
   password: string;
 };
 
+/**
+ * Register a user via the interface
+ */
 async function registerUser(
   page: Page,
   user: { username: string; password: string }
@@ -31,6 +34,7 @@ async function registerUser(
   await page.waitForSelector("button[data-testid='profile-button']");
 }
 
+// This fixture exposes information (username / password) of alice
 export const testWithUsers = base.extend<{}, { aliceUser: TestUser }>({
   aliceUser: [
     async ({}, use, workerInfo) => {
@@ -45,6 +49,7 @@ export const testWithUsers = base.extend<{}, { aliceUser: TestUser }>({
   ],
 });
 
+// This fixture exposes a registered context "aliceContext"
 export const test = testWithUsers.extend<{}, { aliceContext: BrowserContext }>({
   aliceContext: [
     async ({ browser }, use, workerInfo) => {
