@@ -4,7 +4,7 @@ import { event } from "vscode-lib";
 import {
   buildMockedModel,
   importResolver,
-  toUMDFormat,
+  toAMDFormat,
   waitTillEvent,
 } from "./utils/helpers";
 
@@ -53,7 +53,7 @@ describe("engine class", () => {
     await event.Event.toPromise(engine.onOutput);
 
     model1.updateCode(
-      toUMDFormat(`let x = 0;
+      toAMDFormat(`let x = 0;
     let y = 6;
     let sum = x + y;
     exports.sum = sum;
@@ -76,7 +76,7 @@ describe("engine class", () => {
     engine.registerModel(model2);
 
     model1.updateCode(
-      toUMDFormat(`let x = 0;
+      toAMDFormat(`let x = 0;
     let y = 6;
     let sum = x + y;
     exports.sum = sum;

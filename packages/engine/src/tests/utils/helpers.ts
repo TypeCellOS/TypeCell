@@ -35,7 +35,7 @@ export async function importResolver(
   return res();
 }
 
-export function toUMDFormat(code: string) {
+export function toAMDFormat(code: string) {
   return `define(["require", "exports"], function(require, exports) {
       "use strict";
       Object.defineProperty(exports, "__esModule", { value: true });
@@ -45,6 +45,6 @@ export function toUMDFormat(code: string) {
 }
 
 export function buildMockedModel(name: string, code: string) {
-  const umdFormat = toUMDFormat(code);
+  const umdFormat = toAMDFormat(code);
   return new CodeModelMock("javascript", name, umdFormat);
 }
