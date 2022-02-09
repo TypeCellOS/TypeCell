@@ -8,10 +8,8 @@ module.exports = {
   testEnvironment: "jsdom",
   roots: ["<rootDir>"],
   modulePaths: ["<rootDir>"],
-  testMatch: [
-    "src/**/__tests__/**/*.ts?(x)",
-    "src/**/?(*.)+(spec|test).ts?(x)",
-  ],
+  testMatch: ["**/__tests__/**/*.ts?(x)", "**/?(*.)+(spec|test).ts?(x)"],
+  testPathIgnorePatterns: ["/node_modules/", "/tests/end-to-end/"],
   moduleNameMapper: {
     "@typecell-org/common": "<rootDir>/../common/src",
     "^lib0/([a-zA-Z-]*)$": "<rootDir>/../../node_modules/lib0/dist/$1.cjs",
