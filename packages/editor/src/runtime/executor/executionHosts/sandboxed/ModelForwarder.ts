@@ -1,31 +1,24 @@
 import { CompiledCodeModel } from "../../../../models/CompiledCodeModel";
 import { event, lifecycle } from "vscode-lib";
+import { IframeBridgeMethods } from "./iframesandbox/IframeBridgeMethods";
 
 type ModelProvider = {
   onDidCreateCompiledModel: event.Event<CompiledCodeModel>;
   compiledModels: CompiledCodeModel[];
 };
 
-export type MessageBridge = {
-  updateModels: (
-    bridgeId: string,
-    models: {
-      modelId: string;
-      model: {
-        value: string;
-      };
-    }[]
-  ) => Promise<void>;
-  updateModel: (
-    bridgeId: string,
-    modelId: string,
-    model: {
-      value: string;
-    }
-  ) => Promise<void>;
-  deleteModel: (bridgeId: string, modelId: string) => Promise<void>;
-};
+export type MessageBridge = Pick<
+  IframeBridgeMethods,
+  "updateModels" | "updateModel" | "deleteModel"
+>;
 
+/**
+ * The ModelForwarder bridges a ModelProvider and the MessageBridge.
+ *
+ * It:
+ * - listens to changes in the ModelProvider...
+ * - ...and forwards these changes over the MessageBridge
+ */
 export class ModelForwarder extends lifecycle.Disposable {
   private disposed = false;
   constructor(
