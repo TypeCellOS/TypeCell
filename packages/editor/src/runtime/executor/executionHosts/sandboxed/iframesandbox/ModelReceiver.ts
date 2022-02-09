@@ -1,6 +1,12 @@
 import { lifecycle, event } from "vscode-lib";
 import { CompiledCodeModel } from "../../../../../models/CompiledCodeModel";
 
+/**
+ * The modelReceiver:
+ * - tracks models ("code models" are objects containing compiled javascript code)
+ *    received over the bridge from the Host
+ * - Can be used to pass in to Engine, which (re)evaluates the code
+ */
 export class ModelReceiver extends lifecycle.Disposable {
   private registeredModels = new Map<string, CompiledCodeModel>();
   private disposed = false;

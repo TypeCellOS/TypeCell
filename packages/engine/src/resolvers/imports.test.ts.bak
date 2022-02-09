@@ -1,6 +1,6 @@
-import ImportShimResolver from "./ImportShimResolver";
+import { ImportShimResolver } from "./ImportShimResolver";
 import { LocalModuleResolver } from "./LocalModuleResolver";
-import SkypackResolver from "./SkypackResolver";
+import { SkypackResolver } from "./SkypackResolver";
 
 const localResolver = new LocalModuleResolver(async (moduleName) => {
   if (moduleName === "react") {

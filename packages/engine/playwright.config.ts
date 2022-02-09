@@ -6,7 +6,7 @@ import { devices } from "@playwright/test";
  */
 const config: PlaywrightTestConfig = {
   testDir: "./tests",
-  globalSetup: "./tests/end-to-end/setup/globalSetup.ts",
+
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
 
@@ -49,7 +49,6 @@ const config: PlaywrightTestConfig = {
 
       /* Project-specific settings. */
       use: {
-        headless: false,
         ...devices["Desktop Chrome"],
       },
     },
@@ -61,12 +60,12 @@ const config: PlaywrightTestConfig = {
     //   },
     // },
 
-    // {
-    //   name: "webkit",
-    //   use: {
-    //     ...devices["Desktop Safari"],
-    //   },
-    // },
+    {
+      name: "webkit",
+      use: {
+        ...devices["Desktop Safari"],
+      },
+    },
 
     /* Test against mobile viewports. */
     // {
@@ -102,9 +101,9 @@ const config: PlaywrightTestConfig = {
 
   /* Run your local dev server before starting the tests */
   // webServer: {
-  //   command: "npm run start:local",
+  //   command: "npm start",
   //   reuseExistingServer: !process.env.CI,
-  //   timeout: 1240 * 1000,
+  //   timeout: 60 * 1000,
   //   port: 3000,
   // },
 };

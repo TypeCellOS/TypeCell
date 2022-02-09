@@ -1,52 +1,80 @@
+import { FlagGroup } from "@atlaskit/flag";
 import { autorun, makeObservable, observable, runInAction } from "mobx";
+import { observer } from "mobx-react-lite";
+import type * as monaco from "monaco-editor";
 import { AsyncMethodReturns, Connection, connectToChild } from "penpal";
 import { lifecycle } from "vscode-lib";
+import { getFrameDomain } from "../../../../config/security";
 import { CompiledCodeModel } from "../../../../models/CompiledCodeModel";
 import { TypeCellCodeModel } from "../../../../models/TypeCellCodeModel";
 import { ContainedElement } from "../../../../util/ContainedElement";
 import SourceModelCompiler from "../../../compiler/SourceModelCompiler";
+import { VisualizerExtension } from "../../../extensions/visualizer/VisualizerExtension";
 import { TypeCellModuleCompiler } from "../../resolver/typecell/TypeCellModuleCompiler";
 import { ExecutionHost } from "../ExecutionHost";
-import type { FrameConnection } from "./iframesandbox/FrameConnection";
+import { FreezeAlert } from "./FreezeAlert";
+import { HostBridgeMethods } from "./HostBridgeMethods";
+import { IframeBridgeMethods } from "./iframesandbox/IframeBridgeMethods";
 import { ModelForwarder } from "./ModelForwarder";
 import OutputShadow from "./OutputShadow";
-import type * as monaco from "monaco-editor";
-import { VisualizerExtension } from "../../../extensions/visualizer/VisualizerExtension";
-import { FreezeAlert } from "./FreezeAlert";
-import { FlagGroup } from "@atlaskit/flag";
-import { observer } from "mobx-react-lite";
-import { getFrameDomain } from "../../../../config/security";
 
 let ENGINE_ID = 0;
 const FREEZE_TIMEOUT = 3000;
+
+/**
+ * The SandboxedExecutionHost evaluates end-user code in an iframe on a different domain
+ * (see README.md)
+ */
 export default class SandboxedExecutionHost
   extends lifecycle.Disposable
   implements ExecutionHost
 {
+  public readonly id = ENGINE_ID++;
+
+  public showFreezeAlert = observable.box(false);
+
   public readonly iframe: HTMLIFrameElement;
+
   private disposed: boolean = false;
+
   private resetHovering = () => {};
 
-  private readonly connection: Connection<FrameConnection["methods"]>;
+  /**
+   * Penpal postmessage connection to the iframe
+   */
+  private readonly connection: Connection<IframeBridgeMethods>;
+
+  /**
+   * Penpal postmessage connection methods exposed by the iframe
+   */
   private connectionMethods:
-    | AsyncMethodReturns<FrameConnection["methods"]>
+    | AsyncMethodReturns<IframeBridgeMethods>
     | undefined;
 
-  // private mousePosition: {
-  //   x: number;
-  //   y: number;
-  // } = { x: 0, y: 0 };
-
+  /**
+   * map of <cellPath, dimensions> keeping track of the dimensions of all cells (passed in from the iframe)
+   */
   private readonly dimensionStore = new Map<
     string,
     { width: number; height: number }
   >();
 
+  /**
+   * map of <cellPath, position> keeping track of the x,y positions of all cells,
+   * passed to the iframe when changed
+   */
   private readonly positionCacheStore = new Map<
     string,
     { x: number; y: number }
   >();
 
+  /**
+   * moduleManager with key "main" is used to pass code models of the
+   *  main notebook (with documentId) to the iframe
+   *
+   * moduleManagers with other keys are used to pass code models of TypeCell modules (!@username/notebook)
+   * to the iframe
+   */
   private moduleManagers = new Map<
     string,
     {
@@ -54,10 +82,6 @@ export default class SandboxedExecutionHost
       forwarder: ModelForwarder;
     }
   >();
-
-  public readonly id = ENGINE_ID++;
-
-  public showFreezeAlert = observable.box(false);
 
   constructor(
     private readonly documentId: string,
@@ -97,7 +121,7 @@ export default class SandboxedExecutionHost
 
     iframe.onmouseleave = () => {
       console.log("exit iframe");
-      this.enablePointerEvents();
+      this.enableIframePointerEvents();
       this.resetHovering();
     };
     this.iframe = iframe;
@@ -108,10 +132,6 @@ export default class SandboxedExecutionHost
       methods: this.methods,
     });
 
-    // document.addEventListener("mousemove", (e) => {
-    //   this.mousePosition = { x: e.clientX, y: e.clientY };
-    // });
-
     this.initialize().then(
       () => {},
       (e) => {
@@ -120,7 +140,14 @@ export default class SandboxedExecutionHost
     );
   }
 
-  private methods = {
+  /**
+   * Methods exposed to the iframe
+   */
+  private methods: HostBridgeMethods = {
+    /**
+     * The iframe requests the compiled code of an imported TypeCell module (e.g.: !@username/notebook)
+     * We set up a compiler and modelforwarder to pass compiled code back to the iframe
+     */
     registerTypeCellModuleCompiler: async (moduleName: string) => {
       if (this.moduleManagers.has(moduleName)) {
         console.warn("already has moduleManager for", moduleName);
@@ -138,7 +165,7 @@ export default class SandboxedExecutionHost
       this.moduleManagers.set(moduleName, { compiler, forwarder });
       await forwarder.initialize();
     },
-    unregisterTypeCellModuleCompiler: (moduleName: string) => {
+    unregisterTypeCellModuleCompiler: async (moduleName: string) => {
       const moduleManager = this.moduleManagers.get(moduleName);
       if (!moduleManager) {
         console.warn("no moduleManager for", moduleName);
@@ -148,10 +175,16 @@ export default class SandboxedExecutionHost
       moduleManager.forwarder.dispose();
       this.moduleManagers.delete(moduleName);
     },
-    mouseLeave: () => {
-      this.enablePointerEvents();
+    /**
+     * The mouse has left the Output of a cell in the iframe
+     */
+    mouseLeave: async () => {
+      this.enableIframePointerEvents();
     },
-    setDimensions: (
+    /**
+     * Update the dimensions of a cells output
+     */
+    setDimensions: async (
       id: string,
       dimensions: { width: number; height: number }
     ) => {
@@ -166,45 +199,24 @@ export default class SandboxedExecutionHost
       });
     },
   };
-  // private checkMousePosition() {
-  //   for (let [key, pos] of this.positionCacheStore.entries()) {
-  //     if (this.mousePosition.x >= pos.x && this.mousePosition.y >= pos.y) {
-  //       const dimensions = this.dimensionStore.get(key);
-  //       if (!dimensions) {
-  //         console.error("unexpected");
-  //         continue;
-  //       }
-  //       if (
-  //         this.mousePosition.x <= pos.x + dimensions.width &&
-  //         this.mousePosition.y <= pos.y + dimensions.height
-  //       ) {
-  //         return true;
-  //       }
-  //     }
-  //   }
-  //   return false;
-  // }
-  // private updatePointerEvents = () => {
-  //   const overOutput = this.checkMousePosition();
-  //   if (overOutput) {
-  //     this.disablePointerEvents();
-  //   } else {
-  //     this.enablePointerEvents();
-  //   }
-  // };
 
-  private enablePointerEvents = () => {
+  /**
+   * the iframe should capture mouse events
+   */
+  private enableIframePointerEvents = () => {
     (
       this.iframe.parentElement?.parentElement as HTMLDivElement
     ).style.pointerEvents = "auto";
-    // console.log("enable");
   };
 
-  private disablePointerEvents = () => {
+  /**
+   * The host should capture mouse events
+   * (disable pointer events on the iframe)
+   */
+  private disableIframePointerEvents = () => {
     (
       this.iframe.parentElement?.parentElement as HTMLDivElement
     ).style.pointerEvents = "none";
-    // console.log("disable");
   };
 
   async initialize() {
@@ -219,8 +231,6 @@ export default class SandboxedExecutionHost
 
     this.connectionMethods = await this.connection.promise;
     console.log("IFrameEngine connection established");
-    // const result = await this.connectionMethods.ping();
-    // console.log("received", result);
 
     const forwarder = this._register(
       new ModelForwarder("main", this.compileEngine, this.connectionMethods)
@@ -236,6 +246,7 @@ export default class SandboxedExecutionHost
       );
     }
 
+    // type visualizers (experimental)
     const visualizerExtension = this._register(
       new VisualizerExtension(
         this.compileEngine,
@@ -253,12 +264,16 @@ export default class SandboxedExecutionHost
     this.setupPing();
   }
 
+  /**
+   * Keep pinging the iframe, and show a "freeze" alert if we haven't received a pong in time
+   * (can happen in case of infinite loops in user code)
+   */
   private setupPing() {
     const handle = setInterval(async () => {
       try {
         await Promise.race([
           this.pingFrame(),
-          new Promise((resolve, reject) => {
+          new Promise((_, reject) => {
             setTimeout(reject, FREEZE_TIMEOUT);
           }),
         ]);
@@ -284,6 +299,9 @@ export default class SandboxedExecutionHost
     }
   }
 
+  /**
+   * Pass the updated positions where a Cell's output should be shown to the iframe
+   */
   private async sendModelPositions(
     model: CompiledCodeModel,
     positions: { x: number; y: number }
@@ -357,6 +375,9 @@ export default class SandboxedExecutionHost
     );
   });
 
+  /**
+   * Renders the iframe and "freeze flag". Called by NotebookRenderer
+   */
   public renderContainer() {
     const FlagComponent = this.FlagComponent;
     return (
@@ -367,17 +388,23 @@ export default class SandboxedExecutionHost
     );
   }
 
+  /**
+   * Render the output of a specific model (cell).
+   * We render an OutputShadow to keep track of positions,
+   * but the actual output is rendered in the iframe
+   */
   public renderOutput(
     model: TypeCellCodeModel,
     setHovering: (hover: boolean) => void
   ) {
     return (
       <OutputShadow
+        // dimensions are determined by the iframe which knows the actual output dimensions
         dimensions={this.dimensionStore.get(model.path)!}
         positionOffsetElement={this.iframe}
         positions={this.positionCacheStore.get(model.path)!}
         onMouseMove={() => {
-          this.disablePointerEvents();
+          this.disableIframePointerEvents();
           this.resetHovering = () => setHovering(false);
           setHovering(true);
         }}

@@ -4,7 +4,8 @@
   "devDependencies": {
     "lerna": "^4.0.0",
     "patch-package": "^6.4.7",
-    "jest": "26.6.0",
+    "jest": "^26.6.0",
+    "playwright": "^1.18.1",
     "ts-jest": "^26.5.4",
     "npm-run-all": "^4.1.5"
   },
@@ -13,7 +14,9 @@
     "install-lerna": "npm install --no-package-lock",
     "bootstrap": "lerna bootstrap --hoist --ci && patch-package",
     "install-new-packages": "lerna bootstrap --hoist && patch-package",
-    "test": "lerna run test-no-watch",
+    "playwright": "lerna run playwright",
+    "install-playwright": "lerna run install-playwright",
+    "test": "jest --coverage=true --config=jest.config.js && lerna run test-no-watch",
     "build": "lerna run build --concurrency 1",
     "build-react": "lerna run build-react --concurrency 1 --stream",
     "lint": "lerna run lint --concurrency 1",

@@ -4,6 +4,9 @@ import Output from "../../../components/Output";
 import { FrameConnection } from "./FrameConnection";
 import "./Frame.css";
 
+// The sandbox frame where end-user code gets evaluated.
+// It is loaded from index.iframe.ts
+
 // global connection to parent window
 let frameConnection: FrameConnection | undefined;
 
@@ -14,9 +17,20 @@ function getFrameConnection() {
   return frameConnection;
 }
 
+/*
+  Test scenarios:
+  - Cell works well with overflow: export let x = <div style={{ width: "100px" }}>hello</div>;
+  - Outer cell div must be exactly same as OutputShadow div, so hovering over output vs code must change pointerEvents correctly (see IframeEngine)
+  */
+
 export const Frame = observer((props: {}) => {
   const connection = getFrameConnection();
 
+  /**
+   * The resizeObserver keeps track of the dimensions of all cell Output divs.
+   * The dimensions are forwarded to the host, so it can use it the resize the "fake" OutputShadow
+   * divs accordingly
+   */
   const resizeObserver = useRef(
     new ResizeObserver((entries) => {
       for (let entry of entries) {
@@ -57,7 +71,8 @@ export const Frame = observer((props: {}) => {
     connection.mouseLeave();
   }, [connection]);
 
-  // When the mouse hovers an output element, stopPropagation so onMouseLeaveContainer doesn't get called
+  // When the mouse hovers an output element,
+  // call stopPropagation so onMouseLeaveContainer doesn't get called
   const onMouseMoveOutput = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
@@ -73,11 +88,8 @@ export const Frame = observer((props: {}) => {
     };
   }, []);
 
-  /*
-  Test scenarios:
-  - Cell works well with overflow: export let x = <div style={{ width: "100px" }}>hello</div>;
-  - Outer cell div must be exactly same as OutputShadow div, so hovering over output vs code must change pointerEvents correctly (see IframeEngine)
-  */
+  // The only content in the iframe is a
+  // list of <Output> components for every cell registered on the frameConnection
   return (
     <div
       style={containerStyle}
