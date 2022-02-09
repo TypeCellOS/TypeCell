@@ -1,5 +1,6 @@
 import { BrowserContext, Page } from "@playwright/test";
 import { test as base } from "./networkRequestFilter";
+import * as fs from "fs";
 
 const SESSION_ID = Math.random()
   .toString(36)
@@ -10,6 +11,22 @@ export type TestUser = {
   username: string;
   password: string;
 };
+
+// export type StateFile = {
+//   user: TestUser;
+//   storageState: any;
+//   idbState: any;
+// };
+// function tryLoadState(file: string): StateFile | undefined {
+//   try {
+//     return JSON.parse(fs.readFileSync(file, "utf-8"));
+//   } catch {
+//     return undefined;
+//   }
+// }
+
+// const existingStateAlice = tryLoadState("alice.json");
+// const existingStateBobe = tryLoadState("bob.json");
 
 /**
  * Register a user via the interface
@@ -34,8 +51,11 @@ async function registerUser(
   await page.waitForSelector("button[data-testid='profile-button']");
 }
 
-// This fixture exposes information (username / password) of alice
-export const testWithUsers = base.extend<{}, { aliceUser: TestUser }>({
+// This fixture exposes information (username / password) of alice / bob
+export const testWithUsers = base.extend<
+  {},
+  { aliceUser: TestUser; bobUser: TestUser }
+>({
   aliceUser: [
     async ({}, use, workerInfo) => {
       const aliceUser: TestUser = {
@@ -47,19 +67,48 @@ export const testWithUsers = base.extend<{}, { aliceUser: TestUser }>({
     },
     { scope: "worker" },
   ],
+  bobUser: [
+    async ({}, use, workerInfo) => {
+      const bobUser: TestUser = {
+        username: "bob-" + SESSION_ID + "-" + workerInfo.workerIndex,
+        password: "myB0bPw123ABC@#$",
+      };
+
+      await use(bobUser);
+    },
+    { scope: "worker" },
+  ],
 });
 
-// This fixture exposes a registered context "aliceContext"
-export const test = testWithUsers.extend<{}, { aliceContext: BrowserContext }>({
+// This fixture exposes a registered context for all users (alice / bob)
+export const test = testWithUsers.extend<
+  {},
+  { aliceContext: BrowserContext; bobContext: BrowserContext }
+>({
   aliceContext: [
-    async ({ browser }, use, workerInfo) => {
-      const aliceUser: TestUser = {
-        username: "alice-" + SESSION_ID + "-" + workerInfo.workerIndex,
-        password: "myPw123ABC@#$",
-      };
+    async ({ browser, aliceUser }, use, workerInfo) => {
+      // const existingStateAlice = tryLoadState("alice.json");
       const newContext = await browser.newContext();
+
+      // if (!existingStateAlice) {
       const page = await newContext.newPage();
       await registerUser(page, aliceUser);
+      await page.close();
+      // fs.writeFileSync(
+      //   "alice.json",
+      //   JSON.stringify(await newContext.storageState())
+      // );
+      // }
+      // Use the account value.
+      await use(newContext);
+    },
+    { scope: "worker" },
+  ],
+  bobContext: [
+    async ({ browser, bobUser }, use, workerInfo) => {
+      const newContext = await browser.newContext();
+      const page = await newContext.newPage();
+      await registerUser(page, bobUser);
       await page.close();
 
       // Use the account value.

@@ -6,7 +6,7 @@ import { MatrixClientPeg } from "../../app/matrix-auth/MatrixClientPeg";
 
 function getUserFromMatrixId(matrixId: string) {
   // @username:hostname:port (port is optional)
-  const parts = matrixId.match(/^(@[a-z0-9\-]+):([a-z]+(:\d+)?)$/);
+  const parts = matrixId.match(/^(@[a-z0-9-]+):([a-z\-.]+(:\d+)?)$/);
   if (!parts) {
     throw new Error("invalid user id");
   }

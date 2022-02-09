@@ -13,9 +13,13 @@ export function addFilterToBrowserContext(context: BrowserContext) {
   const listener = (request) => {
     const host = uri.URI.parse(request.url()).authority;
 
-    expect(host).not.toBe("typecell.org");
-    expect(host).not.toBe("www.typecell.org");
-    expect(host).not.toBe("mx.typecell.org");
+    if (
+      host === "typecell.org" ||
+      host === "www.typecell.org" ||
+      host === "mx.typecell.org"
+    ) {
+      throw new Error("trying to hit prod urls in test");
+    }
   };
   // make sure tests don't do requests to production environment
   context.on("request", listener);
