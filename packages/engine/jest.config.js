@@ -15,5 +15,5 @@ module.exports = {
     "^y-protocols/([a-zA-Z-]*)$":
       "<rootDir>/../../node_modules/y-protocols/dist/$1.cjs",
   },
-  setupFiles: ["<rootDir>/src/setupTests.ts"],
+  setupFiles: ["<rootDir>/src/tests/setupTests.ts"],
 };
