@@ -40,7 +40,7 @@ const PermissionsLoader = observer(
         }
         const mreader = new MatrixMemberReader(props.matrixClient, mxReader);
         await mreader.initialize();
-        debugger;
+
         const entries = [...mreader.members.values()].map((u) => {
           const ret: [string, UserPermission] = [
             u.user_id,

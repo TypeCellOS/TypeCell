@@ -30,7 +30,6 @@ export async function updatePermissionData(
   old: PermissionData,
   newPermissions: PermissionData
 ) {
-  debugger;
   if (old.doc !== newPermissions.doc) {
     if (newPermissions.doc === "private") {
       throw new Error("not implemented");

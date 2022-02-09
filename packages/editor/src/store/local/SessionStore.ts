@@ -3,20 +3,7 @@ import { computed, makeObservable, observable, runInAction } from "mobx";
 import { arrays, lifecycle } from "vscode-lib";
 import { MatrixAuthStore } from "../../app/matrix-auth/MatrixAuthStore";
 import { MatrixClientPeg } from "../../app/matrix-auth/MatrixClientPeg";
-
-function getUserFromMatrixId(matrixId: string) {
-  // @username:hostname:port (port is optional)
-  const parts = matrixId.match(/^(@[a-z0-9-]+):([a-z\-.]+(:\d+)?)$/);
-  if (!parts) {
-    throw new Error("invalid user id");
-  }
-  const user = parts[1]; // TODO: what to do with host for federation?
-  if (!user.startsWith("@") || user.length < 2) {
-    throw new Error("invalid user id");
-  }
-
-  return user;
-}
+import { getUserFromMatrixId } from "../../util/userIds";
 
 const colors = [
   "#958DF1",
@@ -141,7 +128,8 @@ export class SessionStore extends lifecycle.Disposable {
           this.user = {
             type: "matrix-user",
             matrixClient,
-            userId: getUserFromMatrixId(matrixClient.getUserId() as string),
+            userId: getUserFromMatrixId(matrixClient.getUserId() as string)
+              .localUserId,
             fullUserId: matrixClient.getUserId(), // TODO: nicer to remove make userId represent the full matrix id instead of having a separate property
           };
         });

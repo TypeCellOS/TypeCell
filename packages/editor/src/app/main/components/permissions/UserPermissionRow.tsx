@@ -2,13 +2,13 @@ import Button from "@atlaskit/button";
 import Select from "@atlaskit/select";
 import React, { useState } from "react";
 import Avatar from "react-avatar";
+import { friendlyUserId } from "../../../../util/userIds";
 import styles from "./PermissionsSettings.module.css";
 import {
   DocPermission,
   UserPermission,
   userPermissionLabels,
 } from "./permissionUtils";
-import { friendlyUserId } from "./userUtils";
 
 export default function UserPermissionRow(props: {
   userId: string;
