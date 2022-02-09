@@ -1,6 +1,6 @@
 import { autorun, runInAction } from "mobx";
 import { TypeCellContext } from "./context";
-import { executeWithHooks } from "./hooks";
+import { HookExecution } from "./HookExecution";
 import { Module } from "./modules";
 import { isStored } from "./storage/stored";
 import { isView } from "./view";
@@ -61,6 +61,7 @@ export async function runModule(
   mod: Module,
   context: TypeCellContext<any>,
   resolveImport: (module: string) => any,
+  hookExecution: HookExecution,
   beforeExecuting: () => void,
   onExecuted: (exports: any) => void,
   onError: (error: any) => void,
@@ -115,16 +116,14 @@ export async function runModule(
 
       beforeExecuting();
 
-      const { executeModel, disposeHooks } = executeWithHooks(
-        (hookContext) =>
-          mod.factoryFunction.apply(hookContext, argsToCallFunctionWith) // TODO: what happens with disposers if a rerun of this function is slow / delayed?
-      );
-
-      disposeEveryRun.push(disposeHooks);
+      disposeEveryRun.push(hookExecution.dispose);
+      hookExecution.attachToWindow();
 
       try {
-        await executeModel();
+        await mod.factoryFunction.apply(undefined, argsToCallFunctionWith);
       } finally {
+        hookExecution.detachFromWindow();
+
         if (previousVariableDisposer) {
           previousVariableDisposer(exports);
         }

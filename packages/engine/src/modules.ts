@@ -1,6 +1,6 @@
 import { TypeCellContext } from "./context";
 import { observable, untracked, computed, autorun } from "mobx";
-import { overrideFunctions } from "./hooks";
+import { HookContext } from "./HookExecution";
 // import { stored } from "./storage/stored";
 // import { view } from "./view";
 
@@ -72,7 +72,10 @@ function createDefine(modules: Module[]) {
   };
 }
 
-export function createExecutionScope(context: TypeCellContext<any>) {
+export function createExecutionScope(
+  context: TypeCellContext<any>,
+  hookContext: HookContext
+) {
   const scope = {
     autorun,
     $: context.context,
@@ -83,6 +86,7 @@ export function createExecutionScope(context: TypeCellContext<any>) {
     // stored,
     // view,
     observable,
+    ...hookContext,
   };
   return scope;
 }
@@ -112,17 +116,6 @@ export function getModulesFromTypeCellCode(compiledCode: string, scope: any) {
     /^\s*(define\((".*", )?\[.*\], )function/gm,
     "$1async function"
   ); // TODO: remove await?
-
-  // Adds overridden functions
-  // TODO: improve injection method
-  totalCode = totalCode.replace(
-    /("use strict";)/,
-    `"use strict";
-// Override functions
-${overrideFunctions
-  .map((hook: string) => `let ${hook} = this.${hook};`)
-  .join("\n")}\n`
-  );
 
   return getModulesFromCode(totalCode, scope);
 }
