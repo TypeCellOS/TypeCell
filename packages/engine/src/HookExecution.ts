@@ -1,3 +1,5 @@
+import { ConsolePayload } from "./Engine";
+
 const glob = typeof window === "undefined" ? global : window;
 
 const overrideFunctions = [
@@ -23,17 +25,41 @@ export type HookContext = { [K in typeof overrideFunctions[number]]: any };
 export class HookExecution {
   public disposers: Array<() => void> = [];
   public context: HookContext = {
-    setTimeout: this.applyDisposer(setTimeout, this.disposers, (ret) => {
+    setTimeout: this.applyDisposer(setTimeout, (ret) => {
       clearTimeout(ret);
     }),
-    setInterval: this.applyDisposer(setInterval, this.disposers, (ret) => {
+    setInterval: this.applyDisposer(setInterval, (ret) => {
       clearInterval(ret);
     }),
     console: {
       ...originalReferences.console,
       log: (...args: any) => {
-        // TODO: broadcast output to console view
         originalReferences.console.log(...args);
+        this.onConsoleEvent({
+          level: "info",
+          message: args,
+        });
+      },
+      info: (...args: any) => {
+        originalReferences.console.info(...args);
+        this.onConsoleEvent({
+          level: "info",
+          message: args,
+        });
+      },
+      warn: (...args: any) => {
+        originalReferences.console.warn(...args);
+        this.onConsoleEvent({
+          level: "warn",
+          message: args,
+        });
+      },
+      error: (...args: any) => {
+        originalReferences.console.error(...args);
+        this.onConsoleEvent({
+          level: "error",
+          message: args,
+        });
       },
     },
     EventTarget: undefined,
@@ -41,7 +67,7 @@ export class HookExecution {
     global: undefined,
   };
 
-  constructor() {
+  constructor(private onConsoleEvent: (console: ConsolePayload) => void) {
     if (typeof EventTarget !== "undefined") {
       this.context.EventTarget = {
         EventTarget,
@@ -49,7 +75,6 @@ export class HookExecution {
           ...EventTarget.prototype,
           addEventListener: this.applyDisposer(
             EventTarget.prototype.addEventListener as any,
-            this.disposers,
             function (this: any, _ret, args) {
               this.removeEventListener(args[0], args[1]);
             }
@@ -101,14 +126,16 @@ export class HookExecution {
 
   private applyDisposer<T, Y>(
     original: (...args: T[]) => Y,
-    disposes: Array<() => void>,
     disposer: (ret: Y, args: T[]) => void
   ) {
+    const self = this;
     return function newFunction(this: any): Y {
       const callerArguments = arguments;
       const ret = original.apply(this, callerArguments as any); // TODO: fix any?
       const ctx = this;
-      disposes.push(() => disposer.call(ctx, ret, callerArguments as any));
+      self.disposers.push(() =>
+        disposer.call(ctx, ret, callerArguments as any)
+      );
       return ret;
     };
   }

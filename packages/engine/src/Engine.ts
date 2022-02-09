@@ -8,6 +8,21 @@ export type ResolvedImport = {
   module: any;
 } & lifecycle.IDisposable;
 
+export type OutputEvent<T> = {
+  model: T;
+  output: any;
+};
+
+export type ConsolePayload = {
+  level: "info" | "warn" | "error";
+  message: any;
+};
+
+export type ConsoleEvent<T> = {
+  model: T;
+  console: ConsolePayload;
+};
+
 /**
  * The engine automatically runs models registered to it.
  * The code of the models is passed a context ($) provided by the engine.
@@ -26,17 +41,30 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
     ReturnType<typeof createCellEvaluator>
   >();
 
-  private readonly _onOutput: event.Emitter<{ model: T; output: any }> =
-    this._register(new event.Emitter<{ model: T; output: any }>());
+  private readonly _onOutput: event.Emitter<OutputEvent<T>> = this._register(
+    new event.Emitter<OutputEvent<T>>()
+  );
+
+  private readonly _onConsole: event.Emitter<ConsoleEvent<T>> = this._register(
+    new event.Emitter<ConsoleEvent<T>>()
+  );
 
   /**
    * Raised whenever a model is (re)evaluated, with the exports by that model
    *
-   * @type {event.Event<{ model: T; output: any }>}
+   * @type {event.Event<OutputEvent<T>>}
    * @memberof Engine
    */
-  public readonly onOutput: event.Event<{ model: T; output: any }> =
-    this._onOutput.event;
+  public readonly onOutput: event.Event<OutputEvent<T>> = this._onOutput.event;
+
+  /**
+   * Raised whenever a model calls console.* functions
+   *
+   * @type {event.Event<ConsoleEvent<T>>}
+   * @memberof Engine
+   */
+  public readonly onConsole: event.Event<ConsoleEvent<T>> =
+    this._onConsole.event;
 
   private readonly _onBeforeExecution: event.Emitter<{ model: T }> =
     this._register(new event.Emitter<{ model: T }>());
@@ -103,7 +131,8 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
           }
           return ret.module;
         },
-        (model, output) => this._onOutput.fire({ model, output })
+        (event) => this._onOutput.fire(event),
+        (event) => this._onConsole.fire(event)
       ); // catch errors?
     };
     let prevValue: string | undefined = model.getValue();
@@ -152,7 +181,8 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
     model: T,
     typecellContext: TypeCellContext<any>,
     resolveImport: (module: string) => Promise<any>,
-    onOutput: (model: T, output: any) => void
+    onOutput: (event: OutputEvent<T>) => void,
+    onConsole: (event: ConsoleEvent<T>) => void
   ) {
     if (!this.evaluatorCache.has(model)) {
       this.evaluatorCache.set(
@@ -161,7 +191,8 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
           typecellContext,
           resolveImport,
           true,
-          (output) => onOutput(model, output),
+          (output) => onOutput({ model, output }),
+          (console) => onConsole({ model, console }),
           () => this._onBeforeExecution.fire({ model })
         )
       );
