@@ -21,7 +21,9 @@
   "scripts": {
     "clean": "rimraf dist && rimraf types",
     "build": "npm run clean && tsc -p tsconfig.json",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "install-playwright": "npx playwright install --with-deps",
+    "playwright": "npx playwright test"
   },
   "jest": {
     "transformIgnorePatterns": [
