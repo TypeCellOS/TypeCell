@@ -26,3 +26,9 @@ export const ENVIRONMENT: "PROD" | "DEV" | "STAGING" =
 //   hsUrl: "https://" + DEFAULT_HOMESERVER_HOST,
 //   isUrl: "https://vector.im",
 // };
+
+export function getTestFlags(): {
+  disableWebRTC?: boolean;
+} {
+  return (window as any).__TEST_OPTIONS || {};
+}

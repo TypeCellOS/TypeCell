@@ -90,7 +90,6 @@ test("changes sync from Alice to Bob", async ({ aliceContext, bobContext }) => {
 
 test("changes sync from Bob to Alice", async ({ aliceContext, bobContext }) => {
   await testEditSync(pageBob, pageAlice);
-  await pageBob.pause();
   // select content
   // TODO: consistent username + colors for screenshots
   //   expect(await pageBob.screenshot()).toMatchSnapshot("sync-selection.bob.png");

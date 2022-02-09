@@ -27,7 +27,6 @@ test.beforeEach(async () => {
   // Click .view-line
   await pageAlice.click(".view-line");
   // Press a with modifiers
-  await pageAlice.pause();
   await pageAlice.press(writeEditorSelector, "Meta+a");
   await pageAlice.fill(writeEditorSelector, "helloworld");
   await pageBob.waitForSelector("text=helloworld", { timeout: 2000 });

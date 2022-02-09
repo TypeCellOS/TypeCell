@@ -59,7 +59,7 @@ const config: PlaywrightTestConfig<TestOptions> = {
 
       /* Project-specific settings. */
       use: {
-        headless: false,
+        // headless: false,
         ...devices["Desktop Chrome"],
         disableWebRTC: true,
       },
