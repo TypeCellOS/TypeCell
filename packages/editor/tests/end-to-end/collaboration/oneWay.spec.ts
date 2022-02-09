@@ -18,8 +18,8 @@ test.beforeAll(async ({ aliceContext, bobContext }) => {
 });
 
 test.afterAll(() => {
-  pageAlice.close();
-  pageBob.close();
+  pageAlice?.close();
+  pageBob?.close();
 });
 
 // before each test, Alice clears the content of the first editor and sets it to "helloworld"
