@@ -49,7 +49,7 @@ const config: PlaywrightTestConfig = {
 
       /* Project-specific settings. */
       use: {
-        headless: false,
+        // headless: false,
         ...devices["Desktop Chrome"],
       },
     },
@@ -102,9 +102,9 @@ const config: PlaywrightTestConfig = {
 
   /* Run your local dev server before starting the tests */
   // webServer: {
-  //   command: "npm run start:local",
+  //   command: "npm start:local",
   //   reuseExistingServer: !process.env.CI,
-  //   timeout: 1240 * 1000,
+  //   timeout: 60 * 1000,
   //   port: 3000,
   // },
 };
