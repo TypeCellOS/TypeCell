@@ -2,6 +2,16 @@ import { runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
 
+/**
+ * The OutputShadow is a "fake" empty div which the SandboxedExecutionHost renders
+ * in the position of the cell output.
+ * However, the actual cell output is rendered by the Iframe (iframe/Frame.tsx).
+ *
+ * The dimensions of the OutputShadow are passed in from the iframe (via the bridge),
+ *  so the iframe knows where to render the actual output.
+ *
+ * The position of the OutputShadow are passed to the iframe over the bridge (by the host).
+ */
 export const OutputShadow = observer(
   (props: {
     dimensions: { width: number; height: number };
@@ -11,6 +21,9 @@ export const OutputShadow = observer(
   }) => {
     const divRef = useRef<HTMLDivElement>(null);
 
+    // Monitor the position of the OutputShadow so we can pass
+    // updates to the iframe. The iframe then knows at which x, y position
+    // it needs to render the output
     useEffect(() => {
       const updatePositions = () => {
         if (!divRef.current) {
@@ -28,7 +41,9 @@ export const OutputShadow = observer(
           }
         });
       };
-      const handle = setInterval(updatePositions, 20); // TODO: replace with MutationObserver?
+      // We use setInterval to monitor the positions.
+      // TODO: can we use MutationObserver or something else for this?
+      const handle = setInterval(updatePositions, 20);
       return () => {
         clearInterval(handle);
       };
