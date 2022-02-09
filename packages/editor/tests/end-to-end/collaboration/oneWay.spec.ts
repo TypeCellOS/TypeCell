@@ -27,6 +27,7 @@ test.beforeEach(async () => {
   // Click .view-line
   await pageAlice.click(".view-line");
   // Press a with modifiers
+  await pageAlice.pause();
   await pageAlice.press(writeEditorSelector, "Meta+a");
   await pageAlice.fill(writeEditorSelector, "helloworld");
   await pageBob.waitForSelector("text=helloworld", { timeout: 2000 });
@@ -45,7 +46,12 @@ test.afterEach(async () => {
 test("selection syncs from Alice to Bob", async ({
   aliceContext,
   bobContext,
+  disableWebRTC,
 }) => {
+  if (disableWebRTC) {
+    test.skip();
+    return;
+  }
   await selectionSyncs(pageAlice, pageBob);
   // select content
   // TODO: consistent username + colors for screenshots
@@ -55,7 +61,12 @@ test("selection syncs from Alice to Bob", async ({
 test("selection syncs from Bob to Alice", async ({
   aliceContext,
   bobContext,
+  disableWebRTC,
 }) => {
+  if (disableWebRTC) {
+    test.skip();
+    return;
+  }
   await selectionSyncs(pageBob, pageAlice);
   // select content
   // TODO: consistent username + colors for screenshots

@@ -1,5 +1,11 @@
 import { expect } from "./userFixtures";
-export { test } from "./userFixtures";
+import { test } from "./userFixtures";
+
+export type TestOptions = {
+  disableWebRTC: boolean;
+};
+
+// Custom matchers:
 
 expect.extend({
   toBeNear(received: number, value: number, range: number) {
@@ -17,4 +23,4 @@ expect.extend({
     }
   },
 });
-export { expect };
+export { expect, test };

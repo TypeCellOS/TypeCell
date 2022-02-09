@@ -1,10 +1,11 @@
 import type { PlaywrightTestConfig } from "@playwright/test";
 import { devices } from "@playwright/test";
+import { TestOptions } from "./tests/end-to-end/setup/fixtures";
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-const config: PlaywrightTestConfig = {
+const config: PlaywrightTestConfig<TestOptions> = {
   testDir: "./tests",
   globalSetup: "./tests/end-to-end/setup/globalSetup.ts",
   /* Maximum time one test can run for. */
@@ -52,6 +53,17 @@ const config: PlaywrightTestConfig = {
         // headless: false,
         ...devices["Desktop Chrome"],
       },
+    },
+    {
+      name: "chromium no WebRTC",
+
+      /* Project-specific settings. */
+      use: {
+        headless: false,
+        ...devices["Desktop Chrome"],
+        disableWebRTC: true,
+      },
+      testMatch: /.*collaboration.*/,
     },
 
     // {

@@ -1,10 +1,5 @@
-import {
-  BrowserContext,
-  BrowserContextOptions,
-  test as base,
-  expect,
-} from "@playwright/test";
-
+import { BrowserContext, BrowserContextOptions } from "@playwright/test";
+import { test as base } from "./scriptSetup";
 // https://github.com/developit/microbundle/issues/708, otherwise vscode-lib fails
 import "regenerator-runtime/runtime.js";
 import { uri } from "vscode-lib";

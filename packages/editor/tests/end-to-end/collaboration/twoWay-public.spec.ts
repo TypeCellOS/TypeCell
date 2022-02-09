@@ -54,7 +54,12 @@ test.afterEach(async () => {
 test("selection syncs from Alice to Bob", async ({
   aliceContext,
   bobContext,
+  disableWebRTC,
 }) => {
+  if (disableWebRTC) {
+    test.skip();
+    return;
+  }
   await selectionSyncs(pageAlice, pageBob);
   // select content
   // TODO: consistent username + colors for screenshots
@@ -64,7 +69,12 @@ test("selection syncs from Alice to Bob", async ({
 test("selection syncs from Bob to Alice", async ({
   aliceContext,
   bobContext,
+  disableWebRTC,
 }) => {
+  if (disableWebRTC) {
+    test.skip();
+    return;
+  }
   await selectionSyncs(pageBob, pageAlice);
   // select content
   // TODO: consistent username + colors for screenshots
