@@ -45,6 +45,5 @@ export function toAMDFormat(code: string) {
 }
 
 export function buildMockedModel(name: string, code: string) {
-  const umdFormat = toAMDFormat(code);
-  return new CodeModelMock("javascript", name, umdFormat);
+  return new CodeModelMock("javascript", name, toAMDFormat(code));
 }
