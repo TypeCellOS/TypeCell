@@ -58,13 +58,13 @@ jobs:
         env:
           CI: true
 
-      - name: Run server
-        run: npm start & npx wait-on http://localhost:3000
+      - name: Lint (we don't build React in CI, but at least lint it)
+        run: npm run lint
         env:
           CI: true
 
-      - name: Lint (we don't build React in CI, but at least lint it)
-        run: npm run lint
+      - name: Run server
+        run: npm start & npx wait-on http://localhost:3000
         env:
           CI: true
 
@@ -77,14 +77,14 @@ jobs:
       - uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-editor
           path: packages/editor/playwright-report/
           retention-days: 30
 
       - uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-engine
           path: packages/engine/playwright-report/
           retention-days: 30
 
