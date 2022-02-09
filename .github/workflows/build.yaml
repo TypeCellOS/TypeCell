@@ -63,6 +63,31 @@ jobs:
         env:
           CI: true
 
+      - name: Run server
+        run: npm start & npx wait-on http://localhost:3000
+        env:
+          CI: true
+
+      - name: Install Playwright
+        run: npm run install-playwright
+
+      - name: Run Playwright tests
+        run: npm run playwright
+
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: playwright-report-editor
+          path: packages/editor/playwright-report/
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: playwright-report-engine
+          path: packages/engine/playwright-report/
+          retention-days: 30
+
       - name: Run Tests
         run: npm run test
         env:

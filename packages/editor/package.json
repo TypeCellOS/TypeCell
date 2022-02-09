@@ -125,6 +125,8 @@
     "build": "tsc -v && npm run copytypes && npm run copy-docs",
     "build-react": "cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true craco build",
     "build-react-stats": "npm run build-react -- --stats && npx webpack-bundle-analyzer build/bundle-stats.json",
+    "install-playwright": "npx playwright install --with-deps",
+    "playwright": "npx playwright test",
     "lint": "eslint src",
     "test": "craco test",
     "test-no-watch": "craco test --watchAll=false",
@@ -182,6 +184,7 @@
     "glob": "^7.2.0",
     "patch-package": "^6.4.7",
     "rimraf": "^3.0.2",
-    "ts-node": "^10.1.0"
+    "ts-node": "^10.1.0",
+    "@playwright/test": "^1.18.1"
   }
 }
