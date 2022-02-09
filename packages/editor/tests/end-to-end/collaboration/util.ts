@@ -1,4 +1,5 @@
 import { BrowserContext, Page } from "@playwright/test";
+import { time } from "console";
 import { expect, test } from "../setup/fixtures";
 
 // We write changes to the editor using this selector
@@ -57,7 +58,12 @@ export async function selectionSyncs(from: Page, to: Page) {
   expect(bbLine.y).toBeNear(bbSelection.y, 2);
 }
 
-export async function testEditSync(from: Page, to: Page, shouldSync = true) {
+export async function testEditSync(
+  from: Page,
+  to: Page,
+  timeout: number,
+  shouldSync = true
+) {
   await from.press(writeEditorSelector, "Meta+a");
   await from.fill(writeEditorSelector, "changedtext");
 
@@ -65,11 +71,11 @@ export async function testEditSync(from: Page, to: Page, shouldSync = true) {
 
   if (shouldSync) {
     await to.waitForSelector("text=changedtext", {
-      timeout: 2000,
+      timeout,
     });
     expect(from.locator('[data-test="forkAlert"]')).toBeHidden();
   } else {
-    await to.waitForTimeout(2000);
+    await to.waitForTimeout(timeout);
     expect(to.locator("text=changedtext")).toBeHidden();
     await from.waitForSelector('[data-test="forkAlert"]');
   }
