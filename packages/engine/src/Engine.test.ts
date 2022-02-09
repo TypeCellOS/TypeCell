@@ -1,12 +1,12 @@
-import { CodeModel } from "../CodeModel";
-import { Engine } from "../Engine";
+import { CodeModel } from "./CodeModel";
+import { Engine } from "./Engine";
 import { event } from "vscode-lib";
 import {
   buildMockedModel,
   importResolver,
-  toUMDFormat,
+  toAMDFormat,
   waitTillEvent,
-} from "./utils/helpers";
+} from "./tests/util/helpers";
 
 const getModel1 = () =>
   buildMockedModel(
@@ -53,7 +53,7 @@ describe("engine class", () => {
     await event.Event.toPromise(engine.onOutput);
 
     model1.updateCode(
-      toUMDFormat(`let x = 0;
+      toAMDFormat(`let x = 0;
     let y = 6;
     let sum = x + y;
     exports.sum = sum;
@@ -68,6 +68,7 @@ describe("engine class", () => {
 
   it("should re-evaluate other models when global variable changes", async () => {
     const engine = new Engine<CodeModel>(importResolver);
+    // TODO: Expected 4 events. Figure out why model 2 re-evaluates.
     const eventsPromise = waitTillEvent(engine.onOutput, 5);
     const model1 = getModel1();
     const model2 = getModel2();
@@ -76,7 +77,7 @@ describe("engine class", () => {
     engine.registerModel(model2);
 
     model1.updateCode(
-      toUMDFormat(`let x = 0;
+      toAMDFormat(`let x = 0;
     let y = 6;
     let sum = x + y;
     exports.sum = sum;
