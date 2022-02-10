@@ -1,12 +1,13 @@
 import type { PlaywrightTestConfig } from "@playwright/test";
 import { devices } from "@playwright/test";
+import { TestOptions } from "./tests/end-to-end/setup/fixtures";
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-const config: PlaywrightTestConfig = {
+const config: PlaywrightTestConfig<TestOptions> = {
   testDir: "./tests",
-
+  globalSetup: "./tests/end-to-end/setup/globalSetup.ts",
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
 
@@ -21,8 +22,8 @@ const config: PlaywrightTestConfig = {
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
 
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  /* Retry */
+  retries: process.env.CI ? 2 : 1,
 
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
@@ -49,8 +50,20 @@ const config: PlaywrightTestConfig = {
 
       /* Project-specific settings. */
       use: {
+        // headless: false,
         ...devices["Desktop Chrome"],
       },
+    },
+    {
+      name: "chromium no WebRTC",
+
+      /* Project-specific settings. */
+      use: {
+        // headless: false,
+        ...devices["Desktop Chrome"],
+        disableWebRTC: true,
+      },
+      testMatch: /.*collaboration.*/,
     },
 
     // {
@@ -60,12 +73,12 @@ const config: PlaywrightTestConfig = {
     //   },
     // },
 
-    {
-      name: "webkit",
-      use: {
-        ...devices["Desktop Safari"],
-      },
-    },
+    // {
+    //   name: "webkit",
+    //   use: {
+    //     ...devices["Desktop Safari"],
+    //   },
+    // },
 
     /* Test against mobile viewports. */
     // {
@@ -101,7 +114,7 @@ const config: PlaywrightTestConfig = {
 
   /* Run your local dev server before starting the tests */
   // webServer: {
-  //   command: "npm start",
+  //   command: "npm start:local",
   //   reuseExistingServer: !process.env.CI,
   //   timeout: 60 * 1000,
   //   port: 3000,

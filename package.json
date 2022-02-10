@@ -24,8 +24,9 @@
     "start": "npm run start-react",
     "start-filebridge": "npx filebridge docs",
     "start-react": "lerna run --scope @typecell-org/editor start",
+    "start:local": "lerna run --scope @typecell-org/editor start:local",
     "prepublishOnly": "npm run test && npm run build",
     "deploy": "lerna publish",
-    "link-matrix-crdt": "npm run ../matrix-crdt"
+    "link-matrix-crdt": "npm link matrix-crdt"
   }
 }
