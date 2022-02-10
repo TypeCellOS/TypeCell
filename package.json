@@ -15,7 +15,7 @@
     "bootstrap": "lerna bootstrap --hoist --ci && patch-package",
     "install-new-packages": "lerna bootstrap --hoist && patch-package",
     "playwright": "lerna run playwright",
-    "install-playwright": "lerna run install-playwright",
+    "install-playwright": "npx playwright install --with-deps",
     "test": "jest --coverage=true --config=jest.config.js && lerna run test-no-watch",
     "build": "lerna run build --concurrency 1",
     "build-react": "lerna run build-react --concurrency 1 --stream",

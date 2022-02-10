@@ -14,6 +14,22 @@ jobs:
         with:
           node-version: 16.x
 
+      # doesn't seem to cause significant speed up, probably because it still needs to install deps
+      # - name: cache playwright
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.cache/ms-playwright
+      #     key: pw-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
+      # doesn't seem to cause significant speed up, maybe not right conf?
+      # - name: cache lerna
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: |
+      #       node_modules
+      #       packages/**/node_modules
+      #     key: lerna-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
       - name: Cache node modules
         uses: actions/cache@v2
         env:
@@ -46,12 +62,7 @@ jobs:
         run: npm run bootstrap
 
       - name: Wait for Matrix
-        uses: nev7n/wait_for_response@v1
-        with:
-          url: "http://localhost:8888/_matrix/static/"
-          responseCode: 200
-          timeout: 20000
-          interval: 500
+        run: npx wait-on http://localhost:8888/_matrix/static/
 
       - name: Build packages
         run: npm run build
