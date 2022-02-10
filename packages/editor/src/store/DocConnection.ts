@@ -127,6 +127,15 @@ export class DocConnection extends lifecycle.Disposable {
     return this.manager;
   }
 
+  /** @internal */
+  public get matrixProvider() {
+    if (this.manager instanceof YDocSyncManager) {
+      return this.manager.matrixProvider;
+    } else {
+      throw new Error("not supported");
+    }
+  }
+
   public get needsFork() {
     if (!this.manager) {
       return false;

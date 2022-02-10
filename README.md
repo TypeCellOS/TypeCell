@@ -22,6 +22,7 @@ To run the project, open the command line in the project's root directory and en
     # Start the editor project
     npm start
 
+
 ## Watch changes
 
     npm run watch

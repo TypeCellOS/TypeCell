@@ -7,8 +7,8 @@ import {
 import { observer } from "mobx-react-lite";
 import { VscSignIn } from "react-icons/vsc";
 import { getStoreService } from "../../../store/local/stores";
-import { ProfilePopup } from "./ProfilePopup";
 import { Logo } from "./Logo";
+import { ProfilePopup } from "./ProfilePopup";
 import styles from "./Navigation.module.css";
 
 const ProductHome = () => {

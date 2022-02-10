@@ -87,12 +87,10 @@ export function createExecutionScope(context: TypeCellContext<any>) {
 }
 
 export function getModulesFromTypeCellCode(compiledCode: string, scope: any) {
-  if (!compiledCode.match(/^(define\((".*", )?\[.*\], )function/gm)) {
+  // Checks if define([], function) like code is already present
+  if (!compiledCode.match(/(define\((".*", )?\[.*\], )function/gm)) {
     // file is not a module (no exports). Create module-like code manually
-    compiledCode = `define([], function() {
-  ${compiledCode};
-            });   
-  `;
+    compiledCode = `define([], function() { ${compiledCode}; });`;
   }
 
   if (Object.keys(scope).find((key) => !/^[a-zA-Z0-9_$]+$/.test(key))) {

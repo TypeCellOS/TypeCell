@@ -48,7 +48,7 @@ export const ForkAlert: React.FC<{}> = observer((props) => {
   );
 
   return (
-    <div className={styles.fork_alert}>
+    <div className={styles.fork_alert} data-test="forkAlert">
       <div style={{ paddingTop: 1, marginRight: 3 }}>
         <EditorWarningIcon size="small" label="Warning" />
       </div>

@@ -15,21 +15,13 @@
     {
       "name": "packages/engine",
       "path": "packages/engine"
-    },
-    {
-      "name": "packages/matrix-crdt",
-      "path": "packages/matrix-crdt"
     }
   ],
   "settings": {
     "files.exclude": {
       "packages/": true
     },
-    "jest.disabledWorkspaceFolders": [
-      "ROOT",
-      "packages/common",
-      "packages/engine"
-    ],
+    "jest.disabledWorkspaceFolders": ["ROOT", "packages/common"],
     "typescript.tsdk": "ROOT/node_modules/typescript/lib"
   }
 }

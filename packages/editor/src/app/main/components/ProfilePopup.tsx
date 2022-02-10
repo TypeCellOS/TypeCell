@@ -30,6 +30,7 @@ export const ProfilePopup = observer(
         shouldFlip
         trigger={
           <Profile
+            testId="profile-button"
             icon={
               <Avatar
                 name={getStoreService().sessionStore.loggedInUserId?.substring(

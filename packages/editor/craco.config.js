@@ -35,6 +35,7 @@ module.exports = {
       };
       addBeforeLoader(webpackConfig, loaderByName("file-loader"), wasmLoader);
 
+      // webpackConfig.resolve.symlinks = false;
       return webpackConfig;
     },
   },

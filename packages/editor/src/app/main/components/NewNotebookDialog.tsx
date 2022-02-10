@@ -123,6 +123,9 @@ export const NewNotebookDialog = (props: {
                 </>
               )}
             </Field>
+            <div>
+              <small>(Note that notebooks are public by default)</small>
+            </div>
           </Modal>
         )}
       </ModalTransition>

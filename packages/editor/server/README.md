@@ -12,6 +12,7 @@ Modify `homeserver.yaml`
 - set enable_registration: true
 - set enable_search: false
 - set allow_guest_access: true
+- set search_all_users: true
 - add github / google oidc providers (https://github.com/matrix-org/synapse/blob/master/docs/openid.md)
 - set public_baseurl: https://mx.typecell.org
 - set registrations_require_3pid to "email"

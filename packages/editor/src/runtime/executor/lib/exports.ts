@@ -1,7 +1,10 @@
 import { computed } from "mobx";
 import { Input } from "./input/Input";
 
-// TODO: make sure only relevant types are exported
+/**
+ * This is used in ../resolver/resolver.ts and exposes the "typecell" helper functions
+ * (e.g.: typecell.Input)
+ */
 export default function getExposeGlobalVariables(id: string) {
   return {
     // routing,

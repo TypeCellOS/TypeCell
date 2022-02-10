@@ -9,11 +9,12 @@ module.exports = {
   roots: ["<rootDir>"],
   modulePaths: ["<rootDir>"],
   testMatch: ["**/__tests__/**/*.ts?(x)", "**/?(*.)+(spec|test).ts?(x)"],
+  testPathIgnorePatterns: ["/node_modules/", "/tests/end-to-end/"],
   moduleNameMapper: {
     "@typecell-org/common": "<rootDir>/../common/src",
     "^lib0/([a-zA-Z-]*)$": "<rootDir>/../../node_modules/lib0/dist/$1.cjs",
     "^y-protocols/([a-zA-Z-]*)$":
       "<rootDir>/../../node_modules/y-protocols/dist/$1.cjs",
   },
-  setupFiles: ["<rootDir>/src/setupTests.ts"],
+  setupFiles: ["<rootDir>/src/tests/setupTests.ts"],
 };
