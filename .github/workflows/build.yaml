@@ -19,7 +19,7 @@ jobs:
         with:
           path: |
             node_modules
-            */*/node_modules
+            packages/**/node_modules
           key: lerna-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: Cache node modules
