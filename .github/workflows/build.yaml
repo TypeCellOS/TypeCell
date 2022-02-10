@@ -14,6 +14,14 @@ jobs:
         with:
           node-version: 16.x
 
+      - name: cache lerna
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: lerna-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
       - name: Cache node modules
         uses: actions/cache@v2
         env:
