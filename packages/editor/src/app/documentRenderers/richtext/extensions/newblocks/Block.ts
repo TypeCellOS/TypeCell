@@ -1,10 +1,8 @@
-import { Node, mergeAttributes, textblockTypeInputRule } from "@tiptap/core";
+import { Command, mergeAttributes, Node } from "@tiptap/core";
+import { Selection } from "prosemirror-state";
 import styles from "./Block.module.css";
 import { PreviousBlockTypePlugin } from "./PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "./rule";
-import { Slice } from "prosemirror-model";
-import { Selection, NodeSelection } from "prosemirror-state";
-import { replaceStep } from "prosemirror-transform";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;
@@ -224,20 +222,27 @@ export const Block = Node.create<IBlock>({
             return commands.clearNodes();
           }),
         () => commands.deleteSelection(),
-        // () =>
-        //   commands.command(({ tr }) => {
-        //     const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
-        //     if (isAtStartOfNode) {
-        //       // if ()
-        //       return commands.first([
-        //         // () =>
-        //         // commands.updateAttributes("tcblock", { listType: undefined }),
-        //         () => commands.liftListItem("tcblock"),
-        //       ]);
-        //     }
-        //     // console.log(tr.selection);
-        //     return false;
-        //   }),
+        () =>
+          commands.command(({ tr }) => {
+            const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
+            if (isAtStartOfNode) {
+              const node = tr.selection.$anchor.node(-1);
+              const inOrder: Command[] = [];
+              if (node.type.name === "tcblock" && node.attrs["listType"]) {
+                inOrder.push(() =>
+                  commands.updateAttributes("tcblock", {
+                    ...node.attrs,
+                    listType: undefined,
+                  })
+                );
+              } else {
+                inOrder.push(() => commands.liftListItem("tcblock"));
+              }
+              return commands.first(inOrder);
+            }
+            // console.log(tr.selection);
+            return false;
+          }),
         // () => {
         //   commands.command(({}))
         // },
@@ -286,16 +291,38 @@ export const Block = Node.create<IBlock>({
             })
             .joinBackward()
             .run(),
-        () => {
-          debugger;
-          return false;
-        },
+
         () => commands.selectNodeBackward(),
         // () => true,
       ]);
 
     return {
-      Enter: () => this.editor.commands.splitListItem("tcblock"),
+      Enter: () =>
+        this.editor.commands.first(({ commands }) => [
+          () => commands.splitListItem("tcblock"),
+          ({ tr }) => {
+            const $from = tr.selection.$from;
+            if ($from.depth !== 3) {
+              return false;
+            }
+            const node = tr.selection.$anchor.node(-1);
+            if (node.type.name === "tcblock" && node.attrs["listType"]) {
+              return commands.updateAttributes("tcblock", {
+                ...node.attrs,
+                listType: undefined,
+              });
+            }
+            return false;
+          },
+          ({ tr }) => {
+            const $from = tr.selection.$from;
+            // if ($from.depth !== 3) {
+            //   return false;
+            // }
+            tr.split($from.pos, 2).scrollIntoView();
+            return true;
+          },
+        ]),
       Tab: () => this.editor.commands.sinkListItem("tcblock"),
       "Shift-Tab": () => {
         debugger;

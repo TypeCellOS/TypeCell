@@ -100,6 +100,7 @@ export const CreateDraggableBlocksPlugin = () => {
   const WIDTH = 24;
 
   return new Plugin({
+    key: new PluginKey("draggableBlocks"),
     view(editorView) {
       dropElement = document.createElement("div");
       dropElement.setAttribute("draggable", "true");
