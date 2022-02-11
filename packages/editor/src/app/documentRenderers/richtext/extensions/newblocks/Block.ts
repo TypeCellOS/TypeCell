@@ -224,25 +224,71 @@ export const Block = Node.create<IBlock>({
             return commands.clearNodes();
           }),
         () => commands.deleteSelection(),
-        () =>
-          commands.command(({ tr }) => {
-            const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
-            if (isAtStartOfNode) {
-              return commands.first([
-                () =>
-                  commands.updateAttributes("tcblock", { listType: undefined }),
-                () => commands.liftListItem("tcblock"),
-              ]);
-            }
-            // console.log(tr.selection);
-            return false;
-          }),
+        // () =>
+        //   commands.command(({ tr }) => {
+        //     const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
+        //     if (isAtStartOfNode) {
+        //       // if ()
+        //       return commands.first([
+        //         // () =>
+        //         // commands.updateAttributes("tcblock", { listType: undefined }),
+        //         () => commands.liftListItem("tcblock"),
+        //       ]);
+        //     }
+        //     // console.log(tr.selection);
+        //     return false;
+        //   }),
         // () => {
         //   commands.command(({}))
         // },
+        // () => {
+        //   const first = commands.joinBackward();
+        //   return first;
+        // },
+        ({ chain }) =>
+          chain()
+            .command(({ tr, state }) => {
+              const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
+              if (isAtStartOfNode) {
+                const anchor = tr.selection.$anchor;
+                const node = anchor.node(-1);
+                if (node.type.name === "tcblock") {
+                  if (node.childCount === 2) {
+                    // const nestedBlockRange = {
+                    //   start: anchor.posAtIndex(1, -1) + 1,
+                    //   end: anchor.posAtIndex(2, -1),
+                    // };
+
+                    const startSecondChild = anchor.posAtIndex(1, -1) + 1; // start of blockgroup
+                    state.doc
+                      .resolve(startSecondChild)
+                      .blockRange(
+                        state.doc.resolve(37),
+                        (node) => node.type.name === "blockGroup"
+                      );
+                    const endSecondChild = anchor.posAtIndex(2, -1) - 1;
+                    const range = state.doc
+                      .resolve(startSecondChild)
+                      .blockRange(state.doc.resolve(endSecondChild));
+                    // const range2 = state.doc
+                    //   .resolve(anchor.posAtIndex(1, -1) + 1)
+                    //   .blockRange(state.doc.resolve(anchor.posAtIndex(2, -1)));
+                    tr.lift(range!, anchor.depth - 2);
+                    // tr.step(new ReplaceAroundStep(start, end, gapStart, gapEnd,
+                    //   new Slice(before.append(after), openStart, openEnd),
+                    //   before.size - openStart, true))
+                    // const pos = anchor.posAtIndex(node.firstChild!.nodeSize + 1, -1);
+                  }
+                  return true;
+                }
+              }
+              return false;
+            })
+            .joinBackward()
+            .run(),
         () => {
-          const first = commands.joinBackward();
-          return first;
+          debugger;
+          return false;
         },
         () => commands.selectNodeBackward(),
         // () => true,
@@ -251,7 +297,10 @@ export const Block = Node.create<IBlock>({
     return {
       Enter: () => this.editor.commands.splitListItem("tcblock"),
       Tab: () => this.editor.commands.sinkListItem("tcblock"),
-      "Shift-Tab": () => this.editor.commands.liftListItem("tcblock"),
+      "Shift-Tab": () => {
+        debugger;
+        return this.editor.commands.liftListItem("tcblock");
+      },
       Backspace: handleBackspace,
     };
   },
@@ -261,3 +310,17 @@ export const Block = Node.create<IBlock>({
   //     };
   //   },
 });
+
+// <block>
+//   <content>sdf</content>
+//   <group>
+//     <content>sdf</content>
+//   </group>
+// </block>
+// <block>
+//   <content>aaa</content>
+//   <group>
+//     <block></block>
+//     <block></block>
+//   </group>
+// </block>
