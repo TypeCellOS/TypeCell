@@ -18,7 +18,12 @@ async function resolveNestedModule(id: string, mode?: string) {
   // Any import if React and related libraries, we want to resolve to the
   // local imported React. Otherwise we get multiple instances of React, which breaks things
   // (plus, it's inefficient to load the library from a CDN)
-  if (id === "react" && (!mode || mode === "imports/optimized/react.js")) {
+  if (
+    id === "react" &&
+    (!mode ||
+      mode === "imports/optimized/react.js" ||
+      mode === "es2021/react.js")
+  ) {
     return react;
   }
 
