@@ -55,6 +55,7 @@ import TableMenu from "./menus/TableInlineMenu";
 import "./RichTextRenderer.css";
 import { blocks } from "./extensions/newblocks";
 import { extensions } from "@tiptap/core";
+import { DevTools } from "./extensions/devtools/devtools";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [
@@ -113,6 +114,7 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       extensions.Editable,
       extensions.FocusEvents,
       extensions.Tabindex,
+      DevTools,
       GapCursor,
       // TODO
       CollaborationCursor.configure({

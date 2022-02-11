@@ -171,6 +171,7 @@
     }
   },
   "devDependencies": {
+    "@playwright/test": "^1.18.1",
     "@svgr/webpack": "^5.5.0",
     "@types/jest": "^26.0.22",
     "@types/lodash": "^4.14.168",
@@ -186,8 +187,8 @@
     "fake-indexeddb": "^3.1.2",
     "glob": "^7.2.0",
     "patch-package": "^6.4.7",
+    "prosemirror-dev-tools": "^3.1.0",
     "rimraf": "^3.0.2",
-    "ts-node": "^10.1.0",
-    "@playwright/test": "^1.18.1"
+    "ts-node": "^10.1.0"
   }
 }
