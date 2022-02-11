@@ -4,15 +4,19 @@ import {
   ImportShimResolver,
   ResolvedImport,
   SkypackResolver,
+  // JSPMResolver,
+  ESMshResolver,
 } from "@typecell-org/engine";
 import getExposeGlobalVariables from "../lib/exports";
 import { LocalResolver } from "./LocalResolver";
 import { TypeCellCompiledCodeProvider } from "./typecell/TypeCellCompiledCodeProvider";
 
 // Used for resolving NPM imports
+const esmshResolver = new ESMshResolver();
 const skypackResolver = new SkypackResolver();
+// const jspmResolver = new JSPMResolver();
 const importShimResolver = new ImportShimResolver(
-  [skypackResolver],
+  [skypackResolver, esmshResolver],
   LocalResolver
 );
 

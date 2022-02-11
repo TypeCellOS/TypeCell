@@ -115,7 +115,8 @@
     "y-webrtc": "^10.1.8",
     "y-protocols": "^1.0.5",
     "yjs": "^13.5.16",
-    "zxcvbn": "^4.4.2"
+    "zxcvbn": "^4.4.2",
+    "prosemirror-dev-tools": "^3.1.0"
   },
   "scripts": {
     "copytypes:self": "rimraf public/types && tsc --declaration --stripInternal --emitDeclarationOnly --noEmit false --declarationDir public/types/@typecell-org/editor",
@@ -187,7 +188,6 @@
     "fake-indexeddb": "^3.1.2",
     "glob": "^7.2.0",
     "patch-package": "^6.4.7",
-    "prosemirror-dev-tools": "^3.1.0",
     "rimraf": "^3.0.2",
     "ts-node": "^10.1.0"
   }

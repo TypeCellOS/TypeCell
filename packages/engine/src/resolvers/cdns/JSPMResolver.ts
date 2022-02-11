@@ -1,22 +1,21 @@
-import { ExternalModuleResolver } from "./ExternalModuleResolver";
+import { ExternalModuleResolver } from "../ExternalModuleResolver";
 
-export class SkypackResolver extends ExternalModuleResolver {
+export class JSPMResolver extends ExternalModuleResolver {
   public async getModuleInfoFromURL(url: string) {
-    // skypack, e.g.: https://cdn.skypack.dev/-/react-sortable-tree@v2.8.0-nFKv1Y1I3NJ65IUkUWwI/dist=es2020,mode=imports/unoptimized/dist/index.cjs.js
     // TODO: should also pass version identifier (@xx)
 
-    const prefix = "https://cdn.skypack.dev/";
+    const prefix = "https://jspm.dev/";
     if (url.startsWith(prefix)) {
       url = url.substring(prefix.length - 1);
       let mode: string | undefined;
-      let matches = url.match(/^\/-\/(.+)@v[\d.]+-.*mode=(.*)$/);
+      let matches = url.match(/^\/npm:(.*)$/);
       if (!matches || !matches[1]) {
         throw new Error("couldn't match url");
       }
       const matchedModuleName = matches[1];
 
       // mode is necessary for jsx-runtime, e.g.: @yousef/use-p2
-      mode = matches[2];
+      mode = undefined; //matches[3];
 
       return {
         module: matchedModuleName,
@@ -30,6 +29,6 @@ export class SkypackResolver extends ExternalModuleResolver {
     if (moduleName.startsWith("https://") || moduleName.startsWith("../")) {
       throw new Error("unexpected modulename");
     }
-    return `https://cdn.skypack.dev/${moduleName}`;
+    return `https://jspm.dev/npm:${moduleName}`;
   }
 }
