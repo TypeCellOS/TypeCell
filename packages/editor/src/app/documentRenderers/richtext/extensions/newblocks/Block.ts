@@ -227,18 +227,23 @@ export const Block = Node.create<IBlock>({
             const isAtStartOfNode = tr.selection.$anchor.parentOffset === 0;
             if (isAtStartOfNode) {
               const node = tr.selection.$anchor.node(-1);
-              const inOrder: Command[] = [];
+              const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
+
+              // const node2 = tr.doc.nodeAt(nodePos);
               if (node.type.name === "tcblock" && node.attrs["listType"]) {
-                inOrder.push(() =>
-                  commands.updateAttributes("tcblock", {
-                    ...node.attrs,
-                    listType: undefined,
-                  })
-                );
+                tr.setNodeMarkup(nodePos, undefined, {
+                  ...node.attrs,
+                  listType: undefined,
+                });
+                return true;
+                //   commands.updateAttributes("tcblock", {
+                //     ...node.attrs,
+                //     listType: undefined,
+                //   })
+                // );
               } else {
-                inOrder.push(() => commands.liftListItem("tcblock"));
+                return commands.liftListItem("tcblock");
               }
-              return commands.first(inOrder);
             }
             // console.log(tr.selection);
             return false;
@@ -306,11 +311,14 @@ export const Block = Node.create<IBlock>({
               return false;
             }
             const node = tr.selection.$anchor.node(-1);
+            const nodePos = tr.selection.$anchor.posAtIndex(0, -1) - 1;
+            // const node2 = tr.doc.nodeAt(nodePos);
             if (node.type.name === "tcblock" && node.attrs["listType"]) {
-              return commands.updateAttributes("tcblock", {
+              tr.setNodeMarkup(nodePos, undefined, {
                 ...node.attrs,
                 listType: undefined,
               });
+              return true;
             }
             return false;
           },
@@ -325,7 +333,6 @@ export const Block = Node.create<IBlock>({
         ]),
       Tab: () => this.editor.commands.sinkListItem("tcblock"),
       "Shift-Tab": () => {
-        debugger;
         return this.editor.commands.liftListItem("tcblock");
       },
       Backspace: handleBackspace,

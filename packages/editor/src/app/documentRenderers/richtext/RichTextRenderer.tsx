@@ -147,7 +147,7 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       }),
       HardBreak,
       Comments,
-      MultiSelection,
+      // MultiSelection,
 
       // basics:
       Text,
