@@ -1,10 +1,8 @@
-import { Node, mergeAttributes, textblockTypeInputRule } from "@tiptap/core";
+import { mergeAttributes, Node } from "@tiptap/core";
+import { Selection } from "prosemirror-state";
 import styles from "./Block.module.css";
 import { PreviousBlockTypePlugin } from "./PreviousBlockTypePlugin";
 import { textblockTypeInputRuleSameNodeType } from "./rule";
-import { Slice } from "prosemirror-model";
-import { Selection, NodeSelection } from "prosemirror-state";
-import { replaceStep } from "prosemirror-transform";
 
 export interface IBlock {
   HTMLAttributes: Record<string, any>;

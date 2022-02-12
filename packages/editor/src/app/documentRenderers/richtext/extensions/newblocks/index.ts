@@ -1,5 +1,5 @@
-import { ContentBlock, Block, BlockGroup } from "./Block";
-import { Node, mergeAttributes, textblockTypeInputRule } from "@tiptap/core";
+import { Node } from "@tiptap/core";
+import { Block, BlockGroup, ContentBlock } from "./Block";
 
 export const blocks: any[] = [
   ContentBlock,

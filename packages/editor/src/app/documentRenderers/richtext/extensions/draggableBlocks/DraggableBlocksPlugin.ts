@@ -1,8 +1,5 @@
-import { Plugin, PluginKey, Selection } from "prosemirror-state";
-import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
-import { Node } from "prosemirror-model";
-import { __serializeForClipboard } from "prosemirror-view";
-import { NodeSelection } from "prosemirror-state";
+import { NodeSelection, Plugin, PluginKey } from "prosemirror-state";
+import { EditorView, __serializeForClipboard } from "prosemirror-view";
 import styles from "./draggableBlocks.module.css";
 export function createRect(rect: DOMRect) {
   let newRect = {

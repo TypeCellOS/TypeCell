@@ -1,17 +1,14 @@
+import { extensions } from "@tiptap/core";
 import Bold from "@tiptap/extension-bold";
 import Code from "@tiptap/extension-code";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
-import Document from "@tiptap/extension-document";
+import DropCursor from "@tiptap/extension-dropcursor";
+import GapCursor from "@tiptap/extension-gapcursor";
 import HardBreak from "@tiptap/extension-hard-break";
 import Italic from "@tiptap/extension-italic";
 import Placeholder from "@tiptap/extension-placeholder";
 import Strike from "@tiptap/extension-strike";
-import DropCursor from "@tiptap/extension-dropcursor";
-import TableCell from "@tiptap/extension-table-cell";
-import TableHeader from "@tiptap/extension-table-header";
-import TableRow from "@tiptap/extension-table-row";
-import GapCursor from "@tiptap/extension-gapcursor";
 import Text from "@tiptap/extension-text";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { observer } from "mobx-react-lite";
@@ -23,39 +20,22 @@ import SandboxedExecutionHost from "../../../runtime/executor/executionHosts/san
 import { DocumentResource } from "../../../store/DocumentResource";
 import { getStoreService } from "../../../store/local/stores";
 import { UniqueID } from "./extensions/autoid/UniqueID";
-import {
-  BlockQuoteBlock,
-  BulletList,
-  CodeBlockBlock,
-  HeadingBlock,
-  HorizontalRuleBlock,
-  IndentItemBlock,
-  ListItemBlock,
-  OrderedList,
-  ParagraphBlock,
-  TypeCellNodeBlock,
-} from "./extensions/blocktypes";
-import ImageBlock from "./extensions/blocktypes/ImageBlock";
-import IndentGroup from "./extensions/blocktypes/IndentGroup";
-import { TableBlock } from "./extensions/blocktypes/TableBlock";
 import { Comments } from "./extensions/comments/Comments";
 import { CommentStore } from "./extensions/comments/CommentStore";
 import { CommentWrapper } from "./extensions/comments/CommentWrapper";
+import { DevTools } from "./extensions/devtools/devtools";
 import { DraggableBlocksExtension } from "./extensions/draggableBlocks/DraggableBlocksExtension";
 import { Comment } from "./extensions/marks/Comment";
 import Hyperlink from "./extensions/marks/Hyperlink";
 import { Underline } from "./extensions/marks/Underline";
 import MentionsExtension, { Mention, MentionType } from "./extensions/mentions";
 import { MultiSelection } from "./extensions/multiselection/MultiSelection";
+import { blocks } from "./extensions/newblocks";
 import SlashCommandExtension from "./extensions/slashcommand";
-import { TrailingNode } from "./extensions/trailingnode";
 import { EngineContext } from "./extensions/typecellnode/EngineContext";
 import InlineMenu from "./menus/InlineMenu";
 import TableMenu from "./menus/TableInlineMenu";
 import "./RichTextRenderer.css";
-import { blocks } from "./extensions/newblocks";
-import { extensions } from "@tiptap/core";
-import { DevTools } from "./extensions/devtools/devtools";
 
 // This is a temporary array to show off mentions
 const PEOPLE = [

@@ -1,10 +1,8 @@
 import {
   combineTransactionSteps,
   findChildren,
-  findChildrenInRange,
   getChangedRanges,
 } from "@tiptap/core";
-import { truncate } from "lodash";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
