@@ -132,8 +132,9 @@ const RichTextRenderer: React.FC<Props> = observer((props: Props) => {
       // still need the placeholder extension to make sure nodeviews
       // are re-rendered when they're empty or when the anchor changes.
       Placeholder.configure({
-        placeholder: "", // actual placeholders are defined per block
-        showOnlyCurrent: true, // use showOnlyCurrent to make sure the nodeviews are rerendered when cursor moves
+        placeholder: "placeholder-todo", // actual placeholders are defined per block
+        includeChildren: true,
+        showOnlyCurrent: false, // use showOnlyCurrent to make sure the nodeviews are rerendered when cursor moves
       }),
       UniqueID.configure({
         types: [
