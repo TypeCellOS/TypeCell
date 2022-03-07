@@ -116,7 +116,7 @@ export async function runModule(
 
       beforeExecuting();
 
-      disposeEveryRun.push(hookExecution.dispose);
+      disposeEveryRun.push(hookExecution.dispose.bind(hookExecution));
       hookExecution.attachToWindow();
 
       try {
