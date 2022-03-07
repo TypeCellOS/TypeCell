@@ -44,7 +44,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
                     shouldFlip
                     trigger={
                       <div
-                        style={{ paddingRight: "0.5em", paddingLeft: "1em;" }}>
+                        style={{ paddingRight: "0.5em", paddingLeft: "1em" }}>
                         <VscKebabVertical
                           title="Options"
                           style={{ fontSize: "14px", transform: "scale(1.3)" }}
@@ -56,7 +56,12 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
                       onClick={() => openAsMarkdown(props.document!.doc)}>
                       Export as markdown
                     </DropdownItem>
-                    {/* TODO <DropdownItem>Change permissions</DropdownItem> */}
+                    {navigationStore.userCanEditPermissions && (
+                      <DropdownItem
+                        onClick={navigationStore.showPermissionsDialog}>
+                        Permissions
+                      </DropdownItem>
+                    )}
                   </DropdownMenu>
                 </li>
               </>

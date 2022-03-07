@@ -5,6 +5,7 @@ import { lifecycle } from "vscode-lib";
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
+import { getTestFlags } from "../../config/config";
 import { Identifier } from "../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";
 import { existsLocally, getIDBIdentifier, waitForIDBSynced } from "./IDBHelper";
@@ -189,9 +190,9 @@ export class YDocSyncManager
             ":" +
             this.identifier.uri.authority,
         },
-        this.awareness,
+        getTestFlags().disableWebRTC ? undefined : this.awareness,
         {
-          enableExperimentalWebrtcSync: true,
+          enableExperimentalWebrtcSync: !getTestFlags().disableWebRTC,
           translator: {
             updatesAsRegularMessages: false,
             updateEventType: "org.typecell.doc_update",

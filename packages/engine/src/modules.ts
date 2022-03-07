@@ -1,6 +1,7 @@
 import { TypeCellContext } from "./context";
 import { observable, untracked, computed, autorun } from "mobx";
 import { HookContext } from "./HookExecution";
+import { set as setProperty } from "lodash";
 // import { stored } from "./storage/stored";
 // import { view } from "./view";
 
@@ -86,8 +87,12 @@ export function createExecutionScope(
     // stored,
     // view,
     observable,
-    ...hookContext,
   };
+
+  Object.keys(hookContext).forEach((path) =>
+    setProperty(scope, path, hookContext[path as keyof HookContext])
+  );
+
   return scope;
 }
 

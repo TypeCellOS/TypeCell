@@ -6,29 +6,38 @@ const overrideFunctions = [
   "setTimeout",
   "setInterval",
   "console",
-  "EventTarget",
-  "window",
-  "global",
+  "EventTarget.prototype.addEventListener",
 ] as const;
 
 const originalReferences: HookContext = {
   setTimeout: glob.setTimeout,
   setInterval: glob.setInterval,
   console: glob.console,
-  EventTarget: glob.EventTarget,
-  window: window,
-  global: global,
+  "EventTarget.prototype.addEventListener":
+    glob.EventTarget.prototype.addEventListener,
 };
 
 export type HookContext = { [K in typeof overrideFunctions[number]]: any };
 
+function setProperty(base: Object, path: string, value: any) {
+  const layers = path.split(".");
+  if (layers.length > 1) {
+    const toOverride = layers.pop()!;
+    // Returns second last path member
+    const layer = layers.reduce((o, i) => o[i], base as any);
+    layer[toOverride] = value;
+  } else {
+    (base as any)[path] = value;
+  }
+}
+
 export class HookExecution {
   public disposers: Array<() => void> = [];
   public context: HookContext = {
-    setTimeout: this.applyDisposer(setTimeout, (ret) => {
+    setTimeout: this.createHookedFunction(setTimeout, (ret) => {
       clearTimeout(ret);
     }),
-    setInterval: this.applyDisposer(setInterval, (ret) => {
+    setInterval: this.createHookedFunction(setInterval, (ret) => {
       clearInterval(ret);
     }),
     console: {
@@ -62,69 +71,38 @@ export class HookExecution {
         });
       },
     },
-    EventTarget: undefined,
-    window: undefined,
-    global: undefined,
+    ["EventTarget.prototype.addEventListener"]: undefined,
   };
 
   constructor(private onConsoleEvent: (console: ConsolePayload) => void) {
     if (typeof EventTarget !== "undefined") {
-      this.context.EventTarget = {
-        EventTarget,
-        prototype: {
-          ...EventTarget.prototype,
-          addEventListener: this.applyDisposer(
-            EventTarget.prototype.addEventListener as any,
-            function (this: any, _ret, args) {
-              this.removeEventListener(args[0], args[1]);
-            }
-          ),
-        },
-      };
-    }
-
-    if (typeof window !== "undefined") {
-      this.context.window = {
-        ...window,
-        setTimeout: this.context.setTimeout,
-        setInterval: this.context.setInterval,
-        console: this.context.console,
-        EventTarget: this.context.EventTarget,
-      };
-    }
-
-    if (typeof global !== "undefined") {
-      this.context.global = {
-        ...global,
-        setTimeout: this.context.setTimeout,
-        setInterval: this.context.setInterval,
-        console: this.context.console,
-        EventTarget: this.context.EventTarget,
-      };
+      this.context["EventTarget.prototype.addEventListener"] =
+        this.createHookedFunction(
+          EventTarget.prototype.addEventListener as any,
+          function (this: any, _ret, args) {
+            this.removeEventListener(args[0], args[1]);
+          }
+        );
     }
   }
 
   public attachToWindow() {
-    overrideFunctions
-      .filter((name) => name !== "window" && name !== "global")
-      .forEach((name) => {
-        (glob as any)[name] = this.context[name];
-      });
+    overrideFunctions.forEach((path) =>
+      setProperty(glob, path, this.context[path])
+    );
   }
 
   public detachFromWindow() {
-    overrideFunctions
-      .filter((name) => name !== "window" && name !== "global")
-      .forEach((name) => {
-        (glob as any)[name] = originalReferences[name];
-      });
+    overrideFunctions.forEach((path) =>
+      setProperty(glob, path, originalReferences[path])
+    );
   }
 
   public dispose() {
     this.disposers.forEach((d) => d());
   }
 
-  private applyDisposer<T, Y>(
+  private createHookedFunction<T, Y>(
     original: (...args: T[]) => Y,
     disposer: (ret: Y, args: T[]) => void
   ) {
