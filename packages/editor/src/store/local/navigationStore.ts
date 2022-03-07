@@ -12,10 +12,12 @@ import { DocConnection } from "../DocConnection";
 import { SessionStore } from "./SessionStore";
 import { parseIdentifier } from "../../identifiers/index";
 import { Identifier } from "../../identifiers/Identifier";
+import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";
 
 export class NavigationStore {
   private initialized = false;
 
+  public isPermissionsDialogVisible = false;
   public isNewNotebookDialogVisible = false;
   public currentPage: ReturnType<typeof routing> = routing();
 
@@ -31,6 +33,15 @@ export class NavigationStore {
     }
     return undefined;
   }
+
+  public get userCanEditPermissions() {
+    const identifier = this.currentPage.identifier;
+    if (identifier && identifier instanceof MatrixIdentifier) {
+      return this.sessionStore.loggedInUserId === identifier.owner;
+    }
+    return false;
+  }
+
   constructor(private sessionStore: SessionStore) {
     // TODO: normalize initial url (e.g.: when at @UserName, redirect to @username)
     // This can be done using identifier.toRouteString()
@@ -39,8 +50,12 @@ export class NavigationStore {
       isNewNotebookDialogVisible: observable,
       showNewNotebookDialog: action,
       hideNewNotebookDialog: action,
+      isPermissionsDialogVisible: observable,
+      showPermissionsDialog: action,
+      hidePermissionsDialog: action,
       menuPortalChildren: observable.shallow,
       currentDocument: computed,
+      userCanEditPermissions: computed,
       currentPage: observable.ref,
       navigateToDocument: action,
       onPopState: action,
@@ -185,6 +200,14 @@ export class NavigationStore {
 
   navigateToTutorial = () => {
     this.navigateToURLByPath("/docs/interactive-introduction.md");
+  };
+
+  showPermissionsDialog = () => {
+    this.isPermissionsDialogVisible = true;
+  };
+
+  hidePermissionsDialog = () => {
+    this.isPermissionsDialogVisible = false;
   };
 
   showNewNotebookDialog = () => {

@@ -41,16 +41,42 @@ export class ImportShimResolver {
         dispose: () => {},
       };
     }
-    return {
-      module: await this.importShim(moduleName),
-      dispose: () => {},
-    };
+
+    /*
+    Let's try different resolvers one by one.
+    Because there is only one global importShim,
+    we use a hack to pass the resolver we're trying to importShim()
+    as part of the module name, e.g.: use$SkypackResolver$lodash
+
+    This is decoded again in onImportShimResolve below
+    */
+    for (let resolver of this.resolvers) {
+      try {
+        const module = await this.importShim(
+          "use$" + resolver.constructor.name + "$" + moduleName
+        );
+        console.log(
+          "loaded module",
+          moduleName,
+          "using",
+          resolver.constructor.name
+        );
+        return {
+          module,
+          dispose: () => {},
+        };
+      } catch (e) {
+        console.error("failed loading module", resolver.constructor.name, e);
+      }
+    }
+    throw new Error("couldn't resolve module" + moduleName);
   }
 
   /**
    * This is called by es-module-shims whenever it wants to resolve an Import.
    */
   private async doResolveImportURL(
+    resolver: ExternalModuleResolver,
     moduleName: string, // can be a relative URL, absolute URL, or "package name"
     parent: string, // the parent URL the package is loaded from
     importShimResolve: any // the original resolve function from es-module-shims
@@ -72,8 +98,8 @@ export class ImportShimResolver {
     const defaultURL = await importShimResolve(moduleName, parent);
 
     // Try the registered resolvers
-    for (let resolver of this.resolvers) {
-      if (defaultURL) {
+    if (defaultURL) {
+      for (let resolver of this.resolvers) {
         // Does the URL we're trying to load match with the resolver?
         const parsedModule = await resolver.getModuleInfoFromURL(defaultURL);
         if (parsedModule) {
@@ -92,6 +118,7 @@ export class ImportShimResolver {
             const parsedParent = await resolver.getModuleInfoFromURL(parent);
             if (parsedParent?.module === "react-map-gl") {
               return this.doResolveImportURL(
+                resolver,
                 "maplibre-gl",
                 parent,
                 importShimResolve
@@ -99,14 +126,14 @@ export class ImportShimResolver {
             }
           }
         }
-      } else {
-        // moduleName + parent combination couldn't be resolved by es-module-shims
-        // (i.e.: it's not an absolute URL, but just a package name like "lodash")
-        // Try to get a CDN URL from our resolver
-        const resolverURL = await resolver.getURLForModule(moduleName, parent);
-        if (resolverURL) {
-          return resolverURL;
-        }
+      }
+    } else {
+      // moduleName + parent combination couldn't be resolved by es-module-shims
+      // (i.e.: it's not an absolute URL, but just a package name like "lodash")
+      // Try to get a CDN URL from our resolver
+      const resolverURL = await resolver.getURLForModule(moduleName, parent);
+      if (resolverURL) {
+        return resolverURL;
       }
     }
 
@@ -169,12 +196,41 @@ export class ImportShimResolver {
     return url;
   }
 
+  /**
+   * The hook called by es-module-shims
+   */
   private onImportShimResolve = async (
     id: string,
     parent: string,
     importShimResolve: any
   ) => {
-    const ret = await this.doResolveImportURL(id, parent, importShimResolve);
+    // by default, try the first resolver
+    let resolver = this.resolvers[0];
+
+    if (id.startsWith("use$")) {
+      // an explicit resolver was passed in (see doResolveImport)
+      const parts = id.split("$");
+      if (parts.length !== 3) {
+        throw new Error("expected resolver name in import" + id);
+      }
+      resolver = this.resolvers.find((r) => r.constructor.name === parts[1])!;
+      id = parts[2];
+    } else {
+      if (!parent) {
+        // when there is a parent, this is expected (because it's a nested module).
+        console.warn(
+          "no explicit resolver detected in import, falling back to default",
+          id
+        );
+      }
+    }
+
+    const ret = await this.doResolveImportURL(
+      resolver,
+      id,
+      parent,
+      importShimResolve
+    );
     return ret;
   };
 
