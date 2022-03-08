@@ -197,7 +197,7 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
         )
       );
     }
-    const evaluatxor = this.evaluatorCache.get(model)!;
+    const evaluator = this.evaluatorCache.get(model)!;
     if (model.language !== "javascript") {
       throw new Error("can not evaluate non-javascript code");
     }
