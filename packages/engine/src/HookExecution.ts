@@ -9,7 +9,7 @@ const overrideFunctions = [
   "EventTarget.prototype.addEventListener",
 ] as const;
 
-const originalReferences: HookContext = {
+export const originalReferences: HookContext = {
   setTimeout: glob.setTimeout,
   setInterval: glob.setInterval,
   console: glob.console,
@@ -19,6 +19,10 @@ const originalReferences: HookContext = {
 
 export type HookContext = { [K in typeof overrideFunctions[number]]: any };
 
+/**
+ * Sets object property based on a given path and value.
+ * E.g. path could be level1.level2.prop
+ */
 function setProperty(base: Object, path: string, value: any) {
   const layers = path.split(".");
   if (layers.length > 1) {

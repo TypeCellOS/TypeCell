@@ -123,17 +123,17 @@ exports.default = sum;`
         "model4",
         `define(["require", "exports", "logdown"], function(require, exports, logdown) {
           "use strict";
-          Object.defineProperty(exports, "__esModule", { value: true });
-          let logger = logdown("warning message");
-    logger.state.isEnabled = true;
-    logger.log("message 1");
-    
-    setTimeout(() => {
-      let logger = logdown("warning message");
-      logger.state.isEnabled = true;
-      logger.log("message2");
-    }, 1);
-          });`
+          Object.defineProperty(exports, "__esModule", { value: true });         
+        
+          let logger = logdown("logger 1");
+          logger.state.isEnabled = true;
+          logger.log("message 1");
+
+          setTimeout(() => {
+            logger.state.isEnabled = true;
+            logger.log("message 2");
+          }, 1);
+        });`
       );
 
     it("should capture console.log message", async () => {
@@ -145,8 +145,8 @@ exports.default = sum;`
 
       const consoleEvents = await eventsPromise;
 
-      expect(consoleEvents[0].console.level).toBe("info");
-      expect(consoleEvents[0].console.message[0]).toBe("hi!");
+      expect(consoleEvents[0].payload.level).toBe("info");
+      expect(consoleEvents[0].payload.message[0]).toBe("hi!");
     });
 
     it("should capture console.warn/info/error messages", async () => {
@@ -160,7 +160,7 @@ exports.default = sum;`
       const eventsSnapshot = events.map((event) => {
         return {
           path: event.model.path,
-          console: event.console,
+          console: event.payload,
         };
       });
       expect(eventsSnapshot).toMatchSnapshot();
@@ -174,19 +174,20 @@ exports.default = sum;`
       engine.registerModel(model3);
 
       const events = await eventsPromise;
-      expect(events[0].console.message[0]).toBe("before");
-      expect(events[1].console.message[0]).toBe("after");
+      expect(events[0].payload.message[0]).toBe("before");
+      expect(events[1].payload.message[0]).toBe("after");
     });
 
-    // it("should capture console.log messages from library (sync only)", async () => {
-    //   const engine = new Engine<CodeModel>(importResolver);
-    //   const eventsPromise = waitTillEvent(engine.onConsole, 2);
-    //   const model4 = getModel4();
+    it("should capture console.log messages from library (sync only)", async () => {
+      const engine = new Engine<CodeModel>(importResolver);
+      const eventsPromise = waitTillEvent(engine.onConsole, 2);
+      const model4 = getModel4();
 
-    //   engine.registerModel(model4);
+      engine.registerModel(model4);
 
-    //   const events = await eventsPromise;
-    //   console.log(events);
-    // });
+      const events = await eventsPromise;
+      expect(events[0].payload.message[1]).toBe("message 1");
+      expect(events[1].payload.message[1]).toBe("message 2");
+    });
   });
 });

@@ -5,7 +5,6 @@ import { lifecycle } from "vscode-lib";
 import { CompiledCodeModel } from "../../../../../models/CompiledCodeModel";
 import { getTypeCellResolver } from "../../../resolver/resolver";
 import { ModelOutput } from "../../../components/ModelOutput";
-
 import { ModelReceiver } from "./ModelReceiver";
 import type { VisualizersByPath } from "../../../../extensions/visualizer/VisualizerExtension";
 import { IframeBridgeMethods } from "./IframeBridgeMethods";

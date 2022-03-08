@@ -20,7 +20,7 @@ export type ConsolePayload = {
 
 export type ConsoleEvent<T> = {
   model: T;
-  console: ConsolePayload;
+  payload: ConsolePayload;
 };
 
 /**
@@ -192,7 +192,7 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
           resolveImport,
           true,
           (output) => onOutput({ model, output }),
-          (console) => onConsole({ model, console }),
+          (console) => onConsole({ model, payload: console }),
           () => this._onBeforeExecution.fire({ model })
         )
       );
