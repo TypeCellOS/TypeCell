@@ -1,8 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { PluginKey, Plugin } from "prosemirror-state";
 
-// from https://github.com/ueberdosis/tiptap/blob/main/docs/src/demos/Experiments/TrailingNode/trailing-node.ts
-
 // @ts-ignore
 function nodeEqualsType({ types, node }) {
   return (
@@ -24,9 +22,11 @@ export interface TrailingNodeOptions {
 export const TrailingNode = Extension.create<TrailingNodeOptions>({
   name: "trailingNode",
 
-  defaultOptions: {
-    node: "paragraph",
-    notAfter: ["paragraph"],
+  addOptions() {
+    return {
+      node: "paragraph",
+      notAfter: ["paragraph"],
+    };
   },
 
   addProseMirrorPlugins() {
@@ -53,6 +53,7 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
         state: {
           init: (_, state) => {
             const lastNode = state.tr.doc.lastChild;
+
             return !nodeEqualsType({ node: lastNode, types: disabledNodes });
           },
           apply: (tr, value) => {
@@ -61,6 +62,7 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
             }
 
             const lastNode = tr.doc.lastChild;
+
             return !nodeEqualsType({ node: lastNode, types: disabledNodes });
           },
         },

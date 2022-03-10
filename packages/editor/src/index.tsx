@@ -2,6 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom";
 import reportWebVitals from "./reportWebVitals";
 
+(window as any).OLM_OPTIONS = {};
+if (typeof (window as any).global === "undefined") {
+  (window as any).global = window;
+}
+
 console.log("Loading", window.location.href);
 
 async function init() {

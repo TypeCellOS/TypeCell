@@ -1,7 +1,7 @@
 import "@atlaskit/css-reset/dist/bundle.css";
 import "./index.css";
 // @ts-ignore
-import olmWasmPath from "@matrix-org/olm/olm.wasm";
+import olmWasmPath from "@matrix-org/olm/olm.wasm?url";
 import * as yjsBindings from "@syncedstore/yjs-reactive-bindings";
 import * as mobx from "mobx";
 import React from "react";
@@ -20,7 +20,7 @@ import * as Olm from "@matrix-org/olm";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as reo from "react-error-overlay";
 
-if (process.env.NODE_ENV === "development") {
+if (import.meta.env.NODE_ENV === "development") {
   // disables error overlays
   // We make use of React Error Boundaries to catch exceptions during rendering of
   // user-defined react components. It's annoying (and slow) to get the React error overlay

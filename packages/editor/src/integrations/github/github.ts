@@ -1,10 +1,11 @@
-import * as octokit from "octokit";
+// import * as octokit from "@octokit/core";
 import { inc } from "semver";
 import { Identifier } from "../../identifiers/Identifier";
 import { CellModel } from "../../models/CellModel";
 import { DocConnection } from "../../store/DocConnection";
 
 import { base64 } from "@typecell-org/common";
+let octokit: any; // TODO
 
 type ParentCommit = {
   version: string | undefined;
@@ -17,9 +18,9 @@ type RepoOptions = {
   repo: string;
 };
 
-export const githubClient = new octokit.Octokit({
+export const githubClient: any = ""; /* = new octokit.Octokit({
   auth: "",
-});
+});*/
 
 export const templateRepo = {
   owner: "yousefed",
@@ -360,7 +361,7 @@ export async function getFileOrDirFromGithub(file: {
           throw new Error("expected directory");
         }
         const directory = parentContent.data.find(
-          (el) => el.path === file.path
+          (el: any) => el.path === file.path
         )!;
         if (directory.type !== "dir") {
           throw new Error("expected to find directory");
