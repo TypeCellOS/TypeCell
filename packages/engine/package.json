@@ -7,7 +7,7 @@
     "lodash": "^4.17.21",
     "mobx": "^6.2.0",
     "react": "^17.0.2",
-    "vscode-lib": "^0.1.0"
+    "vscode-lib": "^0.1.2"
   },
   "devDependencies": {
     "@types/jest": "^26.0.22",
