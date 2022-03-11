@@ -15,20 +15,20 @@ jobs:
           node-version: 16.x
 
       # doesn't seem to cause significant speed up, probably because it still needs to install deps
-      - name: cache playwright
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/ms-playwright
-          key: pw-${{ runner.os }}-${{ hashFiles('./package-lock.json') }}
+      # - name: cache playwright
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.cache/ms-playwright
+      #     key: pw-${{ runner.os }}-${{ hashFiles('./package-lock.json') }}
 
       # doesn't seem to cause significant speed up, maybe not right conf?
-      - name: cache lerna
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules
-            packages/**/node_modules
-          key: lerna-${{ runner.os }}-${{ hashFiles('./package-lock.json') }}
+      # - name: cache lerna
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: |
+      #       node_modules
+      #       packages/**/node_modules
+      #     key: lerna-${{ runner.os }}-${{ hashFiles('./package-lock.json') }}
 
       - name: Cache node modules
         uses: actions/cache@v2
