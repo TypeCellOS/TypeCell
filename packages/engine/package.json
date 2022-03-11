@@ -30,7 +30,7 @@
     "watch": "tsc --watch",
     "install-playwright": "npx playwright install --with-deps",
     "playwright": "npx playwright test",
-    "unittest:jest": "est --coverage=true --config=jest.config.js",
+    "unittest:jest": "jest --coverage=true --config=jest.config.js",
     "unittest:playwright": "playwright-test '**/*.browsertest.ts'",
     "test": "npm run unittest:jest && npm run unittest:playwright"
   },
