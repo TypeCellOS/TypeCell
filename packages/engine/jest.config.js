@@ -8,7 +8,7 @@ module.exports = {
   testEnvironment: "jsdom",
   roots: ["<rootDir>"],
   modulePaths: ["<rootDir>"],
-  testMatch: ["**/__tests__/**/*.ts?(x)", "**/?(*.)+(spec|test).ts?(x)"],
+  testMatch: ["**/__tests__/**/*.ts?(x)", "**/?(*.)+.(spec|test).ts?(x)"],
   testPathIgnorePatterns: ["/node_modules/", "/tests/end-to-end/"],
   moduleNameMapper: {
     "@typecell-org/common": "<rootDir>/../common/src",
