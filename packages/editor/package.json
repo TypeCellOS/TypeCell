@@ -131,8 +131,8 @@
     "install-playwright": "npx playwright install --with-deps",
     "playwright": "npx playwright test",
     "lint": "eslint src",
-    "test": "craco test",
-    "test-no-watch": "craco test --watchAll=false",
+    "test-watch": "craco test",
+    "test": "craco test --watchAll=false",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
