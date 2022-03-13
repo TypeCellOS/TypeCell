@@ -10,7 +10,7 @@ import DocumentMenu from "../main/components/documentMenu";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
 import ProjectRenderer from "./project/ProjectRenderer";
-import RichTextRenderer from "./richtext/RichTextRenderer";
+// import RichTextRenderer from "./richtext/RichTextRenderer";
 import styles from "./DocumentView.module.css";
 
 type Props = {
@@ -86,17 +86,18 @@ const DocumentView = observer((props: Props) => {
       );
     }
   } else if (connection.doc.type === "!richtext") {
-    return (
-      <div className={styles.view}>
-        {!props.hideDocumentMenu && (
-          <DocumentMenu document={connection.doc}></DocumentMenu>
-        )}
-        <RichTextRenderer
-          key={connection.doc.id}
-          document={connection.doc.doc}
-        />
-      </div>
-    );
+    throw new Error("richtext not implemented");
+    // return (
+    //   <div className={styles.view}>
+    //     {!props.hideDocumentMenu && (
+    //       <DocumentMenu document={connection.doc}></DocumentMenu>
+    //     )}
+    //     <RichTextRenderer
+    //       key={connection.doc.id}
+    //       document={connection.doc.doc}
+    //     />
+    //   </div>
+    // );
   } else if (connection.doc.type === "!plugin") {
     return (
       <PluginRenderer
