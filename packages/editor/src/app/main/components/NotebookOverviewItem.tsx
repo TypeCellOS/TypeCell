@@ -1,5 +1,7 @@
 import { observer } from "mobx-react-lite";
+import { useNavigate } from "react-router-dom";
 import { getStoreService } from "../../../store/local/stores";
+import { gotoProfilePage } from "../../routes/routes";
 import styles from "./NotebookOverviewItem.module.css";
 
 export const NotebookOverviewItem = observer(
@@ -10,7 +12,7 @@ export const NotebookOverviewItem = observer(
     onClick: () => void;
     author: { username: string; profileImageUrl?: string };
   }) => {
-    const { navigationStore } = getStoreService();
+    const navigate = useNavigate();
 
     function onClick(e: any) {
       e.preventDefault();
@@ -33,7 +35,7 @@ export const NotebookOverviewItem = observer(
             href="/"
             onClick={(e) => {
               e.preventDefault();
-              navigationStore.showProfilePage("@" + props.author.username);
+              gotoProfilePage(navigate, "@" + props.author.username);
             }}
             className={styles.owner}>
             <div className={styles.profileImage}>

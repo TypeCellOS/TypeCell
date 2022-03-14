@@ -2,75 +2,97 @@
 /** @jsxImportSource @emotion/react */
 
 import DropdownMenu, { DropdownItem } from "@atlaskit/dropdown-menu";
+
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { VscKebabVertical } from "react-icons/vsc";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Identifier } from "../../../../identifiers/Identifier";
+import { MatrixIdentifier } from "../../../../identifiers/MatrixIdentifier";
 import { openAsMarkdown } from "../../../../integrations/markdown/export";
-import { BaseResource } from "../../../../store/BaseResource";
 import { DocumentResource } from "../../../../store/DocumentResource";
+import { SessionStore } from "../../../../store/local/SessionStore";
 import { getStoreService } from "../../../../store/local/stores";
+import {
+  ClosePermissionsDialog,
+  IsPermissionsDialogOpen,
+  OpenPermissionsDialog,
+} from "../../../routes/routes";
+import { MenuBar } from "../menuBar/MenuBar";
+import PermissionsDialog from "../permissions/PermissionsDialog";
 import { Breadcrumb } from "./Breadcrumb";
 import styles from "./DocumentMenu.module.css";
 import { ForkAlert } from "./ForkAlert";
 import { ShareButton } from "./ShareButton";
 
 type Props = {
-  document?: BaseResource;
+  document: DocumentResource;
 };
 
-// TODO: the DocumentMenu is now also used on profile pages.
-// This is a bit hacky, but probably we either want to:
-// (a) make profiles also "documents"
-// (b) extract the menu / breadcrumbs and create a ProfileMenu / GenericMenu or the like
+// TODO: move?
+function userCanEditPermissions(
+  sessionStore: SessionStore,
+  identifier: Identifier
+) {
+  if (identifier && identifier instanceof MatrixIdentifier) {
+    return sessionStore.loggedInUserId === identifier.owner;
+  }
+  return false;
+}
+
 export const DocumentMenu: React.FC<Props> = observer((props) => {
-  const navigationStore = getStoreService().navigationStore;
-
+  const sessionStore = getStoreService().sessionStore;
+  const canEditPermissions = userCanEditPermissions(
+    sessionStore,
+    props.document.identifier
+  );
+  let location = useLocation();
+  let navigate = useNavigate();
   return (
-    <nav className={styles.menu}>
-      <Breadcrumb />
-      {navigationStore.currentDocument?.needsFork && <ForkAlert />}
-
-      {props.document && (
-        <aside className={styles.actions}>
-          <ul>
-            <li className={styles.item}>
-              <ShareButton />
-            </li>
-            {props.document instanceof DocumentResource ? (
-              <>
-                <li className={styles.separator}></li>
-                <li className={styles.options}>
-                  <DropdownMenu
-                    shouldFlip
-                    trigger={
-                      <div
-                        style={{ paddingRight: "0.5em", paddingLeft: "1em" }}>
-                        <VscKebabVertical
-                          title="Options"
-                          style={{ fontSize: "14px", transform: "scale(1.3)" }}
-                        />
-                      </div>
-                    }
-                    position="bottom right">
-                    <DropdownItem
-                      onClick={() => openAsMarkdown(props.document!.doc)}>
-                      Export as markdown
-                    </DropdownItem>
-                    {navigationStore.userCanEditPermissions && (
-                      <DropdownItem
-                        onClick={navigationStore.showPermissionsDialog}>
-                        Permissions
-                      </DropdownItem>
-                    )}
-                  </DropdownMenu>
-                </li>
-              </>
-            ) : (
-              ""
-            )}
-          </ul>
-        </aside>
+    <MenuBar>
+      <Breadcrumb document={props.document} />
+      {props.document.connection!.needsFork && (
+        <ForkAlert document={props.document} />
       )}
-    </nav>
+
+      <aside className={styles.actions}>
+        <ul>
+          <li className={styles.item}>
+            <ShareButton />
+          </li>
+
+          <li className={styles.separator}></li>
+          <li className={styles.options}>
+            <DropdownMenu
+              shouldFlip
+              trigger={
+                <div style={{ paddingRight: "0.5em", paddingLeft: "1em" }}>
+                  <VscKebabVertical
+                    title="Options"
+                    style={{ fontSize: "14px", transform: "scale(1.3)" }}
+                  />
+                </div>
+              }
+              position="bottom right">
+              <DropdownItem onClick={() => openAsMarkdown(props.document!.doc)}>
+                Export as markdown
+              </DropdownItem>
+              {canEditPermissions && (
+                <DropdownItem onClick={() => OpenPermissionsDialog(navigate)}>
+                  Permissions
+                </DropdownItem>
+              )}
+            </DropdownMenu>
+          </li>
+        </ul>
+      </aside>
+      {canEditPermissions && (
+        <PermissionsDialog
+          close={() => ClosePermissionsDialog(navigate)}
+          isOpen={IsPermissionsDialogOpen(location)}
+          connection={props.document.connection!}
+        />
+      )}
+    </MenuBar>
   );
 });

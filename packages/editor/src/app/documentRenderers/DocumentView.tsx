@@ -6,12 +6,13 @@ import { DocConnection } from "../../store/DocConnection";
 import PluginResource from "../../store/PluginResource";
 import ProjectResource from "../../store/ProjectResource";
 import DocumentMenu from "../main/components/documentMenu";
+// import RichTextRenderer from "./richtext/RichTextRenderer";
+import styles from "./DocumentView.module.css";
 // import { CustomRenderer } from "./custom/CustomRenderer";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
+import ProjectContainer from "./project/ProjectContainer";
 import ProjectRenderer from "./project/ProjectRenderer";
-// import RichTextRenderer from "./richtext/RichTextRenderer";
-import styles from "./DocumentView.module.css";
 
 type Props = {
   id: Identifier;
@@ -38,13 +39,14 @@ const DocumentView = observer((props: Props) => {
       newConnection.dispose();
       setConnection(undefined);
     };
-  }, [props.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.id.toString()]);
 
   if (!connection) {
     return null;
   }
   if (connection.doc === "loading") {
-    return <div>Loading</div>;
+    return <div>Loading doc</div>;
   } else if (connection.doc === "not-found") {
     return <div>Not found</div>;
   }
@@ -67,10 +69,10 @@ const DocumentView = observer((props: Props) => {
     if (props.isNested) {
       return (
         <div className={styles.view}>
-          {!props.hideDocumentMenu && (
-            <DocumentMenu document={connection.doc}></DocumentMenu>
-          )}
-          <ProjectRenderer
+          {/* {!props.hideDocumentMenu && (
+            <DocumentMenu document={connection.doc.doc}></DocumentMenu>
+          )} */}
+          <ProjectContainer
             isNested={true}
             key={connection.doc.id}
             project={connection.doc.getSpecificType(ProjectResource)!}
@@ -113,7 +115,7 @@ const DocumentView = observer((props: Props) => {
   }
 });
 
-export default DocumentView;
+export default React.memo(DocumentView);
 
 /*
 

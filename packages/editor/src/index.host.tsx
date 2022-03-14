@@ -16,9 +16,11 @@ import { MonacoContext } from "./runtime/editor/MonacoContext";
 import { initializeStoreService } from "./store/local/stores";
 import * as monaco from "monaco-editor";
 import * as Olm from "@matrix-org/olm";
-
+import { BrowserRouter, Route } from "react-router-dom";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as reo from "react-error-overlay";
+import { Register } from "./app/routes/register";
+import { Login } from "./app/routes/login";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays

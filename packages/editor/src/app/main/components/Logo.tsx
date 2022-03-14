@@ -1,9 +1,10 @@
-import { getStoreService } from "../../../store/local/stores";
+import { useNavigate } from "react-router-dom";
 import logo_with_text from "../../../assets/logo_with_text.svg";
+import { gotoStartScreen } from "../../routes/routes";
 import styles from "./Logo.module.css";
 
 export const Logo = () => {
-  const navigationStore = getStoreService().navigationStore;
+  const navigate = useNavigate();
 
   return (
     <a
@@ -11,7 +12,7 @@ export const Logo = () => {
       className={styles.logo}
       onClick={(e) => {
         e.preventDefault();
-        navigationStore.showStartScreen();
+        gotoStartScreen(navigate);
       }}>
       <img src={logo_with_text} alt="TypeCell Logo" />
     </a>

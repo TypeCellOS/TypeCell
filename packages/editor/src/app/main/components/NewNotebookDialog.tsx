@@ -5,12 +5,11 @@ import Modal, {
 } from "@atlaskit/modal-dialog";
 import Textfield from "@atlaskit/textfield";
 import React, { useCallback, useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
-import { getStoreService } from "../../../store/local/stores";
-
 import { UnreachableCaseError } from "../../../util/UnreachableCaseError";
+import { gotoDocument } from "../../routes/routes";
 
 export const NewNotebookDialog = (props: {
   isOpen: boolean;
@@ -20,6 +19,7 @@ export const NewNotebookDialog = (props: {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [warning, setWarning] = useState("");
+  const navigate = useNavigate();
 
   const CustomContainer = useCallback(
     (innerProps: ContainerComponentProps) => {
@@ -66,7 +66,7 @@ export const NewNotebookDialog = (props: {
                 "typescript",
                 `export let message = "Hello World"`
               );
-              getStoreService().navigationStore.navigateToDocument(ret);
+              gotoDocument(navigate, ret);
 
               // Bit hacky, dispose with timeout,
               // because navigateToDocument will (indirectly) need the doc

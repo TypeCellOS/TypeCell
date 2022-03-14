@@ -1,37 +1,45 @@
 import { observer } from "mobx-react-lite";
-import styles from "./StartScreen.module.css";
+import { useNavigate } from "react-router-dom";
+import app_logo from "../../../../assets/app_logo.svg";
 // import GitHubButton from "react-github-btn";
 import { getStoreService } from "../../../../store/local/stores";
+import {
+  gotoDocs,
+  gotoIdentifierString,
+  gotoNewGuestNotebook,
+  gotoTutorial,
+  OpenNewNotebookDialog,
+} from "../../../routes/routes";
 import { NotebookOverviewItem } from "../NotebookOverviewItem";
-import app_logo from "../../../../assets/app_logo.svg";
+import apiPreviewImage from "./assets/api_preview.jpg";
+import chartsPreviewImage from "./assets/charts_preview.jpg";
+import globe from "./assets/globe.svg";
 import intro from "./assets/intro.gif";
 import lightning from "./assets/lightning.svg";
-import globe from "./assets/globe.svg";
 import npm from "./assets/npm.svg";
 import timePreviewImage from "./assets/time_preview.jpg";
-import chartsPreviewImage from "./assets/charts_preview.jpg";
-import apiPreviewImage from "./assets/api_preview.jpg";
+import styles from "./StartScreen.module.css";
 
 export const StartScreen = observer(() => {
-  const { navigationStore, sessionStore } = getStoreService();
-
+  const { sessionStore } = getStoreService();
+  const navigate = useNavigate();
   function onNewNotebookClick(e: any) {
     e.preventDefault();
     if (sessionStore.isLoggedIn) {
-      navigationStore.showNewNotebookDialog();
+      OpenNewNotebookDialog(navigate);
     } else {
-      navigationStore.navigateToNewGuestNotebook();
+      gotoNewGuestNotebook(navigate);
     }
   }
 
   function onTutorialClick(e: any) {
     e.preventDefault();
-    navigationStore.navigateToTutorial();
+    gotoTutorial(navigate);
   }
 
   function onDocsClick(e: any) {
     e.preventDefault();
-    navigationStore.navigateToDocs();
+    gotoDocs(navigate);
   }
 
   return (
@@ -152,7 +160,7 @@ export const StartScreen = observer(() => {
                     profileImageUrl: "",
                   }}
                   onClick={() => {
-                    navigationStore.navigateToNotebook("@niklas/time");
+                    gotoIdentifierString(navigate, "@niklas/time");
                   }}></NotebookOverviewItem>
               </div>
               <div className={styles.notebook}>
@@ -165,7 +173,7 @@ export const StartScreen = observer(() => {
                     profileImageUrl: "",
                   }}
                   onClick={() => {
-                    navigationStore.navigateToNotebook("@yousef/charts");
+                    gotoIdentifierString(navigate, "@yousef/charts");
                   }}></NotebookOverviewItem>
               </div>
               <div className={styles.notebook}>
@@ -178,7 +186,7 @@ export const StartScreen = observer(() => {
                     profileImageUrl: "",
                   }}
                   onClick={() => {
-                    navigationStore.navigateToNotebook("@niklas/api");
+                    gotoIdentifierString(navigate, "@niklas/api");
                   }}></NotebookOverviewItem>
               </div>
             </div>

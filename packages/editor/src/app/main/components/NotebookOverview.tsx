@@ -4,6 +4,8 @@ import { getStoreService } from "../../../store/local/stores";
 import Textfield from "@atlaskit/textfield";
 import styles from "./NotebookOverview.module.css";
 import { parseIdentifier } from "../../../identifiers";
+import { gotoIdentifier } from "../../routes/routes";
+import { useNavigate } from "react-router-dom";
 
 type Room = {
   name: string;
@@ -33,18 +35,17 @@ function parseRoomFromAlias(rawAlias: string): Room | undefined {
 }
 
 const RoomInfo = function (props: { room: Room }) {
-  function navigate(e: React.MouseEvent) {
+  const navigate = useNavigate();
+  function navigateToRoom(e: React.MouseEvent) {
     e.preventDefault();
-    getStoreService().navigationStore.navigateToIdentifier(
-      parseIdentifier(props.room.fullName)
-    );
+    gotoIdentifier(navigate, parseIdentifier(props.room.fullName));
   }
   return (
     <div className={styles.room}>
       <a
         href={`/${props.room.user}/${props.room.name}`}
         className={styles.roomName}
-        onClick={navigate}>
+        onClick={navigateToRoom}>
         {props.room.name}
       </a>
       <div className={styles.user}>{props.room.user}</div>
