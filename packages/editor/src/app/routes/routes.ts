@@ -59,7 +59,7 @@ export function gotoIdentifier(
   navigate: NavigateFunction,
   identifier: Identifier
 ) {
-  return navigate({ pathname: identifier.toRouteString() });
+  return navigate({ pathname: "/" + identifier.toRouteString() });
 }
 
 export function gotoIdentifierString(
@@ -80,5 +80,5 @@ export function gotoProfilePage(navigate: NavigateFunction, owner: string) {
   if (!owner.startsWith("@")) {
     throw new Error("invalid user id");
   }
-  return navigate({ pathname: owner });
+  return navigate({ pathname: "/" + owner });
 }
