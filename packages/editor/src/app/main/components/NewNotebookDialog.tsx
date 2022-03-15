@@ -90,7 +90,7 @@ export const NewNotebookDialog = (props: {
         </form>
       );
     },
-    [props]
+    [props, navigate]
   );
 
   return (

@@ -1,26 +1,10 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
-import {
-  Link,
-  Outlet,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
-import { path } from "vscode-lib";
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
 import { parseIdentifier } from "../../../identifiers";
-import { Identifier } from "../../../identifiers/Identifier";
-import { getStoreService } from "../../../store/local/stores";
 import ProjectResource from "../../../store/ProjectResource";
 import DocumentView from "../DocumentView";
-import DirectoryListing from "./DirectoryListing";
-import FolderView from "./directoryNavigation/FolderView";
-import SidebarTree from "./directoryNavigation/SidebarTree";
-import { filesToTreeNodes } from "./directoryNavigation/treeNodeUtil";
 import ProjectContainer from "./ProjectContainer";
-import styles from "./ProjectRenderer.module.css";
 
 type Props = {
   project: ProjectResource;
@@ -38,10 +22,9 @@ const NestedDocument = () => {
   return <DocumentView id={documentIdentifier} isNested={true} />;
 };
 
-const ProjectRenderer2: React.FC<Props> = observer((props) => {
+const ProjectRenderer: React.FC<Props> = observer((props) => {
   // const fileSet = useRef(new ObservableSet<string>());
   const identifier = props.project.identifier;
-  const navigate = useNavigate();
   const path = useLocation();
 
   const subPath = (useParams() as any).subPath;
@@ -70,4 +53,4 @@ const ProjectRenderer2: React.FC<Props> = observer((props) => {
   );
 });
 
-export default ProjectRenderer2;
+export default ProjectRenderer;
