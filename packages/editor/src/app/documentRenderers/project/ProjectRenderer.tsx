@@ -1,7 +1,9 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { Route, Routes, useLocation, useParams } from "react-router-dom";
+import { path } from "vscode-lib";
 import { parseIdentifier } from "../../../identifiers";
+import { Identifier } from "../../../identifiers/Identifier";
 import ProjectResource from "../../../store/ProjectResource";
 import DocumentView from "../DocumentView";
 import ProjectContainer from "./ProjectContainer";
@@ -11,17 +13,26 @@ type Props = {
   isNested?: boolean;
 };
 
-const NestedDocument = () => {
-  const location = useLocation();
+const NestedDocument = (props: { parent: Identifier }) => {
+  const params = useParams();
+  const sub = params["*"] as string;
+
+  const newIdStr = path.join(props.parent.toString(), "/:/", sub);
   const documentIdentifier = parseIdentifier(
-    parseIdentifier(location.pathname.substring(1))
-      .fullUriOfSubPath()!
-      .toString()
+    parseIdentifier(newIdStr).fullUriOfSubPath()!.toString()
   );
-  // return <div>{location.pathname}</div>;
   return <DocumentView id={documentIdentifier} isNested={true} />;
 };
 
+// const Debug = (props: { children: any }) => {
+//   const params = useParams();
+//   return (
+//     <div>
+//       <div>params: {JSON.stringify(params)}</div>
+//       {props.children}
+//     </div>
+//   );
+// };
 const ProjectRenderer: React.FC<Props> = observer((props) => {
   // const fileSet = useRef(new ObservableSet<string>());
   const identifier = props.project.identifier;
@@ -31,7 +42,9 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
   if (subPath) {
     throw new Error("unexpected");
   }
-  const rootPath = identifier.toString();
+
+  const isDocs = path.pathname.startsWith("/docs");
+  const rootPath = isDocs ? "docs" : identifier.toString();
 
   return (
     <Routes>
@@ -39,16 +52,20 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
         path={rootPath}
         element={<ProjectContainer project={props.project} />}>
         <Route index element={<div>directory {rootPath}</div>} />
-        <Route path=":/:subPath/*" element={<NestedDocument />} />
+        {isDocs ? (
+          <Route path="*" element={<NestedDocument parent={identifier} />} />
+        ) : (
+          <Route path=":/*" element={<NestedDocument parent={identifier} />} />
+        )}
       </Route>
-      <Route
+      {/* <Route
         path="*"
         element={
-          <div>
-            error {rootPath} {path.pathname} {identifier.toRouteString()}
-          </div>
+          <Debug>
+            errorsdf {rootPath} {path.pathname} {identifier.toRouteString()}
+          </Debug>
         }
-      />
+      /> */}
     </Routes>
   );
 });

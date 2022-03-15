@@ -27,10 +27,13 @@ const ProjectContainer = observer((props: Props) => {
   );
 
   const onClick = (item: string) => {
-    // TODO
+    const isDocs = location.pathname.startsWith("/docs");
+
     navigate({
       pathname: props.isNested
         ? path.join(location.pathname, "/", item)
+        : isDocs
+        ? item
         : ":/" + item,
     });
   };

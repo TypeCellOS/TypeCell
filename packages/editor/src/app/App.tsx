@@ -29,7 +29,7 @@ export const App = observer((props: { config: ValidatedServerConfig }) => {
               element={<DocumentRoute />}></Route>
             <Route index element={<StartScreen></StartScreen>}></Route>
             <Route path="*" element={<DynamicRoute />} />
-            <Route path="docs" element={<DocsRoute />} />
+            {/* <Route path="docs/*" element={<DocsRoute />} /> */}
           </Route>
           <Route
             path="/register"
@@ -47,7 +47,6 @@ export default App;
 
 // test login + registration
 // projects
-// Links
 // identifiers
 // docs
 // breadcrumbs
