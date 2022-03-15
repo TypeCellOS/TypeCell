@@ -37,27 +37,26 @@ const ProjectContainer = observer((props: Props) => {
         : ":/" + item,
     });
   };
+  let defaultFile = files.find((f) => f === "README.md");
+  let defaultFileContent = <></>;
+  if (defaultFile) {
+    // TODO: cleanup?
+    // Directory listing with a default file
+    let idTemp = parseIdentifier(props.project.identifier.uri.toString());
+    idTemp.subPath = defaultFile;
+    let documentIdentifier = parseIdentifier(
+      idTemp.fullUriOfSubPath()!.toString()
+    );
+    defaultFileContent = (
+      <DocumentView
+        hideDocumentMenu={true}
+        id={documentIdentifier}
+        isNested={true}
+      />
+    );
+  }
 
   if (props.isNested) {
-    let defaultFile = files.find((f) => f === "README.md");
-    let defaultFileContent = <></>;
-    if (defaultFile) {
-      // TODO: cleanup?
-      // Directory listing with a default file
-      let idTemp = parseIdentifier(props.project.identifier.uri.toString());
-      idTemp.subPath = defaultFile;
-      let documentIdentifier = parseIdentifier(
-        idTemp.fullUriOfSubPath()!.toString()
-      );
-      defaultFileContent = (
-        <DocumentView
-          hideDocumentMenu={true}
-          id={documentIdentifier}
-          isNested={true}
-        />
-      );
-    }
-
     return (
       <div>
         <div className={styles.folderContainer}>
@@ -72,7 +71,13 @@ const ProjectContainer = observer((props: Props) => {
         <div className={styles.sidebarContainer}>
           <SidebarTree onClick={onClick} tree={tree} />
         </div>
-        <Outlet />
+        {/* {defaultFileContent} */}
+        <Outlet
+          context={{
+            defaultFileContent,
+            parentIdentifier: props.project.identifier,
+          }}
+        />
       </div>
     );
   }

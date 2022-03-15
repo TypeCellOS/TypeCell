@@ -1,6 +1,7 @@
 import Breadcrumbs, { BreadcrumbsItem } from "@atlaskit/breadcrumbs";
 import { VscFile, VscGithub, VscGlobe } from "react-icons/vsc";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
+import { path } from "vscode-lib";
 import { FileIdentifier } from "../../../../identifiers/FileIdentifier";
 import { GithubIdentifier } from "../../../../identifiers/GithubIdentifier";
 import { HttpsIdentifier } from "../../../../identifiers/HttpsIdentifier";
@@ -29,26 +30,35 @@ const BreadcrumbItems = (props: { identifier: Identifier }) => {
   const items: JSX.Element[] = [];
   const navigate = useNavigate();
   const identifier = props.identifier;
-  const clearSubPath = () => {
-    identifier.subPath = "";
+
+  const toRoot = () => {
+    if (identifier.title === "Docs") {
+      navigate({
+        pathname: "/docs",
+      });
+    } else {
+      navigate({
+        pathname: "/" + identifier.toString(),
+      });
+    }
   };
+
   if (identifier instanceof FileIdentifier) {
     // Show path as single item
     items.push(
       <BreadcrumbsItem
         iconBefore={<VscFile style={{ marginRight: 5, marginTop: -2 }} />}
         text={identifier.title || identifier.uri.toString()}
-        onClick={clearSubPath}
+        onClick={toRoot}
       />
     );
   } else if (identifier instanceof GithubIdentifier) {
-    debugger;
     // Show path as single item
     items.push(
       <BreadcrumbsItem
         iconBefore={<VscGithub style={{ marginRight: 5 }} />}
         href=""
-        onClick={clearSubPath}
+        onClick={toRoot}
         text={identifier.title || identifier.uri.toString()}
       />
     );
@@ -59,7 +69,7 @@ const BreadcrumbItems = (props: { identifier: Identifier }) => {
         iconBefore={<VscGlobe style={{ marginRight: 5 }} />}
         href=""
         text={identifier.title || identifier.uri.toString()}
-        onClick={clearSubPath}
+        onClick={toRoot}
       />
     );
   } else if (identifier instanceof MatrixIdentifier) {
@@ -81,32 +91,57 @@ const BreadcrumbItems = (props: { identifier: Identifier }) => {
         )}
       />
     );
-
-    if (identifier.subPath) {
-      const parts = identifier.subPath.split("/");
-      const subItems: JSX.Element[] = [];
-      while (parts.length) {
-        const link = parts.join("/");
-        const part = parts.pop()!;
-        subItems.push(
-          <BreadcrumbsItem
-            text={part}
-            href=""
-            onClick={() => {
-              identifier.subPath = link;
-            }}
-          />
-        );
-      }
-      subItems.reverse();
-      items.push.apply(items, subItems);
-    }
   }
 
   return <>{[...items]}</>;
 };
 
 export const Breadcrumb = (props: { identifier: Identifier }) => {
+  const parentId = (useOutletContext() as any)?.parentIdentifier as
+    | Identifier
+    | undefined;
+  const navigate = useNavigate();
+
+  if (parentId) {
+    if (!props.identifier.toString().startsWith(parentId.toString())) {
+      throw new Error("unexpected parent identifier");
+    }
+
+    const subOnly = props.identifier
+      .toString()
+      .substring(parentId.toString().length);
+
+    const parts = subOnly.split("/");
+    const subItems: JSX.Element[] = [];
+    while (parts.length) {
+      const link =
+        parentId.title === "Docs"
+          ? path.join("/docs", ...parts)
+          : "/" + path.join(parentId.toString(), ":", ...parts);
+
+      const part = parts.pop()!;
+      if (part.length) {
+        subItems.push(
+          <BreadcrumbsItem
+            text={part}
+            href=""
+            onClick={(e) => {
+              navigate({ pathname: link });
+              e.preventDefault();
+            }}
+          />
+        );
+      }
+    }
+    subItems.reverse();
+    return (
+      <Breadcrumbs>
+        {parentId && <BreadcrumbItems identifier={parentId} />}
+        {[...subItems]}
+      </Breadcrumbs>
+    );
+  }
+
   return (
     <Breadcrumbs>
       <BreadcrumbItems identifier={props.identifier} />

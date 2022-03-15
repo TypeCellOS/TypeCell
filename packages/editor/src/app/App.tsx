@@ -1,11 +1,10 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route as RRoute, Routes } from "react-router-dom";
 import { getStoreService } from "../store/local/stores";
 import { StartScreen } from "./main/components/startscreen/StartScreen";
 import Main from "./main/Main";
 import { ValidatedServerConfig } from "./matrix-auth/auth/util/AutoDiscoveryUtils";
-import { DocsRoute } from "./routes/docs";
 import { DocumentRoute } from "./routes/document";
 import { DynamicRoute } from "./routes/dynamic";
 import { Login } from "./routes/login";
@@ -19,17 +18,17 @@ export const App = observer((props: { config: ValidatedServerConfig }) => {
   } else if (sessionStore.user === "offlineNoUser") {
     return <div>Offline</div>;
   } else {
+    const Route = RRoute as any;
     return (
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Main />}>
+          <Route path="/" breadcrumb="test" element={<Main />}>
             <Route path="@:userParam" element={<ProfileRoute />}></Route>
             <Route
               path="@:userParam/:documentParam"
               element={<DocumentRoute />}></Route>
             <Route index element={<StartScreen></StartScreen>}></Route>
             <Route path="*" element={<DynamicRoute />} />
-            {/* <Route path="docs/*" element={<DocsRoute />} /> */}
           </Route>
           <Route
             path="/register"

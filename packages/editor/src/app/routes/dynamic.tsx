@@ -1,4 +1,4 @@
-import { Route, Routes, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { ENVIRONMENT } from "../../config/config";
 import { parseIdentifier, tryParseIdentifier } from "../../identifiers";
 import DocumentView from "../documentRenderers/DocumentView";
@@ -9,7 +9,7 @@ export const DynamicRoute = () => {
   if (location.pathname.startsWith("/docs")) {
     const id =
       ENVIRONMENT === "DEV"
-        ? parseIdentifier("fs:/", "Docs")
+        ? parseIdentifier("fs:", "Docs")
         : /*parseIdentifier(
             "github:yousefed/typecell-next/docs" +
               (remainingPath ? "/:/" + remainingPath : "")

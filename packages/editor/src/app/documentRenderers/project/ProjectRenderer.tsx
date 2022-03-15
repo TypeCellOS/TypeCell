@@ -1,6 +1,12 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { Route, Routes, useLocation, useParams } from "react-router-dom";
+import {
+  Route,
+  Routes,
+  useLocation,
+  useOutletContext,
+  useParams,
+} from "react-router-dom";
 import { path } from "vscode-lib";
 import { parseIdentifier } from "../../../identifiers";
 import { Identifier } from "../../../identifiers/Identifier";
@@ -22,6 +28,11 @@ const NestedDocument = (props: { parent: Identifier }) => {
     parseIdentifier(newIdStr).fullUriOfSubPath()!.toString()
   );
   return <DocumentView id={documentIdentifier} isNested={true} />;
+};
+
+const RootDirectory = (props: {}) => {
+  const defaultDoc = (useOutletContext() as any)?.defaultFileContent as any;
+  return defaultDoc || <></>;
 };
 
 // const Debug = (props: { children: any }) => {
@@ -51,7 +62,7 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
       <Route
         path={rootPath}
         element={<ProjectContainer project={props.project} />}>
-        <Route index element={<div>directory {rootPath}</div>} />
+        <Route index element={<RootDirectory />} />
         {isDocs ? (
           <Route path="*" element={<NestedDocument parent={identifier} />} />
         ) : (
