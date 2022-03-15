@@ -6,6 +6,8 @@ import { DocConnection } from "../../store/DocConnection";
 import PluginResource from "../../store/PluginResource";
 import ProjectResource from "../../store/ProjectResource";
 import DocumentMenu from "../main/components/documentMenu";
+import { Breadcrumb } from "../main/components/documentMenu/Breadcrumb";
+import { MenuBar } from "../main/components/menuBar/MenuBar";
 // import RichTextRenderer from "./richtext/RichTextRenderer";
 import styles from "./DocumentView.module.css";
 // import { CustomRenderer } from "./custom/CustomRenderer";
@@ -69,9 +71,11 @@ const DocumentView = observer((props: Props) => {
     if (props.isNested) {
       return (
         <div className={styles.view}>
-          {/* {!props.hideDocumentMenu && (
-            <DocumentMenu document={connection.doc.doc}></DocumentMenu>
-          )} */}
+          {!props.hideDocumentMenu && (
+            <MenuBar>
+              <Breadcrumb identifier={props.id} />
+            </MenuBar>
+          )}
           <ProjectContainer
             isNested={true}
             key={connection.doc.id}

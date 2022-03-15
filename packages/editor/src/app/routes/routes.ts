@@ -1,4 +1,4 @@
-import { Location, NavigateFunction } from "react-router-dom";
+import { Location, NavigateFunction, To } from "react-router-dom";
 import { parseIdentifier } from "../../identifiers";
 import { Identifier } from "../../identifiers/Identifier";
 import { BaseResource } from "../../store/BaseResource";
@@ -27,58 +27,49 @@ export function IsPermissionsDialogOpen(location: Location) {
   return (location as any).state?.permissionsDialog;
 }
 
-export function gotoRegisterScreen(navigate: NavigateFunction) {
-  return navigate({ pathname: "/register" });
+export function toRegisterScreen(): To {
+  return { pathname: "/register" };
 }
 
-export function gotoLoginScreen(navigate: NavigateFunction) {
-  return navigate({ pathname: "/login" });
+export function toLoginScreen(): To {
+  return { pathname: "/login" };
 }
 
-export function gotoRecoverPasswordScreen(navigate: NavigateFunction) {
-  return navigate({ pathname: "/recover" });
+export function toRecoverPasswordScreen(): To {
+  return { pathname: "/recover" };
 }
 
-export function gotoStartScreen(navigate: NavigateFunction) {
-  return navigate({ pathname: "/" });
+export function toStartScreen(): To {
+  return { pathname: "/" };
 }
 
-export function gotoDocs(navigate: NavigateFunction) {
-  return navigate({ pathname: "/docs" });
+export function toDocs(): To {
+  return { pathname: "/docs" };
 }
 
-export function gotoTutorial(navigate: NavigateFunction) {
-  return navigate("/docs/interactive-introduction.md");
+export function toTutorial(): To {
+  return { pathname: "/docs/interactive-introduction.md" };
 }
 
-export function gotoDocument(navigate: NavigateFunction, doc: BaseResource) {
-  return gotoIdentifier(navigate, doc.identifier);
+export function toDocument(doc: BaseResource): To {
+  return toIdentifier(doc.identifier);
 }
 
-export function gotoIdentifier(
-  navigate: NavigateFunction,
-  identifier: Identifier
-) {
-  return navigate({ pathname: "/" + identifier.toRouteString() });
+export function toIdentifier(identifier: Identifier): To {
+  return { pathname: identifier.toRouteString() };
 }
 
-export function gotoIdentifierString(
-  navigate: NavigateFunction,
-  identifier: string
-) {
-  return gotoIdentifier(navigate, parseIdentifier(identifier));
+export function toIdentifierString(identifier: string): To {
+  return toIdentifier(parseIdentifier(identifier));
 }
 
-export function gotoNewGuestNotebook(navigate: NavigateFunction) {
-  return gotoIdentifier(
-    navigate,
-    parseIdentifier({ owner: "@typecell", document: "new" })
-  );
+export function toNewGuestNotebook(): To {
+  return toIdentifier(parseIdentifier({ owner: "@typecell", document: "new" }));
 }
 
-export function gotoProfilePage(navigate: NavigateFunction, owner: string) {
+export function toProfilePage(owner: string): To {
   if (!owner.startsWith("@")) {
     throw new Error("invalid user id");
   }
-  return navigate({ pathname: "/" + owner });
+  return { pathname: "/" + owner };
 }

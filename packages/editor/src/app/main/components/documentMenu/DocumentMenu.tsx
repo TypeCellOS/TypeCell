@@ -50,7 +50,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
   let navigate = useNavigate();
   return (
     <MenuBar>
-      <Breadcrumb document={props.document} />
+      <Breadcrumb identifier={props.document.identifier} />
       {props.document.connection!.needsFork && (
         <ForkAlert document={props.document} />
       )}

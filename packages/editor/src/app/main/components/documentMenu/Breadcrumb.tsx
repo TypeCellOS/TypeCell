@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { FileIdentifier } from "../../../../identifiers/FileIdentifier";
 import { GithubIdentifier } from "../../../../identifiers/GithubIdentifier";
 import { HttpsIdentifier } from "../../../../identifiers/HttpsIdentifier";
+import { Identifier } from "../../../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../../../identifiers/MatrixIdentifier";
-import { DocumentResource } from "../../../../store/DocumentResource";
-import { gotoProfilePage } from "../../../routes/routes";
+import { toProfilePage } from "../../../routes/routes";
 
 const buttonStyle = {
   alignItems: "baseline",
@@ -25,10 +25,10 @@ const buttonStyle = {
   minWidth: 0,
 };
 
-const BreadcrumbItems = (props: { document: DocumentResource }) => {
+const BreadcrumbItems = (props: { identifier: Identifier }) => {
   const items: JSX.Element[] = [];
   const navigate = useNavigate();
-  const identifier = props.document.identifier!;
+  const identifier = props.identifier;
   const clearSubPath = () => {
     identifier.subPath = "";
   };
@@ -42,6 +42,7 @@ const BreadcrumbItems = (props: { document: DocumentResource }) => {
       />
     );
   } else if (identifier instanceof GithubIdentifier) {
+    debugger;
     // Show path as single item
     items.push(
       <BreadcrumbsItem
@@ -67,7 +68,7 @@ const BreadcrumbItems = (props: { document: DocumentResource }) => {
         href=""
         text={identifier.owner}
         onClick={() => {
-          gotoProfilePage(navigate, identifier.owner);
+          navigate(toProfilePage(identifier.owner));
         }}
       />,
       <BreadcrumbsItem
@@ -105,10 +106,10 @@ const BreadcrumbItems = (props: { document: DocumentResource }) => {
   return <>{[...items]}</>;
 };
 
-export const Breadcrumb = (props: { document: DocumentResource }) => {
+export const Breadcrumb = (props: { identifier: Identifier }) => {
   return (
     <Breadcrumbs>
-      <BreadcrumbItems document={props.document} />
+      <BreadcrumbItems identifier={props.identifier} />
     </Breadcrumbs>
   );
 };

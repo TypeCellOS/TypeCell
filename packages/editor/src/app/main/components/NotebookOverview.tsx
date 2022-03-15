@@ -4,8 +4,8 @@ import { getStoreService } from "../../../store/local/stores";
 import Textfield from "@atlaskit/textfield";
 import styles from "./NotebookOverview.module.css";
 import { parseIdentifier } from "../../../identifiers";
-import { gotoIdentifier } from "../../routes/routes";
-import { useNavigate } from "react-router-dom";
+import { toIdentifier } from "../../routes/routes";
+import { Link, useNavigate } from "react-router-dom";
 
 type Room = {
   name: string;
@@ -35,19 +35,15 @@ function parseRoomFromAlias(rawAlias: string): Room | undefined {
 }
 
 const RoomInfo = function (props: { room: Room }) {
-  const navigate = useNavigate();
-  function navigateToRoom(e: React.MouseEvent) {
-    e.preventDefault();
-    gotoIdentifier(navigate, parseIdentifier(props.room.fullName));
-  }
   return (
     <div className={styles.room}>
-      <a
-        href={`/${props.room.user}/${props.room.name}`}
-        className={styles.roomName}
-        onClick={navigateToRoom}>
+      <Link
+        to={toIdentifier(
+          parseIdentifier({ owner: props.room.user, document: props.room.name })
+        )}
+        className={styles.roomName}>
         {props.room.name}
-      </a>
+      </Link>
       <div className={styles.user}>{props.room.user}</div>
       {/* <div className={styles.roomName}>{props.server}</div> */}
     </div>

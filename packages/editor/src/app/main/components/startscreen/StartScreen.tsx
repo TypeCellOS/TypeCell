@@ -1,14 +1,13 @@
 import { observer } from "mobx-react-lite";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import app_logo from "../../../../assets/app_logo.svg";
-// import GitHubButton from "react-github-btn";
 import { getStoreService } from "../../../../store/local/stores";
 import {
-  gotoDocs,
-  gotoIdentifierString,
-  gotoNewGuestNotebook,
-  gotoTutorial,
   OpenNewNotebookDialog,
+  toDocs,
+  toIdentifierString,
+  toNewGuestNotebook,
+  toTutorial,
 } from "../../../routes/routes";
 import { NotebookOverviewItem } from "../NotebookOverviewItem";
 import apiPreviewImage from "./assets/api_preview.jpg";
@@ -28,18 +27,8 @@ export const StartScreen = observer(() => {
     if (sessionStore.isLoggedIn) {
       OpenNewNotebookDialog(navigate);
     } else {
-      gotoNewGuestNotebook(navigate);
+      navigate(toNewGuestNotebook());
     }
-  }
-
-  function onTutorialClick(e: any) {
-    e.preventDefault();
-    gotoTutorial(navigate);
-  }
-
-  function onDocsClick(e: any) {
-    e.preventDefault();
-    gotoDocs(navigate);
   }
 
   return (
@@ -70,12 +59,9 @@ export const StartScreen = observer(() => {
               </h1>
             </div>
             <div className={styles.row + " " + styles.buttons + " row"}>
-              <a
-                className="button primary"
-                href="/docs/interactive-introduction.md"
-                onClick={onTutorialClick}>
+              <Link className="button primary" to={toTutorial()}>
                 Try interactive tutorial
-              </a>
+              </Link>
 
               <a
                 className="button secondary"
@@ -159,9 +145,9 @@ export const StartScreen = observer(() => {
                     username: "niklas",
                     profileImageUrl: "",
                   }}
-                  onClick={() => {
-                    gotoIdentifierString(navigate, "@niklas/time");
-                  }}></NotebookOverviewItem>
+                  to={toIdentifierString(
+                    "@niklas/time"
+                  )}></NotebookOverviewItem>
               </div>
               <div className={styles.notebook}>
                 <NotebookOverviewItem
@@ -172,9 +158,9 @@ export const StartScreen = observer(() => {
                     username: "yousef",
                     profileImageUrl: "",
                   }}
-                  onClick={() => {
-                    gotoIdentifierString(navigate, "@yousef/charts");
-                  }}></NotebookOverviewItem>
+                  to={toIdentifierString(
+                    "@yousef/charts"
+                  )}></NotebookOverviewItem>
               </div>
               <div className={styles.notebook}>
                 <NotebookOverviewItem
@@ -185,9 +171,7 @@ export const StartScreen = observer(() => {
                     username: "niklas",
                     profileImageUrl: "",
                   }}
-                  onClick={() => {
-                    gotoIdentifierString(navigate, "@niklas/api");
-                  }}></NotebookOverviewItem>
+                  to={toIdentifierString("@niklas/api")}></NotebookOverviewItem>
               </div>
             </div>
           </div>
@@ -227,12 +211,9 @@ export const StartScreen = observer(() => {
 
             <div className={styles.buttons}>
               <div>
-                <a
-                  href="/docs/interactive-introduction.md"
-                  onClick={onTutorialClick}
-                  className="button">
+                <Link to={toTutorial()} className="button">
                   Try interactive tutorial
-                </a>
+                </Link>
               </div>
               <div>
                 <a
@@ -251,16 +232,14 @@ export const StartScreen = observer(() => {
             <div className={styles.links}>
               <ul>
                 <li>
-                  <a
-                    href="/docs/interactive-introduction.md"
-                    onClick={onTutorialClick}>
+                  <Link to={toTutorial()}>
                     <span>Interactive introduction</span>
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/docs" onClick={onDocsClick}>
+                  <Link to={toDocs()}>
                     <span>Documentation</span>
-                  </a>
+                  </Link>
                 </li>
 
                 {/* <li>

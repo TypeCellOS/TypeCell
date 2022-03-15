@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getStoreService } from "../../store/local/stores";
 import LoginComponent from "../matrix-auth/auth/Login";
 import { ValidatedServerConfig } from "../matrix-auth/auth/util/AutoDiscoveryUtils";
-import { gotoRecoverPasswordScreen, gotoRegisterScreen } from "./routes";
+import { toRecoverPasswordScreen, toRegisterScreen } from "./routes";
 
 export const Login = observer((props: { config: ValidatedServerConfig }) => {
   const { matrixAuthStore } = getStoreService();
@@ -15,7 +15,7 @@ export const Login = observer((props: { config: ValidatedServerConfig }) => {
       serverConfig={props.config}
       onLoggedIn={matrixAuthStore.onUserCompletedLoginFlow}
       onRegisterClick={() => {
-        gotoRegisterScreen(navigate);
+        navigate(toRegisterScreen());
       }}
       onServerConfigChange={() => {
         // TODO
@@ -23,7 +23,7 @@ export const Login = observer((props: { config: ValidatedServerConfig }) => {
       }}
       // TODO: does this work correctly after SSO login is declined?
       pageAfterLogin={pageAfterLogin}
-      onForgotPasswordClick={() => gotoRecoverPasswordScreen(navigate)}
+      onForgotPasswordClick={() => navigate(toRecoverPasswordScreen())}
     />
   );
 });

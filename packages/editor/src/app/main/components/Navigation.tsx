@@ -10,8 +10,8 @@ import { getStoreService } from "../../../store/local/stores";
 import { Logo } from "./Logo";
 import { ProfilePopup } from "./ProfilePopup";
 import styles from "./Navigation.module.css";
-import { useNavigate } from "react-router-dom";
-import { gotoDocs, gotoLoginScreen } from "../../routes/routes";
+import { Link, useNavigate } from "react-router-dom";
+import { toDocs, toLoginScreen } from "../../routes/routes";
 
 const ProductHome = () => {
   return (
@@ -33,15 +33,9 @@ export const Navigation = observer(() => {
     <AN
       renderProductHome={ProductHome}
       primaryItems={[
-        <a
-          href="/docs"
-          className={styles.link}
-          onClick={(e) => {
-            e.preventDefault();
-            gotoDocs(navigate);
-          }}>
+        <Link className={styles.link} to={toDocs()}>
           Documentation
-        </a>,
+        </Link>,
         // <PrimaryButton onClick={navigationStore.navigateToDocs}>
         //   Documentation
         // </PrimaryButton>,
@@ -57,7 +51,7 @@ export const Navigation = observer(() => {
         <>
           {!sessionStore.isLoggedIn && (
             <PrimaryButton
-              onClick={() => gotoLoginScreen(navigate)}
+              onClick={() => navigate(toLoginScreen())}
               iconBefore={
                 <VscSignIn style={{ width: "16px", height: "16px" }} />
               }>

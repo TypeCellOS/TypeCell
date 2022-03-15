@@ -5,7 +5,7 @@ import { MATRIX_CONFIG } from "../../config/config";
 import { getStoreService } from "../../store/local/stores";
 import Registration from "../matrix-auth/auth/Registration";
 import { ValidatedServerConfig } from "../matrix-auth/auth/util/AutoDiscoveryUtils";
-import { gotoLoginScreen } from "./routes";
+import { toLoginScreen } from "./routes";
 
 function makeRegistrationUrl(params: any) {
   let url =
@@ -53,7 +53,7 @@ export const Register = observer((props: { config: ValidatedServerConfig }) => {
       makeRegistrationUrl={makeRegistrationUrl}
       onLoggedIn={matrixAuthStore.onUserCompletedLoginFlow}
       onLoginClick={() => {
-        gotoLoginScreen(navigate);
+        navigate(toLoginScreen());
       }}
       onServerConfigChange={() => {
         // TODO

@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
 import { UnreachableCaseError } from "../../../util/UnreachableCaseError";
-import { gotoDocument } from "../../routes/routes";
+import { toDocument } from "../../routes/routes";
 
 export const NewNotebookDialog = (props: {
   isOpen: boolean;
@@ -66,7 +66,7 @@ export const NewNotebookDialog = (props: {
                 "typescript",
                 `export let message = "Hello World"`
               );
-              gotoDocument(navigate, ret);
+              navigate(toDocument(ret));
 
               // Bit hacky, dispose with timeout,
               // because navigateToDocument will (indirectly) need the doc
