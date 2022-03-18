@@ -1,21 +1,31 @@
 import { observer } from "mobx-react-lite";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { getStoreService } from "../../store/local/stores";
 import LoginComponent from "../matrix-auth/auth/Login";
 import { ValidatedServerConfig } from "../matrix-auth/auth/util/AutoDiscoveryUtils";
 import { toRecoverPasswordScreen, toRegisterScreen } from "./routes";
 
 export const Login = observer((props: { config: ValidatedServerConfig }) => {
-  const { matrixAuthStore } = getStoreService();
+  const { matrixAuthStore, sessionStore } = getStoreService();
+
+  const location = useLocation();
   const navigate = useNavigate();
-  let pageAfterLogin = window.history.state?.prevUrl || "";
+
+  const from = (location.state as any)?.from?.pathname || "/";
+  let pageAfterLogin = window.location.origin + from;
+
+  if (sessionStore.isLoggedIn) {
+    return <Navigate to={from} replace={true} />;
+  }
 
   return (
     <LoginComponent
       serverConfig={props.config}
       onLoggedIn={matrixAuthStore.onUserCompletedLoginFlow}
       onRegisterClick={() => {
-        navigate(toRegisterScreen());
+        navigate(toRegisterScreen(), {
+          state: { from: (location.state as any)?.from },
+        });
       }}
       onServerConfigChange={() => {
         // TODO

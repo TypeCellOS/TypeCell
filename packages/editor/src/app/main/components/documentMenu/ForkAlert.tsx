@@ -5,13 +5,14 @@ import { UnreachableCaseError } from "../../../../util/UnreachableCaseError";
 import EditorWarningIcon from "@atlaskit/icon/glyph/editor/warning";
 import styles from "./ForkAlert.module.css";
 import { DocumentResource } from "../../../../store/DocumentResource";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toDocument, toLoginScreen } from "../../../routes/routes";
 
 export const ForkAlert = observer((props: { document: DocumentResource }) => {
   /* eslint-disable jsx-a11y/anchor-is-valid */
   const sessionStore = getStoreService().sessionStore;
   const navigate = useNavigate();
+  const location = useLocation();
 
   if (!props.document.connection?.needsFork) {
     throw new Error("<ForkAlert /> but no fork needed");
@@ -39,7 +40,7 @@ export const ForkAlert = observer((props: { document: DocumentResource }) => {
       <span>save a copy</span>
     </a>
   ) : (
-    <Link to={toLoginScreen()}>
+    <Link to={toLoginScreen()} state={{ from: location }}>
       <span>sign in to save a copy</span>
     </Link>
   );

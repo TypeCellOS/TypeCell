@@ -10,7 +10,7 @@ import { getStoreService } from "../../../store/local/stores";
 import { Logo } from "./Logo";
 import { ProfilePopup } from "./ProfilePopup";
 import styles from "./Navigation.module.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toDocs, toLoginScreen } from "../../routes/routes";
 
 const ProductHome = () => {
@@ -28,6 +28,7 @@ const AN = AtlassianNavigation as any;
 export const Navigation = observer(() => {
   const sessionStore = getStoreService().sessionStore;
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <AN
@@ -51,7 +52,9 @@ export const Navigation = observer(() => {
         <>
           {!sessionStore.isLoggedIn && (
             <PrimaryButton
-              onClick={() => navigate(toLoginScreen())}
+              onClick={() =>
+                navigate(toLoginScreen(), { state: { from: location } })
+              }
               iconBefore={
                 <VscSignIn style={{ width: "16px", height: "16px" }} />
               }>

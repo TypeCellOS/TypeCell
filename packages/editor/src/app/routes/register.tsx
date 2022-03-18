@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import qs from "qs";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { MATRIX_CONFIG } from "../../config/config";
 import { getStoreService } from "../../store/local/stores";
 import Registration from "../matrix-auth/auth/Registration";
@@ -29,8 +29,9 @@ function makeRegistrationUrl(params: any) {
 }
 
 export const Register = observer((props: { config: ValidatedServerConfig }) => {
-  const { matrixAuthStore } = getStoreService();
+  const { matrixAuthStore, sessionStore } = getStoreService();
   const navigate = useNavigate();
+  const location = useLocation();
   const params = qs.parse(window.location.search);
 
   if (params.hs_url && params.hs_url !== MATRIX_CONFIG.hsUrl) {
@@ -41,7 +42,13 @@ export const Register = observer((props: { config: ValidatedServerConfig }) => {
     throw new Error("different identity server not supported");
   }
 
-  let pageAfterLogin = window.history.state?.prevUrl || "";
+  const from = (location.state as any)?.from?.pathname || "/";
+  let pageAfterLogin = window.location.origin + from;
+
+  if (sessionStore.isLoggedIn) {
+    return <Navigate to={from} replace={true} />;
+  }
+
   // const email = ThreepidInviteStore.instance.pickBestInvite()?.toEmail;
   return (
     <Registration
@@ -53,7 +60,9 @@ export const Register = observer((props: { config: ValidatedServerConfig }) => {
       makeRegistrationUrl={makeRegistrationUrl}
       onLoggedIn={matrixAuthStore.onUserCompletedLoginFlow}
       onLoginClick={() => {
-        navigate(toLoginScreen());
+        navigate(toLoginScreen(), {
+          state: { from: (location.state as any)?.from },
+        });
       }}
       onServerConfigChange={() => {
         // TODO

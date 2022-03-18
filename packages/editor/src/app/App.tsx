@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { BrowserRouter, Route as RRoute, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { getStoreService } from "../store/local/stores";
 import { StartScreen } from "./main/components/startscreen/StartScreen";
 import Main from "./main/Main";
@@ -18,11 +18,10 @@ export const App = observer((props: { config: ValidatedServerConfig }) => {
   } else if (sessionStore.user === "offlineNoUser") {
     return <div>Offline</div>;
   } else {
-    const Route = RRoute as any;
     return (
       <BrowserRouter>
         <Routes>
-          <Route path="/" breadcrumb="test" element={<Main />}>
+          <Route path="/" element={<Main />}>
             <Route path="@:userParam" element={<ProfileRoute />}></Route>
             <Route
               path="@:userParam/:documentParam"
@@ -49,6 +48,9 @@ export default App;
 // identifiers
 // docs
 // breadcrumbs
+// redirects
+// http indexjson
+// login
 
 //   // Before we continue, let's see if we're supposed to do an SSO redirect
 //   const [userId] = await Lifecycle.getStoredSessionOwner();
