@@ -43,15 +43,6 @@ export const App = observer((props: { config: ValidatedServerConfig }) => {
 });
 export default App;
 
-// test login + registration
-// projects
-// identifiers
-// docs
-// breadcrumbs
-// redirects
-// http indexjson
-// login
-
 //   // Before we continue, let's see if we're supposed to do an SSO redirect
 //   const [userId] = await Lifecycle.getStoredSessionOwner();
 //   const hasPossibleToken = !!userId;

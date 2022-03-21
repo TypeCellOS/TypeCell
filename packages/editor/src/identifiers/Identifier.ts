@@ -6,6 +6,7 @@ export interface IdentifierFactory<T extends Identifier> {
 }
 
 export abstract class Identifier {
+  // TODO: get rid of subpaths?
   public subPath?: string;
 
   protected constructor(
