@@ -103,13 +103,19 @@ export const Breadcrumb = (props: { identifier: Identifier }) => {
   const navigate = useNavigate();
 
   if (parentId) {
-    if (!props.identifier.toString().startsWith(parentId.toString())) {
+    let parentPart = parentId.toString();
+    if (parentPart.endsWith("index.json")) {
+      // TODO: hacky to fix here, this is for the http loader
+      parentPart = parentPart.substring(
+        0,
+        parentPart.length - "index.json".length
+      );
+    }
+    if (!props.identifier.toString().startsWith(parentPart)) {
       throw new Error("unexpected parent identifier");
     }
 
-    const subOnly = props.identifier
-      .toString()
-      .substring(parentId.toString().length);
+    const subOnly = props.identifier.toString().substring(parentPart.length);
 
     const parts = subOnly.split("/");
     const subItems: JSX.Element[] = [];
@@ -117,7 +123,7 @@ export const Breadcrumb = (props: { identifier: Identifier }) => {
       const link =
         parentId.title === "Docs"
           ? path.join("/docs", ...parts)
-          : "/" + path.join(parentId.toString(), ":", ...parts);
+          : "/" + path.join(parentPart, ":", ...parts);
 
       const part = parts.pop()!;
       if (part.length) {
