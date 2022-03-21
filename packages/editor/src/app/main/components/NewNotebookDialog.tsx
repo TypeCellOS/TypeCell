@@ -66,6 +66,7 @@ export const NewNotebookDialog = (props: {
                 "typescript",
                 `export let message = "Hello World"`
               );
+
               navigate(toDocument(ret));
 
               // Bit hacky, dispose with timeout,
@@ -74,8 +75,6 @@ export const NewNotebookDialog = (props: {
               setTimeout(() => {
                 ret.dispose();
               }, 500);
-
-              props.close();
             } else {
               if (ret.status !== "error") {
                 throw new UnreachableCaseError(ret.status);
