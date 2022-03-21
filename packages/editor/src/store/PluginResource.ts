@@ -10,7 +10,7 @@ import { BaseResource, BaseResourceConnection } from "./BaseResource";
 export default class PluginResource extends BaseResource {
   /** @internal */
   constructor(ydoc: Y.Doc, connection: BaseResourceConnection | Identifier) {
-    super(ydoc, connection);
+    super(ydoc, connection as any); // TODO
     if (this.type !== "!plugin") {
       throw new Error("invalid type for PluginResource");
     }

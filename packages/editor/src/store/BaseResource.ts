@@ -2,14 +2,13 @@ import { makeYDocObservable } from "@syncedstore/yjs-reactive-bindings";
 import { generateKeyBetween } from "fractional-indexing";
 import type * as Y from "yjs";
 import { Identifier } from "../identifiers/Identifier";
-import { DocConnection } from "./DocConnection";
+import type { DocConnection } from "./DocConnection";
 import { DocumentResource } from "./DocumentResource";
 import {
   createRef,
   getHashForReference,
   Ref,
   ReferenceDefinition,
-  reverseReferenceDefinition,
   validateRef,
 } from "./Ref";
 
@@ -18,6 +17,7 @@ export type BaseResourceConnection = {
   dispose: () => void;
   /** @internal */
   webrtcProvider: { awareness: any } | undefined; // TODO
+  needsFork: boolean;
 };
 /**
  * A resource is an entity definied by a unique id.
@@ -25,16 +25,18 @@ export type BaseResourceConnection = {
  */
 export class BaseResource {
   private readonly _identifier: Identifier;
-  private readonly connection?: BaseResourceConnection;
+
+  /** @internal */
+  public readonly connection?: DocConnection;
 
   /** @internal */
   public constructor(
     /** @internal */ protected readonly ydoc: Y.Doc,
-    connectionOrIdentifier: BaseResourceConnection | Identifier
+    connectionOrIdentifier: DocConnection | Identifier
   ) {
     makeYDocObservable(ydoc);
     if ((connectionOrIdentifier as any).identifier) {
-      this.connection = connectionOrIdentifier as BaseResourceConnection;
+      this.connection = connectionOrIdentifier as DocConnection;
       this._identifier = this.connection.identifier;
     } else {
       this._identifier = connectionOrIdentifier as any;
@@ -166,64 +168,64 @@ export class BaseResource {
     this._refs.set(key, createRef(definition, targetId, sortKey));
   }
 
-  public ensureRef(
-    definition: ReferenceDefinition,
-    targetId: string,
-    index?: number,
-    checkReverse = true
-  ) {
-    // const ref = new Ref(definition, targetId);
+  // public ensureRef(
+  //   definition: ReferenceDefinition,
+  //   targetId: string,
+  //   index?: number,
+  //   checkReverse = true
+  // ) {
+  //   // const ref = new Ref(definition, targetId);
 
-    const key = getHashForReference(definition, targetId);
-    let existing = this.getRef(definition, key); // TODO: this doesn't work distributed + reverseDoc?, because maybe this document isn't synced
-    if (existing) {
-      // The document already has this relationship
-      if (existing.target !== targetId) {
-        // The relationship that exists is different, remove the reverse relationship
-        const doc = DocConnection.load(existing.target); // TODO: unload document
+  //   const key = getHashForReference(definition, targetId);
+  //   let existing = this.getRef(definition, key); // TODO: this doesn't work distributed + reverseDoc?, because maybe this document isn't synced
+  //   if (existing) {
+  //     // The document already has this relationship
+  //     if (existing.target !== targetId) {
+  //       // The relationship that exists is different, remove the reverse relationship
+  //       const doc = DocConnection.load(existing.target); // TODO: unload document
 
-        // TODO !
-        doc.tryDoc!.removeRef(reverseReferenceDefinition(definition), this.id);
-      }
-    }
-    // Add the relationship
-    let sortKey: string | undefined;
+  //       // TODO !
+  //       doc.tryDoc!.removeRef(reverseReferenceDefinition(definition), this.id);
+  //     }
+  //   }
+  //   // Add the relationship
+  //   let sortKey: string | undefined;
 
-    if (
-      definition.relationship.type === "many" &&
-      definition.relationship.sorted
-    ) {
-      const refs = this.getRefs(definition).filter(
-        (r) => r.target !== targetId
-      );
-      if (index === undefined) {
-        // append as last item
-        sortKey = generateKeyBetween(refs.pop()?.sortKey || null, null);
-      } else {
-        let sortKeyA = index === 0 ? null : refs[index - 1].sortKey || null;
-        let sortKeyB =
-          index >= refs.length ? null : refs[index].sortKey || null;
-        if (sortKeyA === sortKeyB && sortKeyA !== null) {
-          console.warn("unexpected");
-          sortKeyB = null;
-        }
-        sortKey = generateKeyBetween(sortKeyA, sortKeyB);
-      }
-    }
+  //   if (
+  //     definition.relationship.type === "many" &&
+  //     definition.relationship.sorted
+  //   ) {
+  //     const refs = this.getRefs(definition).filter(
+  //       (r) => r.target !== targetId
+  //     );
+  //     if (index === undefined) {
+  //       // append as last item
+  //       sortKey = generateKeyBetween(refs.pop()?.sortKey || null, null);
+  //     } else {
+  //       let sortKeyA = index === 0 ? null : refs[index - 1].sortKey || null;
+  //       let sortKeyB =
+  //         index >= refs.length ? null : refs[index].sortKey || null;
+  //       if (sortKeyA === sortKeyB && sortKeyA !== null) {
+  //         console.warn("unexpected");
+  //         sortKeyB = null;
+  //       }
+  //       sortKey = generateKeyBetween(sortKeyA, sortKeyB);
+  //     }
+  //   }
 
-    this._refs.set(key, createRef(definition, targetId, sortKey));
-    if (checkReverse) {
-      // Add the reverse relationship
-      const reverseDoc = DocConnection.load(targetId); // TODO: unload document
-      // TODO !
-      reverseDoc.tryDoc!.ensureRef(
-        reverseReferenceDefinition(definition),
-        this.id,
-        undefined,
-        false
-      );
-    }
-  }
+  //   this._refs.set(key, createRef(definition, targetId, sortKey));
+  //   if (checkReverse) {
+  //     // Add the reverse relationship
+  //     const reverseDoc = DocConnection.load(targetId); // TODO: unload document
+  //     // TODO !
+  //     reverseDoc.tryDoc!.ensureRef(
+  //       reverseReferenceDefinition(definition),
+  //       this.id,
+  //       undefined,
+  //       false
+  //     );
+  //   }
+  // }
 
   public dispose() {
     // This should always only dispose the connection

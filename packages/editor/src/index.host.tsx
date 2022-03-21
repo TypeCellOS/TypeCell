@@ -1,24 +1,21 @@
 import "@atlaskit/css-reset/dist/bundle.css";
-import "./index.css";
+import * as Olm from "@matrix-org/olm";
 // @ts-ignore
 import olmWasmPath from "@matrix-org/olm/olm.wasm";
 import * as yjsBindings from "@syncedstore/yjs-reactive-bindings";
 import * as mobx from "mobx";
+import * as monaco from "monaco-editor";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./app/App";
 import { MATRIX_CONFIG } from "./config/config";
 import { validateHostDomain } from "./config/security";
+import "./index.css";
 import { setMonacoDefaults } from "./runtime/editor";
 import setupNpmTypeResolver from "./runtime/editor/languages/typescript/npmTypeResolver";
 import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typecellTypeResolver";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
 import { initializeStoreService } from "./store/local/stores";
-import * as monaco from "monaco-editor";
-import * as Olm from "@matrix-org/olm";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import * as reo from "react-error-overlay";
 
 if (process.env.NODE_ENV === "development") {
   // disables error overlays

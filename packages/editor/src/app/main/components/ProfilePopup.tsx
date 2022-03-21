@@ -7,12 +7,15 @@ import {
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import Avatar from "react-avatar";
-import { NavigationStore } from "../../../store/local/navigationStore";
+import { useNavigate } from "react-router-dom";
 import { SessionStore } from "../../../store/local/SessionStore";
 import { getStoreService } from "../../../store/local/stores";
+import { OpenNewNotebookDialog } from "../../routes/routes";
 
 export const ProfilePopup = observer(
-  (props: { sessionStore: SessionStore; navigationStore: NavigationStore }) => {
+  (props: { sessionStore: SessionStore }) => {
+    const navigate = useNavigate();
+    const navigationStore = getStoreService().navigationStore;
     const [isOpen, setIsOpen] = useState(false);
 
     const onClick = () => {
@@ -48,10 +51,10 @@ export const ProfilePopup = observer(
           />
         }
         position="bottom right">
-        <DropdownItem onClick={props.navigationStore.showNewNotebookDialog}>
+        <DropdownItem onClick={() => OpenNewNotebookDialog(navigate)}>
           New notebook
         </DropdownItem>
-        {props.navigationStore.menuPortalChildren.map((c) => c.children)}
+        {navigationStore.menuPortalChildren.map((c) => c.children)}
         <DropdownItemGroup title={props.sessionStore.loggedInUserId!}>
           {" "}
           {/* @${props.authStore.user?.username} */}
