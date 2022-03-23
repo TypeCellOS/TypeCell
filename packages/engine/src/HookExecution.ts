@@ -88,11 +88,14 @@ export class HookExecution {
     original: (...args: T[]) => Y,
     disposer: (ret: Y, args: T[]) => void
   ) {
+    const self = this;
     return function newFunction(this: any): Y {
       const callerArguments = arguments;
       const ret = original.apply(this, callerArguments as any); // TODO: fix any?
       const ctx = this;
-      this.disposes.push(() => disposer.call(ctx, ret, callerArguments as any));
+      self.disposers.push(() =>
+        disposer.call(ctx, ret, callerArguments as any)
+      );
       return ret;
     };
   }
