@@ -1,6 +1,8 @@
 import { ImportShimResolver } from "./ImportShimResolver";
 import { LocalModuleResolver } from "./LocalModuleResolver";
-import { SkypackResolver } from "./SkypackResolver";
+import { SkypackResolver } from "./cdns/SkypackResolver";
+
+import { expect } from "chai";
 
 const localResolver = new LocalModuleResolver(async (moduleName) => {
   if (moduleName === "react") {
@@ -12,15 +14,17 @@ const localResolver = new LocalModuleResolver(async (moduleName) => {
 const resolvers: any[] = [new SkypackResolver()];
 const resolver = new ImportShimResolver(resolvers, localResolver);
 
-jest.setTimeout(30000);
 describe("import tests", () => {
   it("directly importing a local module", async () => {
     const ret = await resolver.resolveImport("react");
-    expect(ret.module).toBe("fakereact");
+    expect(ret.module).to.equal("fakereact");
   });
 
   it("directly importing a module", async () => {
-    const ret = await resolver.resolveImport("preact");
-    expect(ret).toBe("fakereact");
+    const ret = await resolver.resolveImport("lodash");
+    expect(ret.module.chunk(["a", "b", "c", "d"], 2)).to.deep.equal([
+      ["a", "b"],
+      ["c", "d"],
+    ]);
   });
 });
