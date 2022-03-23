@@ -1,6 +1,8 @@
 import { ExternalModuleResolver } from "../ExternalModuleResolver";
 
 export class JSPMResolver extends ExternalModuleResolver {
+  public readonly name = "jspm";
+
   public async getModuleInfoFromURL(url: string) {
     // TODO: should also pass version identifier (@xx)
 

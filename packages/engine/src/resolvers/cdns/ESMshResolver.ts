@@ -1,6 +1,8 @@
 import { ExternalModuleResolver } from "../ExternalModuleResolver";
 
 export class ESMshResolver extends ExternalModuleResolver {
+  public readonly name = "esm.sh";
+
   public async getModuleInfoFromURL(url: string) {
     // https://cdn.esm.sh/v66/@tldraw/core@1.7.0/es2021/core.js
 

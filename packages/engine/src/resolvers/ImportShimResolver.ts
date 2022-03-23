@@ -53,23 +53,18 @@ export class ImportShimResolver {
     for (let resolver of this.resolvers) {
       try {
         const module = await this.importShim(
-          "use$" + resolver.constructor.name + "$" + moduleName
+          "use$" + resolver.name + "$" + moduleName
         );
-        console.log(
-          "loaded module",
-          moduleName,
-          "using",
-          resolver.constructor.name
-        );
+        console.log("loaded module", moduleName, "using", resolver.name);
         return {
           module,
           dispose: () => {},
         };
       } catch (e) {
-        console.error("failed loading module", resolver.constructor.name, e);
+        console.error("failed loading module", resolver.name, e);
       }
     }
-    throw new Error("couldn't resolve module" + moduleName);
+    throw new Error("couldn't resolve module " + moduleName);
   }
 
   /**
@@ -213,7 +208,7 @@ export class ImportShimResolver {
       if (parts.length !== 3) {
         throw new Error("expected resolver name in import" + id);
       }
-      resolver = this.resolvers.find((r) => r.constructor.name === parts[1])!;
+      resolver = this.resolvers.find((r) => r.name === parts[1])!;
       id = parts[2];
     } else {
       if (!parent) {
