@@ -1,6 +1,8 @@
 import { ExternalModuleResolver } from "../ExternalModuleResolver";
 
 export class SkypackResolver extends ExternalModuleResolver {
+  public readonly name = "skypack";
+
   public async getModuleInfoFromURL(url: string) {
     // skypack, e.g.: https://cdn.skypack.dev/-/react-sortable-tree@v2.8.0-nFKv1Y1I3NJ65IUkUWwI/dist=es2020,mode=imports/unoptimized/dist/index.cjs.js
     // TODO: should also pass version identifier (@xx)
