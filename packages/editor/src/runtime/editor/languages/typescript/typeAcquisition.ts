@@ -200,7 +200,7 @@ const addTypecellModuleToRuntime = async (
   config.logger.log("adding typecell module", path);
   config.addLibraryToRuntime(
     content,
-    `file:///node_modules/@types/${mod}/${path}`
+    `file://node_modules/@types/${mod}/${path}`
   );
 };
 
@@ -245,7 +245,7 @@ const addModuleToRuntime = async (
   } else {
     const typelessModule = mod.split("@types/").slice(-1);
     const wrapped = `declare module "${typelessModule}" { ${content} }`;
-    config.addLibraryToRuntime(wrapped, `node_modules/${mod}/${path}`);
+    config.addLibraryToRuntime(wrapped, `file://node_modules/${mod}/${path}`);
   }
 };
 
@@ -316,7 +316,7 @@ const getModuleAndRootDefTypePath = async (
 
     config.addLibraryToRuntime(
       JSON.stringify(responseJSON, null, "  "),
-      `node_modules/${packageName}/package.json`
+      `file://node_modules/${packageName}/package.json`
     );
 
     // Get the path of the root d.ts file
@@ -430,7 +430,7 @@ const getReferenceDependencies = async (
             newPath,
             config
           );
-          const representationalPath = `node_modules/${mod}/${newPath}`;
+          const representationalPath = `file://node_modules/${mod}/${newPath}`;
           config.addLibraryToRuntime(
             dtsReferenceResponseText,
             representationalPath
@@ -580,9 +580,18 @@ const getDependenciesForModule = async (
       // So it doesn't run twice for a package
       acquiredTypeDefs[moduleID] = null;
 
-      const resolvedFilepath = absolutePathForModule.endsWith(".ts")
-        ? absolutePathForModule
-        : absolutePathForModule + ".d.ts";
+      let resolvedFilepath = absolutePathForModule;
+
+      if (!resolvedFilepath.endsWith(".ts")) {
+        if (resolvedFilepath.endsWith(".js")) {
+          // case: import apache-arrow
+          resolvedFilepath =
+            resolvedFilepath.substring(0, resolvedFilepath.length - 3) +
+            ".d.ts";
+        } else {
+          resolvedFilepath += absolutePathForModule + ".d.ts";
+        }
+      }
 
       if (
         moduleName?.startsWith("typecell") ||

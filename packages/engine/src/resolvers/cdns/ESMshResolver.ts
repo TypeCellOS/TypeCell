@@ -14,14 +14,14 @@ export class ESMshResolver extends ExternalModuleResolver {
       if (library) {
         return undefined;
       }
-      let matches = url.match(/^\/v\d+\/(.*)@[.\d]+\/(.*)$/);
+      let matches = url.match(/^\/v\d+\/(.*)@[.\d]+(-[-a-z\d.]+)?\/(.*)$/);
       if (!matches || !matches[1]) {
         throw new Error("couldn't match url");
       }
       const matchedModuleName = matches[1];
 
       // mode is necessary for jsx-runtime, e.g.: @yousef/use-p2
-      mode = matches[2];
+      mode = matches[3];
 
       return {
         module: matchedModuleName,
