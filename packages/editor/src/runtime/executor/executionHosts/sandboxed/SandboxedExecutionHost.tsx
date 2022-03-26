@@ -144,6 +144,37 @@ export default class SandboxedExecutionHost
    * Methods exposed to the iframe
    */
   private methods: HostBridgeMethods = {
+    setInferredTypes: async (inferredTypes: {
+      [exportedKey: string]: string;
+    }) => {
+      if (Object.keys(inferredTypes).length === 0) {
+        this.monacoInstance.languages.typescript.typescriptDefaults.addExtraLib(
+          `
+        export type InferTypes<T> = T;
+        `,
+          `file:///node_modules/@types/!@${this.documentId.replace(
+            "//",
+            "/"
+          )}/infer/index.d.ts`
+        );
+        return;
+      }
+      const omit = Object.keys(inferredTypes).join(" | ");
+      const types = Object.entries(inferredTypes)
+        .map(([key, type]) => key + ": " + type)
+        .join(",\n");
+
+      this.monacoInstance.languages.typescript.typescriptDefaults.addExtraLib(
+        `
+        export type InferTypes<T> = Omit<T, "${omit}"> & {${types}};
+        `,
+        `file:///node_modules/@types/!@${this.documentId.replace(
+          "//",
+          "/"
+        )}/infer/index.d.ts`
+      );
+    },
+
     /**
      * The iframe requests the compiled code of an imported TypeCell module (e.g.: !@username/notebook)
      * We set up a compiler and modelforwarder to pass compiled code back to the iframe
@@ -293,7 +324,7 @@ export default class SandboxedExecutionHost
 
   private async pingFrame() {
     const result = await this.connectionMethods!.ping();
-    console.log("received ping result", result);
+    // console.log("received ping result", result);
     if (result !== "pong") {
       throw new Error("invalid ping response");
     }

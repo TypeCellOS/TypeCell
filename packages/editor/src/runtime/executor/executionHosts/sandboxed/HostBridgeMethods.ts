@@ -25,4 +25,8 @@ export type HostBridgeMethods = {
     id: string,
     dimensions: { width: number; height: number }
   ) => Promise<void>;
+
+  setInferredTypes: (inferredTypes: {
+    [exportedKey: string]: string;
+  }) => Promise<void>;
 };

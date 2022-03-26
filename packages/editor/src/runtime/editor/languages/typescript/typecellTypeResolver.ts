@@ -65,6 +65,12 @@ function refreshUserModelTypes(folder: string, monacoInstance: typeof monaco) {
     `file:///node_modules/@types${folder.replace("//", "/")}index.d.ts`
   );
 
+  monacoInstance.languages.typescript.typescriptDefaults.addExtraLib(
+    `
+    export type InferTypes<T> = T;
+    `,
+    `file:///node_modules/@types${folder.replace("//", "/")}infer/index.d.ts`
+  );
   // TODO: this is hacky, we should not have a dependency on Identifier here
   const identifierStr = folder.substring("/!@".length, folder.length - 1);
   const identifier = parseIdentifier(identifierStr);

@@ -4,7 +4,9 @@
   "private": true,
   "dependencies": {
     "string.prototype.replaceall": "^1.0.5",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "apache-arrow": "^7.0.0",
+    "vega-lite": "^5.0.0"
   },
   "devDependencies": {
     "rimraf": "^3.0.2",

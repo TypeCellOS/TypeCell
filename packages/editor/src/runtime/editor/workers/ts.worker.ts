@@ -38,6 +38,7 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
         const folder = cleaned
           .substring(0, cleaned.lastIndexOf("/"))
           .replace("//", "/");
+
         // console.log("folder", folder);
         // add modified code at end, to not mess offsets
         text += `;\n
@@ -46,10 +47,13 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
         import type { OnlyViews, Values } from "typecell-helpers";
 
         // @ts-ignore
+        import type { InferTypes } from "${folder}/infer";
+
+        // @ts-ignore
         import type * as $types from "${folder}";
         
         // @ts-ignore
-        declare let $: Values<typeof $types>;
+        declare let $: InferTypes<Values<typeof $types>>;
 
         // @ts-ignore
         declare let $views: OnlyViews<typeof $types>;

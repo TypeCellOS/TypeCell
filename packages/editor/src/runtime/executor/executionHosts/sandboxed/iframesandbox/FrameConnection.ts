@@ -1,5 +1,5 @@
 import { Engine } from "@typecell-org/engine";
-import { observable, runInAction } from "mobx";
+import { autorun, observable, runInAction } from "mobx";
 import { AsyncMethodReturns, Connection, connectToParent } from "penpal";
 import { lifecycle } from "vscode-lib";
 import { CompiledCodeModel } from "../../../../../models/CompiledCodeModel";
@@ -93,7 +93,32 @@ export class FrameConnection extends lifecycle.Disposable {
         modelOutput.updateValue(output);
       })
     );
-
+    this._register({
+      dispose: autorun(() => {
+        console.log("run");
+        let inferredTypes: any = {};
+        let entries = Object.entries<any>(
+          this.engine.observableContext.context
+        );
+        for (let [key, val] of entries) {
+          // TODO: check type?
+          if (val?.schema?.fields) {
+            let types: any[] = [];
+            for (let field of val.schema.fields) {
+              if (field.typeId === 2) {
+                types.push(field.name + `: import("apache-arrow").Int`);
+              } else {
+                types.push(field.name + `: import("apache-arrow").Null`);
+              }
+            }
+            inferredTypes[key] = `import("apache-arrow").Table<{ ${types.join(
+              ",\n"
+            )} }>`;
+          }
+        }
+        this.connectionMethods?.setInferredTypes(inferredTypes);
+      }),
+    });
     this.connection = connectToParent({
       // Methods child is exposing to parent
       methods: this.methods,
@@ -224,7 +249,7 @@ export class FrameConnection extends lifecycle.Disposable {
       });
     },
     ping: async () => {
-      console.log("ping received, sending pong");
+      // console.log("ping received, sending pong");
       return "pong";
     },
 
