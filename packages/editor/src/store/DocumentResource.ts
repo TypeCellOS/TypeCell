@@ -1,14 +1,15 @@
 import * as _ from "lodash";
 import type * as Y from "yjs";
 import { CellListModel } from "../models/CellListModel";
-import { BaseResource, BaseResourceConnection } from "./BaseResource";
+import { BaseResource } from "./BaseResource";
+import { DocConnection } from "./DocConnection";
 
 /**
  * A resource with multiple cells, used for either the Notebook or Richtext built-in types
  */
 export class DocumentResource extends BaseResource {
   /** @internal */
-  constructor(ydoc: Y.Doc, connection: BaseResourceConnection) {
+  constructor(ydoc: Y.Doc, connection: DocConnection) {
     super(ydoc, connection);
     if (this.type !== "!notebook" && this.type !== "!richtext") {
       throw new Error("invalid type for DocumentResource");

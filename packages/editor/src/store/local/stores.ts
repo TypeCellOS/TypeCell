@@ -13,7 +13,6 @@ let storeService: StoreService | undefined;
 export async function initializeStoreService() {
   storeService = new StoreService();
   await storeService.sessionStore.initialize();
-  await storeService.navigationStore.initialize();
 }
 
 export function getStoreService() {

@@ -1,5 +1,4 @@
-import { makeObservable, observable } from "mobx";
-import { uri, path } from "vscode-lib";
+import { path, uri } from "vscode-lib";
 
 export interface IdentifierFactory<T extends Identifier> {
   new (uri: uri.URI, title?: string): T;
@@ -7,6 +6,7 @@ export interface IdentifierFactory<T extends Identifier> {
 }
 
 export abstract class Identifier {
+  // TODO: get rid of subpaths?
   public subPath?: string;
 
   protected constructor(
@@ -19,10 +19,6 @@ export abstract class Identifier {
       throw new Error("scheme doesn't match");
     }
     this.subPath = subPath;
-
-    makeObservable(this, {
-      subPath: observable.ref,
-    });
   }
 
   public toString() {

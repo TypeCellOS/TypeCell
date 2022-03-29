@@ -11,7 +11,7 @@ export default class ProjectResource extends BaseResource {
     ydoc: Y.Doc,
     connectionOrIdentifier: BaseResourceConnection | Identifier
   ) {
-    super(ydoc, connectionOrIdentifier);
+    super(ydoc, connectionOrIdentifier as any); // TODO
     if (this.type !== "!project") {
       throw new Error("invalid type for PluginResource");
     }

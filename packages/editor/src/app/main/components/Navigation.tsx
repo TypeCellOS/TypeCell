@@ -10,6 +10,8 @@ import { getStoreService } from "../../../store/local/stores";
 import { Logo } from "./Logo";
 import { ProfilePopup } from "./ProfilePopup";
 import styles from "./Navigation.module.css";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { toDocs, toLoginScreen } from "../../routes/routes";
 
 const ProductHome = () => {
   return (
@@ -25,21 +27,16 @@ const AN = AtlassianNavigation as any;
 
 export const Navigation = observer(() => {
   const sessionStore = getStoreService().sessionStore;
-  const navigationStore = getStoreService().navigationStore;
+  const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <AN
       renderProductHome={ProductHome}
       primaryItems={[
-        <a
-          href="/docs"
-          className={styles.link}
-          onClick={(e) => {
-            e.preventDefault();
-            navigationStore.navigateToDocs();
-          }}>
+        <Link className={styles.link} to={toDocs()}>
           Documentation
-        </a>,
+        </Link>,
         // <PrimaryButton onClick={navigationStore.navigateToDocs}>
         //   Documentation
         // </PrimaryButton>,
@@ -47,10 +44,7 @@ export const Navigation = observer(() => {
       renderProfile={observer(() => (
         <>
           {sessionStore.isLoggedIn && (
-            <ProfilePopup
-              navigationStore={navigationStore}
-              sessionStore={sessionStore}
-            />
+            <ProfilePopup sessionStore={sessionStore} />
           )}
         </>
       ))}
@@ -58,7 +52,9 @@ export const Navigation = observer(() => {
         <>
           {!sessionStore.isLoggedIn && (
             <PrimaryButton
-              onClick={navigationStore.showLoginScreen}
+              onClick={() =>
+                navigate(toLoginScreen(), { state: { from: location } })
+              }
               iconBefore={
                 <VscSignIn style={{ width: "16px", height: "16px" }} />
               }>

@@ -49,7 +49,7 @@
     "@types/uuid": "^8.3.0",
     "@typescript/vfs": "^1.3.4",
     "classnames": "^2.3.1",
-    "filebridge-client": "^0.1.1",
+    "filebridge-client": "^0.1.5",
     "fractional-indexing": "^2.0.0",
     "frontend-collective-react-dnd-scrollzone": "1.0.2",
     "lodash": "^4.17.21",
@@ -98,7 +98,8 @@
     "y-webrtc": "^10.1.8",
     "y-protocols": "^1.0.5",
     "yjs": "^13.5.16",
-    "zxcvbn": "^4.4.2"
+    "zxcvbn": "^4.4.2",
+    "react-router-dom": "^6.2.2"
   },
   "scripts": {
     "copytypes:self": "rimraf public/types && tsc --declaration --stripInternal --emitDeclarationOnly --noEmit false --declarationDir public/types/@typecell-org/editor",

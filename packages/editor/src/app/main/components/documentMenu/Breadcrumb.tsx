@@ -1,12 +1,13 @@
 import Breadcrumbs, { BreadcrumbsItem } from "@atlaskit/breadcrumbs";
-import { observer } from "mobx-react-lite";
 import { VscFile, VscGithub, VscGlobe } from "react-icons/vsc";
+import { useNavigate, useOutletContext } from "react-router-dom";
+import { path } from "vscode-lib";
 import { FileIdentifier } from "../../../../identifiers/FileIdentifier";
 import { GithubIdentifier } from "../../../../identifiers/GithubIdentifier";
 import { HttpsIdentifier } from "../../../../identifiers/HttpsIdentifier";
+import { Identifier } from "../../../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../../../identifiers/MatrixIdentifier";
-import { NavigationStore } from "../../../../store/local/navigationStore";
-import { getStoreService } from "../../../../store/local/stores";
+import { toProfilePage } from "../../../routes/routes";
 
 const buttonStyle = {
   alignItems: "baseline",
@@ -25,101 +26,131 @@ const buttonStyle = {
   minWidth: 0,
 };
 
-const getBreadcrumbItems = function (navigationStore: NavigationStore) {
+const BreadcrumbItems = (props: { identifier: Identifier }) => {
   const items: JSX.Element[] = [];
+  const navigate = useNavigate();
+  const identifier = props.identifier;
 
-  if (navigationStore.currentPage.page === "owner") {
+  const toRoot = () => {
+    if (identifier.title === "Docs") {
+      navigate({
+        pathname: "/docs",
+      });
+    } else {
+      navigate({
+        pathname: "/" + identifier.toString(),
+      });
+    }
+  };
+
+  if (identifier instanceof FileIdentifier) {
+    // Show path as single item
+    items.push(
+      <BreadcrumbsItem
+        iconBefore={<VscFile style={{ marginRight: 5, marginTop: -2 }} />}
+        text={identifier.title || identifier.uri.toString()}
+        onClick={toRoot}
+      />
+    );
+  } else if (identifier instanceof GithubIdentifier) {
+    // Show path as single item
+    items.push(
+      <BreadcrumbsItem
+        iconBefore={<VscGithub style={{ marginRight: 5 }} />}
+        href=""
+        onClick={toRoot}
+        text={identifier.title || identifier.uri.toString()}
+      />
+    );
+  } else if (identifier instanceof HttpsIdentifier) {
+    // Show path as single item
+    items.push(
+      <BreadcrumbsItem
+        iconBefore={<VscGlobe style={{ marginRight: 5 }} />}
+        href=""
+        text={identifier.title || identifier.uri.toString()}
+        onClick={toRoot}
+      />
+    );
+  } else if (identifier instanceof MatrixIdentifier) {
     items.push(
       <BreadcrumbsItem
         href=""
-        text={navigationStore.currentPage.owner}
+        text={identifier.owner}
         onClick={() => {
-          navigationStore.showProfilePage(navigationStore.currentPage.owner!);
+          navigate(toProfilePage(identifier.owner));
         }}
+      />,
+      <BreadcrumbsItem
+        text={identifier.document}
+        component={() => (
+          // Replace default component so it doesn't render as a link
+          <button style={{ ...buttonStyle, cursor: "normal" }}>
+            <span>{identifier.document}</span>
+          </button>
+        )}
       />
     );
-  } else {
-    const { identifier } = navigationStore.currentDocument!;
-    const clearSubPath = () => {
-      identifier.subPath = "";
-    };
-    if (identifier instanceof FileIdentifier) {
-      // Show path as single item
-      items.push(
-        <BreadcrumbsItem
-          iconBefore={<VscFile style={{ marginRight: 5, marginTop: -2 }} />}
-          text={identifier.title || identifier.uri.toString()}
-          onClick={clearSubPath}
-        />
+  }
+
+  return <>{[...items]}</>;
+};
+
+export const Breadcrumb = (props: { identifier: Identifier }) => {
+  const parentId = (useOutletContext() as any)?.parentIdentifier as
+    | Identifier
+    | undefined;
+  const navigate = useNavigate();
+
+  if (parentId) {
+    let parentPart = parentId.toString();
+    if (parentPart.endsWith("index.json")) {
+      // TODO: hacky to fix here, this is for the http loader
+      parentPart = parentPart.substring(
+        0,
+        parentPart.length - "index.json".length
       );
-    } else if (identifier instanceof GithubIdentifier) {
-      // Show path as single item
-      items.push(
-        <BreadcrumbsItem
-          iconBefore={<VscGithub style={{ marginRight: 5 }} />}
-          href=""
-          onClick={clearSubPath}
-          text={identifier.title || identifier.uri.toString()}
-        />
-      );
-    } else if (identifier instanceof HttpsIdentifier) {
-      // Show path as single item
-      items.push(
-        <BreadcrumbsItem
-          iconBefore={<VscGlobe style={{ marginRight: 5 }} />}
-          href=""
-          text={identifier.title || identifier.uri.toString()}
-          onClick={clearSubPath}
-        />
-      );
-    } else if (identifier instanceof MatrixIdentifier) {
-      items.push(
-        <BreadcrumbsItem
-          href=""
-          text={identifier.owner}
-          onClick={() => {
-            navigationStore.showProfilePage(identifier.owner);
-          }}
-        />,
-        <BreadcrumbsItem
-          text={identifier.document}
-          component={() => (
-            // Replace default component so it doesn't render as a link
-            <button style={{ ...buttonStyle, cursor: "normal" }}>
-              <span>{identifier.document}</span>
-            </button>
-          )}
-        />
-      );
-    } else {
-      throw new Error("unsupported identifier");
     }
-    if (identifier.subPath) {
-      const parts = identifier.subPath.split("/");
-      const subItems: JSX.Element[] = [];
-      while (parts.length) {
-        const link = parts.join("/");
-        const part = parts.pop()!;
+    if (!props.identifier.toString().startsWith(parentPart)) {
+      throw new Error("unexpected parent identifier");
+    }
+
+    const subOnly = props.identifier.toString().substring(parentPart.length);
+
+    const parts = subOnly.split("/");
+    const subItems: JSX.Element[] = [];
+    while (parts.length) {
+      const link =
+        parentId.title === "Docs"
+          ? path.join("/docs", ...parts)
+          : "/" + path.join(parentPart, ":", ...parts);
+
+      const part = parts.pop()!;
+      if (part.length) {
         subItems.push(
           <BreadcrumbsItem
             text={part}
             href=""
-            onClick={() => {
-              identifier.subPath = link;
+            onClick={(e) => {
+              navigate({ pathname: link });
+              e.preventDefault();
             }}
           />
         );
       }
-      subItems.reverse();
-      items.push.apply(items, subItems);
     }
+    subItems.reverse();
+    return (
+      <Breadcrumbs>
+        {parentId && <BreadcrumbItems identifier={parentId} />}
+        {[...subItems]}
+      </Breadcrumbs>
+    );
   }
 
-  return items;
+  return (
+    <Breadcrumbs>
+      <BreadcrumbItems identifier={props.identifier} />
+    </Breadcrumbs>
+  );
 };
-
-export const Breadcrumb: React.FC<{}> = observer(() => {
-  const navigationStore = getStoreService().navigationStore;
-
-  return <Breadcrumbs>{getBreadcrumbItems(navigationStore)}</Breadcrumbs>;
-});
