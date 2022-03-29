@@ -96,7 +96,7 @@ export class YDocFileSyncManager
   }
 
   private async getNewYDocFromId() {
-    const ret = await readFile(this.identifier.path);
+    const ret = await readFile(fetch, this.identifier.path);
     if (ret.type === "file") {
       await this.getNewYDocFromFile(ret.contents);
     } else {
@@ -127,7 +127,8 @@ export class YDocFileSyncManager
           // TODO: support onlink
           return;
         }
-        const file = await readFile(this.identifier.path);
+        const file = await readFile(fetch, this.identifier.path);
+
         if (file.type !== "file") {
           throw new Error("unexpected");
         }
@@ -139,14 +140,12 @@ export class YDocFileSyncManager
         }
       })
     );
-
     return newDoc;
   }
 
   private getFileFromYDoc(doc: Y.Doc) {
     // const contents = await readFile(this.identifier.path);
     // const nbData = markdownToNotebook(contents);
-
     if (doc.getMap("meta").get("type") !== "!notebook") {
       throw new Error("invalid type");
     }
@@ -165,7 +164,11 @@ export class YDocFileSyncManager
       // update from peer (e.g.: webrtc / websockets). Peer is responsible for sending to Matrix
       return;
     }
-    await saveFile(this.identifier.path, this.getFileFromYDoc(this._ydoc));
+    await saveFile(
+      fetch,
+      this.identifier.path,
+      this.getFileFromYDoc(this._ydoc)
+    );
   };
 
   public async initialize() {

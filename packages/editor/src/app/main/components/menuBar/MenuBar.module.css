@@ -1,0 +1,37 @@
+.menu {
+  width: 100%;
+  height: 42px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  padding: 2px 12px 0 12px;
+  border-bottom: 1px solid #f3f3f3;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+}
+
+/* Targets atlaskit Breadcrumb separators */
+.menu > nav li:after {
+  padding: 0 !important;
+}
+.menu > nav button {
+  border: none;
+  background: none;
+  padding: 0 !important;
+}
+
+.menu * {
+  font-size: 12px;
+  font-weight: bold;
+  color: #c9c9c9;
+  /* Override breadcrumb animation */
+  transition: 350ms color ease !important;
+}
+
+.menu:hover *,
+.menu:hover .separator:after {
+  color: #858585;
+  border-right-color: #a7a7a7;
+}

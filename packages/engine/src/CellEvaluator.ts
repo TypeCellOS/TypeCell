@@ -55,7 +55,7 @@ export function createCellEvaluator(
   const hookExecution = new HookExecution(onConsoleEvent);
   const executionScope = createExecutionScope(
     typecellContext,
-    hookExecution.context
+    hookExecution.scopeHooks
   );
   let moduleExecution: ModuleExecution | undefined;
 

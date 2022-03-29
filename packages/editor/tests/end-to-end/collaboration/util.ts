@@ -26,7 +26,8 @@ export async function createNotebook(
   // Fill :nth-match(input[name="title"], 2)
   await pageAlice.fill('input[name="title"]', title);
   // Click :nth-match(button:has-text("Create"), 2)
-  await pageAlice.click(':nth-match(button:has-text("Create"), 2)');
+  // await pageAlice.pause();
+  await pageAlice.click('button:has-text("Create")');
 
   // wait until alice loads
   await pageAlice.waitForSelector(readEditorSelector);

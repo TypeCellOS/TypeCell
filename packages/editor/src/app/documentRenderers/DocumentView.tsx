@@ -6,12 +6,15 @@ import { DocConnection } from "../../store/DocConnection";
 import PluginResource from "../../store/PluginResource";
 import ProjectResource from "../../store/ProjectResource";
 import DocumentMenu from "../main/components/documentMenu";
+import { Breadcrumb } from "../main/components/documentMenu/Breadcrumb";
+import { MenuBar } from "../main/components/menuBar/MenuBar";
+// import RichTextRenderer from "./richtext/RichTextRenderer";
+import styles from "./DocumentView.module.css";
 // import { CustomRenderer } from "./custom/CustomRenderer";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
+import ProjectContainer from "./project/ProjectContainer";
 import ProjectRenderer from "./project/ProjectRenderer";
-import RichTextRenderer from "./richtext/RichTextRenderer";
-import styles from "./DocumentView.module.css";
 
 type Props = {
   id: Identifier;
@@ -38,13 +41,14 @@ const DocumentView = observer((props: Props) => {
       newConnection.dispose();
       setConnection(undefined);
     };
-  }, [props.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.id.toString()]);
 
   if (!connection) {
     return null;
   }
   if (connection.doc === "loading") {
-    return <div>Loading</div>;
+    return <div>Loading doc</div>;
   } else if (connection.doc === "not-found") {
     return <div>Not found</div>;
   }
@@ -68,9 +72,11 @@ const DocumentView = observer((props: Props) => {
       return (
         <div className={styles.view}>
           {!props.hideDocumentMenu && (
-            <DocumentMenu document={connection.doc}></DocumentMenu>
+            <MenuBar>
+              <Breadcrumb identifier={props.id} />
+            </MenuBar>
           )}
-          <ProjectRenderer
+          <ProjectContainer
             isNested={true}
             key={connection.doc.id}
             project={connection.doc.getSpecificType(ProjectResource)!}
@@ -86,17 +92,18 @@ const DocumentView = observer((props: Props) => {
       );
     }
   } else if (connection.doc.type === "!richtext") {
-    return (
-      <div className={styles.view}>
-        {!props.hideDocumentMenu && (
-          <DocumentMenu document={connection.doc}></DocumentMenu>
-        )}
-        <RichTextRenderer
-          key={connection.doc.id}
-          document={connection.doc.doc}
-        />
-      </div>
-    );
+    throw new Error("richtext not implemented");
+    // return (
+    //   <div className={styles.view}>
+    //     {!props.hideDocumentMenu && (
+    //       <DocumentMenu document={connection.doc}></DocumentMenu>
+    //     )}
+    //     <RichTextRenderer
+    //       key={connection.doc.id}
+    //       document={connection.doc.doc}
+    //     />
+    //   </div>
+    // );
   } else if (connection.doc.type === "!plugin") {
     return (
       <PluginRenderer
@@ -112,7 +119,7 @@ const DocumentView = observer((props: Props) => {
   }
 });
 
-export default DocumentView;
+export default React.memo(DocumentView);
 
 /*
 

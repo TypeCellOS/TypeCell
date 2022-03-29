@@ -1,6 +1,8 @@
 import { ExternalModuleResolver } from "../ExternalModuleResolver";
 
 export class ESMshResolver extends ExternalModuleResolver {
+  public readonly name = "esm.sh";
+
   public async getModuleInfoFromURL(url: string) {
     // https://cdn.esm.sh/v66/@tldraw/core@1.7.0/es2021/core.js
 
@@ -12,14 +14,14 @@ export class ESMshResolver extends ExternalModuleResolver {
       if (library) {
         return undefined;
       }
-      let matches = url.match(/^\/v\d+\/(.*)@[.\d]+\/(.*)$/);
+      let matches = url.match(/^\/v\d+\/(.*)@[.\d]+(-[-a-z\d.]+)?\/(.*)$/);
       if (!matches || !matches[1]) {
         throw new Error("couldn't match url");
       }
       const matchedModuleName = matches[1];
 
       // mode is necessary for jsx-runtime, e.g.: @yousef/use-p2
-      mode = matches[2];
+      mode = matches[3];
 
       return {
         module: matchedModuleName,

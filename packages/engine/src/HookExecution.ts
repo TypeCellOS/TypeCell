@@ -2,14 +2,16 @@ import { ConsolePayload } from "./Engine";
 
 const glob = typeof window === "undefined" ? global : window;
 
-const overrideFunctions = [
-  "setTimeout",
-  "setInterval",
-  "console",
+// These functions will be added to the scope of the cell
+const onScopeFunctions = ["setTimeout", "setInterval", "console"] as const;
+
+// These functions will be attached to the window during cell execution
+const onWindowFunctions = [
+  ...onScopeFunctions,
   "EventTarget.prototype.addEventListener",
 ] as const;
 
-export const originalReferences: HookContext = {
+export const originalReferences: ScopeHooks & WindowHooks = {
   setTimeout: glob.setTimeout,
   setInterval: glob.setInterval,
   console: glob.console,
@@ -17,7 +19,9 @@ export const originalReferences: HookContext = {
     glob.EventTarget.prototype.addEventListener,
 };
 
-export type HookContext = { [K in typeof overrideFunctions[number]]: any };
+export type ScopeHooks = { [K in typeof onScopeFunctions[number]]: any };
+
+export type WindowHooks = { [K in typeof onWindowFunctions[number]]: any };
 
 /**
  * Sets object property based on a given path and value.
@@ -37,7 +41,7 @@ function setProperty(base: Object, path: string, value: any) {
 
 export class HookExecution {
   public disposers: Array<() => void> = [];
-  public context: HookContext = {
+  public scopeHooks: ScopeHooks = {
     setTimeout: this.createHookedFunction(setTimeout, (ret) => {
       clearTimeout(ret);
     }),
@@ -75,12 +79,16 @@ export class HookExecution {
         });
       },
     },
+  };
+
+  public windowHooks: WindowHooks = {
+    ...this.scopeHooks,
     ["EventTarget.prototype.addEventListener"]: undefined,
   };
 
   constructor(private onConsoleEvent: (console: ConsolePayload) => void) {
     if (typeof EventTarget !== "undefined") {
-      this.context["EventTarget.prototype.addEventListener"] =
+      this.windowHooks["EventTarget.prototype.addEventListener"] =
         this.createHookedFunction(
           EventTarget.prototype.addEventListener as any,
           function (this: any, _ret, args) {
@@ -91,13 +99,13 @@ export class HookExecution {
   }
 
   public attachToWindow() {
-    overrideFunctions.forEach((path) =>
-      setProperty(glob, path, this.context[path])
+    onWindowFunctions.forEach((path) =>
+      setProperty(glob, path, this.windowHooks[path])
     );
   }
 
   public detachFromWindow() {
-    overrideFunctions.forEach((path) =>
+    onWindowFunctions.forEach((path) =>
       setProperty(glob, path, originalReferences[path])
     );
   }

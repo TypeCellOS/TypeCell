@@ -116,11 +116,16 @@ export async function runModule(
 
       beforeExecuting();
 
-      disposeEveryRun.push(hookExecution.dispose.bind(hookExecution));
+      disposeEveryRun.push(() => hookExecution.dispose());
       hookExecution.attachToWindow();
 
+      let executionPromise: Promise<any>;
+
       try {
-        await mod.factoryFunction.apply(undefined, argsToCallFunctionWith);
+        executionPromise = mod.factoryFunction.apply(
+          undefined,
+          argsToCallFunctionWith
+        );
       } finally {
         hookExecution.detachFromWindow();
 
@@ -128,6 +133,8 @@ export async function runModule(
           previousVariableDisposer(exports);
         }
       }
+
+      await executionPromise;
 
       // Running the assignments to `context` in action should be a performance improvement to prevent triggering observers one-by-one
       wouldLoopOnAutorun = true;

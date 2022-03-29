@@ -1,9 +1,11 @@
+import Textfield from "@atlaskit/textfield";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
-import { getStoreService } from "../../../store/local/stores";
-import Textfield from "@atlaskit/textfield";
-import styles from "./NotebookOverview.module.css";
+import { Link } from "react-router-dom";
 import { parseIdentifier } from "../../../identifiers";
+import { getStoreService } from "../../../store/local/stores";
+import { toIdentifier } from "../../routes/routes";
+import styles from "./NotebookOverview.module.css";
 
 type Room = {
   name: string;
@@ -33,20 +35,15 @@ function parseRoomFromAlias(rawAlias: string): Room | undefined {
 }
 
 const RoomInfo = function (props: { room: Room }) {
-  function navigate(e: React.MouseEvent) {
-    e.preventDefault();
-    getStoreService().navigationStore.navigateToIdentifier(
-      parseIdentifier(props.room.fullName)
-    );
-  }
   return (
     <div className={styles.room}>
-      <a
-        href={`/${props.room.user}/${props.room.name}`}
-        className={styles.roomName}
-        onClick={navigate}>
+      <Link
+        to={toIdentifier(
+          parseIdentifier({ owner: props.room.user, document: props.room.name })
+        )}
+        className={styles.roomName}>
         {props.room.name}
-      </a>
+      </Link>
       <div className={styles.user}>{props.room.user}</div>
       {/* <div className={styles.roomName}>{props.server}</div> */}
     </div>

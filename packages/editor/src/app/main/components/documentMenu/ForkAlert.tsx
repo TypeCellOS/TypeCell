@@ -4,13 +4,17 @@ import { getStoreService } from "../../../../store/local/stores";
 import { UnreachableCaseError } from "../../../../util/UnreachableCaseError";
 import EditorWarningIcon from "@atlaskit/icon/glyph/editor/warning";
 import styles from "./ForkAlert.module.css";
+import { DocumentResource } from "../../../../store/DocumentResource";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { toDocument, toLoginScreen } from "../../../routes/routes";
 
-export const ForkAlert: React.FC<{}> = observer((props) => {
+export const ForkAlert = observer((props: { document: DocumentResource }) => {
   /* eslint-disable jsx-a11y/anchor-is-valid */
-  const navigationStore = getStoreService().navigationStore;
   const sessionStore = getStoreService().sessionStore;
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  if (!navigationStore.currentDocument?.needsFork) {
+  if (!props.document.connection?.needsFork) {
     throw new Error("<ForkAlert /> but no fork needed");
   }
 
@@ -19,12 +23,12 @@ export const ForkAlert: React.FC<{}> = observer((props) => {
       href=""
       onClick={async (e) => {
         e.preventDefault();
-        if (!navigationStore.currentDocument) {
+        if (!props.document.connection) {
           throw new Error("unexpected, forking without currentDocument");
         }
-        const result = await navigationStore.currentDocument.fork();
+        const result = await props.document.connection.fork();
         if (result instanceof BaseResource) {
-          navigationStore.navigateToDocument(result);
+          navigate(toDocument(result));
         } else {
           if (result.status !== "error") {
             throw new UnreachableCaseError(result.status);
@@ -36,15 +40,9 @@ export const ForkAlert: React.FC<{}> = observer((props) => {
       <span>save a copy</span>
     </a>
   ) : (
-    <a
-      href=""
-      onClick={(e) => {
-        navigationStore.showLoginScreen();
-        e.preventDefault();
-        return false;
-      }}>
+    <Link to={toLoginScreen()} state={{ from: location }}>
       <span>sign in to save a copy</span>
-    </a>
+    </Link>
   );
 
   return (
@@ -56,7 +54,10 @@ export const ForkAlert: React.FC<{}> = observer((props) => {
       <a
         href=""
         onClick={(e) => {
-          navigationStore.currentDocument?.revert();
+          if (!props.document.connection) {
+            throw new Error("unexpected, revert without currentDocument");
+          }
+          props.document.connection.revert();
           e.preventDefault();
           return false;
         }}>

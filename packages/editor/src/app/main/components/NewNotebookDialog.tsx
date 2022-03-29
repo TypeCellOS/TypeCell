@@ -5,12 +5,11 @@ import Modal, {
 } from "@atlaskit/modal-dialog";
 import Textfield from "@atlaskit/textfield";
 import React, { useCallback, useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
-import { getStoreService } from "../../../store/local/stores";
-
 import { UnreachableCaseError } from "../../../util/UnreachableCaseError";
+import { toDocument } from "../../routes/routes";
 
 export const NewNotebookDialog = (props: {
   isOpen: boolean;
@@ -20,6 +19,7 @@ export const NewNotebookDialog = (props: {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [warning, setWarning] = useState("");
+  const navigate = useNavigate();
 
   const CustomContainer = useCallback(
     (innerProps: ContainerComponentProps) => {
@@ -66,7 +66,8 @@ export const NewNotebookDialog = (props: {
                 "typescript",
                 `export let message = "Hello World"`
               );
-              getStoreService().navigationStore.navigateToDocument(ret);
+
+              navigate(toDocument(ret));
 
               // Bit hacky, dispose with timeout,
               // because navigateToDocument will (indirectly) need the doc
@@ -74,8 +75,6 @@ export const NewNotebookDialog = (props: {
               setTimeout(() => {
                 ret.dispose();
               }, 500);
-
-              props.close();
             } else {
               if (ret.status !== "error") {
                 throw new UnreachableCaseError(ret.status);
@@ -90,7 +89,7 @@ export const NewNotebookDialog = (props: {
         </form>
       );
     },
-    [props]
+    [props, navigate]
   );
 
   return (

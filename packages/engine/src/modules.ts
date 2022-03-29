@@ -1,7 +1,6 @@
 import { TypeCellContext } from "./context";
 import { observable, untracked, computed, autorun } from "mobx";
-import { HookContext } from "./HookExecution";
-import { set as setProperty } from "lodash";
+import { ScopeHooks } from "./HookExecution";
 // import { stored } from "./storage/stored";
 // import { view } from "./view";
 
@@ -75,7 +74,7 @@ function createDefine(modules: Module[]) {
 
 export function createExecutionScope(
   context: TypeCellContext<any>,
-  hookContext: HookContext
+  hookContext: ScopeHooks
 ) {
   const scope = {
     autorun,
@@ -87,11 +86,8 @@ export function createExecutionScope(
     // stored,
     // view,
     observable,
+    ...hookContext,
   };
-
-  Object.keys(hookContext).forEach((path) =>
-    setProperty(scope, path, hookContext[path as keyof HookContext])
-  );
 
   return scope;
 }

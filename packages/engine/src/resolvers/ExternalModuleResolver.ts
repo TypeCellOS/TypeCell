@@ -1,4 +1,6 @@
 export abstract class ExternalModuleResolver {
+  public abstract readonly name: string;
+
   public abstract getURLForModule(
     moduleName: string,
     parent: string
