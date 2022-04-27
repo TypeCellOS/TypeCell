@@ -51,28 +51,24 @@ export class HookExecution {
     console: {
       ...originalReferences.console,
       log: (...args: any) => {
-        originalReferences.console.log(...args);
         this.onConsoleEvent({
           level: "info",
           arguments: args,
         });
       },
       info: (...args: any) => {
-        originalReferences.console.info(...args);
         this.onConsoleEvent({
           level: "info",
           arguments: args,
         });
       },
       warn: (...args: any) => {
-        originalReferences.console.warn(...args);
         this.onConsoleEvent({
           level: "warn",
           arguments: args,
         });
       },
       error: (...args: any) => {
-        originalReferences.console.error(...args);
         this.onConsoleEvent({
           level: "error",
           arguments: args,

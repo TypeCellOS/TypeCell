@@ -9,6 +9,7 @@ import { ModelReceiver } from "./ModelReceiver";
 import type { VisualizersByPath } from "../../../../extensions/visualizer/VisualizerExtension";
 import { IframeBridgeMethods } from "./IframeBridgeMethods";
 import { HostBridgeMethods } from "../HostBridgeMethods";
+import { ConsoleOutput } from "../../../components/ConsoleOutput";
 
 let ENGINE_ID = 0;
 
@@ -20,11 +21,24 @@ export class FrameConnection extends lifecycle.Disposable {
   public readonly id = ENGINE_ID++;
 
   /**
-   * Map of <cellPath, ModelOutput> that keeps track of the variables exported by every cell
+   * Map of <cellPath, ModelOutput> that keeps track of the generated output for every cell
    */
-  public readonly outputs = observable.map<string, ModelOutput>(undefined, {
-    deep: false,
-  });
+  public readonly modelOutputs = observable.map<string, ModelOutput>(
+    undefined,
+    {
+      deep: false,
+    }
+  );
+
+  /**
+   * Map of <cellPath, ConsoleOutput> that keeps track of console output for every cell
+   */
+  public readonly consoleOutputs = observable.map<string, ConsoleOutput>(
+    undefined,
+    {
+      deep: false,
+    }
+  );
 
   /**
    * Map of <cellPath, { x, y }> that keeps track of the positions of every cell.
@@ -79,15 +93,26 @@ export class FrameConnection extends lifecycle.Disposable {
     // pass the code to the engine by acting as a ModelProvider
     this.engine.registerModelProvider(mainModelReceiver);
 
+    this._register(
+      this.engine.onConsole(({ model, payload }) => {
+        let consoleOutput = this.consoleOutputs.get(model.path);
+        if (!consoleOutput) {
+          consoleOutput = this._register(new ConsoleOutput());
+          this.consoleOutputs.set(model.path, consoleOutput);
+        }
+        consoleOutput.appendEvent(payload);
+      })
+    );
+
     // Listen to outputs of evaluated cells
     this._register(
       this.engine.onOutput(({ model, output }) => {
-        let modelOutput = this.outputs.get(model.path);
+        let modelOutput = this.modelOutputs.get(model.path);
         if (!modelOutput) {
           modelOutput = this._register(
             new ModelOutput(this.engine.observableContext.context)
           );
-          this.outputs.set(model.path, modelOutput);
+          this.modelOutputs.set(model.path, modelOutput);
         }
         modelOutput.updateValue(output);
       })
@@ -230,7 +255,7 @@ export class FrameConnection extends lifecycle.Disposable {
     // For type visualizers (experimental)
     updateVisualizers: async (e: VisualizersByPath) => {
       for (let [path, visualizers] of Object.entries(e)) {
-        this.outputs.get(path)!.updateVisualizers(visualizers);
+        this.modelOutputs.get(path)!.updateVisualizers(visualizers);
       }
     },
   };
