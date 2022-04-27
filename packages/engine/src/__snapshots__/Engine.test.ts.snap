@@ -39,28 +39,28 @@ exports[`engine class execution console messages should capture console.warn/inf
 Array [
   Object {
     "console": Object {
-      "level": "info",
-      "message": Array [
+      "arguments": Array [
         "info",
       ],
+      "level": "info",
     },
     "path": "model2",
   },
   Object {
     "console": Object {
-      "level": "warn",
-      "message": Array [
+      "arguments": Array [
         "warn",
       ],
+      "level": "warn",
     },
     "path": "model2",
   },
   Object {
     "console": Object {
-      "level": "error",
-      "message": Array [
+      "arguments": Array [
         "error",
       ],
+      "level": "error",
     },
     "path": "model2",
   },

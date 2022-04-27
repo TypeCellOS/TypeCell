@@ -146,7 +146,7 @@ exports.default = sum;`
       const consoleEvents = await eventsPromise;
 
       expect(consoleEvents[0].payload.level).toBe("info");
-      expect(consoleEvents[0].payload.message[0]).toBe("hi!");
+      expect(consoleEvents[0].payload.arguments[0]).toBe("hi!");
     });
 
     it("should capture console.warn/info/error messages", async () => {
@@ -174,8 +174,8 @@ exports.default = sum;`
       engine.registerModel(model3);
 
       const events = await eventsPromise;
-      expect(events[0].payload.message[0]).toBe("before");
-      expect(events[1].payload.message[0]).toBe("after");
+      expect(events[0].payload.arguments[0]).toBe("before");
+      expect(events[1].payload.arguments[0]).toBe("after");
     });
 
     it("should capture console.log messages from library (sync only)", async () => {
@@ -186,8 +186,8 @@ exports.default = sum;`
       engine.registerModel(model4);
 
       const events = await eventsPromise;
-      expect(events[0].payload.message[1]).toBe("message 1");
-      expect(events[1].payload.message[1]).toBe("message 2");
+      expect(events[0].payload.arguments[1]).toBe("message 1");
+      expect(events[1].payload.arguments[1]).toBe("message 2");
     });
   });
 });

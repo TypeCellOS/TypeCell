@@ -15,7 +15,7 @@ export type OutputEvent<T> = {
 
 export type ConsolePayload = {
   level: "info" | "warn" | "error";
-  message: any;
+  arguments: any[];
 };
 
 export type ConsoleEvent<T> = {
