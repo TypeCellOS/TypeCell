@@ -1,3 +1,5 @@
+import { ConsolePayload } from "./Engine";
+
 const glob = typeof window === "undefined" ? global : window;
 
 // These functions will be added to the scope of the cell
@@ -21,6 +23,10 @@ export type ScopeHooks = { [K in typeof onScopeFunctions[number]]: any };
 
 export type WindowHooks = { [K in typeof onWindowFunctions[number]]: any };
 
+/**
+ * Sets object property based on a given path and value.
+ * E.g. path could be level1.level2.prop
+ */
 function setProperty(base: Object, path: string, value: any) {
   const layers = path.split(".");
   if (layers.length > 1) {
@@ -44,10 +50,61 @@ export class HookExecution {
     }),
     console: {
       ...originalReferences.console,
-      log: (...args: any) => {
-        // TODO: broadcast output to console view
-        originalReferences.console.log(...args);
-      },
+      log: (...args: any) =>
+        this.onConsoleEvent({
+          method: "log",
+          arguments: args,
+        }),
+      debug: (...args: any) =>
+        this.onConsoleEvent({
+          method: "debug",
+          arguments: args,
+        }),
+      info: (...args: any) =>
+        this.onConsoleEvent({
+          method: "info",
+          arguments: args,
+        }),
+      warn: (...args: any) =>
+        this.onConsoleEvent({
+          method: "warn",
+          arguments: args,
+        }),
+      error: (...args: any) =>
+        this.onConsoleEvent({
+          method: "error",
+          arguments: args,
+        }),
+      table: (...args: any) =>
+        this.onConsoleEvent({
+          method: "table",
+          arguments: args,
+        }),
+      clear: (...args: any) =>
+        this.onConsoleEvent({
+          method: "clear",
+          arguments: args,
+        }),
+      time: (...args: any) =>
+        this.onConsoleEvent({
+          method: "time",
+          arguments: args,
+        }),
+      timeEnd: (...args: any) =>
+        this.onConsoleEvent({
+          method: "timeEnd",
+          arguments: args,
+        }),
+      count: (...args: any) =>
+        this.onConsoleEvent({
+          method: "count",
+          arguments: args,
+        }),
+      assert: (...args: any) =>
+        this.onConsoleEvent({
+          method: "assert",
+          arguments: args,
+        }),
     },
   };
 
@@ -56,7 +113,7 @@ export class HookExecution {
     ["EventTarget.prototype.addEventListener"]: undefined,
   };
 
-  constructor() {
+  constructor(private onConsoleEvent: (console: ConsolePayload) => void) {
     if (typeof EventTarget !== "undefined") {
       this.windowHooks["EventTarget.prototype.addEventListener"] =
         this.createHookedFunction(
@@ -85,7 +142,7 @@ export class HookExecution {
   }
 
   private createHookedFunction<T, Y>(
-    original: (...args: T[]) => Y,
+    original: (...args: any[]) => Y,
     disposer: (ret: Y, args: T[]) => void
   ) {
     const self = this;

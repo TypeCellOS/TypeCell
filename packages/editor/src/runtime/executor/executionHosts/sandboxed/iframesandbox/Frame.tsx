@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef } from "react";
 import Output from "../../../components/Output";
 import { FrameConnection } from "./FrameConnection";
 import "./Frame.css";
+import Console from "../../../components/Console";
 
 // The sandbox frame where end-user code gets evaluated.
 // It is loaded from index.iframe.ts
@@ -106,8 +107,9 @@ export const Frame = observer((props: {}) => {
               style={getOutputOuterStyle(positions.x, positions.y)}
               onMouseMove={onMouseMoveOutput}>
               <div style={outputInnerStyle}>
-                <Output modelPath={id} outputs={connection.outputs} />
+                <Output modelPath={id} outputs={connection.modelOutputs} />
               </div>
+              <Console modelPath={id} outputs={connection.consoleOutputs} />
             </div>
           );
         })}
@@ -122,11 +124,12 @@ const getOutputOuterStyle = (x: number, y: number) => ({
   position: "absolute" as "absolute",
   padding: "10px",
   width: "100%",
+  display: "flex",
 });
 
 const outputInnerStyle = {
-  maxWidth: "100%",
-  width: "100%",
+  overflow: "auto",
+  flex: "1",
 };
 
 const containerStyle = { position: "relative" as "relative" };

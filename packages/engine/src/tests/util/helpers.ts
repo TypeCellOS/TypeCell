@@ -1,6 +1,7 @@
 import { CodeModel } from "../../CodeModel";
 import { ResolvedImport } from "../../Engine";
 import { CodeModelMock } from "./CodeModelMock";
+import * as logdown from "logdown";
 
 export function waitTillEvent<T>(
   e: (listener: (arg0: T) => void) => void,
@@ -20,9 +21,18 @@ export function waitTillEvent<T>(
 }
 
 export async function importResolver(
-  _module: string,
+  module: string,
   _forModel: CodeModel
 ): Promise<ResolvedImport> {
+  if (module === "logdown") {
+    return (async () => {
+      return {
+        module: logdown.default,
+        dispose: () => {},
+      };
+    })();
+  }
+
   const res = async () => {
     return {
       module: {

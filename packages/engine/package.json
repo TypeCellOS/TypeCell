@@ -5,6 +5,7 @@
   "dependencies": {
     "es-module-shims": "1.4.3",
     "lodash": "^4.17.21",
+    "logdown": "^3.3.1",
     "mobx": "^6.2.0",
     "react": "^17.0.2",
     "vscode-lib": "^0.1.2"

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`engine class should re-evaluate other models when global variable changes 1`] = `
+exports[`engine class execution basic model execution should re-evaluate other models when global variable changes 1`] = `
 Array [
   Object {
     "output": Object {
@@ -29,6 +29,38 @@ Array [
   Object {
     "output": Object {
       "default": 1,
+    },
+    "path": "model2",
+  },
+]
+`;
+
+exports[`engine class execution console messages should capture console.warn/info/error messages 1`] = `
+Array [
+  Object {
+    "console": Object {
+      "arguments": Array [
+        "info",
+      ],
+      "method": "info",
+    },
+    "path": "model2",
+  },
+  Object {
+    "console": Object {
+      "arguments": Array [
+        "warn",
+      ],
+      "method": "warn",
+    },
+    "path": "model2",
+  },
+  Object {
+    "console": Object {
+      "arguments": Array [
+        "error",
+      ],
+      "method": "error",
     },
     "path": "model2",
   },

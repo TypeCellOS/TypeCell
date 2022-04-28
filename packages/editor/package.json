@@ -99,7 +99,8 @@
     "y-protocols": "^1.0.5",
     "yjs": "^13.5.16",
     "zxcvbn": "^4.4.2",
-    "react-router-dom": "^6.2.2"
+    "react-router-dom": "^6.2.2",
+    "console-feed": "^3.3.0"
   },
   "scripts": {
     "copytypes:self": "rimraf public/types && tsc --declaration --stripInternal --emitDeclarationOnly --noEmit false --declarationDir public/types/@typecell-org/editor",

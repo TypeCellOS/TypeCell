@@ -1,4 +1,5 @@
 import { TypeCellContext } from "./context";
+import { ConsolePayload } from "./Engine";
 import { ModuleExecution, runModule } from "./executor";
 import { HookExecution } from "./HookExecution";
 import { createExecutionScope, getModulesFromTypeCellCode } from "./modules";
@@ -10,7 +11,8 @@ export function createCellEvaluator(
   typecellContext: TypeCellContext<any>,
   resolveImport: (module: string) => Promise<any>,
   setAndWatchOutput = true,
-  onOutputChanged: (output: any) => void,
+  onOutputEvent: (output: any) => void,
+  onConsoleEvent: (console: ConsolePayload) => void,
   beforeExecuting: () => void
 ) {
   function onExecuted(exports: any) {
@@ -42,15 +44,15 @@ export function createCellEvaluator(
         });
       }
     }
-    onOutputChanged(newExports);
+    onOutputEvent(newExports);
   }
 
   function onError(error: any) {
     // log.warn("cellEvaluator onError", cell.path, error);
-    onOutputChanged(error);
+    onOutputEvent(error);
   }
 
-  const hookExecution = new HookExecution();
+  const hookExecution = new HookExecution(onConsoleEvent);
   const executionScope = createExecutionScope(
     typecellContext,
     hookExecution.scopeHooks
@@ -84,7 +86,7 @@ export function createCellEvaluator(
     } catch (e) {
       console.error(e);
       // log.warn("cellEvaluator error evaluating", cell.path, e);
-      onOutputChanged(e);
+      onOutputEvent(e);
     }
   }
 
