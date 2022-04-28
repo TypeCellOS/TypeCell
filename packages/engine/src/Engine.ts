@@ -14,7 +14,7 @@ export type OutputEvent<T> = {
 };
 
 export type ConsolePayload = {
-  level: "info" | "warn" | "error";
+  level: "info" | "warn" | "error" | "clear";
   arguments: any[];
 };
 
@@ -139,8 +139,16 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
 
     // TODO: maybe only debounce (or increase debounce timeout) if an execution is still pending?
     const reEvaluate = _.debounce(() => {
+      // make sure there were actual changes from the previous value
       if (model.getValue() !== prevValue) {
-        // make sure there were actual changes from the previous value
+        // Clear the console upon re-evaluation
+        this._onConsole.fire({
+          model,
+          payload: {
+            level: "clear",
+            arguments: [],
+          },
+        });
 
         prevValue = model.getValue();
         evaluate();

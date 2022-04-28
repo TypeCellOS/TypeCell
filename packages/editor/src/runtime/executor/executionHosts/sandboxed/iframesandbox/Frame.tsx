@@ -109,9 +109,7 @@ export const Frame = observer((props: {}) => {
               <div style={outputInnerStyle}>
                 <Output modelPath={id} outputs={connection.modelOutputs} />
               </div>
-              <div style={consoleStyle}>
-                <Console modelPath={id} outputs={connection.consoleOutputs} />
-              </div>
+              <Console modelPath={id} outputs={connection.consoleOutputs} />
             </div>
           );
         })}
@@ -130,17 +128,9 @@ const getOutputOuterStyle = (x: number, y: number) => ({
 });
 
 const outputInnerStyle = {
-  maxWidth: "70%",
-  width: "70%",
+  maxWidth: "100%",
+  width: "100%",
   overflow: "hidden",
-};
-
-const consoleStyle = {
-  width: "30%",
-  maxHeight: "300px",
-  overflow: "auto",
-  display: "flex",
-  "flex-direction": "column-reverse",
 };
 
 const containerStyle = { position: "relative" as "relative" };

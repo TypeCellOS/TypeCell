@@ -18,7 +18,11 @@ export class ConsoleOutput extends lifecycle.Disposable {
 
   async appendEvent(consolePayload: ConsolePayload) {
     runInAction(() => {
-      this.events.push(consolePayload);
+      if (consolePayload.level === "clear") {
+        this.events = [];
+      } else {
+        this.events.push(consolePayload);
+      }
     });
   }
 
