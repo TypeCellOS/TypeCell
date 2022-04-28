@@ -128,9 +128,8 @@ const getOutputOuterStyle = (x: number, y: number) => ({
 });
 
 const outputInnerStyle = {
-  maxWidth: "100%",
-  width: "100%",
-  overflow: "hidden",
+  overflow: "auto",
+  flex: "1",
 };
 
 const containerStyle = { position: "relative" as "relative" };

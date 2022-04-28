@@ -14,7 +14,7 @@ const Console: React.FC<Props> = observer((props) => {
 
   let output = (consoleOutput?.events || []).map((event, i) => {
     return {
-      id: i.toString(),
+      id: event.id,
       data: event.arguments,
       method: event.level,
     };
@@ -27,6 +27,7 @@ const Console: React.FC<Props> = observer((props) => {
 
   return (
     <>
+      <div style={{ minHeight: "100px", width: "40%" }}></div>
       <div style={consoleStyle}>
         <ConsoleComponent
           styles={{
@@ -38,7 +39,6 @@ const Console: React.FC<Props> = observer((props) => {
           variant="light"
         />
       </div>
-      <div style={{ minHeight: "100px" }}></div>
     </>
   );
 });
