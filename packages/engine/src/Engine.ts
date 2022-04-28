@@ -14,7 +14,18 @@ export type OutputEvent<T> = {
 };
 
 export type ConsolePayload = {
-  level: "info" | "warn" | "error" | "clear";
+  method:
+    | "log"
+    | "debug"
+    | "info"
+    | "warn"
+    | "error"
+    | "table"
+    | "clear"
+    | "time"
+    | "timeEnd"
+    | "count"
+    | "assert";
   arguments: any[];
 };
 
@@ -145,7 +156,7 @@ export class Engine<T extends CodeModel> extends lifecycle.Disposable {
         this._onConsole.fire({
           model,
           payload: {
-            level: "clear",
+            method: "clear",
             arguments: [],
           },
         });

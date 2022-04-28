@@ -16,7 +16,7 @@ const Console: React.FC<Props> = observer((props) => {
     return {
       id: event.id,
       data: event.arguments,
-      method: event.level,
+      method: event.method,
     };
   });
 

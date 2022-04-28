@@ -145,7 +145,7 @@ exports.default = sum;`
 
       const consoleEvents = await eventsPromise;
 
-      expect(consoleEvents[0].payload.level).toBe("info");
+      expect(consoleEvents[0].payload.method).toBe("log");
       expect(consoleEvents[0].payload.arguments[0]).toBe("hi!");
     });
 

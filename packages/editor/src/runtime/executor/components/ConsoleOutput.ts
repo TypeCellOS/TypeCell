@@ -24,7 +24,7 @@ export class ConsoleOutput extends lifecycle.Disposable {
 
   public async appendEvent(consolePayload: ConsolePayload) {
     runInAction(() => {
-      if (consolePayload.level === "clear") {
+      if (consolePayload.method === "clear") {
         this.events = [];
       } else {
         if (this.events.length >= 999) {

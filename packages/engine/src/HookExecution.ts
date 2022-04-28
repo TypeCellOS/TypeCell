@@ -50,30 +50,61 @@ export class HookExecution {
     }),
     console: {
       ...originalReferences.console,
-      log: (...args: any) => {
+      log: (...args: any) =>
         this.onConsoleEvent({
-          level: "info",
+          method: "log",
           arguments: args,
-        });
-      },
-      info: (...args: any) => {
+        }),
+      debug: (...args: any) =>
         this.onConsoleEvent({
-          level: "info",
+          method: "debug",
           arguments: args,
-        });
-      },
-      warn: (...args: any) => {
+        }),
+      info: (...args: any) =>
         this.onConsoleEvent({
-          level: "warn",
+          method: "info",
           arguments: args,
-        });
-      },
-      error: (...args: any) => {
+        }),
+      warn: (...args: any) =>
         this.onConsoleEvent({
-          level: "error",
+          method: "warn",
           arguments: args,
-        });
-      },
+        }),
+      error: (...args: any) =>
+        this.onConsoleEvent({
+          method: "error",
+          arguments: args,
+        }),
+      table: (...args: any) =>
+        this.onConsoleEvent({
+          method: "table",
+          arguments: args,
+        }),
+      clear: (...args: any) =>
+        this.onConsoleEvent({
+          method: "clear",
+          arguments: args,
+        }),
+      time: (...args: any) =>
+        this.onConsoleEvent({
+          method: "time",
+          arguments: args,
+        }),
+      timeEnd: (...args: any) =>
+        this.onConsoleEvent({
+          method: "timeEnd",
+          arguments: args,
+        }),
+      count: (...args: any) =>
+        this.onConsoleEvent({
+          method: "count",
+          arguments: args,
+        }),
+      assert: (...args: any) =>
+        this.onConsoleEvent({
+          method: "assert",
+          arguments: args,
+        }),
     },
   };
 
