@@ -35,6 +35,11 @@ module.exports = {
       };
       addBeforeLoader(webpackConfig, loaderByName("file-loader"), wasmLoader);
 
+      // webpackConfig.module.rules.push({
+      //   test: /\.mjs$/,
+      //   include: /node_modules/,
+      //   type: "javascript/auto",
+      // });
       // webpackConfig.resolve.symlinks = false;
       return webpackConfig;
     },
