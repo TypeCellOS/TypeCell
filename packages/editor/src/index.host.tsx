@@ -1,7 +1,7 @@
 import "@atlaskit/css-reset/dist/bundle.css";
 import * as Olm from "@matrix-org/olm";
 // @ts-ignore
-import olmWasmPath from "@matrix-org/olm/olm.wasm";
+import olmWasmPath from "@matrix-org/olm/olm.wasm?url";
 import * as yjsBindings from "@syncedstore/yjs-reactive-bindings";
 import * as mobx from "mobx";
 import * as monaco from "monaco-editor";
@@ -17,7 +17,7 @@ import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typ
 import { MonacoContext } from "./runtime/editor/MonacoContext";
 import { initializeStoreService } from "./store/local/stores";
 
-if (process.env.NODE_ENV === "development") {
+if (import.meta.env.NODE_ENV === "development") {
   // disables error overlays
   // We make use of React Error Boundaries to catch exceptions during rendering of
   // user-defined react components. It's annoying (and slow) to get the React error overlay

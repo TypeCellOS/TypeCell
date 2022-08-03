@@ -173,7 +173,7 @@ const addTypecellModuleToRuntime = async (
   const typecellPath = mod === "typecell" ? "@typecell-org/editor" : mod;
 
   let content: string;
-  if (process.env.NODE_ENV === "test") {
+  if (import.meta.env.NODE_ENV === "test") {
     // TODO: extract this case
     let fs = require("fs");
     content = fs.readFileSync(
@@ -183,7 +183,7 @@ const addTypecellModuleToRuntime = async (
   } else {
     content = await (
       await config.fetcher(
-        process.env.PUBLIC_URL + "/types/" + typecellPath + "/" + path
+        import.meta.env.PUBLIC_URL + "/types/" + typecellPath + "/" + path
       )
     ).text();
   }

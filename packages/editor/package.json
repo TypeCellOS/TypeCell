@@ -3,6 +3,7 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
+    "buffer": "^6.0.3",
     "@atlaskit/atlassian-navigation": "^1.0.0",
     "@atlaskit/avatar": "^20.3.0",
     "@atlaskit/banner": "^11.2.0",
@@ -61,7 +62,7 @@
     "mobx": "^6.2.0",
     "mobx-react-lite": "^3.2.0",
     "monaco-editor": "^0.27.0",
-    "octokit": "^1.6.1",
+    "@octokit/core": "^3.5.1",
     "penpal": "^6.1.0",
     "prettier": "2.4.1",
     "probe.gl": "^3.1.4",
@@ -106,18 +107,19 @@
     "copytypes:dep": "mkdir -p public/types/@typecell-org/$npm_config_pkgname && cp -rf ../$npm_config_pkgname/types/. public/types/@typecell-org/$npm_config_pkgname",
     "copytypes:alldeps": "npm run copytypes:dep --pkgname=common && npm run copytypes:dep --pkgname=engine",
     "copytypes": "npm run copytypes:self && npm run copytypes:alldeps",
-    "start": "npm run copytypes && craco start --verbose",
-    "start:local": "npm run copytypes && cross-env REACT_APP_HOMESERVER_URI=http://localhost:8888 REACT_APP_HOMESERVER_NAME=test.typecell.org craco start",
+    "start": "npm run copytypes && npm run vite:dev",
+    "start:local": "npm run copytypes && cross-env REACT_APP_HOMESERVER_URI=http://localhost:8888 REACT_APP_HOMESERVER_NAME=test.typecell.org npm run vite:dev",
     "copy-docs": "rimraf public/_docs && mkdir public/_docs && node copy-docs.mjs > public/_docs/index.json && cp -rf ../../docs/. public/_docs",
     "build": "tsc -v && npm run copytypes && npm run copy-docs",
-    "build-react": "cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true craco build",
+    "build-react": "cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true run vite:build",
     "build-react-stats": "npm run build-react -- --stats && npx webpack-bundle-analyzer build/bundle-stats.json",
     "install-playwright": "npx playwright install --with-deps",
     "playwright": "npx playwright test",
     "lint": "eslint src",
     "test-watch": "craco test",
     "test": "craco test --watchAll=false",
-    "eject": "react-scripts eject"
+    "vite:dev": "vite",
+    "vite:build": "tsc && vite build"
   },
   "eslintConfig": {
     "extends": [
@@ -155,6 +157,7 @@
     }
   },
   "devDependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@svgr/webpack": "^5.5.0",
     "@types/jest": "^26.0.22",
     "@types/lodash": "^4.14.168",
@@ -172,6 +175,8 @@
     "patch-package": "^6.4.7",
     "rimraf": "^3.0.2",
     "ts-node": "^10.1.0",
-    "@playwright/test": "^1.18.1"
+    "@playwright/test": "^1.18.1",
+    "vite": "^3.0.0",
+    "@vitejs/plugin-react": "^2.0.0"
   }
 }
