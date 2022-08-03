@@ -17,11 +17,5 @@
     "clean": "rimraf dist && rimraf types",
     "build": "npm run clean && tsc -p tsconfig.json",
     "watch": "tsc --watch"
-  },
-  "jest": {
-    "transformIgnorePatterns": [
-      "/node_modules/(?!(unified|bail|is-plain-obj|trough|vfile|unist-util-stringify-position|monaco-editor)).+\\.js$"
-    ],
-    "transform": {}
   }
 }

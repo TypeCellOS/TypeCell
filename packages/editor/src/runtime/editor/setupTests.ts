@@ -6,11 +6,11 @@ Object.defineProperty(window, "matchMedia", {
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // Deprecated
-    removeListener: jest.fn(), // Deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addListener: () => {}, // Deprecated
+    removeListener: () => {}, // Deprecated
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => {},
   }),
 });
 
@@ -19,8 +19,8 @@ import { CustomTypeScriptWorker } from "./workers/ts.worker";
 import { SimpleWorkerServer } from "monaco-editor/esm/vs/base/common/worker/simpleWorker.js";
 // @ts-ignore
 import { EditorSimpleWorker } from "monaco-editor/esm/vs/editor//common/services/editorSimpleWorker.js";
-import { CustomCSSWorker } from "./workers/css.worker";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
+import { CustomCSSWorker } from "./workers/css.worker";
 
 monaco.languages.register({
   id: "typescript",
@@ -47,7 +47,7 @@ function initialize(foreignModule: any, worker: any) {
 }
 
 /**
- * Because jest runs in Node, browser workers are not available.
+ * Because tests runs in Node, browser workers are not available.
  * This is a polyfill that still uses our custom workers, but runs them on the main thread
  */
 function getFakeMainThreadWorker(

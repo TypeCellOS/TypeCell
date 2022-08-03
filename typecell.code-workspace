@@ -21,7 +21,6 @@
     "files.exclude": {
       "packages/": true
     },
-    "jest.disabledWorkspaceFolders": ["ROOT", "packages/common"],
     "typescript.tsdk": "ROOT/node_modules/typescript/lib"
   }
 }

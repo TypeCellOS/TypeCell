@@ -27,7 +27,6 @@
     "@atlaskit/textarea": "^4.1.0",
     "@atlaskit/textfield": "^5.0.1",
     "@atlaskit/tree": "^8.4.0",
-    "@craco/craco": "^6.1.2",
     "@deck.gl/aggregation-layers": "^8.6.4",
     "@deck.gl/core": "^8.6.4",
     "@deck.gl/layers": "^8.6.4",
@@ -37,7 +36,6 @@
     "@loaders.gl/images": "^3.0.12",
     "@matrix-org/olm": "^3.2.2",
     "@syncedstore/yjs-reactive-bindings": "^0.4.0",
-    "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "@tippyjs/react": "^4.2.5",
@@ -57,7 +55,7 @@
     "lowlight": "^1.20.0",
     "lz-string": "^1.4.4",
     "markdown-it": "^12.0.2",
-    "matrix-crdt": "^0.1.1",
+    "matrix-crdt": "^0.1.2",
     "matrix-js-sdk": "^12.4.0",
     "mobx": "^6.2.0",
     "mobx-react-lite": "^3.2.0",
@@ -77,9 +75,8 @@
     "react-icons": "^4.2.0",
     "react-inspector": "^5.1.0",
     "react-intl-next": "npm:react-intl@^5.18.1",
-    "react-scripts": "4.0.3",
-    "remark-parse": "^9.0.0",
-    "remark-stringify": "^9.0.1",
+    "remark-parse": "^10.0.1",
+    "remark-stringify": "^10.0.2",
     "remixicon-react": "^1.0.0",
     "semver": "^7.3.5",
     "speakingurl": "^14.0.1",
@@ -116,8 +113,8 @@
     "install-playwright": "npx playwright install --with-deps",
     "playwright": "npx playwright test",
     "lint": "eslint src",
-    "test-watch": "craco test",
-    "test": "craco test --watchAll=false",
+    "test-watch": "vitest watch",
+    "test": "vitest",
     "vite:dev": "vite",
     "vite:build": "tsc && vite build"
   },
@@ -139,27 +136,8 @@
       "last 1 safari version"
     ]
   },
-  "jest": {
-    "transformIgnorePatterns": [
-      "/node_modules/(?!(unified|bail|is-plain-obj|trough|vfile|unist-util-stringify-position|monaco-editor|matrix-crdt)).+\\.js$",
-      ".*typescriptServifces.*"
-    ],
-    "moduleNameMapper": {
-      "workerize-loader(\\?.*)?!(.*)": "identity-obj-proxy",
-      "@typecell-org/common": "<rootDir>/../common/src",
-      "^lib0/([a-zA-Z-]*)$": "<rootDir>/../../node_modules/lib0/dist/$1.cjs",
-      "^y-protocols/([a-zA-Z-]*)$": "<rootDir>/../../node_modules/y-protocols/dist/$1.cjs"
-    },
-    "transform": {
-      "workerize-loader(\\?.*)?!(.*)": "<rootDir>/workerize-jest.js",
-      "^.+\\.[jt]sx?$": "babel-jest",
-      "^.+\\.[jt]s?$": "babel-jest"
-    }
-  },
   "devDependencies": {
-    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@svgr/webpack": "^5.5.0",
-    "@types/jest": "^26.0.22",
     "@types/lodash": "^4.14.168",
     "@types/lowlight": "0.0.2",
     "@types/qs": "^6.9.7",
@@ -177,6 +155,7 @@
     "ts-node": "^10.1.0",
     "@playwright/test": "^1.18.1",
     "vite": "^3.0.0",
-    "@vitejs/plugin-react": "^2.0.0"
+    "@vitejs/plugin-react": "^2.0.0",
+    "vitest": "^0.20.3"
   }
 }
