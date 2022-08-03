@@ -12,7 +12,7 @@
   "scripts": {
     "--postinstall": "npm run bootstrap && patch-package",
     "install-lerna": "npm install --no-package-lock",
-    "bootstrap": "lerna bootstrap --hoist --ci && patch-package",
+    "bootstrap": "lerna bootstrap --hoist --ci -- --force && patch-package",
     "install-new-packages": "lerna bootstrap --hoist && patch-package",
     "playwright": "lerna run playwright",
     "install-playwright": "npx playwright install --with-deps",
