@@ -1,22 +1,22 @@
 import { uri } from "vscode-lib";
 
 const HOMESERVER_URI = uri.URI.parse(
-  import.meta.env.REACT_APP_HOMESERVER_URI || "https://mx.typecell.org"
+  import.meta.env.VITE_REACT_APP_HOMESERVER_URI || "https://mx.typecell.org"
 );
 
 export const DEFAULT_HOMESERVER_HOST = HOMESERVER_URI.authority;
 
 export const MATRIX_CONFIG = {
-  hsName: import.meta.env.REACT_APP_HOMESERVER_NAME || "typecell.org",
+  hsName: import.meta.env.VITE_REACT_APP_HOMESERVER_NAME || "typecell.org",
   hsUrl: HOMESERVER_URI.toString(),
   isUrl: undefined as any, // "https://vector.im",
   defaultDeviceDisplayName: "TypeCell web",
 };
 
 export const ENVIRONMENT: "PROD" | "DEV" | "STAGING" =
-  import.meta.env.REACT_APP_STAGING === "true"
+  import.meta.env.VITE_REACT_APP_STAGING === "true"
     ? "STAGING"
-    : import.meta.env.NODE_ENV === "production"
+    : import.meta.env.PROD
     ? "PROD"
     : "DEV";
 // export const DEFAULT_HOMESERVER_HOST = "matrix-client.matrix.org";

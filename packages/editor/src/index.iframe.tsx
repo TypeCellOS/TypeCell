@@ -10,7 +10,7 @@ import {
 import "./iframe.css";
 import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
 
-if (import.meta.env.NODE_ENV === "development") {
+if (import.meta.env.DEV) {
   // disables error overlays
   // We make use of React Error Boundaries to catch exceptions during rendering of
   // user-defined react components. It's annoying (and slow) to get the React error overlay

@@ -17,7 +17,7 @@ import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typ
 import { MonacoContext } from "./runtime/editor/MonacoContext";
 import { initializeStoreService } from "./store/local/stores";
 
-if (import.meta.env.NODE_ENV === "development") {
+if (import.meta.env.DEV) {
   // disables error overlays
   // We make use of React Error Boundaries to catch exceptions during rendering of
   // user-defined react components. It's annoying (and slow) to get the React error overlay

@@ -75,7 +75,7 @@ jobs:
           CI: true
 
       - name: Run server
-        run: npm run start:local & npx wait-on http://localhost:3000
+        run: npm run start:local & npx wait-on http://localhost:5173
         env:
           CI: true
 

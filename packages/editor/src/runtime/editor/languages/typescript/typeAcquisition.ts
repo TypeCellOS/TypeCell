@@ -173,6 +173,7 @@ const addTypecellModuleToRuntime = async (
   const typecellPath = mod === "typecell" ? "@typecell-org/editor" : mod;
 
   let content: string;
+  // TODO
   if (import.meta.env.NODE_ENV === "test") {
     // TODO: extract this case
     let fs = require("fs");
@@ -181,11 +182,8 @@ const addTypecellModuleToRuntime = async (
       "utf-8"
     );
   } else {
-    content = await (
-      await config.fetcher(
-        import.meta.env.PUBLIC_URL + "/types/" + typecellPath + "/" + path
-      )
-    ).text();
+    const url = new URL("/types/" + typecellPath + "/" + path, import.meta.url);
+    content = await (await config.fetcher(url.toString())).text();
   }
   if (!content) {
     return errorMsg(
@@ -589,7 +587,7 @@ const getDependenciesForModule = async (
             resolvedFilepath.substring(0, resolvedFilepath.length - 3) +
             ".d.ts";
         } else {
-          resolvedFilepath += absolutePathForModule + ".d.ts";
+          resolvedFilepath += ".d.ts";
         }
       }
 
