@@ -1,6 +1,4 @@
-/** @jsxImportSource @emotion/react */
 import { observer } from "mobx-react-lite";
-import React from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";

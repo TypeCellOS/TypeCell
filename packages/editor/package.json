@@ -108,7 +108,7 @@
     "start:local": "npm run copytypes && cross-env REACT_APP_HOMESERVER_URI=http://localhost:8888 REACT_APP_HOMESERVER_NAME=test.typecell.org npm run vite:dev",
     "copy-docs": "rimraf public/_docs && mkdir public/_docs && node copy-docs.mjs > public/_docs/index.json && cp -rf ../../docs/. public/_docs",
     "build": "tsc -v && npm run copytypes && npm run copy-docs",
-    "build-react": "cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true run vite:build",
+    "build-react": "cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true npm run vite:build",
     "build-react-stats": "npm run build-react -- --stats && npx webpack-bundle-analyzer build/bundle-stats.json",
     "install-playwright": "npx playwright install --with-deps",
     "playwright": "npx playwright test",

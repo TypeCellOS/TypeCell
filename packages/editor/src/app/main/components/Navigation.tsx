@@ -1,17 +1,17 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-/** @jsxImportSource @emotion/react */
+
 import {
   AtlassianNavigation,
   PrimaryButton,
 } from "@atlaskit/atlassian-navigation";
 import { observer } from "mobx-react-lite";
 import { VscSignIn } from "react-icons/vsc";
-import { getStoreService } from "../../../store/local/stores";
-import { Logo } from "./Logo";
-import { ProfilePopup } from "./ProfilePopup";
-import styles from "./Navigation.module.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { getStoreService } from "../../../store/local/stores";
 import { toDocs, toLoginScreen } from "../../routes/routes";
+import { Logo } from "./Logo";
+import styles from "./Navigation.module.css";
+import { ProfilePopup } from "./ProfilePopup";
 
 const ProductHome = () => {
   return (

@@ -6,7 +6,11 @@ export default defineConfig({
   define: {
     "process.env": {},
   },
-  plugins: [react()],
+  plugins: [
+    react({
+      jsxRuntime: "classic", // TODO: would prefer to move to new jsxRuntime, but doesn't seem compatible with atlaskit
+    }),
+  ],
   build: {
     rollupOptions: {
       plugins: [
