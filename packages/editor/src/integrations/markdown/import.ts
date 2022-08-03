@@ -1,13 +1,13 @@
+import { uniqueId } from "@typecell-org/common";
 import remarkParse from "remark-parse";
+import { Root } from "remark-parse/lib";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
-import { Parent } from "unist";
 import * as Y from "yjs";
-import { uniqueId } from "@typecell-org/common";
 
 function markdownToNotebook(markdown: string) {
   const tree = unified().use(remarkParse).parse(markdown);
-  const nodes = (tree as Parent).children;
+  const nodes = tree.children;
   const markdownAndCodeCells: Array<
     | {
         type: "code";
@@ -39,7 +39,7 @@ function markdownToNotebook(markdown: string) {
 
   let data = markdownAndCodeCells.map((cell) => {
     if (cell.type === "markdown") {
-      const root: Parent = {
+      const root: Root = {
         type: "root",
         children: cell.nodes,
       };
