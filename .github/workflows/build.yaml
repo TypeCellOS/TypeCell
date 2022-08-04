@@ -17,10 +17,11 @@ jobs:
 
       # doesn't seem to cause significant speed up, probably because it still needs to install deps
       - name: cache playwright
+        id: playwright-cache
         uses: actions/cache@v2
         with:
           path: ~/.cache/ms-playwright
-          key: pw-${{ runner.os }}-${{ hashFiles('./package-lock.json') }}
+          key: pw2-${{ runner.os }}-${{ hashFiles('./package-lock.json') }}
 
       # doesn't seem to cause significant speed up, maybe not right conf?
       # - name: cache lerna
@@ -76,6 +77,7 @@ jobs:
           CI: true
 
       - name: Install Playwright
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npm run install-playwright
         # env:
         # PLAYWRIGHT_BROWSERS_PATH: 0 # https://github.com/microsoft/playwright/blob/main/docs/src/ci.md#caching-browsers
