@@ -13,7 +13,7 @@
     "bootstrap": "lerna bootstrap --hoist --ci -- --force && patch-package",
     "install-new-packages": "lerna bootstrap --hoist && patch-package",
     "playwright": "lerna run playwright:dev --stream",
-    "install-playwright": "npx playwright install --with-deps",
+    "install-playwright": "npx playwright install",
     "test": "lerna run test --concurrency 1 --stream",
     "unittest:vitest": "lerna run unittest:vitest --concurrency 1 --stream",
     "build": "lerna run build --concurrency 1",
