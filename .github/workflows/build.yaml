@@ -16,11 +16,11 @@ jobs:
           node-version: 16.x
 
       # doesn't seem to cause significant speed up, probably because it still needs to install deps
-      # - name: cache playwright
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: ~/.cache/ms-playwright
-      #     key: pw-${{ runner.os }}-${{ hashFiles('./package-lock.json') }}
+      - name: cache playwright
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('./package-lock.json') }}
 
       # doesn't seem to cause significant speed up, maybe not right conf?
       # - name: cache lerna
@@ -86,8 +86,8 @@ jobs:
         env:
           CI: true
 
-      - name: Run Playwright tests
-        run: npm run playwright
+      # - name: Run Playwright tests
+      #   run: npm run playwright
 
       - uses: actions/upload-artifact@v2
         if: always()
