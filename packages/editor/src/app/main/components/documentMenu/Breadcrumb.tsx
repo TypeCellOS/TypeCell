@@ -75,6 +75,7 @@ const BreadcrumbItems = (props: { identifier: Identifier }) => {
   } else if (identifier instanceof MatrixIdentifier) {
     items.push(
       <BreadcrumbsItem
+        key={identifier.owner}
         href=""
         text={identifier.owner}
         onClick={() => {
@@ -82,6 +83,7 @@ const BreadcrumbItems = (props: { identifier: Identifier }) => {
         }}
       />,
       <BreadcrumbsItem
+        key={identifier.document}
         text={identifier.document}
         component={() => (
           // Replace default component so it doesn't render as a link
@@ -129,6 +131,7 @@ export const Breadcrumb = (props: { identifier: Identifier }) => {
       if (part.length) {
         subItems.push(
           <BreadcrumbsItem
+            key={link}
             text={part}
             href=""
             onClick={(e) => {

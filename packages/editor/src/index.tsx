@@ -1,4 +1,3 @@
-import { Buffer } from "buffer";
 import React from "react";
 import ReactDOM from "react-dom";
 import reportWebVitals from "./reportWebVitals";
@@ -7,8 +6,6 @@ import reportWebVitals from "./reportWebVitals";
 if (typeof (window as any).global === "undefined") {
   (window as any).global = window;
 }
-
-(window as any).Buffer = Buffer;
 
 console.log("Loading", window.location.href);
 

@@ -3,7 +3,6 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
-    "buffer": "^6.0.3",
     "@atlaskit/atlassian-navigation": "^1.0.0",
     "@atlaskit/avatar": "^20.3.0",
     "@atlaskit/banner": "^11.2.0",
@@ -114,7 +113,9 @@
     "unittest:vitest": "vitest",
     "test": "npm run unittest:vitest",
     "vite:dev": "vite",
-    "vite:build": "tsc && vite build"
+    "vite:build": "tsc && vite build",
+    "vite:preview": "vite preview",
+    "build-react-local": "npm run copytypes && npm run copy-docs && cross-env VITE_REACT_APP_PREVIEW=true VITE_REACT_APP_HOMESERVER_URI=http://localhost:8888 VITE_REACT_APP_HOMESERVER_NAME=test.typecell.org npm run vite:build"
   },
   "eslintConfig": {
     "extends": [
@@ -157,6 +158,10 @@
     "@playwright/test": "^1.18.1",
     "vite": "^3.0.0",
     "@vitejs/plugin-react": "^2.0.0",
-    "vitest": "^0.20.3"
+    "vitest": "^0.20.3",
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+    "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
+    "rollup-plugin-polyfill-node": "^0.10.2",
+    "connect-history-api-fallback": "^2.0.0"
   }
 }

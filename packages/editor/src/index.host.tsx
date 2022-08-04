@@ -3,6 +3,7 @@ import * as Olm from "@matrix-org/olm";
 // @ts-ignore
 import olmWasmPath from "@matrix-org/olm/olm.wasm?url";
 import * as yjsBindings from "@syncedstore/yjs-reactive-bindings";
+import { Buffer } from "buffer";
 import * as mobx from "mobx";
 import * as monaco from "monaco-editor";
 import React from "react";
@@ -16,6 +17,7 @@ import setupNpmTypeResolver from "./runtime/editor/languages/typescript/npmTypeR
 import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typecellTypeResolver";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
 import { initializeStoreService } from "./store/local/stores";
+(window as any).Buffer = Buffer;
 
 if (import.meta.env.DEV) {
   // disables error overlays

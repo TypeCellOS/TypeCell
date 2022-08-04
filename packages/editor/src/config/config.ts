@@ -13,8 +13,10 @@ export const MATRIX_CONFIG = {
   defaultDeviceDisplayName: "TypeCell web",
 };
 
-export const ENVIRONMENT: "PROD" | "DEV" | "STAGING" =
-  import.meta.env.VITE_REACT_APP_STAGING === "true"
+export const ENVIRONMENT: "PROD" | "DEV" | "STAGING" | "PREVIEW" =
+  import.meta.env.VITE_REACT_APP_PREVIEW === "true"
+    ? "PREVIEW"
+    : import.meta.env.VITE_REACT_APP_STAGING === "true"
     ? "STAGING"
     : import.meta.env.PROD
     ? "PROD"
