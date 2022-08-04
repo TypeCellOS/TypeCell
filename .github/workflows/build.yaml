@@ -6,6 +6,8 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.24.2-focal
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@master
@@ -83,9 +85,6 @@ jobs:
         run: npm run start:local & npx wait-on http://localhost:5173 -c ./packages/editor/wait-on.conf.json
         env:
           CI: true
-
-      - name: Wait for server
-        run: npx wait-on http://localhost:5173 -c ./packages/editor/wait-on.conf.json
 
       - name: Run Playwright tests
         run: npm run playwright
