@@ -78,7 +78,7 @@ jobs:
 
       - name: Install Playwright
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npm run install-playwright
+        run: npx playwright install --with-deps
         # env:
         # PLAYWRIGHT_BROWSERS_PATH: 0 # https://github.com/microsoft/playwright/blob/main/docs/src/ci.md#caching-browsers
 
@@ -88,8 +88,8 @@ jobs:
         env:
           CI: true
 
-      # - name: Run Playwright tests
-      # run: npm run playwright
+      - name: Run Playwright tests
+        run: npm run playwright
 
       - uses: actions/upload-artifact@v2
         if: always()
