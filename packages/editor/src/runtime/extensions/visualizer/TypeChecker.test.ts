@@ -1,3 +1,4 @@
+import fetch from "cross-fetch";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 import "monaco-editor/esm/vs/language/typescript/monaco.contribution.js";
 import { expect, it } from "vitest";
@@ -7,15 +8,16 @@ import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 import { setMonacoDefaults } from "../../editor";
 import setupTypecellTypeResolver from "../../editor/languages/typescript/typecellTypeResolver";
 import { TypeChecker } from "./TypeChecker";
+window.fetch = fetch;
 /**
  * @vitest-environment jsdom
  */
 
 setMonacoDefaults(monaco);
 
-const timeout = 10000;
+const timeout = 40000;
 // TODO: fix test, type import resolution is breaking in test mode
-it.skip(
+it(
   "Find correct visualizer and ignore others",
   async () => {
     await setupTypecellTypeResolver(monaco);

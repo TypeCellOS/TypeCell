@@ -173,7 +173,6 @@ const addTypecellModuleToRuntime = async (
   const typecellPath = mod === "typecell" ? "@typecell-org/editor" : mod;
 
   let content: string;
-  // TODO
   if (import.meta.env.NODE_ENV === "test") {
     // TODO: extract this case
     let fs = require("fs");
@@ -198,7 +197,7 @@ const addTypecellModuleToRuntime = async (
   config.logger.log("adding typecell module", path);
   config.addLibraryToRuntime(
     content,
-    `file://node_modules/@types/${mod}/${path}`
+    `file:///node_modules/@types/${mod}/${path}`
   );
 };
 
@@ -314,7 +313,7 @@ const getModuleAndRootDefTypePath = async (
 
     config.addLibraryToRuntime(
       JSON.stringify(responseJSON, null, "  "),
-      `file://node_modules/${packageName}/package.json`
+      `file:///node_modules/${packageName}/package.json`
     );
 
     // Get the path of the root d.ts file

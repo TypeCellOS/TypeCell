@@ -16,7 +16,11 @@ if (import.meta.env.DEV) {
   // user-defined react components. It's annoying (and slow) to get the React error overlay
   // while editing TypeCell cells
   // Note that this breaks hot reloading
-  (reo as any).stopReportingRuntimeErrors();
+  try {
+    (reo as any).stopReportingRuntimeErrors();
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 console.log("Loading iframe", window.location.href);

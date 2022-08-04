@@ -15,6 +15,7 @@
     "playwright": "lerna run playwright",
     "install-playwright": "npx playwright install --with-deps",
     "test": "lerna run test --concurrency 1 --stream",
+    "unittest:vitest": "lerna run unittest:vitest --concurrency 1 --stream",
     "build": "lerna run build --concurrency 1",
     "build-react": "lerna run build-react --concurrency 1 --stream",
     "lint": "lerna run lint --concurrency 1",

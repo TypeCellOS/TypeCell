@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import * as doc from "./visualizer";
-import * as mod from "./export";
 import { TypeVisualizer } from "../../../executor/lib/exports";
+import * as mod from "./export";
+import * as doc from "./visualizer";
 
 // let tc = {
 //   TypeVisualizer,
@@ -15,13 +15,11 @@ type truePropertyNames<T> = {
 
 type matchingPlugins<PluginsType, ObjectType> = any extends ObjectType
   ? never
-  : truePropertyNames<
-      {
-        [K in keyof PluginsType]: ObjectType extends PluginsType[K] //arg0Type<PluginsType[K]>
-          ? true
-          : never;
-      }
-    >;
+  : truePropertyNames<{
+      [K in keyof PluginsType]: ObjectType extends PluginsType[K] //arg0Type<PluginsType[K]>
+        ? true
+        : never;
+    }>;
 
 type RequireOnlyOne<T> = {
   [K in keyof T]: { type: T[K]; exclude: Exclude<keyof T, K> };

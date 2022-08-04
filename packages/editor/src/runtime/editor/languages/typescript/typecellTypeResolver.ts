@@ -1,6 +1,6 @@
-import { detectNewImportsToAcquireTypeFor } from "./typeAcquisition";
 import type * as monaco from "monaco-editor";
 import { parseIdentifier } from "../../../../identifiers";
+import { detectNewImportsToAcquireTypeFor } from "./typeAcquisition";
 /**
  * Uses type definitions emitted by npm run emittypes to the public/types directory.
  * Now we can use types from this typecell codebase in the runtime

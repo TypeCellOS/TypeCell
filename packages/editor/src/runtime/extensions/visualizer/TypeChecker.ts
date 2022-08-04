@@ -1,8 +1,7 @@
 import { CodeModel } from "@typecell-org/engine";
 
-import { async } from "vscode-lib";
-import { lifecycle } from "vscode-lib";
 import type * as monaco from "monaco-editor";
+import { async, lifecycle } from "vscode-lib";
 
 type WorkerType = (
   ...uris: monaco.Uri[]
@@ -46,8 +45,9 @@ export class TypeChecker extends lifecycle.Disposable {
 
     import * as doc from "!@${this.documentId.replace("//", "/")}";
     import * as mod from "${uristring}";
-    // import tc from "typecell";
+    import tc from "typecell";
     import { TypeVisualizer } from "typecell/runtime/executor/lib/exports";
+    // type TypeVisualizer<T> = typeof tc["TypeVisualizer"];
 
     type truePropertyNames<T> = {
       [K in keyof T]: T[K] extends never ? never : K;

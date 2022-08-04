@@ -114,7 +114,8 @@
     "playwright": "npx playwright test",
     "lint": "eslint src",
     "test-watch": "vitest watch",
-    "test": "vitest",
+    "unittest:vitest": "vitest",
+    "test": "npm run unittest:vitest",
     "vite:dev": "vite",
     "vite:build": "tsc && vite build"
   },
