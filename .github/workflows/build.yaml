@@ -84,6 +84,9 @@ jobs:
       - name: Install Playwright
         run: npm run install-playwright
 
+      - name: Wait for server
+        run: npx wait-on http://localhost:5173 -c ./packages/editor/wait-on.conf.json
+
       - name: Run Playwright tests
         run: npm run playwright
 

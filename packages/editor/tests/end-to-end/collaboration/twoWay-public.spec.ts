@@ -1,5 +1,5 @@
 import { Page } from "@playwright/test";
-import { expect, test } from "../setup/fixtures";
+import { test } from "../setup/fixtures";
 import {
   createNotebook,
   selectionSyncs,
@@ -21,7 +21,7 @@ test.beforeAll(async ({ aliceContext, bobContext }) => {
 
   // set notebook to public
   await pageAlice.click('[aria-label="open"]');
-  await pageAlice.click("#react-select-3-option-0"); // TODO: better selector
+  await pageAlice.click("#react-select-3-option-0", { timeout: 2000 }); // TODO: better selector
 
   await pageAlice.click('button:has-text("Apply")');
 });

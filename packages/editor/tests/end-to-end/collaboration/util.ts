@@ -52,12 +52,13 @@ export async function selectionSyncs(from: Page, to: Page) {
   //   state: "visible",
   // });
 
-  const bbLine = await to.locator("text=helloworld").boundingBox({
-    timeout: 2000,
-  });
-  const bbSelection = await to.locator(".yRemoteSelection").boundingBox({
-    timeout: 200,
-  });
+  const loc1 = to.locator("text=helloworld");
+  await loc1.waitFor({ state: "visible", timeout: 2000 });
+  const bbLine = await loc1.boundingBox();
+
+  const loc2 = to.locator(".yRemoteSelection");
+  await loc2.waitFor({ state: "visible", timeout: 200 });
+  const bbSelection = await loc2.boundingBox();
   // const bbLine = await firstLine.boundingBox();
   // const bbSelection = await remoteSelection.boundingBox();
 
