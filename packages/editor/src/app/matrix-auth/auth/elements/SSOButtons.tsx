@@ -14,19 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React from "react";
 import classNames from "classnames";
+import React from "react";
 
 import Button from "@atlaskit/button";
+import { MatrixClient } from "matrix-js-sdk";
+import { startSingleSignOn } from "../../AuthStoreUtil";
+import AuthStyles from "../AuthStyles.module.css";
 import {
   IdentityProviderBrand,
   IIdentityProvider,
   ISSOFlow,
 } from "../LoginHelper";
-import { MatrixClient } from "matrix-js-sdk";
 import { mediaFromMxc } from "../util/Media";
-import { startSingleSignOn } from "../../AuthStoreUtil";
-import AuthStyles from "../AuthStyles.module.css";
+import apple from "./res/apple.svg";
+import facebook from "./res/facebook.svg";
+import github from "./res/github.svg";
+import gitlab from "./res/gitlab.svg";
+import google from "./res/google.svg";
+import twitter from "./res/twitter.svg";
+
 interface ISSOButtonProps extends Omit<IProps, "flow"> {
   idp: IIdentityProvider;
 }
@@ -34,17 +41,17 @@ interface ISSOButtonProps extends Omit<IProps, "flow"> {
 const getIcon = (brand: IdentityProviderBrand | string) => {
   switch (brand) {
     case IdentityProviderBrand.Apple:
-      return require(`./res/apple.svg`).default;
+      return apple;
     case IdentityProviderBrand.Facebook:
-      return require(`./res/facebook.svg`).default;
+      return facebook;
     case IdentityProviderBrand.Github:
-      return require(`./res/github.svg`).default;
+      return github;
     case IdentityProviderBrand.Gitlab:
-      return require(`./res/gitlab.svg`).default;
+      return gitlab;
     case IdentityProviderBrand.Google:
-      return require(`./res/google.svg`).default;
+      return google;
     case IdentityProviderBrand.Twitter:
-      return require(`./res/twitter.svg`).default;
+      return twitter;
     default:
       return null;
   }
