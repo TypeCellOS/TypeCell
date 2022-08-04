@@ -75,7 +75,8 @@ jobs:
           CI: true
 
       - name: Run server
-        run: npm run start:local & npx wait-on http://localhost:5173
+        # Wait on config file needed for vite dev server: https://github.com/jeffbski/wait-on/issues/78
+        run: npm run start:local & npx wait-on http://localhost:5173 -c ./packages/editor/wait-on.conf.json
         env:
           CI: true
 

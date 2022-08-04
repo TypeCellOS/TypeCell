@@ -17,7 +17,7 @@ type RepoOptions = {
   repo: string;
 };
 
-// TODO
+// TODO: octokit is unmaintained and not compatible with ESM. If we need GH integration we should use / build a different lib
 export const githubClient = "" as any; /*new octokit.Octokit({
   auth: "",
 });*/

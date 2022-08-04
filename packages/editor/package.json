@@ -58,7 +58,6 @@
     "mobx": "^6.2.0",
     "mobx-react-lite": "^3.2.0",
     "monaco-editor": "^0.27.0",
-    "@octokit/core": "^3.5.1",
     "penpal": "^6.1.0",
     "prettier": "2.4.1",
     "probe.gl": "^3.1.4",
