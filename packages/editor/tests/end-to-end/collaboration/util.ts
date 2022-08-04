@@ -44,21 +44,27 @@ export async function createNotebook(
 export async function selectionSyncs(from: Page, to: Page) {
   await from.dblclick("text=helloworld");
 
-  const firstLine = await to.waitForSelector("text=helloworld", {
+  // const firstLine = await to.waitForSelector("text=helloworld", {
+  //   timeout: 2000,
+  //   state: "visible",
+  // });
+  // const remoteSelection = await to.waitForSelector(".yRemoteSelection", {
+  //   state: "visible",
+  // });
+
+  const bbLine = await to.locator("text=helloworld").boundingBox({
     timeout: 2000,
-    state: "visible",
   });
-  const remoteSelection = await to.waitForSelector(".yRemoteSelection", {
-    state: "visible",
+  const bbSelection = await to.locator(".yRemoteSelection").boundingBox({
+    timeout: 200,
   });
+  // const bbLine = await firstLine.boundingBox();
+  // const bbSelection = await remoteSelection.boundingBox();
 
-  const bbLine = await firstLine.boundingBox();
-  const bbSelection = await remoteSelection.boundingBox();
-
-  expect(bbLine.width).toBeCloseTo(bbSelection.width, 0);
-  expect(bbLine.height).toBeNear(bbSelection.height, 5);
-  expect(bbLine.x).toBeNear(bbSelection.x, 2);
-  expect(bbLine.y).toBeNear(bbSelection.y, 2);
+  expect(bbLine!.width).toBeCloseTo(bbSelection!.width, 0);
+  expect(bbLine!.height).toBeNear(bbSelection!.height, 5);
+  expect(bbLine!.x).toBeNear(bbSelection!.x, 2);
+  expect(bbLine!.y).toBeNear(bbSelection!.y, 2);
 }
 
 export async function testEditSync(
