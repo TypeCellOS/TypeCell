@@ -77,8 +77,8 @@ jobs:
 
       - name: Install Playwright
         run: npm run install-playwright
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0 # https://github.com/microsoft/playwright/blob/main/docs/src/ci.md#caching-browsers
+        # env:
+        # PLAYWRIGHT_BROWSERS_PATH: 0 # https://github.com/microsoft/playwright/blob/main/docs/src/ci.md#caching-browsers
 
       - name: Run server
         # Wait on config file needed for vite dev server: https://github.com/jeffbski/wait-on/issues/78
@@ -86,8 +86,8 @@ jobs:
         env:
           CI: true
 
-      # - name: Run Playwright tests
-      #   run: npm run playwright
+      - name: Run Playwright tests
+        run: npm run playwright
 
       - uses: actions/upload-artifact@v2
         if: always()
