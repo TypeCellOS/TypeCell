@@ -6,6 +6,7 @@ import * as yjsBindings from "@syncedstore/yjs-reactive-bindings";
 import { Buffer } from "buffer";
 import * as mobx from "mobx";
 import * as monaco from "monaco-editor";
+import * as process from "process";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./app/App";
@@ -17,7 +18,10 @@ import setupNpmTypeResolver from "./runtime/editor/languages/typescript/npmTypeR
 import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typecellTypeResolver";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
 import { initializeStoreService } from "./store/local/stores";
+
+// polyfills (mostly required for matrix-crdt)
 (window as any).Buffer = Buffer;
+(window as any).process = process;
 
 if (import.meta.env.DEV) {
   // disables error overlays

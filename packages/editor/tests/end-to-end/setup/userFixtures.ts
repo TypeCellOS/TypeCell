@@ -34,7 +34,7 @@ async function registerUser(
   page: Page,
   user: { username: string; password: string }
 ) {
-  await page.goto("http://localhost:5173/register");
+  await page.goto(process.env.TYPECELL_BASE_URL + "/register");
   const field = await page.waitForSelector("input[name='username']");
   await field.type(user.username);
   const pwField = page.locator("input[name='password']");

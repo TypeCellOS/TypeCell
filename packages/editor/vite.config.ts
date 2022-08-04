@@ -29,9 +29,9 @@ function redirectAll() {
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
-    // "process.env": {},
     // Node.js global to browser globalThis
-    // global: "globalThis",
+    // global: "globalThis", // breaks some modules work because of https://github.com/vitejs/vite/issues/6295, done in index.tsx instead
+    // process & buffer are added to global scope in index.host.tsx
   },
   plugins: [
     react({

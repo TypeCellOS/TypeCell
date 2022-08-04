@@ -37,7 +37,7 @@ const config: PlaywrightTestConfig<TestOptions> = {
     actionTimeout: 0,
 
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: "http://localhost:5173",
+    baseURL: process.env.TYPECELL_BASE_URL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
@@ -50,21 +50,21 @@ const config: PlaywrightTestConfig<TestOptions> = {
 
       /* Project-specific settings. */
       use: {
-        // headless: false,
+        headless: false,
         ...devices["Desktop Chrome"],
       },
     },
-    {
-      name: "chromium no WebRTC",
+    // {
+    //   name: "chromium no WebRTC",
 
-      /* Project-specific settings. */
-      use: {
-        // headless: false,
-        ...devices["Desktop Chrome"],
-        disableWebRTC: true,
-      },
-      testMatch: /.*collaboration.*/,
-    },
+    //   /* Project-specific settings. */
+    //   use: {
+    //     // headless: false,
+    //     ...devices["Desktop Chrome"],
+    //     disableWebRTC: true,
+    //   },
+    //   testMatch: /.*collaboration.*/,
+    // },
 
     // {
     //   name: "firefox",

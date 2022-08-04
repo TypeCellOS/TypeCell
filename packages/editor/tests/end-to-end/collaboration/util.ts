@@ -1,6 +1,5 @@
 import { BrowserContext, Page } from "@playwright/test";
-import { time } from "console";
-import { expect, test } from "../setup/fixtures";
+import { expect } from "../setup/fixtures";
 
 // We write changes to the editor using this selector
 export const writeEditorSelector = 'textarea[aria-roledescription="editor"]';
@@ -47,8 +46,11 @@ export async function selectionSyncs(from: Page, to: Page) {
 
   const firstLine = await to.waitForSelector("text=helloworld", {
     timeout: 2000,
+    state: "visible",
   });
-  const remoteSelection = await to.waitForSelector(".yRemoteSelection");
+  const remoteSelection = await to.waitForSelector(".yRemoteSelection", {
+    state: "visible",
+  });
 
   const bbLine = await firstLine.boundingBox();
   const bbSelection = await remoteSelection.boundingBox();
