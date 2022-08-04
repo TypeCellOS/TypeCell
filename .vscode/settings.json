@@ -9,7 +9,6 @@
   "search.exclude": {
     "packages/editor/public/types": true
   },
-  "testing.automaticallyOpenPeekView": "never",
   "vitest.exclude": [
     "**/node_modules/**",
     "**/dist/**",
