@@ -61,7 +61,12 @@ export async function selectionSyncs(from: Page, to: Page) {
   const bbSelection = await loc2.boundingBox();
   // const bbLine = await firstLine.boundingBox();
   // const bbSelection = await remoteSelection.boundingBox();
-
+  // if (bbLine == null) {
+  //   await to.pause();
+  // }
+  // if (bbSelection == null) {
+  //   await to.pause();
+  // }
   expect(bbLine!.width).toBeCloseTo(bbSelection!.width, 0);
   expect(bbLine!.height).toBeNear(bbSelection!.height, 5);
   expect(bbLine!.x).toBeNear(bbSelection!.x, 2);
