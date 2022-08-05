@@ -26,6 +26,9 @@ function redirectAll() {
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    host: "localhost",
+  },
   define: {
     // Node.js global to browser globalThis
     // global: "globalThis", // breaks some modules work because of https://github.com/vitejs/vite/issues/6295, done in index.tsx instead
