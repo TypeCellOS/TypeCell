@@ -9,6 +9,7 @@ types
 
 # testing
 coverage
+playwright-report
 
 # production
 /build

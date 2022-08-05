@@ -1,12 +1,11 @@
 import { observer } from "mobx-react-lite";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { BaseResource } from "../../../../store/BaseResource";
+import { DocumentResource } from "../../../../store/DocumentResource";
 import { getStoreService } from "../../../../store/local/stores";
 import { UnreachableCaseError } from "../../../../util/UnreachableCaseError";
-import EditorWarningIcon from "@atlaskit/icon/glyph/editor/warning";
-import styles from "./ForkAlert.module.css";
-import { DocumentResource } from "../../../../store/DocumentResource";
-import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toDocument, toLoginScreen } from "../../../routes/routes";
+import styles from "./ForkAlert.module.css";
 
 export const ForkAlert = observer((props: { document: DocumentResource }) => {
   /* eslint-disable jsx-a11y/anchor-is-valid */
@@ -48,7 +47,8 @@ export const ForkAlert = observer((props: { document: DocumentResource }) => {
   return (
     <div className={styles.fork_alert} data-test="forkAlert">
       <div style={{ paddingTop: 1, marginRight: 3 }}>
-        <EditorWarningIcon size="small" label="Warning" />
+        TODO
+        {/* <EditorWarningIcon size="small" label="Warning" /> */}
       </div>
       Unsaved changes ({forkAction}/
       <a

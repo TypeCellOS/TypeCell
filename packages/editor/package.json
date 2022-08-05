@@ -22,6 +22,7 @@
     "@atlaskit/page-layout": "^1.0.1",
     "@atlaskit/progress-bar": "^0.3.6",
     "@atlaskit/section-message": "^6.0.0",
+    "@atlaskit/spinner": "^15.0.0",
     "@atlaskit/select": "^14.0.0",
     "@atlaskit/textarea": "^4.1.0",
     "@atlaskit/textfield": "^5.0.1",
@@ -33,7 +34,7 @@
     "@emotion/react": "^11.4.0",
     "@loaders.gl/core": "^3.0.12",
     "@loaders.gl/images": "^3.0.12",
-    "@matrix-org/olm": "^3.2.2",
+    "@matrix-org/olm": "3.2.6",
     "@syncedstore/yjs-reactive-bindings": "^0.4.0",
     "@tippyjs/react": "^4.2.5",
     "@typecell-org/common": "^0.0.3",
@@ -87,15 +88,16 @@
     "wasm-loader": "^1.3.0",
     "web-vitals": "^1.0.1",
     "workerize-loader": "^1.3.0",
-    "y-indexeddb": "^9.0.6",
+    "y-indexeddb": "9.0.6",
     "y-monaco": "^0.1.3",
     "y-webrtc": "^10.1.8",
     "y-protocols": "^1.0.5",
     "yjs": "^13.5.41",
     "zxcvbn": "^4.4.2",
-    "react-router-dom": "^6.2.2"
+    "react-router-dom": "6.2.2"
   },
   "scripts": {
+    "patch-package": "patch-package",
     "copytypes:self": "rimraf public/types && tsc --declaration --stripInternal --emitDeclarationOnly --noEmit false --declarationDir public/types/@typecell-org/editor",
     "copytypes:dep": "mkdir -p public/types/@typecell-org/$npm_config_pkgname && cp -rf ../$npm_config_pkgname/types/. public/types/@typecell-org/$npm_config_pkgname",
     "copytypes:alldeps": "npm run copytypes:dep --pkgname=common && npm run copytypes:dep --pkgname=engine",
@@ -105,7 +107,7 @@
     "copy-docs": "rimraf public/_docs && mkdir public/_docs && node copy-docs.mjs > public/_docs/index.json && cp -rf ../../docs/. public/_docs",
     "build": "tsc -v && npm run copytypes && npm run copy-docs",
     "build:react": "npm run build && cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true npm run vite:build",
-    "build:react:local-preview": "npm run build && cross-env VITE_REACT_APP_PREVIEW=true VITE_REACT_APP_HOMESERVER_URI=http://localhost:8888 VITE_REACT_APP_HOMESERVER_NAME=test.typecell.org npm run vite:build",
+    "build:react:local-preview": "npm run build && cross-env NODE_OPTIONS=--max_old_space_size=8192 VITE_REACT_APP_PREVIEW=true VITE_REACT_APP_HOMESERVER_URI=http://localhost:8888 VITE_REACT_APP_HOMESERVER_NAME=test.typecell.org npm run vite:build",
     "install-playwright": "npx playwright install --with-deps",
     "playwright:dev": "cross-env TYPECELL_BASE_URL=http://localhost:5173 npx playwright test",
     "playwright:preview": "cross-env TYPECELL_BASE_URL=http://localhost:4173 npx playwright test",
@@ -160,9 +162,11 @@
     "vite": "^3.0.0",
     "@vitejs/plugin-react": "^2.0.0",
     "vitest": "^0.20.3",
+    "jsdom": "^20.0.0",
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
     "rollup-plugin-polyfill-node": "^0.10.2",
+    "rollup-plugin-node-polyfills": "^0.2.1",
     "connect-history-api-fallback": "^2.0.0"
   }
 }

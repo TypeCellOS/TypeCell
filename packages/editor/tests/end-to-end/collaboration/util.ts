@@ -15,7 +15,7 @@ export async function createNotebook(
   const pageAlice = await aliceContext.newPage();
   await pageAlice.goto("/");
 
-  const profileButton = await pageAlice.locator(
+  const profileButton = pageAlice.locator(
     "button[data-testid='profile-button']"
   );
 

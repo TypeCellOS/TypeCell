@@ -14,7 +14,7 @@ test("Sign in by email", async ({ page, aliceUser, aliceContext }) => {
   aliceContext = aliceContext;
 
   await page.goto("/");
-  const button = await page.locator("button", { hasText: "Sign in" });
+  const button = page.locator("button", { hasText: "Sign in" });
 
   await button.click();
 
@@ -38,14 +38,12 @@ test("Sign in by email", async ({ page, aliceUser, aliceContext }) => {
 
   await continueButton.click();
 
-  const profileButton = await page.locator(
-    "button[data-testid='profile-button']"
-  );
+  const profileButton = page.locator("button[data-testid='profile-button']");
 
   await expect(profileButton).toBeVisible();
 
   await profileButton.click();
 
-  const userElement = await page.locator("text=@" + aliceUser.username);
+  const userElement = page.locator("text=@" + aliceUser.username);
   await expect(userElement).toBeVisible();
 });

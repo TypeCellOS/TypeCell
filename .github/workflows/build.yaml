@@ -21,7 +21,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cache/ms-playwright
-          key: pw3-${{ runner.os }}-${{ hashFiles('./package-lock.json') }}
+          key: pw3-${{ runner.os }}-${{ hashFiles('./packages/**/package-lock.json') }}
 
       # doesn't seem to cause significant speed up, maybe not right conf?
       # - name: cache lerna
@@ -39,7 +39,7 @@ jobs:
         with:
           # npm cache files are stored in `~/.npm` on Linux/macOS
           path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./package-lock.json') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./packages/**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
@@ -57,8 +57,8 @@ jobs:
       - name: Check docker logs
         run: docker logs synapse
 
-      - name: Install Dependencies
-        run: npm run install-lerna
+      - name: NPM CI
+        run: npm ci
 
       - name: Bootstrap packages
         run: npm run bootstrap
@@ -71,25 +71,38 @@ jobs:
         env:
           CI: true
 
-      - name: Lint (we don't build React in CI, but at least lint it)
-        run: npm run lint
-        env:
-          CI: true
-
       - name: Install Playwright
         run: npx playwright install --with-deps
         # if: steps.playwright-cache.outputs.cache-hit != 'true'
         # env:
         # PLAYWRIGHT_BROWSERS_PATH: 0 # https://github.com/microsoft/playwright/blob/main/docs/src/ci.md#caching-browsers
 
-      - name: Run server
-        # Wait on config file needed for vite dev server: https://github.com/jeffbski/wait-on/issues/78
-        run: npm run start:local & npx wait-on http://localhost:5173 -c ./packages/editor/wait-on.conf.json
+      - name: Lint
+        run: npm run lint
         env:
           CI: true
 
-      - name: Run Playwright tests
-        run: npm run playwright
+      # Option A: don't build in CI, but test against dev server
+      # (with Vite, building in CI is now fast enough so we can go for option B)
+
+      # - name: Run dev server
+      #   # Wait on config file needed for vite dev server: https://github.com/jeffbski/wait-on/issues/78
+      #   run: npm run start:local & npx wait-on http://localhost:5173 -c ./packages/editor/wait-on.conf.json
+      #   env:
+      #     CI: true
+
+      # - name: Run Playwright tests (against dev server)
+      #   run: npm run playwright:dev
+
+      # Option B: actually build and run react code and run tests against that
+      - name: Build and run preview server
+        # Wait on config file needed for vite dev server: https://github.com/jeffbski/wait-on/issues/78
+        run: npm run start:preview & npx wait-on http://localhost:4173 -c ./packages/editor/wait-on.conf.json
+        env:
+          CI: true
+
+      - name: Run Playwright tests (against preview server)
+        run: npm run playwright:preview
 
       - uses: actions/upload-artifact@v2
         if: always()
