@@ -34,8 +34,6 @@
     "clean": "rimraf dist && rimraf types",
     "build": "npm run clean && tsc -p tsconfig.json",
     "watch": "tsc --watch",
-    "install-playwright": "npx playwright install --with-deps",
-    "playwright:dev": "npx playwright test",
     "unittest:vitest": "vitest run --coverage",
     "unittest:playwright": "playwright-test '**/*.browsertest.ts'",
     "test": "npm run unittest:vitest && npm run unittest:playwright"

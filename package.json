@@ -10,7 +10,8 @@
     "bootstrap": "lerna bootstrap --ci -- --force && npm run patch-package",
     "install-new-packages": "lerna bootstrap -- --force && npm run patch-package",
     "patch-package": "lerna run patch-package --stream",
-    "playwright": "lerna run playwright:dev --stream",
+    "playwright:dev": "lerna run playwright:dev --stream",
+    "playwright:preview": "lerna run playwright:preview --stream",
     "install-playwright": "npx playwright install --with-deps",
     "test": "lerna run test --concurrency 1 --stream",
     "unittest:vitest": "lerna run unittest:vitest --concurrency 1 --stream",
@@ -22,6 +23,7 @@
     "start-filebridge": "npx filebridge docs",
     "start-react": "lerna run --scope @typecell-org/editor start --stream",
     "start:local": "lerna run --scope @typecell-org/editor start:local --stream",
+    "start:preview": "lerna run --scope @typecell-org/editor preview --stream",
     "prepublishOnly": "npm run test && npm run build",
     "deploy": "lerna publish",
     "link-matrix-crdt": "npm link matrix-crdt"
