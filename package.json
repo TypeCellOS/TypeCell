@@ -3,15 +3,15 @@
   "private": true,
   "devDependencies": {
     "lerna": "^4.0.0",
-    "patch-package": "^6.4.7",
     "playwright": "^1.18.1",
     "npm-run-all": "^4.1.5"
   },
   "scripts": {
     "--postinstall": "npm run bootstrap",
     "install-lerna": "npm install --no-package-lock",
-    "bootstrap": "lerna bootstrap --ci -- --force && patch-package",
-    "install-new-packages": "lerna bootstrap -- --force && patch-package",
+    "bootstrap": "lerna bootstrap --ci -- --force && npm run patch-package",
+    "install-new-packages": "lerna bootstrap -- --force && npm run patch-package",
+    "patch-package": "lerna run patch-package --stream",
     "playwright": "lerna run playwright:dev --stream",
     "install-playwright": "npx playwright install --with-deps",
     "test": "lerna run test --concurrency 1 --stream",
