@@ -1,5 +1,4 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-/** @jsxImportSource @emotion/react */
 
 import DropdownMenu, { DropdownItem } from "@atlaskit/dropdown-menu";
 

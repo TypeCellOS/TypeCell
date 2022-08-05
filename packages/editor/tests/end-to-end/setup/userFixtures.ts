@@ -1,6 +1,5 @@
 import { BrowserContext, Page } from "@playwright/test";
 import { test as base } from "./networkRequestFilter";
-import * as fs from "fs";
 
 const SESSION_ID = Math.random()
   .toString(36)
@@ -35,8 +34,8 @@ async function registerUser(
   page: Page,
   user: { username: string; password: string }
 ) {
-  await page.goto("http://localhost:3000/register");
-  const field = await page.waitForSelector("input[name='username']");
+  await page.goto(process.env.TYPECELL_BASE_URL + "/register");
+  const field = page.locator("input[name='username']");
   await field.type(user.username);
   const pwField = page.locator("input[name='password']");
   await pwField.type(user.password);

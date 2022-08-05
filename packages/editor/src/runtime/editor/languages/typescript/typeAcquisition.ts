@@ -173,7 +173,7 @@ const addTypecellModuleToRuntime = async (
   const typecellPath = mod === "typecell" ? "@typecell-org/editor" : mod;
 
   let content: string;
-  if (process.env.NODE_ENV === "test") {
+  if (import.meta.env.NODE_ENV === "test") {
     // TODO: extract this case
     let fs = require("fs");
     content = fs.readFileSync(
@@ -181,11 +181,8 @@ const addTypecellModuleToRuntime = async (
       "utf-8"
     );
   } else {
-    content = await (
-      await config.fetcher(
-        process.env.PUBLIC_URL + "/types/" + typecellPath + "/" + path
-      )
-    ).text();
+    const url = new URL("/types/" + typecellPath + "/" + path, import.meta.url);
+    content = await (await config.fetcher(url.toString())).text();
   }
   if (!content) {
     return errorMsg(
@@ -200,7 +197,7 @@ const addTypecellModuleToRuntime = async (
   config.logger.log("adding typecell module", path);
   config.addLibraryToRuntime(
     content,
-    `file://node_modules/@types/${mod}/${path}`
+    `file:///node_modules/@types/${mod}/${path}`
   );
 };
 
@@ -316,7 +313,7 @@ const getModuleAndRootDefTypePath = async (
 
     config.addLibraryToRuntime(
       JSON.stringify(responseJSON, null, "  "),
-      `file://node_modules/${packageName}/package.json`
+      `file:///node_modules/${packageName}/package.json`
     );
 
     // Get the path of the root d.ts file
@@ -589,7 +586,7 @@ const getDependenciesForModule = async (
             resolvedFilepath.substring(0, resolvedFilepath.length - 3) +
             ".d.ts";
         } else {
-          resolvedFilepath += absolutePathForModule + ".d.ts";
+          resolvedFilepath += ".d.ts";
         }
       }
 

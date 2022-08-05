@@ -1,0 +1,36 @@
+diff --git a/node_modules/readable-stream/lib/_stream_readable.js b/node_modules/readable-stream/lib/_stream_readable.js
+index 192d451..1c9adad 100644
+--- a/node_modules/readable-stream/lib/_stream_readable.js
++++ b/node_modules/readable-stream/lib/_stream_readable.js
+@@ -56,16 +56,7 @@ function _isUint8Array(obj) {
+ }
+ /*<replacement>*/
+ 
+-
+-var debugUtil = require('util');
+-
+-var debug;
+-
+-if (debugUtil && debugUtil.debuglog) {
+-  debug = debugUtil.debuglog('stream');
+-} else {
+-  debug = function debug() {};
+-}
++var debug = function debug() {};
+ /*</replacement>*/
+ 
+ 
+diff --git a/node_modules/readable-stream/lib/internal/streams/buffer_list.js b/node_modules/readable-stream/lib/internal/streams/buffer_list.js
+index cdea425..5bc18f4 100644
+--- a/node_modules/readable-stream/lib/internal/streams/buffer_list.js
++++ b/node_modules/readable-stream/lib/internal/streams/buffer_list.js
+@@ -15,8 +15,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
+ var _require = require('buffer'),
+     Buffer = _require.Buffer;
+ 
+-var _require2 = require('util'),
+-    inspect = _require2.inspect;
++var inspect = undefined;
+ 
+ var custom = inspect && inspect.custom || 'inspect';
+ 

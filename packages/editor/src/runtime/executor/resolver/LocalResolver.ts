@@ -1,5 +1,5 @@
 import { LocalModuleResolver } from "@typecell-org/engine";
-import * as markdownit from "markdown-it";
+import markdownit from "markdown-it";
 import * as react from "react";
 import * as reactdom from "react-dom";
 import * as jsxruntime from "react/jsx-runtime";

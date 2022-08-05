@@ -1,3 +1,5 @@
+import { Buffer } from "buffer";
+
 /**
  * Decode a base64 string to a typed array of uint8.
  * @param {string} base64 The base64 to decode.

@@ -4,6 +4,6 @@
   "recommendations": [
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
-    "orta.vscode-jest"
+    "ZixuanChen.vitest-explorer"
   ]
 }

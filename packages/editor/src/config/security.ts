@@ -20,7 +20,7 @@ PROD:
 export function validateHostDomain() {
   const hostname = window.location.hostname;
 
-  if (ENVIRONMENT === "DEV") {
+  if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
     return hostname === "localhost";
   }
 
@@ -33,7 +33,7 @@ export function validateHostDomain() {
 export function validateFrameDomain() {
   const hostname = window.location.hostname;
 
-  if (ENVIRONMENT === "DEV") {
+  if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
     return hostname === "127.0.0.1";
   }
 
@@ -44,7 +44,7 @@ export function validateFrameDomain() {
 }
 
 export function getFrameDomain() {
-  if (ENVIRONMENT === "DEV") {
+  if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
     const port = window.location.host.match(/^localhost:(\d+)$/)![1];
     return "127.0.0.1:" + port;
   }
@@ -57,7 +57,7 @@ export function getFrameDomain() {
 }
 
 export function getMainDomainFromIframe() {
-  if (ENVIRONMENT === "DEV") {
+  if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
     const port = window.location.host.match(/^127\.0\.0\.1:(\d+)$/)![1];
     return "localhost:" + port;
   }

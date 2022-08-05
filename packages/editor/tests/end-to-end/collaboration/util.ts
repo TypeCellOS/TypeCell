@@ -1,6 +1,5 @@
 import { BrowserContext, Page } from "@playwright/test";
-import { time } from "console";
-import { expect, test } from "../setup/fixtures";
+import { expect } from "../setup/fixtures";
 
 // We write changes to the editor using this selector
 export const writeEditorSelector = 'textarea[aria-roledescription="editor"]';
@@ -16,7 +15,7 @@ export async function createNotebook(
   const pageAlice = await aliceContext.newPage();
   await pageAlice.goto("/");
 
-  const profileButton = await pageAlice.locator(
+  const profileButton = pageAlice.locator(
     "button[data-testid='profile-button']"
   );
 
@@ -45,18 +44,33 @@ export async function createNotebook(
 export async function selectionSyncs(from: Page, to: Page) {
   await from.dblclick("text=helloworld");
 
-  const firstLine = await to.waitForSelector("text=helloworld", {
-    timeout: 2000,
-  });
-  const remoteSelection = await to.waitForSelector(".yRemoteSelection");
+  // const firstLine = await to.waitForSelector("text=helloworld", {
+  //   timeout: 2000,
+  //   state: "visible",
+  // });
+  // const remoteSelection = await to.waitForSelector(".yRemoteSelection", {
+  //   state: "visible",
+  // });
 
-  const bbLine = await firstLine.boundingBox();
-  const bbSelection = await remoteSelection.boundingBox();
+  const loc1 = to.locator("text=helloworld");
+  await loc1.waitFor({ state: "visible", timeout: 2000 });
+  const bbLine = await loc1.boundingBox();
 
-  expect(bbLine.width).toBeCloseTo(bbSelection.width, 0);
-  expect(bbLine.height).toBeNear(bbSelection.height, 5);
-  expect(bbLine.x).toBeNear(bbSelection.x, 2);
-  expect(bbLine.y).toBeNear(bbSelection.y, 2);
+  const loc2 = to.locator(".yRemoteSelection");
+  await loc2.waitFor({ state: "visible", timeout: 200 });
+  const bbSelection = await loc2.boundingBox();
+  // const bbLine = await firstLine.boundingBox();
+  // const bbSelection = await remoteSelection.boundingBox();
+  // if (bbLine == null) {
+  //   await to.pause();
+  // }
+  // if (bbSelection == null) {
+  //   await to.pause();
+  // }
+  expect(bbLine!.width).toBeCloseTo(bbSelection!.width, 0);
+  expect(bbLine!.height).toBeNear(bbSelection!.height, 5);
+  expect(bbLine!.x).toBeNear(bbSelection!.x, 2);
+  expect(bbLine!.y).toBeNear(bbSelection!.y, 2);
 }
 
 export async function testEditSync(

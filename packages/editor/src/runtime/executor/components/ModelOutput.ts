@@ -1,7 +1,4 @@
-import {
-  makeObservable,
-  observable, runInAction
-} from "mobx";
+import { makeObservable, observable, runInAction } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { TypeVisualizer } from "../lib/exports";
 // import {
@@ -11,10 +8,13 @@ import { TypeVisualizer } from "../lib/exports";
 
 export class ModelOutput extends lifecycle.Disposable {
   private autorunDisposer: (() => void) | undefined;
-  public value: any;
-  public typeVisualizers = observable.map<string, {
-    get visualizer(): TypeVisualizer<any> | undefined 
-  }>()
+  public value: any = undefined;
+  public typeVisualizers = observable.map<
+    string,
+    {
+      get visualizer(): TypeVisualizer<any> | undefined;
+    }
+  >();
 
   constructor(private context: any) {
     super();
@@ -40,11 +40,14 @@ export class ModelOutput extends lifecycle.Disposable {
     for (let key of newValue) {
       if (!this.typeVisualizers.has(key)) {
         const ctx = this.context;
-        this.typeVisualizers.set(key, observable({
-          get visualizer () {
-            return ctx[key];
-          }
-        }));
+        this.typeVisualizers.set(
+          key,
+          observable({
+            get visualizer() {
+              return ctx[key];
+            },
+          })
+        );
       }
     }
     // this.autorunDisposer?.();

@@ -1,12 +1,16 @@
 import { Engine } from "@typecell-org/engine";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 import "monaco-editor/esm/vs/language/typescript/monaco.contribution.js";
+import { expect, it } from "vitest";
 import { event } from "vscode-lib";
 import * as Y from "yjs";
 import { setMonacoDefaults } from "..";
 import { TypeCellCodeModel } from "../../../models/TypeCellCodeModel";
 import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 import { getTypeCellResolver } from "../../executor/resolver/resolver";
+/**
+ * @vitest-environment jsdom
+ */
 
 setMonacoDefaults(monaco);
 

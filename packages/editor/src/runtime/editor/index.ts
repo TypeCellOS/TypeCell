@@ -3,11 +3,11 @@
 import type * as Monaco from "monaco-editor";
 
 // @ts-ignore
-import EditorWorker from "workerize-loader!./workers/editor.worker"; // eslint-disable-line import/no-webpack-loader-syntax
+import EditorWorker from "./workers/editor.worker?worker"; // eslint-disable-line import/no-webpack-loader-syntax
 // @ts-ignore
-import TsWorker from "workerize-loader!./workers/ts.worker"; // eslint-disable-line import/no-webpack-loader-syntax
+import TsWorker from "./workers/ts.worker?worker"; // eslint-disable-line import/no-webpack-loader-syntax
 // @ts-ignore
-import CSSWorker from "workerize-loader!./workers/css.worker"; // eslint-disable-line import/no-webpack-loader-syntax
+import CSSWorker from "./workers/css.worker?worker"; // eslint-disable-line import/no-webpack-loader-syntax
 
 import { getDefaultSandboxCompilerOptions } from "./compilerOptions";
 import { setupPrettier } from "./prettier";
@@ -16,7 +16,7 @@ if (!(window as any).MonacoEnvironment) {
   (window as any).MonacoEnvironment = (global as any).MonacoEnvironment = {
     getWorker: function (workerId: string, label: string) {
       if (label === "typescript" || label === "javascript") {
-        return TsWorker();
+        return new TsWorker();
       }
       if (label === "json") {
         throw new Error("not implemented");

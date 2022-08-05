@@ -2,31 +2,34 @@
   "name": "root",
   "private": true,
   "devDependencies": {
-    "lerna": "^4.0.0",
-    "patch-package": "^6.4.7",
-    "jest": "^26.6.0",
-    "playwright": "^1.18.1",
-    "ts-jest": "^26.5.4",
-    "npm-run-all": "^4.1.5"
+    "lerna": "^5.0.0",
+    "playwright": "^1.18.1"
   },
   "scripts": {
-    "--postinstall": "npm run bootstrap && patch-package",
-    "install-lerna": "npm install --no-package-lock",
-    "bootstrap": "lerna bootstrap --hoist --ci && patch-package",
-    "install-new-packages": "lerna bootstrap --hoist && patch-package",
-    "playwright": "lerna run playwright",
+    "--postinstall": "npm run bootstrap",
+    "bootstrap": "lerna bootstrap --ci -- --force && npm run patch-package",
+    "install-new-packages": "lerna bootstrap -- --force && npm run patch-package",
+    "patch-package": "lerna run patch-package --stream",
+    "playwright:dev": "lerna run playwright:dev --stream",
+    "playwright:preview": "lerna run playwright:preview --stream",
     "install-playwright": "npx playwright install --with-deps",
     "test": "lerna run test --concurrency 1 --stream",
+    "unittest:vitest": "lerna run unittest:vitest --concurrency 1 --stream",
     "build": "lerna run build --concurrency 1",
-    "build-react": "lerna run build-react --concurrency 1 --stream",
-    "lint": "lerna run lint --concurrency 1",
+    "build:react": "lerna run build:react --concurrency 1 --stream",
+    "lint": "lerna run lint --concurrency 1 --stream",
     "watch": "npm run build && lerna run --parallel watch",
     "start": "npm run start-react",
     "start-filebridge": "npx filebridge docs",
-    "start-react": "lerna run --scope @typecell-org/editor start",
-    "start:local": "lerna run --scope @typecell-org/editor start:local",
+    "start-react": "lerna run --scope @typecell-org/editor start --stream",
+    "start:local": "lerna run --scope @typecell-org/editor start:local --stream",
+    "start:preview": "lerna run --scope @typecell-org/editor preview --stream",
     "prepublishOnly": "npm run test && npm run build",
     "deploy": "lerna publish",
     "link-matrix-crdt": "npm link matrix-crdt"
+  },
+  "overrides": {
+    "--comment": "needed so that playwright-test doesn't install a different version of pw",
+    "playwright-core": "1.24.2"
   }
 }

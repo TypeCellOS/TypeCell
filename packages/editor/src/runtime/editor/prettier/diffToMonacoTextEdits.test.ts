@@ -1,6 +1,10 @@
-// import "monaco-editor" doesn't work in jest
+// import "monaco-editor" doesn't work in jest / vitest
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
+import { describe, expect, it } from "vitest";
 import { diffToMonacoTextEdits } from "./diffToMonacoTextEdits";
+/**
+ * @vitest-environment jsdom
+ */
 
 function applyTest(v1: string, v2: string) {
   const model = monaco.editor.createModel(v1);

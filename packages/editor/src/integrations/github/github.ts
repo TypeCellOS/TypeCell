@@ -1,4 +1,4 @@
-import * as octokit from "octokit";
+// import * as octokit from "octokit";
 import { inc } from "semver";
 import { Identifier } from "../../identifiers/Identifier";
 import { CellModel } from "../../models/CellModel";
@@ -17,9 +17,10 @@ type RepoOptions = {
   repo: string;
 };
 
-export const githubClient = new octokit.Octokit({
+// TODO: octokit is unmaintained and not compatible with ESM. If we need GH integration we should use / build a different lib
+export const githubClient = "" as any; /*new octokit.Octokit({
   auth: "",
-});
+});*/
 
 export const templateRepo = {
   owner: "yousefed",
@@ -360,7 +361,7 @@ export async function getFileOrDirFromGithub(file: {
           throw new Error("expected directory");
         }
         const directory = parentContent.data.find(
-          (el) => el.path === file.path
+          (el: any) => el.path === file.path
         )!;
         if (directory.type !== "dir") {
           throw new Error("expected to find directory");
@@ -384,7 +385,7 @@ export async function getFileOrDirFromGithub(file: {
     } else {
       throw new Error("unknown github response");
     }
-  } catch (e) {
+  } catch (e: any) {
     if (e.status === 404) {
       return "not-found";
     }

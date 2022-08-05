@@ -9,7 +9,7 @@ export default function getExposeGlobalVariables(id: string) {
   return {
     // routing,
     // // DocumentView,
-    Input,
+    Input: Input as any, // TODO
     // namespace: id, // TODO: naming
     // open: (identifier: string | { owner: string; document: string }) => {
     //   return DocConnection.load(identifier);

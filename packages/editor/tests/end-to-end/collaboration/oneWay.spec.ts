@@ -1,5 +1,5 @@
 import { Page } from "@playwright/test";
-import { expect, test } from "../setup/fixtures";
+import { test } from "../setup/fixtures";
 import {
   createNotebook,
   selectionSyncs,
@@ -10,8 +10,11 @@ import {
 let pageAlice: Page;
 let pageBob: Page;
 
+test.setTimeout(120000);
+
 // before all tests, Alice creates a new notebook
 test.beforeAll(async ({ aliceContext, bobContext }) => {
+  test.setTimeout(60000);
   const ret = await createNotebook("oneWay", aliceContext, bobContext);
   pageAlice = ret.pageAlice;
   pageBob = ret.pageBob;

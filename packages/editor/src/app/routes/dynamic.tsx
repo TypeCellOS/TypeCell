@@ -14,7 +14,9 @@ export const DynamicRoute = () => {
             "github:yousefed/typecell-next/docs" +
               (remainingPath ? "/:/" + remainingPath : "")
           );*/
-          parseIdentifier("https:/_docs/index.json", "Docs");
+        ENVIRONMENT === "PREVIEW"
+        ? parseIdentifier("http:/_docs/index.json", "Docs")
+        : parseIdentifier("https:/_docs/index.json", "Docs");
 
     return <DocumentView id={id} />;
   }
