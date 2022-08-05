@@ -71,16 +71,19 @@ jobs:
         env:
           CI: true
 
-      - name: Lint (we don't build React in CI, but at least lint it)
-        run: npm run lint
-        env:
-          CI: true
-
       - name: Install Playwright
         run: npx playwright install --with-deps
         # if: steps.playwright-cache.outputs.cache-hit != 'true'
         # env:
         # PLAYWRIGHT_BROWSERS_PATH: 0 # https://github.com/microsoft/playwright/blob/main/docs/src/ci.md#caching-browsers
+
+      - name: Lint
+        run: npm run lint
+        env:
+          CI: true
+
+      # Option A: don't build in CI, but test against dev server
+      # (with Vite, building in CI is now fast enough so we can go for option B)
 
       # - name: Run dev server
       #   # Wait on config file needed for vite dev server: https://github.com/jeffbski/wait-on/issues/78
@@ -91,6 +94,7 @@ jobs:
       # - name: Run Playwright tests (against dev server)
       #   run: npm run playwright:dev
 
+      # Option B: actually build and run react code and run tests against that
       - name: Build and run preview server
         # Wait on config file needed for vite dev server: https://github.com/jeffbski/wait-on/issues/78
         run: npm run start:preview & npx wait-on http://localhost:4173 -c ./packages/editor/wait-on.conf.json
