@@ -25,5 +25,8 @@
     "prepublishOnly": "npm run test && npm run build",
     "deploy": "lerna publish",
     "link-matrix-crdt": "npm link matrix-crdt"
+  },
+  "overrides": {
+    "playwright-core": "1.24.2"
   }
 }
