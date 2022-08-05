@@ -10,8 +10,11 @@ import {
 let pageAlice: Page;
 let pageBob: Page;
 
+test.setTimeout(120000);
+
 // before all tests, Alice creates a new notebook
 test.beforeAll(async ({ aliceContext, bobContext }) => {
+  test.setTimeout(60000);
   const ret = await createNotebook("twoWay-public", aliceContext, bobContext);
   pageAlice = ret.pageAlice;
   pageBob = ret.pageBob;
@@ -21,7 +24,11 @@ test.beforeAll(async ({ aliceContext, bobContext }) => {
 
   // set notebook to public
   await pageAlice.click('[aria-label="open"]');
-  await pageAlice.click("#react-select-3-option-0", { timeout: 2000 }); // TODO: better selector
+  await pageAlice.pause();
+  // pageAlice.locator("text=Anyone can view and edit >> visible=true")
+  await pageAlice.click(
+    "text=Anyone can view and edit >> visible=true >> nth=-1"
+  );
 
   await pageAlice.click('button:has-text("Apply")');
 });
