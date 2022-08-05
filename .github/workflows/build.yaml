@@ -88,8 +88,8 @@ jobs:
         env:
           CI: true
 
-      - name: Run Playwright tests
-        run: npm run playwright
+      # - name: Run Playwright tests
+      #   run: npm run playwright
 
       - uses: actions/upload-artifact@v2
         if: always()
