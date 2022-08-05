@@ -27,6 +27,7 @@
     "link-matrix-crdt": "npm link matrix-crdt"
   },
   "overrides": {
+    "--comment": "needed so that playwright-test doesn't install a different version of pw",
     "playwright-core": "1.24.2"
   }
 }
