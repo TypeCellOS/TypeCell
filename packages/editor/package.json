@@ -22,6 +22,7 @@
     "@atlaskit/page-layout": "^1.0.1",
     "@atlaskit/progress-bar": "^0.3.6",
     "@atlaskit/section-message": "^6.0.0",
+    "@atlaskit/spinner": "^15.0.0",
     "@atlaskit/select": "^14.0.0",
     "@atlaskit/textarea": "^4.1.0",
     "@atlaskit/textfield": "^5.0.1",

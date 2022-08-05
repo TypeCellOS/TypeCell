@@ -3,12 +3,10 @@
   "private": true,
   "devDependencies": {
     "lerna": "^4.0.0",
-    "playwright": "^1.18.1",
-    "npm-run-all": "^4.1.5"
+    "playwright": "^1.18.1"
   },
   "scripts": {
     "--postinstall": "npm run bootstrap",
-    "install-lerna": "npm install --no-package-lock",
     "bootstrap": "lerna bootstrap --ci -- --force && npm run patch-package",
     "install-new-packages": "lerna bootstrap -- --force && npm run patch-package",
     "patch-package": "lerna run patch-package --stream",
