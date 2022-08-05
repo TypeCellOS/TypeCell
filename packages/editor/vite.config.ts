@@ -1,5 +1,3 @@
-import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
-import { NodeModulesPolyfillPlugin } from "@esbuild-plugins/node-modules-polyfill";
 import react from "@vitejs/plugin-react";
 import history from "connect-history-api-fallback";
 import nodePolyfills from "rollup-plugin-polyfill-node";
@@ -48,11 +46,11 @@ export default defineConfig({
   optimizeDeps: {
     esbuildOptions: {
       plugins: [
-        NodeGlobalsPolyfillPlugin({
-          process: true,
-          buffer: true,
-        }) as any,
-        NodeModulesPolyfillPlugin(),
+        // NodeGlobalsPolyfillPlugin({
+        //   process: true,
+        //   buffer: true,
+        // }) as any,
+        // NodeModulesPolyfillPlugin(),
       ],
     },
   },
