@@ -57,6 +57,9 @@ jobs:
       - name: Check docker logs
         run: docker logs synapse
 
+      - name: NPM CI
+        run: npm ci
+
       - name: Bootstrap packages
         run: npm run bootstrap
 
