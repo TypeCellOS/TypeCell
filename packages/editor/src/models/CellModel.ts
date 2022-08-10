@@ -58,7 +58,8 @@ export class CellModel implements NotebookCellModel {
 
   public get path() {
     return (
-      "!@" + this.parentDocumentId + "/" + this.id + ".cell." + this.extension
+      this.id + "." + this.extension
+      // "" + this.parentDocumentId + "/" + this.id + ".cell." + this.extension
     );
   }
 

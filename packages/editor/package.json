@@ -57,7 +57,7 @@
     "matrix-js-sdk": "^12.4.0",
     "mobx": "^6.2.0",
     "mobx-react-lite": "^3.2.0",
-    "monaco-editor": "^0.27.0",
+    "monaco-editor": "^0.34.0",
     "penpal": "^6.1.0",
     "prettier": "2.4.1",
     "probe.gl": "^3.1.4",
@@ -80,7 +80,8 @@
     "string.prototype.replaceall": "^1.0.5",
     "styled-components": "3.2.6",
     "tippy.js": "^6.3.1",
-    "typescript": "4.3.2",
+    "typescript": "4.5.5",
+    "@tsplus/installer": "^0.0.132",
     "ua-parser-js": "^0.7.28",
     "unified": "^10.0.1",
     "uuid": "^8.3.2",
@@ -119,7 +120,8 @@
     "vite:dev": "vite",
     "vite:build": "vite build",
     "vite:preview": "vite preview",
-    "preview": "npm run build:react:local-preview && npm run vite:preview"
+    "preview": "npm run build:react:local-preview && npm run vite:preview",
+    "postinstall": "tsplus-install"
   },
   "eslintConfig": {
     "extends": [

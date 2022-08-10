@@ -1,11 +1,11 @@
+import { uri } from "vscode-lib";
 import { DEFAULT_HOMESERVER_HOST } from "../config/config";
 import { slug } from "../util/slug";
-import { uri } from "vscode-lib";
 import { FileIdentifier } from "./FileIdentifier";
 import { GithubIdentifier } from "./GithubIdentifier";
+import { HttpsIdentifier } from "./HttpsIdentifier";
 import { Identifier, IdentifierFactory } from "./Identifier";
 import { MatrixIdentifier } from "./MatrixIdentifier";
-import { HttpsIdentifier } from "./HttpsIdentifier";
 
 export const identifiers = new Map<string, IdentifierFactory<Identifier>>();
 const factories = [

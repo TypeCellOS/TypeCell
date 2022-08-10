@@ -52,9 +52,11 @@ export function getDefaultSandboxCompilerOptions(
     emitDecoratorMetadata: true,
     moduleResolution: typescript.ModuleResolutionKind.NodeJs,
 
-    target: typescript.ScriptTarget.ES2017,
+    target: typescript.ScriptTarget.ES2020,
     jsx: typescript.JsxEmit.React,
     module: typescript.ModuleKind.AMD,
+    tsPlusConfig: "tsplus.config.js",
+    configFilePath: "sdfsdf",
   };
 
   return settings;

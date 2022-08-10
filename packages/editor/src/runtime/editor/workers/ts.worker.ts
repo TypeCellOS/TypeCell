@@ -5,7 +5,7 @@
 import * as worker from "monaco-editor/esm/vs/editor/editor.worker";
 
 // @ts-ignore
-import { TypeScriptWorker } from "monaco-editor/esm/vs/language/typescript/tsWorker";
+import { TypeScriptWorker } from "monaco-editor/esm/vs/language/typescript/ts.worker";
 
 export class CustomTypeScriptWorker extends TypeScriptWorker {
   // eslint-disable-next-line
