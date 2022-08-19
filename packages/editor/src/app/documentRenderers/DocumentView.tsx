@@ -15,6 +15,7 @@ import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
 import ProjectContainer from "./project/ProjectContainer";
 import ProjectRenderer from "./project/ProjectRenderer";
+import RichTextRenderer from "./richtext/RichTextRenderer";
 
 type Props = {
   id: Identifier;
@@ -93,11 +94,10 @@ const DocumentView = observer((props: Props) => {
     }
   } else if (connection.doc.type === "!richtext") {
     return (
-      <div>sdf</div>
-      // <RichTextRenderer
-      //   key={connection.doc.id}
-      //   document={connection.doc.doc!}
-      // />
+      <RichTextRenderer
+        key={connection.doc.id}
+        document={connection.doc.doc!}
+      />
     );
 
     // return (
