@@ -64,15 +64,18 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
           <li className={styles.options}>
             <DropdownMenu
               shouldFlip
-              trigger={
-                <div style={{ paddingRight: "0.5em", paddingLeft: "1em" }}>
+              trigger={({ triggerRef, ...props }) => (
+                <div
+                  {...props}
+                  ref={triggerRef as any}
+                  style={{ paddingRight: "0.5em", paddingLeft: "1em" }}>
                   <VscKebabVertical
                     title="Options"
                     style={{ fontSize: "14px", transform: "scale(1.3)" }}
                   />
                 </div>
-              }
-              position="bottom right">
+              )}
+              placement="bottom-end">
               <DropdownItem onClick={() => openAsMarkdown(props.document!.doc)}>
                 Export as markdown
               </DropdownItem>

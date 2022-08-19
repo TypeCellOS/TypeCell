@@ -4,7 +4,7 @@ import Modal, {
   ModalTransition,
 } from "@atlaskit/modal-dialog";
 import Textfield from "@atlaskit/textfield";
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";

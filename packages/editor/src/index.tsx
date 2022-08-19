@@ -3,7 +3,9 @@ import ReactDOM from "react-dom";
 import reportWebVitals from "./reportWebVitals";
 
 (window as any).process = {
-  env: {},
+  env: {
+    ANALYTICS_NEXT_MODERN_CONTEXT: 1, // https://bitbucket.org/atlassian/atlassian-frontend-mirror/src/master/analytics/analytics-next/src/components/AnalyticsContext/index.tsx
+  },
 };
 (window as any).OLM_OPTIONS = {};
 if (typeof (window as any).global === "undefined") {
