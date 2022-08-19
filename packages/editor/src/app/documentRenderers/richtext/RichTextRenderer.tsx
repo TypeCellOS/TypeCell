@@ -3,6 +3,8 @@ import React from "react";
 // import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost"
 import { EditorContent, useEditor } from "@blocknote/core";
 import "@blocknote/core/style.css";
+import Collaboration from "@tiptap/extension-collaboration";
+import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import ReactDOM from "react-dom";
 import { DocumentResource } from "../../../store/DocumentResource";
 import { getStoreService } from "../../../store/local/stores";
@@ -26,6 +28,18 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         "data-test": "editor",
       },
     },
+    extensions: [
+      CollaborationCursor.configure({
+        provider: props.document.webrtcProvider,
+        user: {
+          name: sessionStore.loggedInUserId || "Anonymous",
+          color: sessionStore.userColor,
+        },
+      }),
+      Collaboration.configure({
+        fragment: props.document.data,
+      }),
+    ],
   });
   return <EditorContent editor={editor} />;
   // renderLogger.log("cellList");
