@@ -64,7 +64,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
           <li className={styles.options}>
             <DropdownMenu
               shouldFlip
-              trigger={({ triggerRef, ...props }) => (
+              trigger={({ triggerRef, isSelected, testId, ...props }) => (
                 <div
                   {...props}
                   ref={triggerRef as any}

@@ -19,7 +19,7 @@ export const ProfilePopup = observer(
     return (
       <DropdownMenu
         trigger={(props) => {
-          const { triggerRef, ...passProps } = props;
+          const { triggerRef, isSelected, testId, ...passProps } = props;
           return (
             <Profile
               testId="profile-button"
