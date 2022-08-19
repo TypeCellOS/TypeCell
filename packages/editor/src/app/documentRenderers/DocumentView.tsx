@@ -92,7 +92,14 @@ const DocumentView = observer((props: Props) => {
       );
     }
   } else if (connection.doc.type === "!richtext") {
-    throw new Error("richtext not implemented");
+    return (
+      <div>sdf</div>
+      // <RichTextRenderer
+      //   key={connection.doc.id}
+      //   document={connection.doc.doc!}
+      // />
+    );
+
     // return (
     //   <div className={styles.view}>
     //     {!props.hideDocumentMenu && (

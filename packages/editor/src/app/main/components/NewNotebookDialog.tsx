@@ -63,14 +63,14 @@ export const NewNotebookDialog = (props: {
                       throw new UnreachableCaseError(ret);
                   }
                 } else if (ret instanceof BaseResource) {
-                  // ret.create("!richtext");
-                  ret.create("!notebook");
-                  ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
-                  ret.doc.cellList.addCell(
-                    1,
-                    "typescript",
-                    `export let message = "Hello World"`
-                  );
+                  ret.create("!richtext");
+                  // ret.create("!notebook");
+                  // ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
+                  // ret.doc.cellList.addCell(
+                  //   1,
+                  //   "typescript",
+                  //   `export let message = "Hello World"`
+                  // );
 
                   navigate(toDocument(ret));
 
@@ -103,6 +103,7 @@ export const NewNotebookDialog = (props: {
                       <Textfield
                         {...fieldProps}
                         defaultValue=""
+                        autoFocus
                         value={undefined}
                       />
                       {warning && <ErrorMessage>{warning}</ErrorMessage>}
@@ -118,7 +119,6 @@ export const NewNotebookDialog = (props: {
                 <LoadingButton
                   appearance="primary"
                   isLoading={loading}
-                  autoFocus
                   type="submit">
                   Create
                 </LoadingButton>
