@@ -93,7 +93,8 @@
     "y-protocols": "^1.0.5",
     "yjs": "^13.5.41",
     "zxcvbn": "^4.4.2",
-    "react-router-dom": "6.2.2"
+    "react-router-dom": "6.2.2",
+    "events": "^3.3.0"
   },
   "scripts": {
     "patch-package": "patch-package",
