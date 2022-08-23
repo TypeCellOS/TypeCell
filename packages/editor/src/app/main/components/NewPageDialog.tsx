@@ -72,15 +72,15 @@ export const NewPageDialog = (props: {
                   if (selectedType === "!richtext") {
                     ret.create("!richtext");
                     const blockgroup = new Y.XmlElement("blockgroup");
-                    const tcblock = new Y.XmlElement("tcblock");
-                    tcblock.setAttribute("headingType", "1");
+                    const block = new Y.XmlElement("block");
+                    block.setAttribute("headingType", "1");
                     // tcblock.setAttribute("id", "123");
 
-                    const tccontent = new Y.XmlElement("tccontent");
-                    tccontent.insert(0, [new Y.XmlText(obj.title)]);
+                    const content = new Y.XmlElement("content");
+                    content.insert(0, [new Y.XmlText(obj.title)]);
 
-                    tcblock.insert(0, [tccontent]);
-                    blockgroup.insert(0, [tcblock]);
+                    block.insert(0, [content]);
+                    blockgroup.insert(0, [block]);
 
                     ret.doc.data.insert(0, [blockgroup]);
                   } else if (selectedType === "!notebook") {
