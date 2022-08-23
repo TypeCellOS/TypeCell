@@ -10,6 +10,7 @@ import Modal, {
 import Textfield from "@atlaskit/textfield";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import * as Y from "yjs";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
 import { UnreachableCaseError } from "../../../util/UnreachableCaseError";
@@ -64,6 +65,19 @@ export const NewNotebookDialog = (props: {
                   }
                 } else if (ret instanceof BaseResource) {
                   ret.create("!richtext");
+                  const blockgroup = new Y.XmlElement("blockgroup");
+                  const tcblock = new Y.XmlElement("tcblock");
+                  tcblock.setAttribute("headingType", "1");
+                  // tcblock.setAttribute("id", "123");
+
+                  const tccontent = new Y.XmlElement("tccontent");
+                  tccontent.insert(0, [new Y.XmlText(obj.title)]);
+
+                  tcblock.insert(0, [tccontent]);
+                  blockgroup.insert(0, [tcblock]);
+
+                  ret.doc.data.insert(0, [blockgroup]);
+
                   // ret.create("!notebook");
                   // ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
                   // ret.doc.cellList.addCell(

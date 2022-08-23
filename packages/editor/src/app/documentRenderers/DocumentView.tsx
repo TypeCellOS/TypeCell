@@ -93,24 +93,19 @@ const DocumentView = observer((props: Props) => {
       );
     }
   } else if (connection.doc.type === "!richtext") {
-    return (
-      <RichTextRenderer
-        key={connection.doc.id}
-        document={connection.doc.doc!}
-      />
-    );
+    const doc = connection.doc.doc;
 
-    // return (
-    //   <div className={styles.view}>
-    //     {!props.hideDocumentMenu && (
-    //       <DocumentMenu document={connection.doc}></DocumentMenu>
-    //     )}
-    //     <RichTextRenderer
-    //       key={connection.doc.id}
-    //       document={connection.doc.doc}
-    //     />
-    //   </div>
-    // );
+    return (
+      <div className={styles.view}>
+        {!props.hideDocumentMenu && (
+          <DocumentMenu document={doc}></DocumentMenu>
+        )}
+        <RichTextRenderer
+          key={connection.doc.id}
+          document={connection.doc.doc!}
+        />
+      </div>
+    );
   } else if (connection.doc.type === "!plugin") {
     return (
       <PluginRenderer

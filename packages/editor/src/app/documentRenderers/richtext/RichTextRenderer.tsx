@@ -18,6 +18,7 @@ window.ReactDOM = ReactDOM;
 
 const RichTextRenderer: React.FC<Props> = observer((props) => {
   const sessionStore = getStoreService().sessionStore;
+
   const editor = useEditor({
     onUpdate: ({ editor }) => {
       console.log(editor.getJSON());
@@ -28,6 +29,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         "data-test": "editor",
       },
     },
+    disableHistoryExtension: true,
     extensions: [
       CollaborationCursor.configure({
         provider: props.document.webrtcProvider,
@@ -42,8 +44,6 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     ],
   });
   return <EditorContent editor={editor} />;
-  // renderLogger.log("cellList");
-  // return <div className="cellList">hello</div>;
 });
 
 export default RichTextRenderer;
