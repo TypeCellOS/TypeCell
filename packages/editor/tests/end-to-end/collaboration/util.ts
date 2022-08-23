@@ -21,7 +21,7 @@ export async function createNotebook(
 
   await profileButton.click();
 
-  await pageAlice.click("text=New document");
+  await pageAlice.click("text=New page");
   // Fill :nth-match(input[name="title"], 2)
   await pageAlice.fill('input[name="title"]', title);
   // Click :nth-match(button:has-text("Create"), 2)

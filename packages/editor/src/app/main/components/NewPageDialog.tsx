@@ -18,7 +18,7 @@ import { toDocument } from "../../routes/routes";
 import { Card } from "./common/card/Card";
 import { CardContainer } from "./common/card/CardContainer";
 
-export const NewDocumentDialog = (props: {
+export const NewPageDialog = (props: {
   isOpen: boolean;
   close: () => void;
   ownerId: string;
@@ -171,7 +171,7 @@ export const NewDocumentDialog = (props: {
   );
 };
 
-export default NewDocumentDialog;
+export default NewPageDialog;
 
 // {warning && (
 //   // <InlineMessage

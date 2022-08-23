@@ -4,12 +4,9 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { DocumentResource } from "../../store/DocumentResource";
 import { getStoreService } from "../../store/local/stores";
-import {
-  CloseNewDocumentDialog,
-  IsNewDocumentDialogOpen,
-} from "../routes/routes";
+import { CloseNewPageDialog, IsNewPageDialogOpen } from "../routes/routes";
 import { Navigation } from "./components/Navigation";
-import NewDocumentDialog from "./components/NewDocumentDialog";
+import NewPageDialog from "./components/NewPageDialog";
 import styles from "./Main.module.css";
 
 const Main = observer((props: {}) => {
@@ -23,10 +20,10 @@ const Main = observer((props: {}) => {
         <Navigation />
         <Outlet />
         {sessionStore.loggedInUserId && (
-          <NewDocumentDialog
+          <NewPageDialog
             ownerId={sessionStore.loggedInUserId}
-            close={() => CloseNewDocumentDialog(navigate)}
-            isOpen={IsNewDocumentDialogOpen(location)}
+            close={() => CloseNewPageDialog(navigate)}
+            isOpen={IsNewPageDialogOpen(location)}
           />
         )}
       </div>

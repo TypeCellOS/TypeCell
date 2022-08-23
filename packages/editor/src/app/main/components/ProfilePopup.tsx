@@ -8,7 +8,7 @@ import Avatar from "react-avatar";
 import { useNavigate } from "react-router-dom";
 import { SessionStore } from "../../../store/local/SessionStore";
 import { getStoreService } from "../../../store/local/stores";
-import { OpenNewDocumentDialog } from "../../routes/routes";
+import { OpenNewPageDialog } from "../../routes/routes";
 
 export const ProfilePopup = observer(
   (props: { sessionStore: SessionStore }) => {
@@ -41,8 +41,8 @@ export const ProfilePopup = observer(
           );
         }}
         placement="right-end">
-        <DropdownItem onClick={() => OpenNewDocumentDialog(navigate)}>
-          New document
+        <DropdownItem onClick={() => OpenNewPageDialog(navigate)}>
+          New page
         </DropdownItem>
         {navigationStore.menuPortalChildren.map((c) => c.children)}
         <DropdownItemGroup title={props.sessionStore.loggedInUserId!}>
