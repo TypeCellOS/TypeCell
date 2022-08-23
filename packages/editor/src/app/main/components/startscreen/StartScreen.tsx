@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import app_logo from "../../../../assets/app_logo.svg";
 import { getStoreService } from "../../../../store/local/stores";
 import {
-  OpenNewNotebookDialog,
+  OpenNewDocumentDialog,
   toDocs,
   toIdentifierString,
   toNewGuestNotebook,
@@ -25,7 +25,7 @@ export const StartScreen = observer(() => {
   function onNewNotebookClick(e: any) {
     e.preventDefault();
     if (sessionStore.isLoggedIn) {
-      OpenNewNotebookDialog(navigate);
+      OpenNewDocumentDialog(navigate);
     } else {
       navigate(toNewGuestNotebook());
     }

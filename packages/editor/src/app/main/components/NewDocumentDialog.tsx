@@ -15,13 +15,18 @@ import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
 import { UnreachableCaseError } from "../../../util/UnreachableCaseError";
 import { toDocument } from "../../routes/routes";
+import { Card } from "./common/card/Card";
+import { CardContainer } from "./common/card/CardContainer";
 
-export const NewNotebookDialog = (props: {
+export const NewDocumentDialog = (props: {
   isOpen: boolean;
   close: () => void;
   ownerId: string;
 }) => {
   const [loading, setLoading] = useState(false);
+  const [selectedType, setSelectedType] = useState<"!richtext" | "!notebook">(
+    "!notebook"
+  );
   const [error, setError] = useState("");
   const [warning, setWarning] = useState("");
   const navigate = useNavigate();
@@ -64,27 +69,31 @@ export const NewNotebookDialog = (props: {
                       throw new UnreachableCaseError(ret);
                   }
                 } else if (ret instanceof BaseResource) {
-                  ret.create("!richtext");
-                  const blockgroup = new Y.XmlElement("blockgroup");
-                  const tcblock = new Y.XmlElement("tcblock");
-                  tcblock.setAttribute("headingType", "1");
-                  // tcblock.setAttribute("id", "123");
+                  if (selectedType === "!richtext") {
+                    ret.create("!richtext");
+                    const blockgroup = new Y.XmlElement("blockgroup");
+                    const tcblock = new Y.XmlElement("tcblock");
+                    tcblock.setAttribute("headingType", "1");
+                    // tcblock.setAttribute("id", "123");
 
-                  const tccontent = new Y.XmlElement("tccontent");
-                  tccontent.insert(0, [new Y.XmlText(obj.title)]);
+                    const tccontent = new Y.XmlElement("tccontent");
+                    tccontent.insert(0, [new Y.XmlText(obj.title)]);
 
-                  tcblock.insert(0, [tccontent]);
-                  blockgroup.insert(0, [tcblock]);
+                    tcblock.insert(0, [tccontent]);
+                    blockgroup.insert(0, [tcblock]);
 
-                  ret.doc.data.insert(0, [blockgroup]);
-
-                  // ret.create("!notebook");
-                  // ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
-                  // ret.doc.cellList.addCell(
-                  //   1,
-                  //   "typescript",
-                  //   `export let message = "Hello World"`
-                  // );
+                    ret.doc.data.insert(0, [blockgroup]);
+                  } else if (selectedType === "!notebook") {
+                    ret.create("!notebook");
+                    ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
+                    ret.doc.cellList.addCell(
+                      1,
+                      "typescript",
+                      `export let message = "Hello World"`
+                    );
+                  } else {
+                    throw new UnreachableCaseError(selectedType);
+                  }
 
                   navigate(toDocument(ret));
 
@@ -99,19 +108,33 @@ export const NewNotebookDialog = (props: {
                     throw new UnreachableCaseError(ret.status);
                   }
                   console.error(ret);
-                  setError("Unknown error while creating new notebook.");
+                  setError("Unknown error while creating new document.");
                 }
                 //   setName(obj.name);
                 //   setIsOpen(false);
               }}>
               <ModalHeader>
-                <ModalTitle>New notebook</ModalTitle>
+                <ModalTitle>New:</ModalTitle>
               </ModalHeader>
               <ModalBody>
+                <CardContainer>
+                  <Card
+                    title="Notebook"
+                    body="A notebook-style programming environment for developing live blocks of code."
+                    selected={selectedType === "!notebook"}
+                    onClick={() => setSelectedType("!notebook")}
+                  />
+                  <Card
+                    title="Document"
+                    body="A rich text document for writing documents in a block-based editor."
+                    selected={selectedType === "!richtext"}
+                    onClick={() => setSelectedType("!richtext")}
+                  />
+                </CardContainer>
                 <Field
                   id="title"
                   name="title"
-                  label="Enter a title for your new notebook:">
+                  label="Enter a title for your new page:">
                   {({ fieldProps }) => (
                     <>
                       <Textfield
@@ -126,7 +149,7 @@ export const NewNotebookDialog = (props: {
                   )}
                 </Field>
                 <div>
-                  <small>(Note that notebooks are public by default)</small>
+                  <small>(Note that your pages are public by default)</small>
                 </div>
               </ModalBody>
               <ModalFooter>
@@ -148,7 +171,7 @@ export const NewNotebookDialog = (props: {
   );
 };
 
-export default NewNotebookDialog;
+export default NewDocumentDialog;
 
 // {warning && (
 //   // <InlineMessage

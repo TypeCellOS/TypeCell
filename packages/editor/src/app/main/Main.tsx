@@ -5,11 +5,11 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { DocumentResource } from "../../store/DocumentResource";
 import { getStoreService } from "../../store/local/stores";
 import {
-  CloseNewNotebookDialog,
-  IsNewNotebookDialogOpen,
+  CloseNewDocumentDialog,
+  IsNewDocumentDialogOpen,
 } from "../routes/routes";
 import { Navigation } from "./components/Navigation";
-import NewNotebookDialog from "./components/NewNotebookDialog";
+import NewDocumentDialog from "./components/NewDocumentDialog";
 import styles from "./Main.module.css";
 
 const Main = observer((props: {}) => {
@@ -23,10 +23,10 @@ const Main = observer((props: {}) => {
         <Navigation />
         <Outlet />
         {sessionStore.loggedInUserId && (
-          <NewNotebookDialog
+          <NewDocumentDialog
             ownerId={sessionStore.loggedInUserId}
-            close={() => CloseNewNotebookDialog(navigate)}
-            isOpen={IsNewNotebookDialogOpen(location)}
+            close={() => CloseNewDocumentDialog(navigate)}
+            isOpen={IsNewDocumentDialogOpen(location)}
           />
         )}
       </div>
