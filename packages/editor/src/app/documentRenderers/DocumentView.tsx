@@ -15,6 +15,7 @@ import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
 import ProjectContainer from "./project/ProjectContainer";
 import ProjectRenderer from "./project/ProjectRenderer";
+import RichTextRenderer from "./richtext/RichTextRenderer";
 
 type Props = {
   id: Identifier;
@@ -92,18 +93,19 @@ const DocumentView = observer((props: Props) => {
       );
     }
   } else if (connection.doc.type === "!richtext") {
-    throw new Error("richtext not implemented");
-    // return (
-    //   <div className={styles.view}>
-    //     {!props.hideDocumentMenu && (
-    //       <DocumentMenu document={connection.doc}></DocumentMenu>
-    //     )}
-    //     <RichTextRenderer
-    //       key={connection.doc.id}
-    //       document={connection.doc.doc}
-    //     />
-    //   </div>
-    // );
+    const doc = connection.doc.doc;
+
+    return (
+      <div className={styles.view}>
+        {!props.hideDocumentMenu && (
+          <DocumentMenu document={doc}></DocumentMenu>
+        )}
+        <RichTextRenderer
+          key={connection.doc.id}
+          document={connection.doc.doc!}
+        />
+      </div>
+    );
   } else if (connection.doc.type === "!plugin") {
     return (
       <PluginRenderer

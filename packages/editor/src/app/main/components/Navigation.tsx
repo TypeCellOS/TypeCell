@@ -23,15 +23,14 @@ const ProductHome = () => {
   );
 };
 
-const AN = AtlassianNavigation as any;
-
 export const Navigation = observer(() => {
   const sessionStore = getStoreService().sessionStore;
   const navigate = useNavigate();
   const location = useLocation();
 
   return (
-    <AN
+    <AtlassianNavigation
+      label="site"
       renderProductHome={ProductHome}
       primaryItems={[
         <Link className={styles.link} to={toDocs()}>

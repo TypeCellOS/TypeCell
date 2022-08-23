@@ -571,6 +571,7 @@ see https://atlassian.design/foundations/color for more info */
   padding: 0.1rem 0.3rem;
   border-radius: 3px 3px 3px 0;
   white-space: nowrap;
+  z-index: 100000;
 }
 
 .yRemoteSelection {

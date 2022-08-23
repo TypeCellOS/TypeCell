@@ -1,14 +1,14 @@
-import Button from "@atlaskit/button";
+import Button, { LoadingButton } from "@atlaskit/button";
 import Modal, {
   ModalBody,
+  ModalFooter,
   ModalHeader,
   ModalTitle,
 } from "@atlaskit/modal-dialog";
 import Select from "@atlaskit/select";
 import { observer } from "mobx-react-lite";
-import React, { useState } from "react";
+import { useState } from "react";
 import { MatrixUserPicker } from "./MatrixUserPicker";
-import UserPermissionRow from "./UserPermissionRow";
 import styles from "./PermissionsSettings.module.css";
 import {
   DocPermission,
@@ -18,6 +18,7 @@ import {
   UserPermission,
   userPermissionLabels,
 } from "./permissionUtils";
+import UserPermissionRow from "./UserPermissionRow";
 import { User } from "./userUtils";
 
 const PermissionsSettings = observer(
@@ -124,102 +125,108 @@ const PermissionsSettings = observer(
     return (
       <Modal
         css={{ overflow: "visible" }}
-        onClose={() => props.closeCallback()}
-        actions={[
-          {
-            text: "Apply",
-            type: "submit",
-            onClick: () => save(),
-            isLoading: isSaving,
-          },
-          { text: "Cancel", onClick: () => props.closeCallback() },
-        ]}>
+        onClose={() => props.closeCallback()}>
         <ModalHeader>
           <ModalTitle>Sharing & Permissions</ModalTitle>
         </ModalHeader>
-        <ModalBody className={styles.body}>
-          <Select
-            menuPosition="fixed"
-            inputId="single-select-example"
-            className={`${styles.select} ${styles.userSelect}`}
-            inputValue={""}
-            defaultValue={{
-              label: docPermissionLabels.get(editingPermissionData.doc)!,
-              value: editingPermissionData.doc,
-            }}
-            onChange={updateDocPermission}
-            options={[
-              {
-                label: docPermissionLabels.get("public-read-write")!,
-                value: "public-read-write",
-              },
-              {
-                label: docPermissionLabels.get("public-read")!,
-                value: "public-read",
-              },
-              {
-                label: docPermissionLabels.get("private")!,
-                value: "private",
-                isDisabled: true,
-              },
-            ]}
-          />
-          {editingPermissionData.doc !== "public-read-write" && (
-            <>
-              <div className={styles.userRow}>
-                <div className={styles.pickerContainer}>
-                  <MatrixUserPicker updateSelectedUser={updateSelectedUser} />
-                </div>
-                {/* <div className={styles.actions}> */}
-                <Select
-                  id="add-permission"
-                  className={`${styles.select} ${styles.restrictionSelect}`}
-                  classNamePrefix="react-select"
-                  menuPosition="fixed"
-                  inputValue={""}
-                  defaultValue={{
-                    label: userPermissionLabels.get("edit")!,
-                    value: "edit",
-                  }}
-                  isDisabled={true}
-                  onChange={updatePermissionType}
-                  options={[
-                    {
-                      label: userPermissionLabels.get("view")!,
-                      value: "view",
-                    },
-                    {
+        <ModalBody>
+          <div className={styles.body}>
+            <Select
+              menuPosition="fixed"
+              inputId="single-select-example"
+              className={`${styles.select} ${styles.userSelect}`}
+              inputValue={""}
+              defaultValue={{
+                label: docPermissionLabels.get(editingPermissionData.doc)!,
+                value: editingPermissionData.doc,
+              }}
+              onChange={updateDocPermission}
+              options={[
+                {
+                  label: docPermissionLabels.get("public-read-write")!,
+                  value: "public-read-write",
+                },
+                {
+                  label: docPermissionLabels.get("public-read")!,
+                  value: "public-read",
+                },
+                {
+                  label: docPermissionLabels.get("private")!,
+                  value: "private",
+                  isDisabled: true,
+                },
+              ]}
+            />
+            {editingPermissionData.doc !== "public-read-write" && (
+              <>
+                <div className={styles.userRow}>
+                  <div className={styles.pickerContainer}>
+                    <MatrixUserPicker updateSelectedUser={updateSelectedUser} />
+                  </div>
+                  {/* <div className={styles.actions}> */}
+                  <Select
+                    id="add-permission"
+                    className={`${styles.select} ${styles.restrictionSelect}`}
+                    classNamePrefix="react-select"
+                    menuPosition="fixed"
+                    inputValue={""}
+                    defaultValue={{
                       label: userPermissionLabels.get("edit")!,
                       value: "edit",
-                    },
-                  ]}
-                />
-                <Button
-                  onClick={addPermission}
-                  className={styles.addButton}
-                  isDisabled={newUser === undefined}>
-                  Add
-                </Button>
-              </div>
-              {Array.from(editingPermissionData.users.entries()).map(
-                ([user, permission]) => {
-                  return user === props.currentUserId ? (
-                    <></>
-                  ) : (
-                    <UserPermissionRow
-                      key={user}
-                      userId={user}
-                      userPermission={permission}
-                      docPermission={editingPermissionData.doc}
-                      editCallback={editUserPermission}
-                      removeCallback={removeUserPermission}
-                    />
-                  );
-                }
-              )}
-            </>
-          )}
+                    }}
+                    isDisabled={true}
+                    onChange={updatePermissionType}
+                    options={[
+                      {
+                        label: userPermissionLabels.get("view")!,
+                        value: "view",
+                      },
+                      {
+                        label: userPermissionLabels.get("edit")!,
+                        value: "edit",
+                      },
+                    ]}
+                  />
+                  <Button
+                    onClick={addPermission}
+                    className={styles.addButton}
+                    isDisabled={newUser === undefined}>
+                    Add
+                  </Button>
+                </div>
+                {Array.from(editingPermissionData.users.entries()).map(
+                  ([user, permission]) => {
+                    return user === props.currentUserId ? (
+                      <></>
+                    ) : (
+                      <UserPermissionRow
+                        key={user}
+                        userId={user}
+                        userPermission={permission}
+                        docPermission={editingPermissionData.doc}
+                        editCallback={editUserPermission}
+                        removeCallback={removeUserPermission}
+                      />
+                    );
+                  }
+                )}
+              </>
+            )}
+          </div>
         </ModalBody>
+        <ModalFooter>
+          <LoadingButton
+            appearance="primary"
+            isLoading={isSaving}
+            autoFocus
+            type="submit"
+            onClick={() => save()}>
+            Apply
+          </LoadingButton>
+          <Button appearance="subtle" onClick={() => props.closeCallback()}>
+            Cancel
+          </Button>
+        </ModalFooter>
       </Modal>
     );
   }

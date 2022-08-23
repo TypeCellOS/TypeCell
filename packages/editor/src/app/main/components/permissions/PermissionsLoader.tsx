@@ -6,7 +6,7 @@ import Modal, {
 import Spinner from "@atlaskit/spinner";
 import { getMatrixRoomAccess, MatrixMemberReader } from "matrix-crdt";
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { DocConnection } from "../../../../store/DocConnection";
 import PermissionSettings from "./PermissionsSettings";
 import styles from "./PermissionsSettings.module.css";
@@ -72,8 +72,10 @@ const PermissionsLoader = observer(
           <ModalHeader>
             <ModalTitle>Sharing & Permissions</ModalTitle>
           </ModalHeader>
-          <ModalBody className={styles.body}>
-            <Spinner />
+          <ModalBody>
+            <div className={styles.body}>
+              <Spinner />
+            </div>
           </ModalBody>
         </Modal>
       );

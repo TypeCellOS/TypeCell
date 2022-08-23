@@ -3,16 +3,16 @@ import { parseIdentifier } from "../../identifiers";
 import { Identifier } from "../../identifiers/Identifier";
 import { BaseResource } from "../../store/BaseResource";
 
-export function OpenNewNotebookDialog(navigate: NavigateFunction) {
-  navigate({}, { state: { newNotebookDialog: true } });
+export function OpenNewPageDialog(navigate: NavigateFunction) {
+  navigate({}, { state: { NewPageDialog: true } });
 }
 
-export function CloseNewNotebookDialog(navigate: NavigateFunction) {
-  navigate({}, { state: { newNotebookDialog: undefined } });
+export function CloseNewPageDialog(navigate: NavigateFunction) {
+  navigate({}, { state: { NewPageDialog: undefined } });
 }
 
-export function IsNewNotebookDialogOpen(location: Location) {
-  return (location as any).state?.newNotebookDialog;
+export function IsNewPageDialogOpen(location: Location) {
+  return (location as any).state?.NewPageDialog;
 }
 
 export function OpenPermissionsDialog(navigate: NavigateFunction) {
