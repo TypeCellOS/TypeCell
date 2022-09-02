@@ -1,6 +1,7 @@
 import Textfield from "@atlaskit/textfield";
+import { Method } from "matrix-js-sdk";
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { parseIdentifier } from "../../../identifiers";
 import { getStoreService } from "../../../store/local/stores";
@@ -107,9 +108,9 @@ export const NotebookOverview = observer(function (
         // const resolvedRooms = await (await Promise.all<Room | undefined>(promises)).filter(r => r).map(r => r as Room);
 
         // Currently we limit search to Public rooms by this user
-        const result = await matrixClient.http.authedRequest(
-          undefined,
-          "POST",
+        const result = await matrixClient.http.authedRequest<any>(
+          undefined as any,
+          Method.Post,
           `/publicRooms`,
           undefined,
           {

@@ -73,7 +73,7 @@ export default class LoginHelper {
   // TODO: Flows need a type in JS SDK
   private flows: Array<LoginFlow>;
   private defaultDeviceDisplayName?: string;
-  private tempClient: MatrixClient;
+  private tempClient: MatrixClient | null;
 
   constructor(
     hsUrl: string,

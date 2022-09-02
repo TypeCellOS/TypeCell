@@ -56,6 +56,7 @@ export default defineConfig({
         // NodeModulesPolyfillPlugin(),
       ],
     },
+    include: ["simple-peer"], // needed for matrix-crdt
   },
   build: {
     rollupOptions: {

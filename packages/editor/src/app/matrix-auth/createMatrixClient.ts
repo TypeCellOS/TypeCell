@@ -16,12 +16,7 @@ limitations under the License.
 
 // https://raw.githubusercontent.com/matrix-org/matrix-react-sdk/develop/src/utils/createMatrixClient.js
 
-import {
-  createClient,
-  IndexedDBCryptoStore,
-  MemoryStore,
-  WebStorageSessionStore,
-} from "matrix-js-sdk";
+import { createClient, IndexedDBCryptoStore, MemoryStore } from "matrix-js-sdk";
 
 const localStorage = window.localStorage;
 
@@ -62,7 +57,7 @@ export default function createMatrixClient(opts: any) {
   storeOpts.store = new MemoryStore();
 
   // if (localStorage) {
-  storeOpts.sessionStore = new WebStorageSessionStore(localStorage);
+  // storeOpts.sessionStore = new WebStorageSessionStore(localStorage);
   // }
 
   if (indexedDB) {

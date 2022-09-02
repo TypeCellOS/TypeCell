@@ -32,7 +32,7 @@ export default class IdentityAuthClient {
    * When provided, this class will operate solely within memory, refusing to
    * persist any information such as tokens. Default null (not provided).
    */
-  constructor(identityUrl = null) {
+  constructor(identityUrl: string | null = null) {
     this.accessToken = null;
     this.authEnabled = true;
 
