@@ -66,7 +66,7 @@ interface IProps {
     is_url?: string;
     session_id: string;
     /* eslint-enable camelcase */
-  }): void;
+  }): string;
   // registration shouldn't know or care how login is done.
   onLoginClick(): void;
   onServerConfigChange(config: ValidatedServerConfig): void;
@@ -278,14 +278,14 @@ export default class Registration extends React.Component<IProps, IState> {
     sendAttempt: any,
     sessionId: any
   ) => {
-    return this.state.matrixClient.requestRegisterEmailToken(
+    return this.state.matrixClient!.requestRegisterEmailToken(
       emailAddress,
       clientSecret,
       sendAttempt,
       this.props.makeRegistrationUrl({
         client_secret: clientSecret,
-        hs_url: this.state.matrixClient.getHomeserverUrl(),
-        is_url: this.state.matrixClient.getIdentityServerUrl(),
+        hs_url: this.state.matrixClient!.getHomeserverUrl(),
+        is_url: this.state.matrixClient!.getIdentityServerUrl(),
         session_id: sessionId,
       })
     );
@@ -378,8 +378,8 @@ export default class Registration extends React.Component<IProps, IState> {
         {
           userId: response.user_id,
           deviceId: response.device_id,
-          homeserverUrl: this.state.matrixClient.getHomeserverUrl(),
-          identityServerUrl: this.state.matrixClient.getIdentityServerUrl(),
+          homeserverUrl: this.state.matrixClient!.getHomeserverUrl(),
+          identityServerUrl: this.state.matrixClient!.getIdentityServerUrl(),
           accessToken: response.access_token,
         },
         this.state.formVals.password
@@ -461,7 +461,7 @@ export default class Registration extends React.Component<IProps, IState> {
     if (auth) registerParams.auth = auth;
     if (inhibitLogin !== undefined && inhibitLogin !== null)
       registerParams.inhibit_login = inhibitLogin;
-    return this.state.matrixClient.registerRequest(registerParams);
+    return this.state.matrixClient!.registerRequest(registerParams);
   };
 
   private getUIAuthInputs() {

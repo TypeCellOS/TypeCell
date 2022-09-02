@@ -81,7 +81,7 @@ export class Media {
    * The HTTP URL for the source media.
    */
   public get srcHttp(): string {
-    return this.client.mxcUrlToHttp(this.srcMxc);
+    return this.client.mxcUrlToHttp(this.srcMxc) as string;
   }
 
   /**
@@ -90,7 +90,7 @@ export class Media {
    */
   public get thumbnailHttp(): string | undefined | null {
     if (!this.hasThumbnail) return null;
-    return this.client.mxcUrlToHttp(this.thumbnailMxc);
+    return this.client.mxcUrlToHttp(this.thumbnailMxc!);
   }
 
   /**
@@ -110,7 +110,7 @@ export class Media {
     // scale using the device pixel ratio to keep images clear
     width = Math.floor(width * window.devicePixelRatio);
     height = Math.floor(height * window.devicePixelRatio);
-    return this.client.mxcUrlToHttp(this.thumbnailMxc, width, height, mode);
+    return this.client.mxcUrlToHttp(this.thumbnailMxc!, width, height, mode);
   }
 
   /**
@@ -128,7 +128,7 @@ export class Media {
     // scale using the device pixel ratio to keep images clear
     width = Math.floor(width * window.devicePixelRatio);
     height = Math.floor(height * window.devicePixelRatio);
-    return this.client.mxcUrlToHttp(this.srcMxc, width, height, mode);
+    return this.client.mxcUrlToHttp(this.srcMxc, width, height, mode)!;
   }
 
   /**

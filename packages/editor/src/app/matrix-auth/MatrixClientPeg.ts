@@ -135,7 +135,7 @@ class _MatrixClientPeg implements IMatrixClientPeg {
     pendingEventOrdering: "chronological",
   };
 
-  private matrixClient: MatrixClient = null;
+  private matrixClient: MatrixClient = null as any;
   private justRegisteredUserId: string | undefined;
 
   // the credentials used to init the current client object.
@@ -147,11 +147,11 @@ class _MatrixClientPeg implements IMatrixClientPeg {
   }
 
   public get(): MatrixClient {
-    return this.matrixClient;
+    return this.matrixClient!;
   }
 
   public unset(): void {
-    this.matrixClient = null;
+    this.matrixClient = null as any;
 
     // MatrixActionCreators.stop();
   }
@@ -167,7 +167,7 @@ class _MatrixClientPeg implements IMatrixClientPeg {
   }
 
   public currentUserIsJustRegistered(): boolean {
-    return (
+    return !!(
       this.matrixClient &&
       this.matrixClient.credentials.userId === this.justRegisteredUserId
     );
@@ -193,7 +193,7 @@ class _MatrixClientPeg implements IMatrixClientPeg {
     for (const dbType of ["indexeddb", "memory"]) {
       // only use memory store
       try {
-        const promise = this.matrixClient.store.startup();
+        const promise = this.matrixClient!.store.startup();
         console.log(
           "MatrixClientPeg: waiting for MatrixClient store to initialise"
         );
@@ -205,7 +205,8 @@ class _MatrixClientPeg implements IMatrixClientPeg {
             "Error starting matrixclient store - falling back to memory store",
             err
           );
-          this.matrixClient.store = new MemoryStore({
+          (this.matrixClient as any).store = new MemoryStore({
+            // TODO
             localStorage: localStorage,
           });
         } else {
@@ -222,14 +223,14 @@ class _MatrixClientPeg implements IMatrixClientPeg {
       // check that we have a version of the js-sdk which includes initCrypto
       if (
         // !SettingsStore.getValue("lowBandwidth") &&
-        this.matrixClient.initCrypto
+        (this.matrixClient! as any).initCrypto // TODO
       ) {
-        await this.matrixClient.initCrypto();
-        this.matrixClient.setCryptoTrustCrossSignedDevices(
+        await this.matrixClient!.initCrypto();
+        this.matrixClient!.setCryptoTrustCrossSignedDevices(
           //   !SettingsStore.getValue("e2ee.manuallyVerifyAllSessions")
           true
         );
-        await tryToUnlockSecretStorageWithDehydrationKey(this.matrixClient);
+        await tryToUnlockSecretStorageWithDehydrationKey(this.matrixClient!);
         StorageManager.setCryptoInitialised(true);
       }
     } catch (e) {
@@ -261,7 +262,7 @@ class _MatrixClientPeg implements IMatrixClientPeg {
 
   public async start(): Promise<any> {
     const opts = await this.assign();
-    this.get()._supportsVoip = false; // TC added
+    (this.get() as any).canSupportVoip = false; // TC added
     console.log(`MatrixClientPeg: really starting MatrixClient`);
     await this.get().startClient(opts);
     console.log(`MatrixClientPeg: MatrixClient started`);
@@ -271,15 +272,15 @@ class _MatrixClientPeg implements IMatrixClientPeg {
     return {
       homeserverUrl: this.matrixClient.baseUrl,
       identityServerUrl: this.matrixClient.idBaseUrl,
-      userId: this.matrixClient.credentials.userId,
+      userId: this.matrixClient.credentials.userId!,
       deviceId: this.matrixClient.getDeviceId(),
-      accessToken: this.matrixClient.getAccessToken(),
+      accessToken: this.matrixClient.getAccessToken()!,
       guest: this.matrixClient.isGuest(),
     };
   }
 
   public getHomeserverName(): string {
-    const matches = /^@[^:]+:(.+)$/.exec(this.matrixClient.credentials.userId);
+    const matches = /^@[^:]+:(.+)$/.exec(this.matrixClient.credentials.userId!);
     if (matches === null || matches.length < 1) {
       throw new Error("Failed to derive homeserver name from user ID!");
     }
@@ -308,7 +309,8 @@ class _MatrixClientPeg implements IMatrixClientPeg {
         verificationMethods.SHOW_QR_CODE_METHOD,
         verificationMethods.RECIPROCATE_QR_CODE,
       ],
-      unstableClientRelationAggregation: true,
+
+      // unstableClientRelationAggregation: true,
       identityServer: new IdentityAuthClient(),
       cryptoCallbacks: {} as any,
     };
@@ -316,7 +318,7 @@ class _MatrixClientPeg implements IMatrixClientPeg {
     // These are always installed regardless of the labs flag so that
     // cross-signing features can toggle on without reloading and also be
     // accessed immediately after login.
-    Object.assign(opts.cryptoCallbacks, crossSigningCallbacks);
+    Object.assign(opts.cryptoCallbacks!, crossSigningCallbacks);
     // if (SecurityCustomisations.getDehydrationKey) {
     //   opts.cryptoCallbacks.getDehydrationKey =
     //     SecurityCustomisations.getDehydrationKey;
@@ -325,8 +327,8 @@ class _MatrixClientPeg implements IMatrixClientPeg {
     this.matrixClient = createMatrixClient(opts);
 
     // overwrites because we don't call .start();
-    this.matrixClient.canSupportVoip = false;
-    this.matrixClient.clientOpts = {
+    (this.matrixClient as any).canSupportVoip = false;
+    (this.matrixClient as any).clientOpts = {
       lazyLoadMembers: true,
     };
 

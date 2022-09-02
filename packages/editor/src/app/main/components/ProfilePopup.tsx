@@ -40,7 +40,7 @@ export const ProfilePopup = observer(
             />
           );
         }}
-        placement="right-end">
+        placement="bottom-end">
         <DropdownItem onClick={() => OpenNewPageDialog(navigate)}>
           New page
         </DropdownItem>

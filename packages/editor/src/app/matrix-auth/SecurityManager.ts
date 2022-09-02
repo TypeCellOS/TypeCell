@@ -14,24 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import {
-  decodeRecoveryKey,
-  deriveKey,
-  ICryptoCallbacks,
-  IDeviceTrustLevel,
-  ISecretStorageKeyInfo,
-  MatrixClient,
-} from "matrix-js-sdk";
+import * as mxSdk from "matrix-js-sdk";
+import { ICryptoCallbacks, MatrixClient } from "matrix-js-sdk";
+// import type { ISecretStorageKeyInfo } from "matrix-js-sdk/src/crypto/api";
+// import type { DeviceTrustLevel } from "matrix-js-sdk/src/crypto/CrossSigning";
+// import { deriveKey } from "matrix-js-sdk/src/crypto/key_passphrase";
+// import { decodeRecoveryKey } from "matrix-js-sdk/src/crypto/recoverykey";
 // import Modal from "./Modal";
 // import * as sdk from "./index";
-import { MatrixClientPeg } from "./MatrixClientPeg";
 import { base64 } from "@typecell-org/common";
+import { MatrixClientPeg } from "./MatrixClientPeg";
 // import { isSecureBackupRequired } from "./utils/WellKnownUtils";
 // import AccessSecretStorageDialog from "./components/views/dialogs/security/AccessSecretStorageDialog";
 // import RestoreKeyBackupDialog from "./components/views/dialogs/security/RestoreKeyBackupDialog";
 // import SettingsStore from "./settings/SettingsStore";
 // import SecurityCustomisations from "./customisations/Security";
 
+type ISecretStorageKeyInfo = any;
+type DeviceTrustLevel = any;
 // This stores the secret storage private keys in memory for the JS SDK. This is
 // only meant to act as a cache to avoid prompting the user multiple times
 // during the same single operation. Use `accessSecretStorage` below to scope a
@@ -92,13 +92,13 @@ function makeInputToKey(
 }) => Promise<Uint8Array> {
   return async ({ passphrase, recoveryKey }) => {
     if (passphrase) {
-      return deriveKey(
+      return (mxSdk as any).deriveKey(
         passphrase,
         keyInfo.passphrase.salt,
         keyInfo.passphrase.iterations
       );
     } else {
-      return decodeRecoveryKey(recoveryKey);
+      return (mxSdk as any).decodeRecoveryKey(recoveryKey);
     }
   };
 }
@@ -110,7 +110,7 @@ async function getSecretStorageKey({
 }): Promise<[string, Uint8Array]> {
   const cli = MatrixClientPeg.get();
   let keyId = await cli.getDefaultSecretStorageKeyId();
-  let keyInfo;
+  let keyInfo: ISecretStorageKeyInfo;
   if (keyId) {
     // use the default SSSS key if set
     keyInfo = keyInfos[keyId];
@@ -139,10 +139,10 @@ async function getSecretStorageKey({
     if (
       await MatrixClientPeg.get().checkSecretStorageKey(
         dehydrationCache.key,
-        keyInfo
+        keyInfo!
       )
     ) {
-      cacheSecretStorageKey(keyId, keyInfo, dehydrationCache.key);
+      cacheSecretStorageKey(keyId, keyInfo!, dehydrationCache.key);
       return [keyId, dehydrationCache.key];
     }
   }
@@ -267,8 +267,8 @@ async function onSecretRequested(
   deviceId: string,
   requestId: string,
   name: string,
-  deviceTrust: IDeviceTrustLevel
-): Promise<string | undefined> {
+  deviceTrust: DeviceTrustLevel
+): Promise<string> {
   console.log(
     "onSecretRequested",
     userId,
@@ -279,11 +279,11 @@ async function onSecretRequested(
   );
   const client = MatrixClientPeg.get();
   if (userId !== client.getUserId()) {
-    return;
+    return undefined as any;
   }
   if (!deviceTrust || !deviceTrust.isVerified()) {
     console.log(`Ignoring secret request from untrusted device ${deviceId}`);
-    return;
+    return undefined as any;
   }
   if (
     name === "m.cross_signing.master" ||
@@ -291,7 +291,7 @@ async function onSecretRequested(
     name === "m.cross_signing.user_signing"
   ) {
     const callbacks = client.getCrossSigningCacheCallbacks();
-    if (!callbacks.getCrossSigningKeyCache) return;
+    if (!callbacks.getCrossSigningKeyCache) return undefined as any;
     const keyId = name.replace("m.cross_signing.", "");
     const key = await callbacks.getCrossSigningKeyCache(keyId);
     if (!key) {
@@ -308,6 +308,7 @@ async function onSecretRequested(
     return key && base64.encodeBase64(key);
   }
   console.warn("onSecretRequested didn't recognise the secret named ", name);
+  return undefined as any;
 }
 
 export const crossSigningCallbacks: ICryptoCallbacks = {
