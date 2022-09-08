@@ -29,4 +29,4 @@ Another good way to learn is to check out some notebooks from our community:
 
 # Feedback ❤️
 
-As always, we'd love to hear your thoughts and see your experiments, so [come and say hi on Discord](https://discord.gg/TcJ9TRC3SV) as well.
+As always, we'd love to hear your thoughts and see your experiments, so [come and say hi on Discord](https://discord.gg/TcJ9TRC3SV) or [Matrix](https://matrix.to/#/#typecell-space:matrix.org) as well.

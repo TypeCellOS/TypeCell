@@ -123,16 +123,27 @@ export const StartScreen = observer(() => {
                 interact with a Notebook or use it as a starting point for your
                 next project.
               </p>
-              <a
-                className={styles.discord}
-                href="https://discord.gg/TcJ9TRC3SV"
-                target="_blank"
-                rel="noreferrer">
-                <img
-                  alt="Discord"
-                  src="https://img.shields.io/badge/Join us on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"
-                />
-              </a>
+              <div className={styles.discord}>
+                <a
+                  href="https://discord.gg/TcJ9TRC3SV"
+                  target="_blank"
+                  rel="noreferrer">
+                  <img
+                    alt="Discord"
+                    src="https://img.shields.io/badge/Join us on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"
+                  />
+                </a>
+                &nbsp;
+                <a
+                  href="https://matrix.to/#/#typecell-space:matrix.org"
+                  target="_blank"
+                  rel="noreferrer">
+                  <img
+                    alt="Matrix"
+                    src="https://img.shields.io/badge/Chat on matrix%20-%23000.svg?&style=for-the-badge&logo=matrix&logoColor=white"
+                  />
+                </a>
+              </div>
             </div>
 
             <div className={styles.overview + " row"}>
@@ -256,6 +267,14 @@ export const StartScreen = observer(() => {
                     href="https://discord.gg/TcJ9TRC3SV"
                     rel="noreferrer">
                     <span>Chat on discord</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    target="_blank"
+                    href="https://matrix.to/#/#typecell-space:matrix.org"
+                    rel="noreferrer">
+                    <span>Chat on Matrix</span>
                   </a>
                 </li>
               </ul>
