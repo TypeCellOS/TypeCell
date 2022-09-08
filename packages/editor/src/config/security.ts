@@ -27,7 +27,9 @@ export function validateHostDomain() {
   if (ENVIRONMENT === "STAGING") {
     return hostname.match(/^typecell-next-[A-z0-9-]+-yousefed.vercel.app$/);
   }
-  return hostname === "notebooks.typecell.org";
+  return (
+    hostname === "notebooks.typecell.org" || hostname === "www.typecell.org"
+  );
 }
 
 export function validateFrameDomain() {
@@ -65,5 +67,5 @@ export function getMainDomainFromIframe() {
   if (ENVIRONMENT === "STAGING") {
     return window.location.hostname;
   }
-  return "notebooks.typecell.org";
+  return "www.typecell.org";
 }
