@@ -1,5 +1,6 @@
 import { TypeCellContext } from "./context";
 import { observable, untracked, computed, autorun } from "mobx";
+import { ScopeHooks } from "./HookExecution";
 // import { stored } from "./storage/stored";
 // import { view } from "./view";
 
@@ -71,7 +72,10 @@ function createDefine(modules: Module[]) {
   };
 }
 
-export function createExecutionScope(context: TypeCellContext<any>) {
+export function createExecutionScope(
+  context: TypeCellContext<any>,
+  hookContext: ScopeHooks
+) {
   const scope = {
     autorun,
     $: context.context,
@@ -82,7 +86,9 @@ export function createExecutionScope(context: TypeCellContext<any>) {
     // stored,
     // view,
     observable,
+    ...hookContext,
   };
+
   return scope;
 }
 

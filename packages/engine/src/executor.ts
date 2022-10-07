@@ -1,6 +1,6 @@
 import { autorun, runInAction } from "mobx";
 import { TypeCellContext } from "./context";
-import { installHooks } from "./hookDisposables";
+import { HookExecution } from "./HookExecution";
 import { Module } from "./modules";
 import { isStored } from "./storage/stored";
 import { isView } from "./view";
@@ -61,6 +61,7 @@ export async function runModule(
   mod: Module,
   context: TypeCellContext<any>,
   resolveImport: (module: string) => any,
+  hookExecution: HookExecution,
   beforeExecuting: () => void,
   onExecuted: (exports: any) => void,
   onError: (error: any) => void,
@@ -96,7 +97,7 @@ export async function runModule(
     );
   }
 
-  const execute = async () => {
+  async function execute(this: any) {
     try {
       if (wouldLoopOnAutorun) {
         detectedLoop = true;
@@ -114,18 +115,20 @@ export async function runModule(
       disposeEveryRun.length = 0; // clear existing array in this way, because we've passed the reference to resolveDependencyArray and want to keep it intact
 
       beforeExecuting();
-      const hooks = installHooks();
-      disposeEveryRun.push(hooks.disposeAll);
+
+      disposeEveryRun.push(() => hookExecution.dispose());
+      hookExecution.attachToWindow();
+
       let executionPromise: Promise<any>;
+
       try {
         executionPromise = mod.factoryFunction.apply(
           undefined,
           argsToCallFunctionWith
-        ); // TODO: what happens with disposers if a rerun of this function is slow / delayed?
+        );
       } finally {
-        // Hooks are only installed for sync code. Ideally, we'd want to run it for all code, but then we have the chance hooks will affect other parts of the TypeCell (non-user) code
-        // (we ran into this that notebooks wouldn't be saved (_.debounce), and also that setTimeout of Monaco blink cursor would be hooked)
-        hooks.unHookAll();
+        hookExecution.detachFromWindow();
+
         if (previousVariableDisposer) {
           previousVariableDisposer(exports);
         }
@@ -211,7 +214,7 @@ export async function runModule(
       //reject(e);
       resolve();
     }
-  };
+  }
 
   const autorunDisposer = autorun(() => execute());
 

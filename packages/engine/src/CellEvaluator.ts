@@ -1,5 +1,6 @@
 import { TypeCellContext } from "./context";
 import { ModuleExecution, runModule } from "./executor";
+import { HookExecution } from "./HookExecution";
 import { createExecutionScope, getModulesFromTypeCellCode } from "./modules";
 import { isReactView } from "./reactView";
 
@@ -49,7 +50,11 @@ export function createCellEvaluator(
     onOutputChanged(error);
   }
 
-  const executionScope = createExecutionScope(typecellContext);
+  const hookExecution = new HookExecution();
+  const executionScope = createExecutionScope(
+    typecellContext,
+    hookExecution.scopeHooks
+  );
   let moduleExecution: ModuleExecution | undefined;
 
   async function evaluate(compiledCode: string) {
@@ -69,6 +74,7 @@ export function createCellEvaluator(
         modules[0],
         typecellContext,
         resolveImport,
+        hookExecution,
         beforeExecuting,
         onExecuted,
         onError,
