@@ -1,0 +1,68 @@
+// Vitest Snapshot v1
+
+exports[`parseMarkdown > converts tests/data/markdown/plainMarkdown.md 1`] = `
+{
+  "cells": [
+    {
+      "code": "### CSS
+
+Use CSS to easily style the output of other cells (those written in Markdown or TypeScript).
+
+<div class=\\"redText\\">This text is red, styled by the CSS cell above.</div>
+
+### TypeScript / JavaScript
+
+hello
+",
+      "language": "markdown",
+    },
+  ],
+}
+`;
+
+exports[`parseMarkdown > converts tests/data/markdown/withCSSAndTS.md 1`] = `
+{
+  "cells": [
+    {
+      "code": "### CSS
+
+Use CSS to easily style the output of other cells (those written in Markdown or TypeScript).
+",
+      "language": "markdown",
+    },
+    {
+      "code": ".redText {
+  color: red;
+}",
+      "language": "css",
+    },
+    {
+      "code": "<div class=\\"redText\\">This text is red, styled by the CSS cell above.</div>
+
+### TypeScript / JavaScript
+",
+      "language": "markdown",
+    },
+    {
+      "code": "export let message = \\"This is a TypeScript cell\\";",
+      "language": "typescript",
+    },
+  ],
+}
+`;
+
+exports[`parseMarkdown > converts tests/data/markdown/withId.md 1`] = `
+{
+  "cells": [
+    {
+      "code": "plain text
+",
+      "language": "markdown",
+    },
+    {
+      "code": "export let x = 5;",
+      "language": "typescript",
+    },
+  ],
+}
+`;
