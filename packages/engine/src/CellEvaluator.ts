@@ -1,9 +1,43 @@
 import { TypeCellContext } from "./context";
 import { ModuleExecution, runModule } from "./executor";
-import { createExecutionScope, getModulesFromTypeCellCode } from "./modules";
+import {
+  createExecutionScope,
+  getModulesFromPatchedTypeCellCode,
+  getPatchedTypeCellCode,
+} from "./modules";
 import { isReactView } from "./reactView";
 
 // const log = engineLogger;
+
+export function assignExecutionExports(
+  exports: any,
+  typecellContext: TypeCellContext<any>
+) {
+  const newExports: any = {};
+  for (let propertyName in exports) {
+    if (propertyName === "default") {
+      // default exports are not on typecellContext.context
+      newExports.default = exports[propertyName];
+    } else if (isReactView(exports[propertyName])) {
+      Object.defineProperty(newExports, propertyName, {
+        get: () => {
+          return exports[propertyName];
+        },
+      });
+    } else {
+      // Create a shallow "getter" that just returns the variable from the typecellContext.
+      // This way deep modifications and modifications from other cells ($.x = "val")
+      // are reflected in Output
+      delete newExports[propertyName];
+      Object.defineProperty(newExports, propertyName, {
+        get: () => {
+          return typecellContext.context[propertyName];
+        },
+      });
+    }
+  }
+  return newExports;
+}
 
 export function createCellEvaluator(
   typecellContext: TypeCellContext<any>,
@@ -18,29 +52,7 @@ export function createCellEvaluator(
       // for server side executions
       return;
     }
-    const newExports: any = {};
-    for (let propertyName in exports) {
-      if (propertyName === "default") {
-        // default exports are not on typecellContext.context
-        newExports.default = exports[propertyName];
-      } else if (isReactView(exports[propertyName])) {
-        Object.defineProperty(newExports, propertyName, {
-          get: () => {
-            return exports[propertyName];
-          },
-        });
-      } else {
-        // Create a shallow "getter" that just returns the variable from the typecellContext.
-        // This way deep modifications and modifications from other cells ($.x = "val")
-        // are reflected in Output
-        delete newExports[propertyName];
-        Object.defineProperty(newExports, propertyName, {
-          get: () => {
-            return typecellContext.context[propertyName];
-          },
-        });
-      }
-    }
+    const newExports = assignExecutionExports(exports, typecellContext);
     onOutputChanged(newExports);
   }
 
@@ -59,7 +71,12 @@ export function createCellEvaluator(
 
     try {
       // log.debug("getModulesFromTypeCellCode", cell.path);
-      const modules = getModulesFromTypeCellCode(compiledCode, executionScope);
+      const patchedCode = getPatchedTypeCellCode(compiledCode, executionScope);
+      const modules = getModulesFromPatchedTypeCellCode(
+        patchedCode,
+        executionScope
+      );
+
       if (modules.length !== 1) {
         throw new Error("expected exactly 1 module");
       }

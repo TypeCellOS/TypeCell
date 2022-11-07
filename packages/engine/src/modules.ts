@@ -1,5 +1,5 @@
+import { autorun, computed, observable, untracked } from "mobx";
 import { TypeCellContext } from "./context";
-import { observable, untracked, computed, autorun } from "mobx";
 // import { stored } from "./storage/stored";
 // import { view } from "./view";
 
@@ -14,7 +14,7 @@ export type Module = {
 /**
  * for compiled format, e.g.:
 
- export default (define) =>
+ export default () =>
   define(["require", "exports", "lodash"], async function (
     require,
     exports,
@@ -23,21 +23,24 @@ export type Module = {
     ...
   }
  */
-export function getModulesFromDefineCaller(
-  caller: (define: any) => any,
+export function getModulesFromWrappedPatchedTypeCellFunction(
+  caller: () => any,
   scope: any
 ): Module[] {
   const modules: Module[] = [];
   const define = createDefine(modules);
-  caller.apply(scope, [define]);
+  caller.apply({ ...scope, define });
   return modules;
 }
 
 /**
  * for editor / repl format, where code is a string
- * prepared by getModulesFromTypeCellCode
+ * prepared by getPatchedTypeCellCode
  */
-function getModulesFromCode(code: string, scope: any): Module[] {
+export function getModulesFromPatchedTypeCellCode(
+  code: string,
+  scope: any
+): Module[] {
   const modules: Module[] = [];
   const define = createDefine(modules);
   // eslint-disable-next-line
@@ -86,7 +89,7 @@ export function createExecutionScope(context: TypeCellContext<any>) {
   return scope;
 }
 
-export function getModulesFromTypeCellCode(compiledCode: string, scope: any) {
+export function getPatchedTypeCellCode(compiledCode: string, scope: any) {
   // Checks if define([], function) like code is already present
   if (!compiledCode.match(/(define\((".*", )?\[.*\], )function/gm)) {
     // file is not a module (no exports). Create module-like code manually
@@ -112,5 +115,5 @@ export function getModulesFromTypeCellCode(compiledCode: string, scope: any) {
     "$1async function"
   ); // TODO: remove await?
 
-  return getModulesFromCode(totalCode, scope);
+  return totalCode;
 }

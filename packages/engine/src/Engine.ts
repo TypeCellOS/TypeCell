@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { lifecycle, event } from "vscode-lib";
+import { event, lifecycle } from "vscode-lib";
 import { createCellEvaluator } from "./CellEvaluator";
 import { CodeModel } from "./CodeModel";
 import { createContext, TypeCellContext } from "./context";
