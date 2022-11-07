@@ -1,24 +1,25 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
+    "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "strict": true,
+    "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
+    "module": "amd",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
+    "noImplicitReturns": true,
+    "noImplicitAny": false,
     "noEmit": false,
+    "outDir": "build/notebook",
     "declaration": true,
-    "declarationDir": "types",
-    "sourceMap": true,
-    "downlevelIteration": true,
-    "outDir": "dist"
+    "jsx": "react",
+    "experimentalDecorators": true
   },
-  "include": ["src", "template/src/notebook.ts"]
+  "include": ["."]
 }

@@ -66,3 +66,46 @@ exports[`parseMarkdown > converts tests/data/markdown/withId.md 1`] = `
   ],
 }
 `;
+
+exports[`parseMarkdown > converts tests/data/markdown/withLibrary.md 1`] = `
+{
+  "cells": [
+    {
+      "code": "plain text
+",
+      "language": "markdown",
+    },
+    {
+      "code": "import * as lodash from \\"lodash\\";
+export let x = lodash.sum([5, 1]);",
+      "language": "typescript",
+    },
+  ],
+}
+`;
+
+exports[`parseMarkdown > converts tests/data/markdown/withLibraryAndContext.md 1`] = `
+{
+  "cells": [
+    {
+      "code": "plain text
+",
+      "language": "markdown",
+    },
+    {
+      "code": "import * as lodash from \\"lodash\\";
+export let x = lodash.sum([5, 1]);",
+      "language": "typescript",
+    },
+    {
+      "code": "this shows how to reuse x:
+",
+      "language": "markdown",
+    },
+    {
+      "code": "export let y = $.x + 1;",
+      "language": "typescript",
+    },
+  ],
+}
+`;
