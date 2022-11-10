@@ -5,9 +5,12 @@ import { describe, it } from "vitest";
 import { createProjectFromMarkdown } from "./generate";
 
 const DEST_DIR = path.resolve(__dirname + "../../../tmp");
+const ROOT_DIR = path.resolve(__dirname + "../../../../../");
 
 describe("generate test", () => {
-  const mds = glob.sync("tests/data/markdown/**/*.md");
+  const mds = glob.sync(
+    path.join(ROOT_DIR, "shared/test-data/markdown/**/*.md")
+  );
   mds.forEach((md) => {
     it("converts " + md, async () => {
       const data = fs.readFileSync(md, "utf-8");

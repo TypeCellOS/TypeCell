@@ -1,17 +1,22 @@
 {
-  "name": "@typecell-org/engine",
+  "name": "@typecell-org/packager",
   "version": "0.0.3",
   "private": true,
   "dependencies": {
+    "@typecell-org/common": "*",
+    "@typecell-org/engine": "*",
+    "@typecell-org/parsers": "*",
     "es-module-shims": "1.4.3",
     "lodash": "^4.17.21",
     "mobx": "^6.2.0",
     "react": "^17.0.2",
-    "vscode-lib": "^0.1.2"
+    "vscode-lib": "^0.1.2",
+    "fast-glob": "^3.2.12"
   },
   "devDependencies": {
     "chai": "^4.3.6",
     "mocha": "^9.2.1",
+    "@types/fs-extra": "9.0.13",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.1.0",
     "@types/lodash": "^4.14.182",

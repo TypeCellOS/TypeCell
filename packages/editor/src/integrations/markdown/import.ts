@@ -1,10 +1,10 @@
 import { uniqueId } from "@typecell-org/common";
-import * as exporter from "@typecell-org/exporter";
+import * as parsers from "@typecell-org/parsers";
 
 import * as Y from "yjs";
 
 export function markdownToYDoc(markdown: string) {
-  const nbData = exporter.markdownToDocument(markdown);
+  const nbData = parsers.markdownToDocument(markdown);
   const newDoc = new Y.Doc();
   newDoc.getMap("meta").set("type", "!notebook");
 

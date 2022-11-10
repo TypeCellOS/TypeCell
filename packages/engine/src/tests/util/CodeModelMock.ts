@@ -1,5 +1,5 @@
-import { CodeModel } from "../../CodeModel";
 import { event } from "vscode-lib";
+import { CodeModel } from "../../CodeModel.js";
 
 export class CodeModelMock implements CodeModel {
   public contentChangeEmitter = new event.Emitter<void>();

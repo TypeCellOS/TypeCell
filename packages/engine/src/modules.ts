@@ -1,5 +1,5 @@
 import { autorun, computed, observable, untracked } from "mobx";
-import { TypeCellContext } from "./context";
+import { TypeCellContext } from "./context.js";
 // import { stored } from "./storage/stored";
 // import { view } from "./view";
 

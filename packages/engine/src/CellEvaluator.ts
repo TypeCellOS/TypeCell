@@ -1,11 +1,11 @@
-import { TypeCellContext } from "./context";
-import { ModuleExecution, runModule } from "./executor";
+import { TypeCellContext } from "./context.js";
+import { ModuleExecution, runModule } from "./executor.js";
 import {
   createExecutionScope,
   getModulesFromPatchedTypeCellCode,
   getPatchedTypeCellCode,
-} from "./modules";
-import { isReactView } from "./reactView";
+} from "./modules.js";
+import { isReactView } from "./reactView.js";
 
 // const log = engineLogger;
 

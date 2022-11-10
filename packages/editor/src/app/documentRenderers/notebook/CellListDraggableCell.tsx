@@ -3,8 +3,8 @@ import { observer } from "mobx-react-lite";
 import React, { useRef, useState } from "react";
 import { DropTargetMonitor, useDrag, useDrop } from "react-dnd";
 import { VscTrash } from "react-icons/vsc";
-import { HoverTrackerContext } from "./HoverTrackerContext";
 import styles from "./CellListDraggableCell.module.css";
+import { HoverTrackerContext } from "./HoverTrackerContext";
 
 type Props = {
   index: number;

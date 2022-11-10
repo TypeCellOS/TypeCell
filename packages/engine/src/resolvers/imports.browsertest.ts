@@ -1,6 +1,6 @@
-import { ImportShimResolver } from "./ImportShimResolver";
-import { LocalModuleResolver } from "./LocalModuleResolver";
-import { SkypackResolver } from "./cdns/SkypackResolver";
+import { SkypackResolver } from "./cdns/SkypackResolver.js";
+import { ImportShimResolver } from "./ImportShimResolver.js";
+import { LocalModuleResolver } from "./LocalModuleResolver.js";
 
 import { expect } from "chai";
 

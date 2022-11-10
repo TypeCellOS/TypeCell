@@ -1,21 +1,23 @@
-import * as cp from "child_process";
-import * as glob from "fast-glob";
-import * as fs from "fs-extra";
-import * as path from "path";
-import { markdownToDocument } from "../markdown/parseMarkdown";
 import {
   cellsWithId,
   CellWithId,
   Document,
   extensionForLanguage,
-} from "../models";
+  markdownToDocument,
+} from "@typecell-org/parsers";
+import * as glob from "fast-glob";
+import * as fs from "fs";
+import * as path from "path";
+import { fileURLToPath } from "url";
 import {
   getModulesFromPatchedFile,
   patchJSFileForTypeCell,
   patchJSFileWithWrapper,
-} from "./patchJavascript";
+} from "./patchJavascript.js";
+import { spawnCmd } from "./process.js";
 
-const SOURCE_DIR = path.resolve(__dirname + "../../../template");
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+const SOURCE_DIR = path.resolve(dirname + "../../../template");
 
 function getCellDirectory(projectDir: string) {
   return path.join(projectDir, "src-notebook", "cells");
@@ -78,7 +80,8 @@ type nodefault_${cell.nameWithoutExtension} = Omit<typeof ${cell.nameWithoutExte
 export interface IContext extends nodefault_${cell.nameWithoutExtension} {};`
   );
 
-  const contents = `
+  const contents = `/// <reference path="./global.d.ts" />
+
 ${codeImports.join("\n")}
 ${code.join("")}`;
 
@@ -115,26 +118,48 @@ ${exportDefault}`;
 }
 
 async function compileTypescriptCells(projectDir: string) {
-  console.log("npm install");
-  let ret = cp.spawnSync("npm", ["install"], {
-    cwd: projectDir,
-    stdio: "inherit",
-  });
-  console.log("npm install returned", ret.status);
-
-  if (ret.status || ret.error) {
-    throw new Error("spawn failed");
+  if (!fs.existsSync("/tmp/home")) {
+    fs.mkdirSync("/tmp/home");
   }
+
+  // await spawnCmd("/var/lang/bin/npm", ["--v"], undefined, {
+  //   cwd: "/tmp",
+  //   env: {
+  //     HOME: "/tmp/home",
+  //     PATH: "/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin",
+  //   },
+  //   // stdio: "inherit",
+  // });
+
+  console.log("exists" + fs.existsSync(path.join(projectDir, "package.json")));
+  console.log("npm install");
+  await spawnCmd("/var/lang/bin/npm", ["install", "--no-progress"], undefined, {
+    cwd: projectDir,
+    env: {
+      HOME: "/tmp/home",
+      PATH: "/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin",
+    },
+    // stdio: "inherit",
+  });
+
+  // console.log("npm install returned", ret.status);
+  // console.log("stdout", ret.stdout?.toString("utf-8"));
+  // console.log("stderr", ret.stderr?.toString("utf-8"));
+  // ret.output.map((o) => console.log("output", o?.toString("utf-8")));
+
+  // if (ret.status || ret.error) {
+  //   throw new Error("spawn failed");
+  // }
 
   console.log("npm run cells:compile");
-  ret = cp.spawnSync("npm", ["run", "cells:compile"], {
+  await spawnCmd("/var/lang/bin/npm", ["run", "cells:compile"], undefined, {
     cwd: projectDir,
-    stdio: "inherit",
+    env: {
+      HOME: "/tmp/home",
+      PATH: "/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin",
+    },
+    // stdio: "inherit",
   });
-  console.log("npm run cells:compile returned", ret.status);
-  if (ret.status || ret.error) {
-    throw new Error("spawn failed");
-  }
 }
 
 async function patchJSOutput(projectDir: string) {
@@ -222,7 +247,8 @@ export async function createProject(
 
   // copy files
   fs.mkdirSync(projectDir);
-  fs.copySync(SOURCE_DIR, projectDir);
+  fs.cpSync(SOURCE_DIR, projectDir, { recursive: true });
+  console.log(SOURCE_DIR);
 
   // generate src-notebook directory from document
   const cells = cellsWithId(tcDocument.cells);
@@ -249,6 +275,7 @@ export async function createProject(
 
   await writeModuleResolver(deps, projectDir);
   await patchPlaceholders(name, path.join(projectDir, "package.json"));
+  await patchPlaceholders(name, path.join(projectDir, "index.html"));
   await patchPlaceholders(name, path.join(projectDir, "vite.config.ts"));
 
   await updatePackageJSON(name, deps, projectDir);
