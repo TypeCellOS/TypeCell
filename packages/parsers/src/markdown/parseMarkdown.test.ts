@@ -11,7 +11,7 @@ describe("parseMarkdown", () => {
     path.join(ROOT_DIR, "shared/test-data/markdown/**/*.md")
   );
   mds.forEach((md) => {
-    it("converts " + md, () => {
+    it("converts " + path.basename(md), () => {
       const data = fs.readFileSync(md, "utf-8");
       const converted = markdownToDocument(data);
       expect(converted).toMatchSnapshot();

@@ -14,7 +14,7 @@ describe(
       path.join(ROOT_DIR, "shared/test-data/markdown/**/*.md")
     );
     mds.forEach((md) => {
-      it("converts " + md, async () => {
+      it("converts " + path.basename(md), async () => {
         const data = fs.readFileSync(md, "utf-8");
 
         const name = path.parse(md).name.toLowerCase();
