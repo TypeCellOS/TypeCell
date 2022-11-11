@@ -21,12 +21,12 @@ async function initialize(
       () => {
         console.info("(re)evaluating cell");
       },
-      (exports) => {
+      (exports: any) => {
         console.info("evaluated cell");
         const output = engine.assignExecutionExports(exports, ctx);
         modelOutput.updateValue(output);
       },
-      (error) => {
+      (error: any) => {
         console.error(error);
         // cell.output = error;
         modelOutput.updateValue(error);

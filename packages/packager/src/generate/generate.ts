@@ -5,7 +5,7 @@ import {
   extensionForLanguage,
   markdownToDocument,
 } from "@typecell-org/parsers";
-import * as glob from "fast-glob";
+import type globType from "fast-glob";
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
@@ -15,6 +15,17 @@ import {
   patchJSFileWithWrapper,
 } from "./patchJavascript.js";
 import { spawnCmd } from "./process.js";
+
+import glob from "fast-glob";
+const syncGlob = glob.sync as typeof globType["sync"];
+
+const NPM_PATH = process.env.LAMBDA_TASK_ROOT ? "/var/lang/bin/npm" : "npm";
+const NPM_ENV = process.env.LAMBDA_TASK_ROOT
+  ? {
+      HOME: "/tmp/home",
+      PATH: "/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin",
+    }
+  : undefined;
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const SOURCE_DIR = path.resolve(dirname + "../../../template");
@@ -133,12 +144,9 @@ async function compileTypescriptCells(projectDir: string) {
 
   console.log("exists" + fs.existsSync(path.join(projectDir, "package.json")));
   console.log("npm install");
-  await spawnCmd("/var/lang/bin/npm", ["install", "--no-progress"], undefined, {
+  await spawnCmd(NPM_PATH, ["install", "--no-progress"], undefined, {
     cwd: projectDir,
-    env: {
-      HOME: "/tmp/home",
-      PATH: "/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin",
-    },
+    env: NPM_ENV,
     // stdio: "inherit",
   });
 
@@ -152,33 +160,47 @@ async function compileTypescriptCells(projectDir: string) {
   // }
 
   console.log("npm run cells:compile");
-  await spawnCmd("/var/lang/bin/npm", ["run", "cells:compile"], undefined, {
+  await spawnCmd(NPM_PATH, ["run", "cells:compile"], undefined, {
     cwd: projectDir,
-    env: {
-      HOME: "/tmp/home",
-      PATH: "/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin",
-    },
+    env: NPM_ENV,
+    // stdio: "inherit",
+  });
+}
+
+async function buildProject(projectDir: string) {
+  console.log("npm install");
+  await spawnCmd(NPM_PATH, ["install", "--no-progress"], undefined, {
+    cwd: projectDir,
+    env: NPM_ENV,
+    // stdio: "inherit",
+  });
+
+  console.log("npm run build");
+  await spawnCmd(NPM_PATH, ["run", "build"], undefined, {
+    cwd: projectDir,
+    env: NPM_ENV,
     // stdio: "inherit",
   });
 }
 
 async function patchJSOutput(projectDir: string) {
   const dir = getBuiltCellDirectory(projectDir);
-  const files = glob.sync("*.js", { cwd: dir });
+  console.log(syncGlob);
+  const files = syncGlob("*.js", { cwd: dir });
 
   files.forEach((f) => patchJSFileForTypeCell(path.join(dir, f)));
 }
 
 async function patchJSOutputWrap(projectDir: string) {
   const dir = getBuiltCellDirectory(projectDir);
-  const files = glob.sync("*.js", { cwd: dir });
+  const files = syncGlob("*.js", { cwd: dir });
 
   files.forEach((f) => patchJSFileWithWrapper(path.join(dir, f)));
 }
 
 async function getDependencies(projectDir: string) {
   const dir = getBuiltCellDirectory(projectDir);
-  const files = glob.sync("*.js", { cwd: dir });
+  const files = syncGlob("*.js", { cwd: dir });
 
   const allModules = await Promise.all(
     files.map((f) => getModulesFromPatchedFile(path.join(dir, f)))
@@ -209,6 +231,9 @@ async function updatePackageJSON(
   for (let dep of deps) {
     packageJSON.dependencies[dep] = "latest";
   }
+
+  const engineLocation = path.resolve(dirname + "../../../../engine");
+  packageJSON.dependencies["@typecell-org/engine"] = "file:" + engineLocation;
   fs.writeFileSync(filename, JSON.stringify(packageJSON, undefined, 2));
 }
 
@@ -279,6 +304,7 @@ export async function createProject(
   await patchPlaceholders(name, path.join(projectDir, "vite.config.ts"));
 
   await updatePackageJSON(name, deps, projectDir);
+  await buildProject(projectDir);
 
   return {
     outputDir: projectDir,

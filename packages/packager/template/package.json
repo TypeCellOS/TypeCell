@@ -8,16 +8,18 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc-silent -p tsconfig.json --suppress 7016@ && vite build",
     "preview": "vite preview",
-    "cells:compile": "tsc-silent -p src-notebook/tsconfig.json --suppress 1378@"
+    "cells:compile": "tsc-silent -p src-notebook/tsconfig.json --suppress 1378,2307@"
   },
   "dependencies": {
     "@typecell-org/engine": "file:../../../engine",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "mobx-react-lite": "^3.2.0",
-    "mobx": "^6.2.0"
+    "mobx": "^6.2.0",
+    "vscode-lib": "^0.1.2",
+    "react-inspector": "^5.1.0"
   },
   "devDependencies": {
     "@types/react": "^17.0.0",
