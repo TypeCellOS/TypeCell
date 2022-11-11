@@ -4,7 +4,7 @@ import * as path from "path";
 import { describe, it } from "vitest";
 import { createProjectFromMarkdown } from "./generate";
 
-const DEST_DIR = path.resolve(__dirname + "../../../tmp");
+const DEST_DIR = fs.mkdtempSync("generate-test");
 const ROOT_DIR = path.resolve(__dirname + "../../../../../");
 
 describe(
