@@ -142,7 +142,7 @@ async function compileTypescriptCells(projectDir: string) {
   //   // stdio: "inherit",
   // });
 
-  console.log("exists" + fs.existsSync(path.join(projectDir, "package.json")));
+  // console.log("exists" + fs.existsSync(path.join(projectDir, "package.json")));
   console.log("npm install");
   await spawnCmd(NPM_PATH, ["install", "--no-progress"], undefined, {
     cwd: projectDir,
