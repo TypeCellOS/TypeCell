@@ -5,7 +5,8 @@ import * as path from "path";
 import { describe, it, test } from "vitest";
 import { createProjectFromMarkdown } from "./generate";
 
-const DEST_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "-generate-test"));
+const TMP_DIR = process.env["RUNNER_TEMP"] || os.tmpdir();
+const DEST_DIR = fs.mkdtempSync(path.join(TMP_DIR, "generate-test-"));
 const ROOT_DIR = path.resolve(__dirname + "../../../../../");
 
 describe(
