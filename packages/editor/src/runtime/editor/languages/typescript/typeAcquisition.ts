@@ -531,6 +531,17 @@ const getDependenciesForModule = async (
           "index.d.ts",
           config
         );
+      } else if (moduleToDownload === "react") {
+        debugger;
+        try {
+          const x = await import(
+            "../../../../../../../node_modules/@types/react/index.d.ts?raw"
+          );
+          console.log(x);
+        } catch (e) {
+          debugger;
+        }
+        debugger;
       } else {
         // So it doesn't run twice for a package
         acquiredTypeDefs[moduleID] = null;
