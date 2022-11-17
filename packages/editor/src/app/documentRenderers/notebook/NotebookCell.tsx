@@ -10,6 +10,7 @@ import React, {
   useState,
 } from "react";
 import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
+import { MonacoBinding } from "y-monaco";
 import { Awareness } from "y-protocols/awareness";
 import {
   getTypeCellCodeModel,
@@ -21,7 +22,6 @@ import { ExecutionHost } from "../../../runtime/executor/executionHosts/Executio
 import { getStoreService } from "../../../store/local/stores";
 import { HoverTrackerContext } from "./HoverTrackerContext";
 import { NotebookCellModel } from "./NotebookCellModel";
-import { MonacoBinding } from "y-monaco";
 
 type Props = {
   cell: NotebookCellModel;
@@ -92,6 +92,13 @@ const NotebookCell: React.FC<Props> = observer((props) => {
           },
           theme: "typecellTheme",
         });
+
+        // disable per-cell find command (https://github.com/microsoft/monaco-editor/issues/102)
+        (newEditor as any)._standaloneKeybindingService.addDynamicKeybinding(
+          "-actions.find",
+          null, // keybinding
+          () => {} // need to pass an empty handler
+        );
 
         if (initialFocus && initial.current) {
           initial.current = false;
