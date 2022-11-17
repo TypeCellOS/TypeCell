@@ -1,9 +1,9 @@
 import { autorun, runInAction } from "mobx";
-import { TypeCellContext } from "./context";
-import { installHooks } from "./hookDisposables";
-import { Module } from "./modules";
-import { isStored } from "./storage/stored";
-import { isView } from "./view";
+import { TypeCellContext } from "./context.js";
+import { installHooks } from "./hookDisposables.js";
+import { Module } from "./modules.js";
+import { isStored } from "./storage/stored.js";
+import { isView } from "./view.js";
 
 async function resolveDependencyArray(
   dependencyArray: string[],

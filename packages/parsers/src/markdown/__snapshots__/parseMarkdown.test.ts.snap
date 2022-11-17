@@ -1,0 +1,112 @@
+// Vitest Snapshot v1
+
+exports[`parseMarkdown > converts plainMarkdown.md 1`] = `
+{
+  "cells": [
+    {
+      "code": "### CSS
+
+Use CSS to easily style the output of other cells (those written in Markdown or TypeScript).
+
+<div class=\\"redText\\">This text is red, styled by the CSS cell above.</div>
+
+### TypeScript / JavaScript
+
+hello
+",
+      "language": "markdown",
+    },
+  ],
+}
+`;
+
+exports[`parseMarkdown > converts withCSSAndTS.md 1`] = `
+{
+  "cells": [
+    {
+      "code": "### CSS
+
+Use CSS to easily style the output of other cells (those written in Markdown or TypeScript).
+",
+      "language": "markdown",
+    },
+    {
+      "code": ".redText {
+  color: red;
+}",
+      "language": "css",
+    },
+    {
+      "code": "<div class=\\"redText\\">This text is red, styled by the CSS cell above.</div>
+
+### TypeScript / JavaScript
+",
+      "language": "markdown",
+    },
+    {
+      "code": "export let message = \\"This is a TypeScript cell\\";",
+      "language": "typescript",
+    },
+  ],
+}
+`;
+
+exports[`parseMarkdown > converts withId.md 1`] = `
+{
+  "cells": [
+    {
+      "code": "plain text
+",
+      "language": "markdown",
+    },
+    {
+      "code": "export let x = 5;",
+      "language": "typescript",
+    },
+  ],
+}
+`;
+
+exports[`parseMarkdown > converts withLibraryAndContext.md 1`] = `
+{
+  "cells": [
+    {
+      "code": "plain text
+",
+      "language": "markdown",
+    },
+    {
+      "code": "import * as lodash from \\"lodash\\";
+export let x = lodash.sum([5, 1]);",
+      "language": "typescript",
+    },
+    {
+      "code": "this shows how to reuse x:
+",
+      "language": "markdown",
+    },
+    {
+      "code": "export let y = $.x + 1;",
+      "language": "typescript",
+    },
+    {
+      "code": "rain confetti!
+",
+      "language": "markdown",
+    },
+    {
+      "code": "import { create } from \\"canvas-confetti\\";
+
+export const canvas = document.createElement(\\"canvas\\");
+canvas.width = 200;
+canvas.height = 100;
+
+const myConfetti = create(canvas);
+
+// Drop some confetty every 500ms
+setInterval(() => myConfetti({ particleCount: 70, origin: { y: 0 } }), 500);",
+      "language": "typescript",
+    },
+  ],
+}
+`;

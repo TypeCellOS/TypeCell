@@ -3,10 +3,10 @@
 # dependencies
 node_modules
 dist
-types
 /.pnp
 .pnp.js
-
+packages/*/types
+packages/editor/public/types
 # testing
 coverage
 playwright-report

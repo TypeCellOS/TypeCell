@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { event } from "vscode-lib";
-import { CodeModel } from "./CodeModel";
-import { Engine } from "./Engine";
+import { CodeModel } from "./CodeModel.js";
+import { Engine } from "./Engine.js";
 import {
   buildMockedModel,
   importResolver,
   toAMDFormat,
   waitTillEvent,
-} from "./tests/util/helpers";
+} from "./tests/util/helpers.js";
 
 /**
  * @vitest-environment jsdom

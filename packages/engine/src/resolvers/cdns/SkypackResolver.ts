@@ -1,4 +1,4 @@
-import { ExternalModuleResolver } from "../ExternalModuleResolver";
+import { ExternalModuleResolver } from "../ExternalModuleResolver.js";
 
 export class SkypackResolver extends ExternalModuleResolver {
   public readonly name = "skypack";

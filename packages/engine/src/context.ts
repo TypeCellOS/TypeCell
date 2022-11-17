@@ -1,6 +1,6 @@
 import { observable, untracked } from "mobx";
-import { hookDefaultAnnotation } from "./mobx/customAnnotation";
-import { isReactView } from "./reactView";
+import { hookDefaultAnnotation } from "./mobx/customAnnotation.js";
+import { isReactView } from "./reactView.js";
 // import { Storage } from "./storage/Storage";
 
 hookDefaultAnnotation();

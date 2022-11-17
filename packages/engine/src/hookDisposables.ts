@@ -10,7 +10,7 @@ type Hook = {
 function installHook<T, K extends FunctionPropertyNames<T>>(
   obj: T,
   method: K,
-  disposeSingle: (ret: ReturnType<T[K]>, args: IArguments) => void
+  disposeSingle: (ret: ReturnType<any>, args: IArguments) => void // TODO: fix any
 ): Hook {
   const disposes: Array<() => void> = [];
 

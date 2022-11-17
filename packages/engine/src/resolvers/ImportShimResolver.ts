@@ -1,6 +1,6 @@
 import _ from "lodash";
-import { ExternalModuleResolver } from "./ExternalModuleResolver";
-import { LocalModuleResolver } from "./LocalModuleResolver";
+import { ExternalModuleResolver } from "./ExternalModuleResolver.js";
+import { LocalModuleResolver } from "./LocalModuleResolver.js";
 
 let importShimCreated = false;
 

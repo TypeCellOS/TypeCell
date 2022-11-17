@@ -1,6 +1,6 @@
-import { CodeModel } from "../../CodeModel";
-import { ResolvedImport } from "../../Engine";
-import { CodeModelMock } from "./CodeModelMock";
+import { CodeModel } from "../../CodeModel.js";
+import { ResolvedImport } from "../../Engine.js";
+import { CodeModelMock } from "./CodeModelMock.js";
 
 export function waitTillEvent<T>(
   e: (listener: (arg0: T) => void) => void,

@@ -1,4 +1,4 @@
-import { Stored } from "./stored";
+import { Stored } from "./stored.js";
 
 export type Storage = {
   hasStoredValue: (propertyName: string) => boolean;
