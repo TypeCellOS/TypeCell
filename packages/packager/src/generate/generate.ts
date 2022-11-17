@@ -278,6 +278,7 @@ export async function createProject(
   // generate src-notebook directory from document
   const cells = cellsWithId(tcDocument.cells);
 
+  // Step 1: Write tsx files for all Typescript cells
   const exported = await Promise.all(
     cells
       .filter((c) => c.language === "typescript")
@@ -286,24 +287,43 @@ export async function createProject(
 
   let deps = new Set<string>();
   if (exported.length) {
+    // Step 2: generate helper file for notebook project with the $ interface
     await generateContextTSFile(projectDir, exported);
 
-    // compile src-notebook directory
+    // Step 3: Compile the cells to javascript (AMD)
+    // This uses npm run cells:compile in the template project
+    // We ignore errors about missing libraries, as those will be added to the package.json later (step 9)
     await compileTypescriptCells(projectDir);
 
+    // Step 4: Make define async and add scope imports
     await patchJSOutput(projectDir);
+
+    // we can now get the dependencies (using the patched functions)
+    // these are all the libraries that are imported by the cells
     deps = await getDependencies(projectDir);
+
+    // Step 5: Add a wrapper function, so that instead of
+    // directly exporting the module, we export a factory function that creates the module
     await patchJSOutputWrap(projectDir);
 
+    // Step 6: add a ts file (cellFunctions.ts) that exports all cell factory functions
     await generateMainTSFile(projectDir, exported);
   }
 
+  // Step 7: generate a module resolver based on deps
   await writeModuleResolver(deps, projectDir);
+
+  // Step 8: Replace the project name in some files
   await patchPlaceholders(name, path.join(projectDir, "package.json"));
   await patchPlaceholders(name, path.join(projectDir, "index.html"));
   await patchPlaceholders(name, path.join(projectDir, "vite.config.ts"));
 
+  // Step 9: add the dependencies to package.json
   await updatePackageJSON(name, deps, projectDir);
+
+  // Step 10: build the project using vite
+  // the build command suppresses errors about missing types of imported libraries
+  // (because we don't add types yet to dev dependencies)
   await buildProject(projectDir);
 
   return {
