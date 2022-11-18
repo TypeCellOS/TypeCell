@@ -605,7 +605,7 @@ const getDependenciesForModule = async (
           resolvedFilepath += ".d.ts";
         }
       }
-      console.log("NESTED", moduleName, resolvedFilepath);
+
       if (
         moduleName?.startsWith("typecell") ||
         moduleName?.startsWith("@typecell-org/")
