@@ -293,7 +293,7 @@ export default class SandboxedExecutionHost
 
   private async pingFrame() {
     const result = await this.connectionMethods!.ping();
-    console.log("received ping result", result);
+    // console.log("received ping result", result);
     if (result !== "pong") {
       throw new Error("invalid ping response");
     }

@@ -3,13 +3,13 @@ import { observable, runInAction } from "mobx";
 import { AsyncMethodReturns, Connection, connectToParent } from "penpal";
 import { lifecycle } from "vscode-lib";
 import { CompiledCodeModel } from "../../../../../models/CompiledCodeModel";
-import { getTypeCellResolver } from "../../../resolver/resolver";
 import { ModelOutput } from "../../../components/ModelOutput";
+import { getTypeCellResolver } from "../../../resolver/resolver";
 
-import { ModelReceiver } from "./ModelReceiver";
 import type { VisualizersByPath } from "../../../../extensions/visualizer/VisualizerExtension";
-import { IframeBridgeMethods } from "./IframeBridgeMethods";
 import { HostBridgeMethods } from "../HostBridgeMethods";
+import { IframeBridgeMethods } from "./IframeBridgeMethods";
+import { ModelReceiver } from "./ModelReceiver";
 
 let ENGINE_ID = 0;
 
@@ -224,7 +224,7 @@ export class FrameConnection extends lifecycle.Disposable {
       });
     },
     ping: async () => {
-      console.log("ping received, sending pong");
+      // console.log("ping received, sending pong");
       return "pong";
     },
 
