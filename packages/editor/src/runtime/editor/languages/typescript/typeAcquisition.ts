@@ -240,7 +240,7 @@ const addModuleToRuntime = async (
   }
 
   if (mod === "vscode-lib") {
-    console.warn("skipping types of vscode-lib");
+    config.logger.warn("skipping types of vscode-lib");
     return;
   }
   const isDeno = path && path.indexOf("https://") === 0;
@@ -401,7 +401,7 @@ const getCachedDTSString = async (config: ATAConfig, url: string) => {
 
   if (response.headers.get("content-type") === "text/html") {
     // this happens when the file is not found, and the server is returning a dynamic route (html fallback) instead
-    console.warn(`possibly wrong file for typescript types at ${url}`);
+    config.logger.warn(`possibly wrong file for typescript types at ${url}`);
   }
   // TODO: handle checking for a resolve to index.d.ts whens someone imports the folder
   let content = await response.text();
