@@ -1,30 +1,38 @@
+import { getReactViewValue } from "@typecell-org/engine";
 import { IObservableValue, isObservable, observable } from "mobx";
 import * as React from "react";
-import { getReactViewValue, ReactView } from "@typecell-org/engine";
 import ReactViewElement from "./ReactViewElement";
 
+// same as ReactView from typecell-org/engine, but define here so we don't import all types at runtime
+type TypeCellView<T> = React.ReactElement<{
+  __tcObservable: T;
+}>;
+
+type TextAreaType = React.ReactElement<
+  React.DetailedHTMLProps<
+    React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+    HTMLTextAreaElement
+  >
+>;
+
+type SelectType = React.ReactElement<
+  React.DetailedHTMLProps<
+    React.SelectHTMLAttributes<HTMLSelectElement>,
+    HTMLSelectElement
+  >
+>;
+
+type InputType = React.ReactElement<
+  React.DetailedHTMLProps<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    HTMLInputElement
+  >
+>;
+
 export function Input<T extends string | string[] | number = string>(
-  el:
-    | React.ReactElement<
-        React.DetailedHTMLProps<
-          React.InputHTMLAttributes<HTMLInputElement>,
-          HTMLInputElement
-        >
-      >
-    | React.ReactElement<
-        React.DetailedHTMLProps<
-          React.TextareaHTMLAttributes<HTMLTextAreaElement>,
-          HTMLTextAreaElement
-        >
-      >
-    | React.ReactElement<
-        React.DetailedHTMLProps<
-          React.SelectHTMLAttributes<HTMLSelectElement>,
-          HTMLSelectElement
-        >
-      >,
-  bindingOrDefaultValue?: T | ReactView<T>
-): ReactView<T extends string ? string : T> {
+  el: TextAreaType | SelectType | InputType,
+  bindingOrDefaultValue?: T | TypeCellView<T>
+): TypeCellView<T extends string ? string : T> {
   // don't use string literals
   if (el.type !== "input" && el.type !== "select" && el.type !== "textarea") {
     throw new Error("invalid element passed");
