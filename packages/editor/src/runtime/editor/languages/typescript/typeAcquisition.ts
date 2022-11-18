@@ -200,7 +200,7 @@ const addBuiltInTypesToRuntime = async (
     content = fs.readFileSync("public/types/" + typePath + "/" + path, "utf-8");
   } else {
     const url = new URL("/types/" + typePath + "/" + path, import.meta.url);
-    console.log("RESOLVE", mod, url.toString(), path);
+    // console.log("RESOLVE", mod, url.toString(), path);
     content = await getCachedDTSString(config, url.toString());
     // content = await (await config.fetcher(url.toString())).text();
   }
@@ -399,7 +399,8 @@ const getCachedDTSString = async (config: ATAConfig, url: string) => {
     );
   }
 
-  if (response.headers.get("content-type") !== "application/javascript") {
+  if (response.headers.get("content-type") === "text/html") {
+    // this happens when the file is not found, and the server is returning a dynamic route (html fallback) instead
     console.warn(`possibly wrong file for typescript types at ${url}`);
   }
   // TODO: handle checking for a resolve to index.d.ts whens someone imports the folder
