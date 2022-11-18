@@ -167,6 +167,11 @@ const convertToModuleReferenceID = (
 
 const builtInModules = ["react", "scheduler", "prop-types", "csstype"];
 
+const isBuiltInModule = (mod: string) => {
+  const mainMod = mod.split("/")[0] || mod;
+  return builtInModules.includes(mainMod);
+};
+
 const addBuiltInTypesToRuntime = async (
   mod: string,
   path: string,
@@ -176,9 +181,9 @@ const addBuiltInTypesToRuntime = async (
 
   if (mod === "typecell") {
     typePath = "@typecell-org/editor";
-  } else if (builtInModules.includes(mod)) {
+  } else if (isBuiltInModule(mod)) {
     if (mod === "csstype") {
-      typePath = "@types/react/csstype"; // TODO: would be better to have 1 version of csstype, and in @types/csstype
+      typePath = "@types/react/node_modules/csstype"; // TODO: would be better to have 1 version of csstype, and in @types/csstype
     } else {
       typePath = "@types/" + mod;
     }
@@ -195,6 +200,7 @@ const addBuiltInTypesToRuntime = async (
     content = fs.readFileSync("public/types/" + typePath + "/" + path, "utf-8");
   } else {
     const url = new URL("/types/" + typePath + "/" + path, import.meta.url);
+    console.log("RESOLVE", mod, url.toString(), path);
     content = await getCachedDTSString(config, url.toString());
     // content = await (await config.fetcher(url.toString())).text();
   }
@@ -208,7 +214,10 @@ const addBuiltInTypesToRuntime = async (
   // Now look and grab dependent modules where you need the
   await getDependenciesForModule(content, mod, path, config);
 
-  config.logger.log("adding typecell module", path);
+  config.logger.log(
+    "adding typecell module",
+    `file:///node_modules/@types/${mod}/${path}`
+  );
   config.addLibraryToRuntime(
     content,
     `file:///node_modules/@types/${mod}/${path}`
@@ -274,6 +283,7 @@ const getModuleAndRootDefTypePath = async (
   const url = moduleJSONURL(packageName);
 
   const response = await config.fetcher(url);
+
   if (!response.ok) {
     return errorMsg(
       `Could not get Algolia JSON for the module '${packageName}'`,
@@ -380,6 +390,7 @@ const getCachedDTSString = async (config: ATAConfig, url: string) => {
   }
 
   const response = await config.fetcher(url);
+
   if (!response.ok) {
     return errorMsg(
       `Could not get DTS response for the module at ${url}`,
@@ -388,6 +399,9 @@ const getCachedDTSString = async (config: ATAConfig, url: string) => {
     );
   }
 
+  if (response.headers.get("content-type") !== "application/javascript") {
+    console.warn(`possibly wrong file for typescript types at ${url}`);
+  }
   // TODO: handle checking for a resolve to index.d.ts whens someone imports the folder
   let content = await response.text();
   if (!content) {
@@ -421,7 +435,7 @@ const getReferenceDependencies = async (
       if (relativePath) {
         let newPath = mapRelativePath(relativePath, path);
         if (newPath) {
-          if (builtInModules.includes(mod)) {
+          if (isBuiltInModule(mod)) {
             await addBuiltInTypesToRuntime(mod, newPath, config);
             return;
           }
@@ -537,7 +551,10 @@ const getDependenciesForModule = async (
       moduleToDownload.split("/").length === 1;
     const isPackageRootImport = modIsPackageOnly || modIsScopedPackageOnly;
     const isDenoModule = moduleToDownload.indexOf("https://") === 0;
-
+    const isPackageSpecificFileImport =
+      !isPackageRootImport &&
+      !moduleToDownload.startsWith(".") &&
+      moduleToDownload.includes("/"); // absolute path
     if (moduleToDownload.startsWith("!@")) {
       // typecell imports are loaded in TypecellTypeResolver
       return;
@@ -565,22 +582,16 @@ const getDependenciesForModule = async (
     } else if (isDenoModule) {
       // E.g. import { serve } from "https://deno.land/std@v0.12/http/server.ts";
       await addModuleToRuntime(moduleToDownload, moduleToDownload, config);
-      // TODO: Possible fix for scheduler/tracing, but not critical / should file with original repo
-      // } else if (
-      //   !moduleToDownload.startsWith(".") &&
-      //   moduleToDownload.includes("/")
-      // ) {
-      //   const parts = moduleToDownload.split("/", 2);
-      //   const packageDef = await getModuleAndRootDefTypePath(parts[0], config);
-
-      //   if (packageDef) {
-      //     acquiredTypeDefs[moduleID] = packageDef.packageJSON;
-      //     const absolutePathForModule = mapRelativePath(
-      //       parts[1] + ".d.ts",
-      //       packageDef.path
-      //     );
-      //     await addModuleToRuntime(packageDef.mod, absolutePathForModule, config);
-      //   }
+    } else if (isPackageSpecificFileImport) {
+      // fix for scheduler/tracing
+      const parts = moduleToDownload.split("/", 2);
+      const modname = parts[0];
+      const pathName = parts[1] + ".d.ts";
+      if (isBuiltInModule(moduleName!)) {
+        await addBuiltInTypesToRuntime(modname, pathName, config);
+      } else {
+        await addModuleToRuntime(modname, pathName, config);
+      }
     } else {
       // E.g. import {Component} from "./MyThing"
       if (!moduleToDownload || !path)
@@ -611,7 +622,7 @@ const getDependenciesForModule = async (
         moduleName?.startsWith("@typecell-org/")
       ) {
         await addBuiltInTypesToRuntime(moduleName!, resolvedFilepath, config);
-      } else if (builtInModules.includes(moduleName!)) {
+      } else if (isBuiltInModule(moduleName!)) {
         await addBuiltInTypesToRuntime(moduleName!, resolvedFilepath, config);
       } else {
         await addModuleToRuntime(moduleName!, resolvedFilepath, config);
