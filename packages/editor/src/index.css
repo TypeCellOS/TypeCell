@@ -1,5 +1,5 @@
 /* @import-normalize; */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+@import url("fonts-inter.css");
 @import "github-markdown.css";
 
 html {
@@ -491,7 +491,7 @@ pluto-input > button > span {
 
 .cellList-item > button.add_cell > span::after {
   /* background-image: url(https://cdn.jsdelivr.net/gh/ionic-team/ionicons@5.0.0/src/svg/add-circle-outline.svg); */
-  background-image: url(https://cdn.jsdelivr.net/gh/ionic-team/ionicons@5.0.0/src/svg/add-outline.svg);
+  background-image: url(assets/add-outline.svg);
 }
 
 .cellList-item .notebookCell-sideIcon {
