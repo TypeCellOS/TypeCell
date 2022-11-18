@@ -7,8 +7,7 @@ import { Buffer } from "buffer";
 import * as mobx from "mobx";
 import * as monaco from "monaco-editor";
 import * as process from "process";
-import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import App from "./app/App";
 import { MATRIX_CONFIG } from "./config/config";
 import { validateHostDomain } from "./config/security";
@@ -78,13 +77,15 @@ async function init() {
   setupTypecellTypeResolver(monaco);
   setupNpmTypeResolver(monaco);
 
-  ReactDOM.render(
-    <React.StrictMode>
-      <MonacoContext.Provider value={{ monaco }}>
-        <App config={cachedValidatedConfig} />
-      </MonacoContext.Provider>
-    </React.StrictMode>,
-    document.getElementById("root")
+  const root = createRoot(document.getElementById("root")!);
+
+  root.render(
+    // TODO: support strictmode
+    // <React.StrictMode>
+    <MonacoContext.Provider value={{ monaco }}>
+      <App config={cachedValidatedConfig} />
+    </MonacoContext.Provider>
+    // </React.StrictMode>
   );
 }
 

@@ -14,16 +14,16 @@
   },
   "dependencies": {
     "@typecell-org/engine": "file:../../../engine",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "mobx-react-lite": "^3.2.0",
     "mobx": "^6.2.0",
     "vscode-lib": "^0.1.2",
     "react-inspector": "^5.1.0"
   },
   "devDependencies": {
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^2.2.0",
     "typescript": "^4.6.4",
     "vite": "^3.2.0",

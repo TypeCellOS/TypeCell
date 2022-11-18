@@ -1,7 +1,7 @@
 import "@atlaskit/css-reset/dist/bundle.css";
 import React from "react";
-import ReactDOM from "react-dom";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { createRoot } from "react-dom/client";
 import * as reo from "react-error-overlay";
 import {
   getMainDomainFromIframe,
@@ -36,11 +36,11 @@ async function init() {
   if (!validateFrameDomain()) {
     throw new Error("invalid hostname for frame");
   }
-  ReactDOM.render(
+  const root = createRoot(document.getElementById("root")!);
+  root.render(
     <React.StrictMode>
       <Frame />
-    </React.StrictMode>,
-    document.getElementById("root")
+    </React.StrictMode>
   );
 }
 

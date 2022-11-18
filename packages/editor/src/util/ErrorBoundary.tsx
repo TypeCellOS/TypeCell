@@ -1,13 +1,13 @@
 import React from "react";
 
 export default class ErrorBoundary extends React.Component<
-  {},
+  { children: any },
   {
     error: any;
     hasError: boolean;
   }
 > {
-  constructor(props: {}) {
+  constructor(props: { children: any }) {
     super(props);
     this.state = { hasError: false, error: undefined };
   }
