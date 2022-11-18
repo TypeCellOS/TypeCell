@@ -165,24 +165,38 @@ const convertToModuleReferenceID = (
   }
 };
 
-const addTypecellModuleToRuntime = async (
+const builtInModules = ["react", "scheduler", "prop-types", "csstype"];
+
+const addBuiltInTypesToRuntime = async (
   mod: string,
   path: string,
   config: ATAConfig
 ) => {
-  const typecellPath = mod === "typecell" ? "@typecell-org/editor" : mod;
+  let typePath = mod;
 
-  let content: string;
+  if (mod === "typecell") {
+    typePath = "@typecell-org/editor";
+  } else if (builtInModules.includes(mod)) {
+    if (mod === "csstype") {
+      typePath = "@types/react/csstype"; // TODO: would be better to have 1 version of csstype, and in @types/csstype
+    } else {
+      typePath = "@types/" + mod;
+    }
+  } else if (mod.startsWith("@typecell-org")) {
+    typePath = mod;
+  } else {
+    throw new Error("unknown local type module");
+  }
+
+  let content: string | void;
   if (import.meta.env.NODE_ENV === "test") {
     // TODO: extract this case
     let fs = require("fs");
-    content = fs.readFileSync(
-      "public/types/" + typecellPath + "/" + path,
-      "utf-8"
-    );
+    content = fs.readFileSync("public/types/" + typePath + "/" + path, "utf-8");
   } else {
-    const url = new URL("/types/" + typecellPath + "/" + path, import.meta.url);
-    content = await (await config.fetcher(url.toString())).text();
+    const url = new URL("/types/" + typePath + "/" + path, import.meta.url);
+    content = await getCachedDTSString(config, url.toString());
+    // content = await (await config.fetcher(url.toString())).text();
   }
   if (!content) {
     return errorMsg(
@@ -407,6 +421,10 @@ const getReferenceDependencies = async (
       if (relativePath) {
         let newPath = mapRelativePath(relativePath, path);
         if (newPath) {
+          if (builtInModules.includes(mod)) {
+            await addBuiltInTypesToRuntime(mod, newPath, config);
+            return;
+          }
           const dtsRefURL = unpkgURL(mod, newPath);
 
           const dtsReferenceResponseText = await getCachedDTSString(
@@ -526,22 +544,9 @@ const getDependenciesForModule = async (
       // config.addLibraryToRuntime(code.dtsCode, moduleToDownload+".d.ts");
     } else if (isPackageRootImport) {
       if (moduleToDownload.startsWith("@typecell-org/")) {
-        await addTypecellModuleToRuntime(
-          moduleToDownload,
-          "index.d.ts",
-          config
-        );
-      } else if (moduleToDownload === "react") {
-        debugger;
-        try {
-          const x = await import(
-            "../../../../../../../node_modules/@types/react/index.d.ts?raw"
-          );
-          console.log(x);
-        } catch (e) {
-          debugger;
-        }
-        debugger;
+        await addBuiltInTypesToRuntime(moduleToDownload, "index.d.ts", config);
+      } else if (builtInModules.includes(moduleToDownload)) {
+        await addBuiltInTypesToRuntime(moduleToDownload, "index.d.ts", config);
       } else {
         // So it doesn't run twice for a package
         acquiredTypeDefs[moduleID] = null;
@@ -600,19 +605,21 @@ const getDependenciesForModule = async (
           resolvedFilepath += ".d.ts";
         }
       }
-
+      console.log("NESTED", moduleName, resolvedFilepath);
       if (
         moduleName?.startsWith("typecell") ||
         moduleName?.startsWith("@typecell-org/")
       ) {
-        await addTypecellModuleToRuntime(moduleName!, resolvedFilepath, config);
+        await addBuiltInTypesToRuntime(moduleName!, resolvedFilepath, config);
+      } else if (builtInModules.includes(moduleName!)) {
+        await addBuiltInTypesToRuntime(moduleName!, resolvedFilepath, config);
       } else {
         await addModuleToRuntime(moduleName!, resolvedFilepath, config);
       }
     }
   });
 
-  // Also support the
+  // Also support the <reference> comments
   promises.push(
     getReferenceDependencies(sourceCode, moduleName!, path!, config)
   );
