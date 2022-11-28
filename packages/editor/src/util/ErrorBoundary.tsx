@@ -1,13 +1,13 @@
 import React from "react";
 
 export default class ErrorBoundary extends React.Component<
-  {},
+  { children: any },
   {
     error: any;
     hasError: boolean;
   }
 > {
-  constructor(props: {}) {
+  constructor(props: { children: any }) {
     super(props);
     this.state = { hasError: false, error: undefined };
   }
@@ -22,7 +22,7 @@ export default class ErrorBoundary extends React.Component<
     return this.state.hasError;
   }
 
-  componentDidCatch(error: any, errorInfo: any) {
+  componentDidCatch(_error: any, _errorInfo: any) {
     // You can also log the error to an error reporting service
     // logErrorToMyService(error, errorInfo);
   }

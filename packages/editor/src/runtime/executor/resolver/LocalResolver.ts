@@ -22,12 +22,16 @@ async function resolveNestedModule(id: string, mode?: string) {
     id === "react" &&
     (!mode ||
       mode === "imports/optimized/react.js" ||
-      mode === "es2021/react.js")
+      mode === "es2021/react.js" ||
+      mode === "es2022/react.js")
   ) {
     return react;
   }
 
-  if (id === "react" && mode === "imports/unoptimized/jsx-runtime.js") {
+  if (
+    (id === "react" && mode === "imports/unoptimized/jsx-runtime.js") ||
+    id === "react/jsx-runtime"
+  ) {
     return jsxruntime;
   }
 

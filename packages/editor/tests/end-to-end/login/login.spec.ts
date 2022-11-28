@@ -21,7 +21,7 @@ test("Sign in by email", async ({ page, aliceUser, aliceContext }) => {
   // sign in by username instead of email
   await page.locator("text=Email address").click();
   await page.waitForTimeout(100);
-  await page.keyboard.press("ArrowUp");
+  // await page.keyboard.press("ArrowUp");
   await page.keyboard.press("ArrowUp");
   await page.keyboard.press("Enter");
 

@@ -225,7 +225,7 @@ export default class Registration extends React.Component<IProps, IState> {
       // do SSO instead. If we've already started the UI Auth process though, we don't
       // need to.
       if (!this.state.doingUIAuth) {
-        await this.makeRegisterRequest(null);
+        await this.makeRegisterRequest(cli, null);
         // This should never succeed since we specified no auth object.
         console.log("Expecting 401 from register request but got success!");
       }
@@ -439,7 +439,7 @@ export default class Registration extends React.Component<IProps, IState> {
     });
   };
 
-  private makeRegisterRequest = (auth: any) => {
+  private makeRegisterRequest = (matrixClient: MatrixClient, auth: any) => {
     // We inhibit login if we're trying to register with an email address: this
     // avoids a lot of complex race conditions that can occur if we try to log
     // the user in one one or both of the tabs they might end up with after
@@ -461,7 +461,7 @@ export default class Registration extends React.Component<IProps, IState> {
     if (auth) registerParams.auth = auth;
     if (inhibitLogin !== undefined && inhibitLogin !== null)
       registerParams.inhibit_login = inhibitLogin;
-    return this.state.matrixClient!.registerRequest(registerParams);
+    return matrixClient.registerRequest(registerParams);
   };
 
   private getUIAuthInputs() {
@@ -492,7 +492,9 @@ export default class Registration extends React.Component<IProps, IState> {
       return (
         <InteractiveAuth
           matrixClient={this.state.matrixClient}
-          makeRequest={this.makeRegisterRequest}
+          makeRequest={(params) =>
+            this.makeRegisterRequest(this.state.matrixClient!, params)
+          }
           onAuthFinished={this.onUIAuthFinished}
           inputs={this.getUIAuthInputs()}
           requestEmailToken={this.requestEmailToken}

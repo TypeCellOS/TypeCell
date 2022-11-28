@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ObjectInspector from "react-inspector";
+import { ObjectInspector } from "react-inspector";
 import { ContainedElement } from "./ContainedElement";
 import RetryErrorBoundary from "./RetryErrorBoundary";
 

@@ -4,7 +4,9 @@
   "devDependencies": {
     "lerna": "^5.0.0",
     "playwright": "^1.18.1",
-    "patch-package": "^6.4.7"
+    "patch-package": "^6.4.7",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9"
   },
   "workspaces": [
     "packages/*"
@@ -35,6 +37,8 @@
   },
   "overrides": {
     "--comment": "needed so that playwright-test doesn't install a different version of pw",
-    "playwright-core": "1.24.2"
+    "playwright-core": "1.24.2",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9"
   }
 }

@@ -12,6 +12,7 @@ type Props = {
   onAddBefore: () => void;
   onAddAfter: () => void;
   onRemove: () => void;
+  children: any;
 };
 
 interface DragItem {
