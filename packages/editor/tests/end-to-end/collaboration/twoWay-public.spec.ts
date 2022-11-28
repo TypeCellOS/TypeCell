@@ -24,7 +24,7 @@ test.beforeAll(async ({ aliceContext, bobContext }) => {
 
   // set notebook to public
   await pageAlice.click('[aria-label="open"]');
-  await pageAlice.pause();
+  // await pageAlice.pause();
   // pageAlice.locator("text=Anyone can view and edit >> visible=true")
   await pageAlice.click(
     "text=Anyone can view and edit >> visible=true >> nth=-1"
