@@ -30,7 +30,7 @@ describe(
           fs.rmSync(dest, { recursive: true, force: true });
         }
         // fs.removeSync.rmdirSync(dest, {})
-
+        console.log("createProjectFromMarkdown", dest);
         await createProjectFromMarkdown(name, data, dest);
       });
     });

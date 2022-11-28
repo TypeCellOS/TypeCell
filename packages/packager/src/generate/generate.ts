@@ -271,9 +271,10 @@ export async function createProject(
   }
 
   // copy files
+  console.log("source dir", SOURCE_DIR);
+  console.log("create dir", projectDir);
   fs.mkdirSync(projectDir);
   fs.cpSync(SOURCE_DIR, projectDir, { recursive: true });
-  console.log(SOURCE_DIR);
 
   // generate src-notebook directory from document
   const cells = cellsWithId(tcDocument.cells);

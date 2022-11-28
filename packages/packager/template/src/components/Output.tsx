@@ -1,7 +1,7 @@
 import { ObservableMap, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
-import ObjectInspector from "react-inspector";
+import { ObjectInspector } from "react-inspector";
 import { DefaultOutputVisualizer } from "./DefaultOutputVisualizer";
 import { ModelOutput } from "./ModelOutput";
 
