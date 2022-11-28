@@ -78,7 +78,7 @@
     "string.prototype.replaceall": "^1.0.5",
     "styled-components": "3.2.6",
     "tippy.js": "^6.3.1",
-    "typescript": "4.3.2",
+    "typescript": "4.5.5",
     "ua-parser-js": "^0.7.28",
     "uuid": "^8.3.2",
     "vscode-lib": "^0.1.2",

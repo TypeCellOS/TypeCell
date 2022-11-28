@@ -15,7 +15,7 @@
     "@types/fs-extra": "9.0.13",
     "@types/react": "^18.0.25",
     "rimraf": "^3.0.2",
-    "typescript": "4.3.2",
+    "typescript": "4.5.5",
     "@playwright/test": "^1.18.1",
     "playwright-test": "^8.1.1",
     "vitest": "^0.24.4",

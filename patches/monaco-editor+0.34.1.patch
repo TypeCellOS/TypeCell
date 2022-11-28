@@ -1,0 +1,23 @@
+diff --git a/node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js b/node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js
+index 62336bd..dfef894 100644
+--- a/node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js
++++ b/node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js
+@@ -161379,7 +161379,7 @@ var TypeScriptWorker = class {
+   }
+   getScriptFileNames() {
+     const allModels = this._ctx.getMirrorModels().map((model) => model.uri);
+-    const models = allModels.filter((uri) => !fileNameIsLib(uri)).map((uri) => uri.toString(true));
++    const models = allModels.filter((uri) => !fileNameIsLib(uri)).map((uri) => uri.toString());
+     return models.concat(Object.keys(this._extraLibs));
+   }
+   _getModel(fileName) {
+@@ -161668,7 +161668,8 @@ self.onmessage = () => {
+   });
+ };
+ export {
+-  create
++  create,
++  TypeScriptWorker
+ };
+ /*! *****************************************************************************
+ Copyright (c) Microsoft Corporation. All rights reserved.

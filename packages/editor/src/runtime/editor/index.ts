@@ -7,7 +7,7 @@ import EditorWorker from "./workers/editor.worker?worker"; // eslint-disable-lin
 // @ts-ignore
 import TsWorker from "./workers/ts.worker?worker"; // eslint-disable-line import/no-webpack-loader-syntax
 // @ts-ignore
-import CSSWorker from "./workers/css.worker?worker"; // eslint-disable-line import/no-webpack-loader-syntax
+import CSSWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
 
 import { getDefaultSandboxCompilerOptions } from "./compilerOptions";
 import { setupPrettier } from "./prettier";
