@@ -1,3 +1,21 @@
+diff --git a/node_modules/monaco-editor/esm/vs/language/typescript/monaco.contribution.js b/node_modules/monaco-editor/esm/vs/language/typescript/monaco.contribution.js
+index d130d21..014f6e4 100644
+--- a/node_modules/monaco-editor/esm/vs/language/typescript/monaco.contribution.js
++++ b/node_modules/monaco-editor/esm/vs/language/typescript/monaco.contribution.js
+@@ -1,4 +1,5 @@
+ import '../../editor/editor.api.js';
++import * as monaco_editor_core_star from "../../editor/editor.api.js";
+ /*!-----------------------------------------------------------------------------
+  * Copyright (c) Microsoft Corporation. All rights reserved.
+  * Version: 0.34.1(547870b6881302c5b4ff32173c16d06009e3588f)
+@@ -26,7 +27,6 @@ var typescriptVersion = "4.5.5";
+ // src/fillers/monaco-editor-core.ts
+ var monaco_editor_core_exports = {};
+ __reExport(monaco_editor_core_exports, monaco_editor_core_star);
+-import * as monaco_editor_core_star from "../../editor/editor.api.js";
+ 
+ // src/language/typescript/monaco.contribution.ts
+ var ModuleKind = /* @__PURE__ */ ((ModuleKind2) => {
 diff --git a/node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js b/node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js
 index 62336bd..dfef894 100644
 --- a/node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js
@@ -21,3 +39,17 @@ index 62336bd..dfef894 100644
  };
  /*! *****************************************************************************
  Copyright (c) Microsoft Corporation. All rights reserved.
+diff --git a/node_modules/monaco-editor/esm/vs/language/typescript/tsMode.js b/node_modules/monaco-editor/esm/vs/language/typescript/tsMode.js
+index 3f7034e..7773468 100644
+--- a/node_modules/monaco-editor/esm/vs/language/typescript/tsMode.js
++++ b/node_modules/monaco-editor/esm/vs/language/typescript/tsMode.js
+@@ -26,8 +26,8 @@ var __publicField = (obj, key, value) => {
+ 
+ // src/fillers/monaco-editor-core.ts
+ var monaco_editor_core_exports = {};
+-__reExport(monaco_editor_core_exports, monaco_editor_core_star);
+ import * as monaco_editor_core_star from "../../editor/editor.api.js";
++__reExport(monaco_editor_core_exports, monaco_editor_core_star);
+ 
+ // src/language/typescript/workerManager.ts
+ var WorkerManager = class {
