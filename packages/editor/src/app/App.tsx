@@ -1,5 +1,4 @@
 import { observer } from "mobx-react-lite";
-import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { getStoreService } from "../store/local/stores";
 import { StartScreen } from "./main/components/startscreen/StartScreen";
@@ -12,6 +11,7 @@ import { ProfileRoute } from "./routes/profile";
 import { Register } from "./routes/register";
 
 export const App = observer((props: { config: ValidatedServerConfig }) => {
+  console.log("app render");
   const { sessionStore } = getStoreService();
   if (sessionStore.user === "loading") {
     return <div>Loading</div>;
