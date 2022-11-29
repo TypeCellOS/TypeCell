@@ -18,14 +18,10 @@
 .main.homepage {
   background: radial-gradient(
       circle at 15% 35%,
-      rgb(205, 198, 238),
+      #dbe4ff,
       rgba(255, 255, 255, 0) 25%
     ),
-    radial-gradient(
-      circle at 85% 20%,
-      hsl(186 63.8% 90.6%),
-      rgba(255, 255, 255, 0) 25%
-    ),
+    radial-gradient(circle at 85% 20%, #e3fafc, rgba(255, 255, 255, 0) 25%),
     white;
   background-repeat: no-repeat;
 }
