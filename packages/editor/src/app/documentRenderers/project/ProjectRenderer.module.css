@@ -25,3 +25,18 @@
   padding: 10px;
   overflow-y: auto;
 }
+
+@media only screen and (max-width: 768px) {
+  .projectContainer {
+    flex-direction: column;
+  }
+
+  .sidebarContainer {
+    display: none;
+    border: 0;
+    background: rgb(250, 250, 250);
+    border-bottom: 1px solid rgb(239, 241, 244);
+    width: 100%;
+    max-width: 100%;
+  }
+}

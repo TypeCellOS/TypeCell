@@ -1,4 +1,5 @@
 .page {
+  padding: 0 1em;
   font-size: 18px;
 }
 
@@ -14,7 +15,7 @@
 .introduction {
   display: flex;
   align-items: center;
-  padding: 3em 0 11em 0;
+  padding: 3em 0;
   position: relative;
   /* background: url(./assets/background_pattern.png),
     linear-gradient(0deg, #eff7fc, #eff7fc); */
@@ -24,7 +25,7 @@
     #7cee6f 0%,
     white 100%
   ); */
-  min-height: 50vh;
+  min-height: 80vh;
 }
 
 .introduction .github {
@@ -32,11 +33,6 @@
   right: 0;
   top: 0;
   padding: 2em 1.5em;
-}
-
-.introduction .row {
-  text-align: center;
-  justify-content: center;
 }
 
 .introduction .logo {
@@ -59,22 +55,21 @@
 }
 
 .demo {
-  background-color: white;
+  /* background-color: white; */
   position: relative;
   display: flex;
   justify-content: center;
 }
 
-.demo .code_block {
-  overflow: hidden;
-  position: relative;
-  top: -8em;
-  text-align: center;
+.code_block {
+  display: block;
+  margin: 5em 0;
 }
 
-.demo .code_block img {
-  border: 1px solid #ececec;
-  border-radius: 5px;
+.code_block img {
+  box-shadow: rgb(0 0 0 / 25%) 0px 10px 30px -20px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   width: 90%;
 }
 
@@ -96,7 +91,7 @@
 }
 
 .perksSection {
-  background: white;
+  /* background: white; */
 }
 
 .perks .perk {
@@ -104,6 +99,7 @@
   flex-direction: column;
   flex: 1 1;
   align-items: center; */
+  background: white;
   flex: 0 0 auto;
   place-self: start;
   text-align: left;
@@ -141,7 +137,7 @@
 }
 
 .notebooks {
-  background: white;
+  /* background: white; */
   padding: 6em 0;
   text-align: center;
 }
@@ -265,18 +261,12 @@
     font-size: 1.6em;
   }
 
-  .introduction .buttons {
+  .buttons {
     flex-direction: column;
+    gap: 1em !important;
   }
 
-  .introduction .buttons a:first-child {
-    margin-bottom: 1em;
-    margin-right: 0;
-  }
-
-  .demo .code_block img {
-    border: 1px solid #ececec;
-    border-radius: 0px;
+  .code_block img {
     width: 100%;
   }
 

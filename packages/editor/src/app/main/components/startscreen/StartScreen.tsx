@@ -44,14 +44,14 @@ export const StartScreen = observer(() => {
             </GitHubButton>
           </div> */}
           <div className="container">
-            <div className={styles.row}>
+            <div>
               <h1>Create &amp; share live interactive notebooks</h1>
               <p>
                 TypeCell is an open source Typescript live programming
                 environment. <br /> Running code has never been easier :)
               </p>
             </div>
-            <div className={styles.row + " " + styles.buttons + " row"}>
+            <div className={styles.buttons}>
               <Link className="button primary" to={toTutorial()}>
                 Try interactive tutorial
               </Link>
@@ -63,11 +63,6 @@ export const StartScreen = observer(() => {
                 Create new notebook
               </a>
             </div>
-          </div>
-        </section>
-
-        <section className={styles.demo}>
-          <div className="container">
             <div className={styles.code_block}>
               <img src={intro} alt="TypeCell Demo" />
             </div>
@@ -224,23 +219,23 @@ export const StartScreen = observer(() => {
             </div>
           </div>
         </section>
+      </div>
+      <footer className={styles.footer}>
+        <div className="container">
+          <div className={styles.links}>
+            <ul>
+              <li>
+                <Link to={toTutorial()}>
+                  <span>Interactive introduction</span>
+                </Link>
+              </li>
+              <li>
+                <Link to={toDocs()}>
+                  <span>Documentation</span>
+                </Link>
+              </li>
 
-        <footer className={styles.footer}>
-          <div className="container">
-            <div className={styles.links}>
-              <ul>
-                <li>
-                  <Link to={toTutorial()}>
-                    <span>Interactive introduction</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link to={toDocs()}>
-                    <span>Documentation</span>
-                  </Link>
-                </li>
-
-                {/* <li>
+              {/* <li>
                   <a
                     target="_blank"
                     href="https://github.com/YousefED/typecell-next"
@@ -248,30 +243,29 @@ export const StartScreen = observer(() => {
                     <span>Find us on GitHub</span>
                   </a>
                 </li> */}
-                <li>
-                  <a
-                    target="_blank"
-                    href="https://discord.gg/TcJ9TRC3SV"
-                    rel="noreferrer">
-                    <span>Chat on discord</span>
-                  </a>
-                </li>
-                <li>
-                  <a
-                    target="_blank"
-                    href="https://matrix.to/#/#typecell-space:matrix.org"
-                    rel="noreferrer">
-                    <span>Chat on Matrix</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div className={styles.bottom}>
-              <span>{new Date().getFullYear()} TypeCell live programming</span>
-            </div>
+              <li>
+                <a
+                  target="_blank"
+                  href="https://discord.gg/TcJ9TRC3SV"
+                  rel="noreferrer">
+                  <span>Chat on discord</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  target="_blank"
+                  href="https://matrix.to/#/#typecell-space:matrix.org"
+                  rel="noreferrer">
+                  <span>Chat on Matrix</span>
+                </a>
+              </li>
+            </ul>
           </div>
-        </footer>
-      </div>
+          <div className={styles.bottom}>
+            <span>{new Date().getFullYear()} TypeCell live programming</span>
+          </div>
+        </div>
+      </footer>
     </>
   );
 });

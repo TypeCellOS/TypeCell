@@ -16,11 +16,13 @@
 }
 
 .main.homepage {
-  background: radial-gradient(
-      circle at 15% 35%,
-      #dbe4ff,
-      rgba(255, 255, 255, 0) 25%
+  background: linear-gradient(
+      180deg,
+      rgba(0, 255, 255, 0) 0%,
+      rgba(0, 255, 255, 0) 400px,
+      rgba(255, 255, 255, 1) 700px
     ),
+    radial-gradient(circle at 15% 35%, #dbe4ff, rgba(255, 255, 255, 0) 25%),
     radial-gradient(circle at 85% 20%, #e3fafc, rgba(255, 255, 255, 0) 25%),
     white;
   background-repeat: no-repeat;
