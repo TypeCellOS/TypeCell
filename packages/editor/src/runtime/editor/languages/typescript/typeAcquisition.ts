@@ -53,7 +53,18 @@ const es6ImportOnly = RegExp(/import\s?\(?('|")(.*)('|")\)?;?/, "gm");
  * Grab any import/requires from inside the code and make a list of
  * its dependencies
  */
-const parseFileForModuleReferences = (sourceCode: string) => {
+const parseFileForModuleReferences = (
+  moduleName: string | undefined,
+  sourceCode: string
+) => {
+  if (moduleName === "react") {
+    // speed up, hardcode
+    return ["csstype", "prop-types", "scheduler/tracing"];
+  }
+  if (moduleName && isBuiltInModule(moduleName)) {
+    // speed up
+    return [];
+  }
   const foundModules = new Set<string>();
   var match;
 
@@ -531,7 +542,11 @@ const getDependenciesForModule = async (
   config: ATAConfig
 ) => {
   // Get all the import/requires for the file
-  const filteredModulesToLookAt = parseFileForModuleReferences(sourceCode);
+  const filteredModulesToLookAt = parseFileForModuleReferences(
+    moduleName,
+    sourceCode
+  );
+
   const promises = filteredModulesToLookAt.map(async (name) => {
     // console.log(sourceCode);
     // Support grabbing the hard-coded node modules if needed
@@ -641,10 +656,13 @@ const getDependenciesForModule = async (
     }
   });
 
-  // Also support the <reference> comments
-  promises.push(
-    getReferenceDependencies(sourceCode, moduleName!, path!, config)
-  );
+  // speedup, exclude built-in
+  if (!moduleName || !isBuiltInModule(moduleName)) {
+    // Also support the <reference> comments
+    promises.push(
+      getReferenceDependencies(sourceCode, moduleName!, path!, config)
+    );
+  }
 
   await Promise.all(promises);
 };
