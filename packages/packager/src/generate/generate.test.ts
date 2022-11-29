@@ -13,7 +13,7 @@ describe(
   "generate test",
   () => {
     const mds = glob.sync(
-      path.join(ROOT_DIR, "shared/test-data/markdown/**/*.md")
+      path.join(ROOT_DIR, "test-util/data/markdown/**/*.md")
     );
     mds.forEach((md) => {
       if (md.includes("plainMarkdown.md")) {

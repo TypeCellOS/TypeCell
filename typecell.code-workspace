@@ -15,6 +15,14 @@
     {
       "name": "packages/engine",
       "path": "packages/engine"
+    },
+    {
+      "name": "packages/packager",
+      "path": "packages/packager"
+    },
+    {
+      "name": "packages/parsers",
+      "path": "packages/parsers"
     }
   ],
   "settings": {
