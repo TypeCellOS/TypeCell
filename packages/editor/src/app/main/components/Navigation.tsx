@@ -33,9 +33,17 @@ export const Navigation = observer(() => {
       label="site"
       renderProductHome={ProductHome}
       primaryItems={[
-        <Link className={styles.link} to={toDocs()}>
-          Documentation
-        </Link>,
+        <>
+          <Link className={styles.link} to={toDocs()}>
+            Documentation
+          </Link>
+          <a
+            href="https://www.github.com/yousefed/typecell"
+            className={styles.link}
+            target="_blank">
+            GitHub
+          </a>
+        </>,
         // <PrimaryButton onClick={navigationStore.navigateToDocs}>
         //   Documentation
         // </PrimaryButton>,
@@ -47,6 +55,11 @@ export const Navigation = observer(() => {
           )}
         </>
       ))}
+      // renderHelp={() => (
+      //   <Link className={styles.link} to={toDocs()}>
+      //     Documentation
+      //   </Link>
+      // )}
       renderSignIn={observer(() => (
         <>
           {!sessionStore.isLoggedIn && (
