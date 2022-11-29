@@ -35,20 +35,25 @@ const errorMsg = (msg: string, response: any, config: ATAConfig) => {
   );
 };
 
+// https://regex101.com/r/Jxa3KX/4
+
+const requirePattern = RegExp(
+  /(const|let|var)(.|\n)*? require\(('|")(.*)('|")\);?$/,
+  "gm"
+);
+// this handle ths 'from' imports  https://regex101.com/r/hdEpzO/4
+const es6Pattern = RegExp(
+  /(import|export)((?!from)(?!require)(.|\n))*?(from|require\()\s?('|")(.*)('|")\)?;?$/,
+  "gm"
+);
+// https://regex101.com/r/hdEpzO/6
+const es6ImportOnly = RegExp(/import\s?\(?('|")(.*)('|")\)?;?/, "gm");
+
 /**
  * Grab any import/requires from inside the code and make a list of
  * its dependencies
  */
 const parseFileForModuleReferences = (sourceCode: string) => {
-  // https://regex101.com/r/Jxa3KX/4
-  const requirePattern =
-    /(const|let|var)(.|\n)*? require\(('|")(.*)('|")\);?$/gm;
-  // this handle ths 'from' imports  https://regex101.com/r/hdEpzO/4
-  const es6Pattern =
-    /(import|export)((?!from)(?!require)(.|\n))*?(from|require\()\s?('|")(.*)('|")\)?;?$/gm;
-  // https://regex101.com/r/hdEpzO/6
-  const es6ImportOnly = /import\s?\(?('|")(.*)('|")\)?;?/gm;
-
   const foundModules = new Set<string>();
   var match;
 
@@ -421,6 +426,11 @@ const getCachedDTSString = async (config: ATAConfig, url: string) => {
   return content;
 };
 
+const referencePathExtractionPattern = RegExp(
+  /<reference path="(.*)" \/>/,
+  "gm"
+);
+
 const getReferenceDependencies = async (
   sourceCode: string,
   mod: string,
@@ -430,7 +440,7 @@ const getReferenceDependencies = async (
   var match;
   if (sourceCode.indexOf("reference path") > 0) {
     // https://regex101.com/r/DaOegw/1
-    const referencePathExtractionPattern = /<reference path="(.*)" \/>/gm;
+
     while ((match = referencePathExtractionPattern.exec(sourceCode)) !== null) {
       const relativePath = match[1];
       if (relativePath) {
