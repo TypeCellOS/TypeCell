@@ -108,7 +108,7 @@ export default class SandboxedExecutionHost
       "allow-top-navigation-by-user-activation"
     );
     iframe.allow =
-      "geolocation; microphone; camera; midi; encrypted-media; autoplay; accelerometer; magnetometer; gyroscope; vr";
+      "geolocation; microphone; camera; midi; encrypted-media; autoplay; accelerometer; magnetometer; gyroscope";
     iframe.allowFullscreen = true;
     iframe.src =
       window.location.protocol +
