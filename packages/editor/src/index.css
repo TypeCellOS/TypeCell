@@ -1,4 +1,5 @@
 /* @import-normalize; */
+@import "../../../node_modules/@atlaskit/css-reset/dist/bundle.css";
 @import url("fonts-inter.css");
 @import "github-markdown.css";
 
@@ -73,14 +74,23 @@ h6 {
 }
 
 .button {
-  border-radius: 6px;
-  padding: 0.5em 1em;
+  border-radius: 10px;
+  padding: 20px 30px;
   background-color: #1e2328;
   color: white;
   font-weight: 600;
-  font-size: 1em;
+  font-size: 18px;
 
-  transition: 150ms all ease-in-out;
+  /* transition: 150ms all ease-in-out; */
+  box-shadow: rgb(0 0 0 / 18%) 0px 0.60323px 0.60323px -1.25px,
+    rgb(0 0 0 / 16%) 0px 2.29021px 2.29021px -2.5px,
+    rgb(0 0 0 / 6%) 0px 10px 10px -3.75px;
+}
+
+.button-small {
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 14px;
 }
 
 .button:hover {
@@ -125,7 +135,11 @@ h6 {
 
 .container {
   margin: 0 auto;
-  max-width: calc(1024px);
+  max-width: 1200px;
+}
+
+.white {
+  background: white;
 }
 
 .cellList-item {

@@ -1,4 +1,3 @@
-import "@atlaskit/css-reset/dist/bundle.css";
 import * as Olm from "@matrix-org/olm";
 // @ts-ignore
 import olmWasmPath from "@matrix-org/olm/olm.wasm?url";

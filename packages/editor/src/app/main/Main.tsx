@@ -14,9 +14,13 @@ const Main = observer((props: {}) => {
 
   let location = useLocation();
   let navigate = useNavigate();
+
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className={styles.main}>
+      <div
+        className={
+          styles.main + " " + (location.pathname === "/" ? styles.homepage : "")
+        }>
         <Navigation />
         <Outlet />
         {sessionStore.loggedInUserId && (
