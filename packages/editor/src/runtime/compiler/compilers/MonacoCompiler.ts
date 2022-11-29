@@ -121,21 +121,24 @@ async function _compile(
   }
 
   console.log("recompile", model.path);
+
   const monacoModel = model.acquireMonacoModel();
+  try {
+    if (!mainWorker) {
+      mainWorker =
+        await monacoInstance.languages.typescript.getTypeScriptWorker();
+    }
 
-  if (!mainWorker) {
-    mainWorker =
-      await monacoInstance.languages.typescript.getTypeScriptWorker();
+    let compiledCode = (await getCompiledCode(mainWorker, monacoModel.uri))
+      .firstJSCode;
+    if (ENABLE_CACHE) {
+      saveCachedItem(model, { hash: hsh, compiledCode });
+    }
+    // console.log(tscode, compiledCode);
+    return compiledCode;
+  } finally {
+    model.releaseMonacoModel();
   }
-
-  let compiledCode = (await getCompiledCode(mainWorker, monacoModel.uri))
-    .firstJSCode;
-  model.releaseMonacoModel();
-  if (ENABLE_CACHE) {
-    saveCachedItem(model, { hash: hsh, compiledCode });
-  }
-  // console.log(tscode, compiledCode);
-  return compiledCode;
 }
 
 export const compile = awaitFirst(_compile);

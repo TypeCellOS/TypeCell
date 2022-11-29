@@ -78,7 +78,8 @@ export class TypeCellCodeModel extends lifecycle.Disposable {
 
   private disposeMonacoModel() {
     if (this.monacoModelReferences > 0) {
-      throw new Error("disposing TypeCellCodeModel, but still has references");
+      // This is suspicious, happens when compiling code and releasing at same time?
+      console.error("disposing TypeCellCodeModel, but still has references");
     }
 
     if (
