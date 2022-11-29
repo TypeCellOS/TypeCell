@@ -8,9 +8,10 @@
 }
 
 .item p {
-  border-left: 3px solid #efefef;
+  /* border-left: 3px solid #efefef; */
   display: block;
-  padding: 0.5em 0 0.5em 1em;
+  /* padding: 0.5em 0 0.5em 1em; */
+  font-size: 1em;
 }
 
 .previewImage {

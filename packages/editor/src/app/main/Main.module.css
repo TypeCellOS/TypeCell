@@ -10,6 +10,30 @@
   height: 5px;
 }
 
+.main.homepage > header::after {
+  background: none !important;
+  height: 5px;
+}
+
+.main.homepage {
+  background: radial-gradient(
+      circle at 15% 35%,
+      rgb(205, 198, 238),
+      rgba(255, 255, 255, 0) 25%
+    ),
+    radial-gradient(
+      circle at 85% 20%,
+      hsl(186 63.8% 90.6%),
+      rgba(255, 255, 255, 0) 25%
+    ),
+    white;
+  background-repeat: no-repeat;
+}
+
+.main.homepage > header {
+  background: none !important;
+}
+
 .main {
   display: flex;
   min-height: 100%;

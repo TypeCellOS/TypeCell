@@ -1,6 +1,5 @@
 import { observer } from "mobx-react-lite";
 import { Link, useNavigate } from "react-router-dom";
-import app_logo from "../../../../assets/app_logo.svg";
 import { getStoreService } from "../../../../store/local/stores";
 import {
   OpenNewPageDialog,
@@ -33,7 +32,7 @@ export const StartScreen = observer(() => {
 
   return (
     <>
-      <div className="page centered">
+      <div className={styles.page + "  centered"}>
         <section className={styles.introduction}>
           {/* <div className={styles.github}>
             <GitHubButton
@@ -46,16 +45,9 @@ export const StartScreen = observer(() => {
           </div> */}
           <div className="container">
             <div className={styles.row}>
-              <img
-                className={styles.logo}
-                src={app_logo}
-                alt="TypeCell app logo"
-              />
-            </div>
-            <div className={styles.row}>
               <h1>
                 Explore, develop & share. <br></br> Live coding with interactive
-                notebooks.
+                notebooks
               </h1>
             </div>
             <div className={styles.row + " " + styles.buttons + " row"}>
@@ -81,34 +73,33 @@ export const StartScreen = observer(() => {
           </div>
         </section>
 
-        <section className={styles.perks}>
-          <div className="container">
-            <div className={styles.perk_row + " row"}>
-              <div className={styles.perk}>
-                <div className={styles.icon}>
-                  <img src={lightning} alt="Lightning icon" />
-                </div>
-                <span>
-                  The Reactive Runtime evaluates as-you-type, directly in your
-                  browser.
-                </span>
+        <section className={styles.perksSection}>
+          <div className={styles.perks}>
+            <div className={styles.perk}>
+              <div className={styles.icon}>
+                <img src={lightning} alt="Lightning icon" />
               </div>
-              <div className={styles.separator}></div>
-              <div className={styles.perk}>
-                <div className={styles.icon}>
-                  <img src={npm} alt="NPM logo" />
-                </div>
-                <span>
-                  Built-in support for TypeScript, React, NPM and more.
-                </span>
+              <h3>Reactive Runtime</h3>
+              <span>
+                The Reactive Runtime evaluates as-you-type, directly in your
+                browser.
+              </span>
+            </div>
+
+            <div className={styles.perk}>
+              <div className={styles.icon}>
+                <img src={npm} alt="NPM logo" />
               </div>
-              <div className={styles.separator}></div>
-              <div className={styles.perk}>
-                <div className={styles.icon}>
-                  <img src={globe} alt="Globe icon" />
-                </div>
-                <span>Share your notebooks and collaborate in real-time.</span>
+              <h3>Full ecosystem</h3>
+              <span>Built-in support for TypeScript, React, NPM and more.</span>
+            </div>
+
+            <div className={styles.perk}>
+              <div className={styles.icon}>
+                <img src={globe} alt="Globe icon" />
               </div>
+              <h3>Collaborate</h3>
+              <span>Share your notebooks and collaborate in real-time.</span>
             </div>
           </div>
         </section>
@@ -123,7 +114,7 @@ export const StartScreen = observer(() => {
                 interact with a Notebook or use it as a starting point for your
                 next project.
               </p>
-              <div className={styles.discord}>
+              <div className={styles.buttons + " " + styles.social}>
                 <a
                   href="https://discord.gg/TcJ9TRC3SV"
                   target="_blank"
@@ -133,7 +124,6 @@ export const StartScreen = observer(() => {
                     src="https://img.shields.io/badge/Join us on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"
                   />
                 </a>
-                &nbsp;
                 <a
                   href="https://matrix.to/#/#typecell-space:matrix.org"
                   target="_blank"
@@ -189,7 +179,7 @@ export const StartScreen = observer(() => {
         </section>
 
         <div className={styles.section_separator}></div>
-        <section className={styles.build}>
+        {/* <section className={styles.build}>
           <div className="container">
             <div>
               <h2>Intro @ LiveProg 2021</h2>
@@ -203,7 +193,7 @@ export const StartScreen = observer(() => {
                 allowFullScreen></iframe>
             </div>
           </div>
-        </section>
+        </section> */}
         <div className={styles.section_separator}></div>
         <section className={styles.build}>
           <div className="container">
@@ -221,19 +211,15 @@ export const StartScreen = observer(() => {
             </p>
 
             <div className={styles.buttons}>
-              <div>
-                <Link to={toTutorial()} className="button">
-                  Try interactive tutorial
-                </Link>
-              </div>
-              <div>
-                <a
-                  className={styles.link}
-                  onClick={onNewNotebookClick}
-                  href="/">
-                  Create new Notebook
-                </a>
-              </div>
+              <Link to={toTutorial()} className="button">
+                Try interactive tutorial
+              </Link>
+              <a
+                className="button secondary"
+                onClick={onNewNotebookClick}
+                href="/">
+                Create new Notebook
+              </a>
             </div>
           </div>
         </section>

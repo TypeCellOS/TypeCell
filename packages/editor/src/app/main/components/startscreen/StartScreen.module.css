@@ -1,3 +1,7 @@
+.page {
+  font-size: 18px;
+}
+
 * img {
   user-drag: none;
   -webkit-user-drag: none;
@@ -8,11 +12,19 @@
 }
 
 .introduction {
+  display: flex;
+  align-items: center;
   padding: 3em 0 11em 0;
   position: relative;
-  background: url(./assets/background_pattern.png),
-    linear-gradient(0deg, #eff7fc, #eff7fc);
+  /* background: url(./assets/background_pattern.png),
+    linear-gradient(0deg, #eff7fc, #eff7fc); */
   /* background: linear-gradient(0deg, #eff7fc, #eff7fc); */
+  /* background: radial-gradient(
+    106.9% 91.8% at 110% 110%,
+    #7cee6f 0%,
+    white 100%
+  ); */
+  min-height: 50vh;
 }
 
 .introduction .github {
@@ -36,21 +48,18 @@
 .introduction .buttons {
   margin-top: 3em;
   display: flex;
-}
-
-.introduction .buttons a:first-child {
-  margin-right: 2em;
+  gap: 2em;
 }
 
 .introduction h1 {
   color: #2b4869;
-  font-size: 1.9em;
+  font-size: 2.9em;
   line-height: 1.5em;
   font-weight: bold;
 }
 
 .demo {
-  background-color: #fcfcfc;
+  background-color: white;
   position: relative;
   display: flex;
   justify-content: center;
@@ -70,45 +79,59 @@
 }
 
 .perks {
-  background-color: #fcfcfc;
-  padding: 4em 0;
-  position: relative;
-  top: -8em;
-  margin-bottom: -8em;
-  box-shadow: 0 8px 5px -5px rgba(0, 0, 0, 0.055);
+  max-width: 1200px;
+  margin: 0 auto;
+  /* padding: 4em 0; */
+  /* position: relative; */
+  /* top: -8em; */
+  /* margin-bottom: -8em; */
+  /* box-shadow: 0 8px 5px -5px rgba(0, 0, 0, 0.055); */
+  display: grid;
+  flex: 0 0 auto;
+  gap: 20px;
+  grid-auto-rows: min-content;
+  grid-template-columns: repeat(3, minmax(200px, 1fr));
+  grid-template-rows: repeat(2, min-content);
+  justify-content: center;
 }
 
-.perks .perk_row {
-  justify-content: center;
-  padding: 0 3em;
+.perksSection {
+  background: white;
 }
 
 .perks .perk {
-  display: flex;
+  /* display: flex;
   flex-direction: column;
   flex: 1 1;
-  align-items: center;
-  text-align: center;
-  padding: 0 3em;
+  align-items: center; */
+  flex: 0 0 auto;
+  place-self: start;
+  text-align: left;
+  padding: 40px;
+  box-shadow: rgb(0 0 0 / 25%) 0px 10px 30px -20px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 
-.perks .perk:first-child {
-  padding-left: 2em;
-}
-
-.perks .perk:last-child {
-  padding-right: 2em;
+.perk h3 {
+  font-weight: 600;
+  margin: 0.5em 0;
+  font-size: 1.8em;
 }
 
 .perks .perk .icon {
   display: flex;
-  height: 80px;
+  height: 30px;
+  margin-bottom: 1.2em;
 }
 
 .perks .perk span {
-  color: #919191;
+  color: rgb(91 94 118);
   line-height: 1.9em;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .perks .separator {
@@ -118,11 +141,14 @@
 }
 
 .notebooks {
+  background: white;
   padding: 6em 0;
   text-align: center;
 }
 
-.notebooks h2 {
+h2 {
+  font-size: 1.8em;
+  font-weight: 600;
   margin: 0 auto 1em auto;
 }
 
@@ -130,6 +156,7 @@
   text-align: center;
   width: 100%;
   padding: 0 6em;
+  margin-bottom: 2em;
 }
 
 .notebooks .overview {
@@ -139,8 +166,9 @@
   justify-content: space-evenly;
 }
 
-.notebooks .discord {
-  margin: 2em auto 0 auto;
+.social img {
+  height: 40px;
+  border-radius: 10px;
 }
 
 .notebooks .notebook {
@@ -162,29 +190,14 @@
   justify-content: center;
 }
 
-.build * {
-  justify-content: center;
-}
-
-.build iframe {
-  border: none;
-}
-
 .build p {
-  text-align: center;
+  margin-bottom: 2em;
+}
+.buttons {
   width: 100%;
-}
-
-.build .buttons {
-  margin-top: 4em;
-}
-
-.build .buttons > div:first-child {
-  margin-bottom: 1em;
-}
-
-.build h2 {
-  margin: 0 auto 1em auto;
+  display: flex;
+  gap: 2em;
+  justify-content: center;
 }
 
 .build .link {
@@ -261,24 +274,14 @@
     margin-right: 0;
   }
 
-  .demo {
-    display: none;
+  .demo .code_block img {
+    border: 1px solid #ececec;
+    border-radius: 0px;
+    width: 100%;
   }
 
   .perks {
-    padding: 2em 1em;
-  }
-
-  .perks .perk_row {
-    flex-direction: column;
-    padding: 0 1em;
-  }
-
-  .perks .perk {
-    width: 100%;
-    padding: 0 !important;
-    flex-grow: 1 1;
-    margin-bottom: 1em;
+    grid-template-columns: repeat(1, minmax(200px, 1fr));
   }
 
   .notebooks {
@@ -315,10 +318,5 @@
 
   .build {
     padding: 3em 1em;
-  }
-
-  .build .buttons a {
-    width: 100%;
-    text-align: center;
   }
 }

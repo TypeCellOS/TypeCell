@@ -38,7 +38,7 @@ export const NotebookOverviewItem = observer(
             <span className={styles.username}>{props.author.username}</span>
           </Link>
 
-          <Link className="button inverted" to={props.to}>
+          <Link className="button button-small inverted" to={props.to}>
             View
           </Link>
         </div>
