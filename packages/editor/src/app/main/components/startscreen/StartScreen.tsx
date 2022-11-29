@@ -45,10 +45,11 @@ export const StartScreen = observer(() => {
           </div> */}
           <div className="container">
             <div className={styles.row}>
-              <h1>
-                Explore, develop & share. <br></br> Live coding with interactive
-                notebooks
-              </h1>
+              <h1>Create &amp; share live interactive notebooks</h1>
+              <p>
+                TypeCell is an open source Typescript live programming
+                environment. <br /> Running code has never been easier :)
+              </p>
             </div>
             <div className={styles.row + " " + styles.buttons + " row"}>
               <Link className="button primary" to={toTutorial()}>
@@ -218,7 +219,7 @@ export const StartScreen = observer(() => {
                 className="button secondary"
                 onClick={onNewNotebookClick}
                 href="/">
-                Create new Notebook
+                Create new notebook
               </a>
             </div>
           </div>
