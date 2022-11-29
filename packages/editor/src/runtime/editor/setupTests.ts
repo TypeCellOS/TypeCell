@@ -20,7 +20,7 @@ import { SimpleWorkerServer } from "monaco-editor/esm/vs/base/common/worker/simp
 // @ts-ignore
 import { EditorSimpleWorker } from "monaco-editor/esm/vs/editor//common/services/editorSimpleWorker.js";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
-import { CustomCSSWorker } from "./workers/css.worker";
+import CSSWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
 
 monaco.languages.register({
   id: "typescript",
@@ -86,8 +86,7 @@ function getFakeMainThreadWorker(
     }
     if (label === "css" || label === "scss" || label === "less") {
       return getFakeMainThreadWorker(
-        (context: any, createData: any) =>
-          new CustomCSSWorker(context, createData)
+        (context: any, createData: any) => new CSSWorker()
       );
     }
     if (label === "html" || label === "handlebars" || label === "razor") {

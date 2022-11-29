@@ -2,10 +2,10 @@
 // and https://github.com/TypeScriptToLua/TypeScriptToLua.github.io/blob/source/src/pages/play/ts.worker.ts
 
 // @ts-ignore
-import * as worker from "monaco-editor/esm/vs/editor/editor.worker";
+import * as worker from "monaco-editor/esm/vs/editor/editor.worker.js";
 
 // @ts-ignore
-import { TypeScriptWorker } from "monaco-editor/esm/vs/language/typescript/tsWorker";
+import { TypeScriptWorker } from "monaco-editor/esm/vs/language/typescript/ts.worker.js";
 
 export class CustomTypeScriptWorker extends TypeScriptWorker {
   // eslint-disable-next-line
