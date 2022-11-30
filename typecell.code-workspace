@@ -27,8 +27,20 @@
   ],
   "settings": {
     "files.exclude": {
-      "packages/": true
+      "packages": true
     },
+    "search.exclude": {
+      "packages/editor/public/types": true,
+      "**/coverage": true,
+      "**/dist": true
+    },
+    "vitest.exclude": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/cypress/**",
+      "**/.{idea,git,cache,output,temp}/**",
+      "**/end-to-end/**"
+    ],
     "typescript.tsdk": "ROOT/node_modules/typescript/lib"
   }
 }

@@ -35,7 +35,7 @@ export const OutputShadow = observer(
         x -= parentBB.x;
         runInAction(() => {
           if (props.positions.x !== x || props.positions.y !== y) {
-            console.log("update pos", y, props.positions.y);
+            // console.log("update pos", y, props.positions.y);
             props.positions.x = x;
             props.positions.y = y;
           }

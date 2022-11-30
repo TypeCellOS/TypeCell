@@ -1,11 +1,11 @@
 import {
   CodeModel,
   Engine,
+  // JSPMResolver,
+  ESMshResolver,
   ImportShimResolver,
   ResolvedImport,
   SkypackResolver,
-  // JSPMResolver,
-  ESMshResolver,
 } from "@typecell-org/engine";
 import getExposeGlobalVariables from "../lib/exports";
 import { LocalResolver } from "./LocalResolver";
@@ -16,7 +16,7 @@ const esmshResolver = new ESMshResolver();
 const skypackResolver = new SkypackResolver();
 // const jspmResolver = new JSPMResolver();
 const importShimResolver = new ImportShimResolver(
-  [skypackResolver, esmshResolver],
+  [esmshResolver, skypackResolver],
   LocalResolver
 );
 
