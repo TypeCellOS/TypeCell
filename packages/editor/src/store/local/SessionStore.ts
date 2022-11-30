@@ -20,6 +20,7 @@ const colors = [
  * (e.g.: is the user logged in, what is the user name, etc)
  */
 export class SessionStore extends lifecycle.Disposable {
+  private initialized = false;
   public userColor = arrays.getRandomElement(colors)!;
 
   public user:
@@ -71,7 +72,7 @@ export class SessionStore extends lifecycle.Disposable {
     await this.matrixAuthStore.logout();
 
     // after logging out, call initialize() to sign in as a guest
-    await this.matrixAuthStore.initialize();
+    await this.matrixAuthStore.initialize(true);
   };
 
   constructor(private matrixAuthStore: MatrixAuthStore) {
@@ -82,7 +83,23 @@ export class SessionStore extends lifecycle.Disposable {
     });
   }
 
+  // TODO: should be a reaction to prevent calling twice?
+  public async enableGuest() {
+    if (!this.initialized) {
+      throw new Error(
+        "enableGuest should only be called after being initialized"
+      );
+    }
+
+    if (this.user === "offlineNoUser") {
+      await this.matrixAuthStore.initialize(true);
+    }
+  }
+
   public async initialize() {
+    if (this.initialized) {
+      throw new Error("initialize() called when already initialized");
+    }
     try {
       // returns true when:
       // - successfully created / restored a user (or guest)
@@ -90,8 +107,7 @@ export class SessionStore extends lifecycle.Disposable {
       // - failed restore / create user (e.g.: wanted to register a guest, but offline)
       // throws error when:
       // - unexpected
-      await this.matrixAuthStore.initialize();
-
+      await this.matrixAuthStore.initialize(false);
       // catch future login state changes triggered by the sdk
       this._register(
         this.matrixAuthStore.onLoggedInChanged(() => {
@@ -100,8 +116,9 @@ export class SessionStore extends lifecycle.Disposable {
           });
         })
       );
-
       this.updateStateFromAuthStore();
+
+      this.initialized = true;
     } catch (err) {
       // keep state as "loading"
       console.error("error loading session from matrix", err);
