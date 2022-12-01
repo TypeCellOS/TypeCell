@@ -46,10 +46,10 @@ jobs:
             ${{ runner.os }}-
 
       - name: Set correct access for docker containers (server/test/data)
-        run: chmod -R a+rw test-server/data
+        run: chmod -R a+rw test-util/server/data
 
       - name: Build the docker-compose stack
-        run: docker-compose -f test-server/docker-compose.yml up -d
+        run: docker-compose -f test-util/server/docker-compose.yml up -d
 
       - name: Check running containers
         run: docker ps -a
@@ -60,8 +60,8 @@ jobs:
       - name: NPM CI
         run: npm ci
 
-      - name: Bootstrap packages
-        run: npm run bootstrap
+      # - name: Bootstrap packages
+      #   run: npm run bootstrap
 
       - name: Wait for Matrix
         run: npx wait-on http://localhost:8888/_matrix/static/

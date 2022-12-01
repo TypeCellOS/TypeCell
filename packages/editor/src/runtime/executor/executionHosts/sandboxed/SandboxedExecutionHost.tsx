@@ -120,7 +120,7 @@ export default class SandboxedExecutionHost
       (window.location.search.includes("noRun") ? "&noRun" : "");
 
     iframe.onmouseleave = () => {
-      console.log("exit iframe");
+      // console.log("exit iframe");
       this.enableIframePointerEvents();
       this.resetHovering();
     };
@@ -306,7 +306,7 @@ export default class SandboxedExecutionHost
     model: CompiledCodeModel,
     positions: { x: number; y: number }
   ) {
-    console.log("send update positions", model.path, positions);
+    // console.log("send update positions", model.path, positions);
     await this.connectionMethods!.updatePositions(model.path, positions);
   }
 
@@ -340,10 +340,10 @@ export default class SandboxedExecutionHost
     let dispose = autorun(() => {
       const positions = { x: positionCache.x, y: positionCache.y };
       if (this.connectionMethods) {
-        console.log(
-          "update positions",
-          this.positionCacheStore.get(model.path)
-        );
+        // console.log(
+        //   "update positions",
+        //   this.positionCacheStore.get(model.path)
+        // );
         this.sendModelPositions(model, positions);
       } else {
         console.log("delay sending positions, connection not established");

@@ -7,7 +7,9 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "search.exclude": {
-    "packages/editor/public/types": true
+    "packages/editor/public/types": true,
+    "**/coverage": true,
+    "**/dist": true
   },
   "vitest.exclude": [
     "**/node_modules/**",

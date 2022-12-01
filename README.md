@@ -1,40 +1,40 @@
-![TypeCell Logo](./packages/editor/src/assets/logo_with_text.svg?raw=true)
+<p align="center">
+  <a href="https://www.typecell.org">
+    <img alt="TypeCell" src="./packages/editor/src/assets/logo_with_text.svg?raw=true" width="300" />
+  </a>
+</p>
 
-Welcome to TypeCell! Let's reimagine how we can make it easier to understand, build and share knowledge.
+<p align="center">
+Welcome to TypeCell! An open source live programming environment. Together, we want to make it a lot easier to build software, and ultimately to understand, build and share knowledge.
+</p>
 
-# Development
+<p align="center">
+<a href="https://discord.gg/aDQxXezfNj"><img alt="Discord" src="https://img.shields.io/badge/Chat on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"/></a> <a href="https://matrix.to/#/#typecell-space:matrix.org"><img alt="Matrix" src="https://img.shields.io/badge/Chat on matrix%20-%23000.svg?&style=for-the-badge&logo=matrix&logoColor=white"/></a>
+</p>
 
-We use [Lerna](https://lerna.js.org/) to manage the monorepo with separate packages. In VS Code, it's best to open `typecell.code-workspace` to open the project as a workspace.
+## Contributing 🙌
 
-## Running
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Node.js is required to run this project. To download Node.js, visit [nodejs.org](https://nodejs.org/en/).
+TypeCell is organised as a monorepo containing several packages. Directory structure:
 
-To run the project, open the command line in the project's root directory and enter the following commands:
+```
+blocknote
+├── docs                - Docs / samples (see https://www.typecell.org/docs/)
+├── packages
+│   ├── common          - Utility functions shared across the codebase
+│   ├── editor          - The main React application
+│   ├── engine          - The live-code execution engine
+│   ├── packager        - Tool to bundle TypeCell notebook apps (WIP)
+│   └── parsers         - Helpers to convert to / from TypeCell notebooks
+├── patches             - patch-package patches
+└── test-util           - Server and data for unit tests
+```
 
-    # Install all required npm modules for lerna, and bootstrap lerna packages
-    npm run install-lerna
-    npm run bootstrap --force
+The codebase is automatically tested using Vitest and Playwright.
 
-    # Initial build of all packages required by the main editor project
-    npm run build
+# Credits ❤️
 
-    # Start the editor project
-    npm start
+TypeCell is proudly sponsored by the renowned [NLNet foundation](https://nlnet.nl/foundation/) who are on a mission to support an open internet, and protect the privacy and security of internet users. Check them out!
 
-
-## Watch changes
-
-    npm run watch
-
-The above `npm start` executes the `react-scripts start` command of `packages/editor` and watches for changes to this main package. However, you might also be making changes to other packages in the `packages` directory. To continuously watch and compile for changes, open a new terminal and run `npm run watch`.
-
-## Updating packages
-
-If you've pulled changes from git that add new or update existing dependencies, use `npm run bootstrap` instead of `npm install` to install updated dependencies!
-
-## Adding packages
-
-- Add the dependency to the relevant `package.json` file (packages/xxx/packages.json)
-- run `npm run install-new-packages`
-- Double check `package-lock.json` to make sure only the relevant packages have been affected
+<a href="https://nlnet.nl"><img src="https://nlnet.nl/image/logos/NGIAssure_tag.svg" alt="NLNet" width="100"></a>

@@ -15,8 +15,8 @@ export const App = observer((props: { config: ValidatedServerConfig }) => {
   const { sessionStore } = getStoreService();
   if (sessionStore.user === "loading") {
     return <div>Loading</div>;
-  } else if (sessionStore.user === "offlineNoUser") {
-    return <div>Offline</div>;
+    // } else if (sessionStore.user === "offlineNoUser") {
+    // return <div>Offline</div>;
   } else {
     return (
       <BrowserRouter>

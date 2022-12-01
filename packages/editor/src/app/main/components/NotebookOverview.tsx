@@ -72,16 +72,6 @@ export const NotebookOverview = observer(function (
 
   const sessionStore = getStoreService().sessionStore;
 
-  if (
-    sessionStore.user === "loading" ||
-    sessionStore.user === "offlineNoUser"
-  ) {
-    return <div>Not logged in</div>;
-  }
-
-  // const user = sessionStore.user;
-  const matrixClient = sessionStore.user.matrixClient;
-
   useEffect(() => {
     // async function resolveRoom(roomId: string): Promise<Room | undefined> {
     //     const result = await matrixClient.http.authedRequest(
@@ -99,6 +89,10 @@ export const NotebookOverview = observer(function (
       try {
         setLoading(true);
 
+        if (typeof sessionStore.user === "string") {
+          sessionStore.enableGuest();
+          return;
+        }
         // A user's own rooms
         // const result = await matrixClient.getJoinedRooms();
 
@@ -108,6 +102,8 @@ export const NotebookOverview = observer(function (
         // const resolvedRooms = await (await Promise.all<Room | undefined>(promises)).filter(r => r).map(r => r as Room);
 
         // Currently we limit search to Public rooms by this user
+        const matrixClient = sessionStore.user.matrixClient;
+
         const result = await matrixClient.http.authedRequest<any>(
           undefined as any,
           Method.Post,
@@ -138,7 +134,7 @@ export const NotebookOverview = observer(function (
     }
 
     fetchNotebooks();
-  }, [matrixClient, props.owner]);
+  }, [sessionStore, sessionStore.user, props.owner]);
 
   const notebookList = rooms ? (
     <>
@@ -151,6 +147,13 @@ export const NotebookOverview = observer(function (
   ) : (
     []
   );
+
+  if (
+    sessionStore.user === "loading" ||
+    sessionStore.user === "offlineNoUser"
+  ) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>

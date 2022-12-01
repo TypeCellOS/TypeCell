@@ -212,7 +212,7 @@ export class FrameConnection extends lifecycle.Disposable {
       id: string,
       incomingPositions: { x: number; y: number }
     ) => {
-      console.log("updatePositions", id, incomingPositions);
+      // console.log("updatePositions", id, incomingPositions);
       let positions = this.modelPositions.get(id);
 
       runInAction(() => {

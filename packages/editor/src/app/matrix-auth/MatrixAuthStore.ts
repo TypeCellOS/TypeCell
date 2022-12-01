@@ -64,7 +64,7 @@ export class MatrixAuthStore extends lifecycle.Disposable {
     this._onLoggedInChanged.event;
 
   // based on https://github.com/matrix-org/matrix-react-sdk/blob/96e16940bb9d30fbbbb1133fae796c1021e871f3/src/components/structures/MatrixChat.tsx#L350
-  public async initialize() {
+  public async initialize(enableGuest: boolean) {
     const params = decodeParams(window.location.search.substring(1));
     const loggedIn = await this.attemptTokenLogin(
       params as any,
@@ -89,7 +89,7 @@ export class MatrixAuthStore extends lifecycle.Disposable {
       return true;
     } else {
       return await this.loadSession({
-        enableGuest: true,
+        enableGuest,
         defaultDeviceDisplayName: MATRIX_CONFIG.defaultDeviceDisplayName,
         guestHsUrl: MATRIX_CONFIG.hsUrl,
         guestIsUrl: MATRIX_CONFIG.isUrl,

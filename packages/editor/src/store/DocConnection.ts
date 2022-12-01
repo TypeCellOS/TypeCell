@@ -1,3 +1,4 @@
+import { createMatrixRoom } from "matrix-crdt";
 import {
   computed,
   makeObservable,
@@ -6,26 +7,25 @@ import {
   runInAction,
   when,
 } from "mobx";
-import { MatrixClientPeg } from "../app/matrix-auth/MatrixClientPeg";
-import { createMatrixRoom } from "matrix-crdt";
 import { lifecycle } from "vscode-lib";
+import { MatrixClientPeg } from "../app/matrix-auth/MatrixClientPeg";
 import { BaseResource } from "./BaseResource";
 
-import { existsLocally, getIDBIdentifier } from "./yjs-sync/IDBHelper";
-import { YDocFileSyncManager } from "./yjs-sync/FilebridgeSyncManager";
-import { YDocSyncManager } from "./yjs-sync/YDocSyncManager";
+import { uri } from "vscode-lib";
 import * as Y from "yjs";
-import { Identifier } from "../identifiers/Identifier";
+import { parseIdentifier, tryParseIdentifier } from "../identifiers";
 import { FileIdentifier } from "../identifiers/FileIdentifier";
 import { GithubIdentifier } from "../identifiers/GithubIdentifier";
-import { MatrixIdentifier } from "../identifiers/MatrixIdentifier";
-import { uri } from "vscode-lib";
-import { parseIdentifier, tryParseIdentifier } from "../identifiers";
-import { getStoreService } from "./local/stores";
-import { SyncManager } from "./yjs-sync/SyncManager";
-import GithubSyncManager from "./yjs-sync/GithubSyncManager";
 import { HttpsIdentifier } from "../identifiers/HttpsIdentifier";
+import { Identifier } from "../identifiers/Identifier";
+import { MatrixIdentifier } from "../identifiers/MatrixIdentifier";
+import { getStoreService } from "./local/stores";
 import FetchSyncManager from "./yjs-sync/FetchSyncManager";
+import { YDocFileSyncManager } from "./yjs-sync/FilebridgeSyncManager";
+import GithubSyncManager from "./yjs-sync/GithubSyncManager";
+import { existsLocally, getIDBIdentifier } from "./yjs-sync/IDBHelper";
+import { SyncManager } from "./yjs-sync/SyncManager";
+import { YDocSyncManager } from "./yjs-sync/YDocSyncManager";
 
 const cache = new Map<string, DocConnection>();
 
@@ -49,6 +49,7 @@ export class DocConnection extends lifecycle.Disposable {
   private clearAndInitializeManager(forkSourceIdentifier?: Identifier) {
     runInAction(() => {
       const sessionStore = getStoreService().sessionStore;
+      sessionStore.enableGuest();
       this._baseResourceCache = undefined;
       this.manager?.dispose();
       this.manager = undefined;
