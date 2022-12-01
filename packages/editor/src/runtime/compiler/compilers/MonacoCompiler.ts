@@ -154,8 +154,6 @@ async function _compile(
     }
     // console.log(tscode, compiledCode);
     return compiledCode;
-  } catch (e) {
-    debugger;
   } finally {
     model.releaseMonacoModel();
   }
