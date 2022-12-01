@@ -6,7 +6,6 @@ TypeCell is a monorepo containing several packages. In VS Code, it's best to ope
 
 ```
 blocknote
-├── docs                - Docs / samples (see https://www.typecell.org/docs/)
 ├── packages
 │   ├── common          - Utility functions shared across the codebase
 │   ├── editor          - The main React application

@@ -67,7 +67,6 @@ TypeCell is organised as a monorepo containing several packages. Directory struc
 
 ```
 blocknote
-├── docs                - Docs / samples (see https://www.typecell.org/docs/)
 ├── packages
 │   ├── common          - Utility functions shared across the codebase
 │   ├── editor          - The main React application
