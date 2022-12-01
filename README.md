@@ -35,6 +35,15 @@ The codebase is automatically tested using Vitest and Playwright.
 
 # Credits ❤️
 
+We build on top of some really great technologies:
+
+- [Monaco](https://github.com/microsoft/monaco-editor): the open source editor that also powers VS Code
+- [Yjs](https://github.com/yjs/yjs): CRDT for multi-user collaboration
+- [MobX](https://mobx.js.org/): for our Reactive Runtime
+- [Matrix](https://www.matrix.org): the backend of TypeCell.org is a single Matrix instance, using [Matrix-CRDT](https://github.com/yousefed/matrix-crdt) to store and collaborate on "documents as chat rooms"
+- [ESM.sh](https://www.esm.sh/): for dynamic ESM imports from NPM
+- [Typescript](https://www.typescriptlang.org/): for our compiler and language toolkit
+
 TypeCell is proudly sponsored by the renowned [NLNet foundation](https://nlnet.nl/foundation/) who are on a mission to support an open internet, and protect the privacy and security of internet users. Check them out!
 
 <a href="https://nlnet.nl"><img src="https://nlnet.nl/image/logos/NGIAssure_tag.svg" alt="NLNet" width="100"></a>

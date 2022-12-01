@@ -105,6 +105,28 @@ function getCachedItem(model: TypeCellCodeModel) {
   return undefined;
 }
 
+async function getWorker(monacoInstance: typeof monaco) {
+  if (mainWorker) {
+    return mainWorker;
+  }
+
+  for (let tryN = 0; tryN < 5; tryN++) {
+    try {
+      mainWorker =
+        await monacoInstance.languages.typescript.getTypeScriptWorker();
+    } catch (e) {
+      // https://github.com/BabylonJS/Babylon.js/pull/11554
+      if (e === "TypeScript not registered!") {
+        console.warn(e, "retry " + tryN);
+        await new Promise<void>((resolve) => setTimeout(resolve, 200));
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  return mainWorker;
+}
 async function _compile(
   model: TypeCellCodeModel,
   monacoInstance: typeof monaco
@@ -124,18 +146,16 @@ async function _compile(
 
   const monacoModel = model.acquireMonacoModel();
   try {
-    if (!mainWorker) {
-      mainWorker =
-        await monacoInstance.languages.typescript.getTypeScriptWorker();
-    }
-
-    let compiledCode = (await getCompiledCode(mainWorker, monacoModel.uri))
+    const worker = await getWorker(monacoInstance);
+    let compiledCode = (await getCompiledCode(worker, monacoModel.uri))
       .firstJSCode;
     if (ENABLE_CACHE) {
       saveCachedItem(model, { hash: hsh, compiledCode });
     }
     // console.log(tscode, compiledCode);
     return compiledCode;
+  } catch (e) {
+    debugger;
   } finally {
     model.releaseMonacoModel();
   }
