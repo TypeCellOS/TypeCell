@@ -6,8 +6,8 @@ import {
   getMainDomainFromIframe,
   validateFrameDomain,
 } from "./config/security";
-import "./iframe.css";
 import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
+import "./styles/iframe.css";
 
 if (import.meta.env.DEV) {
   // disables error overlays

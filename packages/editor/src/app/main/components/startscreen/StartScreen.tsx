@@ -1,6 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { Link, useNavigate } from "react-router-dom";
 import { getStoreService } from "../../../../store/local/stores";
+import buttonStyles from "../../../../styles/buttons.module.css";
 import {
   OpenNewPageDialog,
   toDocs,
@@ -52,12 +53,14 @@ export const StartScreen = observer(() => {
               </p>
             </div>
             <div className={styles.buttons}>
-              <Link className="button primary" to={toTutorial()}>
+              <Link
+                className={`${buttonStyles.button} ${buttonStyles.primary}`}
+                to={toTutorial()}>
                 Try interactive tutorial
               </Link>
 
               <a
-                className="button secondary"
+                className={`${buttonStyles.button} ${buttonStyles.secondary}`}
                 href="/"
                 onClick={onNewNotebookClick}>
                 Create new notebook
@@ -207,11 +210,11 @@ export const StartScreen = observer(() => {
             </p>
 
             <div className={styles.buttons}>
-              <Link to={toTutorial()} className="button">
+              <Link to={toTutorial()} className={`${buttonStyles.button}`}>
                 Try interactive tutorial
               </Link>
               <a
-                className="button secondary"
+                className={`${buttonStyles.button} ${buttonStyles.secondary}`}
                 onClick={onNewNotebookClick}
                 href="/">
                 Create new notebook

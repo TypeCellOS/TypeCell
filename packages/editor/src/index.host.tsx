@@ -10,12 +10,12 @@ import { createRoot } from "react-dom/client";
 import App from "./app/App";
 import { MATRIX_CONFIG } from "./config/config";
 import { validateHostDomain } from "./config/security";
-import "./index.css";
 import { setMonacoDefaults } from "./runtime/editor";
 import setupNpmTypeResolver from "./runtime/editor/languages/typescript/npmTypeResolver";
 import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typecellTypeResolver";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
 import { initializeStoreService } from "./store/local/stores";
+import "./styles/index.css";
 
 // polyfills (mostly required for matrix-crdt)
 (window as any).Buffer = Buffer;
