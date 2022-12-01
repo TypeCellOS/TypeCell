@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { Link, To } from "react-router-dom";
+import buttonStyles from "../../../styles/buttons.module.css";
 import { toProfilePage } from "../../routes/routes";
 import styles from "./NotebookOverviewItem.module.css";
 
@@ -38,7 +39,9 @@ export const NotebookOverviewItem = observer(
             <span className={styles.username}>{props.author.username}</span>
           </Link>
 
-          <Link className="button button-small inverted" to={props.to}>
+          <Link
+            className={`${buttonStyles.button} ${buttonStyles.buttonSmall} ${buttonStyles.inverted}`}
+            to={props.to}>
             View
           </Link>
         </div>
