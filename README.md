@@ -25,6 +25,8 @@ Welcome to TypeCell! An open source live programming environment. Together, we w
 - Full TypeScript support! (no weird custom language constructs)
 - Reactive Runtime, cells automatically re-evaluate when their dependencies update ([learn more](https://www.typecell.org/docs/manual/3.%20Reactive%20variables.md))
 - Import NPM packages + types just by writing an `import` statement
+- Support for real-time collaboration (using [Yjs](https://github.com/yjs/yjs))
+- Runs on top of [Matrix](https://www.matrix.org) using [Matrix-CRDT](https://github.com/yousefed/matrix-crdt).
 
 [Try the Tutorial to get started!](https://www.typecell.org/docs/interactive-introduction.md)
 

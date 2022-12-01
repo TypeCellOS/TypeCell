@@ -1,3 +1,4 @@
+// TODO: should be extracted from packages/editor?
 import Output from "./components/Output";
 import * as notebook from "./notebook";
 

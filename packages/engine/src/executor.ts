@@ -2,7 +2,6 @@ import { autorun, runInAction } from "mobx";
 import { TypeCellContext } from "./context.js";
 import { installHooks } from "./hookDisposables.js";
 import { Module } from "./modules.js";
-import { isStored } from "./storage/stored.js";
 import { isView } from "./view.js";
 
 async function resolveDependencyArray(
@@ -141,11 +140,7 @@ export async function runModule(
 
           const saveValue = (exported: any) => {
             if (propertyName !== "default") {
-              if (isStored(exported)) {
-                // context.storage.addStoredValue(propertyName, exported);
-              } else {
-                context.rawContext[propertyName] = exported;
-              }
+              context.rawContext[propertyName] = exported;
             }
           };
 

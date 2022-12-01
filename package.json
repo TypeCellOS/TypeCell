@@ -1,7 +1,7 @@
 {
   "name": "root",
   "private": true,
-  "license": "AGPL",
+  "license": "AGPL-3.0",
   "devDependencies": {
     "lerna": "^5.0.0",
     "playwright": "^1.18.1",

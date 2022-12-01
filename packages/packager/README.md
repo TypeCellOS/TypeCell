@@ -1,4 +1,3 @@
-### TODO:
+# packages/packager
 
-- template: remove react dependency?
-- template: share duplicated components code (from editor)?
+WIP: this can create a working Vite app from your TypeCell notebooks.
