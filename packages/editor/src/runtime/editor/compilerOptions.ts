@@ -37,6 +37,7 @@ export function getDefaultSandboxCompilerOptions(
     noUnusedLocals: false,
     noUnusedParameters: false,
 
+    allowSyntheticDefaultImports: false,
     esModuleInterop: false,
     preserveConstEnums: false,
     removeComments: false,
@@ -48,13 +49,14 @@ export function getDefaultSandboxCompilerOptions(
 
     importHelpers: false,
 
-    experimentalDecorators: true,
-    emitDecoratorMetadata: true,
+    experimentalDecorators: false,
+    emitDecoratorMetadata: false,
     moduleResolution: typescript.ModuleResolutionKind.NodeJs,
 
-    target: typescript.ScriptTarget.ES2017,
+    target: typescript.ScriptTarget.ES2020,
     jsx: typescript.JsxEmit.React,
     module: typescript.ModuleKind.AMD,
+    // typeRoots: ["node_modules/@types"],
   };
 
   return settings;
