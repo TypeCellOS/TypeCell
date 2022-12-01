@@ -455,7 +455,7 @@ pluto-input > button > span {
 
 .cellList-item > button.add_cell > span::after {
   /* background-image: url(https://cdn.jsdelivr.net/gh/ionic-team/ionicons@5.0.0/src/svg/add-circle-outline.svg); */
-  background-image: url(assets/add-outline.svg);
+  background-image: url(../assets/add-outline.svg);
 }
 
 .cellList-item .notebookCell-sideIcon {
