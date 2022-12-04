@@ -32,6 +32,18 @@
   background: none !important;
 }
 
+.main.ai header div {
+  display:none;
+}
+
+.main.ai nav div {
+  display:none;
+}
+
+.main.ai nav span {
+  display:none;
+}
+
 .main {
   display: flex;
   min-height: 100%;

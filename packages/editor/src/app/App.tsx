@@ -1,6 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { getStoreService } from "../store/local/stores";
+import { AILanding } from "./main/components/startscreen/AILanding";
 import { StartScreen } from "./main/components/startscreen/StartScreen";
 import Main from "./main/Main";
 import { ValidatedServerConfig } from "./matrix-auth/auth/util/AutoDiscoveryUtils";
@@ -27,6 +28,7 @@ export const App = observer((props: { config: ValidatedServerConfig }) => {
               path="@:userParam/:documentParam"
               element={<DocumentRoute />}></Route>
             <Route index element={<StartScreen></StartScreen>}></Route>
+            <Route path="/ai" element={<AILanding />} />
             <Route path="*" element={<DynamicRoute />} />
           </Route>
           <Route

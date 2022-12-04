@@ -19,7 +19,13 @@ const Main = observer((props: {}) => {
     <DndProvider backend={HTML5Backend}>
       <div
         className={
-          styles.main + " " + (location.pathname === "/" ? styles.homepage : "")
+          styles.main +
+          " " +
+          (location.pathname === "/" || location.pathname === "/ai"
+            ? styles.homepage
+            : "") +
+          " " +
+          (location.pathname === "/ai" ? styles.ai : "")
         }>
         <Navigation />
         <Outlet />

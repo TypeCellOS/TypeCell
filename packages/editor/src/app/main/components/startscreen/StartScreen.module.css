@@ -186,6 +186,15 @@
   justify-content: center;
 }
 
+form {
+margin: 0;
+display: contents;
+}
+
+button {
+  cursor: pointer;
+}
+
 .build p {
   margin-bottom: 2em;
 }
@@ -196,6 +205,12 @@
   justify-content: center;
 }
 
+.buttons input {
+  border-radius: 10px;
+  font-size: 20px;
+  border: 1px solid #ccc;
+  padding: 1em 1em;
+}
 .build .link {
   text-decoration: underline;
   font-weight: 600;
