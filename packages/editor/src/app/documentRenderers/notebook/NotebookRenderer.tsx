@@ -7,11 +7,11 @@ import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import { ExecutionHost } from "../../../runtime/executor/executionHosts/ExecutionHost";
 import SandboxedExecutionHost from "../../../runtime/executor/executionHosts/sandboxed/SandboxedExecutionHost";
 import { DocumentResource } from "../../../store/DocumentResource";
+import { getStoreService } from "../../../store/local/stores";
 import CellListDraggableCell from "./CellListDraggableCell";
 import NotebookLanguageSelector from "./LanguageSelector";
-import NotebookCell from "./NotebookCell";
 import { MonacoColorManager } from "./MonacoColorManager";
-import { getStoreService } from "../../../store/local/stores";
+import NotebookCell from "./NotebookCell";
 
 type Props = {
   document: DocumentResource;

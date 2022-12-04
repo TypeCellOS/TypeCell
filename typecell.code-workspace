@@ -23,6 +23,10 @@
     {
       "name": "packages/parsers",
       "path": "packages/parsers"
+    },
+    {
+      "name": "packages/gptchat",
+      "path": "packages/gptchat"
     }
   ],
   "settings": {

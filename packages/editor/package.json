@@ -3,6 +3,7 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
+    "@microsoft/fetch-event-source": "^2.0.1",
     "@atlaskit/atlassian-navigation": "^2.2.6",
     "@atlaskit/avatar": "^21.1.1",
     "@atlaskit/banner": "^11.6.1",
@@ -94,6 +95,7 @@
     "events": "^3.3.0"
   },
   "scripts": {
+    "browser": "open -n -a Brave\\ Browser --args --allow-insecure-localhost --disable-web-security --user-data-dir=\"/tmp/chrome_dev_sess_1\"",
     "copytypes:self": "rimraf public/types && tsc --declaration --stripInternal --emitDeclarationOnly --noEmit false --declarationDir public/types/@typecell-org/editor",
     "copytypes:externaldep": "mkdir -p public/types/$npm_config_pkgname && cp -rf ../../node_modules/$npm_config_pkgname/. public/types/$npm_config_pkgname",
     "copytypes:allexternaldeps": "npm run copytypes:externaldep --pkgname=@types/react && npm run copytypes:externaldep --pkgname=@types/scheduler && npm run copytypes:externaldep --pkgname=@types/prop-types",

@@ -6,19 +6,18 @@ import {
 } from "@atlaskit/atlassian-navigation";
 import { observer } from "mobx-react-lite";
 import { VscSignIn } from "react-icons/vsc";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getStoreService } from "../../../store/local/stores";
-import { toDocs, toLoginScreen } from "../../routes/routes";
+import { toLoginScreen } from "../../routes/routes";
 import { Logo } from "./Logo";
 import styles from "./Navigation.module.css";
-import { ProfilePopup } from "./ProfilePopup";
 
 const ProductHome = () => {
   return (
     <>
       <Logo></Logo>
-      <span className={styles.sub}> Alpha preview</span>
-      <div className={styles.separator}></div>
+      <span className={styles.sub}> AI Preview</span>
+      {/* <div className={styles.separator}></div> */}
     </>
   );
 };
@@ -32,7 +31,8 @@ export const Navigation = observer(() => {
     <AtlassianNavigation
       label="site"
       renderProductHome={ProductHome}
-      primaryItems={[
+      primaryItems={
+        [] /*[
         <>
           <Link className={styles.link} to={toDocs()}>
             Documentation
@@ -47,14 +47,15 @@ export const Navigation = observer(() => {
         // <PrimaryButton onClick={navigationStore.navigateToDocs}>
         //   Documentation
         // </PrimaryButton>,
-      ]}
-      renderProfile={observer(() => (
-        <>
-          {sessionStore.isLoggedIn && (
-            <ProfilePopup sessionStore={sessionStore} />
-          )}
-        </>
-      ))}
+      ]*/
+      }
+      // renderProfile={observer(() => (
+      //   <>
+      //     {sessionStore.isLoggedIn && (
+      //       <ProfilePopup sessionStore={sessionStore} />
+      //     )}
+      //   </>
+      // ))}
       // renderHelp={() => (
       //   <Link className={styles.link} to={toDocs()}>
       //     Documentation

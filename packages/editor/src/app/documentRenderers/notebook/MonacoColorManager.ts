@@ -79,6 +79,11 @@ export class MonacoColorManager extends lifecycle.Disposable {
 
     awareness.on("update", updateHandler);
 
+    generateUserAwarenessCSS(99, {
+      name: "@GPT",
+      color: "#94FADB",
+    });
+
     // Set the current users' awareness info (if not set already)
     const localState = awareness.getLocalState();
     if (

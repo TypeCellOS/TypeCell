@@ -1,28 +1,15 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 
-import DropdownMenu, { DropdownItem } from "@atlaskit/dropdown-menu";
-
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { VscKebabVertical } from "react-icons/vsc";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Identifier } from "../../../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../../../identifiers/MatrixIdentifier";
-import { openAsMarkdown } from "../../../../integrations/markdown/export";
 import { DocumentResource } from "../../../../store/DocumentResource";
 import { SessionStore } from "../../../../store/local/SessionStore";
 import { getStoreService } from "../../../../store/local/stores";
-import {
-  ClosePermissionsDialog,
-  IsPermissionsDialogOpen,
-  OpenPermissionsDialog,
-} from "../../../routes/routes";
 import { MenuBar } from "../menuBar/MenuBar";
-import PermissionsDialog from "../permissions/PermissionsDialog";
-import { Breadcrumb } from "./Breadcrumb";
-import styles from "./DocumentMenu.module.css";
-import { ForkAlert } from "./ForkAlert";
-import { ShareButton } from "./ShareButton";
+import { GPTArea } from "./GPTArea";
 
 type Props = {
   document: DocumentResource;
@@ -49,12 +36,13 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
   let navigate = useNavigate();
   return (
     <MenuBar>
-      <Breadcrumb identifier={props.document.identifier} />
-      {props.document.connection!.needsFork && (
-        <ForkAlert document={props.document} />
-      )}
+      <GPTArea document={props.document} />
+      {/* <Breadcrumb identifier={props.document.identifier} /> */}
+      {/* {props.document.connection!.needsFork && ( 
+        // <ForkAlert document={props.document} />
+      )}*/}
 
-      <aside className={styles.actions}>
+      {/*<aside className={styles.actions}>
         <ul>
           <li className={styles.item}>
             <ShareButton />
@@ -94,7 +82,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
           isOpen={IsPermissionsDialogOpen(location)}
           connection={props.document.connection!}
         />
-      )}
+      )}*/}
     </MenuBar>
   );
 });

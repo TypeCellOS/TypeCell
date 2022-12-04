@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { testGPT } from "./gpt";
 import reportWebVitals from "./reportWebVitals";
 
 (window as any).process = {
@@ -35,3 +36,4 @@ reportWebVitals();
 window.react = React;
 // @ts-ignore - for React-based plugins
 window.reactDOM = ReactDOM;
+(window as any).gpt = testGPT;

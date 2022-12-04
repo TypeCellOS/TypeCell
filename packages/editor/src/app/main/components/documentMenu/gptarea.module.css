@@ -1,0 +1,45 @@
+.div {
+    width: 100%;
+    position:relative;
+    height:200px;
+    
+}
+
+.div textarea {
+    z-index: 1000;
+    resize: none;
+}
+.whenLoading, .whenPrompt {
+    opacity: 0;
+    transition: opacity 1s ease-in;
+    padding:2em;
+}
+
+.loading .whenLoading {
+    transition-delay:1.5s;
+    opacity: 1;
+}
+
+.prompt .whenPrompt {
+    opacity: 1;
+}
+
+.whenLoading, .whenPrompt {
+    border: 0;
+    font-size: 2em;
+    width: 100%;
+    text-align:center;
+    position:absolute;
+    left:0;
+    top:0;
+    height:100%;
+}
+
+.loading textarea {
+    opacity:0;
+    position:absolute;
+    left:0;
+    top:0;
+    height:100%;
+   
+}

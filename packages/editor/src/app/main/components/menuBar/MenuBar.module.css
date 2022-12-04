@@ -1,6 +1,6 @@
 .menu {
   width: 100%;
-  height: 42px;
+  /* height: 42px; */
   background-color: white;
   display: flex;
   align-items: center;
@@ -25,13 +25,13 @@
 .menu * {
   font-size: 12px;
   font-weight: bold;
-  color: #c9c9c9;
+  /* color: #c9c9c9; */
   /* Override breadcrumb animation */
-  transition: 350ms color ease !important;
+  /* transition: 350ms color ease !important; */
 }
 
 .menu:hover *,
 .menu:hover .separator:after {
-  color: #858585;
-  border-right-color: #a7a7a7;
+  /* color: #858585; */
+  /* border-right-color: #a7a7a7; */
 }
