@@ -1,18 +1,19 @@
 .div {
     width: 100%;
     position:relative;
-    height:200px;
+    height:80px;
     
 }
 
 .div textarea {
     z-index: 1000;
     resize: none;
+    overflow:hidden;
 }
 .whenLoading, .whenPrompt {
     opacity: 0;
     transition: opacity 1s ease-in;
-    padding:2em;
+    padding:1em;
 }
 
 .loading .whenLoading {
