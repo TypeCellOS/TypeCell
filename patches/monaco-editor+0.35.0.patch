@@ -1,5 +1,5 @@
 diff --git a/node_modules/monaco-editor/esm/vs/language/typescript/monaco.contribution.js b/node_modules/monaco-editor/esm/vs/language/typescript/monaco.contribution.js
-index d130d21..014f6e4 100644
+index 00dd322..c3eb512 100644
 --- a/node_modules/monaco-editor/esm/vs/language/typescript/monaco.contribution.js
 +++ b/node_modules/monaco-editor/esm/vs/language/typescript/monaco.contribution.js
 @@ -1,4 +1,5 @@
@@ -7,7 +7,7 @@ index d130d21..014f6e4 100644
 +import * as monaco_editor_core_star from "../../editor/editor.api.js";
  /*!-----------------------------------------------------------------------------
   * Copyright (c) Microsoft Corporation. All rights reserved.
-  * Version: 0.34.1(547870b6881302c5b4ff32173c16d06009e3588f)
+  * Version: 0.35.0(71ac097e6155a405f6be52b0b368a04508c31e31)
 @@ -26,7 +27,6 @@ var typescriptVersion = "4.5.5";
  // src/fillers/monaco-editor-core.ts
  var monaco_editor_core_exports = {};
@@ -17,19 +17,10 @@ index d130d21..014f6e4 100644
  // src/language/typescript/monaco.contribution.ts
  var ModuleKind = /* @__PURE__ */ ((ModuleKind2) => {
 diff --git a/node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js b/node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js
-index 62336bd..dfef894 100644
+index cf1645e..91ca8f9 100644
 --- a/node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js
 +++ b/node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js
-@@ -161379,7 +161379,7 @@ var TypeScriptWorker = class {
-   }
-   getScriptFileNames() {
-     const allModels = this._ctx.getMirrorModels().map((model) => model.uri);
--    const models = allModels.filter((uri) => !fileNameIsLib(uri)).map((uri) => uri.toString(true));
-+    const models = allModels.filter((uri) => !fileNameIsLib(uri)).map((uri) => uri.toString());
-     return models.concat(Object.keys(this._extraLibs));
-   }
-   _getModel(fileName) {
-@@ -161668,7 +161668,8 @@ self.onmessage = () => {
+@@ -162168,7 +162168,8 @@ self.onmessage = () => {
    });
  };
  export {
@@ -40,7 +31,7 @@ index 62336bd..dfef894 100644
  /*! *****************************************************************************
  Copyright (c) Microsoft Corporation. All rights reserved.
 diff --git a/node_modules/monaco-editor/esm/vs/language/typescript/tsMode.js b/node_modules/monaco-editor/esm/vs/language/typescript/tsMode.js
-index 3f7034e..7773468 100644
+index 422b1d0..760df84 100644
 --- a/node_modules/monaco-editor/esm/vs/language/typescript/tsMode.js
 +++ b/node_modules/monaco-editor/esm/vs/language/typescript/tsMode.js
 @@ -26,8 +26,8 @@ var __publicField = (obj, key, value) => {
