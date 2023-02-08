@@ -30,7 +30,7 @@ type SimpleResponseMessage = {
   id: string;
 };
 
-const auth = `Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik1UaEVOVUpHTkVNMVFURTRNMEZCTWpkQ05UZzVNRFUxUlRVd1FVSkRNRU13UmtGRVFrRXpSZyJ9.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsidXNlcl9pZCI6InVzZXItRllqNmdTNFNaVlZ0c05hM1RNUzd6dmNzIn0sImlzcyI6Imh0dHBzOi8vYXV0aDAub3BlbmFpLmNvbS8iLCJzdWIiOiJnb29nbGUtb2F1dGgyfDExNzA1Njk0MzgwMzE0NTE0MzI1NSIsImF1ZCI6WyJodHRwczovL2FwaS5vcGVuYWkuY29tL3YxIiwiaHR0cHM6Ly9vcGVuYWkuYXV0aDAuY29tL3VzZXJpbmZvIl0sImlhdCI6MTY3MDE3NzE4MywiZXhwIjoxNjcwMTg0MzgzLCJhenAiOiJUZEpJY2JlMTZXb1RIdE45NW55eXdoNUU0eU9vNkl0RyIsInNjb3BlIjoib3BlbmlkIGVtYWlsIHByb2ZpbGUgbW9kZWwucmVhZCBtb2RlbC5yZXF1ZXN0IG9yZ2FuaXphdGlvbi5yZWFkIG9mZmxpbmVfYWNjZXNzIn0.QDAoZUzQJcCZ5eBA-CuZTQ_YaHnxZVnGUXM-KnDoueI2XHeEijlmv4x4UzX85a6LVaZeIyPqfSTquxGO7gWY81srJzz9koyPf_iwbyGBKhjITdO6zKzgI_vSS0jM-rnk1k0RqfZyd4Z9WNvycV0-yW1wMXFvgBRW3vpuewk-qVwT3QrQj9Fdsq5NuHVqEodBoA8CIqYKtMstZUEA59ADmk-rPEQs444mpqZfHMSgBPS5JJ6gSDyxM81pab7TdrfYraVVZmDt0Csc48kfK734hKlnK-mtix_2DMTHaYUiQXLzZhQTosL6FltPb2fa9TnozwTCDHzEniAUTm6lj1U89w`;
+const auth = ``;
 export function fetchGPT(data: {
   message_id: string;
   message: string;
@@ -158,8 +158,10 @@ I'm creating a live programming environment for Typescript called TypeCell. Type
 - Programs consists of a list of cells. Cells execute live, as-you type.
 - Cells can export variables using the javascript / typescript \`export\` syntax. These variables are shown as the output of the cell.
 - The exported variables by a cell are available in other cells, under the \`$\` variable. e.g.: \`$.exportedVariableFromOtherCell\`
+- Different cells must not output variables with the same name, because then they would collide under the \`$\` variable.
 - When the exports of one cell change, other cells that depend on those exports, update live, automatically.
 - React / JSX components will be displayed automatically. E.g.: \`export let component = <div>hello world</div>\` will display a div with hello world.
+- If you create a d3 chart, make sure to export a DOM element that contains that chart
 
 Example usage:
 
@@ -202,22 +204,30 @@ export let text1 = typecell.Input(<input type="text" />, "default text");
 I want you to output answers to my questions in the following format:
 
 CELL <cell number>:
+\`\`\`
 <cell code>
+\`\`\`
 
 For example, when asking to create two cells, output
 
 CELL 1:
+\`\`\`
 // code of cell one
+\`\`\`
 
 CELL 2:
+\`\`\`
 // code of cell one
+\`\`\`
 
 When I then ask you to change the code of CELL 2, you can answer with only CELL 2, i.e.:
 
 CELL 2:
+\`\`\`
 // changed code of cell one
+\`\`\`
 
-For this initial instruction, just answer "ok"
+For this initial instruction, just answer "ok". From then on, ALWAYS answer using the cell format above
 `;
 
 export class GPTSession {
