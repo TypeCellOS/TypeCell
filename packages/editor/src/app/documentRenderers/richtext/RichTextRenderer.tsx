@@ -1,8 +1,8 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
 // import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost"
-import { EditorContent, useEditor } from "@blocknote/core";
 import "@blocknote/core/style.css";
+import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import ReactDOM from "react-dom";
@@ -19,7 +19,7 @@ window.ReactDOM = ReactDOM;
 const RichTextRenderer: React.FC<Props> = observer((props) => {
   const sessionStore = getStoreService().sessionStore;
 
-  const editor = useEditor({
+  const editor = useBlockNote({
     onUpdate: ({ editor }) => {
       console.log(editor.getJSON());
     },
@@ -43,7 +43,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       }),
     ],
   });
-  return <EditorContent editor={editor} />;
+  return <BlockNoteView editor={editor} />;
 });
 
 export default RichTextRenderer;

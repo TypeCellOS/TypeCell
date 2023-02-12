@@ -1,3 +1,4 @@
+/// <reference types="@emotion/react/types/css-prop" />
 import Modal, {
   ModalBody,
   ModalHeader,

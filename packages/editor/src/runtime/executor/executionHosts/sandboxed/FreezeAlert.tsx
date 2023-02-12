@@ -1,4 +1,5 @@
-import * as React from "react";
+/// <reference types="@emotion/react/types/css-prop" />
+// import * as React from "react";
 import Flag from "@atlaskit/flag";
 import { VscWarning } from "react-icons/vsc";
 
