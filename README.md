@@ -66,7 +66,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for more info and guidance on how to run 
 TypeCell is organised as a monorepo containing several packages. Directory structure:
 
 ```
-blocknote
+typecell
 ├── packages
 │   ├── common          - Utility functions shared across the codebase
 │   ├── editor          - The main React application
