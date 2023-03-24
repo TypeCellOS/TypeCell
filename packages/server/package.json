@@ -1,0 +1,31 @@
+{
+  "name": "@typecell-org/server",
+  "version": "0.0.3",
+  "private": true,
+  "dependencies": {
+    "vscode-lib": "^0.1.2",
+    "@hocuspocus/server": "^1.1.1"
+  },
+  "devDependencies": {
+    "typescript": "4.5.5",
+    "@playwright/test": "^1.18.1",
+    "playwright-test": "^8.1.1",
+    "vitest": "^0.24.4",
+    "jsdom": "^20.0.0",
+    "@vitest/coverage-c8": "^0.24.4",
+    "vite-node": "^0.29.7"
+  },
+  "source": "src/index.ts",
+  "types": "types/index.d.ts",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf dist && rimraf types",
+    "dev": "vite-node src/index.ts",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "watch": "tsc --watch",
+    "unittest:vitest": "vitest run --coverage",
+    "unittest:playwright": "playwright-test '**/*.browsertest.ts'",
+    "test": "npm run unittest:vitest && npm run unittest:playwright"
+  }
+}

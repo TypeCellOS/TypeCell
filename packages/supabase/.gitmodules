@@ -1,0 +1,2 @@
+[submodule "supabase"]
+	shallow = true
