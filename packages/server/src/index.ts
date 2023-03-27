@@ -12,7 +12,7 @@ async function onAuthenticate(data: onAuthenticatePayload) {
   if (token !== "super-secret-token") {
     throw new Error("Not authorized!");
   }
-
+  // throw new Error("Not authorized!");
   // Example to set a document to read only for the current user
   // thus changes will not be accepted and synced to other clients
   // if (someCondition === true) {

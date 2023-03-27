@@ -4,7 +4,9 @@
   "private": true,
   "dependencies": {
     "vscode-lib": "^0.1.2",
-    "@hocuspocus/server": "^1.1.1"
+    "@hocuspocus/server": "2.0.0-alpha.0",
+    "@hocuspocus/extension-database": "2.0.0-alpha.0",
+    "@supabase/supabase-js": "^2.12.1"
   },
   "devDependencies": {
     "typescript": "4.5.5",
@@ -13,7 +15,12 @@
     "vitest": "^0.24.4",
     "jsdom": "^20.0.0",
     "@vitest/coverage-c8": "^0.24.4",
-    "vite-node": "^0.29.7"
+    "vite-node": "^0.29.7",
+    "supabase": "^1.45.2",
+    "yjs": "^13.0.0",
+    "@hocuspocus/provider": "2.0.0-alpha.0",
+    "ws": "^8.13.0",
+    "nanoid": "^4.0.1"
   },
   "source": "src/index.ts",
   "types": "types/index.d.ts",
@@ -24,8 +31,10 @@
     "dev": "vite-node src/index.ts",
     "build": "npm run clean && tsc -p tsconfig.json",
     "watch": "tsc --watch",
+    "test-watch": "vitest watch",
     "unittest:vitest": "vitest run --coverage",
     "unittest:playwright": "playwright-test '**/*.browsertest.ts'",
-    "test": "npm run unittest:vitest && npm run unittest:playwright"
+    "test": "npm run unittest:vitest && npm run unittest:playwright",
+    "gentypes": "npx supabase gen types typescript --local --schema public > src/types/schema.ts"
   }
 }

@@ -20,5 +20,5 @@
     "downlevelIteration": true,
     "outDir": "dist"
   },
-  "include": ["src", "template/src/notebook.ts"]
+  "include": ["src"]
 }
