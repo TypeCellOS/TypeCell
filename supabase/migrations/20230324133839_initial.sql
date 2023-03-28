@@ -1,3 +1,5 @@
+CREATE TYPE access_level AS ENUM ('no-access', 'read', 'write');
+
 create table "public"."documents" (
     "id" uuid not null default uuid_generate_v4(),
     "nano_id" character varying(20) not null,
@@ -5,9 +7,8 @@ create table "public"."documents" (
     "user_id" uuid not null,
     "updated_at" timestamp with time zone not null default now(),
     "data" bytea not null,
-    "is_public" boolean not null
+    "public_access_level" access_level not null
 );
-
 
 alter table "public"."documents" enable row level security;
 
@@ -30,6 +31,59 @@ for delete
 to authenticated
 using ((auth.uid() = user_id));
 
+revoke update on "public"."documents" from authenticated;
+grant update(data, public_access_level, updated_at) on "public"."documents" to authenticated;
+
+CREATE OR REPLACE FUNCTION check_column_update()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.public_access_level IS DISTINCT FROM OLD.public_access_level THEN
+    IF auth.uid() IS DISTINCT FROM OLD.user_id THEN
+      RAISE EXCEPTION 'Cannot update column unless auth.uid() = user_id.';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_column_update_trigger
+BEFORE UPDATE ON "public"."documents"
+FOR EACH ROW
+EXECUTE FUNCTION check_column_update();
+
+CREATE TABLE document_relations (
+    parent_id uuid REFERENCES documents(id),
+    child_id uuid REFERENCES documents(id),
+    UNIQUE (parent_id, child_id)
+);
+
+CREATE TABLE document_permissions (
+    document_id uuid REFERENCES documents(id),
+    user_id uuid REFERENCES auth.users(id),
+    access_level access_level NOT NULL,
+    UNIQUE (document_id, user_id)
+);
+
+CREATE FUNCTION check_document_access(uid uuid, doc_id uuid)
+RETURNS access_level
+AS $$
+DECLARE
+    access access_level;
+BEGIN
+    -- Get the access for the current document
+    SELECT p.access_level FROM document_permissions p WHERE p.user_id = uid AND document_id = doc_id INTO access;
+
+    if access IS NOT NULL then
+      RETURN access;
+    end if;
+
+    -- get access for parent, use MIN to take the most restrictive access. 
+    -- Note that this is a recursive function and could cause an infinite loop
+    RETURN(
+      SELECT MIN(check_document_access(uid, parent_id)) FROM document_relations r WHERE child_id = doc_id
+    );
+END;
+$$ LANGUAGE plpgsql;
 
 create policy "Enable insert for authenticated users only"
 on "public"."documents"
@@ -44,33 +98,12 @@ on "public"."documents"
 as permissive
 for select
 to public
-using (((is_public IS TRUE) OR (auth.uid() = user_id)));
-
+using ((public_access_level >= 'read') OR (auth.uid() = user_id) OR (check_document_access(auth.uid(), id) >= 'read'));
 
 create policy "Enable update for authenticated users only"
 on "public"."documents"
 as permissive
 for update
 to authenticated
-using (((is_public IS TRUE) OR (auth.uid() = user_id)))
+using ((public_access_level >= 'write') OR (auth.uid() = user_id) OR (check_document_access(auth.uid(), id) >= 'write'))
 with check (true);
-
-revoke update on "public"."documents" from authenticated;
-grant update(data, is_public, updated_at) on "public"."documents" to authenticated;
-
-CREATE OR REPLACE FUNCTION check_column_update()
-RETURNS TRIGGER AS $$
-BEGIN
-  IF NEW.is_public IS DISTINCT FROM OLD.is_public THEN
-    IF auth.uid() IS DISTINCT FROM OLD.user_id THEN
-      RAISE EXCEPTION 'Cannot update column unless auth.uid() = user_id.';
-    END IF;
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER check_column_update_trigger
-BEFORE UPDATE ON "public"."documents"
-FOR EACH ROW
-EXECUTE FUNCTION check_column_update();

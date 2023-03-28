@@ -9,13 +9,44 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      document_permissions: {
+        Row: {
+          access_level: Database["public"]["Enums"]["access_level"]
+          document_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          access_level: Database["public"]["Enums"]["access_level"]
+          document_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          access_level?: Database["public"]["Enums"]["access_level"]
+          document_id?: string | null
+          user_id?: string | null
+        }
+      }
+      document_relations: {
+        Row: {
+          child_id: string | null
+          parent_id: string | null
+        }
+        Insert: {
+          child_id?: string | null
+          parent_id?: string | null
+        }
+        Update: {
+          child_id?: string | null
+          parent_id?: string | null
+        }
+      }
       documents: {
         Row: {
           created_at: string
           data: string
           id: string
-          is_public: boolean
           nano_id: string
+          public_access_level: Database["public"]["Enums"]["access_level"]
           updated_at: string
           user_id: string
         }
@@ -23,8 +54,8 @@ export interface Database {
           created_at?: string
           data: string
           id?: string
-          is_public: boolean
           nano_id: string
+          public_access_level: Database["public"]["Enums"]["access_level"]
           updated_at?: string
           user_id: string
         }
@@ -32,8 +63,8 @@ export interface Database {
           created_at?: string
           data?: string
           id?: string
-          is_public?: boolean
           nano_id?: string
+          public_access_level?: Database["public"]["Enums"]["access_level"]
           updated_at?: string
           user_id?: string
         }
@@ -43,10 +74,16 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_document_access: {
+        Args: {
+          uid: string
+          doc_id: string
+        }
+        Returns: Database["public"]["Enums"]["access_level"]
+      }
     }
     Enums: {
-      [_ in never]: never
+      access_level: "no-access" | "read" | "write"
     }
     CompositeTypes: {
       [_ in never]: never

@@ -2,20 +2,24 @@ import {
   HocuspocusProvider,
   HocuspocusProviderWebsocket,
 } from "@hocuspocus/provider";
+import { Server } from "@hocuspocus/server";
 import { beforeAll, it } from "vitest";
 import ws from "ws";
 import * as Y from "yjs";
+import { SupabaseHocuspocus } from "./hocuspocus/extension-supabase/SupabaseHocuspocus";
+import { createRandomUser } from "./test/supabaseTestUtil";
+import { generateId } from "./util/uniqueId";
 
 beforeAll(async () => {
   // await resetSupabaseDB();
-  // const server = Server.configure({
-  //   extensions: [new SupabaseHocuspocus({})],
-  //   debounce: 0,
-  // });
-  // await server.listen(1234);
+  const server = Server.configure({
+    extensions: [new SupabaseHocuspocus({})],
+    debounce: 0,
+  });
+  await server.listen(1234);
 });
 
-it.skip("should sync user data via yjs", async () => {
+it("should sync user data via yjs", async () => {
   const ydoc = new Y.Doc();
 
   let pResolve = () => {};
@@ -26,11 +30,11 @@ it.skip("should sync user data via yjs", async () => {
     url: "ws://localhost:1234",
     WebSocketPolyfill: ws,
   });
-
+  const alice = await createRandomUser("alice");
   const provider = new HocuspocusProvider({
-    name: "example-document",
+    name: generateId(),
     document: ydoc,
-    token: "hello",
+    token: alice.session?.access_token,
     onAuthenticated: () => {
       console.log("onAuthenticated");
     },

@@ -7,6 +7,7 @@ import {
   onAuthenticatePayload,
   storePayload,
 } from "@hocuspocus/server";
+import { createAnonClient } from "../../supabase/supabase";
 
 // export const schema = `CREATE TABLE IF NOT EXISTS "documents" (
 //   "name" varchar(255) NOT NULL,
@@ -29,7 +30,6 @@ export class SupabaseHocuspocus extends Database {
   constructor(configuration?: Partial<SupabaseConfiguration>) {
     super({
       fetch: async (data: fetchPayload) => {
-        console.log("fetch");
         return null;
       },
       store: async (data: storePayload) => {
@@ -39,7 +39,18 @@ export class SupabaseHocuspocus extends Database {
   }
 
   async onAuthenticate(data: onAuthenticatePayload) {
-    console.log("authx");
+    const [access_token, refresh_token] = data.token.split("$");
+    const supabase = await createAnonClient();
+    await supabase.auth.setSession({ access_token, refresh_token });
+
+    const ret = await supabase
+      .from("documents")
+      .update({ updated_at: JSON.stringify(new Date()) })
+      .eq("nano_id", data.documentName);
+
+    if (ret.error) {
+      // we couldn't update, perhaps it's readonly?
+    }
     // throw new Error("nope");
   }
 }

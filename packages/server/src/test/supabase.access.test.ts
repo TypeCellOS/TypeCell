@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
+import { createAnonClient } from "../supabase/supabase";
 import { generateId } from "../util/uniqueId";
-import { createAnonClient, createRandomUser } from "./supabaseTestUtil";
+import { createRandomUser } from "./supabaseTestUtil";
 
 function createDocument(userId: string, data: string, publicDocument = false) {
   const date = JSON.stringify(new Date());
@@ -9,9 +10,9 @@ function createDocument(userId: string, data: string, publicDocument = false) {
     updated_at: date,
     data: JSON.stringify(data),
     nano_id: generateId(),
-    is_public: publicDocument,
+    public_access_level: publicDocument ? "write" : "no-access",
     user_id: userId,
-  };
+  } as const;
 }
 
 describe("supabase access tests", () => {

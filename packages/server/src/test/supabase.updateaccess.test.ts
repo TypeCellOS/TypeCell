@@ -10,9 +10,9 @@ function createDocument(userId: string, data: string, publicDocument = false) {
     updated_at: date,
     data: JSON.stringify(data),
     nano_id: generateId(),
-    is_public: publicDocument,
+    public_access_level: publicDocument ? "write" : "no-access",
     user_id: userId,
-  };
+  } as const;
 }
 
 // revoke update on documents in schema public from anon;
@@ -69,8 +69,8 @@ describe("supabase update tests", () => {
         policy: "allowed",
         checkValue: "\\x" + Buffer.from("hello").toString("hex"),
       },
-      is_public: {
-        sampleValue: false,
+      public_access_level: {
+        sampleValue: "no-access",
         policy: "only-owner",
       },
       updated_at: {
@@ -154,12 +154,13 @@ describe("supabase update tests", () => {
           it(`other user can't update ${key}`, async () => {
             const ret = await bob.supabase
               .from("documents")
-              .update({ [key]: value.sampleValue })
+              .update({ [key]: value.sampleValue }, { count: "exact" })
               .eq("id", privateDocId)
               .select();
 
             expect(ret.error).not.toBeNull();
             if (value.policy === "only-owner") {
+              expect(ret.count).toBeNull();
               expect(ret.error?.message).toBe(
                 "Cannot update column unless auth.uid() = user_id."
               );
@@ -199,8 +200,8 @@ describe("supabase update tests", () => {
         policy: "only-owner",
         checkValue: "\\x" + Buffer.from("hello").toString("hex"),
       },
-      is_public: {
-        sampleValue: true,
+      public_access_level: {
+        sampleValue: "write",
         policy: "only-owner",
       },
       updated_at: {
@@ -302,3 +303,18 @@ describe("supabase update tests", () => {
     });
   });
 });
+
+/*
+I want to create the following rules:
+
+- a user's read / write access can be set on any document
+- a user can be a member of one or more groups
+- a group's read / write access can be set on any document
+- a document can be a child of one or more other documents
+- a document can be a parent of one or more other documents
+- if a user has specific access to a document (via a user or group), then that is the access they have
+- if a user does not have specific access to a document, then they have access based on the access of their parent documents. This works recursively up the tree. If at some point a document has multiple parents, then the user's access is the most restrictive of the parent documents.
+
+
+
+*/

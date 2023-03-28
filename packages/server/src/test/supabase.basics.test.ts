@@ -1,9 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import {
-  createAnonClient,
-  createRandomUser,
-  createServiceClient,
-} from "./supabaseTestUtil";
+import { createAnonClient, createServiceClient } from "../supabase/supabase";
+import { createRandomUser } from "./supabaseTestUtil";
 
 describe("supabase basics", () => {
   beforeAll(async () => {
