@@ -1,20 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { generateId } from "../util/uniqueId";
-import { generateUuid } from "../util/uuid";
-import { createRandomUser } from "./supabaseTestUtil";
-
-function createDocument(userId: string, data: string, publicDocument = false) {
-  const date = JSON.stringify(new Date());
-  return {
-    id: generateUuid(),
-    created_at: date,
-    updated_at: date,
-    data: JSON.stringify(data),
-    nano_id: generateId(),
-    public_access_level: "no-access",
-    user_id: userId,
-  } as const;
-}
+import { createDocument, createRandomUser } from "./supabaseTestUtil";
 
 /*
 
@@ -48,10 +33,10 @@ Example:
 
 */
   it("test first scenario", async () => {
-    const docA = createDocument(alice.user!.id, "helloA", true);
-    const docB = createDocument(alice.user!.id, "helloB", true);
-    const docC = createDocument(alice.user!.id, "helloC", true);
-    const docD = createDocument(alice.user!.id, "helloD", true);
+    const docA = createDocument(alice.user!.id, "helloA", "write");
+    const docB = createDocument(alice.user!.id, "helloB", "write");
+    const docC = createDocument(alice.user!.id, "helloC", "write");
+    const docD = createDocument(alice.user!.id, "helloD", "write");
     const ret = await alice.supabase
       .from("documents")
       .insert([docA, docB, docC, docD])
@@ -106,10 +91,10 @@ Example:
 - In this case, Alice does have access to document A, because it has access to document D and to document B. It has access to document B because it's been granted explicitly, even though she does not have access to it's parent C
 */
   it("test second scenario", async () => {
-    const docA = createDocument(alice.user!.id, "helloA", true);
-    const docB = createDocument(alice.user!.id, "helloB", true);
-    const docC = createDocument(alice.user!.id, "helloC", true);
-    const docD = createDocument(alice.user!.id, "helloD", true);
+    const docA = createDocument(alice.user!.id, "helloA", "write");
+    const docB = createDocument(alice.user!.id, "helloB", "write");
+    const docC = createDocument(alice.user!.id, "helloC", "write");
+    const docD = createDocument(alice.user!.id, "helloD", "write");
     const ret = await alice.supabase
       .from("documents")
       .insert([docA, docB, docC, docD])

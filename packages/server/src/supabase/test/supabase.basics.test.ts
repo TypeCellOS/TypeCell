@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { createAnonClient, createServiceClient } from "../supabase/supabase";
+import { createAnonClient, createServiceClient } from "../supabase";
 import { createRandomUser } from "./supabaseTestUtil";
 
 describe("supabase basics", () => {

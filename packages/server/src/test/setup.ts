@@ -1,4 +1,7 @@
-import { resetSupabaseDB, startSupabase } from "./supabaseTestUtil";
+import {
+  resetSupabaseDB,
+  startSupabase,
+} from "../supabase/test/supabaseTestUtil";
 
 export default async function () {
   console.log("setup");
