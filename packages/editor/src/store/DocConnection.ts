@@ -1,31 +1,13 @@
-import { createMatrixRoom } from "matrix-crdt";
-import {
-  computed,
-  makeObservable,
-  observable,
-  reaction,
-  runInAction,
-  when,
-} from "mobx";
+import { computed, makeObservable, observable, reaction, when } from "mobx";
 import { lifecycle } from "vscode-lib";
-import { MatrixClientPeg } from "../app/matrix-auth/MatrixClientPeg";
 import { BaseResource } from "./BaseResource";
 
-import { uri } from "vscode-lib";
 import * as Y from "yjs";
 import { parseIdentifier, tryParseIdentifier } from "../identifiers";
-import { FileIdentifier } from "../identifiers/FileIdentifier";
-import { GithubIdentifier } from "../identifiers/GithubIdentifier";
-import { HttpsIdentifier } from "../identifiers/HttpsIdentifier";
 import { Identifier } from "../identifiers/Identifier";
-import { MatrixIdentifier } from "../identifiers/MatrixIdentifier";
 import { getStoreService } from "./local/stores";
-import FetchSyncManager from "./yjs-sync/FetchSyncManager";
-import { YDocFileSyncManager } from "./yjs-sync/FilebridgeSyncManager";
-import GithubSyncManager from "./yjs-sync/GithubSyncManager";
-import { existsLocally, getIDBIdentifier } from "./yjs-sync/IDBHelper";
-import { SyncManager } from "./yjs-sync/SyncManager";
-import { YDocSyncManager } from "./yjs-sync/YDocSyncManager";
+import { MatrixRemote } from "./yjs-sync/remote/MatrixRemote";
+import { YDocSyncManager2 } from "./yjs-sync/YDocSyncManager";
 
 const cache = new Map<string, DocConnection>();
 
@@ -37,7 +19,7 @@ export class DocConnection extends lifecycle.Disposable {
   private _refCount = 0;
 
   /** @internal */
-  private manager: SyncManager | undefined = undefined;
+  private manager: YDocSyncManager2;
   private _baseResourceCache:
     | undefined
     | {
@@ -45,46 +27,13 @@ export class DocConnection extends lifecycle.Disposable {
         doc: Y.Doc;
       };
 
-  // TODO: move to YDocSyncManager?
-  private clearAndInitializeManager(forkSourceIdentifier?: Identifier) {
-    runInAction(() => {
-      const sessionStore = getStoreService().sessionStore;
-      sessionStore.enableGuest();
-      this._baseResourceCache = undefined;
-      this.manager?.dispose();
-      this.manager = undefined;
-      if (this.identifier instanceof FileIdentifier) {
-        this.manager = new YDocFileSyncManager(this.identifier);
-        this.manager.initialize();
-      } else if (this.identifier instanceof GithubIdentifier) {
-        this.manager = new GithubSyncManager(this.identifier);
-        this.manager.initialize();
-      } else if (this.identifier instanceof HttpsIdentifier) {
-        this.manager = new FetchSyncManager(this.identifier);
-        this.manager.initialize();
-      } else if (this.identifier instanceof MatrixIdentifier) {
-        if (typeof sessionStore.user !== "string") {
-          this.manager = new YDocSyncManager(
-            this.identifier,
-            sessionStore.user.matrixClient,
-            sessionStore.user.type === "matrix-user"
-              ? sessionStore.user.userId
-              : undefined,
-            forkSourceIdentifier
-          );
-          this.manager.initialize();
-        }
-      } else {
-        throw new Error("unsupported identifier");
-      }
-    });
-  }
-
   protected constructor(
     public readonly identifier: Identifier,
-    forkSourceIdentifier?: Identifier
+    syncManager: YDocSyncManager2
   ) {
     super();
+
+    this.manager = syncManager;
 
     // add "manager" to satisfy TS as it's a private field
     // https://mobx.js.org/observable-state.html#limitations
@@ -95,14 +44,12 @@ export class DocConnection extends lifecycle.Disposable {
       manager: observable.ref,
     });
 
-    let forked = false;
     const dispose = reaction(
       () => getStoreService().sessionStore.user,
       () => {
-        this.clearAndInitializeManager(
-          forked ? undefined : forkSourceIdentifier
-        );
-        forked = true;
+        this._baseResourceCache = undefined;
+        this.manager?.dispose();
+        this.manager = YDocSyncManager2.load(identifier);
       },
       { fireImmediately: true }
     );
@@ -125,13 +72,13 @@ export class DocConnection extends lifecycle.Disposable {
 
   /** @internal */
   public get webrtcProvider() {
-    return this.manager;
+    return this.manager; // TODO
   }
 
   /** @internal */
   public get matrixProvider() {
-    if (this.manager instanceof YDocSyncManager) {
-      return this.manager.matrixProvider;
+    if (this.manager.remote instanceof MatrixRemote) {
+      return this.manager.remote.matrixProvider;
     } else {
       throw new Error("not supported");
     }
@@ -176,15 +123,8 @@ export class DocConnection extends lifecycle.Disposable {
   }
 
   public async revert() {
-    if (!(this.manager instanceof YDocSyncManager)) {
-      throw new Error("revert() only supported on YDocSyncManager");
-    }
-    const manager = this.manager;
-    if (!manager) {
-      throw new Error("revert() called without manager");
-    }
-    await manager.deleteLocalChanges();
-    this.clearAndInitializeManager();
+    this.manager.dispose();
+    this.manager = await this.manager.clearAndReload();
   }
 
   // TODO: fork github or file sources
@@ -193,41 +133,25 @@ export class DocConnection extends lifecycle.Disposable {
       throw new Error("not logged in");
     }
 
-    let tryN = 1;
+    const result = await this.manager.fork();
 
-    do {
-      // TODO
-      if (!(this.identifier instanceof MatrixIdentifier)) {
-        throw new Error("not implemented");
-      }
-      // TODO: test
-      const newIdentifier = new MatrixIdentifier(
-        uri.URI.from({
-          scheme: this.identifier.uri.scheme,
-          // TODO: use user authority,
-          path:
-            getStoreService().sessionStore.loggedInUserId +
-            "/" +
-            this.identifier.document +
-            (tryN > 1 ? "-" + tryN : ""),
-        })
-      );
+    if (typeof result === "string") {
+      return result;
+    }
 
-      const result = await DocConnection.create(newIdentifier, this.identifier);
+    if (cache.get(result.identifier.toString())) {
+      throw new Error("create called, but already in cache");
+    }
 
-      // TODO: store fork info in document
+    const connection = new DocConnection(result.identifier, result);
+    cache.set(result.identifier.toString(), connection);
+    connection.addRef();
 
-      if (result === "invalid-identifier") {
-        throw new Error("unexpected invalid-identifier when forking");
-      }
-
-      if (result !== "already-exists") {
-        if (result instanceof BaseResource) {
-        }
-        return result;
-      }
-      tryN++;
-    } while (true);
+    const doc = connection.doc;
+    if (typeof doc === "string") {
+      throw new Error("no baseresource after fork");
+    }
+    return doc;
   }
 
   public async waitForDoc() {
@@ -250,10 +174,7 @@ export class DocConnection extends lifecycle.Disposable {
   //   await this.initializeNoCatch();
   // }
 
-  public static async create(
-    id: string | { owner: string; document: string },
-    forkSourceIdentifier?: Identifier
-  ) {
+  public static async create(id: string | { owner: string; document: string }) {
     const sessionStore = getStoreService().sessionStore;
     if (!sessionStore.loggedInUserId) {
       throw new Error("no user available on create document");
@@ -264,49 +185,29 @@ export class DocConnection extends lifecycle.Disposable {
       return identifier;
     }
 
-    if (!(identifier instanceof MatrixIdentifier)) {
-      throw new Error("invalid identifier");
+    const syncManager = await YDocSyncManager2.create(identifier);
+
+    if (syncManager === "already-exists") {
+      return syncManager;
     }
 
-    // TODO: check authority
-    if (identifier.owner !== sessionStore.loggedInUserId) {
-      throw new Error("not authorized to create this document");
+    if (syncManager === "error") {
+      return syncManager;
     }
 
-    if (
-      await existsLocally(
-        getIDBIdentifier(identifier.toString(), sessionStore.loggedInUserId)
-      )
-    ) {
-      return "already-exists";
+    if (cache.get(identifier.toString())) {
+      throw new Error("create called, but already in cache");
     }
 
-    // TODO (security): user2 can create a room @user1/doc
-    const remoteResult = await createMatrixRoom(
-      MatrixClientPeg.get(),
-      identifier.roomName,
-      "public-read"
-    );
+    const connection = new DocConnection(identifier, syncManager);
+    cache.set(identifier.toString(), connection);
+    connection.addRef();
 
-    if (remoteResult === "already-exists") {
-      return remoteResult;
-    }
-
-    if (remoteResult === "offline" || remoteResult.status === "ok") {
-      // TODO: add to pending if "offline"
-      if (remoteResult === "offline") {
-        // create local-first
-      }
-      const connection = await DocConnection.load(id, forkSourceIdentifier);
-      return connection.waitForDoc();
-    }
-
-    return remoteResult;
+    return connection.waitForDoc();
   }
 
   public static load(
-    identifier: string | { owner: string; document: string } | Identifier,
-    forkSourceIdentifier?: Identifier
+    identifier: string | { owner: string; document: string } | Identifier
   ) {
     // TODO
     if (!(identifier instanceof Identifier)) {
@@ -315,7 +216,9 @@ export class DocConnection extends lifecycle.Disposable {
 
     let connection = cache.get(identifier.toString());
     if (!connection) {
-      connection = new DocConnection(identifier, forkSourceIdentifier);
+      const syncManager = YDocSyncManager2.load(identifier);
+
+      connection = new DocConnection(identifier, syncManager);
       cache.set(identifier.toString(), connection);
     }
     connection.addRef();
@@ -338,8 +241,7 @@ export class DocConnection extends lifecycle.Disposable {
       super.dispose();
 
       this._baseResourceCache = undefined;
-      this.manager?.dispose();
-      this.manager = undefined;
+      this.manager.dispose();
       cache.delete(this.identifier.toString());
       this.disposed = true;
     }

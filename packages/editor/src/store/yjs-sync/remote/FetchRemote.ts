@@ -1,26 +1,27 @@
 import { makeObservable, observable, runInAction } from "mobx";
-import { lifecycle, strings } from "vscode-lib";
+import { strings } from "vscode-lib";
+import { Awareness } from "y-protocols/awareness";
 
 import * as Y from "yjs";
-import { HttpsIdentifier } from "../../identifiers/HttpsIdentifier";
-import { markdownToYDoc } from "../../integrations/markdown/import";
-import ProjectResource from "../ProjectResource";
-import { SyncManager } from "./SyncManager";
+import { HttpsIdentifier } from "../../../identifiers/HttpsIdentifier";
+import { markdownToYDoc } from "../../../integrations/markdown/import";
+import ProjectResource from "../../ProjectResource";
+import { Remote } from "./Remote";
 
-export default class FetchSyncManager
-  extends lifecycle.Disposable
-  implements SyncManager
-{
+export default class FetchRemote extends Remote {
+  private disposed = false;
+  protected id: string = "fetch";
+  public canCreate: boolean = false;
+
   public canWrite: boolean = true; // always initialize as true until the user starts trying to make changes
 
-  public doc: "loading" | "not-found" | Y.Doc = "loading";
-
-  public readonly awareness: any = undefined;
-
-  public constructor(private identifier: HttpsIdentifier) {
-    super();
+  public constructor(
+    _ydoc: Y.Doc,
+    awareness: Awareness,
+    private readonly identifier: HttpsIdentifier
+  ) {
+    super(_ydoc, awareness);
     makeObservable(this, {
-      doc: observable.ref,
       canWrite: observable.ref,
     });
   }
@@ -34,6 +35,7 @@ export default class FetchSyncManager
       // update from peer (e.g.: webrtc / websockets). Peer is responsible for sending to Matrix
       return;
     }
+    debugger;
     runInAction(() => (this.canWrite = false));
   };
 
@@ -89,25 +91,41 @@ export default class FetchSyncManager
   private async initializeNoCatch() {
     try {
       const docData = await this.getNewYDocFromFetch();
-      if (docData === "not-found") {
-        this.doc = "not-found";
+      if (this.disposed) {
+        console.warn("already disposed");
         return;
       }
-      this.doc = docData;
-      // this.doc.on("update", this.documentUpdateListener);
+      if (docData === "not-found") {
+        runInAction(() => {
+          this.status = "not-found";
+        });
+        return;
+      }
+      runInAction(() => {
+        this.status = "loaded";
+        const update = Y.encodeStateAsUpdateV2(docData);
+        Y.applyUpdateV2(this._ydoc, update);
+      });
+      this._ydoc.on("update", this.documentUpdateListener);
+      this._register({
+        dispose: () => {
+          this._ydoc.off("update", this.documentUpdateListener);
+        },
+      });
     } catch (e) {
       console.error(e);
-      this.doc = "loading"; // TODO: error state?
+      runInAction(() => {
+        this.status = "loading";
+      }); // TODO: error state?
     }
+  }
+
+  public load(): Promise<void> {
+    return this.initialize();
   }
 
   public dispose() {
+    this.disposed = true;
     super.dispose();
-    if (typeof this.doc !== "string") {
-      this.doc.off("update", this.documentUpdateListener);
-    }
-    this.doc = "loading";
   }
-
-  public on() {}
 }

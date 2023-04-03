@@ -26,7 +26,7 @@
     "lint": "lerna run lint --concurrency 1 --stream",
     "watch": "npm run build && lerna run --parallel watch",
     "start": "npm run start-react",
-    "start-filebridge": "npx filebridge docs",
+    "start-filebridge": "npx filebridge packages/editor/public/_docs",
     "start-react": "lerna run --scope @typecell-org/editor start --stream",
     "start:local": "lerna run --scope @typecell-org/editor start:local --stream",
     "start:preview": "lerna run --scope @typecell-org/editor preview --stream",

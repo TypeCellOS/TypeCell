@@ -65,6 +65,10 @@ export const NewPageDialog = (props: {
                     case "invalid-identifier":
                       setWarning("Invalid title");
                       break;
+                    case "error":
+                      setError("Unknown error while creating new document.");
+                      console.error(ret);
+                      break;
                     default:
                       throw new UnreachableCaseError(ret);
                   }
@@ -104,11 +108,7 @@ export const NewPageDialog = (props: {
                     ret.dispose();
                   }, 500);
                 } else {
-                  if (ret.status !== "error") {
-                    throw new UnreachableCaseError(ret.status);
-                  }
-                  console.error(ret);
-                  setError("Unknown error while creating new document.");
+                  throw new UnreachableCaseError(ret);
                 }
                 //   setName(obj.name);
                 //   setIsOpen(false);

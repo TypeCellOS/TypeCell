@@ -30,8 +30,8 @@ export const ForkAlert = observer((props: { document: DocumentResource }) => {
         if (result instanceof BaseResource) {
           navigate(toDocument(result));
         } else {
-          if (result.status !== "error") {
-            throw new UnreachableCaseError(result.status);
+          if (result !== "error") {
+            throw new UnreachableCaseError(result);
           }
           throw new Error("error while forking");
         }

@@ -1,28 +1,32 @@
 import { makeObservable, observable, runInAction } from "mobx";
-import { lifecycle } from "vscode-lib";
+import { Awareness } from "y-protocols/awareness";
 import * as Y from "yjs";
-import { GithubIdentifier } from "../../identifiers/GithubIdentifier";
-import { getFileOrDirFromGithub } from "../../integrations/github/github";
-import { markdownToYDoc } from "../../integrations/markdown/import";
-import ProjectResource from "../ProjectResource";
-import { SyncManager } from "./SyncManager";
+import { GithubIdentifier } from "../../../identifiers/GithubIdentifier";
+import { getFileOrDirFromGithub } from "../../../integrations/github/github";
+import { markdownToYDoc } from "../../../integrations/markdown/import";
+import ProjectResource from "../../ProjectResource";
+import { Remote } from "./Remote";
 
-export default class GithubSyncManager
-  extends lifecycle.Disposable
-  implements SyncManager
-{
+export default class GithubRemote extends Remote {
+  private disposed = false;
+  protected id: string = "github";
+  public canCreate: boolean = false;
+
   public canWrite: boolean = true; // always initialize as true until the user starts trying to make changes
 
-  public doc: "loading" | "not-found" | Y.Doc = "loading";
-
-  public readonly awareness: any = undefined;
-
-  public constructor(private identifier: GithubIdentifier) {
-    super();
+  public constructor(
+    _ydoc: Y.Doc,
+    awareness: Awareness,
+    private readonly identifier: GithubIdentifier
+  ) {
+    super(_ydoc, awareness);
     makeObservable(this, {
-      doc: observable.ref,
       canWrite: observable.ref,
     });
+  }
+
+  public load(): Promise<void> {
+    return this.initialize();
   }
 
   private documentUpdateListener = async (update: any, origin: any) => {
@@ -79,25 +83,39 @@ export default class GithubSyncManager
   private async initializeNoCatch() {
     try {
       const docData = await this.getNewYDocFromGithub();
-      if (docData === "not-found") {
-        this.doc = "not-found";
+      if (this.disposed) {
+        console.warn("already disposed");
         return;
       }
-      this.doc = docData;
-      this.doc.on("update", this.documentUpdateListener);
+
+      if (docData === "not-found") {
+        runInAction(() => {
+          this.status = "not-found";
+        });
+        return;
+      }
+      runInAction(() => {
+        this.status = "loaded";
+        const update = Y.encodeStateAsUpdateV2(docData);
+        Y.applyUpdateV2(this._ydoc, update);
+      });
+
+      this._ydoc.on("update", this.documentUpdateListener);
+      this._register({
+        dispose: () => {
+          this._ydoc.off("update", this.documentUpdateListener);
+        },
+      });
     } catch (e) {
       console.error(e);
-      this.doc = "loading"; // TODO: error state?
+      runInAction(() => {
+        this.status = "not-found"; // TODO: error state?
+      });
     }
   }
 
   public dispose() {
+    this.disposed = true;
     super.dispose();
-    if (typeof this.doc !== "string") {
-      this.doc.off("update", this.documentUpdateListener);
-    }
-    this.doc = "loading";
   }
-
-  public on() {}
 }
