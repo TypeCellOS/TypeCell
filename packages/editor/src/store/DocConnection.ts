@@ -6,8 +6,8 @@ import * as Y from "yjs";
 import { parseIdentifier, tryParseIdentifier } from "../identifiers";
 import { Identifier } from "../identifiers/Identifier";
 import { getStoreService } from "./local/stores";
-import { MatrixRemote } from "./yjs-sync/v2/remote/MatrixRemote";
-import { YDocSyncManager2 } from "./yjs-sync/v2/YDocSyncManager";
+import { MatrixRemote } from "./yjs-sync/remote/MatrixRemote";
+import { YDocSyncManager2 } from "./yjs-sync/YDocSyncManager";
 
 const cache = new Map<string, DocConnection>();
 

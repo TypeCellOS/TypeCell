@@ -2,10 +2,10 @@ import { createMatrixRoom, MatrixProvider } from "matrix-crdt";
 import { createAtom, runInAction } from "mobx";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
-import { MatrixClientPeg } from "../../../../app/matrix-auth/MatrixClientPeg";
-import { getTestFlags } from "../../../../config/config";
-import { MatrixIdentifier } from "../../../../identifiers/MatrixIdentifier";
-import { getStoreService } from "../../../local/stores";
+import { MatrixClientPeg } from "../../../app/matrix-auth/MatrixClientPeg";
+import { getTestFlags } from "../../../config/config";
+import { MatrixIdentifier } from "../../../identifiers/MatrixIdentifier";
+import { getStoreService } from "../../local/stores";
 import { Remote } from "./Remote";
 
 export class MatrixRemote extends Remote {

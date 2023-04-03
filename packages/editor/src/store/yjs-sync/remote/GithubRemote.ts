@@ -1,16 +1,15 @@
 import { makeObservable, observable, runInAction } from "mobx";
-import { strings } from "vscode-lib";
 import { Awareness } from "y-protocols/awareness";
-
 import * as Y from "yjs";
-import { HttpsIdentifier } from "../../../../identifiers/HttpsIdentifier";
-import { markdownToYDoc } from "../../../../integrations/markdown/import";
-import ProjectResource from "../../../ProjectResource";
+import { GithubIdentifier } from "../../../identifiers/GithubIdentifier";
+import { getFileOrDirFromGithub } from "../../../integrations/github/github";
+import { markdownToYDoc } from "../../../integrations/markdown/import";
+import ProjectResource from "../../ProjectResource";
 import { Remote } from "./Remote";
 
-export default class FetchRemote extends Remote {
+export default class GithubRemote extends Remote {
   private disposed = false;
-  protected id: string = "fetch";
+  protected id: string = "github";
   public canCreate: boolean = false;
 
   public canWrite: boolean = true; // always initialize as true until the user starts trying to make changes
@@ -18,12 +17,16 @@ export default class FetchRemote extends Remote {
   public constructor(
     _ydoc: Y.Doc,
     awareness: Awareness,
-    private readonly identifier: HttpsIdentifier
+    private readonly identifier: GithubIdentifier
   ) {
     super(_ydoc, awareness);
     makeObservable(this, {
       canWrite: observable.ref,
     });
+  }
+
+  public load(): Promise<void> {
+    return this.initialize();
   }
 
   private documentUpdateListener = async (update: any, origin: any) => {
@@ -47,53 +50,44 @@ export default class FetchRemote extends Remote {
     }
   }
 
-  private async getNewYDocFromDir(objects: string[]) {
+  private async getNewYDocFromGithubDir(
+    tree: { type?: string; path?: string }[]
+  ) {
     const newDoc = new Y.Doc();
     newDoc.getMap("meta").set("type", "!project");
     const project = new ProjectResource(newDoc, this.identifier);
-    objects.forEach((object) => {
-      if (object.endsWith(".md")) {
-        project.files.set(object, {});
+    tree.forEach((object) => {
+      if (object.type === "blob" && object.path?.endsWith(".md")) {
+        project.files.set(object.path, {});
       }
     });
     return newDoc;
   }
 
-  private async getNewYDocFromFetch() {
-    if (this.identifier.uri.path.endsWith(".json")) {
-      const json = await (await fetch(this.identifier.uri.toString())).json();
-      return this.getNewYDocFromDir(json);
-    } else if (this.identifier.uri.path.endsWith(".md")) {
-      const contents = await (
-        await fetch(this.identifier.uri.toString())
-      ).text();
-      return markdownToYDoc(contents);
+  private async getNewYDocFromGithub() {
+    const object = await getFileOrDirFromGithub({
+      owner: this.identifier.owner,
+      path: this.identifier.path,
+      repo: this.identifier.repository,
+    });
+
+    if (object === "not-found") {
+      return object;
+    } else if (object.type === "file") {
+      return markdownToYDoc(object.data);
     } else {
-      // TODO: this is hacky. We should use json from parent route instead. Revise routing?
-      const [root, ...remainders] = strings
-        .trim(this.identifier.uri.path, "/")
-        .split("/");
-      const index = this.identifier.uri.with({ path: root + "/index.json" });
-      let json = (await (await fetch(index.toString())).json()) as string[];
-
-      const prefix = remainders.join("/") + "/";
-      json = json.filter((path) => path.startsWith(prefix));
-      json = json.map((path) => path.substring(prefix.length));
-
-      if (!json.length) {
-        return "not-found" as "not-found";
-      }
-      return this.getNewYDocFromDir(json);
+      return this.getNewYDocFromGithubDir(object.tree);
     }
   }
 
   private async initializeNoCatch() {
     try {
-      const docData = await this.getNewYDocFromFetch();
+      const docData = await this.getNewYDocFromGithub();
       if (this.disposed) {
         console.warn("already disposed");
         return;
       }
+
       if (docData === "not-found") {
         runInAction(() => {
           this.status = "not-found";
@@ -105,22 +99,19 @@ export default class FetchRemote extends Remote {
         const update = Y.encodeStateAsUpdateV2(docData);
         Y.applyUpdateV2(this._ydoc, update);
       });
+
+      this._ydoc.on("update", this.documentUpdateListener);
       this._register({
         dispose: () => {
           this._ydoc.off("update", this.documentUpdateListener);
         },
       });
-      // this.doc.on("update", this.documentUpdateListener);
     } catch (e) {
       console.error(e);
       runInAction(() => {
-        this.status = "loading";
-      }); // TODO: error state?
+        this.status = "not-found"; // TODO: error state?
+      });
     }
-  }
-
-  public load(): Promise<void> {
-    return this.initialize();
   }
 
   public dispose() {

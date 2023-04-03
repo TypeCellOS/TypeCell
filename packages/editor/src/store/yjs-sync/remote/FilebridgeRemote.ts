@@ -4,10 +4,10 @@ import { makeObservable, observable, runInAction } from "mobx";
 import { strings } from "vscode-lib";
 import { Awareness } from "y-protocols/awareness";
 import * as Y from "yjs";
-import { FileIdentifier } from "../../../../identifiers/FileIdentifier";
-import { xmlFragmentToMarkdown } from "../../../../integrations/markdown/export";
-import { markdownToXmlFragment } from "../../../../integrations/markdown/import";
-import ProjectResource from "../../../ProjectResource";
+import { FileIdentifier } from "../../../identifiers/FileIdentifier";
+import { xmlFragmentToMarkdown } from "../../../integrations/markdown/export";
+import { markdownToXmlFragment } from "../../../integrations/markdown/import";
+import ProjectResource from "../../ProjectResource";
 import { Remote } from "./Remote";
 
 function isEmptyDoc(doc: Y.Doc) {
