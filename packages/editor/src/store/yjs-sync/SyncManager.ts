@@ -8,5 +8,4 @@ export type SyncManager = lifecycle.IDisposable & {
   initialize(): Promise<void>;
 
   awareness: any;
-  on: () => void;
 };

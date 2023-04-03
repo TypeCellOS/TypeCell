@@ -1,6 +1,6 @@
 import { IndexeddbPersistence } from "y-indexeddb";
 
-export async function existsLocally(idbIdentifier: string) {
+export async function existsLocally(idbIdentifier: string): Promise<boolean> {
   const exists = (await (window.indexedDB as any).databases())
     .map((db: IDBDatabase) => db.name)
     .includes(idbIdentifier);
