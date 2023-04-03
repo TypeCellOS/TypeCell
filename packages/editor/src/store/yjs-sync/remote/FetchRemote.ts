@@ -35,6 +35,7 @@ export default class FetchRemote extends Remote {
       // update from peer (e.g.: webrtc / websockets). Peer is responsible for sending to Matrix
       return;
     }
+    debugger;
     runInAction(() => (this.canWrite = false));
   };
 
@@ -105,12 +106,12 @@ export default class FetchRemote extends Remote {
         const update = Y.encodeStateAsUpdateV2(docData);
         Y.applyUpdateV2(this._ydoc, update);
       });
+      this._ydoc.on("update", this.documentUpdateListener);
       this._register({
         dispose: () => {
           this._ydoc.off("update", this.documentUpdateListener);
         },
       });
-      // this.doc.on("update", this.documentUpdateListener);
     } catch (e) {
       console.error(e);
       runInAction(() => {
