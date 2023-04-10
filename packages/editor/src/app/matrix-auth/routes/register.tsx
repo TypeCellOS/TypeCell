@@ -1,11 +1,12 @@
 import { observer } from "mobx-react-lite";
 import qs from "qs";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import { MATRIX_CONFIG } from "../../config/config";
-import { getStoreService } from "../../store/local/stores";
-import Registration from "../matrix-auth/auth/Registration";
-import { ValidatedServerConfig } from "../matrix-auth/auth/util/AutoDiscoveryUtils";
-import { toLoginScreen } from "./routes";
+import { MATRIX_CONFIG } from "../../../config/config";
+import { getStoreService } from "../../../store/local/stores";
+import Registration from "../../matrix-auth/auth/Registration";
+import { ValidatedServerConfig } from "../../matrix-auth/auth/util/AutoDiscoveryUtils";
+import { toLoginScreen } from "../../routes/routes";
+import { MatrixSessionStore } from "../MatrixSessionStore";
 
 function makeRegistrationUrl(params: any) {
   let url =
@@ -29,7 +30,10 @@ function makeRegistrationUrl(params: any) {
 }
 
 export const Register = observer((props: { config: ValidatedServerConfig }) => {
-  const { matrixAuthStore, sessionStore } = getStoreService();
+  const { sessionStore } = getStoreService();
+  if (!(sessionStore instanceof MatrixSessionStore)) {
+    throw new Error("sessionStore is not a MatrixSessionStore");
+  }
   const navigate = useNavigate();
   const location = useLocation();
   const params = qs.parse(window.location.search);
@@ -58,7 +62,7 @@ export const Register = observer((props: { config: ValidatedServerConfig }) => {
       email={undefined}
       brand={"TypeCell"}
       makeRegistrationUrl={makeRegistrationUrl}
-      onLoggedIn={matrixAuthStore.onUserCompletedLoginFlow}
+      onLoggedIn={sessionStore.matrixAuthStore.onUserCompletedLoginFlow}
       onLoginClick={() => {
         navigate(toLoginScreen(), {
           state: { from: (location.state as any)?.from },

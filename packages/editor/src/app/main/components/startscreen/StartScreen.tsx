@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite";
 import { Link, useNavigate } from "react-router-dom";
 import { getStoreService } from "../../../../store/local/stores";
 import buttonStyles from "../../../../styles/buttons.module.css";
+import { NotebookOverviewItem } from "../../../matrix-auth/routes/overview/NotebookOverviewItem";
 import {
   OpenNewPageDialog,
   toDocs,
@@ -9,7 +10,7 @@ import {
   toNewGuestNotebook,
   toTutorial,
 } from "../../../routes/routes";
-import { NotebookOverviewItem } from "../NotebookOverviewItem";
+import styles from "./StartScreen.module.css";
 import apiPreviewImage from "./assets/api_preview.jpg";
 import chartsPreviewImage from "./assets/charts_preview.jpg";
 import globe from "./assets/globe.svg";
@@ -17,7 +18,6 @@ import intro from "./assets/intro.gif";
 import lightning from "./assets/lightning.svg";
 import npm from "./assets/npm.svg";
 import timePreviewImage from "./assets/time_preview.jpg";
-import styles from "./StartScreen.module.css";
 
 export const StartScreen = observer(() => {
   const { sessionStore } = getStoreService();

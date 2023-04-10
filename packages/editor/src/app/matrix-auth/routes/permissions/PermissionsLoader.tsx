@@ -4,10 +4,11 @@ import Modal, {
   ModalTitle,
 } from "@atlaskit/modal-dialog";
 import Spinner from "@atlaskit/spinner";
-import { getMatrixRoomAccess, MatrixMemberReader } from "matrix-crdt";
+import { MatrixMemberReader, getMatrixRoomAccess } from "matrix-crdt";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { DocConnection } from "../../../../store/DocConnection";
+import { MatrixRemote } from "../../../../store/yjs-sync/remote/MatrixRemote";
 import PermissionSettings from "./PermissionsSettings";
 import styles from "./PermissionsSettings.module.css";
 import { PermissionData, UserPermission } from "./permissionUtils";
@@ -24,21 +25,28 @@ const PermissionsLoader = observer(
       PermissionData | undefined
     >();
 
+    const mxRemote = props.document.remote;
+
+    if (!(mxRemote instanceof MatrixRemote)) {
+      throw new Error("MatrixRemote not available");
+    }
+    const mxProvider = mxRemote.matrixProvider;
+    const mxReader = mxProvider?.matrixReader;
+
+    if (!mxRemote || !mxReader || !mxProvider || !mxProvider.roomId) {
+      throw new Error("MatrixProvider / MatrixReader not available");
+    }
+
     useEffect(() => {
-      const mxProvider = props.document.matrixProvider!;
-      const mxReader = props.document.matrixProvider?.matrixReader!;
-      if (!mxProvider || !mxReader || !mxProvider.roomId) {
-        throw new Error("MatrixProvider / MatrixReader not available");
-      }
       async function initReader() {
         const roomSettings = await getMatrixRoomAccess(
           props.matrixClient,
-          mxProvider.roomId!
+          mxProvider!.roomId!
         );
         if (typeof roomSettings !== "string") {
           throw new Error("unexpected roomSettings" + roomSettings);
         }
-        const mreader = new MatrixMemberReader(props.matrixClient, mxReader);
+        const mreader = new MatrixMemberReader(props.matrixClient, mxReader!);
         await mreader.initialize();
 
         const entries = [...mreader.members.values()].map((u) => {
@@ -60,11 +68,7 @@ const PermissionsLoader = observer(
       return () => {
         setPermissionData(undefined);
       };
-    }, [
-      props.document,
-      props.document.matrixProvider?.matrixReader,
-      props.matrixClient,
-    ]);
+    }, [props.document, mxProvider, mxReader, props.matrixClient]);
 
     if (!permissionData) {
       return (
@@ -79,11 +83,6 @@ const PermissionsLoader = observer(
           </ModalBody>
         </Modal>
       );
-    }
-
-    const mxProvider = props.document.matrixProvider!;
-    if (!mxProvider || !mxProvider.roomId) {
-      throw new Error("roomId not available");
     }
 
     return (

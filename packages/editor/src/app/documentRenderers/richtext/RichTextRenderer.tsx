@@ -32,7 +32,9 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     disableHistoryExtension: true,
     extensions: [
       CollaborationCursor.configure({
-        provider: props.document.webrtcProvider,
+        provider: {
+          awareness: props.document.awareness,
+        },
         user: {
           name: sessionStore.loggedInUserId || "Anonymous",
           color: sessionStore.userColor,

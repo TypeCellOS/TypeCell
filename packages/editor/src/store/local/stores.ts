@@ -1,10 +1,12 @@
 import { MatrixAuthStore } from "../../app/matrix-auth/MatrixAuthStore";
-import { NavigationStore } from "./navigationStore";
+import { MatrixSessionStore } from "../../app/matrix-auth/MatrixSessionStore";
 import { SessionStore } from "./SessionStore";
+import { NavigationStore } from "./navigationStore";
 
 class StoreService {
-  public matrixAuthStore = new MatrixAuthStore();
-  public sessionStore = new SessionStore(this.matrixAuthStore);
+  public sessionStore: SessionStore = new MatrixSessionStore(
+    new MatrixAuthStore()
+  );
   public navigationStore = new NavigationStore(this.sessionStore);
 }
 

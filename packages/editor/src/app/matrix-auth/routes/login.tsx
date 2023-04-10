@@ -1,13 +1,16 @@
 import { observer } from "mobx-react-lite";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import { getStoreService } from "../../store/local/stores";
-import LoginComponent from "../matrix-auth/auth/Login";
-import { ValidatedServerConfig } from "../matrix-auth/auth/util/AutoDiscoveryUtils";
-import { toRecoverPasswordScreen, toRegisterScreen } from "./routes";
+import { getStoreService } from "../../../store/local/stores";
+import { ValidatedServerConfig } from "../../matrix-auth/auth/util/AutoDiscoveryUtils";
+import { toRecoverPasswordScreen, toRegisterScreen } from "../../routes/routes";
+import { MatrixSessionStore } from "../MatrixSessionStore";
+import LoginComponent from "../auth/Login";
 
 export const Login = observer((props: { config: ValidatedServerConfig }) => {
-  const { matrixAuthStore, sessionStore } = getStoreService();
-
+  const { sessionStore } = getStoreService();
+  if (!(sessionStore instanceof MatrixSessionStore)) {
+    throw new Error("sessionStore is not a MatrixSessionStore");
+  }
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -21,7 +24,7 @@ export const Login = observer((props: { config: ValidatedServerConfig }) => {
   return (
     <LoginComponent
       serverConfig={props.config}
-      onLoggedIn={matrixAuthStore.onUserCompletedLoginFlow}
+      onLoggedIn={sessionStore.matrixAuthStore.onUserCompletedLoginFlow}
       onRegisterClick={() => {
         navigate(toRegisterScreen(), {
           state: { from: (location.state as any)?.from },

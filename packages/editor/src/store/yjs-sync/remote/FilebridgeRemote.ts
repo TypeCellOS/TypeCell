@@ -106,7 +106,7 @@ export class FilebridgeRemote extends Remote {
 
     if (!areFragmentsEqual(fragment, newXml)) {
       const update = Y.encodeStateAsUpdateV2(newXml.doc!);
-      Y.applyUpdateV2(this._ydoc, update);
+      Y.applyUpdateV2(this._ydoc, update, this);
     }
   }
 
@@ -143,11 +143,11 @@ export class FilebridgeRemote extends Remote {
 
   private documentUpdateListener = async (update: any, origin: any) => {
     if (origin === this) {
-      // these are updates that came in from MatrixProvider
+      // these are updates that came in from this provider
       return;
     }
     if (origin?.provider) {
-      // update from peer (e.g.: webrtc / websockets). Peer is responsible for sending to Matrix
+      // remote update
       return;
     }
     await saveFile(

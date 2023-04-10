@@ -18,7 +18,8 @@ import {
   OpenPermissionsDialog,
 } from "../../../routes/routes";
 import { MenuBar } from "../menuBar/MenuBar";
-import PermissionsDialog from "../permissions/PermissionsDialog";
+
+import PermissionsDialog from "../../../matrix-auth/routes/permissions/PermissionsDialog";
 import { Breadcrumb } from "./Breadcrumb";
 import styles from "./DocumentMenu.module.css";
 import { ForkAlert } from "./ForkAlert";

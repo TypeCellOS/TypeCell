@@ -6,7 +6,6 @@ import * as Y from "yjs";
 import { parseIdentifier, tryParseIdentifier } from "../identifiers";
 import { Identifier } from "../identifiers/Identifier";
 import { getStoreService } from "./local/stores";
-import { MatrixRemote } from "./yjs-sync/remote/MatrixRemote";
 import { YDocSyncManager2 } from "./yjs-sync/YDocSyncManager";
 
 const cache = new Map<string, DocConnection>();
@@ -71,17 +70,12 @@ export class DocConnection extends lifecycle.Disposable {
   }
 
   /** @internal */
-  public get webrtcProvider() {
-    return this.manager; // TODO
+  public get awareness() {
+    return this.manager.awareness;
   }
 
-  /** @internal */
-  public get matrixProvider() {
-    if (this.manager.remote instanceof MatrixRemote) {
-      return this.manager.remote.matrixProvider;
-    } else {
-      throw new Error("not supported");
-    }
+  public get remote() {
+    return this.manager.remote;
   }
 
   public get needsFork() {

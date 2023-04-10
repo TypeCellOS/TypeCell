@@ -3,6 +3,7 @@ import { createAtom, runInAction } from "mobx";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
 import { MatrixClientPeg } from "../../../app/matrix-auth/MatrixClientPeg";
+import { MatrixSessionStore } from "../../../app/matrix-auth/MatrixSessionStore";
 import { getTestFlags } from "../../../config/config";
 import { MatrixIdentifier } from "../../../identifiers/MatrixIdentifier";
 import { getStoreService } from "../../local/stores";
@@ -71,8 +72,12 @@ export class MatrixRemote extends Remote {
       console.warn("already disposed");
       return;
     }
-    getStoreService().sessionStore.enableGuest();
-    const user = getStoreService().sessionStore.user;
+    const matrixSessionStore = getStoreService().sessionStore;
+    if (!(matrixSessionStore instanceof MatrixSessionStore)) {
+      throw new Error("invalid sessionStore (expected MatrixSessionStore)");
+    }
+    matrixSessionStore.enableGuest();
+    const user = matrixSessionStore.user;
     if (typeof user === "string") {
       throw new Error("no user");
     }

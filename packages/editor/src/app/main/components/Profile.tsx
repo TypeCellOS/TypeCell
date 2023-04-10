@@ -1,9 +1,9 @@
 import Breadcrumbs, { BreadcrumbsItem } from "@atlaskit/breadcrumbs";
 import { useNavigate } from "react-router-dom";
+import { NotebookOverview } from "../../matrix-auth/routes/overview/NotebookOverview";
 import { toProfilePage } from "../../routes/routes";
-import { MenuBar } from "./menuBar/MenuBar";
-import { NotebookOverview } from "./NotebookOverview";
 import styles from "./Profile.module.css";
+import { MenuBar } from "./menuBar/MenuBar";
 
 interface ProfileProps {
   owner: string;

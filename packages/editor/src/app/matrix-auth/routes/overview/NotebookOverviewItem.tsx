@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { Link, To } from "react-router-dom";
-import buttonStyles from "../../../styles/buttons.module.css";
-import { toProfilePage } from "../../routes/routes";
+import buttonStyles from "../../../../styles/buttons.module.css";
+import { toProfilePage } from "../../../routes/routes";
 import styles from "./NotebookOverviewItem.module.css";
 
 export const NotebookOverviewItem = observer(

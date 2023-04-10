@@ -16,7 +16,7 @@ export type BaseResourceConnection = {
   identifier: Identifier;
   dispose: () => void;
   /** @internal */
-  webrtcProvider: { awareness: any } | undefined; // TODO
+  awareness: any | undefined;
   needsFork: boolean;
 };
 /**
@@ -55,10 +55,9 @@ export class BaseResource {
     return this.ydoc.getMap("meta").get("type") as any;
   }
 
-  // TODO: do / how do we want to expose this?
   /** @internal */
-  public get webrtcProvider() {
-    return this.connection?.webrtcProvider;
+  public get awareness() {
+    return this.connection?.awareness;
   }
 
   /**

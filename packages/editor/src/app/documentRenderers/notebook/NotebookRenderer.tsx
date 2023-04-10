@@ -7,11 +7,11 @@ import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import { ExecutionHost } from "../../../runtime/executor/executionHosts/ExecutionHost";
 import SandboxedExecutionHost from "../../../runtime/executor/executionHosts/sandboxed/SandboxedExecutionHost";
 import { DocumentResource } from "../../../store/DocumentResource";
+import { getStoreService } from "../../../store/local/stores";
 import CellListDraggableCell from "./CellListDraggableCell";
 import NotebookLanguageSelector from "./LanguageSelector";
-import NotebookCell from "./NotebookCell";
 import { MonacoColorManager } from "./MonacoColorManager";
-import { getStoreService } from "../../../store/local/stores";
+import NotebookCell from "./NotebookCell";
 
 type Props = {
   document: DocumentResource;
@@ -26,9 +26,9 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
 
   useEffect(() => {
     // make sure color info is broadcast, and color info from other users are reflected in monaco editor styles
-    if (props.document.webrtcProvider?.awareness) {
+    if (props.document.awareness) {
       const colorManager = new MonacoColorManager(
-        props.document.webrtcProvider.awareness,
+        props.document.awareness,
         sessionStore.loggedInUserId || "Anonymous",
         sessionStore.userColor
       );
@@ -37,7 +37,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
       };
     }
   }, [
-    props.document.webrtcProvider?.awareness,
+    props.document.awareness,
     sessionStore.loggedInUserId,
     sessionStore.userColor,
   ]);
@@ -110,7 +110,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
               cell={cell}
               executionHost={executionHost}
               compiler={compiler}
-              awareness={props.document.webrtcProvider?.awareness}
+              awareness={props.document.awareness}
               toolbar={
                 <NotebookLanguageSelector
                   language={cell.language}

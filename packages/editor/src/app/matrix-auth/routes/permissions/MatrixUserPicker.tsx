@@ -2,7 +2,7 @@ import UserPicker from "@atlaskit/user-picker";
 import { useCallback, useState } from "react";
 import { IntlProvider } from "react-intl-next";
 import { friendlyUserId } from "../../../../util/userIds";
-import { MatrixClientPeg } from "../../../matrix-auth/MatrixClientPeg";
+import { MatrixClientPeg } from "../../MatrixClientPeg";
 import { User } from "./userUtils";
 
 export function MatrixUserPicker(props: {

@@ -3,9 +3,10 @@ import { Method } from "matrix-js-sdk";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { parseIdentifier } from "../../../identifiers";
-import { getStoreService } from "../../../store/local/stores";
-import { toIdentifier } from "../../routes/routes";
+import { parseIdentifier } from "../../../../identifiers";
+import { getStoreService } from "../../../../store/local/stores";
+import { toIdentifier } from "../../../routes/routes";
+import { MatrixSessionStore } from "../../MatrixSessionStore";
 import styles from "./NotebookOverview.module.css";
 
 type Room = {
@@ -88,6 +89,10 @@ export const NotebookOverview = observer(function (
     async function fetchNotebooks() {
       try {
         setLoading(true);
+
+        if (!(sessionStore instanceof MatrixSessionStore)) {
+          throw new Error("sessionStore is not a MatrixSessionStore");
+        }
 
         if (typeof sessionStore.user === "string") {
           sessionStore.enableGuest();
