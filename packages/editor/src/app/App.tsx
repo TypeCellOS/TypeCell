@@ -32,13 +32,10 @@ export const App = observer(
             </Route>
             <Route
               path="/register"
-              element={props.authProvider.routes.login()}
-            />
-            <Route path="/recover" element={<div>Not implemented yet</div>} />
-            <Route
-              path="/login"
               element={props.authProvider.routes.register()}
             />
+            <Route path="/recover" element={<div>Not implemented yet</div>} />
+            <Route path="/login" element={props.authProvider.routes.login()} />
             {/* todo: notfound?  */}
           </Routes>
         </BrowserRouter>
