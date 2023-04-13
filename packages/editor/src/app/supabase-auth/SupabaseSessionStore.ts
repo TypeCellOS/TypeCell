@@ -1,13 +1,10 @@
-import * as Olm from "@matrix-org/olm";
-import { MatrixClient } from "matrix-js-sdk";
 import { computed, makeObservable, observable, runInAction } from "mobx";
 import { arrays } from "vscode-lib";
 import { SessionStore } from "../../store/local/SessionStore";
-import { getUserFromMatrixId } from "../../util/userIds";
-import { MatrixAuthStore } from "./MatrixAuthStore";
-import { MatrixClientPeg } from "./MatrixClientPeg";
 // @ts-ignore
-import olmWasmPath from "@matrix-org/olm/olm.wasm?url";
+import { createClient } from "@supabase/supabase-js";
+import { navigateRef } from "../App";
+import { ANON_KEY } from "./supabaseConfig";
 
 const colors = [
   "#958DF1",
@@ -23,8 +20,12 @@ const colors = [
  * The sessionStore keeps track of user related data
  * (e.g.: is the user logged in, what is the user name, etc)
  */
-export class MatrixSessionStore extends SessionStore {
+export class SupabaseSessionStore extends SessionStore {
+  public readonly supabase = createClient("http://localhost:54321", ANON_KEY);
+
   private initialized = false;
+  public userId: string = "";
+
   public userColor = arrays.getRandomElement(colors)!;
 
   public user:
@@ -32,15 +33,18 @@ export class MatrixSessionStore extends SessionStore {
     | "offlineNoUser"
     | {
         type: "guest-user";
-        matrixClient: MatrixClient;
+        supabase: any;
       }
     | {
         type: "user";
         fullUserId: string;
         userId: string;
-        matrixClient: MatrixClient;
+        supabase: any;
       } = "loading";
 
+  public get isLoaded() {
+    return this.user !== "loading" || typeof this.userId === "string";
+  }
   /**
    * returns true if the user is logged in to his own matrix identity.
    * returns false if only a guest user or no user is available.
@@ -50,10 +54,6 @@ export class MatrixSessionStore extends SessionStore {
    */
   public get isLoggedIn() {
     return typeof this.user !== "string" && this.user.type === "user";
-  }
-
-  public get isLoaded() {
-    return this.user !== "loading";
   }
 
   /**
@@ -69,31 +69,17 @@ export class MatrixSessionStore extends SessionStore {
     if (!this.isLoggedIn) {
       throw new Error("can't logout when not logged in");
     }
-    await this.matrixAuthStore.logout();
-
-    // after logging out, call initialize() to sign in as a guest
-    await this.matrixAuthStore.initialize(true);
+    await this.supabase.auth.signOut();
   };
 
-  constructor(public readonly matrixAuthStore: MatrixAuthStore) {
+  constructor() {
     super();
     makeObservable(this, {
       user: observable.ref,
+      userId: observable.ref,
       isLoggedIn: computed,
+      isLoaded: computed,
     });
-  }
-
-  // TODO: should be a reaction to prevent calling twice?
-  public async enableGuest() {
-    if (!this.initialized) {
-      throw new Error(
-        "enableGuest should only be called after being initialized"
-      );
-    }
-
-    if (this.user === "offlineNoUser") {
-      await this.matrixAuthStore.initialize(true);
-    }
   }
 
   public async initialize() {
@@ -103,61 +89,89 @@ export class MatrixSessionStore extends SessionStore {
     this.initialized = true;
 
     try {
-      await Olm.init({
-        locateFile: () => olmWasmPath,
-      });
-
-      // returns true when:
-      // - successfully created / restored a user (or guest)
-      // returns false when:
-      // - failed restore / create user (e.g.: wanted to register a guest, but offline)
-      // throws error when:
-      // - unexpected
-      await this.matrixAuthStore.initialize(false);
-      // catch future login state changes triggered by the sdk
-      this._register(
-        this.matrixAuthStore.onLoggedInChanged(() => {
+      this._register({
+        dispose: this.supabase.auth.onAuthStateChange((event, session) => {
           this.updateStateFromAuthStore().catch((e) => {
             console.error("error initializing sessionstore", e);
           });
-        })
-      );
+        }).data.subscription.unsubscribe,
+      });
       this.updateStateFromAuthStore();
     } catch (err) {
       // keep state as "loading"
-      console.error("error loading session from matrix", err);
+      console.error("error loading session from supabase", err);
     }
   }
 
+  public async setUsername(username: string) {
+    if (!this.userId) {
+      throw new Error("can't set username when not logged in");
+    }
+
+    const { data, error } = await this.supabase.from("workspaces").insert([
+      {
+        name: username,
+        owner_user_id: this.userId,
+        is_username: true,
+      },
+    ]);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    await this.updateStateFromAuthStore();
+  }
   /**
    * Updates the state of sessionStore based on the internal matrixAuthStore.loggedIn
    */
   private async updateStateFromAuthStore() {
-    if (this.matrixAuthStore.loggedIn) {
-      const matrixClient = MatrixClientPeg.get();
+    const session = (await this.supabase.auth.getSession()).data.session;
+    // TODO: check errors?
 
-      if (matrixClient.isGuestAccount) {
+    if (session) {
+      const usernameRes = await this.supabase
+        .from("workspaces")
+        .select()
+        .eq("owner_user_id", session?.user.id)
+        .eq("is_username", true);
+
+      if (usernameRes.data?.length === 1) {
+        const username: string = usernameRes.data[0].name;
+
         runInAction(() => {
+          this.userId = session.user.id;
           this.user = {
-            type: "guest-user",
-            matrixClient,
+            type: "user",
+            supabase: this.supabase,
+            userId: username,
+            fullUserId: username,
           };
         });
       } else {
-        // signed in as a real user
+        if (!navigateRef) {
+          throw new Error("no global navigateRef");
+        }
         runInAction(() => {
-          this.user = {
-            type: "user",
-            matrixClient,
-            userId: getUserFromMatrixId(matrixClient.getUserId() as string)
-              .localUserId,
-            fullUserId: matrixClient.getUserId(), // TODO: nicer to remove make userId represent the full matrix id instead of having a separate property
-          };
+          this.userId = session.user.id;
         });
+        console.log("redirect");
+        navigateRef("/username");
+        // runInAction(() => {
+        //   this.user = {
+        //     type: "user",
+        //     supabase: this.supabase,
+        //     userId: "username",
+        //     fullUserId: "username",
+        //   };
+        // });
       }
     } else {
       runInAction(() => {
-        this.user = "offlineNoUser";
+        this.user = {
+          type: "guest-user",
+          supabase: this.supabase,
+        };
       });
     }
   }

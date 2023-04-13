@@ -107,3 +107,44 @@ for update
 to authenticated
 using ((public_access_level >= 'write') OR (auth.uid() = user_id) OR (check_document_access(auth.uid(), id) >= 'write'))
 with check (true);
+
+
+create table "public"."workspaces" (
+    "id" uuid not null default uuid_generate_v4(),
+    "created_at" timestamp with time zone not null default now(),
+    "name" character varying not null,
+    "owner_user_id" uuid not null,
+    "is_username" boolean not null
+);
+
+alter table "public"."workspaces" enable row level security;
+
+CREATE UNIQUE INDEX workspaces_pkey ON public.workspaces USING btree (id);
+
+CREATE UNIQUE INDEX workspaces_name_key ON public.workspaces USING btree (name);
+
+CREATE UNIQUE INDEX workspaces_owner_user_id_key ON public.workspaces USING btree (owner_user_id)  WHERE is_username IS TRUE;
+
+alter table "public"."workspaces" add constraint "workspaces_pkey" PRIMARY KEY using index "workspaces_pkey";
+
+alter table "public"."workspaces" add constraint "workspaces_owner_user_id_fkey" FOREIGN KEY (owner_user_id) REFERENCES auth.users(id) not valid;
+
+alter table "public"."workspaces" validate constraint "workspaces_owner_user_id_fkey";
+
+create policy "Enable insert for authenticated users only"
+on "public"."workspaces"
+as permissive
+for insert
+to authenticated
+with check ((auth.uid() = owner_user_id));
+
+
+create policy "Enable read access for all users"
+on "public"."workspaces"
+as permissive
+for select
+to public
+using (true);
+
+-- TODO: prevent select * using https://stackoverflow.com/questions/74283527/postgresql-remove-ability-to-query-every-row-in-a-table
+-- TODO: validate formats of nanoids and usernames

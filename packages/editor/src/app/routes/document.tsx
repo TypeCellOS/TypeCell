@@ -9,7 +9,7 @@ export const DocumentRoute = () => {
   if (!owner || !document) {
     throw new Error("unexpected");
   }
-  owner = "@" + owner;
+
   const parsedIdentifier = parseIdentifier({ owner, document });
 
   return <DocumentView id={parsedIdentifier} />;

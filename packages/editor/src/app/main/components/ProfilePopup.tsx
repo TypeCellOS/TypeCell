@@ -25,9 +25,7 @@ export const ProfilePopup = observer(
               testId="profile-button"
               icon={
                 <Avatar
-                  name={getStoreService().sessionStore.loggedInUserId?.substring(
-                    1
-                  )}
+                  name={getStoreService().sessionStore.loggedInUserId}
                   size="32"
                   round={true}
                   textSizeRatio={2}
@@ -45,7 +43,7 @@ export const ProfilePopup = observer(
           New page
         </DropdownItem>
         {navigationStore.menuPortalChildren.map((c) => c.children)}
-        <DropdownItemGroup title={props.sessionStore.loggedInUserId!}>
+        <DropdownItemGroup title={"@" + props.sessionStore.loggedInUserId!}>
           {" "}
           {/* @${props.authStore.user?.username} */}
           {/* <DropdownItem>Profile</DropdownItem> */}

@@ -36,6 +36,8 @@ export abstract class SessionStore extends lifecycle.Disposable {
    */
   public abstract get isLoggedIn(): boolean;
 
+  public abstract get isLoaded(): boolean;
+
   /**
    * Returns the userId (e.g.: @bret) when logged in, undefined otherwise
    */

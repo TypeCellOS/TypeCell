@@ -1,14 +1,15 @@
-import { DEFAULT_HOMESERVER_HOST } from "../config/config";
-import { slug } from "../util/slug";
 import { uri } from "vscode-lib";
+import { slug } from "../util/slug";
 import { FileIdentifier } from "./FileIdentifier";
 import { GithubIdentifier } from "./GithubIdentifier";
+import { HttpsIdentifier } from "./HttpsIdentifier";
 import { Identifier, IdentifierFactory } from "./Identifier";
 import { MatrixIdentifier } from "./MatrixIdentifier";
-import { HttpsIdentifier } from "./HttpsIdentifier";
+import { TypeCellIdentifier } from "./TypeCellIdentifier";
 
 export const identifiers = new Map<string, IdentifierFactory<Identifier>>();
 const factories = [
+  TypeCellIdentifier,
   MatrixIdentifier,
   GithubIdentifier,
   FileIdentifier,
@@ -29,17 +30,25 @@ export function parseIdentifier(
       throw new Error("invalid identifier");
     }
     const ownerSlug = slug(identifier.owner);
-    const documentSlug = slug(identifier.document);
-    identifier = ownerSlug + "/" + documentSlug;
+    // const documentSlug = slug(identifier.document);
+    identifier = "@" + ownerSlug + "/~" + identifier.document;
   }
 
   if (identifier.startsWith("@")) {
-    identifier =
-      MatrixIdentifier.schemes[0] +
-      "://" +
-      DEFAULT_HOMESERVER_HOST +
-      "/" +
-      identifier;
+    if (identifier.startsWith("@")) {
+      identifier =
+        TypeCellIdentifier.schemes[0] +
+        "://" +
+        "typecell.org" + // TODO: make this configurable
+        "/" +
+        identifier;
+    }
+    // identifier =
+    //   MatrixIdentifier.schemes[0] +
+    //   "://" +
+    //   DEFAULT_HOMESERVER_HOST +
+    //   "/" +
+    //   identifier;
   }
 
   const parsedUri = uri.URI.parse(identifier);

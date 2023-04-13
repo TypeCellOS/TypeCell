@@ -69,6 +69,29 @@ export interface Database {
           user_id?: string
         }
       }
+      workspaces: {
+        Row: {
+          created_at: string
+          id: string
+          is_username: boolean
+          name: string
+          owner_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_username: boolean
+          name: string
+          owner_user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_username?: boolean
+          name?: string
+          owner_user_id?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

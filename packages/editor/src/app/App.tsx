@@ -1,6 +1,13 @@
 import { observer } from "mobx-react-lite";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { getStoreService } from "../store/local/stores";
+import {
+  BrowserRouter,
+  NavigateFunction,
+  Outlet,
+  Route,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
+import { getStoreService, initializeStoreService } from "../store/local/stores";
 import Main from "./main/Main";
 import { AILanding } from "./main/components/startscreen/AILanding";
 import { StartScreen } from "./main/components/startscreen/StartScreen";
@@ -9,18 +16,34 @@ import { DocumentRoute } from "./routes/document";
 import { DynamicRoute } from "./routes/dynamic";
 import { ProfileRoute } from "./routes/profile";
 
+export let navigateRef: NavigateFunction | undefined;
+
+const Wrapper = observer(() => {
+  const navigate = useNavigate();
+
+  if (!navigateRef) {
+    navigateRef = navigate;
+    initializeStoreService();
+  }
+  const { sessionStore } = getStoreService();
+
+  if (!sessionStore.isLoaded) {
+    return <div>Loading</div>;
+    // } else if (sessionStore.user === "offlineNoUser") {
+    // return <div>Offline</div>;
+  } else {
+    return <Outlet />;
+  }
+});
+
 export const App = observer(
   (props: { authProvider: typeof matrixAuthProvider }) => {
     console.log("app render");
-    const { sessionStore } = getStoreService();
-    if (sessionStore.user === "loading") {
-      return <div>Loading</div>;
-      // } else if (sessionStore.user === "offlineNoUser") {
-      // return <div>Offline</div>;
-    } else {
-      return (
-        <BrowserRouter>
-          <Routes>
+
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Wrapper />}>
             <Route path="/" element={<Main />}>
               <Route path="@:userParam" element={<ProfileRoute />}></Route>
               <Route
@@ -36,11 +59,12 @@ export const App = observer(
             />
             <Route path="/recover" element={<div>Not implemented yet</div>} />
             <Route path="/login" element={props.authProvider.routes.login()} />
+            {props.authProvider.routes.additionalRoutes}
             {/* todo: notfound?  */}
-          </Routes>
-        </BrowserRouter>
-      );
-    }
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    );
   }
 );
 export default App;

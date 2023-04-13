@@ -3,6 +3,10 @@ const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz";
 const nanoid = nano.customAlphabet(alphabet, 12);
 
 export function generateId() {
-  // remove dashes because we can't easily use those in javascript variable names
-  return nanoid();
+  // don't start with a number because programming languages don't like that for variable names
+  let id = nanoid();
+  while (id[0] >= "0" && id[0] <= "9") {
+    id = nanoid();
+  }
+  return id;
 }

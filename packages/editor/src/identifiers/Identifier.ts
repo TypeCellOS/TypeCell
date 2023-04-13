@@ -29,7 +29,8 @@ export abstract class Identifier {
     return this.uri;
   }
 
-  public toRouteString(defaultScheme = "mx") {
+  // TODO: make defaultScheme configurable
+  public toRouteString(defaultScheme = "typecell") {
     let str = this.defaultURI.toString(true);
     if (
       !this.defaultURI.authority &&

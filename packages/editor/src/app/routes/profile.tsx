@@ -6,7 +6,6 @@ export const ProfileRoute = () => {
   if (!params.userParam) {
     throw new Error("unexpected");
   }
-  let owner = "@" + params.userParam;
 
-  return <Profile owner={owner} />;
+  return <Profile owner={params.userParam} />;
 };

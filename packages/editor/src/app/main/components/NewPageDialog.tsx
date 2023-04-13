@@ -11,6 +11,7 @@ import Textfield from "@atlaskit/textfield";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Y from "yjs";
+import { generateId } from "../../../../../common/src/uniqueId";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
 import { UnreachableCaseError } from "../../../util/UnreachableCaseError";
@@ -52,7 +53,7 @@ export const NewPageDialog = (props: {
 
                 const ret = await DocConnection.create({
                   owner: props.ownerId,
-                  document: obj.title,
+                  document: generateId("document"),
                 });
 
                 setLoading(false);

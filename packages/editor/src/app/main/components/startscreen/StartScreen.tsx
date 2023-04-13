@@ -6,7 +6,6 @@ import { NotebookOverviewItem } from "../../../matrix-auth/routes/overview/Noteb
 import {
   OpenNewPageDialog,
   toDocs,
-  toIdentifierString,
   toNewGuestNotebook,
   toTutorial,
 } from "../../../routes/routes";
@@ -145,9 +144,11 @@ export const StartScreen = observer(() => {
                     username: "niklas",
                     profileImageUrl: "",
                   }}
-                  to={toIdentifierString(
+                  to={
+                    "TODO" /*toIdentifierString(
                     "@niklas/time"
-                  )}></NotebookOverviewItem>
+                  )*/
+                  }></NotebookOverviewItem>
               </div>
               <div className={styles.notebook}>
                 <NotebookOverviewItem
@@ -158,9 +159,11 @@ export const StartScreen = observer(() => {
                     username: "yousef",
                     profileImageUrl: "",
                   }}
-                  to={toIdentifierString(
+                  to={
+                    "TODO" /*toIdentifierString(
                     "@yousef/charts"
-                  )}></NotebookOverviewItem>
+                  )*/
+                  }></NotebookOverviewItem>
               </div>
               <div className={styles.notebook}>
                 <NotebookOverviewItem
@@ -171,7 +174,9 @@ export const StartScreen = observer(() => {
                     username: "niklas",
                     profileImageUrl: "",
                   }}
-                  to={toIdentifierString("@niklas/api")}></NotebookOverviewItem>
+                  to={
+                    "TODO" /*toIdentifierString("@niklas/api")*/
+                  }></NotebookOverviewItem>
               </div>
             </div>
           </div>

@@ -8,6 +8,7 @@ import { GithubIdentifier } from "../../identifiers/GithubIdentifier";
 import { HttpsIdentifier } from "../../identifiers/HttpsIdentifier";
 import { Identifier } from "../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";
+import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
 import { getStoreService } from "../local/stores";
 import { existsLocally, getIDBIdentifier, waitForIDBSynced } from "./IDBHelper";
 import FetchRemote from "./remote/FetchRemote";
@@ -15,6 +16,7 @@ import { FilebridgeRemote } from "./remote/FilebridgeRemote";
 import GithubRemote from "./remote/GithubRemote";
 import { MatrixRemote } from "./remote/MatrixRemote";
 import { Remote } from "./remote/Remote";
+import { TypeCellRemote } from "./remote/TypeCellRemote";
 
 export class YDocSyncManager2 extends lifecycle.Disposable {
   private _ydoc: Y.Doc;
@@ -142,6 +144,8 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
       return new FetchRemote(this._ydoc, this.awareness, identifier);
     } else if (identifier instanceof MatrixIdentifier) {
       return new MatrixRemote(this._ydoc, this.awareness, identifier);
+    } else if (identifier instanceof TypeCellIdentifier) {
+      return new TypeCellRemote(this._ydoc, this.awareness, identifier);
     } else {
       throw new Error("unsupported identifier");
     }

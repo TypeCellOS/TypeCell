@@ -3,6 +3,7 @@ import {
   onChangePayload,
   Server,
 } from "@hocuspocus/server";
+import { SupabaseHocuspocus } from "./hocuspocus/extension-supabase/SupabaseHocuspocus";
 
 async function onAuthenticate(data: onAuthenticatePayload) {
   const { token } = data;
@@ -57,7 +58,7 @@ async function onChange(data: onChangePayload) {
 }
 
 const server = Server.configure({
-  onAuthenticate,
+  extensions: [new SupabaseHocuspocus({})],
 });
 
-server.listen();
+server.listen(1234);

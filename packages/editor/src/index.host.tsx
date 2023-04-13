@@ -5,13 +5,12 @@ import * as monaco from "monaco-editor";
 import * as process from "process";
 import { createRoot } from "react-dom/client";
 import App from "./app/App";
-import { matrixAuthProvider } from "./app/matrix-auth/MatrixAuthProvider";
+import { supabaseAuthProvider } from "./app/supabase-auth/supabaseAuthProvider";
 import { validateHostDomain } from "./config/security";
 import { setMonacoDefaults } from "./runtime/editor";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
 import setupNpmTypeResolver from "./runtime/editor/languages/typescript/npmTypeResolver";
 import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typecellTypeResolver";
-import { initializeStoreService } from "./store/local/stores";
 import "./styles/index.css";
 
 // polyfills (mostly required for matrix-crdt)
@@ -36,7 +35,6 @@ async function init() {
 
   yjsBindings.enableMobxBindings(mobx);
 
-  initializeStoreService();
   setMonacoDefaults(monaco);
   setupTypecellTypeResolver(monaco);
   setupNpmTypeResolver(monaco);
@@ -47,7 +45,7 @@ async function init() {
     // TODO: support strictmode
     // <React.StrictMode>
     <MonacoContext.Provider value={{ monaco }}>
-      <App authProvider={matrixAuthProvider} />
+      <App authProvider={supabaseAuthProvider} />
     </MonacoContext.Provider>
     // </React.StrictMode>
   );
