@@ -50,7 +50,9 @@ export default class FetchRemote extends Remote {
   private async getNewYDocFromDir(objects: string[]) {
     const newDoc = new Y.Doc();
     newDoc.getMap("meta").set("type", "!project");
-    const project = new ProjectResource(newDoc, this.identifier);
+    const project = new ProjectResource(newDoc, this.identifier, () => {
+      throw new Error("not implemented");
+    }); // TODO
     objects.forEach((object) => {
       if (object.endsWith(".md")) {
         project.files.set(object, {});

@@ -39,7 +39,6 @@ export class BaseResource {
       forIdentifier: string
     ) => Promise<InboxResource>
   ) {
-    debugger;
     makeYDocObservable(ydoc);
     if ((connectionOrIdentifier as any).identifier) {
       this.connection = connectionOrIdentifier as DocConnection;

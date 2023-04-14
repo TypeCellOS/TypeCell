@@ -9,9 +9,10 @@ export default class ProjectResource extends BaseResource {
   /** @internal */
   constructor(
     ydoc: Y.Doc,
-    connectionOrIdentifier: BaseResourceConnection | Identifier
+    connectionOrIdentifier: BaseResourceConnection | Identifier,
+    inboxLoader: any
   ) {
-    super(ydoc, connectionOrIdentifier as any); // TODO
+    super(ydoc, connectionOrIdentifier as any, inboxLoader); // TODO
     if (this.type !== "!project") {
       throw new Error("invalid type for PluginResource");
     }

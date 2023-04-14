@@ -9,8 +9,8 @@ import { DocConnection } from "./DocConnection";
  */
 export class DocumentResource extends BaseResource {
   /** @internal */
-  constructor(ydoc: Y.Doc, connection: DocConnection) {
-    super(ydoc, connection);
+  constructor(ydoc: Y.Doc, connection: DocConnection, inboxLoader: any) {
+    super(ydoc, connection, inboxLoader);
     if (this.type !== "!notebook" && this.type !== "!richtext") {
       throw new Error("invalid type for DocumentResource");
     }

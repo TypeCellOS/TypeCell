@@ -55,7 +55,9 @@ export default class GithubRemote extends Remote {
   ) {
     const newDoc = new Y.Doc();
     newDoc.getMap("meta").set("type", "!project");
-    const project = new ProjectResource(newDoc, this.identifier);
+    const project = new ProjectResource(newDoc, this.identifier, () => {
+      throw new Error("not implemented");
+    }); // TODO
     tree.forEach((object) => {
       if (object.type === "blob" && object.path?.endsWith(".md")) {
         project.files.set(object.path, {});

@@ -57,7 +57,9 @@ export class FilebridgeRemote extends Remote {
       : "";
 
     this._ydoc.getMap("meta").set("type", "!project");
-    const project = new ProjectResource(this._ydoc, this.identifier);
+    const project = new ProjectResource(this._ydoc, this.identifier, () => {
+      throw new Error("not implemented");
+    }); // TODO
     project.files.clear();
     this.watcher = this._register(
       new Watcher(pathWithTrailingSlash + "**/*.md")

@@ -53,7 +53,6 @@ export class InboxResource extends BaseResource {
   public getRefMessages<T extends ReferenceDefinition>(referenceDefinition: T) {
     const messages: RefInboxMessage<T>[] = [];
 
-    debugger;
     this.inbox.forEach((item: { [key: string]: unknown }) => {
       if (item.message_type !== "ref") {
         return;
