@@ -5,6 +5,7 @@ import { BaseResource } from "./BaseResource";
 import * as Y from "yjs";
 import { parseIdentifier, tryParseIdentifier } from "../identifiers";
 import { Identifier } from "../identifiers/Identifier";
+import { InboxResource } from "./InboxResource";
 import { getStoreService } from "./local/stores";
 import { YDocSyncManager2 } from "./yjs-sync/YDocSyncManager";
 
@@ -109,7 +110,9 @@ export class DocConnection extends lifecycle.Disposable {
     if (!this._baseResourceCache || this._baseResourceCache.doc !== ydoc) {
       this._baseResourceCache = {
         doc: ydoc,
-        baseResource: new BaseResource(ydoc, this),
+        baseResource: new BaseResource(ydoc, this, () => {
+          throw new Error("not implemetned");
+        }),
       };
     }
 
@@ -199,6 +202,16 @@ export class DocConnection extends lifecycle.Disposable {
 
     return connection.waitForDoc();
   }
+
+  // TODO
+  public static inboxLoader = async (id: string) => {
+    const con = DocConnection.load(id);
+    await con.waitForDoc();
+    const inbox = con.tryDoc!.getSpecificType<InboxResource>(
+      InboxResource as any
+    );
+    return inbox;
+  };
 
   public static load(
     identifier: string | { owner: string; document: string } | Identifier

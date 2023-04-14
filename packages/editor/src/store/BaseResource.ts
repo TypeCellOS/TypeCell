@@ -1,14 +1,16 @@
 import { makeYDocObservable } from "@syncedstore/yjs-reactive-bindings";
 import { generateKeyBetween } from "fractional-indexing";
 import type * as Y from "yjs";
+import { createID, getState } from "yjs";
 import { Identifier } from "../identifiers/Identifier";
 import type { DocConnection } from "./DocConnection";
 import { DocumentResource } from "./DocumentResource";
+import { InboxResource } from "./InboxResource";
 import {
-  createRef,
-  getHashForReference,
   Ref,
   ReferenceDefinition,
+  createRef,
+  getHashForReference,
   validateRef,
 } from "./Ref";
 
@@ -31,9 +33,13 @@ export class BaseResource {
 
   /** @internal */
   public constructor(
-    /** @internal */ protected readonly ydoc: Y.Doc,
-    connectionOrIdentifier: DocConnection | Identifier
+    /** @internal */ public readonly ydoc: Y.Doc,
+    connectionOrIdentifier: DocConnection | Identifier,
+    private readonly inboxLoader: (
+      forIdentifier: string
+    ) => Promise<InboxResource>
   ) {
+    debugger;
     makeYDocObservable(ydoc);
     if ((connectionOrIdentifier as any).identifier) {
       this.connection = connectionOrIdentifier as DocConnection;
@@ -76,7 +82,8 @@ export class BaseResource {
   public getSpecificType<T extends BaseResource>(
     constructor: new (
       doc: Y.Doc,
-      connection: BaseResourceConnection | Identifier
+      connection: BaseResourceConnection | Identifier,
+      inboxLoader: any
     ) => T
   ): T {
     if (this._specificType && !(this._specificType instanceof constructor)) {
@@ -85,7 +92,11 @@ export class BaseResource {
 
     this._specificType =
       this._specificType ||
-      new constructor(this.ydoc, this.connection || this.identifier);
+      new constructor(
+        this.ydoc,
+        this.connection || this.identifier,
+        this.inboxLoader
+      );
 
     return this._specificType;
   }
@@ -100,8 +111,8 @@ export class BaseResource {
     return map;
   }
 
-  public getRefs(definition: ReferenceDefinition) {
-    const ret: Ref[] = []; // TODO: type
+  public getRefs<T extends ReferenceDefinition>(definition: T) {
+    const ret: Ref<T>[] = []; // TODO: type
     // this.ydoc.getMap("refs").forEach((val, key) => {
     //   this.ydoc.getMap("refs").delete(key);
     // });
@@ -128,9 +139,17 @@ export class BaseResource {
     return ret;
   }
 
-  public getRef(definition: ReferenceDefinition, key: string) {
+  public getRef(definition: ReferenceDefinition, targetId: string) {
+    const key = getHashForReference(definition, targetId);
+    return this.getRefByKey(definition, key);
+  }
+
+  public getRefByKey(definition: ReferenceDefinition, key: string) {
     const ref = this._refs.get(key);
-    if (ref && !validateRef(ref, definition)) {
+    if (!ref) {
+      return undefined;
+    }
+    if (!validateRef(ref, definition)) {
       throw new Error("unexpected"); // ref with key exists, but doesn't conform to definition
     }
     return ref;
@@ -147,15 +166,12 @@ export class BaseResource {
     index: number
   ) {
     const key = getHashForReference(definition, targetId);
-    let existing = this.getRef(definition, key);
+    let existing = this.getRefByKey(definition, key);
     if (!existing) {
       throw new Error("ref not found");
     }
 
-    if (
-      definition.relationship.type === "unique" ||
-      !definition.relationship.sorted
-    ) {
+    if (definition.relationship === "unique" || !definition.sorted) {
       throw new Error("called moveRef on non sorted definition");
     }
 
@@ -167,6 +183,57 @@ export class BaseResource {
     this._refs.set(key, createRef(definition, targetId, sortKey));
   }
 
+  // TODO: should not be async
+  public async addRef(
+    definition: ReferenceDefinition,
+    targetId: string,
+    index?: number
+  ) {
+    let sortKey: string | undefined;
+
+    if (definition.relationship === "many" && definition.sorted) {
+      const refs = this.getRefs(definition).filter(
+        (r) => r.target !== targetId
+      );
+      if (index === undefined) {
+        // append as last item
+        sortKey = generateKeyBetween(refs.pop()?.sortKey || null, null);
+      } else {
+        let sortKeyA = index === 0 ? null : refs[index - 1].sortKey || null;
+        let sortKeyB =
+          index >= refs.length ? null : refs[index].sortKey || null;
+        if (sortKeyA === sortKeyB && sortKeyA !== null) {
+          console.warn("unexpected");
+          sortKeyB = null;
+        }
+        sortKey = generateKeyBetween(sortKeyA, sortKeyB);
+      }
+    } else if (typeof index !== "undefined") {
+      throw new Error("called addRef with index on non sorted definition");
+    }
+    const key = getHashForReference(definition, targetId);
+    const ref = createRef(definition, targetId, sortKey);
+
+    const nextId = createID(
+      this.ydoc.clientID,
+      getState(this.ydoc.store, this.ydoc.clientID)
+    );
+
+    const inbox = await this.inboxLoader(targetId);
+    inbox.inbox.push([
+      {
+        message_type: "ref",
+        id: ref.id,
+        namespace: ref.namespace,
+        type: ref.type,
+        source: this.id,
+        clock: nextId.client + ":" + nextId.clock,
+      },
+    ]);
+
+    this._refs.set(key, ref);
+    inbox.dispose();
+  }
   // public ensureRef(
   //   definition: ReferenceDefinition,
   //   targetId: string,
