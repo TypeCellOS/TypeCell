@@ -3,7 +3,12 @@ import Tree, { ItemId, mutateTree, RenderItemParams } from "@atlaskit/tree";
 import _ from "lodash";
 import { observer } from "mobx-react-lite";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
+import {
+  VscAdd,
+  VscChevronDown,
+  VscChevronRight,
+  VscKebabVertical,
+} from "react-icons/vsc";
 import styles from "./SidebarTree.module.css";
 import { treeToTreeData } from "./treeDataUtil";
 import { TreeNode } from "./treeNodeUtil";
@@ -39,6 +44,20 @@ const RenderItem =
           }}
           onClick={onClickHandler}
           appearance="subtle"
+          iconAfter={
+            <>
+              <VscKebabVertical
+                onClick={onChevronClick}
+                className={styles.kebab}
+                title=""
+              />
+              <VscAdd
+                onClick={onChevronClick}
+                className={styles.add}
+                title=""
+              />
+            </>
+          }
           iconBefore={
             item.hasChildren ? (
               item.isExpanded ? (

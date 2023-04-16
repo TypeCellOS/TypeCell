@@ -9,6 +9,10 @@ html {
   box-sizing: border-box;
 }
 
+[data-is-sidebar-dragging="true"] iframe {
+  pointer-events: none !important;
+}
+
 *,
 *::before,
 *::after {
@@ -72,8 +76,6 @@ h6 {
 .react-draggable {
   position: absolute;
 }
-
-
 
 /* Some generic layout classes */
 .row {

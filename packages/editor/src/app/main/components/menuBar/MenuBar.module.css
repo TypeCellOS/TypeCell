@@ -9,7 +9,7 @@
   justify-content: space-between;
   position: sticky;
   top: 0;
-  z-index: 99;
+  /* z-index: 99; */
 }
 
 /* Targets atlaskit Breadcrumb separators */

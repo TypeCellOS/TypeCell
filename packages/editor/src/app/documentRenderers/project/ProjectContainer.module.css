@@ -8,13 +8,18 @@
 }
 
 .projectContainer {
+  --ds-border-selected: transparent;
   height: 100%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: stretch;
   overflow: hidden;
+  flex: 1 1;
 }
 
+.projectContainer > div {
+  flex: 1 1;
+}
 .sidebarContainer {
   max-width: 400px;
   min-width: 250px;

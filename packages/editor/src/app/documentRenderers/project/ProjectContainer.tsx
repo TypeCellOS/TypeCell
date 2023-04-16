@@ -1,14 +1,19 @@
+import {
+  Content,
+  LeftSidebar,
+  LeftSidebarState,
+  PageLayout,
+} from "@atlaskit/page-layout";
 import { observer } from "mobx-react-lite";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { path } from "vscode-lib";
 import { parseIdentifier } from "../../../identifiers";
 import ProjectResource from "../../../store/ProjectResource";
 import DocumentView from "../DocumentView";
-import styles from "./ProjectRenderer.module.css";
+import styles from "./ProjectContainer.module.css";
 import FolderView from "./directoryNavigation/FolderView";
 import SidebarTree from "./directoryNavigation/SidebarTree";
 import { filesToTreeNodes } from "./directoryNavigation/treeNodeUtil";
-
 type Props = {
   project: ProjectResource;
   isNested?: boolean;
@@ -67,16 +72,57 @@ const ProjectContainer = observer((props: Props) => {
   } else {
     return (
       <div className={styles.projectContainer}>
-        <div className={styles.sidebarContainer}>
-          <SidebarTree onClick={onClick} tree={tree} />
-        </div>
-        {/* {defaultFileContent} */}
-        <Outlet
-          context={{
-            defaultFileContent,
-            parentIdentifier: props.project.identifier,
-          }}
-        />
+        <PageLayout
+          onLeftSidebarExpand={(state: LeftSidebarState) =>
+            console.log("onExpand", state)
+          }
+          onLeftSidebarCollapse={(state: LeftSidebarState) =>
+            console.log("onCollapse", state)
+          }>
+          <Content testId="content">
+            <LeftSidebar
+              testId="left-sidebar"
+              id="left-sidebar"
+              isFixed={false}
+              collapsedState="expanded"
+              onResizeStart={(state: LeftSidebarState) =>
+                console.log("onResizeStart", state)
+              }
+              onResizeEnd={(state: LeftSidebarState) =>
+                console.log("onResizeEnd", state)
+              }
+              onFlyoutExpand={() => console.log("onFlyoutExpand")}
+              onFlyoutCollapse={() => console.log("onFlyoutCollapse")}
+              // overrides={{
+              //   ResizeButton: {
+              //     render: (Component, props) => (
+              //       <Tooltip
+              //         content={props.isLeftSidebarCollapsed ? "Expand" : "Collapse"}
+              //         hideTooltipOnClick
+              //         position="right"
+              //         testId="tooltip">
+              //         <Component {...props} />
+              //       </Tooltip>
+              //     ),
+              //   },
+              // }}
+            >
+              <SidebarTree onClick={onClick} tree={tree} />
+            </LeftSidebar>
+            {/* <div className={styles.sidebarContainer}>
+              <SidebarTree onClick={onClick} tree={tree} />
+            </div> */}
+            {/* {defaultFileContent} */}
+            <div style={{ flex: 1 }}>
+              <Outlet
+                context={{
+                  defaultFileContent,
+                  parentIdentifier: props.project.identifier,
+                }}
+              />
+            </div>
+          </Content>
+        </PageLayout>
       </div>
     );
   }

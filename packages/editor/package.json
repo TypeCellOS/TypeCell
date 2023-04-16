@@ -18,7 +18,7 @@
     "@atlaskit/menu": "^1.3.8",
     "@atlaskit/modal-dialog": "^12.2.14",
     "@atlaskit/page-header": "^10.2.3",
-    "@atlaskit/page-layout": "^1.2.7",
+    "@atlaskit/page-layout": "^1.3.10",
     "@atlaskit/progress-bar": "^0.5.8",
     "@atlaskit/section-message": "^6.1.14",
     "@atlaskit/select": "^15.7.5",
