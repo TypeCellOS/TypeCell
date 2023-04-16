@@ -82,7 +82,7 @@ const ProjectContainer = observer((props: Props) => {
           <Content testId="content">
             <LeftSidebar
               testId="left-sidebar"
-              id="left-sidebar"
+              id={styles.leftSidebar}
               isFixed={false}
               collapsedState="expanded"
               onResizeStart={(state: LeftSidebarState) =>
