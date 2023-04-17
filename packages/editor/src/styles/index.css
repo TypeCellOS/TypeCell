@@ -13,6 +13,10 @@ html {
   pointer-events: none !important;
 }
 
+[data-resize-button="true"] > div {
+  display: none; /* disable extra margin around the resize button */
+}
+
 *,
 *::before,
 *::after {

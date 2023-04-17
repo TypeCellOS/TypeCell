@@ -29,7 +29,7 @@ type Props = {
  */
 const DocumentView = observer((props: Props) => {
   const [connection, setConnection] = useState<DocConnection>();
-
+  console.log(props.id);
   React.useEffect(() => {
     const newConnection = DocConnection.load(props.id);
 

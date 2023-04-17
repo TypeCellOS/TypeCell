@@ -48,6 +48,12 @@ export class BaseResource {
     }
   }
 
+  /** @internal */
+  public get title() {
+    return this.ydoc.getMap("meta").get("title") as string;
+    // return this.ydoc.getText("title");
+  }
+
   public get identifier() {
     return this._identifier;
   }
@@ -174,7 +180,8 @@ export class BaseResource {
       throw new Error("called moveRef on non sorted definition");
     }
 
-    const refs = this.getRefs(definition);
+    const refs = this.getRefs(definition).filter((r) => r.target !== targetId);
+
     const sortKey = generateKeyBetween(
       index === 0 ? null : refs[index - 1].sortKey || null,
       index >= refs.length ? null : refs[index].sortKey || null
@@ -186,7 +193,8 @@ export class BaseResource {
   public async addRef(
     definition: ReferenceDefinition,
     targetId: string,
-    index?: number
+    index?: number,
+    addToTargetInbox = true
   ) {
     let sortKey: string | undefined;
 
@@ -213,25 +221,26 @@ export class BaseResource {
     const key = getHashForReference(definition, targetId);
     const ref = createRef(definition, targetId, sortKey);
 
-    const nextId = createID(
-      this.ydoc.clientID,
-      getState(this.ydoc.store, this.ydoc.clientID)
-    );
+    if (addToTargetInbox) {
+      const nextId = createID(
+        this.ydoc.clientID,
+        getState(this.ydoc.store, this.ydoc.clientID)
+      );
 
-    const inbox = await this.inboxLoader(targetId);
-    inbox.inbox.push([
-      {
-        message_type: "ref",
-        id: ref.id,
-        namespace: ref.namespace,
-        type: ref.type,
-        source: this.id,
-        clock: nextId.client + ":" + nextId.clock,
-      },
-    ]);
-
+      const inbox = await this.inboxLoader(targetId);
+      inbox.inbox.push([
+        {
+          message_type: "ref",
+          id: ref.id,
+          namespace: ref.namespace,
+          type: ref.type,
+          source: this.id,
+          clock: nextId.client + ":" + nextId.clock,
+        },
+      ]);
+      inbox.dispose();
+    }
     this._refs.set(key, ref);
-    inbox.dispose();
   }
   // public ensureRef(
   //   definition: ReferenceDefinition,

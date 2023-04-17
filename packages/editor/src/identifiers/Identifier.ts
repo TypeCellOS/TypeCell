@@ -22,16 +22,25 @@ export abstract class Identifier {
   }
 
   public toString() {
-    return this.uri.toString(true);
+    // const uri1 = uri.URI.parse("http://example.com");
+    // const uri2 = uri.URI.parse("http:///example.com");
+    // debugger;
+    return Identifier.uriToString(this.uri);
   }
 
   protected get defaultURI() {
     return this.uri;
   }
 
+  protected static uriToString(uri: uri.URI) {
+    let ret = uri.toString(true);
+    ret = ret.replace(/([a-z]+:)\/\//, "$1");
+    return ret;
+  }
+
   // TODO: make defaultScheme configurable
   public toRouteString(defaultScheme = "typecell") {
-    let str = this.defaultURI.toString(true);
+    let str = Identifier.uriToString(this.defaultURI);
     if (
       !this.defaultURI.authority &&
       this.defaultURI.scheme === defaultScheme
@@ -39,7 +48,7 @@ export abstract class Identifier {
       str = str.substring(defaultScheme.length + 1);
     }
     if (this.subPath) {
-      str += "/:/" + this.subPath;
+      str += ":/" + this.subPath;
     }
     if (!str.startsWith("/")) {
       str = "/" + str;
@@ -59,9 +68,12 @@ export abstract class Identifier {
     if (!this.subPath) {
       return undefined;
     }
-    return this.uri.with({
-      path: path.join(this.uri.path, this.subPath),
-    });
+
+    return Identifier.uriToString(
+      this.uri.with({
+        path: path.join(this.uri.path || "/", this.subPath),
+      })
+    );
   }
 }
 

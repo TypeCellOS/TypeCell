@@ -31,12 +31,18 @@ export function markdownToXmlFragment(
   return fragment;
 }
 
-export function markdownToYDoc(markdown: string) {
+export function markdownToYDoc(markdown: string, title?: string) {
   const newDoc = new Y.Doc();
   newDoc.getMap("meta").set("type", "!notebook");
 
   let xml = newDoc.getXmlFragment("doc");
   markdownToXmlFragment(markdown, xml);
+
+  if (title) {
+    newDoc.getMap("meta").set("title", title);
+    // newDoc.getText("title").delete(0, newDoc.getText("title").length);
+    // newDoc.getText("title").insert(0, title);
+  }
 
   return newDoc;
 }

@@ -1,4 +1,11 @@
-import { computed, makeObservable, observable, reaction, when } from "mobx";
+import {
+  ObservableMap,
+  computed,
+  makeObservable,
+  observable,
+  reaction,
+  when,
+} from "mobx";
 import { lifecycle } from "vscode-lib";
 import { BaseResource } from "./BaseResource";
 
@@ -9,7 +16,7 @@ import { InboxResource } from "./InboxResource";
 import { getStoreService } from "./local/stores";
 import { YDocSyncManager2 } from "./yjs-sync/YDocSyncManager";
 
-const cache = new Map<string, DocConnection>();
+const cache = new ObservableMap<string, DocConnection>();
 
 /**
  * Encapsulates a Y.Doc and exposes the Resource the Y.Doc represents
@@ -212,6 +219,18 @@ export class DocConnection extends lifecycle.Disposable {
     );
     return inbox;
   };
+
+  public static get(
+    identifier: string | { owner: string; document: string } | Identifier
+  ) {
+    // TODO
+    if (!(identifier instanceof Identifier)) {
+      identifier = parseIdentifier(identifier);
+    }
+
+    let connection = cache.get(identifier.toString());
+    return connection;
+  }
 
   public static load(
     identifier: string | { owner: string; document: string } | Identifier

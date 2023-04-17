@@ -33,12 +33,11 @@ export function parseIdentifier(
     // const documentSlug = slug(identifier.document);
     identifier = "@" + ownerSlug + "/~" + identifier.document;
   }
-
   if (identifier.startsWith("@")) {
     if (identifier.startsWith("@")) {
       identifier =
         TypeCellIdentifier.schemes[0] +
-        "://" +
+        ":" +
         "typecell.org" + // TODO: make this configurable
         "/" +
         identifier;
@@ -50,6 +49,8 @@ export function parseIdentifier(
     //   "/" +
     //   identifier;
   }
+  // identifier = identifier.replace(/(:\/)/g, "/$1/");
+  identifier = identifier.replace(/([a-z]+:)/, "$1//");
 
   const parsedUri = uri.URI.parse(identifier);
   const identifierType = identifiers.get(parsedUri.scheme);

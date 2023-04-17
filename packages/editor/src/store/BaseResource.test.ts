@@ -103,7 +103,6 @@ function createDocAndAllowAccess(forUsers: User[], docId: DocId) {
       resourceAsInbox!,
       ChildReference,
       async (identifier) => {
-        debugger;
         const testIdentifier = uri.URI.parse(identifier).path.substring(1);
         return user.docs[testIdentifier].resource;
       }

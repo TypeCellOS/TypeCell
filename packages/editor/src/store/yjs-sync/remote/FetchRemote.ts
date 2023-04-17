@@ -1,11 +1,15 @@
 import { makeObservable, observable, runInAction } from "mobx";
-import { strings } from "vscode-lib";
+import { path, strings } from "vscode-lib";
 import { Awareness } from "y-protocols/awareness";
 
+import _ from "lodash";
 import * as Y from "yjs";
+import { filesToTreeNodes } from "../../../app/documentRenderers/project/directoryNavigation/treeNodeUtil";
+import { parseIdentifier } from "../../../identifiers";
 import { HttpsIdentifier } from "../../../identifiers/HttpsIdentifier";
 import { markdownToYDoc } from "../../../integrations/markdown/import";
 import ProjectResource from "../../ProjectResource";
+import { ChildReference } from "../../referenceDefinitions/child";
 import { Remote } from "./Remote";
 
 export default class FetchRemote extends Remote {
@@ -53,35 +57,56 @@ export default class FetchRemote extends Remote {
     const project = new ProjectResource(newDoc, this.identifier, () => {
       throw new Error("not implemented");
     }); // TODO
-    objects.forEach((object) => {
-      if (object.endsWith(".md")) {
-        project.files.set(object, {});
-      }
+
+    const tree = filesToTreeNodes(
+      objects.map((object) => ({ fileName: object }))
+    );
+
+    tree.forEach((node) => {
+      let idTemp = parseIdentifier(this.identifier.toString());
+      idTemp.subPath = node.fileName + (node.isDirectory ? "/" : "");
+      let documentIdentifier = parseIdentifier(
+        idTemp.fullUriOfSubPath()!.toString()
+      );
+
+      project.addRef(
+        ChildReference,
+        documentIdentifier.toString(),
+        undefined,
+        false
+      );
     });
+
     return newDoc;
   }
 
+  private fetchIndex = _.memoize(async (path: string) => {
+    return (await (await fetch(path)).json()) as string[];
+  });
+
   private async getNewYDocFromFetch() {
     if (this.identifier.uri.path.endsWith(".json")) {
-      const json = await (await fetch(this.identifier.uri.toString())).json();
+      const json = await this.fetchIndex(this.identifier.uri.toString());
       return this.getNewYDocFromDir(json);
     } else if (this.identifier.uri.path.endsWith(".md")) {
       const contents = await (
         await fetch(this.identifier.uri.toString())
       ).text();
-      return markdownToYDoc(contents);
+
+      return markdownToYDoc(contents, path.basename(this.identifier.uri.path));
     } else {
       // TODO: this is hacky. We should use json from parent route instead. Revise routing?
+
       const [root, ...remainders] = strings
         .trim(this.identifier.uri.path, "/")
         .split("/");
       const index = this.identifier.uri.with({ path: root + "/index.json" });
-      let json = (await (await fetch(index.toString())).json()) as string[];
+
+      let json = await this.fetchIndex(index.toString());
 
       const prefix = remainders.join("/") + "/";
       json = json.filter((path) => path.startsWith(prefix));
       json = json.map((path) => path.substring(prefix.length));
-
       if (!json.length) {
         return "not-found" as "not-found";
       }

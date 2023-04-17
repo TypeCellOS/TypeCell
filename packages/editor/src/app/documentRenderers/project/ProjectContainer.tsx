@@ -4,69 +4,144 @@ import {
   LeftSidebarState,
   PageLayout,
 } from "@atlaskit/page-layout";
+import { TreeData, TreeItem } from "@atlaskit/tree";
 import { observer } from "mobx-react-lite";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { path } from "vscode-lib";
 import { parseIdentifier } from "../../../identifiers";
+import { BaseResource } from "../../../store/BaseResource";
+import { DocConnection } from "../../../store/DocConnection";
 import ProjectResource from "../../../store/ProjectResource";
-import DocumentView from "../DocumentView";
+import { ChildReference } from "../../../store/referenceDefinitions/child";
 import styles from "./ProjectContainer.module.css";
-import FolderView from "./directoryNavigation/FolderView";
 import SidebarTree from "./directoryNavigation/SidebarTree";
-import { filesToTreeNodes } from "./directoryNavigation/treeNodeUtil";
+
 type Props = {
   project: ProjectResource;
   isNested?: boolean;
 };
 
+let id = 0;
+
+function docToTreeItem(
+  doc: BaseResource,
+  items: Record<string, TreeItem>,
+  root = false
+) {
+  const children = doc.getRefs(ChildReference);
+  const childrenWithDocs = children.map((c) => {
+    const doc = DocConnection.get(c.target);
+    const resource = doc?.tryDoc;
+    return {
+      doc: resource,
+      id: c.target,
+    };
+  });
+
+  const childrenWithLoadedDocs = childrenWithDocs.filter(
+    (c) => c.doc !== undefined
+  );
+  const isChildrenLoading = childrenWithLoadedDocs.length !== children.length;
+
+  const childrenIds: string[] = [];
+
+  childrenWithLoadedDocs.forEach((c) => {
+    if (c.doc) {
+      childrenIds.push(docToTreeItem(c.doc, items).id as string);
+    }
+  });
+
+  let i = 0;
+  let id = doc.id + "-" + i;
+
+  while (items[id]) {
+    id = doc.id + "-" + ++i;
+  }
+  const ret: TreeItem = {
+    id,
+    isChildrenLoading,
+    children: childrenIds,
+    hasChildren: children.length > 0,
+    isExpanded: root,
+    data: {
+      id: doc.id,
+      allChildren: children.map((c) => c.target),
+    },
+  };
+
+  items[id] = ret;
+  return ret;
+}
+
+function docToAkTree(doc: BaseResource) {
+  const items: Record<string, TreeItem> = {};
+  const rootItem = docToTreeItem(doc, items, true);
+  const root: TreeData = {
+    rootId: rootItem.id,
+    items,
+    // id: doc.id,
+    // children: [],
+    // hasChildren: false,
+    // isExpanded: false,
+    // isChildrenLoading: false,
+    // data: {
+  };
+  return root;
+}
+
 const ProjectContainer = observer((props: Props) => {
+  // return <div>hello123</div>;
   const location = useLocation();
   const navigate = useNavigate();
-  const files = Array.from(props.project.files.keys()).sort();
 
-  const tree = filesToTreeNodes(
-    files.map((f) => ({
-      fileName: f,
-    }))
-  );
+  const tree = docToAkTree(props.project);
+  // const files = Array.from(props.project.files.keys()).sort();
+
+  // const tree = filesToTreeNodes(
+  //   files.map((f) => ({
+  //     fileName: f,
+  //   }))
+  // );
 
   const onClick = (item: string) => {
     const isDocs = location.pathname.startsWith("/docs");
-
+    const id = parseIdentifier(item);
+    debugger;
     navigate({
       pathname: props.isNested
         ? path.join(location.pathname, "/", item)
         : isDocs
-        ? item
-        : ":/" + item,
+        ? id.uri.path
+        : "/" + props.project.identifier.toString() + ":/" + item,
     });
   };
-  let defaultFile = files.find((f) => f === "README.md");
+
+  // let defaultFile = files.find((f) => f === "README.md");
   let defaultFileContent = <></>;
-  if (defaultFile) {
-    // TODO: cleanup?
-    // Directory listing with a default file
-    let idTemp = parseIdentifier(props.project.identifier.uri.toString());
-    idTemp.subPath = defaultFile;
-    let documentIdentifier = parseIdentifier(
-      idTemp.fullUriOfSubPath()!.toString()
-    );
-    defaultFileContent = (
-      <DocumentView
-        hideDocumentMenu={true}
-        id={documentIdentifier}
-        isNested={true}
-      />
-    );
-  }
+  // if (defaultFile) {
+  //   // TODO: cleanup?
+  //   // Directory listing with a default file
+  //   let idTemp = parseIdentifier(props.project.identifier.uri.toString());
+  //   idTemp.subPath = defaultFile;
+  //   let documentIdentifier = parseIdentifier(
+  //     idTemp.fullUriOfSubPath()!.toString()
+  //   );
+  //   defaultFileContent = (
+  //     <DocumentView
+  //       hideDocumentMenu={true}
+  //       id={documentIdentifier}
+  //       isNested={true}
+  //     />
+  //   );
+  // }
 
   if (props.isNested) {
     return (
       <div>
         <div className={styles.folderContainer}>
-          <FolderView onClick={onClick} tree={tree} />
+          {/* <FolderView onClick={onClick} tree={tree} /> */}
         </div>
-        {defaultFileContent}
+        {/* {defaultFileContent} */}
       </div>
     );
   } else {
@@ -96,18 +171,21 @@ const ProjectContainer = observer((props: Props) => {
               // overrides={{
               //   ResizeButton: {
               //     render: (Component, props) => (
-              //       <Tooltip
-              //         content={props.isLeftSidebarCollapsed ? "Expand" : "Collapse"}
-              //         hideTooltipOnClick
-              //         position="right"
-              //         testId="tooltip">
-              //         <Component {...props} />
-              //       </Tooltip>
+
+              //       // <Tooltip
+              //       //   content={props.isLeftSidebarCollapsed ? "Expand" : "Collapse"}
+              //       //   hideTooltipOnClick
+              //       //   position="right"
+              //       //   testId="tooltip">
+              //       <Component {...props} />
+              //       // </Tooltip>
               //     ),
               //   },
               // }}
             >
-              <SidebarTree onClick={onClick} tree={tree} />
+              <div style={{ padding: 10 }}>
+                <SidebarTree onClick={onClick} tree={tree} />
+              </div>
             </LeftSidebar>
             {/* <div className={styles.sidebarContainer}>
               <SidebarTree onClick={onClick} tree={tree} />

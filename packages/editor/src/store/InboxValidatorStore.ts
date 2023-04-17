@@ -50,7 +50,6 @@ export class InboxValidator<
   ) {
     super();
     const dispose = autorun(() => {
-      debugger;
       this.allRefMessages.forEach(async (message) => {
         if (this.seenMessages.has(message.id)) {
           return;

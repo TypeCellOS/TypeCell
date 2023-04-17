@@ -9,8 +9,9 @@ export const DynamicRoute = () => {
   if (location.pathname.startsWith("/docs")) {
     const id =
       ENVIRONMENT === "DEV"
-        ? parseIdentifier("fs:", "Docs")
-        : /*parseIdentifier(
+        ? parseIdentifier("http://localhost:4174/_docs/index.json", "Docs") //
+        : //parseIdentifier("fs:", "Docs")
+        /*parseIdentifier(
             "github:yousefed/typecell-next/docs" +
               (remainingPath ? "/:/" + remainingPath : "")
           );*/

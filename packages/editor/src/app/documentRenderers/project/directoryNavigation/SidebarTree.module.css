@@ -4,7 +4,7 @@
   font-weight: normal !important;
   font-size: 13px !important;
   height: 2.1em !important;
-  padding-right: 2px;
+  padding-right: 2px !important;
 }
 
 @keyframes fade-in {
