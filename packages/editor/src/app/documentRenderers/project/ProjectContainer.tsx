@@ -7,8 +7,8 @@ import {
 import { TreeData, TreeItem } from "@atlaskit/tree";
 import { observer } from "mobx-react-lite";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { path } from "vscode-lib";
 import { parseIdentifier } from "../../../identifiers";
+import { getPathFromIdentifiers } from "../../../identifiers/v2/Identifier";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
 import ProjectResource from "../../../store/ProjectResource";
@@ -104,15 +104,12 @@ const ProjectContainer = observer((props: Props) => {
   // );
 
   const onClick = (item: string) => {
-    const isDocs = location.pathname.startsWith("/docs");
     const id = parseIdentifier(item);
-    debugger;
+
+    const path = getPathFromIdentifiers([props.project.identifier, id]);
+
     navigate({
-      pathname: props.isNested
-        ? path.join(location.pathname, "/", item)
-        : isDocs
-        ? id.uri.path
-        : "/" + props.project.identifier.toString() + ":/" + item,
+      pathname: "/" + path,
     });
   };
 

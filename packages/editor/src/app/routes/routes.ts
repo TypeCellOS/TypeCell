@@ -56,7 +56,7 @@ export function toDocument(doc: BaseResource): To {
 }
 
 export function toIdentifier(identifier: Identifier): To {
-  return { pathname: identifier.toRouteString() };
+  return { pathname: "/" + identifier.toString() };
 }
 
 export function toIdentifierString(identifier: string): To {

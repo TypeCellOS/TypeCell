@@ -32,7 +32,7 @@ type User = {
 
 class TestIdentifier extends Identifier {
   constructor(public readonly id: string) {
-    super(["test"], uri.URI.parse("test://test/" + id), undefined);
+    super(["test"], uri.URI.parse("test://test/" + id));
   }
 }
 

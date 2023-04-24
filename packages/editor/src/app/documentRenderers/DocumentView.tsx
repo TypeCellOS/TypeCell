@@ -6,11 +6,12 @@ import { DocConnection } from "../../store/DocConnection";
 import PluginResource from "../../store/PluginResource";
 import ProjectResource from "../../store/ProjectResource";
 import DocumentMenu from "../main/components/documentMenu";
-import { Breadcrumb } from "../main/components/documentMenu/Breadcrumb";
-import { MenuBar } from "../main/components/menuBar/MenuBar";
+
+// import { MenuBar } from "../maidocn/components/menuBar/MenuBar";
 // import RichTextRenderer from "./richtext/RichTextRenderer";
 import styles from "./DocumentView.module.css";
 // import { CustomRenderer } from "./custom/CustomRenderer";
+import { MenuBar } from "../main/components/menuBar/MenuBar";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
 import ProjectContainer from "./project/ProjectContainer";
@@ -74,7 +75,7 @@ const DocumentView = observer((props: Props) => {
         <div className={styles.view}>
           {!props.hideDocumentMenu && (
             <MenuBar>
-              <Breadcrumb identifier={props.id} />
+              {/* <Breadcrumb identifier={props.id} />  TODO */}
             </MenuBar>
           )}
           <ProjectContainer

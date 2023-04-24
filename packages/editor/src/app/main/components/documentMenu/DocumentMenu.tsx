@@ -20,7 +20,7 @@ import {
 import { MenuBar } from "../menuBar/MenuBar";
 
 import PermissionsDialog from "../../../matrix-auth/routes/permissions/PermissionsDialog";
-import { Breadcrumb } from "./Breadcrumb";
+
 import styles from "./DocumentMenu.module.css";
 import { ForkAlert } from "./ForkAlert";
 import { ShareButton } from "./ShareButton";
@@ -50,7 +50,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
   let navigate = useNavigate();
   return (
     <MenuBar>
-      <Breadcrumb identifier={props.document.identifier} />
+      {/* <Breadcrumb identifier={props.document.identifier} /> */}
       {props.document.connection!.needsFork && (
         <ForkAlert document={props.document} />
       )}

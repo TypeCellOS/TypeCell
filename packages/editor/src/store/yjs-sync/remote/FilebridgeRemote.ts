@@ -5,8 +5,8 @@ import { path, strings } from "vscode-lib";
 import { Awareness } from "y-protocols/awareness";
 import * as Y from "yjs";
 import { filesToTreeNodes } from "../../../app/documentRenderers/project/directoryNavigation/treeNodeUtil";
-import { parseIdentifier } from "../../../identifiers";
 import { FileIdentifier } from "../../../identifiers/FileIdentifier";
+import { getIdentifierWithAppendedPath } from "../../../identifiers/v2/Identifier";
 import { xmlFragmentToMarkdown } from "../../../integrations/markdown/export";
 import { markdownToXmlFragment } from "../../../integrations/markdown/import";
 import ProjectResource from "../../ProjectResource";
@@ -62,7 +62,11 @@ export class FilebridgeRemote extends Remote {
       : "";
 
     this._ydoc.getMap("meta").set("type", "!project");
-    this._ydoc.getMap("meta").set("title", path.basename(this.identifier.path));
+    if (this.identifier.path) {
+      this._ydoc
+        .getMap("meta")
+        .set("title", path.basename(this.identifier.path));
+    }
     const project = new ProjectResource(this._ydoc, this.identifier, () => {
       throw new Error("not implemented");
     }); // TODO
@@ -97,29 +101,21 @@ export class FilebridgeRemote extends Remote {
 
         oldTree.forEach((node) => {
           if (!tree.find((n) => n.fileName === node.fileName)) {
-            let idTemp = parseIdentifier(this.identifier.toString());
-            idTemp.subPath = node.fileName + (node.isDirectory ? "/" : "");
-            let documentIdentifier = parseIdentifier(
-              idTemp.fullUriOfSubPath()!.toString()
+            const id = getIdentifierWithAppendedPath(
+              this.identifier,
+              node.fileName
             );
-
-            project.removeRef(ChildReference, documentIdentifier.toString());
+            project.removeRef(ChildReference, id.toString());
           }
         });
 
         tree.forEach((node) => {
-          let idTemp = parseIdentifier(this.identifier.toString());
-          idTemp.subPath = node.fileName + (node.isDirectory ? "/" : "");
-          let documentIdentifier = parseIdentifier(
-            idTemp.fullUriOfSubPath()!.toString()
+          const id = getIdentifierWithAppendedPath(
+            this.identifier,
+            node.fileName
           );
 
-          project.addRef(
-            ChildReference,
-            documentIdentifier.toString(),
-            undefined,
-            false
-          );
+          project.addRef(ChildReference, id.toString(), undefined, false);
         });
       })
     );
@@ -128,7 +124,7 @@ export class FilebridgeRemote extends Remote {
   private async updateYDocFromId() {
     const ret = await readFile(
       fetch,
-      this.identifier.path,
+      this.identifier.uri.path,
       "http://" + this.identifier.uri.authority
     );
     if (this.disposed) {
@@ -139,10 +135,9 @@ export class FilebridgeRemote extends Remote {
       this._register({
         dispose: () => this._ydoc.off("update", this.documentUpdateListener),
       });
-      console.warn(this.identifier.path);
       await this.updateYDocFromContents(
         ret.contents,
-        path.basename(this.identifier.path)
+        path.basename(this.identifier.uri.path)
       );
       await this.updateYDocFromFile();
     } else {

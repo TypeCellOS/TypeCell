@@ -68,11 +68,11 @@ function refreshUserModelTypes(folder: string, monacoInstance: typeof monaco) {
   // TODO: this is hacky, we should not have a dependency on Identifier here
   const identifierStr = folder.substring("/!@".length, folder.length - 1);
   const identifier = parseIdentifier(identifierStr);
-  let packageName = identifier.toRouteString();
-  if (!packageName.startsWith("/")) {
-    throw new Error("expected packageName to start with /");
+  let packageName = identifier.toString();
+  if (packageName.startsWith("/")) {
+    throw new Error("expected packageName to not start with /");
   }
-  packageName = "!" + packageName.substring(1);
+  packageName = "!" + packageName;
 
   // for imported libs
   // register the typings as a node_module in the short identifier name (e.g.: !@abc/abcccc)

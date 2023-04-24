@@ -1,8 +1,12 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { Route, Routes, useLocation, useParams } from "react-router-dom";
-import { parseIdentifier } from "../../../identifiers";
 import { Identifier } from "../../../identifiers/Identifier";
+import {
+  getIdentifierFromPath,
+  getPathFromIdentifier,
+  pathToIdentifiers,
+} from "../../../identifiers/v2/Identifier";
 import ProjectResource from "../../../store/ProjectResource";
 import DocumentView from "../DocumentView";
 import ProjectContainer from "./ProjectContainer";
@@ -17,7 +21,7 @@ const NestedDocument = (props: { parent: Identifier }) => {
   const sub = params["*"] as string;
 
   // const newIdStr = path.join(props.parent.toString(), "/:/", sub);
-  const documentIdentifier = parseIdentifier(sub);
+  const documentIdentifier = getIdentifierFromPath(sub, [props.parent]);
   // parseIdentifier(newIdStr).fullUriOfSubPath()!.toString()
   // );
   // return <div>{sub}</div>;
@@ -48,23 +52,29 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
     throw new Error("unexpected");
   }
 
-  const isDocs = path.pathname.startsWith("/docs");
-  debugger;
-  const rootPath = isDocs ? "docs" : identifier.toString();
-  console.log(path, "ppp", isDocs, rootPath, identifier.toRouteString());
+  const identifiers = pathToIdentifiers(path.pathname.substring(1));
+  const idPath = getPathFromIdentifier(identifier);
+  let matchedPath: string;
+  let sep = ":/";
+  if (typeof idPath === "string") {
+    matchedPath = idPath;
+  } else {
+    if (path.pathname.substring(1).startsWith(idPath.shorthand)) {
+      matchedPath = idPath.shorthand;
+      sep = "/";
+    } else {
+      matchedPath = idPath.path;
+    }
+  }
 
   return (
     <Routes>
       <Route
-        path={rootPath + (identifier.subPath ? ":/" : "")}
+        path={matchedPath + (identifiers.length ? sep : "")}
         element={<ProjectContainer project={props.project} />}>
         <Route path="*" element={<NestedDocument parent={identifier} />} />
         <Route index element={<RootDirectory />} />
-        {isDocs ? (
-          <Route path="*" element={<NestedDocument parent={identifier} />} />
-        ) : (
-          <Route path="*" element={<NestedDocument parent={identifier} />} />
-        )}
+        <Route path="*" element={<NestedDocument parent={identifier} />} />
       </Route>
       {/* <Route
         path="*"

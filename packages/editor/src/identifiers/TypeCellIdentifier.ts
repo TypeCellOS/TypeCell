@@ -1,5 +1,5 @@
 import { uri } from "vscode-lib";
-import { Identifier, stringWithoutInitialSlash } from "./Identifier";
+import { Identifier } from "./Identifier";
 
 const DEFAULT_AUTHORITY = "typecell.org";
 
@@ -20,17 +20,13 @@ export class TypeCellIdentifier extends Identifier {
   public readonly owner: string;
   public readonly documentId: string;
 
-  constructor(uriToParse: uri.URI, title?: string) {
-    let [identifier, subPath] = stringWithoutInitialSlash(
-      uriToParse.path
-    ).split("/:/", 2);
-    // identifier = identifier.toLowerCase().trim();
-    const parts = identifier.split("/");
+  constructor(uriToParse: uri.URI) {
+    // TODO: validate parts, lowercase, alphanumeric?
+    const parts = uriToParse.path.split("/");
     if (parts.length !== 2) {
       throw new Error("invalid identifier");
     }
 
-    // TODO: validate parts, lowercase, alphanumeric?
     let [owner, document] = parts;
     document = getIdFromPath(document);
     if (
@@ -42,26 +38,17 @@ export class TypeCellIdentifier extends Identifier {
     ) {
       throw new Error("invalid identifier");
     }
-    // call super to drop fragment, query, and make sure path is lowercase
+
     super(
       TypeCellIdentifier.schemes,
       uri.URI.from({
         scheme: uriToParse.scheme,
         authority: uriToParse.authority || DEFAULT_AUTHORITY,
         path: "/" + owner + "/~" + document,
-      }),
-      subPath,
-      title
+      })
     );
+
     this.owner = owner.substring(1);
     this.documentId = document;
-  }
-
-  public get defaultURI() {
-    return this.uri.authority === DEFAULT_AUTHORITY
-      ? this.uri.with({
-          authority: null,
-        })
-      : this.uri;
   }
 }

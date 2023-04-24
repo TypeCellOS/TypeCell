@@ -5,8 +5,8 @@ import { Awareness } from "y-protocols/awareness";
 import _ from "lodash";
 import * as Y from "yjs";
 import { filesToTreeNodes } from "../../../app/documentRenderers/project/directoryNavigation/treeNodeUtil";
-import { parseIdentifier } from "../../../identifiers";
 import { HttpsIdentifier } from "../../../identifiers/HttpsIdentifier";
+import { getIdentifierWithAppendedPath } from "../../../identifiers/v2/Identifier";
 import { markdownToYDoc } from "../../../integrations/markdown/import";
 import ProjectResource from "../../ProjectResource";
 import { ChildReference } from "../../referenceDefinitions/child";
@@ -63,18 +63,9 @@ export default class FetchRemote extends Remote {
     );
 
     tree.forEach((node) => {
-      let idTemp = parseIdentifier(this.identifier.toString());
-      idTemp.subPath = node.fileName + (node.isDirectory ? "/" : "");
-      let documentIdentifier = parseIdentifier(
-        idTemp.fullUriOfSubPath()!.toString()
-      );
+      const id = getIdentifierWithAppendedPath(this.identifier, node.fileName);
 
-      project.addRef(
-        ChildReference,
-        documentIdentifier.toString(),
-        undefined,
-        false
-      );
+      project.addRef(ChildReference, id.toString(), undefined, false);
     });
 
     return newDoc;

@@ -1,29 +1,12 @@
 import { useLocation } from "react-router-dom";
-import { ENVIRONMENT } from "../../config/config";
-import { parseIdentifier, tryParseIdentifier } from "../../identifiers";
+import { tryParseIdentifier } from "../../identifiers";
 import DocumentView from "../documentRenderers/DocumentView";
 
 export const DynamicRoute = () => {
   let location = useLocation();
 
-  if (location.pathname.startsWith("/docs")) {
-    const id =
-      ENVIRONMENT === "DEV"
-        ? parseIdentifier("http://localhost:4174/_docs/index.json", "Docs") //
-        : //parseIdentifier("fs:", "Docs")
-        /*parseIdentifier(
-            "github:yousefed/typecell-next/docs" +
-              (remainingPath ? "/:/" + remainingPath : "")
-          );*/
-        ENVIRONMENT === "PREVIEW"
-        ? parseIdentifier("http:/_docs/index.json", "Docs")
-        : parseIdentifier("https:/_docs/index.json", "Docs");
-
-    return <DocumentView id={id} />;
-  }
-
-  const parsedIdentifier = tryParseIdentifier(location.pathname.substring(1));
-  if (parsedIdentifier !== "invalid-identifier") {
+  const identifier = tryParseIdentifier(location.pathname.substring(1));
+  if (identifier !== "invalid-identifier") {
     return (
       // <Routes>
       //   <Route
@@ -31,7 +14,7 @@ export const DynamicRoute = () => {
       //     element={<DocumentView id={parsedIdentifier} />}></Route>
       //   <Route path="*" element={<div>errorouter</div>} />
       // </Routes>
-      <DocumentView id={parsedIdentifier} />
+      <DocumentView id={identifier} />
     );
   }
   return <div>Not found</div>;

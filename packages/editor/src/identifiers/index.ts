@@ -1,4 +1,3 @@
-import { uri } from "vscode-lib";
 import { slug } from "../util/slug";
 import { FileIdentifier } from "./FileIdentifier";
 import { GithubIdentifier } from "./GithubIdentifier";
@@ -6,8 +5,12 @@ import { HttpsIdentifier } from "./HttpsIdentifier";
 import { Identifier, IdentifierFactory } from "./Identifier";
 import { MatrixIdentifier } from "./MatrixIdentifier";
 import { TypeCellIdentifier } from "./TypeCellIdentifier";
+import { pathToIdentifiers } from "./v2/Identifier";
 
-export const identifiers = new Map<string, IdentifierFactory<Identifier>>();
+export const registeredIdentifiers = new Map<
+  string,
+  IdentifierFactory<Identifier>
+>();
 const factories = [
   TypeCellIdentifier,
   MatrixIdentifier,
@@ -17,7 +20,7 @@ const factories = [
 ];
 for (let factory of factories) {
   for (let scheme of factory.schemes) {
-    identifiers.set(scheme, factory);
+    registeredIdentifiers.set(scheme, factory);
   }
 }
 
@@ -49,11 +52,10 @@ export function parseIdentifier(
     //   "/" +
     //   identifier;
   }
-  // identifier = identifier.replace(/(:\/)/g, "/$1/");
-  identifier = identifier.replace(/([a-z]+:)/, "$1//");
 
-  const parsedUri = uri.URI.parse(identifier);
-  const identifierType = identifiers.get(parsedUri.scheme);
+  const parsedUri = pathToIdentifiers(identifier)[0].uri;
+
+  const identifierType = registeredIdentifiers.get(parsedUri.scheme);
   if (!identifierType) {
     throw new Error("identifier not found");
   }

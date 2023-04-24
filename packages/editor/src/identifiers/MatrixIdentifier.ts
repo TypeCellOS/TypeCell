@@ -1,5 +1,5 @@
 import { uri } from "vscode-lib";
-import { Identifier, stringWithoutInitialSlash } from "./Identifier";
+import { Identifier } from "./Identifier";
 
 const DEFAULT_AUTHORITY = "mx.typecell.org";
 
@@ -9,11 +9,7 @@ export class MatrixIdentifier extends Identifier {
   public readonly document: string;
 
   constructor(uriToParse: uri.URI, title?: string) {
-    let [identifier, subPath] = stringWithoutInitialSlash(
-      uriToParse.path
-    ).split("/:/", 2);
-    identifier = identifier.toLowerCase().trim();
-    const parts = identifier.split("/");
+    const parts = uriToParse.path.split("/");
     if (parts.length !== 2) {
       throw new Error("invalid identifier");
     }
@@ -37,9 +33,7 @@ export class MatrixIdentifier extends Identifier {
         scheme: uriToParse.scheme,
         authority: uriToParse.authority || DEFAULT_AUTHORITY,
         path: "/" + owner + "/" + document,
-      }),
-      subPath,
-      title
+      })
     );
     this.owner = owner;
     this.document = document;

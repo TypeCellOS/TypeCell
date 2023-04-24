@@ -1,24 +1,23 @@
-import { path, uri } from "vscode-lib";
+import { uri } from "vscode-lib";
 
 export interface IdentifierFactory<T extends Identifier> {
   new (uri: uri.URI, title?: string): T;
   schemes: string[];
 }
 
-export abstract class Identifier {
-  // TODO: get rid of subpaths?
-  public subPath?: string;
+// http:localhost/_docs:/http:localhost/_docs/README.md
+// http:localhost/_docs:/README.md
 
-  protected constructor(
-    schemes: string[],
-    public readonly uri: uri.URI,
-    subPath: string | undefined,
-    public readonly title?: string
-  ) {
-    if (!schemes.includes(this.uri.scheme)) {
+// fs:localhost:/fs:localhost/README.md
+// fs:localhost:/README.md
+
+// typecell:localhost/@yousef:/typecell:localhost/@yousef/id123
+
+export abstract class Identifier {
+  protected constructor(schemes: string[], public readonly uri: uri.URI) {
+    if (!schemes.includes(uri.scheme)) {
       throw new Error("scheme doesn't match");
     }
-    this.subPath = subPath;
   }
 
   public toString() {
@@ -28,53 +27,49 @@ export abstract class Identifier {
     return Identifier.uriToString(this.uri);
   }
 
-  protected get defaultURI() {
-    return this.uri;
-  }
-
   protected static uriToString(uri: uri.URI) {
     let ret = uri.toString(true);
     ret = ret.replace(/([a-z]+:)\/\//, "$1");
     return ret;
   }
 
-  // TODO: make defaultScheme configurable
-  public toRouteString(defaultScheme = "typecell") {
-    let str = Identifier.uriToString(this.defaultURI);
-    if (
-      !this.defaultURI.authority &&
-      this.defaultURI.scheme === defaultScheme
-    ) {
-      str = str.substring(defaultScheme.length + 1);
-    }
-    if (this.subPath) {
-      str += ":/" + this.subPath;
-    }
-    if (!str.startsWith("/")) {
-      str = "/" + str;
-    }
-    return str;
-  }
+  // // TODO: make defaultScheme configurable
+  // public toRouteString(defaultScheme = "typecell") {
+  //   let str = Identifier.uriToString(this.defaultURI);
+  //   if (
+  //     !this.defaultURI.authority &&
+  //     this.defaultURI.scheme === defaultScheme
+  //   ) {
+  //     str = str.substring(defaultScheme.length + 1);
+  //   }
+  //   if (this.subPath) {
+  //     str += ":/" + this.subPath;
+  //   }
+  //   if (!str.startsWith("/")) {
+  //     str = "/" + str;
+  //   }
+  //   return str;
+  // }
 
-  public equals(other: Identifier) {
-    return this.toString() === other.toString();
-  }
+  // public equals(other: Identifier) {
+  //   return this.toString() === other.toString();
+  // }
 
-  public equalsIncludingSub(other: Identifier) {
-    return this.equals(other) && this.subPath === other.subPath;
-  }
+  // public equalsIncludingSub(other: Identifier) {
+  //   return this.equals(other) && this.subPath === other.subPath;
+  // }
 
-  public fullUriOfSubPath() {
-    if (!this.subPath) {
-      return undefined;
-    }
+  // public fullUriOfSubPath() {
+  //   if (!this.subPath) {
+  //     return undefined;
+  //   }
 
-    return Identifier.uriToString(
-      this.uri.with({
-        path: path.join(this.uri.path || "/", this.subPath),
-      })
-    );
-  }
+  //   return Identifier.uriToString(
+  //     this.uri.with({
+  //       path: path.join(this.uri.path || "/", this.subPath),
+  //     })
+  //   );
+  // }
 }
 
 export function stringWithoutInitialSlash(path: string) {
