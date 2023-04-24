@@ -8,7 +8,7 @@ import { TreeData, TreeItem } from "@atlaskit/tree";
 import { observer } from "mobx-react-lite";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { parseIdentifier } from "../../../identifiers";
-import { getPathFromIdentifiers } from "../../../identifiers/v2/Identifier";
+import { getPathFromIdentifiers } from "../../../identifiers/paths/identifierPathHelpers";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
 import ProjectResource from "../../../store/ProjectResource";

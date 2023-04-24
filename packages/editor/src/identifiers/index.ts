@@ -5,7 +5,7 @@ import { HttpsIdentifier } from "./HttpsIdentifier";
 import { Identifier, IdentifierFactory } from "./Identifier";
 import { MatrixIdentifier } from "./MatrixIdentifier";
 import { TypeCellIdentifier } from "./TypeCellIdentifier";
-import { pathToIdentifiers } from "./v2/Identifier";
+import { pathToIdentifiers } from "./paths/identifierPathHelpers";
 
 export const registeredIdentifiers = new Map<
   string,

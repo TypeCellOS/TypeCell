@@ -10,7 +10,7 @@ import {
   getIdentifierFromPath,
   getPathFromIdentifiers,
   pathToIdentifiers,
-} from "./Identifier";
+} from "./identifierPathHelpers";
 
 // fs:localhost:/fs:localhost/README.md
 // fs:localhost:/README.md

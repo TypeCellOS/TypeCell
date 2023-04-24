@@ -6,7 +6,7 @@ import {
   getIdentifierFromPath,
   getPathFromIdentifier,
   pathToIdentifiers,
-} from "../../../identifiers/v2/Identifier";
+} from "../../../identifiers/paths/identifierPathHelpers";
 import ProjectResource from "../../../store/ProjectResource";
 import DocumentView from "../DocumentView";
 import ProjectContainer from "./ProjectContainer";

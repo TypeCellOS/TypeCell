@@ -6,7 +6,7 @@ import { Awareness } from "y-protocols/awareness";
 import * as Y from "yjs";
 import { filesToTreeNodes } from "../../../app/documentRenderers/project/directoryNavigation/treeNodeUtil";
 import { FileIdentifier } from "../../../identifiers/FileIdentifier";
-import { getIdentifierWithAppendedPath } from "../../../identifiers/v2/Identifier";
+import { getIdentifierWithAppendedPath } from "../../../identifiers/paths/identifierPathHelpers";
 import { xmlFragmentToMarkdown } from "../../../integrations/markdown/export";
 import { markdownToXmlFragment } from "../../../integrations/markdown/import";
 import ProjectResource from "../../ProjectResource";
