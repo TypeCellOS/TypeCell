@@ -15,7 +15,7 @@ export function markdownToXmlFragment(
 
   const elements = nbData.cells.map((cell) => {
     const element = new Y.XmlElement("typecell");
-    element.setAttribute("block-id", uniqueId.generate()); // TODO: do we want random blockids? for markdown sources?
+    element.setAttribute("block-id", uniqueId.generateId("block")); // TODO: do we want random blockids? for markdown sources?
 
     if (cell.language === "markdown") {
       element.insert(0, [new Y.XmlText(cell.code)]);

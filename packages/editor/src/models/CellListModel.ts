@@ -1,6 +1,6 @@
+import { uniqueId } from "@typecell-org/common";
 import * as _ from "lodash";
 import * as Y from "yjs";
-import { uniqueId } from "@typecell-org/common";
 import { CellLanguage, CellModel } from "./CellModel";
 
 export class CellListModel {
@@ -57,7 +57,7 @@ export class CellListModel {
 
   public addCell(i: number, language: CellLanguage, content: string) {
     const element = new Y.XmlElement("typecell");
-    element.setAttribute("block-id", uniqueId.generate());
+    element.setAttribute("block-id", uniqueId.generateId("block"));
     element.setAttribute("language", language);
     element.insert(0, [new Y.XmlText(content)]);
     this.fragment.insert(i, [element]);
