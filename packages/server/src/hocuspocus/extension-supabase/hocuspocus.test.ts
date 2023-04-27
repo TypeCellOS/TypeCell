@@ -71,12 +71,35 @@ it("should sync user data via yjs", async () => {
   //   provider.on("synced", () => {});
 });*/
 
+function createWsProvider() {
+  return new HocuspocusProviderWebsocket({
+    url: "ws://localhost:1234",
+    WebSocketPolyfill: ws,
+  });
+}
+
+function createHPProvider(
+  docId: string,
+  ydoc: Y.Doc,
+  token: string,
+  wsProvider: HocuspocusProviderWebsocket
+) {
+  return new HocuspocusProvider({
+    name: docId,
+    document: ydoc,
+    token,
+    websocketProvider: wsProvider,
+    broadcast: false,
+  });
+}
 describe("SupabaseHocuspocus", () => {
   let alice: Awaited<ReturnType<typeof createRandomUser>>;
   let bob: Awaited<ReturnType<typeof createRandomUser>>;
 
   beforeAll(async () => {
+    console.log("create alice");
     alice = await createRandomUser("alice");
+    console.log("create bob");
     bob = await createRandomUser("bob");
   });
 
@@ -92,18 +115,14 @@ describe("SupabaseHocuspocus", () => {
     it.only("should sync when Alice reopens", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = new HocuspocusProviderWebsocket({
-        url: "ws://localhost:1234",
-        WebSocketPolyfill: ws,
-      });
+      const wsProvider = createWsProvider();
 
-      const provider = new HocuspocusProvider({
-        name: docId,
-        document: ydoc,
-        token: alice.session?.access_token + "$" + alice.session?.refresh_token,
-        websocketProvider: wsProvider,
-        broadcast: false,
-      });
+      const provider = createHPProvider(
+        docId,
+        ydoc,
+        alice.session?.access_token + "$" + alice.session?.refresh_token,
+        wsProvider
+      );
 
       ydoc.getMap("mymap").set("hello", "world");
       provider.disconnect();
@@ -112,13 +131,12 @@ describe("SupabaseHocuspocus", () => {
       await wsProvider.connect();
 
       const ydoc2 = new Y.Doc();
-      const provider2 = new HocuspocusProvider({
-        name: docId,
-        document: ydoc2,
-        token: alice.session?.access_token,
-        websocketProvider: wsProvider,
-        broadcast: false,
-      });
+      const provider2 = createHPProvider(
+        docId,
+        ydoc,
+        alice.session?.access_token + "", // TODO
+        wsProvider
+      );
       await new Promise((resolve) => setTimeout(resolve, 1000));
       expect(ydoc2.getMap("mymap").get("hello")).toBe("world");
     });
@@ -126,29 +144,25 @@ describe("SupabaseHocuspocus", () => {
     it("should sync when Alice opens 2 connections", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = new HocuspocusProviderWebsocket({
-        url: "ws://localhost:1234",
-        WebSocketPolyfill: ws,
-      });
+      const wsProvider = createWsProvider();
 
-      const provider = new HocuspocusProvider({
-        name: docId,
-        document: ydoc,
-        token: alice.session?.access_token + "$" + alice.session?.refresh_token,
-        websocketProvider: wsProvider,
-        broadcast: false,
-      });
+      const provider = createHPProvider(
+        docId,
+        ydoc,
+        alice.session?.access_token + "$" + alice.session?.refresh_token,
+        wsProvider
+      );
 
       ydoc.getMap("mymap").set("hello", "world");
 
       const ydoc2 = new Y.Doc();
-      const provider2 = new HocuspocusProvider({
-        name: docId,
-        document: ydoc2,
-        token: alice.session?.access_token,
-        websocketProvider: wsProvider,
-        broadcast: false,
-      });
+      const provider2 = createHPProvider(
+        docId,
+        ydoc2,
+        alice.session?.access_token + "", // TODO
+        wsProvider
+      );
+
       ydoc2.getMap("anothermap").set("hello", "world");
       await new Promise((resolve) => setTimeout(resolve, 1000));
       expect(ydoc2.getMap("mymap").get("hello")).toBe("world");
@@ -158,29 +172,24 @@ describe("SupabaseHocuspocus", () => {
     it("should not sync to Bob", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = new HocuspocusProviderWebsocket({
-        url: "ws://localhost:1234",
-        WebSocketPolyfill: ws,
-      });
+      const wsProvider = createWsProvider();
 
-      const provider = new HocuspocusProvider({
-        name: docId,
-        document: ydoc,
-        token: alice.session?.access_token + "$" + alice.session?.refresh_token,
-        websocketProvider: wsProvider,
-        broadcast: false,
-      });
+      const provider = createHPProvider(
+        docId,
+        ydoc,
+        alice.session?.access_token + "$" + alice.session?.refresh_token,
+        wsProvider
+      );
 
       ydoc.getMap("mymap").set("hello", "world");
 
       const ydoc2 = new Y.Doc();
-      const provider2 = new HocuspocusProvider({
-        name: docId,
-        document: ydoc2,
-        token: bob.session?.access_token,
-        websocketProvider: wsProvider,
-        broadcast: false,
-      });
+      const provider2 = createHPProvider(
+        docId,
+        ydoc2,
+        bob.session?.access_token + "", // TODO
+        wsProvider
+      );
       ydoc2.getMap("anothermap").set("hello", "world");
       await new Promise((resolve) => setTimeout(resolve, 1000));
       expect(ydoc2.getMap("mymap").get("hello")).toBe("world");
@@ -212,5 +221,68 @@ describe("SupabaseHocuspocus", () => {
     it("should not sync a non-existing doc", async () => {});
 
     it("should not sync changes to Bob after a doc has been made private", async () => {});
+  });
+
+  describe.only("child / parent refs", () => {
+    let docId: string;
+    let docDbID: string;
+
+    let docBId: string;
+    let docBDbID: string;
+
+    beforeAll(async () => {
+      const doc = createDocument(alice.user!.id, "", "no-access");
+      const ret = await alice.supabase.from("documents").insert(doc).select();
+      expect(ret.error).toBeNull();
+      docId = ret.data![0].nano_id;
+      docDbID = ret.data![0].id;
+
+      const docB = createDocument(bob.user!.id, "", "no-access");
+      const retB = await bob.supabase.from("documents").insert(docB).select();
+      expect(retB.error).toBeNull();
+      docBId = retB.data![0].nano_id;
+      docBDbID = retB.data![0].id;
+    });
+
+    it("should add and remove refs to database", async () => {
+      const ydoc = new Y.Doc();
+
+      const wsProvider = createWsProvider();
+
+      const provider = createHPProvider(
+        docId,
+        ydoc,
+        alice.session?.access_token + "$" + alice.session?.refresh_token,
+        wsProvider
+      );
+
+      ydoc.getMap("refs").set("fakekey", {
+        target: docBId,
+        type: "child",
+        namespace: "typecell",
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const refs = await alice.supabase
+        .from("document_relations")
+        .select()
+        .eq("child_id", docBDbID)
+        .eq("parent_id", docDbID);
+
+      expect(refs.data?.length).toBe(1);
+
+      ydoc.getMap("refs").delete("fakekey");
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const newrefs = await alice.supabase
+        .from("document_relations")
+        .select()
+        .eq("child_id", docBDbID)
+        .eq("parent_id", docDbID);
+
+      expect(newrefs.data?.length).toBe(0);
+    });
   });
 });

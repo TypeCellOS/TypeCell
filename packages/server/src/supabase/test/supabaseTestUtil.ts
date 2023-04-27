@@ -56,8 +56,8 @@ export async function startSupabase() {
 
 export async function resetSupabaseDB() {
   console.log("reset db");
-  cp.execSync("npx --no supabase db reset");
+  // cp.execSync("npx --no supabase db reset");
   console.log("done reset db");
   // Wait for the database to be ready, in a not so nice way
-  // await new Promise((resolve) => setTimeout(resolve, 2000));
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 }

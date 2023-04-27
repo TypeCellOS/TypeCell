@@ -11,7 +11,6 @@ I want to enforce the following rules in postgres:
 - if a user has specific access to a document, then that is the access they have
 - if a user does not have specific access to a document, then they have access based on the access of their parent documents. This works recursively up the tree. If at some point a document has multiple parents, then the user's access is the most restrictive of the parent documents.
 */
-
 describe("supabase update tests", () => {
   let alice: Awaited<ReturnType<typeof createRandomUser>>;
   let bob: Awaited<ReturnType<typeof createRandomUser>>;

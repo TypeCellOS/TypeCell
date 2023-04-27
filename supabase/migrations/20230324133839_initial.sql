@@ -52,14 +52,14 @@ FOR EACH ROW
 EXECUTE FUNCTION check_column_update();
 
 CREATE TABLE document_relations (
-    parent_id uuid REFERENCES documents(id),
-    child_id uuid REFERENCES documents(id),
+    parent_id uuid REFERENCES documents(id) NOT NULL,
+    child_id uuid REFERENCES documents(id) NOT NULL,
     UNIQUE (parent_id, child_id)
 );
 
 CREATE TABLE document_permissions (
-    document_id uuid REFERENCES documents(id),
-    user_id uuid REFERENCES auth.users(id),
+    document_id uuid REFERENCES documents(id) NOT NULL,
+    user_id uuid REFERENCES auth.users(id) NOT NULL,
     access_level access_level NOT NULL,
     UNIQUE (document_id, user_id)
 );
