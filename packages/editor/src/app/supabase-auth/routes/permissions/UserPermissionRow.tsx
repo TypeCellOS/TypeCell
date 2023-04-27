@@ -2,44 +2,44 @@ import Button from "@atlaskit/button";
 import Select from "@atlaskit/select";
 import { useState } from "react";
 import Avatar from "react-avatar";
-import { friendlyUserId } from "../../matrixUserIds";
 import styles from "./PermissionsSettings.module.css";
-import {
-  DocPermission,
-  UserPermission,
-  userPermissionLabels,
-} from "./permissionUtils";
+import { DocPermission, userPermissionLabels } from "./permissionUtils";
+import { User } from "./userUtils";
 
 export default function UserPermissionRow(props: {
-  userId: string;
-  userPermission: UserPermission;
-  docPermission: DocPermission;
-  editCallback: (user: string, permission: UserPermission) => void;
-  removeCallback: (user: string) => void;
+  user: User;
+  userPermission: DocPermission;
+  editCallback: (userId: string, permission: DocPermission) => void;
+  removeCallback: (userId: string) => void;
 }) {
   // State and functions for storing & updating whether each specific user can read/write to the page.
-  const [userPermission, setUserPermission] = useState<UserPermission>("edit");
+  const [userPermission, setUserPermission] = useState<DocPermission>(
+    props.userPermission
+  );
 
   function edit(permission: { label: string; value: string } | null) {
-    setUserPermission(permission!.value as UserPermission);
-    props.editCallback(props.userId, permission!.value as UserPermission);
+    setUserPermission(permission!.value as DocPermission);
+    props.editCallback(props.user.id, permission!.value as DocPermission);
   }
 
   function remove(e: any) {
-    props.removeCallback(props.userId);
+    props.removeCallback(props.user.id);
   }
-
+  console.log("defperm", {
+    label: userPermissionLabels.get(userPermission)!,
+    value: userPermission,
+  });
   return (
     <div className={styles.userRow}>
       <div className={styles.userInfo}>
         <Avatar
-          name={props.userId.substring(1)}
+          name={props.user.name}
           size="32"
           round={true}
           textSizeRatio={2}
           className={styles.avatar}
         />
-        <div>{friendlyUserId(props.userId)}</div>
+        <div>{props.user.name}</div>
       </div>
       <Select
         inputId="single-select-example"
@@ -51,20 +51,16 @@ export default function UserPermissionRow(props: {
           label: userPermissionLabels.get(userPermission)!,
           value: userPermission,
         }}
-        value={{
-          label: userPermissionLabels.get("edit")!,
-          value: "edit",
-        }}
-        isDisabled={true}
+        isDisabled={false}
         onChange={edit}
         options={[
           {
-            label: userPermissionLabels.get("view")!,
-            value: "view",
+            label: userPermissionLabels.get("read")!,
+            value: "read",
           },
           {
-            label: userPermissionLabels.get("edit")!,
-            value: "edit",
+            label: userPermissionLabels.get("write")!,
+            value: "write",
           },
         ]}
       />

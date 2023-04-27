@@ -75,6 +75,7 @@ const DocumentView = observer((props: Props) => {
         <div className={styles.view}>
           {!props.hideDocumentMenu && (
             <MenuBar>
+              <div></div>
               {/* <Breadcrumb identifier={props.id} />  TODO */}
             </MenuBar>
           )}

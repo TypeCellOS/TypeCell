@@ -23,9 +23,10 @@ export class TypeCellIdentifier extends Identifier {
   constructor(uriToParse: uri.URI) {
     // TODO: validate parts, lowercase, alphanumeric?
     const parts = uriToParse.path.split("/");
-    if (parts.length !== 2) {
+    if (parts.length !== 3 || parts[0] !== "") {
       throw new Error("invalid identifier");
     }
+    parts.shift();
 
     let [owner, document] = parts;
     document = getIdFromPath(document);

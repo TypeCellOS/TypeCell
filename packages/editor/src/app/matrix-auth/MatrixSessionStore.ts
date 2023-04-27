@@ -3,9 +3,9 @@ import { MatrixClient } from "matrix-js-sdk";
 import { computed, makeObservable, observable, runInAction } from "mobx";
 import { arrays } from "vscode-lib";
 import { SessionStore } from "../../store/local/SessionStore";
-import { getUserFromMatrixId } from "../../util/userIds";
 import { MatrixAuthStore } from "./MatrixAuthStore";
 import { MatrixClientPeg } from "./MatrixClientPeg";
+import { getUserFromMatrixId } from "./matrixUserIds";
 // @ts-ignore
 import olmWasmPath from "@matrix-org/olm/olm.wasm?url";
 

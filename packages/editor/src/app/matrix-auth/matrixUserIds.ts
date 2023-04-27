@@ -1,4 +1,4 @@
-import { DEFAULT_HOMESERVER_HOST } from "../config/config";
+import { DEFAULT_HOMESERVER_HOST } from "../../config/config";
 
 export function getUserFromMatrixId(matrixId: string) {
   // @username:hostname:port (port is optional)

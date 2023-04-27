@@ -6,6 +6,10 @@ import { createClient } from "@supabase/supabase-js";
 import { navigateRef } from "../App";
 import { ANON_KEY } from "./supabaseConfig";
 
+import type { Database } from "../../../../../packages/server/src/types/schema";
+
+export type SupabaseClientType = SupabaseSessionStore["supabase"];
+
 const colors = [
   "#958DF1",
   "#F98181",
@@ -21,7 +25,10 @@ const colors = [
  * (e.g.: is the user logged in, what is the user name, etc)
  */
 export class SupabaseSessionStore extends SessionStore {
-  public readonly supabase = createClient("http://localhost:54321", ANON_KEY);
+  public readonly supabase = createClient<Database>(
+    "http://localhost:54321",
+    ANON_KEY
+  );
 
   private initialized = false;
   public userId: string = "";

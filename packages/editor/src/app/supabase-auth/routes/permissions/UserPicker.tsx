@@ -1,12 +1,13 @@
 import UserPicker from "@atlaskit/user-picker";
 import { useCallback, useState } from "react";
 import { IntlProvider } from "react-intl-next";
-import { MatrixClientPeg } from "../../MatrixClientPeg";
-import { friendlyUserId } from "../../matrixUserIds";
+
+import { SupabaseClientType } from "../../SupabaseSessionStore";
 import { User } from "./userUtils";
 
-export function MatrixUserPicker(props: {
+export function SupabaseUserPicker(props: {
   //   excludeUserId: string;
+  supabase: SupabaseClientType;
   updateSelectedUser: (user: User | undefined) => void;
 }) {
   const updateSelectedUser = props.updateSelectedUser;
@@ -14,22 +15,22 @@ export function MatrixUserPicker(props: {
   const [displayedUsers, setDisplayedUsers] = useState<User[]>([]);
 
   async function searchUsers(query: string = "") {
-    const peg = MatrixClientPeg.get();
-
-    if (!peg || query === "") {
+    if (query === "") {
       setDisplayedUsers([]);
     } else {
-      const ret = await peg.searchUserDirectory({
-        term: query || "mx", // mx is a trick to return all users on mx.typecell.org
-        limit: 10,
-      });
+      const ret = await props.supabase
+        .from("workspaces")
+        .select("*")
+        .eq("is_username", true)
+        .ilike("name", query + "%")
+        .order("name")
+        .limit(10);
 
-      const results: User[] = ret.results
-        // .filter((result: any) => result.display_name !== props.excludeUserId)
-        .map((result: any) => ({
-          id: result.user_id,
-          name: friendlyUserId(result.user_id),
-        }));
+      const results: User[] =
+        ret.data?.map((result) => ({
+          id: result.owner_user_id,
+          name: result.name,
+        })) || [];
 
       setDisplayedUsers(results);
     }

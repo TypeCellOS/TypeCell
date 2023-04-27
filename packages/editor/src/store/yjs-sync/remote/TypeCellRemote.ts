@@ -64,7 +64,7 @@ export class TypeCellRemote extends Remote {
       updated_at: date,
       data: "",
       nano_id: this.identifier.documentId,
-      public_access_level: "no-access",
+      public_access_level: "read",
       user_id: sessionStore.userId,
     } as const;
 
@@ -95,7 +95,6 @@ export class TypeCellRemote extends Remote {
     if (typeof user === "string") {
       throw new Error("no user");
     }
-    console.log("matrix listen");
 
     const session = (await sessionStore.supabase.auth.getSession()).data
       .session;

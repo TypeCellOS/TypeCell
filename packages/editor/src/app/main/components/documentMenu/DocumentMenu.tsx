@@ -19,8 +19,9 @@ import {
 } from "../../../routes/routes";
 import { MenuBar } from "../menuBar/MenuBar";
 
-import PermissionsDialog from "../../../matrix-auth/routes/permissions/PermissionsDialog";
-
+import { TypeCellIdentifier } from "../../../../identifiers/TypeCellIdentifier";
+import MatrixPermissionsDialog from "../../../matrix-auth/routes/permissions/PermissionsDialog";
+import SupabasePermissionsDialog from "../../../supabase-auth/routes/permissions/PermissionsDialog";
 import styles from "./DocumentMenu.module.css";
 import { ForkAlert } from "./ForkAlert";
 import { ShareButton } from "./ShareButton";
@@ -37,6 +38,9 @@ function userCanEditPermissions(
   if (identifier && identifier instanceof MatrixIdentifier) {
     return sessionStore.loggedInUserId === identifier.owner;
   }
+  if (identifier && identifier instanceof TypeCellIdentifier) {
+    return sessionStore.loggedInUserId === identifier.owner;
+  }
   return false;
 }
 
@@ -50,6 +54,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
   let navigate = useNavigate();
   return (
     <MenuBar>
+      <div></div>
       {/* <Breadcrumb identifier={props.document.identifier} /> */}
       {props.document.connection!.needsFork && (
         <ForkAlert document={props.document} />
@@ -89,13 +94,22 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
           </li>
         </ul>
       </aside>
-      {canEditPermissions && (
-        <PermissionsDialog
-          close={() => ClosePermissionsDialog(navigate)}
-          isOpen={IsPermissionsDialogOpen(location)}
-          connection={props.document.connection!}
-        />
-      )}
+      {canEditPermissions &&
+        props.document.identifier instanceof MatrixIdentifier && (
+          <MatrixPermissionsDialog
+            close={() => ClosePermissionsDialog(navigate)}
+            isOpen={IsPermissionsDialogOpen(location)}
+            connection={props.document.connection!}
+          />
+        )}
+      {canEditPermissions &&
+        props.document.identifier instanceof TypeCellIdentifier && (
+          <SupabasePermissionsDialog
+            close={() => ClosePermissionsDialog(navigate)}
+            isOpen={IsPermissionsDialogOpen(location)}
+            connection={props.document.connection!}
+          />
+        )}
     </MenuBar>
   );
 });
