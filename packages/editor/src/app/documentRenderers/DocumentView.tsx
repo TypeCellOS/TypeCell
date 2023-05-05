@@ -20,6 +20,7 @@ import RichTextRenderer from "./richtext/RichTextRenderer";
 
 type Props = {
   id: Identifier;
+  subIdentifiers: Identifier[];
   isNested?: boolean;
   hideDocumentMenu?: boolean;
 };
@@ -30,7 +31,7 @@ type Props = {
  */
 const DocumentView = observer((props: Props) => {
   const [connection, setConnection] = useState<DocConnection>();
-  console.log(props.id);
+
   React.useEffect(() => {
     const newConnection = DocConnection.load(props.id);
 
@@ -91,6 +92,7 @@ const DocumentView = observer((props: Props) => {
         <ProjectRenderer
           key={connection.doc.id}
           project={connection.doc.getSpecificType(ProjectResource)!}
+          subIdentifiers={props.subIdentifiers}
         />
       );
     }

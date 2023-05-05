@@ -10,11 +10,9 @@ export abstract class Remote extends lifecycle.Disposable {
   // protected readonly pendingOperationsDoc: Y.Doc;
   public abstract canCreate: boolean;
   public abstract get canWrite(): boolean;
+  public abstract get awareness(): Awareness | undefined;
 
-  constructor(
-    protected readonly _ydoc: Y.Doc,
-    protected readonly awareness: Awareness
-  ) {
+  constructor(protected readonly _ydoc: Y.Doc) {
     super();
     // this.pendingOperationsDoc = new Y.Doc();
     // should be user scoped
@@ -38,3 +36,12 @@ export abstract class Remote extends lifecycle.Disposable {
 // caching sync / create / delete operations that were made offline
 // - executing those when back online
 // later: periodically updating docs from remote (e.g.: when user is offline)
+
+// last synced at
+// last modified at
+// created at (local)
+// created at (remote)
+// TODO: delete
+
+// of per remote?
+// - last synced at

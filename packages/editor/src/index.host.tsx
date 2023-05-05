@@ -5,7 +5,9 @@ import * as monaco from "monaco-editor";
 import * as process from "process";
 import { createRoot } from "react-dom/client";
 import App from "./app/App";
+import { matrixAuthProvider } from "./app/matrix-auth/MatrixAuthProvider";
 import { supabaseAuthProvider } from "./app/supabase-auth/supabaseAuthProvider";
+import { DEFAULT_PROVIDER } from "./config/config";
 import { validateHostDomain } from "./config/security";
 import { setMonacoDefaults } from "./runtime/editor";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
@@ -41,11 +43,14 @@ async function init() {
 
   const root = createRoot(document.getElementById("root")!);
 
+  const authProvider =
+    DEFAULT_PROVIDER === "matrix" ? matrixAuthProvider : supabaseAuthProvider;
+
   root.render(
     // TODO: support strictmode
     // <React.StrictMode>
     <MonacoContext.Provider value={{ monaco }}>
-      <App authProvider={supabaseAuthProvider} />
+      <App authProvider={authProvider} />
     </MonacoContext.Provider>
     // </React.StrictMode>
   );

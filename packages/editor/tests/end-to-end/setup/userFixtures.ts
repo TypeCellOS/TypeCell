@@ -1,4 +1,5 @@
 import { BrowserContext, Page } from "@playwright/test";
+import { DEFAULT_PROVIDER } from "./config";
 import { test as base } from "./networkRequestFilter";
 
 const SESSION_ID = Math.random()
@@ -28,9 +29,9 @@ export type TestUser = {
 // const existingStateBobe = tryLoadState("bob.json");
 
 /**
- * Register a user via the interface
+ * Register a user via the interface (Matrix UI)
  */
-async function registerUser(
+async function registerUserMatrix(
   page: Page,
   user: { username: string; password: string }
 ) {
@@ -45,6 +46,34 @@ async function registerUser(
 
   const registerBtn = page.locator("button[value='Register']");
   await registerBtn.click();
+
+  // registered + signed in when profile button is visible
+  await page.waitForSelector("button[data-testid='profile-button']");
+}
+
+/**
+ * Register a user via the interface (Supabase UI)
+ */
+async function registerUserSupabase(
+  page: Page,
+  user: { username: string; password: string }
+) {
+  await page.goto(process.env.TYPECELL_BASE_URL + "/register");
+  const field = page.locator("input[name='email']");
+  await field.type(user.username + "@fakeemail.typecell.org");
+  const pwField = page.locator("input[name='password']");
+  await pwField.type(user.password);
+
+  const registerBtn = page.locator("button[type='submit']");
+  await registerBtn.click();
+
+  await page.waitForSelector("input[name='username']");
+
+  const usernameField = page.locator("input[name='username']");
+  await usernameField.type(user.username);
+
+  const setUsernameBtn = page.locator("button[type='submit']");
+  await setUsernameBtn.click();
 
   // registered + signed in when profile button is visible
   await page.waitForSelector("button[data-testid='profile-button']");
@@ -91,7 +120,11 @@ export const test = testWithUsers.extend<
 
       // if (!existingStateAlice) {
       const page = await newContext.newPage();
-      await registerUser(page, aliceUser);
+      if (DEFAULT_PROVIDER === "supabase") {
+        await registerUserSupabase(page, aliceUser);
+      } else {
+        await registerUserMatrix(page, aliceUser);
+      }
       await page.close();
       // fs.writeFileSync(
       //   "alice.json",
@@ -107,7 +140,11 @@ export const test = testWithUsers.extend<
     async ({ browser, bobUser }, use, workerInfo) => {
       const newContext = await browser.newContext();
       const page = await newContext.newPage();
-      await registerUser(page, bobUser);
+      if (DEFAULT_PROVIDER === "supabase") {
+        await registerUserSupabase(page, bobUser);
+      } else {
+        await registerUserMatrix(page, bobUser);
+      }
       await page.close();
 
       // Use the account value.

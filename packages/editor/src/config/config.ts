@@ -1,14 +1,27 @@
 import { uri } from "vscode-lib";
 
-const HOMESERVER_URI = uri.URI.parse(
+export const DEFAULT_PROVIDER: "matrix" | "supabase" = "supabase";
+
+export const DEFAULT_HOMESERVER_URI = uri.URI.parse(
   import.meta.env.VITE_REACT_APP_HOMESERVER_URI || "https://mx.typecell.org"
 );
 
-export const DEFAULT_HOMESERVER_HOST = HOMESERVER_URI.authority;
+export const DEFAULT_IDENTIFIER_BASE =
+  (DEFAULT_PROVIDER as string) === "matrix"
+    ? uri.URI.from({
+        scheme: "mx",
+        authority: DEFAULT_HOMESERVER_URI.authority,
+        path: "/",
+      })
+    : uri.URI.from({
+        scheme: "typecell",
+        authority: "typecell.org",
+        path: "/",
+      });
 
 export const MATRIX_CONFIG = {
   hsName: import.meta.env.VITE_REACT_APP_HOMESERVER_NAME || "typecell.org",
-  hsUrl: HOMESERVER_URI.toString(),
+  hsUrl: DEFAULT_HOMESERVER_URI.toString(),
   isUrl: undefined as any, // "https://vector.im",
   defaultDeviceDisplayName: "TypeCell web",
 };

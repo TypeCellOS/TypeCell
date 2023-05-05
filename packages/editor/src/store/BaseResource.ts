@@ -50,7 +50,7 @@ export class BaseResource {
 
   /** @internal */
   public get title() {
-    return this.ydoc.getMap("meta").get("title") as string;
+    return this.ydoc.getMap("meta").get("title") as string | undefined;
     // return this.ydoc.getText("title");
   }
 

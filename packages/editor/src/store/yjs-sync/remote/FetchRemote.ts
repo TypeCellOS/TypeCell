@@ -1,6 +1,5 @@
 import { makeObservable, observable, runInAction } from "mobx";
 import { path, strings } from "vscode-lib";
-import { Awareness } from "y-protocols/awareness";
 
 import _ from "lodash";
 import * as Y from "yjs";
@@ -19,12 +18,15 @@ export default class FetchRemote extends Remote {
 
   public canWrite: boolean = true; // always initialize as true until the user starts trying to make changes
 
+  public get awareness() {
+    return undefined;
+  }
+
   public constructor(
     _ydoc: Y.Doc,
-    awareness: Awareness,
     private readonly identifier: HttpsIdentifier
   ) {
-    super(_ydoc, awareness);
+    super(_ydoc);
     makeObservable(this, {
       canWrite: observable.ref,
     });

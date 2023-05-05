@@ -89,13 +89,14 @@ export const NewPageDialog = (props: {
 
                     ret.doc.data.insert(0, [blockgroup]);
                   } else if (selectedType === "!notebook") {
-                    ret.create("!notebook");
-                    ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
-                    ret.doc.cellList.addCell(
-                      1,
-                      "typescript",
-                      `export let message = "Hello World"`
-                    );
+                    // ret.create("!notebook");
+                    ret.create("!project");
+                    // ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
+                    // ret.doc.cellList.addCell(
+                    //   1,
+                    //   "typescript",
+                    //   `export let message = "Hello World"`
+                    // );
                   } else {
                     throw new UnreachableCaseError(selectedType);
                   }

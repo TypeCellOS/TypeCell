@@ -1,7 +1,6 @@
 import { makeObservable, observable, runInAction, when } from "mobx";
 import { lifecycle, uri } from "vscode-lib";
 import { IndexeddbPersistence } from "y-indexeddb";
-import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
 import { FileIdentifier } from "../../identifiers/FileIdentifier";
 import { GithubIdentifier } from "../../identifiers/GithubIdentifier";
@@ -35,7 +34,10 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
    */
   public doc: "loading" | "not-found" | Y.Doc = "loading";
   public readonly idbIdentifier: string;
-  public awareness: awarenessProtocol.Awareness; // TODO: make observable?, public get
+
+  public get awareness() {
+    return this.remote.awareness;
+  }
 
   /** @internal */
   public indexedDBProvider: IndexeddbPersistence | undefined;
@@ -52,13 +54,11 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
     );
 
     this._ydoc = new Y.Doc({ guid: this.identifier.toString() });
-    this.awareness = new awarenessProtocol.Awareness(this._ydoc);
 
     this.remote = this.remoteForIdentifier(identifier);
 
     this._register({
       dispose: () => {
-        this.awareness.destroy();
         this._ydoc.destroy();
       },
     });
@@ -137,15 +137,15 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
 
   private remoteForIdentifier(identifier: Identifier): Remote {
     if (identifier instanceof FileIdentifier) {
-      return new FilebridgeRemote(this._ydoc, this.awareness, identifier);
+      return new FilebridgeRemote(this._ydoc, identifier);
     } else if (identifier instanceof GithubIdentifier) {
-      return new GithubRemote(this._ydoc, this.awareness, identifier);
+      return new GithubRemote(this._ydoc, identifier);
     } else if (identifier instanceof HttpsIdentifier) {
-      return new FetchRemote(this._ydoc, this.awareness, identifier);
+      return new FetchRemote(this._ydoc, identifier);
     } else if (identifier instanceof MatrixIdentifier) {
-      return new MatrixRemote(this._ydoc, this.awareness, identifier);
+      return new MatrixRemote(this._ydoc, identifier);
     } else if (identifier instanceof TypeCellIdentifier) {
-      return new TypeCellRemote(this._ydoc, this.awareness, identifier);
+      return new TypeCellRemote(this._ydoc, identifier);
     } else {
       throw new Error("unsupported identifier");
     }

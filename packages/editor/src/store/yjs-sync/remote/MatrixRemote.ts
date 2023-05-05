@@ -1,6 +1,6 @@
 import { createMatrixRoom, MatrixProvider } from "matrix-crdt";
 import { createAtom, runInAction } from "mobx";
-import * as awarenessProtocol from "y-protocols/awareness";
+import { Awareness } from "y-protocols/awareness";
 import * as Y from "yjs";
 import { MatrixClientPeg } from "../../../app/matrix-auth/MatrixClientPeg";
 import { MatrixSessionStore } from "../../../app/matrix-auth/MatrixSessionStore";
@@ -16,12 +16,14 @@ export class MatrixRemote extends Remote {
   private _canWriteAtom = createAtom("_canWrite");
   private disposed = false;
 
-  constructor(
-    _ydoc: Y.Doc,
-    awareness: awarenessProtocol.Awareness,
-    private readonly identifier: MatrixIdentifier
-  ) {
-    super(_ydoc, awareness);
+  protected _awareness: Awareness | undefined;
+
+  public get awareness(): Awareness | undefined {
+    return this._awareness;
+  }
+
+  constructor(_ydoc: Y.Doc, private readonly identifier: MatrixIdentifier) {
+    super(_ydoc);
     if (!(identifier instanceof MatrixIdentifier)) {
       throw new Error("invalid identifier");
     }
@@ -82,6 +84,8 @@ export class MatrixRemote extends Remote {
       throw new Error("no user");
     }
     console.log("matrix listen");
+    this._awareness = new Awareness(this._ydoc);
+
     this.matrixProvider = this._register(
       new MatrixProvider(
         this._ydoc,
@@ -131,6 +135,11 @@ export class MatrixRemote extends Remote {
         });
       })
     );
+
+    this._register(this.matrixProvider);
+    this._register({
+      dispose: () => this.awareness?.destroy(),
+    });
   }
 
   public dispose(): void {

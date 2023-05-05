@@ -27,7 +27,7 @@ import { ChildReference } from "../../../../store/referenceDefinitions/child";
 import styles from "./SidebarTree.module.css";
 
 const RenderItem =
-  (onClick: (item: string) => void) =>
+  (onClick: (item: string) => void, onAddChild: (parentId: string) => void) =>
   ({ item, onExpand, onCollapse, provided, depth }: RenderItemParams) => {
     const doc = DocConnection.get(item.data.id as string)?.tryDoc;
     if (!doc) {
@@ -51,7 +51,8 @@ const RenderItem =
 
     const onAddClick = (e: React.MouseEvent) => {
       e.stopPropagation();
-      // TODO
+      onExpand(item.id);
+      onAddChild(item.data.id);
     };
 
     const onKebabClick = (e: React.MouseEvent) => {
@@ -63,7 +64,11 @@ const RenderItem =
         {...provided.draggableProps}
         {...provided.dragHandleProps}>
         <Button
-          className={styles.sidebarButton}
+          className={
+            styles.sidebarButton +
+            " " +
+            (item.data.isActive ? styles.active : "")
+          }
           component="div"
           style={{
             paddingLeft: 2 + 15 * depth,
@@ -77,7 +82,11 @@ const RenderItem =
                 className={styles.kebab}
                 title=""
               />
-              <VscAdd onClick={onAddClick} className={styles.add} title="" />
+              <VscAdd
+                onClick={onAddClick}
+                className={styles.addChild}
+                title=""
+              />
             </>
           }
           iconBefore={
@@ -102,14 +111,18 @@ const RenderItem =
               />
             )
           }>
-          {doc.title || doc.identifier.toString()}
+          {item.data.title || doc.identifier.toString()}{" "}
         </Button>
       </div>
     );
   };
 
 export const SidebarTree = observer(
-  (props: { tree: TreeData; onClick: (item: string) => void }) => {
+  (props: {
+    tree: TreeData;
+    onClick: (item: string) => void;
+    onAddNewPage: (parent?: string) => Promise<void>;
+  }) => {
     const [akTree, setAktree] = useState(props.tree);
     const cache = useRef(new Map<string, DocConnection>());
 
@@ -173,15 +186,19 @@ export const SidebarTree = observer(
     };
 
     const renderItem = useMemo(
-      () => RenderItem(props.onClick),
-      [props.onClick]
+      () => RenderItem(props.onClick, props.onAddNewPage),
+      [props.onAddNewPage, props.onClick]
     );
 
     const onDragEnd = (
       source: TreeSourcePosition,
       destination?: TreeDestinationPosition
     ) => {
-      if (!destination) {
+      if (
+        !destination ||
+        typeof destination.index === "undefined" ||
+        isNaN(destination.index)
+      ) {
         return;
       }
       const sourceDoc = DocConnection.get(
@@ -215,17 +232,36 @@ export const SidebarTree = observer(
     };
 
     return (
-      <Tree
-        tree={akTree}
-        renderItem={renderItem}
-        onExpand={onExpand}
-        onCollapse={onCollapse}
-        // onDragStart={() => {}}
-        onDragEnd={onDragEnd}
-        offsetPerLevel={0}
-        isDragEnabled
-        isNestingEnabled
-      />
+      <>
+        <Tree
+          tree={akTree}
+          renderItem={renderItem}
+          onExpand={onExpand}
+          onCollapse={onCollapse}
+          // onDragStart={() => {}}
+          onDragEnd={onDragEnd}
+          offsetPerLevel={0}
+          isDragEnabled
+          isNestingEnabled
+        />
+        <Button
+          className={styles.sidebarButton}
+          component="div"
+          style={{
+            paddingLeft: 2,
+          }}
+          iconBefore={
+            <VscAdd
+              // onClick={onChevronClick}
+              className={styles.add}
+              title=""
+            />
+          }
+          onClick={() => props.onAddNewPage()}
+          appearance="subtle">
+          Add a page
+        </Button>
+      </>
     );
   }
 );

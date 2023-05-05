@@ -7,8 +7,8 @@
 
 import { describe, expect, it } from "vitest";
 import {
-  getIdentifierFromPath,
-  getPathFromIdentifiers,
+  identifiersToPath,
+  pathToIdentifier,
   pathToIdentifiers,
 } from "./identifierPathHelpers";
 
@@ -19,7 +19,7 @@ import {
 
 describe("Identifier", () => {
   it("parses basic identifier", () => {
-    const identifier = getIdentifierFromPath("http:localhost/_docs/README.md");
+    const identifier = pathToIdentifier("http:localhost/_docs/README.md");
     expect(identifier.uri.scheme).toBe("http");
     expect(identifier.uri.authority).toBe("localhost");
     expect(identifier.uri.path).toBe("/_docs/README.md");
@@ -91,7 +91,15 @@ describe("Path handling", () => {
     const identifiers = pathToIdentifiers(
       "http:localhost/hello/:/http:localhost/hello/README.md"
     );
-    const path = getPathFromIdentifiers(identifiers);
+    const path = identifiersToPath(identifiers);
+    expect(path).toBe("http:localhost/hello/:/README.md");
+  });
+
+  it("simplifies paths of tc identifiers", () => {
+    const identifiers = pathToIdentifiers(
+      "typecell:typecell.org/test~dsdf34f:/typecell:typecell.org/sub~dsdf34adff"
+    );
+    const path = identifiersToPath(identifiers);
     expect(path).toBe("http:localhost/hello/:/README.md");
   });
 
@@ -99,7 +107,22 @@ describe("Path handling", () => {
     const identifiers = pathToIdentifiers(
       "http:localhost/_docs/:/http:localhost/_docs/README.md"
     );
-    const path = getPathFromIdentifiers(identifiers);
+    const path = identifiersToPath(identifiers);
     expect(path).toBe("docs/README.md");
   });
+
+  it("handles default base", () => {
+    const identifiers = pathToIdentifiers("@user/doc");
+
+    expect(identifiers.length).toBe(1);
+
+    expect(identifiers[0].uri.scheme).toBe("mx");
+    expect(identifiers[0].uri.authority).toBe("mx.typecell.org");
+    expect(identifiers[0].uri.path).toBe("/@user/doc");
+
+    const path = identifiersToPath(identifiers);
+    expect(path).toBe("@user/doc");
+  });
 });
+
+// TODO: add tests for mixed paths (projects with mixed identifiers)

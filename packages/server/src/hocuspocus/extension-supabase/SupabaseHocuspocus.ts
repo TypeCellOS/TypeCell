@@ -27,20 +27,23 @@ import { createAnonClient, createServiceClient } from "../../supabase/supabase";
 //     ON CONFLICT(name) DO UPDATE SET data = $data
 // `;
 
+type SupabaseType = Awaited<ReturnType<typeof createAnonClient>>;
+
 export interface SupabaseConfiguration extends DatabaseConfiguration {}
 
 export class SupabaseHocuspocus extends Database {
-  private supabase: Awaited<ReturnType<typeof createAnonClient>> | undefined;
+  private supabaseMap = new Map<string, SupabaseType>();
 
   constructor(configuration?: Partial<SupabaseConfiguration>) {
     super({
       fetch: async (data: fetchPayload) => {
+        const supabase = this.supabaseMap.get(data.socketId);
         console.log("fetch");
-        if (!this.supabase) {
+        if (!supabase) {
           throw new Error("unexpected: no db client on fetch");
         }
 
-        const ret = await this.supabase
+        const ret = await supabase
           .from("documents")
           .select()
           .eq("nano_id", data.documentName);
@@ -57,12 +60,15 @@ export class SupabaseHocuspocus extends Database {
         return decoded;
       },
       store: async (data: storePayload) => {
-        console.log("store");
-        if (!this.supabase) {
-          throw new Error("unexpected: no db client on store");
+        const supabase = this.supabaseMap.get(data.socketId);
+        console.log("store", data.documentName);
+        if (!supabase) {
+          throw new Error("unexpected: no db client on fetch");
         }
 
-        const ret = await this.supabase
+        const serviceClient = await createServiceClient();
+
+        const ret = await serviceClient
           .from("documents")
           .update(
             { data: "\\x" + data.state.toString("hex") }, // add \x for postgres binary data
@@ -71,7 +77,10 @@ export class SupabaseHocuspocus extends Database {
           .eq("nano_id", data.documentName)
           .select();
         if (ret.data?.length !== 1) {
-          throw new Error("unexpected: not found when storing");
+          debugger;
+          throw new Error(
+            "unexpected: not found when storing " + data.documentName
+          );
         }
       },
     });
@@ -81,18 +90,27 @@ export class SupabaseHocuspocus extends Database {
     if (data.documentName.length < 5) {
       throw new Error("invalid document name");
     }
-    console.log("authenticate " + data.documentName);
+    console.log("authenticate ", data.documentName);
 
-    const [access_token, refresh_token] = data.token.split("$");
+    const supabase = await createAnonClient();
 
-    if (!access_token || !refresh_token) {
+    if (!data.token) {
       throw new Error("invalid token");
+    } else if (data.token === "guest") {
+      // no-op, use anonClient withput session
+    } else {
+      const [access_token, refresh_token] = data.token.split("$");
+
+      if (!access_token || !refresh_token) {
+        throw new Error("invalid token");
+      }
+      await supabase.auth.setSession({ access_token, refresh_token });
     }
 
-    this.supabase = await createAnonClient();
-    await this.supabase.auth.setSession({ access_token, refresh_token });
+    this.supabaseMap.set(data.socketId, supabase);
 
-    const ret = await this.supabase
+    // TODO: find alternative for updated_at
+    const ret = await supabase
       .from("documents")
       .update({ updated_at: JSON.stringify(new Date()) }, { count: "exact" })
       .eq("nano_id", data.documentName);
@@ -103,14 +121,15 @@ export class SupabaseHocuspocus extends Database {
     }
 
     // we couldn't update, perhaps it's readonly?
-    const ret2 = await this.supabase
+    const ret2 = await supabase
       .from("documents")
-      .select()
+      .select(undefined, { count: "exact" })
       .eq("nano_id", data.documentName);
 
     if (ret2.count === 1) {
       // document exists, but user only has read access
       data.connection.readOnly = true;
+      console.log("readonly", data.documentName);
       return;
     }
 
@@ -118,24 +137,28 @@ export class SupabaseHocuspocus extends Database {
     const adminClient = await createServiceClient();
     const retAdmin = await adminClient
       .from("documents")
-      .select()
+      .select(undefined, { count: "exact" })
       .eq("nano_id", data.documentName);
 
     if (retAdmin.count === 1) {
+      console.log("no access", retAdmin);
       // document exists, but user has no access
       throw new Error("no access");
     }
+    console.log("not found", data.documentName, retAdmin);
     // document doesn't exist, user should create it first
     throw new Error("not found");
   }
 
   // TODO: lock this function with a mutex?
   refsChanged = async (
+    socketId: string,
     documentId: string,
     event: Y.YEvent<any>[],
     tr: Y.Transaction
   ) => {
-    if (!this.supabase) {
+    const supabase = this.supabaseMap.get(socketId);
+    if (!supabase) {
       throw new Error("unexpected: no db client on store");
     }
 
@@ -143,7 +166,7 @@ export class SupabaseHocuspocus extends Database {
       throw new Error("unexpected: no documentId on context");
     }
 
-    const children = await this.supabase
+    const children = await supabase
       .from("document_relations")
       .select("child_id")
       .eq("parent_id", documentId);
@@ -185,7 +208,7 @@ export class SupabaseHocuspocus extends Database {
     });
 
     if (toRemove.length) {
-      const ret = await this.supabase
+      const ret = await supabase
         .from("document_relations")
         .delete()
         .eq("parent_id", documentId)
@@ -199,7 +222,7 @@ export class SupabaseHocuspocus extends Database {
     }
 
     if (toAdd.length) {
-      const ret = await this.supabase
+      const ret = await supabase
         .from("document_relations")
         .insert(toAdd.map((e) => ({ parent_id: documentId, child_id: e })));
 
@@ -211,24 +234,31 @@ export class SupabaseHocuspocus extends Database {
     }
   };
 
+  private refListenersByDocument = new WeakMap<Y.Doc, any>();
+
   async onLoadDocument(data: onLoadDocumentPayload): Promise<any> {
-    if (data.context.refListener) {
+    console.log("onLoadDocument", data.documentName);
+    if (this.refListenersByDocument.has(data.document)) {
       throw new Error("unexpected: refListener already set");
     }
-    await super.onLoadDocument(data);
 
-    data.context.refListener = (event: Y.YEvent<any>[], tr: Y.Transaction) =>
-      this.refsChanged(data.context.documentId, event, tr);
-    data.document.getMap("refs").observeDeep(data.context.refListener);
+    const refListener = (event: Y.YEvent<any>[], tr: Y.Transaction) =>
+      this.refsChanged(data.socketId, data.context.documentId, event, tr);
+    data.document.getMap("refs").observeDeep(refListener);
+    this.refListenersByDocument.set(data.document, refListener);
+
+    await super.onLoadDocument(data);
   }
 
   async onDisconnect?(data: onDisconnectPayload): Promise<any> {
     if (data.clientsCount === 0) {
-      if (data.context.refListener) {
+      const refListener = this.refListenersByDocument.get(data.document);
+      if (!refListener) {
         throw new Error("unexpected: refListener not set");
       }
-      data.document.getMap("refs").unobserveDeep(data.context.refListener);
-      delete data.context.refListener;
+
+      data.document.getMap("refs").unobserveDeep(refListener);
+      this.refListenersByDocument.delete(data.document);
     }
   }
 }

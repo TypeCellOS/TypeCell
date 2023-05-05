@@ -17,15 +17,23 @@
 }
 
 .kebab,
-.add {
+.addChild {
   /* visibility: hidden; */
   display: none;
   opacity: 0;
   /* transition: opacity 0.2s ease-in 0.1s; */
 }
 
+.sidebarButton.active {
+  background-color: var(
+    --ds-background-neutral-subtle-hovered,
+    rgba(9, 30, 66, 0.08)
+  );
+  font-weight: bolder !important;
+}
+
 .sidebarButton:hover .kebab,
-.sidebarButton:hover .add {
+.sidebarButton:hover .addChild {
   display: inline-block;
   animation: fade-in 0.3s ease-in 0.1s;
   animation-fill-mode: forwards;
@@ -35,6 +43,7 @@
 
 .chevron,
 .kebab,
+.addChild,
 .add {
   width: 20px;
   height: 20px;
@@ -50,6 +59,7 @@
 }
 .chevron:hover,
 .kebab:hover,
+.addChild:hover,
 .add:hover {
   background-color: #d8dadf;
 }

@@ -10,27 +10,37 @@ import { SupabaseSessionStore } from "../../../app/supabase-auth/SupabaseSession
 import { TypeCellIdentifier } from "../../../identifiers/TypeCellIdentifier";
 import { getStoreService } from "../../local/stores";
 import { Remote } from "./Remote";
-const wsProvider = new HocuspocusProviderWebsocket({
-  url: "ws://localhost:1234",
-  // WebSocketPolyfill: ws,
-});
+
+let wsProvider: HocuspocusProviderWebsocket | undefined;
+
+function getWSProvider() {
+  if (!wsProvider) {
+    wsProvider = new HocuspocusProviderWebsocket({
+      url: "ws://localhost:1234",
+      // WebSocketPolyfill: ws,
+    });
+  }
+  return wsProvider;
+}
 
 export class TypeCellRemote extends Remote {
   protected id: string = "typecell";
 
-  public hocuspocusProvider: HocuspocusProvider | undefined;
+  private hocuspocusProvider: HocuspocusProvider | undefined;
+  private _awarenessAtom = createAtom("_awarenessAtom");
   private _canWriteAtom = createAtom("_canWrite");
   private disposed = false;
 
-  constructor(
-    _ydoc: Y.Doc,
-    awareness: awarenessProtocol.Awareness,
-    private readonly identifier: TypeCellIdentifier
-  ) {
-    super(_ydoc, awareness);
+  constructor(_ydoc: Y.Doc, private readonly identifier: TypeCellIdentifier) {
+    super(_ydoc);
     if (!(identifier instanceof TypeCellIdentifier)) {
       throw new Error("invalid identifier");
     }
+  }
+
+  public get awareness(): awarenessProtocol.Awareness | undefined {
+    this._awarenessAtom.reportObserved();
+    return this.hocuspocusProvider?.awareness;
   }
 
   public get canWrite() {
@@ -39,7 +49,8 @@ export class TypeCellRemote extends Remote {
       return true;
     }
     return true;
-    // return this.supabaseProvider.canWrite;
+    // TODO
+    // return this.hocuspocusProvider.canWrite;
   }
 
   public get canCreate() {
@@ -98,14 +109,15 @@ export class TypeCellRemote extends Remote {
 
     const session = (await sessionStore.supabase.auth.getSession()).data
       .session;
-    if (!session) {
-      throw new Error("no session");
-    }
+    const token = session
+      ? session.access_token + "$" + session.refresh_token
+      : "guest";
+
     const hocuspocusProvider = new HocuspocusProvider({
       name: this.identifier.documentId,
       document: this._ydoc,
-      token: session.access_token + "$" + session.refresh_token,
-      websocketProvider: wsProvider,
+      token,
+      websocketProvider: getWSProvider(),
       broadcast: false,
       onSynced: () => {
         runInAction(() => {
@@ -119,11 +131,13 @@ export class TypeCellRemote extends Remote {
         });
       },
     });
+    this.hocuspocusProvider = hocuspocusProvider;
 
     this._register({
       dispose: () => hocuspocusProvider.destroy,
     });
 
+    this._awarenessAtom.reportChanged();
     this._canWriteAtom.reportChanged();
     // this.hocuspocusProvider?.on("");
   }

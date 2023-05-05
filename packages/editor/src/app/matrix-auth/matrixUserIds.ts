@@ -1,4 +1,4 @@
-import { DEFAULT_HOMESERVER_HOST } from "../../config/config";
+import { DEFAULT_HOMESERVER_URI } from "../../config/config";
 
 export function getUserFromMatrixId(matrixId: string) {
   // @username:hostname:port (port is optional)
@@ -12,14 +12,14 @@ export function getUserFromMatrixId(matrixId: string) {
   }
 
   return {
-    localUserId: parts[1],
+    localUserId: parts[1].substring(1),
     host: parts[2],
   };
 }
 
 export function friendlyUserId(matrixId: string) {
   const parsed = getUserFromMatrixId(matrixId);
-  if (parsed.host === DEFAULT_HOMESERVER_HOST) {
+  if (parsed.host === DEFAULT_HOMESERVER_URI.authority) {
     return parsed.localUserId;
   }
   return matrixId;

@@ -2,7 +2,6 @@ import { readFile, saveFile, Watcher } from "filebridge-client";
 import * as _ from "lodash";
 import { makeObservable, observable, runInAction } from "mobx";
 import { path, strings } from "vscode-lib";
-import { Awareness } from "y-protocols/awareness";
 import * as Y from "yjs";
 import { filesToTreeNodes } from "../../../app/documentRenderers/project/directoryNavigation/treeNodeUtil";
 import { FileIdentifier } from "../../../identifiers/FileIdentifier";
@@ -43,12 +42,15 @@ export class FilebridgeRemote extends Remote {
 
   public canWrite = true;
 
+  public get awareness() {
+    return undefined;
+  }
+
   public constructor(
     _ydoc: Y.Doc,
-    awareness: Awareness,
     private readonly identifier: FileIdentifier
   ) {
-    super(_ydoc, awareness);
+    super(_ydoc);
     makeObservable(this, {
       canWrite: observable.ref,
     });

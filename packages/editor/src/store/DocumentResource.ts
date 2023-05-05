@@ -20,6 +20,26 @@ export class DocumentResource extends BaseResource {
     }
   }
 
+  public get title(): string | undefined {
+    const baseTitle = super.title;
+    if (baseTitle) {
+      return baseTitle;
+    }
+
+    let cell = this.cells[0];
+    if (!cell || cell.language !== "markdown") {
+      return undefined;
+    }
+
+    debugger;
+    const match = cell.code.toJSON().match(/^# (.*)$/m);
+    if (match) {
+      return match[1].trim();
+    }
+
+    return undefined;
+  }
+
   /** @internal */
   public get comments(): Y.Map<any> {
     return this.ydoc.getMap("comments");

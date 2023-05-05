@@ -1,6 +1,7 @@
 import { Location, NavigateFunction, To } from "react-router-dom";
 import { parseIdentifier } from "../../identifiers";
 import { Identifier } from "../../identifiers/Identifier";
+import { identifiersToPath } from "../../identifiers/paths/identifierPathHelpers";
 import { BaseResource } from "../../store/BaseResource";
 
 export function OpenNewPageDialog(navigate: NavigateFunction) {
@@ -56,7 +57,7 @@ export function toDocument(doc: BaseResource): To {
 }
 
 export function toIdentifier(identifier: Identifier): To {
-  return { pathname: "/" + identifier.toString() };
+  return { pathname: "/" + identifiersToPath(identifier) };
 }
 
 export function toIdentifierString(identifier: string): To {

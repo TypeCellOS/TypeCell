@@ -50,21 +50,21 @@ const config: PlaywrightTestConfig<TestOptions> = {
 
       /* Project-specific settings. */
       use: {
-        // headless: false,
+        headless: false,
         ...devices["Desktop Chrome"],
       },
     },
-    {
-      name: "chromium no WebRTC",
+    // {
+    //   name: "chromium no WebRTC",
 
-      /* Project-specific settings. */
-      use: {
-        // headless: false,
-        ...devices["Desktop Chrome"],
-        disableWebRTC: true,
-      },
-      testMatch: /.*collaboration.*/,
-    },
+    //   /* Project-specific settings. */
+    //   use: {
+    //     // headless: false,
+    //     ...devices["Desktop Chrome"],
+    //     disableWebRTC: true,
+    //   },
+    //   testMatch: /.*collaboration.*/,
+    // },
 
     // {
     //   name: "firefox",

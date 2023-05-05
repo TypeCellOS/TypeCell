@@ -12,5 +12,5 @@ export const DocumentRoute = () => {
 
   const parsedIdentifier = parseIdentifier({ owner, document });
 
-  return <DocumentView id={parsedIdentifier} />;
+  return <DocumentView id={parsedIdentifier} subIdentifiers={[]} />;
 };

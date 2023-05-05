@@ -1,5 +1,7 @@
 import { path, uri } from "vscode-lib";
 import { registeredIdentifiers } from "..";
+
+import { DEFAULT_IDENTIFIER_BASE } from "../../config/config";
 import { FileIdentifier } from "../FileIdentifier";
 import { Identifier } from "../Identifier";
 
@@ -21,7 +23,8 @@ import { Identifier } from "../Identifier";
 
 const shortHands: Record<string, string> = {
   // docs: "http:" + window.location.hostname + "/_docs/",
-  docs: "fs:localhost:3001",
+  // docs: "fs:localhost:3001",
+  docs: "http:localhost/_docs/",
 };
 
 const reverseShortHands = Object.entries(shortHands).reduce(
@@ -35,8 +38,11 @@ const reverseShortHands = Object.entries(shortHands).reduce(
 /**
  * given an identifier, returns the path and shorthand to it, if it exists
  */
-export function getPathFromIdentifier(identifier: Identifier) {
-  const path = identifier.toString();
+function getPathAndShorthandFromFirstIdentifier(identifier: Identifier) {
+  const path = getSimplePathPartForIdentifier(
+    identifier,
+    DEFAULT_IDENTIFIER_BASE
+  );
   const shorthand = reverseShortHands[path];
   if (shorthand) {
     return {
@@ -47,6 +53,25 @@ export function getPathFromIdentifier(identifier: Identifier) {
   return path;
 }
 
+function getSimplePathPartForIdentifier(
+  identifier: Identifier,
+  previousOrDefaultIdentifierUri: uri.URI
+) {
+  if (
+    previousOrDefaultIdentifierUri &&
+    previousOrDefaultIdentifierUri.scheme === identifier.uri.scheme &&
+    previousOrDefaultIdentifierUri.authority === identifier.uri.authority &&
+    identifier.uri.path.startsWith(previousOrDefaultIdentifierUri.path)
+  ) {
+    // we can simplify this path
+    return identifier.uri.path.substring(
+      previousOrDefaultIdentifierUri.path.length
+    );
+  } else {
+    return identifier.toString();
+  }
+}
+
 /**
  * Given multiple identifiers, returns the full path to identifiers combined
  *
@@ -54,7 +79,7 @@ export function getPathFromIdentifier(identifier: Identifier) {
  * - use shorthand if possible
  * - simplify paths of nested identifiers if possible
  */
-export function getPathFromIdentifiers(
+export function identifiersToPath(
   identifiers: Identifier[] | Identifier
 ): string {
   if (!Array.isArray(identifiers)) {
@@ -66,7 +91,7 @@ export function getPathFromIdentifiers(
   }
 
   let lastIdentifier: Identifier = identifiers[0];
-  let rootPath = getPathFromIdentifier(lastIdentifier);
+  let rootPath = getPathAndShorthandFromFirstIdentifier(lastIdentifier);
   let path: string;
   let sep = ":/";
   if (typeof rootPath === "string") {
@@ -78,19 +103,11 @@ export function getPathFromIdentifiers(
 
   for (let i = 1; i < identifiers.length; i++) {
     const identifier = identifiers[i];
-    if (
-      lastIdentifier &&
-      lastIdentifier.uri.scheme === identifier.uri.scheme &&
-      lastIdentifier.uri.authority === identifier.uri.authority &&
-      identifier.uri.path.startsWith(lastIdentifier.uri.path)
-    ) {
-      // we can simplify this path
-      path +=
-        sep + identifier.uri.path.substring(lastIdentifier.uri.path.length + 1);
-    } else {
-      path += sep + identifier.toString();
-    }
-
+    const part = getSimplePathPartForIdentifier(
+      identifiers[i],
+      lastIdentifier.uri
+    );
+    path += sep + part;
     lastIdentifier = identifier;
     sep = ":/";
   }
@@ -114,17 +131,23 @@ export function getIdentifierWithAppendedPath(
  * Given a path of a single identifier (i.e. no separators),
  * returns the identifier or throws an error
  */
-export function getIdentifierFromPath(
+export function pathToIdentifier(
   inputPath: string,
   parentIdentifierList: Identifier[] = []
 ): Identifier {
-  if (shortHands[inputPath]) {
+  if (shortHands[inputPath] && !parentIdentifierList.length) {
     inputPath = shortHands[inputPath];
   }
 
-  // our identifiers don't use scheme://xxx but scheme:xxx. Reason for this decision is to make it work with react-router
-  let identifierWithProperScheme = inputPath.replace(/([a-z]+:)/, "$1//");
-
+  let identifierWithProperScheme: string;
+  if (!inputPath.includes(":") && !parentIdentifierList.length) {
+    console.log(inputPath);
+    // no scheme provided
+    identifierWithProperScheme = DEFAULT_IDENTIFIER_BASE.toString() + inputPath; //.substring(1);
+  } else {
+    // our identifiers don't use scheme://xxx but scheme:xxx. Reason for this decision is to make it work with react-router
+    identifierWithProperScheme = inputPath.replace(/([a-z]+:)/, "$1//");
+  }
   let parsedUri = uri.URI.parse(identifierWithProperScheme);
 
   if (parsedUri.scheme === "file") {
@@ -167,15 +190,27 @@ export function pathToIdentifiers(path: string): Identifier[] {
     }
 
     if (shortHandMatched) {
-      identifiers.push(getIdentifierFromPath(shortHandMatched, identifiers));
+      identifiers.push(pathToIdentifier(shortHandMatched, identifiers));
       const remaining = part.substring(shortHandMatched.length);
       if (remaining.length) {
-        identifiers.push(getIdentifierFromPath(remaining, identifiers));
+        identifiers.push(pathToIdentifier(remaining, identifiers));
       }
     } else {
-      const identifier = getIdentifierFromPath(part, identifiers);
+      const identifier = pathToIdentifier(part, identifiers);
       identifiers.push(identifier);
     }
   }
   return identifiers;
+}
+
+export function tryPathToIdentifiers(path: string) {
+  try {
+    const ret = pathToIdentifiers(path);
+    if (!ret.length) {
+      return "invalid-identifier";
+    }
+    return ret;
+  } catch (e) {
+    return "invalid-identifier";
+  }
 }

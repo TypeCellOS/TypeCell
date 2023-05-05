@@ -1,5 +1,4 @@
 import { makeObservable, observable, runInAction } from "mobx";
-import { Awareness } from "y-protocols/awareness";
 import * as Y from "yjs";
 import { GithubIdentifier } from "../../../identifiers/GithubIdentifier";
 import { getFileOrDirFromGithub } from "../../../integrations/github/github";
@@ -14,12 +13,15 @@ export default class GithubRemote extends Remote {
 
   public canWrite: boolean = true; // always initialize as true until the user starts trying to make changes
 
+  public get awareness() {
+    return undefined;
+  }
+
   public constructor(
     _ydoc: Y.Doc,
-    awareness: Awareness,
     private readonly identifier: GithubIdentifier
   ) {
-    super(_ydoc, awareness);
+    super(_ydoc);
     makeObservable(this, {
       canWrite: observable.ref,
     });

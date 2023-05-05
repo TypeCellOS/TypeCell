@@ -8,8 +8,9 @@ import {
 } from "@supabase/auth-ui-shared";
 import { createClient } from "@supabase/supabase-js";
 import { getStoreService } from "../../../store/local/stores";
+import { Logo } from "../../main/components/Logo";
 import { ANON_KEY } from "../supabaseConfig";
-
+import AuthStyles from "./AuthStyles.module.css";
 const supabase = createClient("http://localhost:54321", ANON_KEY);
 
 export const Register = observer((props: {}) => {
@@ -26,12 +27,25 @@ export const Register = observer((props: {}) => {
   }
 
   return (
-    <div style={{ maxWidth: "600px" }}>
-      <Auth
-        supabaseClient={supabase}
-        view="sign_up"
-        appearance={{ theme: ThemeSupa }}
-      />
+    <div className={AuthStyles.AuthPage}>
+      <div className={AuthStyles.AuthHeader}>
+        <div className={AuthStyles.AuthHeaderLogo}>
+          <Logo></Logo>
+        </div>
+      </div>
+      <div className={AuthStyles.AuthBody}>
+        <div className={AuthStyles.AuthForm}>
+          <Auth
+            supabaseClient={supabase}
+            view="sign_up"
+            appearance={{ theme: ThemeSupa }}
+          />
+          {/* <div className={AuthStyles.AuthFormFooter}>sdfsdf</div> */}
+        </div>
+      </div>
+      <div className={AuthStyles.AuthFooter}>
+        {/* <HelperMessage>Powered by Matrix</HelperMessage> */}
+      </div>
     </div>
   );
 });

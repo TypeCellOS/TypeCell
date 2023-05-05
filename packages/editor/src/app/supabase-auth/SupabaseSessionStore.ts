@@ -133,6 +133,7 @@ export class SupabaseSessionStore extends SessionStore {
    * Updates the state of sessionStore based on the internal matrixAuthStore.loggedIn
    */
   private async updateStateFromAuthStore() {
+    // TODO: don't trigger on refresh of other browser window
     const session = (await this.supabase.auth.getSession()).data.session;
     // TODO: check errors?
 

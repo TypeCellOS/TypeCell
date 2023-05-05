@@ -1,12 +1,13 @@
 import { useLocation } from "react-router-dom";
-import { tryParseIdentifier } from "../../identifiers";
+import { tryPathToIdentifiers } from "../../identifiers/paths/identifierPathHelpers";
 import DocumentView from "../documentRenderers/DocumentView";
 
 export const DynamicRoute = () => {
   let location = useLocation();
 
-  const identifier = tryParseIdentifier(location.pathname.substring(1));
-  if (identifier !== "invalid-identifier") {
+  console.warn(location.pathname.substring(1));
+  const identifiers = tryPathToIdentifiers(location.pathname.substring(1));
+  if (identifiers !== "invalid-identifier") {
     return (
       // <Routes>
       //   <Route
@@ -14,8 +15,9 @@ export const DynamicRoute = () => {
       //     element={<DocumentView id={parsedIdentifier} />}></Route>
       //   <Route path="*" element={<div>errorouter</div>} />
       // </Routes>
-      <DocumentView id={identifier} />
+      <DocumentView id={identifiers.shift()!} subIdentifiers={identifiers} />
     );
+  } else {
+    return <div>Not found</div>;
   }
-  return <div>Not found</div>;
 };
