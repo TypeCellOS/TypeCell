@@ -92,7 +92,7 @@ export class TypeCellRemote extends Remote {
     return "ok";
   }
 
-  public async load() {
+  public async startSyncing() {
     if (this.disposed) {
       console.warn("already disposed");
       return;

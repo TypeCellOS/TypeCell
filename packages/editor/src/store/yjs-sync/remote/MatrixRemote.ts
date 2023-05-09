@@ -69,7 +69,7 @@ export class MatrixRemote extends Remote {
     return remoteResult.status; // TODO
   }
 
-  public async load() {
+  public async startSyncing() {
     if (this.disposed) {
       console.warn("already disposed");
       return;

@@ -139,7 +139,7 @@ export default class FetchRemote extends Remote {
     }
   }
 
-  public load(): Promise<void> {
+  public startSyncing(): Promise<void> {
     return this.initialize();
   }
 

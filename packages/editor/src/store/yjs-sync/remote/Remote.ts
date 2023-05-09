@@ -1,5 +1,6 @@
 import { makeObservable, observable } from "mobx";
-import { lifecycle } from "vscode-lib";
+import { async, lifecycle } from "vscode-lib";
+
 import { Awareness } from "y-protocols/awareness";
 import * as Y from "yjs";
 export abstract class Remote extends lifecycle.Disposable {
@@ -23,12 +24,47 @@ export abstract class Remote extends lifecycle.Disposable {
     });
   }
 
-  public abstract load(): Promise<void>;
+  public abstract startSyncing(): Promise<void>;
 
-  public create(): Promise<"already-exists" | "ok" | "error"> {
+  protected create(): Promise<"already-exists" | "ok" | "error"> {
     throw new Error("not implemented");
   }
+
+  public async createAndRetry() {
+    if (this.status === "loaded") {
+      throw new Error("already loaded");
+    }
+
+    if (!this.canCreate) {
+      throw new Error("cannot create");
+    }
+
+    let cleanup = {
+      cancel: () => {},
+    };
+
+    this._register({
+      dispose: () => cleanup.cancel(),
+    });
+
+    while (true) {
+      const ret = await this.create();
+      if (ret !== "error") {
+        break;
+      }
+
+      const p = async.timeout(10000);
+      cleanup.cancel = p.cancel;
+      await p;
+    }
+  }
 }
+/*
+TODO: test, for providers
+- do we retrying creating when offline -> online
+- do we keep retrying sync when offline -> online
+- do we keep retrying load when offline -> online
+
 
 // SyncManager: holds a doc and responsible for loading / creating + syncing to local
 
@@ -45,3 +81,4 @@ export abstract class Remote extends lifecycle.Disposable {
 
 // of per remote?
 // - last synced at
+*/

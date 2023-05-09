@@ -1,5 +1,5 @@
-import { makeObservable, observable, runInAction, when } from "mobx";
-import { lifecycle, uri } from "vscode-lib";
+import { makeObservable, observable } from "mobx";
+import { lifecycle } from "vscode-lib";
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
 import { FileIdentifier } from "../../identifiers/FileIdentifier";
@@ -8,8 +8,7 @@ import { HttpsIdentifier } from "../../identifiers/HttpsIdentifier";
 import { Identifier } from "../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";
 import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
-import { getStoreService } from "../local/stores";
-import { existsLocally, getIDBIdentifier, waitForIDBSynced } from "./IDBHelper";
+import { DocumentCoordinator } from "./DocumentCoordinator";
 import FetchRemote from "./remote/FetchRemote";
 import { FilebridgeRemote } from "./remote/FilebridgeRemote";
 import GithubRemote from "./remote/GithubRemote";
@@ -17,8 +16,9 @@ import { MatrixRemote } from "./remote/MatrixRemote";
 import { Remote } from "./remote/Remote";
 import { TypeCellRemote } from "./remote/TypeCellRemote";
 
+const coordinator = new DocumentCoordinator("test");
 export class YDocSyncManager2 extends lifecycle.Disposable {
-  private _ydoc: Y.Doc;
+  // private _ydoc: Y.Doc;
   private initializeCalled = false;
   private disposed = false;
   /**
@@ -28,12 +28,8 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
    * - "loading" if we're still loading the document
    *
    * (mobx observable)
-   *
-   * @type {("loading" | "not-found" | Y.Doc)}
-   * @memberof DocConnection
    */
   public doc: "loading" | "not-found" | Y.Doc = "loading";
-  public readonly idbIdentifier: string;
 
   public get awareness() {
     return this.remote.awareness;
@@ -42,18 +38,16 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
   /** @internal */
   public indexedDBProvider: IndexeddbPersistence | undefined;
   public readonly remote: Remote;
-  constructor(public readonly identifier: Identifier) {
+  constructor(
+    public readonly identifier: Identifier,
+    private readonly _ydoc: Y.Doc
+  ) {
     super();
     makeObservable(this, {
       doc: observable.ref,
     });
 
-    this.idbIdentifier = getIDBIdentifier(
-      this.identifier.toString(),
-      getStoreService().sessionStore.loggedInUserId
-    );
-
-    this._ydoc = new Y.Doc({ guid: this.identifier.toString() });
+    // this._ydoc = new Y.Doc({ guid: this.identifier.toString() });
 
     this.remote = this.remoteForIdentifier(identifier);
 
@@ -64,75 +58,9 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
     });
     this._register(this.remote);
   }
+
   get canWrite(): boolean {
     return this.remote.canWrite;
-  }
-
-  private async initializeLocal() {
-    if (this.disposed) {
-      console.warn("already disposed");
-      return;
-    }
-
-    this.indexedDBProvider = new IndexeddbPersistence(
-      this.idbIdentifier,
-      this._ydoc
-    );
-    this._register({ dispose: () => this.indexedDBProvider?.destroy() });
-
-    await waitForIDBSynced(this.indexedDBProvider);
-
-    runInAction(() => {
-      this.doc = this._ydoc;
-    });
-  }
-
-  public async initialize() {
-    try {
-      if (this.initializeCalled) {
-        throw new Error("already called initialize() on YDocSyncManager");
-      }
-      this.initializeCalled = true;
-      await this.initializeNoCatch();
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
-  }
-
-  private async initializeNoCatch() {
-    if (typeof this.doc !== "string") {
-      throw new Error("already loaded");
-    }
-
-    const alreadyLocal = await existsLocally(this.idbIdentifier);
-
-    if (alreadyLocal) {
-      await this.initializeLocal();
-    }
-
-    await this.remote.load();
-
-    if (this.disposed) {
-      console.warn("already disposed");
-      return;
-    }
-
-    if (!alreadyLocal) {
-      const dispose = when(
-        () => this.remote.status === "loaded",
-        () => {
-          if (this.indexedDBProvider) {
-            throw new Error("unexpected, suddenly has indexedDBProvider");
-          }
-          this.initializeLocal();
-        }
-      );
-
-      this._register({
-        dispose,
-      });
-    }
   }
 
   private remoteForIdentifier(identifier: Identifier): Remote {
@@ -151,31 +79,24 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
     }
   }
 
-  public async create(forkSource?: Y.Doc) {
-    if (
-      await existsLocally(
-        getIDBIdentifier(
-          this.identifier.toString(),
-          getStoreService().sessionStore.loggedInUserId
-        )
-      )
-    ) {
-      return "already-exists";
-    }
+  public async createAndSync() {
+    await this.remote.createAndRetry();
+    // Set as created
 
-    if (!this.remote.canCreate) {
-      throw new Error("remote doesn't support creation");
-    }
-    // TODO: local first create
-    const ret = await this.remote.create();
-    if (ret !== "ok") {
-      return ret;
-    }
+    this.remote.startSyncing();
+    // listen for events
+  }
 
-    if (forkSource) {
-      Y.applyUpdateV2(this._ydoc, Y.encodeStateAsUpdateV2(forkSource));
-    }
-    return ret;
+  public async startSyncing() {
+    this.remote.startSyncing();
+    // listen for events
+  }
+
+  public async loadFromRemote() {
+    await this.remote.startSyncing();
+    coordinator.createDocumentFromRemote(this.identifier, this._ydoc);
+    // on sync add to store
+    // listen for events
   }
 
   public async clearAndReload() {
@@ -188,40 +109,40 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
     return YDocSyncManager2.load(this.identifier);
   }
 
-  public async fork() {
-    if (!getStoreService().sessionStore.loggedInUserId) {
-      throw new Error("not logged in");
-    }
+  // public async fork() {
+  //   if (!getStoreService().sessionStore.loggedInUserId) {
+  //     throw new Error("not logged in");
+  //   }
 
-    let tryN = 1;
+  //   let tryN = 1;
 
-    do {
-      // TODO
-      if (!(this.identifier instanceof MatrixIdentifier)) {
-        throw new Error("not implemented");
-      }
-      // TODO: test
-      const newIdentifier = new MatrixIdentifier(
-        uri.URI.from({
-          scheme: this.identifier.uri.scheme,
-          // TODO: use user authority,
-          path:
-            getStoreService().sessionStore.loggedInUserId +
-            "/" +
-            this.identifier.document +
-            (tryN > 1 ? "-" + tryN : ""),
-        })
-      );
+  //   do {
+  //     // TODO
+  //     if (!(this.identifier instanceof MatrixIdentifier)) {
+  //       throw new Error("not implemented");
+  //     }
+  //     // TODO: test
+  //     const newIdentifier = new MatrixIdentifier(
+  //       uri.URI.from({
+  //         scheme: this.identifier.uri.scheme,
+  //         // TODO: use user authority,
+  //         path:
+  //           getStoreService().sessionStore.loggedInUserId +
+  //           "/" +
+  //           this.identifier.document +
+  //           (tryN > 1 ? "-" + tryN : ""),
+  //       })
+  //     );
 
-      const manager = await YDocSyncManager2.create(newIdentifier, this._ydoc);
+  //     const manager = await YDocSyncManager2.create(newIdentifier, this._ydoc);
 
-      if (manager !== "already-exists") {
-        await this.clearAndReload();
-        return manager;
-      }
-      tryN++;
-    } while (true);
-  }
+  //     if (manager !== "already-exists") {
+  //       await this.clearAndReload();
+  //       return manager;
+  //     }
+  //     tryN++;
+  //   } while (true);
+  // }
 
   public dispose() {
     this.disposed = true;
@@ -229,22 +150,49 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
   }
 
   public static async create(identifier: Identifier, forkSource?: Y.Doc) {
-    const manager = new YDocSyncManager2(identifier);
-    const ret = await manager.create(forkSource);
-    if (ret === "ok") {
-      manager.initialize();
-      return manager;
+    // create locally
+    // start syncing:
+    //  - periodically "create" when not created
+    //  - sync when created, update values in coordinator
+
+    const doc = await coordinator.createDocument(identifier);
+
+    const manager = new YDocSyncManager2(identifier, doc);
+
+    if (forkSource) {
+      Y.applyUpdateV2(doc, Y.encodeStateAsUpdateV2(forkSource)); // TODO
     }
-    manager.dispose();
-    return ret;
+
+    manager.createAndSync();
+    return manager;
   }
 
   public static load(identifier: Identifier) {
-    const manager = new YDocSyncManager2(identifier);
-    manager.initialize();
+    // IF not existing
+    // - load from remote
+    // - create locally
+    // - start syncing, update values in coordinator
+
+    // IF existing
+    //  - load from coordinator
+    //  - start syncing, update values in coordinator
+
+    const doc = coordinator.loadDocument(identifier);
+
+    let manager: YDocSyncManager2;
+    if (doc === "not-found") {
+      const newDoc = new Y.Doc({ guid: identifier.toString() });
+      manager = new YDocSyncManager2(identifier, newDoc);
+      manager.loadFromRemote();
+    } else {
+      manager = new YDocSyncManager2(identifier, doc);
+      manager.startSyncing();
+    }
+
     return manager;
   }
 }
+
 /*
 
 DocConnection: manages cache of documents by identifier

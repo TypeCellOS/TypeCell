@@ -26,10 +26,7 @@ for (let factory of factories) {
 }
 
 // TODO: revisit owner
-export function parseIdentifier(
-  identifier: string | { owner: string; document: string },
-  title?: string
-) {
+export function parseIdentifier(identifier: string, title?: string) {
   if (typeof identifier !== "string") {
     if (!identifier.owner.length || !identifier.document.length) {
       throw new Error("invalid identifier");
@@ -66,14 +63,14 @@ export function parseIdentifier(
   return pathToIdentifiers(identifier)[0];
 }
 
-export function tryParseIdentifier(
-  identifier: string | { owner: string; document: string },
-  title?: string
-) {
-  try {
-    return parseIdentifier(identifier, title);
-  } catch (e) {
-    console.warn("invalid identifier", identifier, e);
-    return "invalid-identifier" as "invalid-identifier";
-  }
-}
+// export function tryParseIdentifier(
+//   identifier: string | { owner: string; document: string },
+//   title?: string
+// ) {
+//   try {
+//     return parseIdentifier(identifier, title);
+//   } catch (e) {
+//     console.warn("invalid identifier", identifier, e);
+//     return "invalid-identifier" as "invalid-identifier";
+//   }
+// }

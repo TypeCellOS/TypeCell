@@ -5,7 +5,6 @@ import {
   PageLayout,
 } from "@atlaskit/page-layout";
 import { TreeData, TreeItem } from "@atlaskit/tree";
-import { uniqueId } from "@typecell-org/common";
 import { observer } from "mobx-react-lite";
 import { useLocation, useNavigate } from "react-router-dom";
 import { parseIdentifier } from "../../../identifiers";
@@ -120,10 +119,7 @@ const ProjectContainer = observer((props: Props) => {
   // );
 
   const onAddPageHandler = async (parentId?: string) => {
-    const ret = await DocConnection.create({
-      owner: "demotest", // TODO
-      document: uniqueId.generateId("document"),
-    });
+    const ret = await DocConnection.create();
     if (typeof ret === "string") {
       throw new Error("Error creating doc: " + ret);
     }

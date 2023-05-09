@@ -10,7 +10,7 @@ import { lifecycle } from "vscode-lib";
 import { BaseResource } from "./BaseResource";
 
 import * as Y from "yjs";
-import { parseIdentifier, tryParseIdentifier } from "../identifiers";
+import { parseIdentifier } from "../identifiers";
 import { Identifier } from "../identifiers/Identifier";
 import { InboxResource } from "./InboxResource";
 import { getStoreService } from "./local/stores";
@@ -179,26 +179,13 @@ export class DocConnection extends lifecycle.Disposable {
   //   await this.initializeNoCatch();
   // }
 
-  public static async create(id: string | { owner: string; document: string }) {
+  public static async create() {
     const sessionStore = getStoreService().sessionStore;
     if (!sessionStore.loggedInUserId) {
       throw new Error("no user available on create document");
     }
-    const identifier = tryParseIdentifier(id);
 
-    if (identifier === "invalid-identifier") {
-      return identifier;
-    }
-
-    const syncManager = await YDocSyncManager2.create(identifier);
-
-    if (syncManager === "already-exists") {
-      return syncManager;
-    }
-
-    if (syncManager === "error") {
-      return syncManager;
-    }
+    const syncManager = await YDocSyncManager2.create();
 
     if (cache.get(identifier.toString())) {
       throw new Error("create called, but already in cache");
@@ -221,10 +208,7 @@ export class DocConnection extends lifecycle.Disposable {
     return inbox;
   };
 
-  public static get(
-    identifier: string | { owner: string; document: string } | Identifier
-  ) {
-    // TODO
+  public static get(identifier: string | Identifier) {
     if (!(identifier instanceof Identifier)) {
       identifier = parseIdentifier(identifier);
     }
@@ -233,10 +217,7 @@ export class DocConnection extends lifecycle.Disposable {
     return connection;
   }
 
-  public static load(
-    identifier: string | { owner: string; document: string } | Identifier
-  ) {
-    // TODO
+  public static load(identifier: string | Identifier) {
     if (!(identifier instanceof Identifier)) {
       identifier = parseIdentifier(identifier);
     }

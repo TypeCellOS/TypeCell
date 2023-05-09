@@ -11,7 +11,6 @@ import Textfield from "@atlaskit/textfield";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Y from "yjs";
-import { generateId } from "../../../../../common/src/uniqueId";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
 import { UnreachableCaseError } from "../../../util/UnreachableCaseError";
@@ -51,10 +50,7 @@ export const NewPageDialog = (props: {
                 setError("");
                 setLoading(true);
 
-                const ret = await DocConnection.create({
-                  owner: props.ownerId,
-                  document: generateId("document"),
-                });
+                const ret = await DocConnection.create();
 
                 setLoading(false);
 
@@ -62,9 +58,6 @@ export const NewPageDialog = (props: {
                   switch (ret) {
                     case "already-exists":
                       setWarning("A page with this title already exists");
-                      break;
-                    case "invalid-identifier":
-                      setWarning("Invalid title");
                       break;
                     case "error":
                       setError("Unknown error while creating new document.");

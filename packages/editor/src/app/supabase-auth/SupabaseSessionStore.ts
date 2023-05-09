@@ -7,6 +7,7 @@ import { navigateRef } from "../App";
 import { ANON_KEY } from "./supabaseConfig";
 
 import type { Database } from "../../../../../packages/server/src/types/schema";
+import { DocConnection } from "../../store/DocConnection";
 
 export type SupabaseClientType = SupabaseSessionStore["supabase"];
 
@@ -114,6 +115,10 @@ export class SupabaseSessionStore extends SessionStore {
     if (!this.userId) {
       throw new Error("can't set username when not logged in");
     }
+    const ret = await DocConnection.create({
+      owner: props.ownerId,
+      document: generateId("document"),
+    });
 
     const { data, error } = await this.supabase.from("workspaces").insert([
       {

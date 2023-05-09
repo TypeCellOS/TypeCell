@@ -217,7 +217,7 @@ export class FilebridgeRemote extends Remote {
     );
   };
 
-  public load(): Promise<void> {
+  public startSyncing(): Promise<void> {
     return this.initialize();
   }
 
