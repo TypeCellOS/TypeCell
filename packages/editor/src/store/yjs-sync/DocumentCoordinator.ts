@@ -3,6 +3,12 @@ import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
 import { Identifier } from "../../identifiers/Identifier";
 
+export type LocalDoc = {
+  ydoc: Y.Doc;
+  meta: Document;
+  idbProvider: IndexeddbPersistence;
+};
+
 export type Document = {
   id: string;
   created_at: Date;
@@ -12,7 +18,7 @@ export type Document = {
 };
 
 export class DocumentCoordinator extends lifecycle.Disposable {
-  private loadedDocuments = new Map<string, Y.Doc>();
+  private loadedDocuments = new Map<string, LocalDoc>();
 
   private readonly doc: Y.Doc;
   private readonly indexedDBProvider: IndexeddbPersistence;
@@ -44,7 +50,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
   }
 
   // create a new document locally
-  public async createDocument(identifier: Identifier) {
+  public async createDocument(identifier: Identifier): Promise<LocalDoc> {
     const idStr = identifier.toString();
     if (!this.indexedDBProvider.synced) {
       throw new Error("not initialized");
@@ -53,13 +59,15 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       throw new Error("createDocument: document already exists");
     }
 
-    this.documents.set(idStr, {
+    const meta: Document = {
       id: idStr,
       created_at: new Date(),
       create_source: "local",
       updated_at: new Date(),
       last_synced_at: null,
-    });
+    };
+
+    this.documents.set(idStr, meta);
 
     const ydoc = new Y.Doc({ guid: idStr });
     // TODO: listen to updates
@@ -69,11 +77,20 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       ydoc
     );
 
-    this.loadedDocuments.set(idStr, ydoc);
-    return ydoc;
+    const doc: LocalDoc = {
+      ydoc,
+      meta,
+      idbProvider,
+    };
+
+    this.loadedDocuments.set(idStr, doc);
+    return doc;
   }
 
-  public createDocumentFromRemote(identifier: Identifier, ydoc: Y.Doc) {
+  public createDocumentFromRemote(
+    identifier: Identifier,
+    ydoc: Y.Doc
+  ): LocalDoc {
     const idStr = identifier.toString();
     if (!this.indexedDBProvider.synced) {
       throw new Error("not initialized");
@@ -82,13 +99,15 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       throw new Error("createDocument: document already exists");
     }
 
-    this.documents.set(idStr, {
+    const meta: Document = {
       id: idStr,
       created_at: new Date(),
       create_source: "remote",
       updated_at: new Date(),
       last_synced_at: null,
-    });
+    };
+
+    this.documents.set(idStr, meta);
 
     // TODO: listen to updates
 
@@ -97,12 +116,18 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       ydoc
     );
 
-    this.loadedDocuments.set(idStr, ydoc);
-    return ydoc;
+    const doc: LocalDoc = {
+      ydoc,
+      meta,
+      idbProvider,
+    };
+
+    this.loadedDocuments.set(idStr, doc);
+    return doc;
   }
 
   // load a document from local store
-  public loadDocument(identifier: Identifier) {
+  public loadDocument(identifier: Identifier): LocalDoc | "not-found" {
     const idStr = identifier.toString();
     if (!this.indexedDBProvider.synced) {
       throw new Error("not initialized");
@@ -113,7 +138,9 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       throw new Error("loadDocument: document already loaded");
     }
 
-    if (!this.documents.has(idStr)) {
+    const meta = this.documents.get(idStr);
+
+    if (!meta) {
       //   this.documents.set(idStr, {
       //     id: idStr,
       //     created_at: new Date(),
@@ -132,13 +159,40 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       this.userId + "-doc-" + idStr,
       ydoc
     );
-    this.loadedDocuments.set(idStr, ydoc);
-    return ydoc;
+    const doc: LocalDoc = {
+      ydoc,
+      meta,
+      idbProvider,
+    };
+
+    this.loadedDocuments.set(idStr, doc);
+    return doc;
+  }
+
+  public async deleteLocal(identifier: Identifier) {
+    const idStr = identifier.toString();
+    if (!this.indexedDBProvider.synced) {
+      throw new Error("not initialized");
+    }
+
+    const localDoc = this.loadedDocuments.get("idStr");
+
+    if (!localDoc) {
+      // we expect loadDocument only to be called once per document
+      throw new Error("loadDocument: document already loaded");
+    }
+
+    await localDoc.idbProvider.clearData();
+
+    this.loadedDocuments.delete(idStr);
+    this.documents.delete(idStr);
   }
 }
 
 /*
 TODO:
+- what if open in multiple tabs? can ydoc change?
+
 - service that listens for documents that need to be synced
 - on creating a doc -> create locally, then sync
 --> this might be handled automatically

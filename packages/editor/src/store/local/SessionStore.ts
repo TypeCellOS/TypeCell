@@ -1,4 +1,5 @@
 import { lifecycle } from "vscode-lib";
+import { Identifier } from "../../identifiers/Identifier";
 
 /**
  * The sessionStore keeps track of user related data
@@ -46,4 +47,6 @@ export abstract class SessionStore extends lifecycle.Disposable {
   public abstract logout: () => Promise<void>;
 
   public abstract initialize(): Promise<void>;
+
+  public abstract getIdentifierForNewDocument(): Identifier;
 }

@@ -110,7 +110,7 @@ export class DocConnection extends lifecycle.Disposable {
       return "loading" as "loading";
     }
 
-    const ydoc = this.manager.doc;
+    const ydoc = this.manager.docOrStatus;
     if (typeof ydoc === "string") {
       return ydoc;
     }

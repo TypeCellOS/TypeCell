@@ -1,12 +1,17 @@
 import { computed, makeObservable, observable, runInAction } from "mobx";
-import { arrays } from "vscode-lib";
+import { arrays, uri } from "vscode-lib";
 import { SessionStore } from "../../store/local/SessionStore";
 // @ts-ignore
 import { createClient } from "@supabase/supabase-js";
 import { navigateRef } from "../App";
 import { ANON_KEY } from "./supabaseConfig";
 
+import { uniqueId } from "@typecell-org/common";
+
 import type { Database } from "../../../../../packages/server/src/types/schema";
+import { DEFAULT_HOMESERVER_URI } from "../../config/config";
+import { Identifier } from "../../identifiers/Identifier";
+import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
 import { DocConnection } from "../../store/DocConnection";
 
 export type SupabaseClientType = SupabaseSessionStore["supabase"];
@@ -79,6 +84,16 @@ export class SupabaseSessionStore extends SessionStore {
     }
     await this.supabase.auth.signOut();
   };
+
+  public getIdentifierForNewDocument(): Identifier {
+    return new TypeCellIdentifier(
+      uri.URI.from({
+        scheme: "mx",
+        authority: DEFAULT_HOMESERVER_URI.authority,
+        path: "/" + uniqueId.generateId("document"),
+      })
+    );
+  }
 
   constructor() {
     super();

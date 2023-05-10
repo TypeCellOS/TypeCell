@@ -1,4 +1,4 @@
-import { makeObservable, observable } from "mobx";
+import { computed, makeObservable, observable, runInAction, when } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
@@ -8,7 +8,7 @@ import { HttpsIdentifier } from "../../identifiers/HttpsIdentifier";
 import { Identifier } from "../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";
 import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
-import { DocumentCoordinator } from "./DocumentCoordinator";
+import { DocumentCoordinator, LocalDoc } from "./DocumentCoordinator";
 import FetchRemote from "./remote/FetchRemote";
 import { FilebridgeRemote } from "./remote/FilebridgeRemote";
 import GithubRemote from "./remote/GithubRemote";
@@ -21,6 +21,39 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
   // private _ydoc: Y.Doc;
   private initializeCalled = false;
   private disposed = false;
+
+  public doc:
+    | {
+        status: "loading";
+        ydoc: Y.Doc;
+      }
+    | {
+        status: "syncing";
+        localDoc: LocalDoc;
+      };
+
+  public get docOrStatus() {
+    const remoteStatus = this.remote.status;
+    if (this.doc.status === "loading") {
+      if (remoteStatus === "loaded") {
+        // throw new Error("not possible"); // TODO: is this safe?
+        console.error(
+          "should not be possible, doc status 'loading', but remote 'loaded'"
+        );
+        return "loading";
+      }
+      return remoteStatus;
+    }
+    return this.doc.localDoc.ydoc;
+  }
+
+  private get ydoc() {
+    if (this.doc.status === "syncing") {
+      return this.doc.localDoc.ydoc;
+    } else {
+      return this.doc.ydoc;
+    }
+  }
   /**
    * Get the managed "doc". Returns:
    * - a Y.Doc encapsulating the loaded doc if available
@@ -29,7 +62,7 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
    *
    * (mobx observable)
    */
-  public doc: "loading" | "not-found" | Y.Doc = "loading";
+  // public doc: "loading" | "not-found" | Y.Doc = "loading";
 
   public get awareness() {
     return this.remote.awareness;
@@ -40,22 +73,36 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
   public readonly remote: Remote;
   constructor(
     public readonly identifier: Identifier,
-    private readonly _ydoc: Y.Doc
+    private readonly localDoc: LocalDoc | undefined
   ) {
     super();
+    if (localDoc) {
+      this.doc = {
+        status: "syncing",
+        localDoc: localDoc,
+      };
+    } else {
+      this.doc = {
+        status: "loading",
+        ydoc: new Y.Doc({ guid: this.identifier.toString() }),
+      };
+    }
+
     makeObservable(this, {
       doc: observable.ref,
+      docOrStatus: computed,
     });
 
     // this._ydoc = new Y.Doc({ guid: this.identifier.toString() });
 
     this.remote = this.remoteForIdentifier(identifier);
 
-    this._register({
-      dispose: () => {
-        this._ydoc.destroy();
-      },
-    });
+    // TODO
+    // this._register({
+    //   dispose: () => {
+    //     this._ydoc.destroy();
+    //   },
+    // });
     this._register(this.remote);
   }
 
@@ -65,15 +112,15 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
 
   private remoteForIdentifier(identifier: Identifier): Remote {
     if (identifier instanceof FileIdentifier) {
-      return new FilebridgeRemote(this._ydoc, identifier);
+      return new FilebridgeRemote(this.ydoc, identifier);
     } else if (identifier instanceof GithubIdentifier) {
-      return new GithubRemote(this._ydoc, identifier);
+      return new GithubRemote(this.ydoc, identifier);
     } else if (identifier instanceof HttpsIdentifier) {
-      return new FetchRemote(this._ydoc, identifier);
+      return new FetchRemote(this.ydoc, identifier);
     } else if (identifier instanceof MatrixIdentifier) {
-      return new MatrixRemote(this._ydoc, identifier);
+      return new MatrixRemote(this.ydoc, identifier);
     } else if (identifier instanceof TypeCellIdentifier) {
-      return new TypeCellRemote(this._ydoc, identifier);
+      return new TypeCellRemote(this.ydoc, identifier);
     } else {
       throw new Error("unsupported identifier");
     }
@@ -94,22 +141,37 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
 
   public async loadFromRemote() {
     await this.remote.startSyncing();
-    coordinator.createDocumentFromRemote(this.identifier, this._ydoc);
+    when(
+      () => this.remote.status === "loaded",
+      () => {
+        const localDoc = coordinator.createDocumentFromRemote(
+          this.identifier,
+          this.ydoc
+        );
+
+        runInAction(() => {
+          this.doc = {
+            status: "syncing",
+            localDoc,
+          };
+        });
+      }
+    );
+
     // on sync add to store
     // listen for events
   }
 
   public async clearAndReload() {
-    if (!this.indexedDBProvider) {
-      throw new Error("deleteLocalChanges() called without indexedDBProvider");
-    }
-    await this.indexedDBProvider.clearData();
+    await coordinator.deleteLocal(this.identifier);
     this.dispose();
 
     return YDocSyncManager2.load(this.identifier);
   }
 
-  // public async fork() {
+  public async fork() {
+    throw new Error("not implemented");
+  }
   //   if (!getStoreService().sessionStore.loggedInUserId) {
   //     throw new Error("not logged in");
   //   }
@@ -160,7 +222,7 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
     const manager = new YDocSyncManager2(identifier, doc);
 
     if (forkSource) {
-      Y.applyUpdateV2(doc, Y.encodeStateAsUpdateV2(forkSource)); // TODO
+      Y.applyUpdateV2(doc.ydoc, Y.encodeStateAsUpdateV2(forkSource)); // TODO
     }
 
     manager.createAndSync();
@@ -181,8 +243,7 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
 
     let manager: YDocSyncManager2;
     if (doc === "not-found") {
-      const newDoc = new Y.Doc({ guid: identifier.toString() });
-      manager = new YDocSyncManager2(identifier, newDoc);
+      manager = new YDocSyncManager2(identifier, undefined);
       manager.loadFromRemote();
     } else {
       manager = new YDocSyncManager2(identifier, doc);

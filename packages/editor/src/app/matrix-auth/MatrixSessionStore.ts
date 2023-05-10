@@ -1,13 +1,17 @@
 import * as Olm from "@matrix-org/olm";
 import { MatrixClient } from "matrix-js-sdk";
 import { computed, makeObservable, observable, runInAction } from "mobx";
-import { arrays } from "vscode-lib";
+import { arrays, uri } from "vscode-lib";
 import { SessionStore } from "../../store/local/SessionStore";
 import { MatrixAuthStore } from "./MatrixAuthStore";
 import { MatrixClientPeg } from "./MatrixClientPeg";
 import { getUserFromMatrixId } from "./matrixUserIds";
 // @ts-ignore
 import olmWasmPath from "@matrix-org/olm/olm.wasm?url";
+import { uniqueId } from "@typecell-org/common";
+import { DEFAULT_HOMESERVER_URI } from "../../config/config";
+import { Identifier } from "../../identifiers/Identifier";
+import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";
 
 const colors = [
   "#958DF1",
@@ -81,6 +85,16 @@ export class MatrixSessionStore extends SessionStore {
       user: observable.ref,
       isLoggedIn: computed,
     });
+  }
+
+  public getIdentifierForNewDocument(): Identifier {
+    return new MatrixIdentifier(
+      uri.URI.from({
+        scheme: "mx",
+        authority: DEFAULT_HOMESERVER_URI.authority,
+        path: "/" + uniqueId.generateId("document"),
+      })
+    );
   }
 
   // TODO: should be a reaction to prevent calling twice?
