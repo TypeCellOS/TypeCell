@@ -1,9 +1,12 @@
-import * as cp from "child_process";
+import {
+  HocuspocusProvider,
+  HocuspocusProviderWebsocket,
+} from "@hocuspocus/provider";
+import * as Y from "yjs";
 import { getRandomUserData } from "../../test/dataUtil";
 import { generateId } from "../../util/uniqueId";
 import { generateUuid } from "../../util/uuid";
 import { createAnonClient } from "../supabase";
-
 // const SUPABASE_URL = "http://localhost:8000/";
 // const ANON_KEY =
 // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE";
@@ -42,22 +45,24 @@ export async function createRandomUser(name: string) {
   };
 }
 
-export async function stopSupabase() {
-  console.log("supabase stop");
-  cp.execSync("npx --no supabase stop");
-  console.log("end: supabase stop");
+export function createWsProvider(ws?: any) {
+  return new HocuspocusProviderWebsocket({
+    url: "ws://localhost:1234",
+    WebSocketPolyfill: ws,
+  });
 }
 
-export async function startSupabase() {
-  console.log("supabase start");
-  cp.execSync("npx --no supabase start");
-  console.log("end: supabase start");
-}
-
-export async function resetSupabaseDB() {
-  console.log("reset db");
-  // cp.execSync("npx --no supabase db reset");
-  console.log("done reset db");
-  // Wait for the database to be ready, in a not so nice way
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+export function createHPProvider(
+  docId: string,
+  ydoc: Y.Doc,
+  token: string,
+  wsProvider: HocuspocusProviderWebsocket
+) {
+  return new HocuspocusProvider({
+    name: docId,
+    document: ydoc,
+    token,
+    websocketProvider: wsProvider,
+    broadcast: false,
+  });
 }

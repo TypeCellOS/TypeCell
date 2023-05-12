@@ -24,19 +24,16 @@ export class SyncManager extends lifecycle.Disposable {
   private initializeCalled = false;
   private disposed = false;
 
-  public doc:
-    | {
-        status: "loading";
-        ydoc: Y.Doc;
-      }
+  public state:
+    | { status: "loading" }
     | {
         status: "syncing";
         localDoc: LocalDoc;
-      };
+      } = { status: "loading" };
 
   public get docOrStatus() {
     const remoteStatus = this.remote.status;
-    if (this.doc.status === "loading") {
+    if (this.state.status === "loading") {
       if (remoteStatus === "loaded") {
         // throw new Error("not possible"); // TODO: is this safe?
         console.error(
@@ -46,16 +43,11 @@ export class SyncManager extends lifecycle.Disposable {
       }
       return remoteStatus;
     }
-    return this.doc.localDoc.ydoc;
+    return this.state.localDoc.ydoc;
   }
 
-  private get ydoc() {
-    if (this.doc.status === "syncing") {
-      return this.doc.localDoc.ydoc;
-    } else {
-      return this.doc.ydoc;
-    }
-  }
+  private readonly ydoc: Y.Doc;
+
   /**
    * Get the managed "doc". Returns:
    * - a Y.Doc encapsulating the loaded doc if available
@@ -75,24 +67,26 @@ export class SyncManager extends lifecycle.Disposable {
   public readonly remote: Remote;
   constructor(
     public readonly identifier: Identifier,
-    private readonly localDoc: LocalDoc | undefined,
+    // private readonly localDoc: LocalDoc | undefined,
     private readonly sessionStore: SessionStore
   ) {
     super();
-    if (localDoc) {
-      this.doc = {
-        status: "syncing",
-        localDoc: localDoc,
-      };
-    } else {
-      this.doc = {
-        status: "loading",
-        ydoc: new Y.Doc({ guid: this.identifier.toString() }),
-      };
-    }
+    // if (localDoc) {
+    //   this.doc = {
+    //     status: "syncing",
+    //     localDoc: localDoc,
+    //   };
+    // } else {
+    //   this.doc = {
+    //     status: "loading",
+    //     ydoc: new Y.Doc({ guid: this.identifier.toString() }),
+    //   };
+    // }
+
+    this.ydoc = new Y.Doc({ guid: this.identifier.toString() });
 
     makeObservable(this, {
-      doc: observable.ref,
+      state: observable.ref,
       docOrStatus: computed,
     });
 
@@ -137,44 +131,94 @@ export class SyncManager extends lifecycle.Disposable {
   }
 
   public async startSyncing() {
-    if (this.doc.status !== "syncing") {
+    if (this.state.status !== "syncing") {
       throw new Error("not syncing");
     }
-    if (this.doc.localDoc.meta.last_synced_at === null) {
+    if (this.state.localDoc.meta.last_synced_at === null) {
       await this.remote.createAndRetry();
     }
     this.remote.startSyncing();
     // listen for events
   }
 
-  public async loadFromRemote() {
+  private async loadFromRemote() {
     await this.remote.startSyncing();
-    when(
-      () => this.remote.status === "loaded",
-      () => {
-        const localDoc = coordinator.createDocumentFromRemote(
-          this.identifier,
-          this.ydoc
-        );
+    await when(() => this.remote.status === "loaded");
 
-        runInAction(() => {
-          this.doc = {
-            status: "syncing",
-            localDoc,
-          };
-        });
-      }
+    const localDoc = coordinator.createDocumentFromRemote(
+      this.identifier,
+      this.ydoc
     );
+
+    if (localDoc.meta.last_synced_at === null) {
+      // TODO
+      // throw new Error("not possible");
+    }
+
+    runInAction(() => {
+      this.state = {
+        status: "syncing",
+        localDoc,
+      };
+    });
 
     // on sync add to store
     // listen for events
+  }
+
+  public async create(forkSource?: Y.Doc) {
+    if (this.initializeCalled) {
+      throw new Error("load() called when already initialized");
+    }
+    this.initializeCalled = true;
+
+    const doc = await coordinator.createDocument(this.identifier, this.ydoc);
+
+    if (forkSource) {
+      Y.applyUpdateV2(doc.ydoc, Y.encodeStateAsUpdateV2(forkSource)); // TODO
+    }
+
+    runInAction(() => {
+      this.state = {
+        status: "syncing",
+        localDoc: doc,
+      };
+    });
+    return this.startSyncing();
+  }
+
+  public async load() {
+    if (this.initializeCalled) {
+      throw new Error("load() called when already initialized");
+    }
+    this.initializeCalled = true;
+    const doc = coordinator.loadDocument(this.identifier, this.ydoc);
+
+    if (doc === "not-found") {
+      // the document did not exist locally
+      return this.loadFromRemote();
+    } else {
+      // the document was previously loaded (and exists in the local cache)
+
+      // TODO: catch when doc didn't exist locally
+
+      await doc.idbProvider.whenSynced;
+      console.log("done synced", doc.ydoc.toJSON());
+      runInAction(() => {
+        this.state = {
+          status: "syncing",
+          localDoc: doc,
+        };
+      });
+      return this.startSyncing();
+    }
   }
 
   public async clearAndReload() {
     await coordinator.deleteLocal(this.identifier);
     this.dispose();
 
-    return SyncManager.load(this.identifier);
+    return SyncManager.load(this.identifier, this.sessionStore);
   }
 
   public async fork() {
@@ -215,6 +259,7 @@ export class SyncManager extends lifecycle.Disposable {
   // }
 
   public dispose() {
+    this.ydoc.destroy();
     this.disposed = true;
     super.dispose();
   }
@@ -229,15 +274,10 @@ export class SyncManager extends lifecycle.Disposable {
     //  - periodically "create" when not created
     //  - sync when created, update values in coordinator
 
-    const doc = await coordinator.createDocument(identifier);
+    const manager = new SyncManager(identifier, sessionStore);
 
-    const manager = new SyncManager(identifier, doc, sessionStore);
+    manager.create(forkSource);
 
-    if (forkSource) {
-      Y.applyUpdateV2(doc.ydoc, Y.encodeStateAsUpdateV2(forkSource)); // TODO
-    }
-
-    manager.startSyncing();
     return manager;
   }
 
@@ -251,16 +291,20 @@ export class SyncManager extends lifecycle.Disposable {
     //  - load from coordinator
     //  - start syncing, update values in coordinator
 
-    const doc = coordinator.loadDocument(identifier);
+    // const doc = coordinator.loadDocument(identifier);
 
-    let manager: SyncManager;
-    if (doc === "not-found") {
-      manager = new SyncManager(identifier, undefined, sessionStore);
-      manager.loadFromRemote();
-    } else {
-      manager = new SyncManager(identifier, doc, sessionStore);
-      manager.startSyncing();
-    }
+    // let manager: SyncManager;
+    // if (doc === "not-found") {
+    //   manager = new SyncManager(identifier, undefined, sessionStore);
+    //   manager.loadFromRemote();
+    // } else {
+    //   manager = new SyncManager(identifier, doc, sessionStore);
+    //   manager.startSyncing();
+    // }
+
+    let manager = new SyncManager(identifier, sessionStore);
+    manager.load();
+    // TODO: don't return synced when idb is still loading
 
     return manager;
   }

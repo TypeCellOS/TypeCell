@@ -1,3 +1,4 @@
+import { Logger } from "@hocuspocus/extension-logger";
 import {
   onAuthenticatePayload,
   onChangePayload,
@@ -58,7 +59,7 @@ async function onChange(data: onChangePayload) {
 }
 
 const server = Server.configure({
-  extensions: [new SupabaseHocuspocus({})],
+  extensions: [new Logger(), new SupabaseHocuspocus({})],
 });
 
 server.listen(1234);

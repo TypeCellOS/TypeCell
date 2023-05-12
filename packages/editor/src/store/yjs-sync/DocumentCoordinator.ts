@@ -50,7 +50,10 @@ export class DocumentCoordinator extends lifecycle.Disposable {
   }
 
   // create a new document locally
-  public async createDocument(identifier: Identifier): Promise<LocalDoc> {
+  public async createDocument(
+    identifier: Identifier,
+    targetYDoc: Y.Doc
+  ): Promise<LocalDoc> {
     const idStr = identifier.toString();
     if (!this.indexedDBProvider.synced) {
       throw new Error("not initialized");
@@ -69,19 +72,22 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
     this.documents.set(idStr, meta);
 
-    const ydoc = new Y.Doc({ guid: idStr });
     // TODO: listen to updates
 
     const idbProvider = new IndexeddbPersistence(
       this.userId + "-doc-" + idStr,
-      ydoc
+      targetYDoc
     );
 
     const doc: LocalDoc = {
-      ydoc,
+      ydoc: targetYDoc,
       meta,
       idbProvider,
     };
+
+    targetYDoc.on("destroy", () => {
+      this.loadedDocuments.delete(idStr);
+    });
 
     this.loadedDocuments.set(idStr, doc);
     return doc;
@@ -89,7 +95,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
   public createDocumentFromRemote(
     identifier: Identifier,
-    ydoc: Y.Doc
+    targetYDoc: Y.Doc
   ): LocalDoc {
     const idStr = identifier.toString();
     if (!this.indexedDBProvider.synced) {
@@ -113,21 +119,29 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
     const idbProvider = new IndexeddbPersistence(
       this.userId + "-doc-" + idStr,
-      ydoc
+      targetYDoc
     );
 
     const doc: LocalDoc = {
-      ydoc,
+      ydoc: targetYDoc,
       meta,
       idbProvider,
     };
 
+    targetYDoc.on("destroy", () => {
+      this.loadedDocuments.delete(idStr);
+    });
+
     this.loadedDocuments.set(idStr, doc);
+
     return doc;
   }
 
   // load a document from local store
-  public loadDocument(identifier: Identifier): LocalDoc | "not-found" {
+  public loadDocument(
+    identifier: Identifier,
+    targetYDoc: Y.Doc
+  ): LocalDoc | "not-found" {
     const idStr = identifier.toString();
     if (!this.indexedDBProvider.synced) {
       throw new Error("not initialized");
@@ -152,18 +166,22 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       return "not-found";
     }
 
-    const ydoc = new Y.Doc({ guid: idStr });
     // TODO: listen to updates
 
     const idbProvider = new IndexeddbPersistence(
       this.userId + "-doc-" + idStr,
-      ydoc
+      targetYDoc
     );
+
     const doc: LocalDoc = {
-      ydoc,
+      ydoc: targetYDoc,
       meta,
       idbProvider,
     };
+
+    targetYDoc.on("destroy", () => {
+      this.loadedDocuments.delete(idStr);
+    });
 
     this.loadedDocuments.set(idStr, doc);
     return doc;

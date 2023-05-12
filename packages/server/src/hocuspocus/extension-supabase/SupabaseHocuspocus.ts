@@ -61,7 +61,6 @@ export class SupabaseHocuspocus extends Database {
       },
       store: async (data: storePayload) => {
         const supabase = this.supabaseMap.get(data.socketId);
-        console.log("store", data.documentName);
         if (!supabase) {
           throw new Error("unexpected: no db client on fetch");
         }
@@ -77,7 +76,6 @@ export class SupabaseHocuspocus extends Database {
           .eq("nano_id", data.documentName)
           .select();
         if (ret.data?.length !== 1) {
-          debugger;
           throw new Error(
             "unexpected: not found when storing " + data.documentName
           );
@@ -245,6 +243,7 @@ export class SupabaseHocuspocus extends Database {
     const refListener = (event: Y.YEvent<any>[], tr: Y.Transaction) =>
       this.refsChanged(data.socketId, data.context.documentId, event, tr);
     data.document.getMap("refs").observeDeep(refListener);
+
     this.refListenersByDocument.set(data.document, refListener);
 
     await super.onLoadDocument(data);

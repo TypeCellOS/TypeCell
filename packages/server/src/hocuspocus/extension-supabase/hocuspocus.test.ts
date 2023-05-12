@@ -1,14 +1,12 @@
-import {
-  HocuspocusProvider,
-  HocuspocusProviderWebsocket,
-} from "@hocuspocus/provider";
 import { Server } from "@hocuspocus/server";
 import { beforeAll, describe, expect, it } from "vitest";
 import ws from "ws";
 import * as Y from "yjs";
 import {
   createDocument,
+  createHPProvider,
   createRandomUser,
+  createWsProvider,
 } from "../../supabase/test/supabaseTestUtil";
 import { SupabaseHocuspocus } from "./SupabaseHocuspocus";
 
@@ -71,27 +69,6 @@ it("should sync user data via yjs", async () => {
   //   provider.on("synced", () => {});
 });*/
 
-function createWsProvider() {
-  return new HocuspocusProviderWebsocket({
-    url: "ws://localhost:1234",
-    WebSocketPolyfill: ws,
-  });
-}
-
-function createHPProvider(
-  docId: string,
-  ydoc: Y.Doc,
-  token: string,
-  wsProvider: HocuspocusProviderWebsocket
-) {
-  return new HocuspocusProvider({
-    name: docId,
-    document: ydoc,
-    token,
-    websocketProvider: wsProvider,
-    broadcast: false,
-  });
-}
 describe("SupabaseHocuspocus", () => {
   let alice: Awaited<ReturnType<typeof createRandomUser>>;
   let bob: Awaited<ReturnType<typeof createRandomUser>>;
@@ -115,7 +92,7 @@ describe("SupabaseHocuspocus", () => {
     it.only("should sync when Alice reopens", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider();
+      const wsProvider = createWsProvider(ws);
 
       const provider = createHPProvider(
         docId,
@@ -144,7 +121,7 @@ describe("SupabaseHocuspocus", () => {
     it("should sync when Alice opens 2 connections", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider();
+      const wsProvider = createWsProvider(ws);
 
       const provider = createHPProvider(
         docId,
@@ -172,7 +149,7 @@ describe("SupabaseHocuspocus", () => {
     it("should not sync to Bob", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider();
+      const wsProvider = createWsProvider(ws);
 
       const provider = createHPProvider(
         docId,
@@ -247,7 +224,7 @@ describe("SupabaseHocuspocus", () => {
     it("should add and remove refs to database", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider();
+      const wsProvider = createWsProvider(ws);
 
       const provider = createHPProvider(
         docId,

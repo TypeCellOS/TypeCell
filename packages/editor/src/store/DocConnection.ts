@@ -56,7 +56,10 @@ export class DocConnection extends lifecycle.Disposable {
       () => {
         this._baseResourceCache = undefined;
         this.manager?.dispose();
-        this.manager = SyncManager.load(identifier);
+        this.manager = SyncManager.load(
+          identifier,
+          getStoreService().sessionStore
+        );
       },
       { fireImmediately: true }
     );
@@ -188,7 +191,10 @@ export class DocConnection extends lifecycle.Disposable {
     }
 
     const identifier = sessionStore.getIdentifierForNewDocument();
-    const syncManager = await SyncManager.create(identifier);
+    const syncManager = await SyncManager.create(
+      identifier,
+      getStoreService().sessionStore
+    );
 
     if (cache.get(identifier.toString())) {
       throw new Error("create called, but already in cache");
@@ -227,7 +233,10 @@ export class DocConnection extends lifecycle.Disposable {
 
     let connection = cache.get(identifier.toString());
     if (!connection) {
-      const syncManager = SyncManager.load(identifier);
+      const syncManager = SyncManager.load(
+        identifier,
+        getStoreService().sessionStore
+      );
 
       connection = new DocConnection(identifier, syncManager);
       cache.set(identifier.toString(), connection);

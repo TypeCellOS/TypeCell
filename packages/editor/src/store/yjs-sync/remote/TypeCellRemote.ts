@@ -30,6 +30,21 @@ export class TypeCellRemote extends Remote {
   private _canWriteAtom = createAtom("_canWrite");
   private disposed = false;
 
+  private static _offline = true;
+
+  public static get Offline() {
+    return this._offline;
+  }
+
+  public static set Offline(val: boolean) {
+    if (val) {
+      wsProvider?.disconnect();
+    } else {
+      wsProvider?.connect();
+    }
+    this._offline = val;
+  }
+
   constructor(
     _ydoc: Y.Doc,
     private readonly identifier: TypeCellIdentifier,
@@ -63,7 +78,7 @@ export class TypeCellRemote extends Remote {
   public async create() {
     const sessionStore = this.sessionStore;
 
-    if (!sessionStore.loggedInUserId) {
+    if (!sessionStore.loggedInUserId || !sessionStore.userId) {
       throw new Error("no user available on create document");
     }
 
@@ -77,6 +92,10 @@ export class TypeCellRemote extends Remote {
       public_access_level: "read",
       user_id: sessionStore.userId,
     } as const;
+
+    if (TypeCellRemote.Offline) {
+      throw new Error("offline");
+    }
 
     const ret = await sessionStore.supabase
       .from("documents")

@@ -48,9 +48,13 @@ export abstract class Remote extends lifecycle.Disposable {
     });
 
     while (true) {
-      const ret = await this.create();
-      if (ret !== "error") {
-        break;
+      try {
+        const ret = await this.create();
+        if (ret !== "error") {
+          break;
+        }
+      } catch (e) {
+        console.error("error in remote.create ", e);
       }
 
       const p = async.timeout(10000);
