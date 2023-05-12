@@ -1,11 +1,9 @@
 import { observer } from "mobx-react-lite";
 import { VscWarning } from "react-icons/vsc";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { BaseResource } from "../../../../store/BaseResource";
 import { DocumentResource } from "../../../../store/DocumentResource";
 import { getStoreService } from "../../../../store/local/stores";
-import { UnreachableCaseError } from "../../../../util/UnreachableCaseError";
-import { toDocument, toLoginScreen } from "../../../routes/routes";
+import { toLoginScreen } from "../../../routes/routes";
 import styles from "./ForkAlert.module.css";
 
 export const ForkAlert = observer((props: { document: DocumentResource }) => {
@@ -27,14 +25,15 @@ export const ForkAlert = observer((props: { document: DocumentResource }) => {
           throw new Error("unexpected, forking without currentDocument");
         }
         const result = await props.document.connection.fork();
-        if (result instanceof BaseResource) {
-          navigate(toDocument(result));
-        } else {
-          if (result !== "error") {
-            throw new UnreachableCaseError(result);
-          }
-          throw new Error("error while forking");
-        }
+        throw new Error("TODO");
+        // if (result instanceof BaseResource) {
+        //   navigate(toDocument(result));
+        // } else {
+        //   if (result !== "error") {
+        //     throw new UnreachableCaseError(result);
+        //   }
+        //   throw new Error("error while forking");
+        // }
         return false;
       }}>
       <span>save a copy</span>

@@ -1,5 +1,3 @@
-import { MatrixAuthStore } from "../../app/matrix-auth/MatrixAuthStore";
-import { MatrixSessionStore } from "../../app/matrix-auth/MatrixSessionStore";
 import { SupabaseSessionStore } from "../../app/supabase-auth/SupabaseSessionStore";
 import { DEFAULT_PROVIDER } from "../../config/config";
 import { SessionStore } from "./SessionStore";
@@ -11,7 +9,7 @@ class StoreService {
   // );
   public sessionStore: SessionStore =
     DEFAULT_PROVIDER === "matrix"
-      ? new MatrixSessionStore(new MatrixAuthStore())
+      ? new SupabaseSessionStore() //new MatrixSessionStore(new MatrixAuthStore())
       : new SupabaseSessionStore();
   public navigationStore = new NavigationStore(this.sessionStore);
 }

@@ -22,14 +22,18 @@ import {
   VscChevronRight,
   VscKebabVertical,
 } from "react-icons/vsc";
+import { Identifier } from "../../../../identifiers/Identifier";
 import { DocConnection } from "../../../../store/DocConnection";
 import { ChildReference } from "../../../../store/referenceDefinitions/child";
 import styles from "./SidebarTree.module.css";
 
 const RenderItem =
-  (onClick: (item: string) => void, onAddChild: (parentId: string) => void) =>
+  (
+    onClick: (item: Identifier) => void,
+    onAddChild: (parentId: string) => void
+  ) =>
   ({ item, onExpand, onCollapse, provided, depth }: RenderItemParams) => {
-    const doc = DocConnection.get(item.data.id as string)?.tryDoc;
+    const doc = DocConnection.get(item.data.identifier)?.tryDoc;
     if (!doc) {
       throw new Error("Doc not found but should be loaded");
     }
@@ -37,7 +41,7 @@ const RenderItem =
     const onClickHandler = () => {
       // main item has clicked (not chevron, always call onExpand)
       onExpand(item.id);
-      onClick(item.data.id + "");
+      onClick(item.data.identifier);
     };
 
     const onChevronClick = (e: React.MouseEvent) => {
@@ -52,7 +56,7 @@ const RenderItem =
     const onAddClick = (e: React.MouseEvent) => {
       e.stopPropagation();
       onExpand(item.id);
-      onAddChild(item.data.id);
+      onAddChild(item.data.identifier);
     };
 
     const onKebabClick = (e: React.MouseEvent) => {
@@ -120,7 +124,7 @@ const RenderItem =
 export const SidebarTree = observer(
   (props: {
     tree: TreeData;
-    onClick: (item: string) => void;
+    onClick: (item: Identifier) => void;
     onAddNewPage: (parent?: string) => Promise<void>;
   }) => {
     const [akTree, setAktree] = useState(props.tree);

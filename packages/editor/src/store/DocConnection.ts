@@ -14,7 +14,7 @@ import { parseIdentifier } from "../identifiers";
 import { Identifier } from "../identifiers/Identifier";
 import { InboxResource } from "./InboxResource";
 import { getStoreService } from "./local/stores";
-import { YDocSyncManager2 } from "./yjs-sync/YDocSyncManager";
+import { SyncManager } from "./yjs-sync/SyncManager";
 
 const cache = new ObservableMap<string, DocConnection>();
 
@@ -26,7 +26,7 @@ export class DocConnection extends lifecycle.Disposable {
   private _refCount = 0;
 
   /** @internal */
-  private manager: YDocSyncManager2;
+  private manager: SyncManager;
   private _baseResourceCache:
     | undefined
     | {
@@ -36,7 +36,7 @@ export class DocConnection extends lifecycle.Disposable {
 
   protected constructor(
     public readonly identifier: Identifier,
-    syncManager: YDocSyncManager2
+    syncManager: SyncManager
   ) {
     super();
 
@@ -56,7 +56,7 @@ export class DocConnection extends lifecycle.Disposable {
       () => {
         this._baseResourceCache = undefined;
         this.manager?.dispose();
-        this.manager = YDocSyncManager2.load(identifier);
+        this.manager = SyncManager.load(identifier);
       },
       { fireImmediately: true }
     );
@@ -138,6 +138,8 @@ export class DocConnection extends lifecycle.Disposable {
       throw new Error("not logged in");
     }
 
+    throw new Error("TODO");
+    /*
     const result = await this.manager.fork();
 
     if (typeof result === "string") {
@@ -156,7 +158,7 @@ export class DocConnection extends lifecycle.Disposable {
     if (typeof doc === "string") {
       throw new Error("no baseresource after fork");
     }
-    return doc;
+    return doc;*/
   }
 
   public async waitForDoc() {
@@ -185,7 +187,8 @@ export class DocConnection extends lifecycle.Disposable {
       throw new Error("no user available on create document");
     }
 
-    const syncManager = await YDocSyncManager2.create();
+    const identifier = sessionStore.getIdentifierForNewDocument();
+    const syncManager = await SyncManager.create(identifier);
 
     if (cache.get(identifier.toString())) {
       throw new Error("create called, but already in cache");
@@ -224,7 +227,7 @@ export class DocConnection extends lifecycle.Disposable {
 
     let connection = cache.get(identifier.toString());
     if (!connection) {
-      const syncManager = YDocSyncManager2.load(identifier);
+      const syncManager = SyncManager.load(identifier);
 
       connection = new DocConnection(identifier, syncManager);
       cache.set(identifier.toString(), connection);

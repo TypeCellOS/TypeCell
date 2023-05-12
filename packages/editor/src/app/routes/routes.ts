@@ -1,5 +1,4 @@
 import { Location, NavigateFunction, To } from "react-router-dom";
-import { parseIdentifier } from "../../identifiers";
 import { Identifier } from "../../identifiers/Identifier";
 import { identifiersToPath } from "../../identifiers/paths/identifierPathHelpers";
 import { BaseResource } from "../../store/BaseResource";
@@ -60,12 +59,9 @@ export function toIdentifier(identifier: Identifier): To {
   return { pathname: "/" + identifiersToPath(identifier) };
 }
 
-export function toIdentifierString(identifier: string): To {
-  return toIdentifier(parseIdentifier(identifier));
-}
-
 export function toNewGuestNotebook(): To {
-  return toIdentifier(parseIdentifier({ owner: "@typecell", document: "new" }));
+  return "/TODO";
+  // return toIdentifier(parseIdentifier({ owner: "@typecell", document: "new" }));
 }
 
 export function toProfilePage(owner: string): To {

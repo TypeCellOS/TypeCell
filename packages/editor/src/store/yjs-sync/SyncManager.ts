@@ -12,12 +12,14 @@ import { DocumentCoordinator, LocalDoc } from "./DocumentCoordinator";
 import FetchRemote from "./remote/FetchRemote";
 import { FilebridgeRemote } from "./remote/FilebridgeRemote";
 import GithubRemote from "./remote/GithubRemote";
-import { MatrixRemote } from "./remote/MatrixRemote";
+// import { MatrixRemote } from "./remote/MatrixRemote";
+import { SupabaseSessionStore } from "../../app/supabase-auth/SupabaseSessionStore";
+import { SessionStore } from "../local/SessionStore";
 import { Remote } from "./remote/Remote";
 import { TypeCellRemote } from "./remote/TypeCellRemote";
 
-const coordinator = new DocumentCoordinator("test");
-export class YDocSyncManager2 extends lifecycle.Disposable {
+export const coordinator = new DocumentCoordinator("test");
+export class SyncManager extends lifecycle.Disposable {
   // private _ydoc: Y.Doc;
   private initializeCalled = false;
   private disposed = false;
@@ -73,7 +75,8 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
   public readonly remote: Remote;
   constructor(
     public readonly identifier: Identifier,
-    private readonly localDoc: LocalDoc | undefined
+    private readonly localDoc: LocalDoc | undefined,
+    private readonly sessionStore: SessionStore
   ) {
     super();
     if (localDoc) {
@@ -118,23 +121,28 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
     } else if (identifier instanceof HttpsIdentifier) {
       return new FetchRemote(this.ydoc, identifier);
     } else if (identifier instanceof MatrixIdentifier) {
-      return new MatrixRemote(this.ydoc, identifier);
+      throw new Error("nope");
+      // return new MatrixRemote(this.ydoc, identifier);
     } else if (identifier instanceof TypeCellIdentifier) {
-      return new TypeCellRemote(this.ydoc, identifier);
+      if (!(this.sessionStore instanceof SupabaseSessionStore)) {
+        // TODO: should this be possible?
+        throw new Error(
+          "can't load from supabase without supabasesessionstore"
+        );
+      }
+      return new TypeCellRemote(this.ydoc, identifier, this.sessionStore);
     } else {
       throw new Error("unsupported identifier");
     }
   }
 
-  public async createAndSync() {
-    await this.remote.createAndRetry();
-    // Set as created
-
-    this.remote.startSyncing();
-    // listen for events
-  }
-
   public async startSyncing() {
+    if (this.doc.status !== "syncing") {
+      throw new Error("not syncing");
+    }
+    if (this.doc.localDoc.meta.last_synced_at === null) {
+      await this.remote.createAndRetry();
+    }
     this.remote.startSyncing();
     // listen for events
   }
@@ -166,7 +174,7 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
     await coordinator.deleteLocal(this.identifier);
     this.dispose();
 
-    return YDocSyncManager2.load(this.identifier);
+    return SyncManager.load(this.identifier);
   }
 
   public async fork() {
@@ -211,7 +219,11 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
     super.dispose();
   }
 
-  public static async create(identifier: Identifier, forkSource?: Y.Doc) {
+  public static async create(
+    identifier: Identifier,
+    sessionStore: SessionStore,
+    forkSource?: Y.Doc
+  ) {
     // create locally
     // start syncing:
     //  - periodically "create" when not created
@@ -219,17 +231,17 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
 
     const doc = await coordinator.createDocument(identifier);
 
-    const manager = new YDocSyncManager2(identifier, doc);
+    const manager = new SyncManager(identifier, doc, sessionStore);
 
     if (forkSource) {
       Y.applyUpdateV2(doc.ydoc, Y.encodeStateAsUpdateV2(forkSource)); // TODO
     }
 
-    manager.createAndSync();
+    manager.startSyncing();
     return manager;
   }
 
-  public static load(identifier: Identifier) {
+  public static load(identifier: Identifier, sessionStore: SessionStore) {
     // IF not existing
     // - load from remote
     // - create locally
@@ -241,12 +253,12 @@ export class YDocSyncManager2 extends lifecycle.Disposable {
 
     const doc = coordinator.loadDocument(identifier);
 
-    let manager: YDocSyncManager2;
+    let manager: SyncManager;
     if (doc === "not-found") {
-      manager = new YDocSyncManager2(identifier, undefined);
+      manager = new SyncManager(identifier, undefined, sessionStore);
       manager.loadFromRemote();
     } else {
-      manager = new YDocSyncManager2(identifier, doc);
+      manager = new SyncManager(identifier, doc, sessionStore);
       manager.startSyncing();
     }
 

@@ -18,6 +18,7 @@ export class TypeCellModuleCompiler extends SourceModelCompiler {
       throw new Error("invalid module name");
     }
 
+    // TODO
     const identifier = parseIdentifier(moduleName.substr(1));
 
     this.connection = DocConnection.load(identifier);

@@ -17,39 +17,15 @@ function getIdFromPath(path: string) {
 
 export class TypeCellIdentifier extends Identifier {
   public static schemes = ["typecell"];
-  public readonly owner: string;
-  public readonly documentId: string;
 
   constructor(uriToParse: uri.URI) {
-    // TODO: validate parts, lowercase, alphanumeric?
-    const parts = uriToParse.path.split("/");
-    if (parts.length !== 3 || parts[0] !== "") {
-      throw new Error("invalid identifier");
+    super(TypeCellIdentifier.schemes, uriToParse);
+  }
+
+  get documentId() {
+    if (!this.uri.path.startsWith("/")) {
+      throw new Error("invalid path");
     }
-    parts.shift();
-
-    let [owner, document] = parts;
-    document = getIdFromPath(document);
-    if (
-      !owner.startsWith("@") ||
-      !owner.length ||
-      !document.length ||
-      owner.includes("/") ||
-      document.includes("/")
-    ) {
-      throw new Error("invalid identifier");
-    }
-
-    super(
-      TypeCellIdentifier.schemes,
-      uri.URI.from({
-        scheme: uriToParse.scheme,
-        authority: uriToParse.authority || DEFAULT_AUTHORITY,
-        path: "/" + owner + "/~" + document,
-      })
-    );
-
-    this.owner = owner.substring(1);
-    this.documentId = document;
+    return this.uri.path.substring(1);
   }
 }

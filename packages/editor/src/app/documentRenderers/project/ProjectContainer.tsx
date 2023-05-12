@@ -7,7 +7,6 @@ import {
 import { TreeData, TreeItem } from "@atlaskit/tree";
 import { observer } from "mobx-react-lite";
 import { useLocation, useNavigate } from "react-router-dom";
-import { parseIdentifier } from "../../../identifiers";
 import { Identifier } from "../../../identifiers/Identifier";
 import { identifiersToPath } from "../../../identifiers/paths/identifierPathHelpers";
 import { BaseResource } from "../../../store/BaseResource";
@@ -68,6 +67,7 @@ function docToTreeItem(
     isExpanded: root,
     data: {
       id: doc.id,
+      identifier: doc.identifier,
       allChildren: children.map((c) => c.target),
       title: doc.type === "!notebook" ? doc.doc.title : "",
     },
@@ -150,10 +150,8 @@ const ProjectContainer = observer((props: Props) => {
     // );
   };
 
-  const onClick = (item: string) => {
-    const id = parseIdentifier(item);
-
-    const path = identifiersToPath([props.project.identifier, id]);
+  const onClick = (identifier: Identifier) => {
+    const path = identifiersToPath([props.project.identifier, identifier]);
 
     navigate({
       pathname: "/" + path,

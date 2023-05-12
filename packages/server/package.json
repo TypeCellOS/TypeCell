@@ -10,8 +10,8 @@
   },
   "devDependencies": {
     "typescript": "4.5.5",
-    "@playwright/test": "^1.18.1",
-    "playwright-test": "^8.1.1",
+    "@playwright/test": "^1.33.0",
+    "playwright-test": "^9.0.0",
     "vitest": "^0.24.4",
     "jsdom": "^20.0.0",
     "@vitest/coverage-c8": "^0.24.4",

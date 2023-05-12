@@ -3,16 +3,15 @@ import { arrays, uri } from "vscode-lib";
 import { SessionStore } from "../../store/local/SessionStore";
 // @ts-ignore
 import { createClient } from "@supabase/supabase-js";
-import { navigateRef } from "../App";
+
 import { ANON_KEY } from "./supabaseConfig";
 
 import { uniqueId } from "@typecell-org/common";
 
 import type { Database } from "../../../../../packages/server/src/types/schema";
-import { DEFAULT_HOMESERVER_URI } from "../../config/config";
 import { Identifier } from "../../identifiers/Identifier";
 import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
-import { DocConnection } from "../../store/DocConnection";
+import { navigateRef } from "../GlobalNavigateRef";
 
 export type SupabaseClientType = SupabaseSessionStore["supabase"];
 
@@ -37,7 +36,7 @@ export class SupabaseSessionStore extends SessionStore {
   );
 
   private initialized = false;
-  public userId: string = "";
+  public userId: string | undefined = undefined;
 
   public userColor = arrays.getRandomElement(colors)!;
 
@@ -88,8 +87,8 @@ export class SupabaseSessionStore extends SessionStore {
   public getIdentifierForNewDocument(): Identifier {
     return new TypeCellIdentifier(
       uri.URI.from({
-        scheme: "mx",
-        authority: DEFAULT_HOMESERVER_URI.authority,
+        scheme: "typecell",
+        authority: "typecell.org",
         path: "/" + uniqueId.generateId("document"),
       })
     );
@@ -130,10 +129,10 @@ export class SupabaseSessionStore extends SessionStore {
     if (!this.userId) {
       throw new Error("can't set username when not logged in");
     }
-    const ret = await DocConnection.create({
-      owner: props.ownerId,
-      document: generateId("document"),
-    });
+
+    // TODO: manage aliases
+    // const profileIdentifier = this.getIdentifierForNewDocument();
+    // const ret = DocConnection.create();
 
     const { data, error } = await this.supabase.from("workspaces").insert([
       {
@@ -184,7 +183,7 @@ export class SupabaseSessionStore extends SessionStore {
           this.userId = session.user.id;
         });
         console.log("redirect");
-        navigateRef("/username");
+        navigateRef.current?.("/username");
         // runInAction(() => {
         //   this.user = {
         //     type: "user",

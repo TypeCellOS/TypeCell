@@ -1,4 +1,3 @@
-import * as Olm from "@matrix-org/olm";
 import { MatrixClient } from "matrix-js-sdk";
 import { computed, makeObservable, observable, runInAction } from "mobx";
 import { arrays, uri } from "vscode-lib";
@@ -7,7 +6,6 @@ import { MatrixAuthStore } from "./MatrixAuthStore";
 import { MatrixClientPeg } from "./MatrixClientPeg";
 import { getUserFromMatrixId } from "./matrixUserIds";
 // @ts-ignore
-import olmWasmPath from "@matrix-org/olm/olm.wasm?url";
 import { uniqueId } from "@typecell-org/common";
 import { DEFAULT_HOMESERVER_URI } from "../../config/config";
 import { Identifier } from "../../identifiers/Identifier";
@@ -117,6 +115,8 @@ export class MatrixSessionStore extends SessionStore {
     this.initialized = true;
 
     try {
+      const Olm = await import("@matrix-org/olm");
+      const olmWasmPath = await import("@matrix-org/olm/olm.wasm?url");
       await Olm.init({
         locateFile: () => olmWasmPath,
       });

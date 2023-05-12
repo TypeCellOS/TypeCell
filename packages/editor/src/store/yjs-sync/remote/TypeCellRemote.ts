@@ -8,7 +8,6 @@ import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
 import { SupabaseSessionStore } from "../../../app/supabase-auth/SupabaseSessionStore";
 import { TypeCellIdentifier } from "../../../identifiers/TypeCellIdentifier";
-import { getStoreService } from "../../local/stores";
 import { Remote } from "./Remote";
 
 let wsProvider: HocuspocusProviderWebsocket | undefined;
@@ -31,7 +30,11 @@ export class TypeCellRemote extends Remote {
   private _canWriteAtom = createAtom("_canWrite");
   private disposed = false;
 
-  constructor(_ydoc: Y.Doc, private readonly identifier: TypeCellIdentifier) {
+  constructor(
+    _ydoc: Y.Doc,
+    private readonly identifier: TypeCellIdentifier,
+    private readonly sessionStore: SupabaseSessionStore
+  ) {
     super(_ydoc);
     if (!(identifier instanceof TypeCellIdentifier)) {
       throw new Error("invalid identifier");
@@ -58,11 +61,7 @@ export class TypeCellRemote extends Remote {
   }
 
   public async create() {
-    const sessionStore = getStoreService().sessionStore;
-
-    if (!(sessionStore instanceof SupabaseSessionStore)) {
-      throw new Error("invalid sessionStore (expected SupabaseSessionStore)");
-    }
+    const sessionStore = this.sessionStore;
 
     if (!sessionStore.loggedInUserId) {
       throw new Error("no user available on create document");
@@ -97,17 +96,13 @@ export class TypeCellRemote extends Remote {
       console.warn("already disposed");
       return;
     }
-    const sessionStore = getStoreService().sessionStore;
-    if (!(sessionStore instanceof SupabaseSessionStore)) {
-      throw new Error("invalid sessionStore (expected MatrixSessionStore)");
-    }
 
-    const user = sessionStore.user;
+    const user = this.sessionStore.user;
     if (typeof user === "string") {
       throw new Error("no user");
     }
 
-    const session = (await sessionStore.supabase.auth.getSession()).data
+    const session = (await this.sessionStore.supabase.auth.getSession()).data
       .session;
     const token = session
       ? session.access_token + "$" + session.refresh_token

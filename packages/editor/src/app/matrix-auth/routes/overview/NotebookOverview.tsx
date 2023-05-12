@@ -3,9 +3,7 @@ import { Method } from "matrix-js-sdk";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { parseIdentifier } from "../../../../identifiers";
 import { getStoreService } from "../../../../store/local/stores";
-import { toIdentifier } from "../../../routes/routes";
 import { MatrixSessionStore } from "../../MatrixSessionStore";
 import styles from "./NotebookOverview.module.css";
 
@@ -39,11 +37,7 @@ function parseRoomFromAlias(rawAlias: string): Room | undefined {
 const RoomInfo = function (props: { room: Room }) {
   return (
     <div className={styles.room}>
-      <Link
-        to={toIdentifier(
-          parseIdentifier({ owner: props.room.user, document: props.room.name })
-        )}
-        className={styles.roomName}>
+      <Link to={"TODO"} className={styles.roomName}>
         {props.room.name}
       </Link>
       <div className={styles.user}>{props.room.user}</div>

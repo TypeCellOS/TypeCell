@@ -1,13 +1,13 @@
 import { observer } from "mobx-react-lite";
 import {
   BrowserRouter,
-  NavigateFunction,
   Outlet,
   Route,
   Routes,
   useNavigate,
 } from "react-router-dom";
 import { getStoreService, initializeStoreService } from "../store/local/stores";
+import { navigateRef, setNavigateRef } from "./GlobalNavigateRef";
 import Main from "./main/Main";
 import { AILanding } from "./main/components/startscreen/AILanding";
 import { StartScreen } from "./main/components/startscreen/StartScreen";
@@ -16,13 +16,11 @@ import { DocumentRoute } from "./routes/document";
 import { DynamicRoute } from "./routes/dynamic";
 import { ProfileRoute } from "./routes/profile";
 
-export let navigateRef: NavigateFunction | undefined;
-
 const Wrapper = observer(() => {
   const navigate = useNavigate();
 
   if (!navigateRef) {
-    navigateRef = navigate;
+    setNavigateRef(navigate);
     initializeStoreService();
   }
   const { sessionStore } = getStoreService();
