@@ -56,6 +56,9 @@ export class DocConnection extends lifecycle.Disposable {
       () => {
         this._baseResourceCache = undefined;
         this.manager?.dispose();
+        if (!getStoreService().sessionStore.user) {
+          return;
+        }
         this.manager = SyncManager.load(
           identifier,
           getStoreService().sessionStore
@@ -187,7 +190,8 @@ export class DocConnection extends lifecycle.Disposable {
   public static async create() {
     const sessionStore = getStoreService().sessionStore;
     if (!sessionStore.loggedInUserId) {
-      throw new Error("no user available on create document");
+      // Note: can happen on sign up
+      console.warn("no user available on create document");
     }
 
     const identifier = sessionStore.getIdentifierForNewDocument();

@@ -21,7 +21,10 @@ export async function initializeStoreService() {
   await storeService.sessionStore.initialize();
 }
 
-export function getStoreService() {
+export function getStoreService(initialize?: boolean) {
+  // if (initialize) {
+  //   initializeStoreService();
+  // }
   if (!storeService) {
     throw new Error("store service not initialized");
   }

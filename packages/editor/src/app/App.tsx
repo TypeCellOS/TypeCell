@@ -13,13 +13,12 @@ import { AILanding } from "./main/components/startscreen/AILanding";
 import { StartScreen } from "./main/components/startscreen/StartScreen";
 import { matrixAuthProvider } from "./matrix-auth/MatrixAuthProvider";
 import { DocumentRoute } from "./routes/document";
-import { DynamicRoute } from "./routes/dynamic";
 import { ProfileRoute } from "./routes/profile";
 
 const Wrapper = observer(() => {
   const navigate = useNavigate();
 
-  if (!navigateRef) {
+  if (!navigateRef.current) {
     setNavigateRef(navigate);
     initializeStoreService();
   }
@@ -43,13 +42,17 @@ export const App = observer(
         <Routes>
           <Route element={<Wrapper />}>
             <Route path="/" element={<Main />}>
-              <Route path="@:userParam" element={<ProfileRoute />}></Route>
-              <Route
-                path="@:userParam/:documentParam"
-                element={<DocumentRoute />}></Route>
               <Route index element={<StartScreen></StartScreen>}></Route>
               <Route path="/ai" element={<AILanding />} />
-              <Route path="*" element={<DynamicRoute />} />
+
+              <Route path=":userParam" element={<ProfileRoute />}></Route>
+              <Route
+                path=":userParam/:workspaceParam"
+                element={<DocumentRoute />}></Route>
+              <Route
+                path=":userParam/:workspaceParam/*"
+                element={<DocumentRoute />}></Route>
+              {/* <Route path="*" element={<DynamicRoute />} /> */}
             </Route>
             <Route
               path="/register"

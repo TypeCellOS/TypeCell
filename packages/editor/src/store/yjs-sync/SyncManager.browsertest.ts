@@ -11,7 +11,7 @@ import {
 } from "../../../../../packages/server/src/supabase/test/supabaseTestUtil";
 import { SupabaseSessionStore } from "../../app/supabase-auth/SupabaseSessionStore";
 import { parseIdentifier } from "../../identifiers";
-import { SyncManager, coordinator } from "./SyncManager";
+import { SyncManager } from "./SyncManager";
 import { TypeCellRemote } from "./remote/TypeCellRemote";
 
 export function getRandomUserData(basename: string) {
@@ -90,7 +90,7 @@ describe("SyncManager tests", () => {
     wsProvider = createWsProvider();
 
     // initialize the main user we're testing
-    await coordinator.initialize();
+    // await coordinator.initialize();
 
     sessionStore = new SupabaseSessionStore();
     await sessionStore.initialize();

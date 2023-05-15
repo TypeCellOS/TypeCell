@@ -7,6 +7,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  DefaultShorthandResolver,
   identifiersToPath,
   pathToIdentifier,
   pathToIdentifiers,
@@ -100,7 +101,18 @@ describe("Path handling", () => {
       "typecell:typecell.org/test~dsdf34f:/typecell:typecell.org/sub~dsdf34adff"
     );
     const path = identifiersToPath(identifiers);
-    expect(path).toBe("http:localhost/hello/:/README.md");
+    expect(path).toBe("dsdf34f:/dsdf34adff");
+  });
+
+  it("simplifies paths of tc identifiers (with shortcuts)", () => {
+    // const path = identifiersToPath([props.project.identifier, identifier]);
+    const resolver = new DefaultShorthandResolver();
+    resolver.addShorthand("@user/public", "typecell:typecell.org/dProject");
+    const identifiers = pathToIdentifiers(
+      "typecell:typecell.org/dProject:/typecell:typecell.org/dDocument"
+    );
+    const path = identifiersToPath(identifiers, resolver);
+    expect(path).toBe("@user/public/dDocument");
   });
 
   it("handles shorthands", () => {
@@ -112,16 +124,16 @@ describe("Path handling", () => {
   });
 
   it("handles default base", () => {
-    const identifiers = pathToIdentifiers("@user/doc");
+    const identifiers = pathToIdentifiers("dSdff234234");
 
     expect(identifiers.length).toBe(1);
 
-    expect(identifiers[0].uri.scheme).toBe("mx");
-    expect(identifiers[0].uri.authority).toBe("mx.typecell.org");
-    expect(identifiers[0].uri.path).toBe("/@user/doc");
+    expect(identifiers[0].uri.scheme).toBe("typecell");
+    expect(identifiers[0].uri.authority).toBe("typecell.org");
+    expect(identifiers[0].uri.path).toBe("/dSdff234234");
 
     const path = identifiersToPath(identifiers);
-    expect(path).toBe("@user/doc");
+    expect(path).toBe("dSdff234234");
   });
 });
 

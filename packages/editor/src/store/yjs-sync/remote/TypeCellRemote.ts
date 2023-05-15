@@ -12,6 +12,9 @@ import { Remote } from "./Remote";
 
 let wsProvider: HocuspocusProviderWebsocket | undefined;
 
+function toHex(arr: Uint8Array) {
+  return [...arr].map((x) => x.toString(16).padStart(2, "0") as any).join("");
+}
 function getWSProvider() {
   if (!wsProvider) {
     wsProvider = new HocuspocusProviderWebsocket({
@@ -30,7 +33,8 @@ export class TypeCellRemote extends Remote {
   private _canWriteAtom = createAtom("_canWrite");
   private disposed = false;
 
-  private static _offline = true;
+  // TODO: set to true and run tests
+  private static _offline = false;
 
   public static get Offline() {
     return this._offline;
@@ -78,16 +82,21 @@ export class TypeCellRemote extends Remote {
   public async create() {
     const sessionStore = this.sessionStore;
 
-    if (!sessionStore.loggedInUserId || !sessionStore.userId) {
+    if (!sessionStore.userId) {
       throw new Error("no user available on create document");
     }
 
+    if (!sessionStore.loggedInUserId) {
+      console.warn("no user available on create document");
+    }
+
     const date = JSON.stringify(new Date());
+    const data = Y.encodeStateAsUpdate(this._ydoc);
     const doc = {
       id: uuid.generateUuid(),
       created_at: date,
       updated_at: date,
-      data: "",
+      data: "\\x" + toHex(data),
       nano_id: this.identifier.documentId,
       public_access_level: "read",
       user_id: sessionStore.userId,

@@ -34,6 +34,7 @@ export const Username = observer((props: {}) => {
         await sessionStore.setUsername(data.username);
       }
     } catch (e) {
+      console.error(e);
       return {
         username: "unknown-error",
       };

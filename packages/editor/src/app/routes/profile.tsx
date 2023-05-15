@@ -3,7 +3,7 @@ import Profile from "../main/components/Profile";
 
 export const ProfileRoute = () => {
   let params = useParams();
-  if (!params.userParam) {
+  if (!params.userParam || !params.userParam.startsWith("@")) {
     throw new Error("unexpected");
   }
 

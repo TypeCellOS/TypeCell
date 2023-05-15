@@ -38,9 +38,10 @@ function userCanEditPermissions(
   if (identifier && identifier instanceof MatrixIdentifier) {
     return sessionStore.loggedInUserId === identifier.owner;
   }
-  if (identifier && identifier instanceof TypeCellIdentifier) {
-    return sessionStore.loggedInUserId === identifier.owner;
-  }
+  // TODO
+  // if (identifier && identifier instanceof TypeCellIdentifier) {
+  //   return sessionStore.loggedInUserId === identifier.owner;
+  // }
   return false;
 }
 

@@ -10,6 +10,7 @@ import { uniqueId } from "@typecell-org/common";
 import { DEFAULT_HOMESERVER_URI } from "../../config/config";
 import { Identifier } from "../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";
+import { DocumentCoordinator } from "../../store/yjs-sync/DocumentCoordinator";
 
 const colors = [
   "#958DF1",
@@ -35,12 +36,14 @@ export class MatrixSessionStore extends SessionStore {
     | {
         type: "guest-user";
         matrixClient: MatrixClient;
+        coordinator: DocumentCoordinator;
       }
     | {
         type: "user";
         fullUserId: string;
         userId: string;
         matrixClient: MatrixClient;
+        coordinator: DocumentCoordinator;
       } = "loading";
 
   /**
@@ -155,6 +158,7 @@ export class MatrixSessionStore extends SessionStore {
           this.user = {
             type: "guest-user",
             matrixClient,
+            coordinator: new DocumentCoordinator("user-mx-guest"),
           };
         });
       } else {
@@ -166,6 +170,9 @@ export class MatrixSessionStore extends SessionStore {
             userId: getUserFromMatrixId(matrixClient.getUserId() as string)
               .localUserId,
             fullUserId: matrixClient.getUserId(), // TODO: nicer to remove make userId represent the full matrix id instead of having a separate property
+            coordinator: new DocumentCoordinator(
+              "user-mx-" + matrixClient.getUserId()
+            ),
           };
         });
       }

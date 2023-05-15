@@ -8,7 +8,7 @@ import { HttpsIdentifier } from "../../identifiers/HttpsIdentifier";
 import { Identifier } from "../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";
 import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
-import { DocumentCoordinator, LocalDoc } from "./DocumentCoordinator";
+import { LocalDoc } from "./DocumentCoordinator";
 import FetchRemote from "./remote/FetchRemote";
 import { FilebridgeRemote } from "./remote/FilebridgeRemote";
 import GithubRemote from "./remote/GithubRemote";
@@ -18,7 +18,6 @@ import { SessionStore } from "../local/SessionStore";
 import { Remote } from "./remote/Remote";
 import { TypeCellRemote } from "./remote/TypeCellRemote";
 
-export const coordinator = new DocumentCoordinator("test");
 export class SyncManager extends lifecycle.Disposable {
   // private _ydoc: Y.Doc;
   private initializeCalled = false;
@@ -101,6 +100,9 @@ export class SyncManager extends lifecycle.Disposable {
     //   },
     // });
     this._register(this.remote);
+    this._register({
+      dispose: () => (this.disposed = true),
+    });
   }
 
   get canWrite(): boolean {
@@ -136,6 +138,11 @@ export class SyncManager extends lifecycle.Disposable {
     }
     if (this.state.localDoc.meta.last_synced_at === null) {
       await this.remote.createAndRetry();
+
+      if (typeof this.sessionStore.user === "string") {
+        throw new Error("logged out while syncing");
+      }
+      this.sessionStore.user.coordinator.markSynced(this.state.localDoc);
     }
     this.remote.startSyncing();
     // listen for events
@@ -145,10 +152,19 @@ export class SyncManager extends lifecycle.Disposable {
     await this.remote.startSyncing();
     await when(() => this.remote.status === "loaded");
 
-    const localDoc = coordinator.createDocumentFromRemote(
-      this.identifier,
-      this.ydoc
-    );
+    if (typeof this.sessionStore.user === "string") {
+      throw new Error("logged out while loading");
+    }
+
+    if (this.disposed) {
+      return;
+    }
+
+    const localDoc =
+      this.sessionStore.user.coordinator.createDocumentFromRemote(
+        this.identifier,
+        this.ydoc
+      );
 
     if (localDoc.meta.last_synced_at === null) {
       // TODO
@@ -172,7 +188,14 @@ export class SyncManager extends lifecycle.Disposable {
     }
     this.initializeCalled = true;
 
-    const doc = await coordinator.createDocument(this.identifier, this.ydoc);
+    if (typeof this.sessionStore.user === "string") {
+      throw new Error("logged out while creating");
+    }
+
+    const doc = await this.sessionStore.user.coordinator.createDocument(
+      this.identifier,
+      this.ydoc
+    );
 
     if (forkSource) {
       Y.applyUpdateV2(doc.ydoc, Y.encodeStateAsUpdateV2(forkSource)); // TODO
@@ -192,7 +215,13 @@ export class SyncManager extends lifecycle.Disposable {
       throw new Error("load() called when already initialized");
     }
     this.initializeCalled = true;
-    const doc = coordinator.loadDocument(this.identifier, this.ydoc);
+    if (typeof this.sessionStore.user === "string") {
+      throw new Error("logged out while loading");
+    }
+    const doc = this.sessionStore.user.coordinator.loadDocument(
+      this.identifier,
+      this.ydoc
+    );
 
     if (doc === "not-found") {
       // the document did not exist locally
@@ -215,7 +244,10 @@ export class SyncManager extends lifecycle.Disposable {
   }
 
   public async clearAndReload() {
-    await coordinator.deleteLocal(this.identifier);
+    if (typeof this.sessionStore.user === "string") {
+      throw new Error("logged out while clearAndReload");
+    }
+    await this.sessionStore.user.coordinator.deleteLocal(this.identifier);
     this.dispose();
 
     return SyncManager.load(this.identifier, this.sessionStore);
@@ -259,6 +291,7 @@ export class SyncManager extends lifecycle.Disposable {
   // }
 
   public dispose() {
+    console.log("SyncManager dispose", this.identifier.toString());
     this.ydoc.destroy();
     this.disposed = true;
     super.dispose();
@@ -273,6 +306,8 @@ export class SyncManager extends lifecycle.Disposable {
     // start syncing:
     //  - periodically "create" when not created
     //  - sync when created, update values in coordinator
+
+    console.log("SyncManager create", identifier.toString());
 
     const manager = new SyncManager(identifier, sessionStore);
 
@@ -302,6 +337,7 @@ export class SyncManager extends lifecycle.Disposable {
     //   manager.startSyncing();
     // }
 
+    console.log("SyncManager load", identifier.toString());
     let manager = new SyncManager(identifier, sessionStore);
     manager.load();
     // TODO: don't return synced when idb is still loading

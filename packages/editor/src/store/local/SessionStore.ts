@@ -1,5 +1,6 @@
 import { lifecycle } from "vscode-lib";
 import { Identifier } from "../../identifiers/Identifier";
+import { DocumentCoordinator } from "../yjs-sync/DocumentCoordinator";
 
 /**
  * The sessionStore keeps track of user related data
@@ -14,11 +15,13 @@ export abstract class SessionStore extends lifecycle.Disposable {
     | "offlineNoUser"
     | {
         type: "guest-user";
+        coordinator: DocumentCoordinator;
       }
     | {
         type: "user";
         fullUserId: string;
         userId: string;
+        coordinator: DocumentCoordinator;
       };
 
   /**

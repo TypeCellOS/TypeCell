@@ -19,6 +19,9 @@ export const DEFAULT_IDENTIFIER_BASE =
         path: "/",
       });
 
+export const DEFAULT_IDENTIFIER_BASE_STRING =
+  DEFAULT_IDENTIFIER_BASE.toString().replace("://", ":");
+
 export const MATRIX_CONFIG = {
   hsName: import.meta.env?.VITE_REACT_APP_HOMESERVER_NAME || "typecell.org",
   hsUrl: DEFAULT_HOMESERVER_URI.toString(),

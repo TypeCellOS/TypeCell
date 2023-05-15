@@ -19,11 +19,20 @@ export class TypeCellIdentifier extends Identifier {
   public static schemes = ["typecell"];
 
   constructor(uriToParse: uri.URI) {
+    if (uriToParse.path.includes("~")) {
+      uriToParse = uriToParse.with({
+        path: "/" + getIdFromPath(uriToParse.path.substring(1)),
+      });
+    }
     super(TypeCellIdentifier.schemes, uriToParse);
+
+    if (!this.uri.path.startsWith("/d")) {
+      throw new Error("invalid path");
+    }
   }
 
   get documentId() {
-    if (!this.uri.path.startsWith("/")) {
+    if (!this.uri.path.startsWith("/d")) {
       throw new Error("invalid path");
     }
     return this.uri.path.substring(1);

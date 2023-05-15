@@ -8,11 +8,18 @@ import { ANON_KEY } from "./supabaseConfig";
 
 import { uniqueId } from "@typecell-org/common";
 
+import * as Y from "yjs";
 import type { Database } from "../../../../../packages/server/src/types/schema";
-import { Identifier } from "../../identifiers/Identifier";
 import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
+import {
+  DefaultShorthandResolver,
+  setDefaultShorthandResolver,
+} from "../../identifiers/paths/identifierPathHelpers";
+import { BaseResource } from "../../store/BaseResource";
+import ProfileResource from "../../store/ProfileResource";
+import { DocumentCoordinator } from "../../store/yjs-sync/DocumentCoordinator";
+import { TypeCellRemote } from "../../store/yjs-sync/remote/TypeCellRemote";
 import { navigateRef } from "../GlobalNavigateRef";
-
 export type SupabaseClientType = SupabaseSessionStore["supabase"];
 
 const colors = [
@@ -46,12 +53,14 @@ export class SupabaseSessionStore extends SessionStore {
     | {
         type: "guest-user";
         supabase: any;
+        coordinator: DocumentCoordinator;
       }
     | {
         type: "user";
         fullUserId: string;
         userId: string;
         supabase: any;
+        coordinator: DocumentCoordinator;
       } = "loading";
 
   public get isLoaded() {
@@ -84,7 +93,7 @@ export class SupabaseSessionStore extends SessionStore {
     await this.supabase.auth.signOut();
   };
 
-  public getIdentifierForNewDocument(): Identifier {
+  public getIdentifierForNewDocument() {
     return new TypeCellIdentifier(
       uri.URI.from({
         scheme: "typecell",
@@ -130,15 +139,43 @@ export class SupabaseSessionStore extends SessionStore {
       throw new Error("can't set username when not logged in");
     }
 
-    // TODO: manage aliases
-    // const profileIdentifier = this.getIdentifierForNewDocument();
-    // const ret = DocConnection.create();
+    const workspaceId = this.getIdentifierForNewDocument();
+    {
+      const ydoc = new Y.Doc();
+      const ret = new BaseResource(ydoc, workspaceId, () => {
+        throw new Error("not implemented");
+      });
+      ret.create("!project");
+      const remote = new TypeCellRemote(ydoc, workspaceId, this);
+      await remote.createAndRetry();
+      ret.dispose();
+      remote.dispose();
+    }
 
+    // TODO: manage aliases
+    const profileId = this.getIdentifierForNewDocument();
+    {
+      const ydoc = new Y.Doc();
+      const ret = new BaseResource(ydoc, profileId, () => {
+        throw new Error("not implemented");
+      });
+      ret.create("!profile");
+      ret
+        .getSpecificType(ProfileResource)
+        .workspaces.set("public", workspaceId.toString());
+      const remote = new TypeCellRemote(ydoc, profileId, this);
+      await remote.createAndRetry();
+      ret.dispose();
+      remote.dispose();
+    }
+
+    debugger;
     const { data, error } = await this.supabase.from("workspaces").insert([
       {
         name: username,
         owner_user_id: this.userId,
         is_username: true,
+        document_nano_id: profileId.documentId,
       },
     ]);
 
@@ -165,14 +202,23 @@ export class SupabaseSessionStore extends SessionStore {
 
       if (usernameRes.data?.length === 1) {
         const username: string = usernameRes.data[0].name;
+        const coordinator = new DocumentCoordinator(
+          "user-tc-" + session.user.id
+        );
+        await coordinator.initialize();
 
         runInAction(() => {
+          setDefaultShorthandResolver(new DefaultShorthandResolver()); // hacky
           this.userId = session.user.id;
+          if (typeof this.user !== "string") {
+            this.user.coordinator.dispose();
+          }
           this.user = {
             type: "user",
             supabase: this.supabase,
             userId: username,
             fullUserId: username,
+            coordinator,
           };
         });
       } else {
@@ -194,10 +240,17 @@ export class SupabaseSessionStore extends SessionStore {
         // });
       }
     } else {
+      const coordinator = new DocumentCoordinator("user-tc-guest");
+      await coordinator.initialize();
       runInAction(() => {
+        if (typeof this.user !== "string") {
+          this.user.coordinator.dispose();
+        }
+        setDefaultShorthandResolver(new DefaultShorthandResolver()); // hacky
         this.user = {
           type: "guest-user",
           supabase: this.supabase,
+          coordinator, // TODO: clean guest sessions?
         };
       });
     }

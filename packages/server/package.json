@@ -5,7 +5,7 @@
   "dependencies": {
     "@hocuspocus/extension-database": "^2.0.3",
     "@hocuspocus/extension-logger": "^2.0.6",
-    "@hocuspocus/server": "^2.0.3",
+    "@hocuspocus/server": "^2.0.6",
     "@supabase/supabase-js": "^2.12.1",
     "vscode-lib": "^0.1.2"
   },

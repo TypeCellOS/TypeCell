@@ -3,6 +3,7 @@ import { tryPathToIdentifiers } from "../../identifiers/paths/identifierPathHelp
 import DocumentView from "../documentRenderers/DocumentView";
 
 export const DynamicRoute = () => {
+  debugger;
   let location = useLocation();
 
   console.warn(location.pathname.substring(1));

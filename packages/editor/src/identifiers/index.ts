@@ -57,7 +57,7 @@ export function parseIdentifier(identifier: string) {
   //       identifier;
   //   }
   // }
-  return pathToIdentifier(identifier);
+  return pathToIdentifier(identifier, undefined);
   // return pathToIdentifiers(identifier)[0];
 }
 

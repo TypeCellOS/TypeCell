@@ -110,7 +110,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       created_at: new Date(),
       create_source: "remote",
       updated_at: new Date(),
-      last_synced_at: null,
+      last_synced_at: new Date(),
     };
 
     this.documents.set(idStr, meta);
@@ -204,6 +204,11 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
     this.loadedDocuments.delete(idStr);
     this.documents.delete(idStr);
+  }
+
+  public async markSynced(localDoc: LocalDoc) {
+    localDoc.meta.last_synced_at = new Date();
+    this.documents.set(localDoc.meta.id, localDoc.meta);
   }
 }
 
