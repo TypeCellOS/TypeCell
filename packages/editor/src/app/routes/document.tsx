@@ -1,11 +1,12 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { uri } from "vscode-lib";
 import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
 import {
   defaultShorthandResolver,
   parseFullIdentifierString,
+  pathToIdentifiers,
 } from "../../identifiers/paths/identifierPathHelpers";
 import { DocConnection } from "../../store/DocConnection";
 import ProfileResource from "../../store/ProfileResource";
@@ -22,6 +23,7 @@ export const DocumentRoute = observer(() => {
     throw new Error("No session store");
   }
 
+  let location = useLocation();
   let params = useParams();
   let owner = params.userParam;
   let workspace = params.workspaceParam;
@@ -166,7 +168,8 @@ export const DocumentRoute = observer(() => {
     return <DocumentView id={parsedIdentifier} subIdentifiers={[]} />;
   }
 
-  return <div>subdoc</div>;
+  const [id, ...subs] = pathToIdentifiers(location.pathname.substring(1));
+  return <DocumentView id={id} subIdentifiers={subs} />;
 
   // const parsedIdentifier = pathToIdentifier(document, [workspaceId]);
   // return <DocumentView id={workspaceId} subIdentifiers={[parsedIdentifier]} />;

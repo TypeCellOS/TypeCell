@@ -29,6 +29,9 @@ export class TypeCellIdentifier extends Identifier {
     if (!this.uri.path.startsWith("/d")) {
       throw new Error("invalid path");
     }
+    if (this.uri.path.split("/").length !== 2) {
+      throw new Error("invalid path");
+    }
   }
 
   get documentId() {

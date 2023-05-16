@@ -31,7 +31,6 @@ export class DocumentResource extends BaseResource {
       return undefined;
     }
 
-    debugger;
     const match = cell.code.toJSON().match(/^# (.*)$/m);
     if (match) {
       return match[1].trim();

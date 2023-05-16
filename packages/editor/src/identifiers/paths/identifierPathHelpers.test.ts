@@ -108,9 +108,12 @@ describe("Path handling", () => {
     // const path = identifiersToPath([props.project.identifier, identifier]);
     const resolver = new DefaultShorthandResolver();
     resolver.addShorthand("@user/public", "typecell:typecell.org/dProject");
-    const identifiers = pathToIdentifiers(
-      "typecell:typecell.org/dProject:/typecell:typecell.org/dDocument"
-    );
+    debugger;
+    const identifiers = pathToIdentifiers("@user/public/dDocument", resolver);
+    expect(identifiers).length(2);
+    expect(identifiers[0].toString()).toBe("typecell:typecell.org/dProject");
+    expect(identifiers[1].toString()).toBe("typecell:typecell.org/dDocument");
+
     const path = identifiersToPath(identifiers, resolver);
     expect(path).toBe("@user/public/dDocument");
   });

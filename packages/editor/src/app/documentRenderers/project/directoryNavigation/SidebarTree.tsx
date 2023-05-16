@@ -198,11 +198,7 @@ export const SidebarTree = observer(
       source: TreeSourcePosition,
       destination?: TreeDestinationPosition
     ) => {
-      if (
-        !destination ||
-        typeof destination.index === "undefined" ||
-        isNaN(destination.index)
-      ) {
+      if (!destination) {
         return;
       }
       const sourceDoc = DocConnection.get(
@@ -220,9 +216,12 @@ export const SidebarTree = observer(
           .id + "";
 
       if (destDoc === sourceDoc) {
-        sourceDoc.moveRef(ChildReference, item, destination.index || 0);
+        if (destination.index === undefined) {
+          throw new Error("no destination index");
+        }
+        sourceDoc.moveRef(ChildReference, item, destination.index);
       } else {
-        destDoc.addRef(ChildReference, item, destination.index, false); // TODO (must be true)
+        destDoc.addRef(ChildReference, item, destination.index || 0, false); // TODO (must be true)
         sourceDoc.removeRef(ChildReference, item);
       }
       // const { tree } = this.state;

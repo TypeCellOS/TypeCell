@@ -41,7 +41,12 @@ abstract class ShorthandResolver {
   /**
    * Given a path (e.g.: `docs/README.md`), return the shorthand at the start of it (e.g.: `docs`)
    */
-  abstract findShorthandAtStartOfPath(path: string): string | undefined;
+  abstract findShorthandAtStartOfPath(path: string):
+    | {
+        shorthand: string;
+        identifier: string;
+      }
+    | undefined;
 }
 
 export class DefaultShorthandResolver extends ShorthandResolver {
@@ -72,16 +77,21 @@ export class DefaultShorthandResolver extends ShorthandResolver {
     return this.reverseShortHands[expandedPath];
   }
 
-  findShorthandAtStartOfPath(path: string): string | undefined {
-    let shortHandMatched: string | undefined;
-
+  findShorthandAtStartOfPath(path: string):
+    | {
+        shorthand: string;
+        identifier: string;
+      }
+    | undefined {
     for (let sh of Object.keys(this.shortHands)) {
       if (path.startsWith(sh)) {
-        shortHandMatched = sh;
-        break;
+        return {
+          shorthand: sh,
+          identifier: this.shortHands[sh]!,
+        };
       }
     }
-    return shortHandMatched;
+    return undefined;
   }
 }
 
@@ -251,11 +261,15 @@ export function pathToIdentifier(
 
     const parent = parentIdentifierList[parentIdentifierList.length - 1];
     parsedUri = parent.uri.with({
-      path: path.join(parent.uri.path || "/", inputPath),
+      // TODO: this hardcoding is hacky. also, do we want different behavior for different identifiers?
+      path:
+        parent instanceof TypeCellIdentifier
+          ? inputPath
+          : path.join(parent.uri.path || "/", inputPath),
     });
     inputPath = parsedUri.toString().replace("://", ":");
   }
-
+  console.log(inputPath);
   return parseFullIdentifierString(inputPath);
 }
 
@@ -276,9 +290,10 @@ export function pathToIdentifiers(
 
     if (shortHandMatched) {
       identifiers.push(
-        pathToIdentifier(shortHandMatched, identifiers, shorthandResolver)
+        parseFullIdentifierString(shortHandMatched.identifier)
+        // pathToIdentifier(shortHandMatched, identifiers, shorthandResolver)
       );
-      const remaining = part.substring(shortHandMatched.length);
+      const remaining = part.substring(shortHandMatched.shorthand.length);
       if (remaining.length) {
         identifiers.push(
           pathToIdentifier(remaining, identifiers, shorthandResolver)
