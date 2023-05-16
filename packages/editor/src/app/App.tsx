@@ -43,6 +43,7 @@ export const App = observer(
           <Route element={<Wrapper />}>
             <Route path="/" element={<Main />}>
               <Route index element={<StartScreen></StartScreen>}></Route>
+              <Route path="/home" element={<StartScreen></StartScreen>}></Route>
               <Route path="/ai" element={<AILanding />} />
 
               <Route path=":userParam" element={<ProfileRoute />}></Route>

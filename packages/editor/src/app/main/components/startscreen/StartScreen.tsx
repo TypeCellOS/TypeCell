@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getStoreService } from "../../../../store/local/stores";
 import buttonStyles from "../../../../styles/buttons.module.css";
 import { NotebookOverviewItem } from "../../../matrix-auth/routes/overview/NotebookOverviewItem";
@@ -21,6 +22,18 @@ import timePreviewImage from "./assets/time_preview.jpg";
 export const StartScreen = observer(() => {
   const { sessionStore } = getStoreService();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname === "/" && sessionStore.loggedInUserId) {
+      // logged in, redirect to main workspace.
+      // homepage is still accessible via /home
+      navigate({
+        pathname: "/@" + sessionStore.loggedInUserId + "/public",
+      });
+    }
+  }, [location.pathname, sessionStore.loggedInUserId, navigate]);
+
   function onNewNotebookClick(e: any) {
     e.preventDefault();
     if (sessionStore.isLoggedIn) {

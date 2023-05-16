@@ -243,7 +243,7 @@ export const SidebarTree = observer(
           onCollapse={onCollapse}
           // onDragStart={() => {}}
           onDragEnd={onDragEnd}
-          offsetPerLevel={0}
+          offsetPerLevel={17}
           isDragEnabled
           isNestingEnabled
         />

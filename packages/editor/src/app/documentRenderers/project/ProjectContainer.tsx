@@ -6,7 +6,7 @@ import {
 } from "@atlaskit/page-layout";
 import { TreeData, TreeItem } from "@atlaskit/tree";
 import { observer } from "mobx-react-lite";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Identifier } from "../../../identifiers/Identifier";
 import { identifiersToPath } from "../../../identifiers/paths/identifierPathHelpers";
 import { BaseResource } from "../../../store/BaseResource";
@@ -104,8 +104,6 @@ function docToAkTree(doc: BaseResource, activeId?: Identifier) {
 }
 
 const ProjectContainer = observer((props: Props) => {
-  // return <div>hello123</div>;
-  const location = useLocation();
   const navigate = useNavigate();
 
   const tree = docToAkTree(props.project, props.activeChild);

@@ -1,0 +1,53 @@
+diff --git a/node_modules/@atlaskit/tree/dist/cjs/components/TreeItem/TreeItem.js b/node_modules/@atlaskit/tree/dist/cjs/components/TreeItem/TreeItem.js
+index b8b259d..d491b11 100644
+--- a/node_modules/@atlaskit/tree/dist/cjs/components/TreeItem/TreeItem.js
++++ b/node_modules/@atlaskit/tree/dist/cjs/components/TreeItem/TreeItem.js
+@@ -64,7 +64,7 @@ var TreeItem = /*#__PURE__*/function (_Component) {
+       var transition = transitions.join(', ');
+       return _objectSpread(_objectSpread({}, draggableProps), {}, {
+         style: _objectSpread(_objectSpread({}, draggableProps.style), {}, {
+-          paddingLeft: (path.length - 1) * offsetPerLevel,
++          // paddingLeft: (path.length - 1) * offsetPerLevel,
+           // @ts-ignore
+           transition: transition
+         })
+diff --git a/node_modules/@atlaskit/tree/dist/es2019/components/TreeItem/TreeItem.js b/node_modules/@atlaskit/tree/dist/es2019/components/TreeItem/TreeItem.js
+index 3095e34..3640522 100644
+--- a/node_modules/@atlaskit/tree/dist/es2019/components/TreeItem/TreeItem.js
++++ b/node_modules/@atlaskit/tree/dist/es2019/components/TreeItem/TreeItem.js
+@@ -21,7 +21,7 @@ export default class TreeItem extends Component {
+       const transition = transitions.join(', ');
+       return { ...draggableProps,
+         style: { ...draggableProps.style,
+-          paddingLeft: (path.length - 1) * offsetPerLevel,
++          // paddingLeft: (path.length - 1) * offsetPerLevel,
+           // @ts-ignore
+           transition
+         }
+diff --git a/node_modules/@atlaskit/tree/dist/esm/components/TreeItem/TreeItem.js b/node_modules/@atlaskit/tree/dist/esm/components/TreeItem/TreeItem.js
+index 48cfd20..b9c5e1f 100644
+--- a/node_modules/@atlaskit/tree/dist/esm/components/TreeItem/TreeItem.js
++++ b/node_modules/@atlaskit/tree/dist/esm/components/TreeItem/TreeItem.js
+@@ -1,10 +1,10 @@
++import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
+ import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
+ import _createClass from "@babel/runtime/helpers/createClass";
+-import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
++import _defineProperty from "@babel/runtime/helpers/defineProperty";
++import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+ import _inherits from "@babel/runtime/helpers/inherits";
+ import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
+-import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+-import _defineProperty from "@babel/runtime/helpers/defineProperty";
+ 
+ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+ 
+@@ -48,7 +48,7 @@ var TreeItem = /*#__PURE__*/function (_Component) {
+       var transition = transitions.join(', ');
+       return _objectSpread(_objectSpread({}, draggableProps), {}, {
+         style: _objectSpread(_objectSpread({}, draggableProps.style), {}, {
+-          paddingLeft: (path.length - 1) * offsetPerLevel,
++          // paddingLeft: (path.length - 1) * offsetPerLevel,
+           // @ts-ignore
+           transition: transition
+         })
