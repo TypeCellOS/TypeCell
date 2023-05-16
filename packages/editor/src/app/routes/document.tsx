@@ -1,18 +1,20 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { uri } from "vscode-lib";
 import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
 import {
   defaultShorthandResolver,
   parseFullIdentifierString,
   pathToIdentifiers,
+  tryPathToIdentifiers,
 } from "../../identifiers/paths/identifierPathHelpers";
 import { DocConnection } from "../../store/DocConnection";
 import ProfileResource from "../../store/ProfileResource";
 import { getStoreService } from "../../store/local/stores";
 import { AliasCoordinator } from "../../store/yjs-sync/AliasCoordinator";
 import DocumentView from "../documentRenderers/DocumentView";
+import Profile from "../main/components/Profile";
 import { SupabaseSessionStore } from "../supabase-auth/SupabaseSessionStore";
 
 let aliasStore = new AliasCoordinator("sdfdsf");
@@ -24,21 +26,39 @@ export const DocumentRoute = observer(() => {
   }
 
   let location = useLocation();
-  let params = useParams();
-  let owner = params.userParam;
-  let workspace = params.workspaceParam;
-  let document = params["*"];
+
+  let [owner, workspace, ...documentParts] = location.pathname
+    .substring(1)
+    .split("/");
+  const document = documentParts.join("/");
+
+  // let params = useParams();
+  // let owner = params.userParam;
+  // let workspace = params.workspaceParam;
+  // let document = params["*"];
+
+  if (!owner || owner.length < 2 || !owner.startsWith("@")) {
+    const identifiers = tryPathToIdentifiers(location.pathname.substring(1));
+    if (identifiers !== "invalid-identifier") {
+      return (
+        <DocumentView id={identifiers.shift()!} subIdentifiers={identifiers} />
+      );
+    } else {
+      return <div>Not found</div>;
+    }
+  }
+
+  owner = owner.substring(1);
+
+  if (!workspace) {
+    return <Profile owner={owner} />;
+  }
 
   const [aliasResolveStatus, setAliasResolveStatus] = useState<
     "loading" | "error" | "not-found" | "loaded"
   >("loading");
 
   const [ownerDoc, setOwnerDoc] = useState<DocConnection>();
-
-  if (!owner || owner.length < 2 || !owner.startsWith("@")) {
-    throw new Error("No owner"); // TODO: 404 / pass through
-  }
-  owner = owner.substring(1);
 
   const ownerProfileIdentifier = useMemo(() => {
     return (
