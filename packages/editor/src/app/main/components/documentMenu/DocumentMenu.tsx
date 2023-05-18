@@ -22,6 +22,7 @@ import { MenuBar } from "../menuBar/MenuBar";
 import { TypeCellIdentifier } from "../../../../identifiers/TypeCellIdentifier";
 import MatrixPermissionsDialog from "../../../matrix-auth/routes/permissions/PermissionsDialog";
 import SupabasePermissionsDialog from "../../../supabase-auth/routes/permissions/PermissionsDialog";
+import { Breadcrumb } from "./Breadcrumb";
 import styles from "./DocumentMenu.module.css";
 import { ForkAlert } from "./ForkAlert";
 import { ShareButton } from "./ShareButton";
@@ -55,8 +56,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
   let navigate = useNavigate();
   return (
     <MenuBar>
-      <div></div>
-      {/* <Breadcrumb identifier={props.document.identifier} /> */}
+      <Breadcrumb />
       {props.document.connection!.needsFork && (
         <ForkAlert document={props.document} />
       )}

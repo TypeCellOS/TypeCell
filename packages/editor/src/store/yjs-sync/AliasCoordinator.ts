@@ -29,7 +29,8 @@ export class AliasCoordinator extends lifecycle.Disposable {
 
   public get aliases() {
     if (!this.indexedDBProvider.synced) {
-      throw new Error("not initialized");
+      console.warn("aliases not initialized");
+      // throw new Error("not initialized");
     }
     return this.doc.getMap<string>("aliases");
   }

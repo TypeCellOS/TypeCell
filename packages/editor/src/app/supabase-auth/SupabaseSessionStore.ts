@@ -37,6 +37,8 @@ const colors = [
  * (e.g.: is the user logged in, what is the user name, etc)
  */
 export class SupabaseSessionStore extends SessionStore {
+  public storePrefix: string = "tc";
+
   public readonly supabase = createClient<Database>(
     "http://localhost:54321",
     ANON_KEY
@@ -53,14 +55,12 @@ export class SupabaseSessionStore extends SessionStore {
     | {
         type: "guest-user";
         supabase: any;
-        coordinator: DocumentCoordinator;
       }
     | {
         type: "user";
         fullUserId: string;
         userId: string;
         supabase: any;
-        coordinator: DocumentCoordinator;
       } = "loading";
 
   public get isLoaded() {
@@ -139,6 +139,8 @@ export class SupabaseSessionStore extends SessionStore {
       throw new Error("can't set username when not logged in");
     }
 
+    // TODO: first check if username is available?
+
     const workspaceId = this.getIdentifierForNewDocument();
     {
       const ydoc = new Y.Doc();
@@ -160,16 +162,15 @@ export class SupabaseSessionStore extends SessionStore {
         throw new Error("not implemented");
       });
       ret.create("!profile");
-      ret
-        .getSpecificType(ProfileResource)
-        .workspaces.set("public", workspaceId.toString());
+      const profile = ret.getSpecificType(ProfileResource);
+      profile.workspaces.set("public", workspaceId.toString());
+      profile.username = username;
       const remote = new TypeCellRemote(ydoc, profileId, this);
       await remote.createAndRetry();
       ret.dispose();
       remote.dispose();
     }
 
-    debugger;
     const { data, error } = await this.supabase.from("workspaces").insert([
       {
         name: username,
@@ -194,6 +195,9 @@ export class SupabaseSessionStore extends SessionStore {
     // TODO: check errors?
 
     if (session) {
+      if (this.userId === session.user.id) {
+        return;
+      }
       const usernameRes = await this.supabase
         .from("workspaces")
         .select()
@@ -202,23 +206,15 @@ export class SupabaseSessionStore extends SessionStore {
 
       if (usernameRes.data?.length === 1) {
         const username: string = usernameRes.data[0].name;
-        const coordinator = new DocumentCoordinator(
-          "user-tc-" + session.user.id
-        );
-        await coordinator.initialize();
 
         runInAction(() => {
           setDefaultShorthandResolver(new DefaultShorthandResolver()); // hacky
           this.userId = session.user.id;
-          if (typeof this.user !== "string") {
-            this.user.coordinator.dispose();
-          }
           this.user = {
             type: "user",
             supabase: this.supabase,
             userId: username,
             fullUserId: username,
-            coordinator,
           };
         });
       } else {
@@ -243,14 +239,10 @@ export class SupabaseSessionStore extends SessionStore {
       const coordinator = new DocumentCoordinator("user-tc-guest");
       await coordinator.initialize();
       runInAction(() => {
-        if (typeof this.user !== "string") {
-          this.user.coordinator.dispose();
-        }
         setDefaultShorthandResolver(new DefaultShorthandResolver()); // hacky
         this.user = {
           type: "guest-user",
           supabase: this.supabase,
-          coordinator, // TODO: clean guest sessions?
         };
       });
     }

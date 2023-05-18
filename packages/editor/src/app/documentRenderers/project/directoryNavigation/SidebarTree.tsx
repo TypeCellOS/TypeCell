@@ -115,7 +115,7 @@ const RenderItem =
               />
             )
           }>
-          {item.data.title || doc.identifier.toString()}{" "}
+          {item.data.title || "Untitled"}
         </Button>
       </div>
     );

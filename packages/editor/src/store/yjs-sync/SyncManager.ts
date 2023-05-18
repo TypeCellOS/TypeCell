@@ -139,10 +139,10 @@ export class SyncManager extends lifecycle.Disposable {
     if (this.state.localDoc.meta.last_synced_at === null) {
       await this.remote.createAndRetry();
 
-      if (typeof this.sessionStore.user === "string") {
-        throw new Error("logged out while syncing");
+      if (!this.sessionStore.documentCoordinator) {
+        throw new Error("no documentCoordinator. logged out while syncing?");
       }
-      this.sessionStore.user.coordinator.markSynced(this.state.localDoc);
+      this.sessionStore.documentCoordinator.markSynced(this.state.localDoc);
     }
     this.remote.startSyncing();
     // listen for events
@@ -152,8 +152,10 @@ export class SyncManager extends lifecycle.Disposable {
     await this.remote.startSyncing();
     await when(() => this.remote.status === "loaded");
 
-    if (typeof this.sessionStore.user === "string") {
-      throw new Error("logged out while loading");
+    if (!this.sessionStore.documentCoordinator) {
+      throw new Error(
+        "no documentCoordinator. logged out while loadFromRemote?"
+      );
     }
 
     if (this.disposed) {
@@ -161,7 +163,7 @@ export class SyncManager extends lifecycle.Disposable {
     }
 
     const localDoc =
-      this.sessionStore.user.coordinator.createDocumentFromRemote(
+      this.sessionStore.documentCoordinator.createDocumentFromRemote(
         this.identifier,
         this.ydoc
       );
@@ -188,11 +190,11 @@ export class SyncManager extends lifecycle.Disposable {
     }
     this.initializeCalled = true;
 
-    if (typeof this.sessionStore.user === "string") {
-      throw new Error("logged out while creating");
+    if (!this.sessionStore.documentCoordinator) {
+      throw new Error("no documentCoordinator. logged out while creating?");
     }
 
-    const doc = await this.sessionStore.user.coordinator.createDocument(
+    const doc = await this.sessionStore.documentCoordinator.createDocument(
       this.identifier,
       this.ydoc
     );
@@ -215,10 +217,10 @@ export class SyncManager extends lifecycle.Disposable {
       throw new Error("load() called when already initialized");
     }
     this.initializeCalled = true;
-    if (typeof this.sessionStore.user === "string") {
+    if (!this.sessionStore.documentCoordinator) {
       throw new Error("logged out while loading");
     }
-    const doc = this.sessionStore.user.coordinator.loadDocument(
+    const doc = this.sessionStore.documentCoordinator.loadDocument(
       this.identifier,
       this.ydoc
     );
@@ -244,10 +246,10 @@ export class SyncManager extends lifecycle.Disposable {
   }
 
   public async clearAndReload() {
-    if (typeof this.sessionStore.user === "string") {
+    if (!this.sessionStore.documentCoordinator) {
       throw new Error("logged out while clearAndReload");
     }
-    await this.sessionStore.user.coordinator.deleteLocal(this.identifier);
+    await this.sessionStore.documentCoordinator.deleteLocal(this.identifier);
     this.dispose();
 
     return SyncManager.load(this.identifier, this.sessionStore);

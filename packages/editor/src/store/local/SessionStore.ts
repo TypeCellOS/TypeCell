@@ -1,5 +1,7 @@
+import { computed, makeObservable } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { Identifier } from "../../identifiers/Identifier";
+import { AliasCoordinator } from "../yjs-sync/AliasCoordinator";
 import { DocumentCoordinator } from "../yjs-sync/DocumentCoordinator";
 
 /**
@@ -7,6 +9,8 @@ import { DocumentCoordinator } from "../yjs-sync/DocumentCoordinator";
  * (e.g.: is the user logged in, what is the user name, etc)
  */
 export abstract class SessionStore extends lifecycle.Disposable {
+  public abstract storePrefix: string;
+
   public abstract userColor: string;
 
   // MUST be implemented as Observable
@@ -15,13 +19,11 @@ export abstract class SessionStore extends lifecycle.Disposable {
     | "offlineNoUser"
     | {
         type: "guest-user";
-        coordinator: DocumentCoordinator;
       }
     | {
         type: "user";
         fullUserId: string;
         userId: string;
-        coordinator: DocumentCoordinator;
       };
 
   /**
@@ -52,4 +54,61 @@ export abstract class SessionStore extends lifecycle.Disposable {
   public abstract initialize(): Promise<void>;
 
   public abstract getIdentifierForNewDocument(): Identifier;
+
+  constructor() {
+    super();
+    makeObservable(this, {
+      coordinators: computed,
+      documentCoordinator: computed,
+      aliasCoordinator: computed,
+    });
+  }
+
+  public get userPrefix() {
+    return typeof this.user === "string"
+      ? undefined
+      : this.user.type === "guest-user"
+      ? `user-${this.storePrefix}-guest`
+      : `user-${this.storePrefix}-${this.user.fullUserId}`;
+  }
+
+  private _coordinators:
+    | {
+        userPrefix: string;
+        coordinator: DocumentCoordinator;
+        aliasStore: AliasCoordinator;
+      }
+    | undefined;
+
+  public get coordinators() {
+    if (
+      this._coordinators &&
+      this._coordinators.userPrefix === this.userPrefix
+    ) {
+      return this._coordinators;
+    }
+
+    console.log("dispose");
+    this._coordinators?.coordinator.dispose();
+    this._coordinators?.aliasStore.dispose();
+
+    if (!this.userPrefix) {
+      return undefined;
+    }
+
+    this._coordinators = {
+      userPrefix: this.userPrefix,
+      coordinator: new DocumentCoordinator(this.userPrefix),
+      aliasStore: new AliasCoordinator(this.userPrefix),
+    };
+    return this._coordinators;
+  }
+
+  public get documentCoordinator() {
+    return this.coordinators?.coordinator;
+  }
+
+  public get aliasCoordinator() {
+    return this.coordinators?.aliasStore;
+  }
 }

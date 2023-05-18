@@ -5,12 +5,12 @@ import { Identifier } from "../../identifiers/Identifier";
 import { DocConnection } from "../../store/DocConnection";
 import PluginResource from "../../store/PluginResource";
 import ProjectResource from "../../store/ProjectResource";
-import DocumentMenu from "../main/components/documentMenu";
 
 // import { MenuBar } from "../maidocn/components/menuBar/MenuBar";
 // import RichTextRenderer from "./richtext/RichTextRenderer";
 import styles from "./DocumentView.module.css";
 // import { CustomRenderer } from "./custom/CustomRenderer";
+import { DocumentMenu } from "../main/components/documentMenu/DocumentMenu";
 import { MenuBar } from "../main/components/menuBar/MenuBar";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";

@@ -52,13 +52,15 @@ export class DocConnection extends lifecycle.Disposable {
     });
 
     const dispose = reaction(
-      () => getStoreService().sessionStore.user,
-      () => {
+      () => getStoreService().sessionStore.documentCoordinator,
+      async () => {
+        const sessionStore = getStoreService().sessionStore;
         this._baseResourceCache = undefined;
         this.manager?.dispose();
-        if (!getStoreService().sessionStore.user) {
+        if (!sessionStore.user || !sessionStore.documentCoordinator) {
           return;
         }
+        await sessionStore.documentCoordinator.initialize();
         this.manager = SyncManager.load(
           identifier,
           getStoreService().sessionStore
