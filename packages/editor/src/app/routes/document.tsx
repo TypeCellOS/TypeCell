@@ -15,6 +15,10 @@ export const DocumentRoute = observer(() => {
 
   let location = useLocation();
 
+  if (!sessionStore.coordinators) {
+    return <div>Loading</div>;
+  }
+
   let [owner, workspace, ...documentParts] = location.pathname
     .substring(1)
     .split("/");

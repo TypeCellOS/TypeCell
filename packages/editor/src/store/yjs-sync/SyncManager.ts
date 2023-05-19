@@ -299,7 +299,7 @@ export class SyncManager extends lifecycle.Disposable {
     super.dispose();
   }
 
-  public static async create(
+  public static create(
     identifier: Identifier,
     sessionStore: SessionStore,
     forkSource?: Y.Doc

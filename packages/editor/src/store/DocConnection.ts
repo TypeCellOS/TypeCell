@@ -54,13 +54,16 @@ export class DocConnection extends lifecycle.Disposable {
     const dispose = reaction(
       () => getStoreService().sessionStore.documentCoordinator,
       async () => {
+        console.log(
+          "sessionstore change",
+          getStoreService().sessionStore.documentCoordinator
+        );
         const sessionStore = getStoreService().sessionStore;
         this._baseResourceCache = undefined;
         this.manager?.dispose();
         if (!sessionStore.user || !sessionStore.documentCoordinator) {
           return;
         }
-        await sessionStore.documentCoordinator.initialize();
         this.manager = SyncManager.load(
           identifier,
           getStoreService().sessionStore
@@ -189,6 +192,7 @@ export class DocConnection extends lifecycle.Disposable {
   //   await this.initializeNoCatch();
   // }
 
+  // TODO: async or not?
   public static async create() {
     const sessionStore = getStoreService().sessionStore;
     if (!sessionStore.loggedInUserId) {
@@ -197,7 +201,8 @@ export class DocConnection extends lifecycle.Disposable {
     }
 
     const identifier = sessionStore.getIdentifierForNewDocument();
-    const syncManager = await SyncManager.create(
+    // TODO: async or not?
+    const syncManager = SyncManager.create(
       identifier,
       getStoreService().sessionStore
     );

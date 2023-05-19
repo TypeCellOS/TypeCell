@@ -71,6 +71,7 @@ export abstract class SessionStore extends lifecycle.Disposable {
     });
 
     const dispose = autorun(() => {
+      console.log("change coordinators");
       const userPrefix = this.userPrefix;
       if (this.coordinators?.userPrefix === userPrefix) {
         return;

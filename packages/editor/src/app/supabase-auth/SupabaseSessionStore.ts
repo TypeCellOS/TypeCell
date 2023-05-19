@@ -209,7 +209,14 @@ export class SupabaseSessionStore extends SessionStore {
     // TODO: check errors?
 
     if (session) {
-      if (this.userId === session.user.id) {
+      // if the session is the same as previous, and we have a fully initialized user,
+      // then there's no need to refresh
+      if (
+        this.userId === session.user.id &&
+        this.user !== "loading" &&
+        this.user !== "offlineNoUser" &&
+        this.user.type === "user"
+      ) {
         return;
       }
       const usernameRes = await this.supabase

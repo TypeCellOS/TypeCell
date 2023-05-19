@@ -130,6 +130,11 @@ export const OwnerAliasRoute = observer(
         return <div>Error loading user</div>;
       }
 
+      if (ownerProfileIdentifier.status === "loaded") {
+        // edge case where AliasCoordinator is probably initializing
+        return <div>Loading alias</div>;
+      }
+
       throw new Error("Unexpected");
     }
 

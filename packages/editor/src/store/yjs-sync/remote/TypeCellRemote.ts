@@ -136,6 +136,11 @@ export class TypeCellRemote extends Remote {
       ? session.access_token + "$" + session.refresh_token
       : "guest";
 
+    if (this.disposed) {
+      console.warn("already disposed");
+      return;
+    }
+
     const hocuspocusProvider = new HocuspocusProvider({
       name: this.identifier.documentId,
       document: this._ydoc,
