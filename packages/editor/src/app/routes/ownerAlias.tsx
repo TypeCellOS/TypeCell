@@ -12,7 +12,6 @@ import { DocConnection } from "../../store/DocConnection";
 import ProfileResource from "../../store/ProfileResource";
 import { getStoreService } from "../../store/local/stores";
 import DocumentView from "../documentRenderers/DocumentView";
-import Profile from "../main/components/Profile";
 import { SupabaseSessionStore } from "../supabase-auth/SupabaseSessionStore";
 import { RouteContext } from "./RouteContext";
 
@@ -65,6 +64,11 @@ export const OwnerAliasRoute = observer(
         throw new Error("No owner");
       }
 
+      const aliasCoordinator = sessionStore.aliasCoordinator;
+      if (!aliasCoordinator) {
+        return;
+      }
+
       if (typeof ownerProfileIdentifier === "string") {
         return;
       }
@@ -80,6 +84,7 @@ export const OwnerAliasRoute = observer(
           .from("workspaces")
           .select()
           .eq("name", owner)
+          .eq("is_username", true)
           .single();
 
         if (error) {
@@ -101,7 +106,7 @@ export const OwnerAliasRoute = observer(
             path: "/" + nanoId,
           })
         );
-        sessionStore.aliasCoordinator!.aliases.set(owner, id.toString());
+        aliasCoordinator.aliases.set(owner, id.toString());
         setAliasResolveStatus("loaded");
       })();
     }, [
@@ -111,10 +116,6 @@ export const OwnerAliasRoute = observer(
       sessionStore.supabase,
       workspace,
     ]);
-
-    if (!workspace) {
-      return <Profile owner={owner} />;
-    }
 
     if (typeof ownerProfileIdentifier !== "string") {
       if (ownerProfileIdentifier.status === "loading") {
@@ -128,6 +129,17 @@ export const OwnerAliasRoute = observer(
       if (ownerProfileIdentifier.status === "error") {
         return <div>Error loading user</div>;
       }
+
+      throw new Error("Unexpected");
+    }
+
+    if (!workspace) {
+      const id = parseFullIdentifierString(ownerProfileIdentifier);
+      return (
+        <RouteContext.Provider value={{ groups: [[id]] }}>
+          <DocumentView id={id} subIdentifiers={[]} />
+        </RouteContext.Provider>
+      );
     }
 
     if (!workspace) {
@@ -148,8 +160,16 @@ export const OwnerAliasRoute = observer(
     const wsId = profileDoc.workspaces.get(workspace);
 
     // TODO: hacky
+
+    const sh = "@" + owner;
+    defaultShorthandResolver.current.addShorthand(
+      sh,
+      profileDoc.identifier.toString()
+    );
+
     for (let item of profileDoc.workspaces.keys()) {
       const sh = "@" + owner + "/" + item;
+
       defaultShorthandResolver.current.addShorthand(
         sh,
         profileDoc.workspaces.get(item)!
@@ -165,7 +185,7 @@ export const OwnerAliasRoute = observer(
     if (!document) {
       return (
         <RouteContext.Provider
-          value={{ identifiers: [doc.identifier, parsedIdentifier] }}>
+          value={{ groups: [[doc.identifier], [parsedIdentifier]] }}>
           <DocumentView id={parsedIdentifier} subIdentifiers={[]} />
         </RouteContext.Provider>
       );
@@ -174,7 +194,7 @@ export const OwnerAliasRoute = observer(
     const [id, ...subs] = pathToIdentifiers(location.pathname.substring(1));
     return (
       <RouteContext.Provider
-        value={{ identifiers: [doc.identifier, id, ...subs] }}>
+        value={{ groups: [[doc.identifier], [id, ...subs]] }}>
         <DocumentView id={id} subIdentifiers={subs} />
       </RouteContext.Provider>
     );

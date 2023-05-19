@@ -24,7 +24,7 @@ export const DocumentRoute = observer(() => {
     const identifiers = tryPathToIdentifiers(location.pathname.substring(1));
     if (identifiers !== "invalid-identifier") {
       return (
-        <RouteContext.Provider value={{ identifiers }}>
+        <RouteContext.Provider value={{ groups: [identifiers] }}>
           <DocumentView
             id={identifiers.shift()!}
             subIdentifiers={identifiers}

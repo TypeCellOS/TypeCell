@@ -31,10 +31,15 @@ export const Username = observer((props: {}) => {
     // const username = usernameRef.current?.value;
     try {
       if (data.username) {
-        await sessionStore.setUsername(data.username);
+        const ret = await sessionStore.setUsername(data.username);
+        if (ret === "not-available") {
+          return {
+            username: "not-available",
+          };
+        }
       }
     } catch (e) {
-      console.error(e);
+      console.error("unknown error setting username", e);
       return {
         username: "unknown-error",
       };
@@ -84,9 +89,15 @@ export const Username = observer((props: {}) => {
                           You can use letters and numbers
                         </HelperMessage>
                       )}
-                      {error && (
+                      {error && error === "not-available" && (
                         <ErrorMessage>
                           This username is already in use, try another one.
+                        </ErrorMessage>
+                      )}
+                      {error && error !== "not-available" && (
+                        <ErrorMessage>
+                          An unknown error occured while registering your
+                          username.
                         </ErrorMessage>
                       )}
                     </Fragment>

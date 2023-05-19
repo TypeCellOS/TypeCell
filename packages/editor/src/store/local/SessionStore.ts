@@ -1,4 +1,10 @@
-import { computed, makeObservable } from "mobx";
+import {
+  autorun,
+  computed,
+  makeObservable,
+  observable,
+  runInAction,
+} from "mobx";
 import { lifecycle } from "vscode-lib";
 import { Identifier } from "../../identifiers/Identifier";
 import { AliasCoordinator } from "../yjs-sync/AliasCoordinator";
@@ -58,9 +64,46 @@ export abstract class SessionStore extends lifecycle.Disposable {
   constructor() {
     super();
     makeObservable(this, {
-      coordinators: computed,
       documentCoordinator: computed,
       aliasCoordinator: computed,
+      userPrefix: computed,
+      coordinators: observable.ref,
+    });
+
+    const dispose = autorun(() => {
+      const userPrefix = this.userPrefix;
+      if (this.coordinators?.userPrefix === userPrefix) {
+        return;
+      }
+
+      this.coordinators?.coordinator.dispose();
+      this.coordinators?.aliasStore.dispose();
+      runInAction(() => {
+        this.coordinators = undefined;
+      });
+
+      if (!userPrefix) {
+        return;
+      }
+
+      (async () => {
+        const coordinators = {
+          userPrefix,
+          coordinator: new DocumentCoordinator(userPrefix),
+          aliasStore: new AliasCoordinator(userPrefix),
+        };
+        await coordinators.coordinator.initialize();
+        await coordinators.aliasStore.initialize();
+        runInAction(() => {
+          if (this.userPrefix === userPrefix) {
+            this.coordinators = coordinators;
+          }
+        });
+      })();
+    });
+
+    this._register({
+      dispose,
     });
   }
 
@@ -72,15 +115,15 @@ export abstract class SessionStore extends lifecycle.Disposable {
       : `user-${this.storePrefix}-${this.user.fullUserId}`;
   }
 
-  private _coordinators:
+  public coordinators:
     | {
         userPrefix: string;
         coordinator: DocumentCoordinator;
         aliasStore: AliasCoordinator;
       }
-    | undefined;
+    | undefined = undefined;
 
-  public get coordinators() {
+  /*public get coordinators() {
     if (
       this._coordinators &&
       this._coordinators.userPrefix === this.userPrefix
@@ -92,6 +135,10 @@ export abstract class SessionStore extends lifecycle.Disposable {
     this._coordinators?.coordinator.dispose();
     this._coordinators?.aliasStore.dispose();
 
+    runInAction(() => {
+      this._coo;
+    });
+
     if (!this.userPrefix) {
       return undefined;
     }
@@ -102,7 +149,7 @@ export abstract class SessionStore extends lifecycle.Disposable {
       aliasStore: new AliasCoordinator(this.userPrefix),
     };
     return this._coordinators;
-  }
+  }*/
 
   public get documentCoordinator() {
     return this.coordinators?.coordinator;

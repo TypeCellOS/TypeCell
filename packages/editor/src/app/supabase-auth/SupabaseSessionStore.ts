@@ -139,6 +139,19 @@ export class SupabaseSessionStore extends SessionStore {
       throw new Error("can't set username when not logged in");
     }
 
+    {
+      const { data } = await this.supabase
+        .from("workspaces")
+        .select()
+        .eq("name", username)
+        .eq("is_username", true)
+        .single();
+
+      if (data) {
+        return "not-available";
+      }
+    }
+
     // TODO: first check if username is available?
 
     const workspaceId = this.getIdentifierForNewDocument();
@@ -190,6 +203,7 @@ export class SupabaseSessionStore extends SessionStore {
    * Updates the state of sessionStore based on the internal matrixAuthStore.loggedIn
    */
   private async updateStateFromAuthStore() {
+    // TODO: make work in offline mode (save username offline)
     // TODO: don't trigger on refresh of other browser window
     const session = (await this.supabase.auth.getSession()).data.session;
     // TODO: check errors?
