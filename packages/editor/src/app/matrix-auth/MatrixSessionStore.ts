@@ -27,6 +27,7 @@ const colors = [
  * (e.g.: is the user logged in, what is the user name, etc)
  */
 export class MatrixSessionStore extends SessionStore {
+  public storePrefix: string = "mx";
   private initialized = false;
   public userColor = arrays.getRandomElement(colors)!;
 
