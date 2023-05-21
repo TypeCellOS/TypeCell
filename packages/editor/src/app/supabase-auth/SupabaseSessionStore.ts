@@ -17,7 +17,6 @@ import {
 } from "../../identifiers/paths/identifierPathHelpers";
 import { BaseResource } from "../../store/BaseResource";
 import ProfileResource from "../../store/ProfileResource";
-import { DocumentCoordinator } from "../../store/yjs-sync/DocumentCoordinator";
 import { TypeCellRemote } from "../../store/yjs-sync/remote/TypeCellRemote";
 import { navigateRef } from "../GlobalNavigateRef";
 export type SupabaseClientType = SupabaseSessionStore["supabase"];
@@ -259,8 +258,6 @@ export class SupabaseSessionStore extends SessionStore {
         // });
       }
     } else {
-      const coordinator = new DocumentCoordinator("user-tc-guest");
-      await coordinator.initialize();
       runInAction(() => {
         setDefaultShorthandResolver(new DefaultShorthandResolver()); // hacky
         this.user = {

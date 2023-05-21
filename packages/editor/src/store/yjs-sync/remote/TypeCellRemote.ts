@@ -21,6 +21,9 @@ function getWSProvider() {
       url: "ws://localhost:1234",
       // WebSocketPolyfill: ws,
     });
+    if (TypeCellRemote.Offline) {
+      wsProvider.disconnect();
+    }
   }
   return wsProvider;
 }

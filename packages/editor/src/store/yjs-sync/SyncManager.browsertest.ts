@@ -333,11 +333,42 @@ describe("SyncManager tests", () => {
   //   );
   // });
 
-  it("can create a new document offline", async () => {
+  it.only("can create a new document offline", async () => {
     // go offline
+    TypeCellRemote.Offline = true;
+
     // create document
+
+    const id = parseIdentifier(uniqueId.generateId("document"));
+    const manager = SyncManager.create(id, sessionStore);
+
+    await when(() => manager.state.status === "syncing");
+    if (manager.state.status !== "syncing") {
+      throw new Error("unexpected");
+    }
+
+    manager.state.localDoc.ydoc.getMap("mymap").set("hello", "world");
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    manager.dispose();
+
     // go online
     // validate syncing
+    const manager2 = SyncManager.load(id, sessionStore);
+
+    console.log("manager2", manager2.state.status);
+    await when(() => manager2.state.status === "syncing");
+    if (manager2.state.status !== "syncing") {
+      throw new Error("unexpected");
+    }
+
+    expect(manager2.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
+      "world"
+    );
+
+    // TODO: make sure it will be synced online
+    // - make sure it will also sync without loading new syncmanager
   });
 
   it("creates document remotely that was created offline earlier", async () => {

@@ -75,7 +75,7 @@ export abstract class SessionStore extends lifecycle.Disposable {
     const dispose = reaction(
       () => this.userPrefix,
       () => {
-        console.log("change coordinators");
+        // console.log(new Date(), "change coordinators", this.userPrefix, "\n\n");
         const userPrefix = this.userPrefix;
         if (this.coordinators?.userPrefix === userPrefix) {
           return;
@@ -101,6 +101,7 @@ export abstract class SessionStore extends lifecycle.Disposable {
           await coordinators.aliasStore.initialize();
           runInAction(() => {
             if (this.userPrefix === userPrefix) {
+              // console.log("set coordinators", userPrefix);
               this.coordinators = coordinators;
             }
           });

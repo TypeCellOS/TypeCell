@@ -236,7 +236,6 @@ export class SyncManager extends lifecycle.Disposable {
       // the document was previously loaded (and exists in the local cache)
 
       // TODO: catch when doc didn't exist locally
-
       await doc.idbProvider.whenSynced;
       console.log("done synced", doc.ydoc.toJSON());
       runInAction(() => {
@@ -317,7 +316,9 @@ export class SyncManager extends lifecycle.Disposable {
 
     const manager = new SyncManager(identifier, sessionStore);
 
-    manager.create(forkSource);
+    manager.create(forkSource).catch((e) => {
+      console.error("error in SyncManager.create", e);
+    });
 
     return manager;
   }
@@ -345,7 +346,9 @@ export class SyncManager extends lifecycle.Disposable {
 
     console.log("SyncManager load", identifier.toString());
     let manager = new SyncManager(identifier, sessionStore);
-    manager.load();
+    manager.load().catch((e) => {
+      console.error("error in SyncManager.create", e);
+    });
     // TODO: don't return synced when idb is still loading
 
     return manager;
