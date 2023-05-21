@@ -17,7 +17,7 @@ function redirectAll() {
         });
 
         server.middlewares.use((req, res, next) => {
-          handler(req as Request, res as Response, next);
+          handler(req, res, next);
         });
       };
     },

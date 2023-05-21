@@ -83,7 +83,8 @@ const PermissionsLoader = observer(
                 {
                   user: {
                     id: u.user_id!,
-                    name: usernamesMap.get(u.user_id!)!,
+                    name: "@" + usernamesMap.get(u.user_id!)!,
+                    nameWithoutAtSign: usernamesMap.get(u.user_id!)!,
                   },
                   permission: u.access_level,
                 },
