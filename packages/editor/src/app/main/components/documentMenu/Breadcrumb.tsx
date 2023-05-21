@@ -52,40 +52,47 @@ const BreadcrumbItems = observer(() => {
   const items: JSX.Element[] = [];
   const navigate = useNavigate();
 
-  const { identifiers } = useContext(RouteContext);
-  const lastIdentifier = identifiers[identifiers.length - 1];
+  const { groups } = useContext(RouteContext);
 
-  identifiers.forEach((identifier, i) => {
-    let component: any;
+  groups.forEach((identifiers) => {
+    const lastIdentifier = identifiers[identifiers.length - 1];
 
-    // if (i === identifiers.length - 1) {
-    //   component = () => (
-    //     // Replace default component so it doesn't render as a link
-    //     <button style={{ ...buttonStyle, cursor: "normal" }}>
-    //       <span>{identifier.toString()}</span>
-    //     </button>
-    //   );
-    // }
-    let icon;
-    if (i === 0) {
-      if (identifier instanceof HttpsIdentifier) {
-        icon = <VscGlobe style={{ marginRight: 5 }} />;
-      } else if (identifier instanceof FileIdentifier) {
-        icon = <VscFile style={{ marginRight: 5, marginTop: -2 }} />;
-      } else if (identifier instanceof GithubIdentifier) {
-        icon = <VscGithub style={{ marginRight: 5 }} />;
+    identifiers.forEach((identifier, i) => {
+      let component: any;
+
+      // if (i === identifiers.length - 1) {
+      //   component = () => (
+      //     // Replace default component so it doesn't render as a link
+      //     <button style={{ ...buttonStyle, cursor: "normal" }}>
+      //       <span>{identifier.toString()}</span>
+      //     </button>
+      //   );
+      // }
+      let icon;
+      if (i === 0) {
+        if (identifier instanceof HttpsIdentifier) {
+          icon = <VscGlobe style={{ marginRight: 5 }} />;
+        } else if (identifier instanceof FileIdentifier) {
+          icon = <VscFile style={{ marginRight: 5, marginTop: -2 }} />;
+        } else if (identifier instanceof GithubIdentifier) {
+          icon = <VscGithub style={{ marginRight: 5 }} />;
+        }
       }
-    }
 
-    items.push(
-      <BreadcrumbsItem
-        iconBefore={icon}
-        text={getTitleForIdentifier(identifier)}
-        component={component}
-        href={"/" + identifiersToPath(identifiers.slice(0, i + 1))}
-        // onClick={toRoot}
-      />
-    );
+      const path = "/" + identifiersToPath(identifiers.slice(0, i + 1));
+      items.push(
+        <BreadcrumbsItem
+          iconBefore={icon}
+          text={getTitleForIdentifier(identifier)}
+          component={component}
+          href={path}
+          onClick={(e) => {
+            e.preventDefault();
+            navigate(path);
+          }}
+        />
+      );
+    });
   });
 
   // const toRoot = () => {

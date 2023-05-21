@@ -33,7 +33,7 @@ export default function UserPermissionRow(props: {
     <div className={styles.userRow}>
       <div className={styles.userInfo}>
         <Avatar
-          name={props.user.name}
+          name={props.user.nameWithoutAtSign}
           size="32"
           round={true}
           textSizeRatio={2}

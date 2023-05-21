@@ -83,15 +83,18 @@ export class DefaultShorthandResolver extends ShorthandResolver {
         identifier: string;
       }
     | undefined {
+    let match: { shorthand: string; identifier: string } | undefined;
     for (let sh of Object.keys(this.shortHands)) {
       if (path.startsWith(sh)) {
-        return {
-          shorthand: sh,
-          identifier: this.shortHands[sh]!,
-        };
+        if (!match || sh.length > match.shorthand.length) {
+          match = {
+            shorthand: sh,
+            identifier: this.shortHands[sh]!,
+          };
+        }
       }
     }
-    return undefined;
+    return match;
   }
 }
 
@@ -249,25 +252,26 @@ export function pathToIdentifier(
     console.log(inputPath);
     // no scheme provided
     inputPath = DEFAULT_IDENTIFIER_BASE_STRING + inputPath; //.substring(1);
-  }
+  } else {
+    let parsedUri = uri.URI.parse(inputPath);
 
-  let parsedUri = uri.URI.parse(inputPath);
+    if (parsedUri.scheme === "file") {
+      // this indicates there was no scheme provided
+      if (!parentIdentifierList.length) {
+        throw new Error("no scheme provided, and no parents " + inputPath);
+      }
 
-  if (parsedUri.scheme === "file") {
-    // this indicates there was no scheme provided
-    if (!parentIdentifierList.length) {
-      throw new Error("no scheme provided, and no parents " + inputPath);
+      const parent = parentIdentifierList[parentIdentifierList.length - 1];
+
+      parsedUri = parent.uri.with({
+        // TODO: this hardcoding is hacky. also, do we want different behavior for different identifiers?
+        path:
+          parent instanceof TypeCellIdentifier
+            ? "/" + inputPath
+            : path.join(parent.uri.path || "/", inputPath),
+      });
+      inputPath = parsedUri.toString().replace("://", ":");
     }
-
-    const parent = parentIdentifierList[parentIdentifierList.length - 1];
-    parsedUri = parent.uri.with({
-      // TODO: this hardcoding is hacky. also, do we want different behavior for different identifiers?
-      path:
-        parent instanceof TypeCellIdentifier
-          ? inputPath
-          : path.join(parent.uri.path || "/", inputPath),
-    });
-    inputPath = parsedUri.toString().replace("://", ":");
   }
   console.log(inputPath);
   return parseFullIdentifierString(inputPath);
@@ -293,7 +297,9 @@ export function pathToIdentifiers(
         parseFullIdentifierString(shortHandMatched.identifier)
         // pathToIdentifier(shortHandMatched, identifiers, shorthandResolver)
       );
-      const remaining = part.substring(shortHandMatched.shorthand.length);
+      const remaining = part
+        .substring(shortHandMatched.shorthand.length)
+        .replace(/^\//, ""); // remove leading /
       if (remaining.length) {
         identifiers.push(
           pathToIdentifier(remaining, identifiers, shorthandResolver)

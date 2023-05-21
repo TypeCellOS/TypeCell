@@ -21,6 +21,9 @@ function getWSProvider() {
       url: "ws://localhost:1234",
       // WebSocketPolyfill: ws,
     });
+    if (TypeCellRemote.Offline) {
+      wsProvider.disconnect();
+    }
   }
   return wsProvider;
 }
@@ -87,7 +90,7 @@ export class TypeCellRemote extends Remote {
     }
 
     if (!sessionStore.loggedInUserId) {
-      console.warn("no user available on create document");
+      console.warn("no loggedInUserId available on create document");
     }
 
     const date = JSON.stringify(new Date());
@@ -135,6 +138,11 @@ export class TypeCellRemote extends Remote {
     const token = session
       ? session.access_token + "$" + session.refresh_token
       : "guest";
+
+    if (this.disposed) {
+      console.warn("already disposed");
+      return;
+    }
 
     const hocuspocusProvider = new HocuspocusProvider({
       name: this.identifier.documentId,

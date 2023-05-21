@@ -2,9 +2,9 @@ import {
   HocuspocusProvider,
   HocuspocusProviderWebsocket,
 } from "@hocuspocus/provider";
+import { uniqueId } from "@typecell-org/common";
 import * as Y from "yjs";
 import { getRandomUserData } from "../../test/dataUtil";
-import { generateId } from "../../util/uniqueId";
 import { generateUuid } from "../../util/uuid";
 import { createAnonClient } from "../supabase";
 // const SUPABASE_URL = "http://localhost:8000/";
@@ -24,7 +24,7 @@ export function createDocument(
     created_at: date,
     updated_at: date,
     data,
-    nano_id: generateId(),
+    nano_id: uniqueId.generateId("document"),
     public_access_level,
     user_id: userId,
   } as const;

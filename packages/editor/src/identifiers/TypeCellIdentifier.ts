@@ -27,7 +27,7 @@ export class TypeCellIdentifier extends Identifier {
     super(TypeCellIdentifier.schemes, uriToParse);
 
     if (!this.uri.path.startsWith("/d")) {
-      throw new Error("invalid path");
+      throw new Error("invalid path " + this.uri.path);
     }
     if (this.uri.path.split("/").length !== 2) {
       throw new Error("invalid path");

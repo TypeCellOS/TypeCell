@@ -68,7 +68,7 @@ let globalPromise: Promise<void> | undefined;
 // wrap doEnsureMatrixIsRunning to make sure concurrent request only start Matrix once
 export async function ensureMatrixIsRunning() {
   if (!globalPromise) {
-    globalPromise = doEnsureMatrixIsRunning();
+    // globalPromise = doEnsureMatrixIsRunning();
   }
   return globalPromise;
 }

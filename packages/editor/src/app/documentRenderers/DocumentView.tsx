@@ -10,10 +10,12 @@ import ProjectResource from "../../store/ProjectResource";
 // import RichTextRenderer from "./richtext/RichTextRenderer";
 import styles from "./DocumentView.module.css";
 // import { CustomRenderer } from "./custom/CustomRenderer";
+import ProfileResource from "../../store/ProfileResource";
 import { DocumentMenu } from "../main/components/documentMenu/DocumentMenu";
 import { MenuBar } from "../main/components/menuBar/MenuBar";
 import NotebookRenderer from "./notebook/NotebookRenderer";
 import PluginRenderer from "./plugin/PluginRenderer";
+import ProfileRenderer from "./profile/ProfileRenderer";
 import ProjectContainer from "./project/ProjectContainer";
 import ProjectRenderer from "./project/ProjectRenderer";
 import RichTextRenderer from "./richtext/RichTextRenderer";
@@ -115,6 +117,14 @@ const DocumentView = observer((props: Props) => {
       <PluginRenderer
         key={connection.doc.id}
         plugin={connection.doc.getSpecificType(PluginResource)!}
+      />
+    );
+  } else if (connection.doc.type === "!profile") {
+    return (
+      <ProfileRenderer
+        key={connection.doc.id}
+        profile={connection.doc.getSpecificType(ProfileResource)!}
+        subIdentifiers={[]}
       />
     );
   } else if (connection.doc.type.startsWith("!")) {

@@ -82,14 +82,13 @@ export const NewPageDialog = (props: {
 
                     ret.doc.data.insert(0, [blockgroup]);
                   } else if (selectedType === "!notebook") {
-                    // ret.create("!notebook");
-                    ret.create("!project");
-                    // ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
-                    // ret.doc.cellList.addCell(
-                    //   1,
-                    //   "typescript",
-                    //   `export let message = "Hello World"`
-                    // );
+                    ret.create("!notebook");
+                    ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
+                    ret.doc.cellList.addCell(
+                      1,
+                      "typescript",
+                      `export let message = "Hello World"`
+                    );
                   } else {
                     throw new UnreachableCaseError(selectedType);
                   }
@@ -101,7 +100,7 @@ export const NewPageDialog = (props: {
                   // so it's nice to make sure we don't dispose it beforehand (and prevent a reload)
                   setTimeout(() => {
                     ret.dispose();
-                  }, 500);
+                  }, 50000); // TODO
                 } else {
                   throw new UnreachableCaseError(ret);
                 }

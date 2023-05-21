@@ -17,7 +17,6 @@ import {
 } from "../../identifiers/paths/identifierPathHelpers";
 import { BaseResource } from "../../store/BaseResource";
 import ProfileResource from "../../store/ProfileResource";
-import { DocumentCoordinator } from "../../store/yjs-sync/DocumentCoordinator";
 import { TypeCellRemote } from "../../store/yjs-sync/remote/TypeCellRemote";
 import { navigateRef } from "../GlobalNavigateRef";
 export type SupabaseClientType = SupabaseSessionStore["supabase"];
@@ -111,6 +110,7 @@ export class SupabaseSessionStore extends SessionStore {
       isLoggedIn: computed,
       isLoaded: computed,
     });
+    this.initializeReactions();
   }
 
   public async initialize() {
@@ -120,12 +120,13 @@ export class SupabaseSessionStore extends SessionStore {
     this.initialized = true;
 
     try {
+      const cbData = this.supabase.auth.onAuthStateChange((event, session) => {
+        this.updateStateFromAuthStore().catch((e) => {
+          console.error("error initializing sessionstore", e);
+        });
+      });
       this._register({
-        dispose: this.supabase.auth.onAuthStateChange((event, session) => {
-          this.updateStateFromAuthStore().catch((e) => {
-            console.error("error initializing sessionstore", e);
-          });
-        }).data.subscription.unsubscribe,
+        dispose: cbData.data.subscription.unsubscribe,
       });
       this.updateStateFromAuthStore();
     } catch (err) {
@@ -137,6 +138,19 @@ export class SupabaseSessionStore extends SessionStore {
   public async setUsername(username: string) {
     if (!this.userId) {
       throw new Error("can't set username when not logged in");
+    }
+
+    {
+      const { data } = await this.supabase
+        .from("workspaces")
+        .select()
+        .eq("name", username)
+        .eq("is_username", true)
+        .single();
+
+      if (data) {
+        return "not-available";
+      }
     }
 
     // TODO: first check if username is available?
@@ -190,12 +204,20 @@ export class SupabaseSessionStore extends SessionStore {
    * Updates the state of sessionStore based on the internal matrixAuthStore.loggedIn
    */
   private async updateStateFromAuthStore() {
+    // TODO: make work in offline mode (save username offline)
     // TODO: don't trigger on refresh of other browser window
     const session = (await this.supabase.auth.getSession()).data.session;
     // TODO: check errors?
 
     if (session) {
-      if (this.userId === session.user.id) {
+      // if the session is the same as previous, and we have a fully initialized user,
+      // then there's no need to refresh
+      if (
+        this.userId === session.user.id &&
+        this.user !== "loading" &&
+        this.user !== "offlineNoUser" &&
+        this.user.type === "user"
+      ) {
         return;
       }
       const usernameRes = await this.supabase
@@ -236,8 +258,6 @@ export class SupabaseSessionStore extends SessionStore {
         // });
       }
     } else {
-      const coordinator = new DocumentCoordinator("user-tc-guest");
-      await coordinator.initialize();
       runInAction(() => {
         setDefaultShorthandResolver(new DefaultShorthandResolver()); // hacky
         this.user = {

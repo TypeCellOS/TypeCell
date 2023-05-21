@@ -108,7 +108,7 @@ describe("Path handling", () => {
     // const path = identifiersToPath([props.project.identifier, identifier]);
     const resolver = new DefaultShorthandResolver();
     resolver.addShorthand("@user/public", "typecell:typecell.org/dProject");
-    debugger;
+
     const identifiers = pathToIdentifiers("@user/public/dDocument", resolver);
     expect(identifiers).length(2);
     expect(identifiers[0].toString()).toBe("typecell:typecell.org/dProject");
@@ -137,6 +137,21 @@ describe("Path handling", () => {
 
     const path = identifiersToPath(identifiers);
     expect(path).toBe("dSdff234234");
+  });
+
+  it("handles default base and multiple ids", () => {
+    const identifiers = pathToIdentifiers(
+      "dNabEGgVNVkEs:/dw1RUcC4jQ6Ny:/dMuz9MMJXaG5E"
+    );
+
+    expect(identifiers.length).toBe(3);
+
+    expect(identifiers[0].uri.scheme).toBe("typecell");
+    expect(identifiers[0].uri.authority).toBe("typecell.org");
+    expect(identifiers[0].uri.path).toBe("/dNabEGgVNVkEs");
+
+    const path = identifiersToPath(identifiers);
+    expect(path).toBe("dNabEGgVNVkEs:/dw1RUcC4jQ6Ny:/dMuz9MMJXaG5E");
   });
 });
 

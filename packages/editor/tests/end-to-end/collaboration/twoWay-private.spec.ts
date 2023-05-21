@@ -33,6 +33,9 @@ test.beforeAll(async ({ aliceContext, bobContext, bobUser }) => {
 
   await pageAlice.click('button:has-text("Add")');
   await pageAlice.click('button:has-text("Apply")');
+
+  // TODO: would be nice to have a way to apply permissions on the fly with hocuspocus
+  await pageBob.reload();
 });
 
 test.afterAll(() => {
@@ -112,7 +115,7 @@ test("changes sync from Bob to Alice", async ({
   bobContext,
   disableWebRTC,
 }) => {
-  await testEditSync(pageBob, pageAlice, disableWebRTC ? 5000 : 2000);
+  await testEditSync(pageBob, pageAlice, disableWebRTC ? 500000 : 200000);
   // select content
   // TODO: consistent username + colors for screenshots
   //   expect(await pageBob.screenshot()).toMatchSnapshot("sync-selection.bob.png");

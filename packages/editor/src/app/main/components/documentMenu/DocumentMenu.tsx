@@ -39,11 +39,12 @@ function userCanEditPermissions(
   if (identifier && identifier instanceof MatrixIdentifier) {
     return sessionStore.loggedInUserId === identifier.owner;
   }
+  return true;
   // TODO
   // if (identifier && identifier instanceof TypeCellIdentifier) {
   //   return sessionStore.loggedInUserId === identifier.owner;
   // }
-  return false;
+  // return false;
 }
 
 export const DocumentMenu: React.FC<Props> = observer((props) => {
