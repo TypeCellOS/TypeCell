@@ -29,7 +29,8 @@ export function SupabaseUserPicker(props: {
       const results: User[] =
         ret.data?.map((result) => ({
           id: result.owner_user_id,
-          name: result.name,
+          name: "@" + result.name,
+          nameWithoutAtSign: result.name,
         })) || [];
 
       setDisplayedUsers(results);
@@ -54,7 +55,7 @@ export function SupabaseUserPicker(props: {
         allowEmail={true}
         noOptionsMessage={() => null}
         onInputChange={searchUsers}
-        onChange={onChange}
+        onChange={onChange as any}
         options={displayedUsers}
         menuPosition="fixed"
       />

@@ -87,7 +87,7 @@ export class TypeCellRemote extends Remote {
     }
 
     if (!sessionStore.loggedInUserId) {
-      console.warn("no user available on create document");
+      console.warn("no loggedInUserId available on create document");
     }
 
     const date = JSON.stringify(new Date());

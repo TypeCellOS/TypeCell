@@ -31,6 +31,9 @@ test.beforeAll(async ({ aliceContext, bobContext }) => {
   );
 
   await pageAlice.click('button:has-text("Apply")');
+
+  // TODO: would be nice to have a way to apply permissions on the fly with hocuspocus
+  await pageBob.reload();
 });
 
 test.afterAll(() => {

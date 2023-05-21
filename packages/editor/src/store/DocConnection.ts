@@ -197,7 +197,9 @@ export class DocConnection extends lifecycle.Disposable {
     const sessionStore = getStoreService().sessionStore;
     if (!sessionStore.loggedInUserId) {
       // Note: can happen on sign up
-      console.warn("no user available on create document");
+      console.warn(
+        "DocConnection: no loggedInUserId available on create document"
+      );
     }
 
     const identifier = sessionStore.getIdentifierForNewDocument();

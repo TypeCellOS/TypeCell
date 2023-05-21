@@ -111,6 +111,7 @@ export class SupabaseSessionStore extends SessionStore {
       isLoggedIn: computed,
       isLoaded: computed,
     });
+    this.initializeReactions();
   }
 
   public async initialize() {
@@ -120,12 +121,13 @@ export class SupabaseSessionStore extends SessionStore {
     this.initialized = true;
 
     try {
+      const cbData = this.supabase.auth.onAuthStateChange((event, session) => {
+        this.updateStateFromAuthStore().catch((e) => {
+          console.error("error initializing sessionstore", e);
+        });
+      });
       this._register({
-        dispose: this.supabase.auth.onAuthStateChange((event, session) => {
-          this.updateStateFromAuthStore().catch((e) => {
-            console.error("error initializing sessionstore", e);
-          });
-        }).data.subscription.unsubscribe,
+        dispose: cbData.data.subscription.unsubscribe,
       });
       this.updateStateFromAuthStore();
     } catch (err) {

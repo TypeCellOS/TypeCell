@@ -1,8 +1,8 @@
 import {
-  autorun,
   computed,
   makeObservable,
   observable,
+  reaction,
   runInAction,
 } from "mobx";
 import { lifecycle } from "vscode-lib";
@@ -69,39 +69,45 @@ export abstract class SessionStore extends lifecycle.Disposable {
       userPrefix: computed,
       coordinators: observable.ref,
     });
+  }
 
-    const dispose = autorun(() => {
-      console.log("change coordinators");
-      const userPrefix = this.userPrefix;
-      if (this.coordinators?.userPrefix === userPrefix) {
-        return;
-      }
+  protected initializeReactions() {
+    const dispose = reaction(
+      () => this.userPrefix,
+      () => {
+        console.log("change coordinators");
+        const userPrefix = this.userPrefix;
+        if (this.coordinators?.userPrefix === userPrefix) {
+          return;
+        }
 
-      this.coordinators?.coordinator.dispose();
-      this.coordinators?.aliasStore.dispose();
-      runInAction(() => {
-        this.coordinators = undefined;
-      });
-
-      if (!userPrefix) {
-        return;
-      }
-
-      (async () => {
-        const coordinators = {
-          userPrefix,
-          coordinator: new DocumentCoordinator(userPrefix),
-          aliasStore: new AliasCoordinator(userPrefix),
-        };
-        await coordinators.coordinator.initialize();
-        await coordinators.aliasStore.initialize();
+        this.coordinators?.coordinator.dispose();
+        this.coordinators?.aliasStore.dispose();
         runInAction(() => {
-          if (this.userPrefix === userPrefix) {
-            this.coordinators = coordinators;
-          }
+          this.coordinators = undefined;
         });
-      })();
-    });
+
+        if (!userPrefix) {
+          return;
+        }
+
+        (async () => {
+          const coordinators = {
+            userPrefix,
+            coordinator: new DocumentCoordinator(userPrefix),
+            aliasStore: new AliasCoordinator(userPrefix),
+          };
+          await coordinators.coordinator.initialize();
+          await coordinators.aliasStore.initialize();
+          runInAction(() => {
+            if (this.userPrefix === userPrefix) {
+              this.coordinators = coordinators;
+            }
+          });
+        })();
+      },
+      { fireImmediately: true }
+    );
 
     this._register({
       dispose,

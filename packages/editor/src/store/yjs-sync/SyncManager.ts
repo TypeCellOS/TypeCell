@@ -199,6 +199,10 @@ export class SyncManager extends lifecycle.Disposable {
       this.ydoc
     );
 
+    if (this.disposed) {
+      return;
+    }
+
     if (forkSource) {
       Y.applyUpdateV2(doc.ydoc, Y.encodeStateAsUpdateV2(forkSource)); // TODO
     }
