@@ -87,7 +87,7 @@ export const MonacoBlockContent = createTipTapBlock({
     ];
   },
 
-  renderHTML({ HTMLAttributes }) {
+  renderHTML({ HTMLAttributes }: any) {
     return [
       "code",
       mergeAttributes(HTMLAttributes, {
@@ -109,7 +109,7 @@ export const MonacoBlockContent = createTipTapBlock({
       HTMLAttributes,
       decorations,
       extension,
-    }) => {
+    }: any) => {
       console.log("new monaco", decorations);
       theNode = node;
       const dom = document.createElement("div");

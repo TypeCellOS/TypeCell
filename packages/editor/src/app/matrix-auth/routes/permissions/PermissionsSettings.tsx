@@ -10,15 +10,15 @@ import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { MatrixUserPicker } from "./MatrixUserPicker";
 import styles from "./PermissionsSettings.module.css";
+import UserPermissionRow from "./UserPermissionRow";
 import {
   DocPermission,
-  docPermissionLabels,
   PermissionData,
-  updatePermissionData,
   UserPermission,
+  docPermissionLabels,
+  updatePermissionData,
   userPermissionLabels,
 } from "./permissionUtils";
-import UserPermissionRow from "./UserPermissionRow";
 import { User } from "./userUtils";
 
 const PermissionsSettings = observer(
@@ -124,7 +124,8 @@ const PermissionsSettings = observer(
 
     return (
       <Modal
-        css={{ overflow: "visible" }}
+        // TODO
+        // css={{ overflow: "visible" }}
         onClose={() => props.closeCallback()}>
         <ModalHeader>
           <ModalTitle>Sharing & Permissions</ModalTitle>

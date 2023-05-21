@@ -28,7 +28,7 @@ export class CellListModel {
     const newCells = [];
     const newCellsById = new Map<string, CellModel>();
     for (let child of children) {
-      const id = child.getAttribute("block-id");
+      const id = child.getAttribute("block-id")!; // TODO: !
       const lang = child.getAttribute("language");
 
       const old = this._previousCellsById.get(id);
@@ -95,8 +95,8 @@ export class CellListModel {
       throw new Error("unexpected element type");
     }
     let copy = new Y.XmlElement("typecell");
-    copy.setAttribute("language", element.getAttribute("language"));
-    copy.setAttribute("block-id", element.getAttribute("block-id"));
+    copy.setAttribute("language", element.getAttribute("language")!);
+    copy.setAttribute("block-id", element.getAttribute("block-id")!);
     copy.insert(0, [new Y.XmlText((element.firstChild! as Y.Text).toString())]);
     this.fragment.delete(index);
 
