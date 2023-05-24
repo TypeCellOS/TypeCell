@@ -115,6 +115,7 @@ export class SupabaseHocuspocus extends Database {
 
     if (ret.count === 1) {
       // document exists and was able to update it, so has write access
+      // console.log("read+write", data.documentName);
       return;
     }
 
@@ -260,4 +261,9 @@ export class SupabaseHocuspocus extends Database {
       this.refListenersByDocument.delete(data.document);
     }
   }
+
+  // async beforeHandleMessage?(data: beforeHandleMessagePayload): Promise<any> {
+  //   // console.log("message", data);
+  //   return undefined;
+  // }
 }

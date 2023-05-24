@@ -35,7 +35,8 @@ const RenderItem =
   ({ item, onExpand, onCollapse, provided, depth }: RenderItemParams) => {
     const doc = DocConnection.get(item.data.identifier)?.tryDoc;
     if (!doc) {
-      throw new Error("Doc not found but should be loaded");
+      console.warn("Doc not found but should be loaded", item.data.identifier);
+      return null;
     }
 
     const onClickHandler = () => {

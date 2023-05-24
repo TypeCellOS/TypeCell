@@ -139,7 +139,6 @@ export class DocConnection extends lifecycle.Disposable {
   }
 
   public async revert() {
-    this.manager.dispose();
     this.manager = await this.manager.clearAndReload();
   }
 
