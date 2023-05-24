@@ -2,7 +2,13 @@ import {
   HocuspocusProvider,
   HocuspocusProviderWebsocket,
 } from "@hocuspocus/provider";
-import { createAtom, runInAction } from "mobx";
+import {
+  computed,
+  createAtom,
+  makeObservable,
+  observable,
+  runInAction,
+} from "mobx";
 import { uuid } from "vscode-lib";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
@@ -36,6 +42,8 @@ export class TypeCellRemote extends Remote {
   private _canWriteAtom = createAtom("_canWrite");
   private disposed = false;
 
+  public unsyncedChanges = 0;
+
   // TODO: set to true and run tests
   private static _offline = false;
 
@@ -61,6 +69,10 @@ export class TypeCellRemote extends Remote {
     if (!(identifier instanceof TypeCellIdentifier)) {
       throw new Error("invalid identifier");
     }
+    makeObservable(this, {
+      unsyncedChanges: observable.ref,
+      canWrite: computed,
+    });
   }
 
   public get awareness(): awarenessProtocol.Awareness | undefined {
@@ -69,13 +81,14 @@ export class TypeCellRemote extends Remote {
   }
 
   public get canWrite() {
-    this._canWriteAtom.reportObserved();
-    if (!this.hocuspocusProvider) {
-      return true;
-    }
-    return true;
-    // TODO
-    // return this.hocuspocusProvider.canWrite;
+    return this.unsyncedChanges === 0;
+    // this._canWriteAtom.reportObserved();
+    // if (!this.hocuspocusProvider) {
+    //   return true;
+    // }
+    // return true;
+    // // TODO
+    // // return this.hocuspocusProvider.canWrite;
   }
 
   public get canCreate() {
@@ -152,6 +165,7 @@ export class TypeCellRemote extends Remote {
       broadcast: false,
       onSynced: () => {
         runInAction(() => {
+          this.unsyncedChanges = hocuspocusProvider.unsyncedChanges;
           this.status = "loaded";
         });
       },
@@ -162,6 +176,13 @@ export class TypeCellRemote extends Remote {
         });
       },
     });
+    hocuspocusProvider.on("unsyncedChanges", () => {
+      runInAction(() => {
+        this.unsyncedChanges = hocuspocusProvider.unsyncedChanges;
+      });
+    });
+    this.unsyncedChanges = hocuspocusProvider.unsyncedChanges;
+
     this.hocuspocusProvider = hocuspocusProvider;
 
     this._register({

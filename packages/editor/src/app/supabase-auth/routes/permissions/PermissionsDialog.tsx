@@ -18,7 +18,7 @@ const PermissionsDialog = observer(
     }
     const user = sessionStore.user;
     if (typeof user === "string" || user.type === "guest-user") {
-      throw new Error("can't access permissions when not signed in");
+      return null;
     }
 
     return (

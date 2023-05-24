@@ -193,7 +193,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       throw new Error("not initialized");
     }
 
-    const localDoc = this.loadedDocuments.get("idStr");
+    const localDoc = this.loadedDocuments.get(idStr);
 
     if (!localDoc) {
       // we expect loadDocument only to be called once per document

@@ -151,22 +151,16 @@ export function getHashForReference(
 //   };
 // }
 
-// export function createOneToManyReferenceDefinition(
-//   namespace: string,
-//   type: string,
-//   reverseType: string,
-//   sorted: boolean
-// ): ReferenceDefinition {
-//   return {
-//     namespace,
-//     type,
-//     relationship: { type: "many", sorted },
-//     reverseInfo: {
-//       type: reverseType,
-//       relationship: { type: "unique" },
-//     },
-//   };
-// }
+export function createOneToManyReferenceDefinition(
+  namespace: string,
+  type: string
+): ReferenceDefinition {
+  return {
+    namespace,
+    type,
+    relationship: "unique",
+  };
+}
 
 export function createManyToManyReferenceDefinition(
   namespace: string,
