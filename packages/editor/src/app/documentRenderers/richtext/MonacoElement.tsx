@@ -1,107 +1,88 @@
-import { createTipTapBlock } from "@blocknote/core";
-import { mergeAttributes } from "@tiptap/core";
+import { NodeViewProps } from "@tiptap/core";
+import { NodeViewWrapper } from "@tiptap/react";
 import * as monaco from "monaco-editor";
-// import styles from "../../Block.module.css";
+import { useCallback, useEffect, useRef } from "react";
 
-// @ts-ignore
-// @ts-ignore
-// @ts-ignore
-import { Node } from "@tiptap/pm/model";
-import { Selection, TextSelection, Transaction } from "prosemirror-state";
-import { Decoration, DecorationSource, EditorView } from "prosemirror-view";
+export function MonacoElement(props: NodeViewProps) {
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
 
-import { keymap } from "prosemirror-keymap";
-
-function arrowHandler(dir: string) {
-  return (state: any, dispatch: any, view: any) => {
-    if (state.selection.empty && view.endOfTextblock(dir)) {
-      let side = dir == "left" || dir == "up" ? -1 : 1;
-      let $head = state.selection.$head;
-      let nextPos = Selection.near(
-        state.doc.resolve(side > 0 ? $head.after() : $head.before()),
-        side
-      );
-      if (nextPos.$head && nextPos.$head.parent.type.name == "monaco") {
-        dispatch(state.tr.setSelection(nextPos));
-        return true;
-      }
+  useEffect(() => {
+    if (props.selected) {
+      editorRef.current?.focus();
     }
-    return false;
-  };
-}
+  }, [props.selected]);
 
-const arrowHandlers = keymap({
-  ArrowLeft: arrowHandler("left"),
-  ArrowRight: arrowHandler("right"),
-  ArrowUp: arrowHandler("up"),
-  ArrowDown: arrowHandler("down"),
-});
+  const codeRefCallback = useCallback((el: HTMLDivElement) => {
+    let editor = editorRef.current;
 
-export function selectionDir(
-  view: EditorView,
-  pos: number,
-  size: number,
-  dir: -1 | 1
-) {
-  const targetPos = pos + (dir < 0 ? 0 : size);
-  const selection = Selection.near(view.state.doc.resolve(targetPos), dir);
-  view.dispatch(view.state.tr.setSelection(selection).scrollIntoView());
-  // view.focus();
-}
+    if (editor && editor?.getContainerDomNode() !== el) {
+      editor.dispose();
+      editorRef.current = undefined;
+    }
 
-function getTransactionForSelectionUpdate(
-  selection: monaco.Selection | null,
-  model: monaco.editor.ITextModel | null,
-  offset: number,
-  tr: Transaction
-) {
-  if (selection && model) {
-    const selFrom = model!.getOffsetAt(selection.getStartPosition()) + offset;
-    const selEnd = model!.getOffsetAt(selection.getEndPosition()) + offset;
-    tr.setSelection(
-      TextSelection.create(
-        tr.doc,
-        selection.getDirection() === monaco.SelectionDirection.LTR
-          ? selFrom
-          : selEnd,
-        selection.getDirection() === monaco.SelectionDirection.LTR
-          ? selEnd
-          : selFrom
-      )
-    );
-  }
-}
+    if (!el) {
+      return;
+    }
 
-// TODO: clean up listeners
-export const MonacoBlockContent = createTipTapBlock({
-  name: "monaco",
-  content: "inline*",
-  editable: true,
-  parseHTML() {
-    return [
-      {
-        tag: "p",
-        priority: 200,
-        node: "paragraph",
+    console.log("crate");
+    let newEditor = monaco.editor.create(el, {
+      value: "hello",
+      language: "javascript",
+      scrollBeyondLastLine: false,
+      minimap: {
+        enabled: false,
       },
-    ];
-  },
+      overviewRulerLanes: 0,
+      lineNumbersMinChars: 1,
+      lineNumbers: "on",
+      tabSize: 2,
+      scrollbar: {
+        alwaysConsumeMouseWheel: false,
+      },
+      theme: "typecellTheme",
+    });
 
-  renderHTML({ HTMLAttributes }: any) {
-    return [
-      "code",
-      mergeAttributes(HTMLAttributes, {
-        // class: styles.blockContent,
-        "data-content-type": this.name,
-      }),
-      ["p", 0],
-    ];
-  },
+    // disable per-cell find command (https://github.com/microsoft/monaco-editor/issues/102)
+    (newEditor as any)._standaloneKeybindingService.addDynamicKeybinding(
+      "-actions.find",
+      null, // keybinding
+      () => {} // need to pass an empty handler
+    );
 
-  addNodeView() {
-    let theNode: Node;
-    let updating = false;
-    // @ts-ignore
+    // if (initialFocus && initial.current) {
+    //   initial.current = false;
+    //   // newEditor.focus();
+    // }
+
+    newEditor.onDidBlurEditorWidget(() => {
+      newEditor.trigger("blur", "editor.action.formatDocument", {});
+    });
+
+    newEditor.onDidContentSizeChange(() => {
+      const contentHeight = Math.min(500, newEditor.getContentHeight());
+      try {
+        newEditor.layout({
+          height: contentHeight,
+          width: newEditor.getContainerDomNode()!.offsetWidth,
+        });
+      } finally {
+      }
+    });
+
+    editorRef.current = newEditor;
+  }, []);
+
+  return (
+    <NodeViewWrapper>
+      <div contentEditable={false} ref={codeRefCallback}>
+        Monaco
+      </div>
+    </NodeViewWrapper>
+  );
+}
+
+/*
+// @ts-ignore
     return ({
       editor,
       node,
@@ -118,7 +99,10 @@ export const MonacoBlockContent = createTipTapBlock({
         value: node.textContent,
         language: "javascript",
       });
-      mon.layout({ width: 500, height: 500 });
+      // mon.layout({
+      //   width: mon.getContainerDomNode()!.offsetWidth,
+      //   height: 500,
+      // });
       // dom.innerHTML = "Hello, I’m a node view!";
 
       mon.onDidChangeCursorSelection((e) => {
@@ -352,54 +336,6 @@ export const MonacoBlockContent = createTipTapBlock({
                 },
               });
             });
-          // TODO: take widget decoration as base
-
-          /*decs.forEach((deco) => {
-            if (
-              (deco as any).type?.attrs?.class !== "ProseMirror-yjs-selection"
-            ) {
-              return;
-            }
-            let start: monaco.Position;
-            let end: monaco.Position;
-            let afterContentClassName: string | undefined;
-            let beforeContentClassName: string | undefined;
-            const clientID = "sdfdsf";
-
-            if (deco.from < deco.to) {
-              start = modal.getPositionAt(deco.from);
-              end = modal.getPositionAt(deco.to);
-              afterContentClassName =
-                "yRemoteSelectionHead yRemoteSelectionHead-" + clientID;
-            } else {
-              start = modal.getPositionAt(deco.to);
-              end = modal.getPositionAt(deco.from);
-              beforeContentClassName =
-                "yRemoteSelectionHead yRemoteSelectionHead-" + clientID;
-            }
-            newDecorations.push({
-              range: new monaco.Range(
-                start.lineNumber,
-                start.column,
-                end.lineNumber,
-                end.column
-              ),
-              options: {
-                className: "yRemoteSelection yRemoteSelection-" + clientID,
-                afterContentClassName,
-                beforeContentClassName,
-              },
-            });
-            console.log("range", {
-              range: new monaco.Range(
-                start.lineNumber,
-                start.column,
-                end.lineNumber,
-                end.column
-              ),
-            });
-            // debugger;
-          });*/
 
           lastDecorations = mon.deltaDecorations(
             lastDecorations,
@@ -410,32 +346,6 @@ export const MonacoBlockContent = createTipTapBlock({
           // console.log(collection);
           // mon.deltaDecorations
           updating = false;
-
-          /*
-          const anchorAbs = Y.createAbsolutePositionFromRelativePosition(state.selection.anchor, this.doc)
-          const headAbs = Y.createAbsolutePositionFromRelativePosition(state.selection.head, this.doc)
-          if (anchorAbs !== null && headAbs !== null && anchorAbs.type === ytext && headAbs.type === ytext) {
-            let start, end, afterContentClassName, beforeContentClassName
-            if (anchorAbs.index < headAbs.index) {
-              start = monacoModel.getPositionAt(anchorAbs.index)
-              end = monacoModel.getPositionAt(headAbs.index)
-              afterContentClassName = 'yRemoteSelectionHead yRemoteSelectionHead-' + clientID
-              beforeContentClassName = null
-            } else {
-              start = monacoModel.getPositionAt(headAbs.index)
-              end = monacoModel.getPositionAt(anchorAbs.index)
-              afterContentClassName = null
-              beforeContentClassName = 'yRemoteSelectionHead yRemoteSelectionHead-' + clientID
-            }
-            newDecorations.push({
-              range: new monaco.Range(start.lineNumber, start.column, end.lineNumber, end.column),
-              options: {
-                className: 'yRemoteSelection yRemoteSelection-' + clientID,
-                afterContentClassName,
-                beforeContentClassName
-              }
-            })
-*/
 
           return true;
         },
@@ -465,9 +375,4 @@ export const MonacoBlockContent = createTipTapBlock({
           updating = false;
         },
       };
-    };
-  },
-  addProseMirrorPlugins() {
-    return [arrowHandlers] as any;
-  },
-});
+    };*/
