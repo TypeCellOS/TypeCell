@@ -34,12 +34,7 @@ export default defineConfig({
     // global: "globalThis", // breaks some modules work because of https://github.com/vitejs/vite/issues/6295, done in index.tsx instead
     // process & buffer are added to global scope in index.host.tsx
   },
-  plugins: [
-    react({
-      jsxRuntime: "classic", // TODO: would prefer to move to new jsxRuntime, but doesn't seem compatible with atlaskit
-    }),
-    redirectAll(),
-  ],
+  plugins: [react(), redirectAll()],
   resolve: {
     alias: {
       buffer: "rollup-plugin-node-polyfills/polyfills/buffer-es6",

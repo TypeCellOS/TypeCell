@@ -158,7 +158,7 @@ describe("SyncManager tests", () => {
   });
 
   it("can load a known remote document", async () => {
-    const { manager, doc, identifier } = await createDocInBackendAndLoad(
+    const { manager, identifier } = await createDocInBackendAndLoad(
       alice,
       wsProvider,
       sessionStore
@@ -343,8 +343,12 @@ describe("SyncManager tests", () => {
   });
 
   it("can clear local status and reload", async () => {
-    const { manager, identifier, backendYDoc } =
-      await createDocInBackendAndLoad(alice, wsProvider, sessionStore, "read");
+    const { manager, backendYDoc } = await createDocInBackendAndLoad(
+      alice,
+      wsProvider,
+      sessionStore,
+      "read"
+    );
 
     await when(() => manager.state.status === "syncing");
     if (manager.state.status !== "syncing") {
@@ -381,8 +385,12 @@ describe("SyncManager tests", () => {
   });
 
   it("can fork a document", async () => {
-    const { manager, identifier, backendYDoc } =
-      await createDocInBackendAndLoad(alice, wsProvider, sessionStore, "read");
+    const { manager, backendYDoc } = await createDocInBackendAndLoad(
+      alice,
+      wsProvider,
+      sessionStore,
+      "read"
+    );
 
     await when(() => manager.state.status === "syncing");
     if (manager.state.status !== "syncing") {

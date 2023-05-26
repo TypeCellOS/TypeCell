@@ -157,7 +157,7 @@ const ProjectContainer = observer((props: Props) => {
   };
 
   // let defaultFile = files.find((f) => f === "README.md");
-  let defaultFileContent = <></>;
+  // let defaultFileContent = <></>;
   // if (defaultFile) {
   //   // TODO: cleanup?
   //   // Directory listing with a default file

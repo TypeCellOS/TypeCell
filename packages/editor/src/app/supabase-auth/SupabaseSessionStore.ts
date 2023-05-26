@@ -1,13 +1,9 @@
+import { createClient } from "@supabase/supabase-js";
 import { computed, makeObservable, observable, runInAction } from "mobx";
 import { arrays, uri } from "vscode-lib";
 import { SessionStore } from "../../store/local/SessionStore";
 // @ts-ignore
-import { createClient } from "@supabase/supabase-js";
-
-import { ANON_KEY } from "./supabaseConfig";
-
 import { uniqueId } from "@typecell-org/common";
-
 import * as Y from "yjs";
 import type { Database } from "../../../../../packages/server/src/types/schema";
 import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
@@ -19,7 +15,10 @@ import { BaseResource } from "../../store/BaseResource";
 import ProfileResource from "../../store/ProfileResource";
 import { TypeCellRemote } from "../../store/yjs-sync/remote/TypeCellRemote";
 import { navigateRef } from "../GlobalNavigateRef";
-export type SupabaseClientType = SupabaseSessionStore["supabase"];
+import { ANON_KEY } from "./supabaseConfig";
+
+
+export type SupabaseClientType = ReturnType<typeof createClient<Database>>;
 
 const colors = [
   "#958DF1",
@@ -38,7 +37,7 @@ const colors = [
 export class SupabaseSessionStore extends SessionStore {
   public storePrefix: string = "tc";
 
-  public readonly supabase: ReturnType<typeof createClient<Database>>;
+  public readonly supabase: SupabaseClientType;
 
   private initialized = false;
   public userId: string | undefined = undefined;
@@ -107,15 +106,11 @@ export class SupabaseSessionStore extends SessionStore {
       isLoggedIn: computed,
       isLoaded: computed,
     });
-    this.supabase= createClient<Database>(
-      "http://localhost:54321",
-      ANON_KEY,
-      {
-        auth: {
-          persistSession: persist,
-        }
-      }
-    );
+    this.supabase = createClient<Database>("http://localhost:54321", ANON_KEY, {
+      auth: {
+        persistSession: persist,
+      },
+    });
     this.initializeReactions();
   }
 
