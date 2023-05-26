@@ -13,10 +13,12 @@ import CTAButton from "@theme/components/Buttons/CTAButton.vue";
       <!-- <h1>A fresh take on documents.<br /></h1> -->
       <p>
         TypeCell is a fresh take on what documents and software can look like.
-        Think <em>Notion + Jupyter Notebooks</em>.
+        Think <em>Notion + Jupyter Notebooks</em>. Open Source.
       </p>
       <div class="cta-buttons">
-        <CTAButton href="/docs/quickstart">Get started (beta)</CTAButton>
+        <CTAButton href="/docs/quickstart"
+          >Create your workspace (beta)</CTAButton
+        >
         <!-- <CTAButton href="/guides/introduction" layout="simple"
           >Learn more</CTAButton
         > -->
