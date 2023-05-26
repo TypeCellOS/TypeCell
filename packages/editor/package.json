@@ -3,6 +3,7 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
+    "@hocuspocus/provider": "^2.0.6",
     "@atlaskit/atlassian-navigation": "^2.2.6",
     "@atlaskit/avatar": "^21.1.1",
     "@atlaskit/banner": "^11.6.1",
@@ -117,7 +118,7 @@
     "lint": "eslint src",
     "test-watch": "vitest watch",
     "unittest:vitest": "vitest",
-    "unittest:playwright": "playwright-test '**/*.browsertest.ts'",
+    "unittest:playwright": "playwright-test '**/*.browsertest.ts' --debug",
     "test": "npm run unittest:vitest",
     "vite:dev": "vite",
     "vite:build": "vite build",

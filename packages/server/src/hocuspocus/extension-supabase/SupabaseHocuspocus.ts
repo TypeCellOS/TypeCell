@@ -3,6 +3,7 @@ import {
   DatabaseConfiguration,
 } from "@hocuspocus/extension-database";
 import {
+  beforeHandleMessagePayload,
   fetchPayload,
   onAuthenticatePayload,
   onDisconnectPayload,
@@ -66,7 +67,7 @@ export class SupabaseHocuspocus extends Database {
         }
 
         const serviceClient = await createServiceClient();
-
+        // console.log("store", data.document.getArray("inbox").toJSON());
         const ret = await serviceClient
           .from("documents")
           .update(
@@ -115,7 +116,7 @@ export class SupabaseHocuspocus extends Database {
 
     if (ret.count === 1) {
       // document exists and was able to update it, so has write access
-      // console.log("read+write", data.documentName);
+      console.log("read+write", data.documentName);
       return;
     }
 
@@ -127,7 +128,7 @@ export class SupabaseHocuspocus extends Database {
 
     if (ret2.count === 1) {
       // document exists, but user only has read access
-      data.connection.readOnly = true;
+      // data.connection.readOnly = true; TODO
       console.log("readonly", data.documentName);
       return;
     }
@@ -178,7 +179,7 @@ export class SupabaseHocuspocus extends Database {
     const serviceClient = await createServiceClient();
 
     const refs = [...tr.doc.getMap("refs").values()]
-      .filter((r) => r.namespace === "typecell" && r.type === "child")
+      .filter((r) => r.namespace === "typecell" && r.type === "childOf") // TODO: use ChildReference
       .map((r) => r.target as string);
 
     const refsIds = await serviceClient
@@ -243,6 +244,7 @@ export class SupabaseHocuspocus extends Database {
 
     const refListener = (event: Y.YEvent<any>[], tr: Y.Transaction) =>
       this.refsChanged(data.socketId, data.context.documentId, event, tr);
+
     data.document.getMap("refs").observeDeep(refListener);
 
     this.refListenersByDocument.set(data.document, refListener);
@@ -250,7 +252,7 @@ export class SupabaseHocuspocus extends Database {
     await super.onLoadDocument(data);
   }
 
-  async onDisconnect?(data: onDisconnectPayload): Promise<any> {
+  async onDisconnect(data: onDisconnectPayload): Promise<any> {
     if (data.clientsCount === 0) {
       const refListener = this.refListenersByDocument.get(data.document);
       if (!refListener) {
@@ -262,8 +264,16 @@ export class SupabaseHocuspocus extends Database {
     }
   }
 
-  // async beforeHandleMessage?(data: beforeHandleMessagePayload): Promise<any> {
-  //   // console.log("message", data);
-  //   return undefined;
+  // async onChange(data: onChangePayload): Promise<any> {
+  //   console.log(
+  //     "ONCHANGE",
+  //     data.documentName,
+  //     data.document.getArray("inbox").toJSON()
+  //   );
   // }
+
+  async beforeHandleMessage(data: beforeHandleMessagePayload): Promise<any> {
+    // console.log("message", data);
+    return undefined;
+  }
 }

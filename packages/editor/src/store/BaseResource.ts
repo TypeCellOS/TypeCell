@@ -251,6 +251,7 @@ export class BaseResource {
       );
 
       const inbox = await this.manager.loadInboxResource(targetId);
+
       inbox.inbox.push([
         {
           message_type: "ref",
@@ -261,7 +262,11 @@ export class BaseResource {
           clock: nextId.client + ":" + nextId.clock,
         },
       ]);
-      inbox.dispose();
+
+      // TODO: remove setTimeout and immediately dispose, should be taken care of by bg syncer
+      setTimeout(() => {
+        inbox.dispose();
+      }, 1000);
     }
     this._refs.set(key, ref);
   }

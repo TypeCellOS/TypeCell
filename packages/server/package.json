@@ -3,14 +3,14 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
-    "@hocuspocus/extension-database": "^2.0.3",
+    "@hocuspocus/extension-database": "^2.0.6",
     "@hocuspocus/extension-logger": "^2.0.6",
     "@hocuspocus/server": "^2.0.6",
     "@supabase/supabase-js": "^2.12.1",
     "vscode-lib": "^0.1.2"
   },
   "devDependencies": {
-    "@hocuspocus/provider": "^2.0.3",
+    "@hocuspocus/provider": "^2.0.6",
     "@playwright/test": "^1.33.0",
     "@vitest/coverage-c8": "^0.24.4",
     "jsdom": "^20.0.0",

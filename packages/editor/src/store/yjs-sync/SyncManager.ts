@@ -191,10 +191,9 @@ export class SyncManager extends lifecycle.Disposable {
       throw new Error("no documentCoordinator. logged out while creating?");
     }
 
-    // capture forkUpdate before `await`, because maybe other code paths will change / dispose the source Y.Doc
-    const forkUpdate = forkSource
-      ? Y.encodeStateAsUpdateV2(forkSource)
-      : undefined;
+    if (forkSource) {
+      Y.applyUpdateV2(this.ydoc, Y.encodeStateAsUpdateV2(forkSource));
+    }
 
     const doc = await this.sessionStore.documentCoordinator.createDocument(
       this.identifier,
@@ -203,10 +202,6 @@ export class SyncManager extends lifecycle.Disposable {
 
     if (this.disposed) {
       return;
-    }
-
-    if (forkUpdate) {
-      Y.applyUpdateV2(doc.ydoc, forkUpdate);
     }
 
     runInAction(() => {

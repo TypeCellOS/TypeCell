@@ -19,6 +19,7 @@ import { SessionStore } from "./local/SessionStore";
 import { getStoreService } from "./local/stores";
 import { ForkReference } from "./referenceDefinitions/fork";
 import { SyncManager } from "./yjs-sync/SyncManager";
+
 const cache = new ObservableMap<string, DocConnection>();
 
 /**
@@ -53,10 +54,10 @@ export class DocConnection extends lifecycle.Disposable {
     const dispose = reaction(
       () => this.sessionStore.documentCoordinator,
       async () => {
-        // console.log(
-        //   "sessionstore change",
-        //   this.sessionStore.documentCoordinator
-        // );
+        console.log(
+          "sessionstore change",
+          this.sessionStore.documentCoordinator
+        );
 
         this._baseResourceCache = undefined;
         this.manager?.dispose();
@@ -69,7 +70,7 @@ export class DocConnection extends lifecycle.Disposable {
           this.manager = newManager;
         });
       },
-      { fireImmediately: true }
+      { fireImmediately: false }
     );
 
     this._register({
@@ -134,10 +135,11 @@ export class DocConnection extends lifecycle.Disposable {
   }
 
   public async revert() {
-    const manager = await this.manager?.clearAndReload();
+    const manager = await this.manager!.clearAndReload();
     runInAction(() => {
       this.manager = manager;
     });
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   // TODO: fork github or file sources
@@ -153,16 +155,15 @@ export class DocConnection extends lifecycle.Disposable {
 
     const connection = await DocConnection.createNewDocConnection(
       this.sessionStore.getIdentifierForNewDocument(),
-      this.sessionStore
+      this.sessionStore,
+      doc.ydoc
     );
 
     await this.revert();
 
     const forkDoc = await connection.waitForDoc();
-    // if (typeof forkDoc === "string") {
-    //   throw new Error("no baseresource after fork");
-    // }
-    forkDoc.addRef(ForkReference, this.identifier);
+
+    await forkDoc.addRef(ForkReference, this.identifier);
     return forkDoc;
   }
 
@@ -172,7 +173,8 @@ export class DocConnection extends lifecycle.Disposable {
     forkSource?: Y.Doc,
     isInbox = false
   ) {
-    if (cache.has(identifier.toString())) {
+    const cacheKey = DocConnection.getCacheKey(sessionStore, identifier);
+    if (cache.has(cacheKey)) {
       throw new Error("unexpected, doc already in cache");
     }
 
@@ -193,9 +195,12 @@ export class DocConnection extends lifecycle.Disposable {
 
       const doc = await inboxConnection.waitForDoc();
       doc.create("!inbox");
+      doc.ydoc.getMap("inboxmeta").set("target", identifier.toString()); // TODO
 
-      // TODO: delay?
-      inboxConnection.dispose();
+      // TODO: get rid of this, immedaitely dispose and make a bg manager responsible for syncing the change
+      setTimeout(() => {
+        inboxConnection.dispose();
+      }, 2000);
     }
 
     const manager = SyncManager.create(identifier, sessionStore, forkSource);
@@ -205,7 +210,7 @@ export class DocConnection extends lifecycle.Disposable {
       manager,
       sessionStore
     );
-    cache.set(manager.identifier.toString(), connection);
+    cache.set(cacheKey, connection);
     connection.addRef();
     return connection;
   }
@@ -221,7 +226,13 @@ export class DocConnection extends lifecycle.Disposable {
     return doc;
   }
 
-  public async loadInboxResource(id: Identifier): Promise<InboxResource> {
+  public loadInboxResource = (id: Identifier) =>
+    DocConnection.loadInboxResource(id, this.sessionStore);
+
+  public static async loadInboxResource(
+    id: Identifier,
+    sessionStore = getStoreService().sessionStore
+  ): Promise<InboxResource> {
     if (!(id instanceof TypeCellIdentifier)) {
       throw new Error(
         "unimplemented, only typecellidentifier supported for loadInboxResource"
@@ -230,10 +241,10 @@ export class DocConnection extends lifecycle.Disposable {
     if (id.toString().endsWith("/.inbox")) {
       throw new Error("unexpected, inbox identifier");
     }
-
+    // console.log("loadInboxResource", id.toString() + "/.inbox");
     const doc = DocConnection.load(
       parseIdentifier(id.toString() + "/.inbox"),
-      this.sessionStore
+      sessionStore
     );
     const ret = await doc.waitForDoc();
     const inbox = ret.getSpecificType<InboxResource>(InboxResource as any);
@@ -260,12 +271,17 @@ export class DocConnection extends lifecycle.Disposable {
     return connection.waitForDoc();
   }
 
-  public static get(identifier: string | Identifier) {
+  public static get(
+    identifier: string | Identifier,
+    sessionStore = getStoreService().sessionStore
+  ) {
     if (!(identifier instanceof Identifier)) {
       identifier = parseIdentifier(identifier);
     }
 
-    let connection = cache.get(identifier.toString());
+    let connection = cache.get(
+      DocConnection.getCacheKey(sessionStore, identifier)
+    );
     return connection;
   }
 
@@ -277,12 +293,13 @@ export class DocConnection extends lifecycle.Disposable {
       identifier = parseIdentifier(identifier);
     }
 
-    let connection = cache.get(identifier.toString());
+    const cacheKey = DocConnection.getCacheKey(sessionStore, identifier);
+    let connection = cache.get(cacheKey);
     if (!connection) {
       const syncManager = SyncManager.load(identifier, sessionStore);
 
       connection = new DocConnection(identifier, syncManager, sessionStore);
-      cache.set(identifier.toString(), connection);
+      cache.set(cacheKey, connection);
     }
     connection.addRef();
     return connection;
@@ -305,8 +322,19 @@ export class DocConnection extends lifecycle.Disposable {
 
       this._baseResourceCache = undefined;
       this.manager?.dispose();
-      cache.delete(this.identifier.toString());
+      cache.delete(this.getCacheKey());
       this.disposed = true;
     }
+  }
+
+  private getCacheKey() {
+    return DocConnection.getCacheKey(this.sessionStore, this.identifier);
+  }
+
+  private static getCacheKey(
+    sessionStore: SessionStore,
+    identifier: Identifier
+  ) {
+    return sessionStore.userPrefix + identifier.toString();
   }
 }
