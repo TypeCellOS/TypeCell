@@ -38,10 +38,7 @@ const colors = [
 export class SupabaseSessionStore extends SessionStore {
   public storePrefix: string = "tc";
 
-  public readonly supabase = createClient<Database>(
-    "http://localhost:54321",
-    ANON_KEY
-  );
+  public readonly supabase: ReturnType<typeof createClient<Database>>;
 
   private initialized = false;
   public userId: string | undefined = undefined;
@@ -102,7 +99,7 @@ export class SupabaseSessionStore extends SessionStore {
     );
   }
 
-  constructor() {
+  constructor(persist: boolean = true) {
     super();
     makeObservable(this, {
       user: observable.ref,
@@ -110,6 +107,15 @@ export class SupabaseSessionStore extends SessionStore {
       isLoggedIn: computed,
       isLoaded: computed,
     });
+    this.supabase= createClient<Database>(
+      "http://localhost:54321",
+      ANON_KEY,
+      {
+        auth: {
+          persistSession: persist,
+        }
+      }
+    );
     this.initializeReactions();
   }
 
@@ -157,10 +163,9 @@ export class SupabaseSessionStore extends SessionStore {
 
     const workspaceId = this.getIdentifierForNewDocument();
     {
+      // TODO: use syncmanager
       const ydoc = new Y.Doc();
-      const ret = new BaseResource(ydoc, workspaceId, () => {
-        throw new Error("not implemented");
-      });
+      const ret = new BaseResource(ydoc, workspaceId);
       ret.create("!project");
       const remote = new TypeCellRemote(ydoc, workspaceId, this);
       await remote.createAndRetry();
@@ -171,10 +176,9 @@ export class SupabaseSessionStore extends SessionStore {
     // TODO: manage aliases
     const profileId = this.getIdentifierForNewDocument();
     {
+      // TODO: use syncmanager
       const ydoc = new Y.Doc();
-      const ret = new BaseResource(ydoc, profileId, () => {
-        throw new Error("not implemented");
-      });
+      const ret = new BaseResource(ydoc, profileId);
       ret.create("!profile");
       const profile = ret.getSpecificType(ProfileResource);
       profile.workspaces.set("public", workspaceId.toString());

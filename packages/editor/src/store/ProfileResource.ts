@@ -1,6 +1,10 @@
 import type * as Y from "yjs";
 import { Identifier } from "../identifiers/Identifier";
-import { BaseResource, BaseResourceConnection } from "./BaseResource";
+import {
+  BaseResource,
+  BaseResourceExternalManager,
+  UnimplementedBaseResourceExternalManager,
+} from "./BaseResource";
 
 /**
  * A Resource defining a user / organization profile
@@ -9,10 +13,10 @@ export default class ProfileResource extends BaseResource {
   /** @internal */
   constructor(
     ydoc: Y.Doc,
-    connectionOrIdentifier: BaseResourceConnection | Identifier,
-    inboxLoader: any
+    identifier: Identifier,
+    manager: BaseResourceExternalManager = UnimplementedBaseResourceExternalManager
   ) {
-    super(ydoc, connectionOrIdentifier as any, inboxLoader); // TODO
+    super(ydoc, identifier, manager);
     if (this.type !== "!profile") {
       throw new Error("invalid type for ProfileResource");
     }

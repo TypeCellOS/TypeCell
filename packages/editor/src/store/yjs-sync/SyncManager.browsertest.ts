@@ -12,24 +12,11 @@ import {
   createRandomUser,
   createWsProvider,
 } from "../../../../../packages/server/src/supabase/test/supabaseTestUtil";
+import { loginAsNewRandomUser } from "../../../tests/util/loginUtil";
 import { SupabaseSessionStore } from "../../app/supabase-auth/SupabaseSessionStore";
 import { parseIdentifier } from "../../identifiers";
 import { SyncManager } from "./SyncManager";
 import { TypeCellRemote } from "./remote/TypeCellRemote";
-
-export function getRandomUserData(basename: string) {
-  const randomID = Math.random()
-    .toString(36)
-    .replace(/[^a-z]+/g, "")
-    .substring(0, 5);
-
-  const name = basename + "-" + randomID;
-  return {
-    email: `${name}@email.com`,
-    password: `password-${name}`,
-    name,
-  };
-}
 
 export async function createDocInBackendAndLoad(
   user: Awaited<ReturnType<typeof createRandomUser>>,
@@ -65,29 +52,6 @@ export async function createDocInBackendAndLoad(
   const manager = SyncManager.load(identifier, sessionStore);
 
   return { user, doc, backendYDoc, manager, identifier };
-}
-
-export async function loginAsNewRandomUser(
-  sessionStore: SupabaseSessionStore,
-  basename: string
-) {
-  const userData = getRandomUserData(basename);
-
-  const { data, error } = await sessionStore.supabase.auth.signUp(userData);
-
-  if (error) {
-    throw error;
-  }
-
-  await when(() => !!sessionStore.userId);
-
-  await sessionStore.setUsername(userData.name);
-
-  return {
-    user: data.user,
-    session: data.session,
-    supabase: sessionStore.supabase,
-  };
 }
 
 describe("SyncManager tests", () => {

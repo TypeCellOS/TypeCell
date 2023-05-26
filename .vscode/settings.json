@@ -21,5 +21,6 @@
     "**/cypress/**",
     "**/.{idea,git,cache,output,temp}/**",
     "**/end-to-end/**"
-  ]
+  ],
+  "typescript.preferences.autoImportFileExcludePatterns": ["**/*/dist"]
 }

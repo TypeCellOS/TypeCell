@@ -3,7 +3,6 @@ import { generateKeyBetween } from "fractional-indexing";
 import type * as Y from "yjs";
 import { createID, getState } from "yjs";
 import { Identifier } from "../identifiers/Identifier";
-import type { DocConnection } from "./DocConnection";
 import { DocumentResource } from "./DocumentResource";
 import { InboxResource } from "./InboxResource";
 import {
@@ -13,39 +12,53 @@ import {
   getHashForReference,
   validateRef,
 } from "./Ref";
+import { Remote } from "./yjs-sync/remote/Remote";
 
-export type BaseResourceConnection = {
-  identifier: Identifier;
+export type BaseResourceExternalManager = {
   dispose: () => void;
-  /** @internal */
   awareness: any | undefined;
   needsFork: boolean;
+  loadInboxResource: (forIdentifier: Identifier) => Promise<InboxResource>;
+  fork(): Promise<BaseResource>;
+  revert(): Promise<void>;
+  remote: Remote | undefined;
 };
+
+export const UnimplementedBaseResourceExternalManager: BaseResourceExternalManager =
+  {
+    dispose: () => {},
+    get awareness() {
+      throw new Error("Not implemented");
+    },
+    get needsFork(): boolean {
+      throw new Error("Not implemented");
+    },
+    get loadInboxResource(): any {
+      throw new Error("Not implemented");
+    },
+    fork(): Promise<BaseResource> {
+      throw new Error("Not implemented");
+    },
+    revert(): Promise<void> {
+      throw new Error("Not implemented");
+    },
+    get remote(): Remote {
+      throw new Error("Not implemented");
+    },
+  };
+
 /**
  * A resource is an entity definied by a unique id.
  * All entities extend from BaseResource, which provides support for id, type, and references
  */
 export class BaseResource {
-  private readonly _identifier: Identifier;
-
-  /** @internal */
-  public readonly connection?: DocConnection;
-
   /** @internal */
   public constructor(
     /** @internal */ public readonly ydoc: Y.Doc,
-    connectionOrIdentifier: DocConnection | Identifier,
-    private readonly inboxLoader: (
-      forIdentifier: string
-    ) => Promise<InboxResource>
+    public readonly identifier: Identifier,
+    private readonly manager: BaseResourceExternalManager = UnimplementedBaseResourceExternalManager
   ) {
     makeYDocObservable(ydoc);
-    if ((connectionOrIdentifier as any).identifier) {
-      this.connection = connectionOrIdentifier as DocConnection;
-      this._identifier = this.connection.identifier;
-    } else {
-      this._identifier = connectionOrIdentifier as any;
-    }
   }
 
   /** @internal */
@@ -54,12 +67,12 @@ export class BaseResource {
     // return this.ydoc.getText("title");
   }
 
-  public get identifier() {
-    return this._identifier;
+  public get id() {
+    return this.identifier.toString();
   }
 
-  public get id() {
-    return this._identifier.toString();
+  public get needsFork() {
+    return this.manager.needsFork;
   }
 
   public get type(): string {
@@ -68,7 +81,19 @@ export class BaseResource {
 
   /** @internal */
   public get awareness() {
-    return this.connection?.awareness;
+    return this.manager.awareness;
+  }
+
+  public fork() {
+    return this.manager.fork();
+  }
+
+  public revert() {
+    return this.manager.revert();
+  }
+
+  public get remote() {
+    return this.manager.remote;
   }
 
   /**
@@ -87,8 +112,8 @@ export class BaseResource {
   public getSpecificType<T extends BaseResource>(
     constructor: new (
       doc: Y.Doc,
-      connection: BaseResourceConnection | Identifier,
-      inboxLoader: any
+      identifier: Identifier,
+      manager: BaseResourceExternalManager
     ) => T
   ): T {
     if (this._specificType && !(this._specificType instanceof constructor)) {
@@ -97,11 +122,7 @@ export class BaseResource {
 
     this._specificType =
       this._specificType ||
-      new constructor(
-        this.ydoc,
-        this.connection || this.identifier,
-        this.inboxLoader
-      );
+      new constructor(this.ydoc, this.identifier, this.manager);
 
     return this._specificType;
   }
@@ -160,17 +181,17 @@ export class BaseResource {
     return ref;
   }
 
-  public removeRef(definition: ReferenceDefinition, targetId: string) {
-    this._refs.delete(getHashForReference(definition, targetId));
+  public removeRef(definition: ReferenceDefinition, targetId: Identifier) {
+    this._refs.delete(getHashForReference(definition, targetId.toString()));
     // TODO: delete reverse?
   }
 
   public moveRef(
     definition: ReferenceDefinition,
-    targetId: string,
+    targetId: Identifier,
     index: number
   ) {
-    const key = getHashForReference(definition, targetId);
+    const key = getHashForReference(definition, targetId.toString());
     let existing = this.getRefByKey(definition, key);
     if (!existing) {
       throw new Error("ref not found");
@@ -180,19 +201,21 @@ export class BaseResource {
       throw new Error("called moveRef on non sorted definition");
     }
 
-    const refs = this.getRefs(definition).filter((r) => r.target !== targetId);
+    const refs = this.getRefs(definition).filter(
+      (r) => r.target !== targetId.toString()
+    );
 
     const sortKey = generateKeyBetween(
       index === 0 ? null : refs[index - 1].sortKey || null,
       index >= refs.length ? null : refs[index].sortKey || null
     );
-    this._refs.set(key, createRef(definition, targetId, sortKey));
+    this._refs.set(key, createRef(definition, targetId.toString(), sortKey));
   }
 
   // TODO: should not be async
   public async addRef(
     definition: ReferenceDefinition,
-    targetId: string,
+    targetId: Identifier,
     index?: number,
     addToTargetInbox = true
   ) {
@@ -200,7 +223,7 @@ export class BaseResource {
 
     if (definition.relationship === "many" && definition.sorted) {
       const refs = this.getRefs(definition).filter(
-        (r) => r.target !== targetId
+        (r) => r.target !== targetId.toString()
       );
       if (index === undefined) {
         // append as last item
@@ -218,8 +241,8 @@ export class BaseResource {
     } else if (typeof index !== "undefined") {
       throw new Error("called addRef with index on non sorted definition");
     }
-    const key = getHashForReference(definition, targetId);
-    const ref = createRef(definition, targetId, sortKey);
+    const key = getHashForReference(definition, targetId.toString());
+    const ref = createRef(definition, targetId.toString(), sortKey);
 
     if (addToTargetInbox) {
       const nextId = createID(
@@ -227,7 +250,7 @@ export class BaseResource {
         getState(this.ydoc.store, this.ydoc.clientID)
       );
 
-      const inbox = await this.inboxLoader(targetId);
+      const inbox = await this.manager.loadInboxResource(targetId);
       inbox.inbox.push([
         {
           message_type: "ref",
@@ -242,69 +265,11 @@ export class BaseResource {
     }
     this._refs.set(key, ref);
   }
-  // public ensureRef(
-  //   definition: ReferenceDefinition,
-  //   targetId: string,
-  //   index?: number,
-  //   checkReverse = true
-  // ) {
-  //   // const ref = new Ref(definition, targetId);
-
-  //   const key = getHashForReference(definition, targetId);
-  //   let existing = this.getRef(definition, key); // TODO: this doesn't work distributed + reverseDoc?, because maybe this document isn't synced
-  //   if (existing) {
-  //     // The document already has this relationship
-  //     if (existing.target !== targetId) {
-  //       // The relationship that exists is different, remove the reverse relationship
-  //       const doc = DocConnection.load(existing.target); // TODO: unload document
-
-  //       // TODO !
-  //       doc.tryDoc!.removeRef(reverseReferenceDefinition(definition), this.id);
-  //     }
-  //   }
-  //   // Add the relationship
-  //   let sortKey: string | undefined;
-
-  //   if (
-  //     definition.relationship.type === "many" &&
-  //     definition.relationship.sorted
-  //   ) {
-  //     const refs = this.getRefs(definition).filter(
-  //       (r) => r.target !== targetId
-  //     );
-  //     if (index === undefined) {
-  //       // append as last item
-  //       sortKey = generateKeyBetween(refs.pop()?.sortKey || null, null);
-  //     } else {
-  //       let sortKeyA = index === 0 ? null : refs[index - 1].sortKey || null;
-  //       let sortKeyB =
-  //         index >= refs.length ? null : refs[index].sortKey || null;
-  //       if (sortKeyA === sortKeyB && sortKeyA !== null) {
-  //         console.warn("unexpected");
-  //         sortKeyB = null;
-  //       }
-  //       sortKey = generateKeyBetween(sortKeyA, sortKeyB);
-  //     }
-  //   }
-
-  //   this._refs.set(key, createRef(definition, targetId, sortKey));
-  //   if (checkReverse) {
-  //     // Add the reverse relationship
-  //     const reverseDoc = DocConnection.load(targetId); // TODO: unload document
-  //     // TODO !
-  //     reverseDoc.tryDoc!.ensureRef(
-  //       reverseReferenceDefinition(definition),
-  //       this.id,
-  //       undefined,
-  //       false
-  //     );
-  //   }
-  // }
 
   public dispose() {
     // This should always only dispose the connection
     // BaseResource is not meant to manage other resources,
     // because BaseResource can be initiated often (in YDocConnection.load), and is not cached
-    this.connection?.dispose();
+    this.manager.dispose();
   }
 }

@@ -1,9 +1,13 @@
-import { BrowserContext, BrowserContextOptions } from "@playwright/test";
-import { test as base } from "./scriptSetup";
+import {
+  BrowserContext,
+  BrowserContextOptions,
+  Request,
+} from "@playwright/test";
 import { uri } from "vscode-lib";
+import { test as base } from "./scriptSetup";
 
 export function addFilterToBrowserContext(context: BrowserContext) {
-  const listener = (request) => {
+  const listener = (request: Request) => {
     const host = uri.URI.parse(request.url()).authority;
 
     if (

@@ -129,10 +129,10 @@ const ProjectContainer = observer((props: Props) => {
       if (!parentDoc) {
         throw new Error("Parent not found: " + parentId);
       }
-      parentDoc.addRef(ChildReference, ret.id, undefined, false); // TODO: true
+      parentDoc.addRef(ChildReference, ret.identifier, undefined, false); // TODO: true
     } else {
       // add to root (project)
-      props.project.addRef(ChildReference, ret.id, undefined, false); // TODO: true
+      props.project.addRef(ChildReference, ret.identifier, undefined, false); // TODO: true
     }
     const path = identifiersToPath([props.project.identifier, ret.identifier]);
 

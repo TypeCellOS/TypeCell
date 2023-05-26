@@ -1,7 +1,11 @@
 import type * as Y from "yjs";
 import { NotebookCellModel } from "../app/documentRenderers/notebook/NotebookCellModel";
 import { Identifier } from "../identifiers/Identifier";
-import { BaseResource, BaseResourceConnection } from "./BaseResource";
+import {
+  BaseResource,
+  BaseResourceExternalManager,
+  UnimplementedBaseResourceExternalManager,
+} from "./BaseResource";
 
 /**
  * A Resource defining a plugin. Plugins have a description and a single cell with code,
@@ -11,10 +15,10 @@ export default class PluginResource extends BaseResource {
   /** @internal */
   constructor(
     ydoc: Y.Doc,
-    connection: BaseResourceConnection | Identifier,
-    inboxLoader: any
+    identifier: Identifier,
+    manager: BaseResourceExternalManager = UnimplementedBaseResourceExternalManager
   ) {
-    super(ydoc, connection as any, inboxLoader); // TODO
+    super(ydoc, identifier, manager);
     if (this.type !== "!plugin") {
       throw new Error("invalid type for PluginResource");
     }

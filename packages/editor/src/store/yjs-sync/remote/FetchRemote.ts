@@ -56,9 +56,7 @@ export default class FetchRemote extends Remote {
   private async getNewYDocFromDir(objects: string[]) {
     const newDoc = new Y.Doc();
     newDoc.getMap("meta").set("type", "!project");
-    const project = new ProjectResource(newDoc, this.identifier, () => {
-      throw new Error("not implemented");
-    }); // TODO
+    const project = new ProjectResource(newDoc, this.identifier); // TODO
 
     const tree = filesToTreeNodes(
       objects.map((object) => ({ fileName: object }))
@@ -67,7 +65,7 @@ export default class FetchRemote extends Remote {
     tree.forEach((node) => {
       const id = getIdentifierWithAppendedPath(this.identifier, node.fileName);
 
-      project.addRef(ChildReference, id.toString(), undefined, false);
+      project.addRef(ChildReference, id, undefined, false);
     });
 
     return newDoc;

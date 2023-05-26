@@ -212,18 +212,23 @@ export const SidebarTree = observer(
         throw new Error("Doc not found but should be loaded");
       }
 
-      const item =
+      const itemIdentifier: Identifier =
         akTree.items[akTree.items[source.parentId].children[source.index]].data!
-          .id + "";
+          .identifier;
 
       if (destDoc === sourceDoc) {
         if (destination.index === undefined) {
           throw new Error("no destination index");
         }
-        sourceDoc.moveRef(ChildReference, item, destination.index);
+        sourceDoc.moveRef(ChildReference, itemIdentifier, destination.index);
       } else {
-        destDoc.addRef(ChildReference, item, destination.index || 0, false); // TODO (must be true)
-        sourceDoc.removeRef(ChildReference, item);
+        destDoc.addRef(
+          ChildReference,
+          itemIdentifier,
+          destination.index || 0,
+          false
+        ); // TODO (must be true)
+        sourceDoc.removeRef(ChildReference, itemIdentifier);
       }
       // const { tree } = this.state;
       // if (!destination) {

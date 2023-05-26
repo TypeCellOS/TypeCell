@@ -2,7 +2,11 @@ import * as _ from "lodash";
 import type * as Y from "yjs";
 import { Identifier } from "../identifiers/Identifier";
 import { CellListModel } from "../models/CellListModel";
-import { BaseResource, BaseResourceConnection } from "./BaseResource";
+import {
+  BaseResource,
+  BaseResourceExternalManager,
+  UnimplementedBaseResourceExternalManager,
+} from "./BaseResource";
 
 /**
  * A resource with multiple cells, used for either the Notebook or Richtext built-in types
@@ -11,10 +15,10 @@ export class DocumentResource extends BaseResource {
   /** @internal */
   constructor(
     ydoc: Y.Doc,
-    connectionOrIdentifier: BaseResourceConnection | Identifier,
-    inboxLoader: any
+    identifier: Identifier,
+    manager: BaseResourceExternalManager = UnimplementedBaseResourceExternalManager
   ) {
-    super(ydoc, connectionOrIdentifier as any, inboxLoader);
+    super(ydoc, identifier, manager);
     if (this.type !== "!notebook" && this.type !== "!richtext") {
       throw new Error("invalid type for DocumentResource");
     }

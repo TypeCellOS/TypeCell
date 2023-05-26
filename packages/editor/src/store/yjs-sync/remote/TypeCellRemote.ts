@@ -114,14 +114,18 @@ export class TypeCellRemote extends Remote {
       updated_at: date,
       data: "\\x" + toHex(data),
       nano_id: this.identifier.documentId,
-      public_access_level: "read",
+      public_access_level: "read", // TODO: public inbox
       user_id: sessionStore.userId,
     } as const;
 
     if (TypeCellRemote.Offline) {
       throw new Error("offline");
     }
-
+    console.log(
+      "insert doc",
+      (await sessionStore.supabase.auth.getSession()).data.session?.user.id,
+      doc
+    );
     const ret = await sessionStore.supabase
       .from("documents")
       .insert(doc)

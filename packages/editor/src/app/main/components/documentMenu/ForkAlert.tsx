@@ -12,7 +12,7 @@ export const ForkAlert = observer((props: { document: DocumentResource }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  if (!props.document.connection?.needsFork) {
+  if (!props.document.needsFork) {
     throw new Error("<ForkAlert /> but no fork needed");
   }
 
@@ -21,10 +21,8 @@ export const ForkAlert = observer((props: { document: DocumentResource }) => {
       href=""
       onClick={async (e) => {
         e.preventDefault();
-        if (!props.document.connection) {
-          throw new Error("unexpected, forking without currentDocument");
-        }
-        const result = await props.document.connection.fork();
+
+        const result = await props.document.fork();
         throw new Error("TODO");
         // if (result instanceof BaseResource) {
         //   navigate(toDocument(result));
@@ -53,10 +51,7 @@ export const ForkAlert = observer((props: { document: DocumentResource }) => {
       <a
         href=""
         onClick={(e) => {
-          if (!props.document.connection) {
-            throw new Error("unexpected, revert without currentDocument");
-          }
-          props.document.connection.revert();
+          props.document.revert();
           e.preventDefault();
           return false;
         }}>

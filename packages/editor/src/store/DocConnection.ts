@@ -4,6 +4,7 @@ import {
   makeObservable,
   observable,
   reaction,
+  runInAction,
   when,
 } from "mobx";
 import { lifecycle } from "vscode-lib";
@@ -12,10 +13,12 @@ import { BaseResource } from "./BaseResource";
 import * as Y from "yjs";
 import { parseIdentifier } from "../identifiers";
 import { Identifier } from "../identifiers/Identifier";
+import { TypeCellIdentifier } from "../identifiers/TypeCellIdentifier";
 import { InboxResource } from "./InboxResource";
+import { SessionStore } from "./local/SessionStore";
 import { getStoreService } from "./local/stores";
+import { ForkReference } from "./referenceDefinitions/fork";
 import { SyncManager } from "./yjs-sync/SyncManager";
-
 const cache = new ObservableMap<string, DocConnection>();
 
 /**
@@ -26,17 +29,13 @@ export class DocConnection extends lifecycle.Disposable {
   private _refCount = 0;
 
   /** @internal */
-  private manager: SyncManager;
-  private _baseResourceCache:
-    | undefined
-    | {
-        baseResource: BaseResource;
-        doc: Y.Doc;
-      };
+  private manager: SyncManager | undefined;
+  private _baseResourceCache: undefined | BaseResource;
 
   protected constructor(
     public readonly identifier: Identifier,
-    syncManager: SyncManager
+    syncManager: SyncManager,
+    private readonly sessionStore: SessionStore
   ) {
     super();
 
@@ -52,22 +51,23 @@ export class DocConnection extends lifecycle.Disposable {
     });
 
     const dispose = reaction(
-      () => getStoreService().sessionStore.documentCoordinator,
+      () => this.sessionStore.documentCoordinator,
       async () => {
-        console.log(
-          "sessionstore change",
-          getStoreService().sessionStore.documentCoordinator
-        );
-        const sessionStore = getStoreService().sessionStore;
+        // console.log(
+        //   "sessionstore change",
+        //   this.sessionStore.documentCoordinator
+        // );
+
         this._baseResourceCache = undefined;
         this.manager?.dispose();
-        if (!sessionStore.user || !sessionStore.documentCoordinator) {
-          return;
+        let newManager: SyncManager | undefined = undefined;
+
+        if (sessionStore.user && sessionStore.documentCoordinator) {
+          newManager = SyncManager.load(identifier, this.sessionStore);
         }
-        this.manager = SyncManager.load(
-          identifier,
-          getStoreService().sessionStore
-        );
+        runInAction(() => {
+          this.manager = newManager;
+        });
       },
       { fireImmediately: true }
     );
@@ -90,12 +90,12 @@ export class DocConnection extends lifecycle.Disposable {
 
   /** @internal */
   public get awareness() {
-    console.log("awareness", this.manager.awareness);
-    return this.manager.awareness;
+    console.log("awareness", this.manager?.awareness);
+    return this.manager?.awareness;
   }
 
   public get remote() {
-    return this.manager.remote;
+    return this.manager?.remote;
   }
 
   public get needsFork() {
@@ -116,7 +116,7 @@ export class DocConnection extends lifecycle.Disposable {
    * @type {("loading" | "not-found" | BaseResource)}
    * @memberof DocConnection
    */
-  public get doc() {
+  public get doc(): "loading" | "not-found" | BaseResource {
     if (!this.manager) {
       return "loading" as "loading";
     }
@@ -126,49 +126,88 @@ export class DocConnection extends lifecycle.Disposable {
       return ydoc;
     }
 
-    if (!this._baseResourceCache || this._baseResourceCache.doc !== ydoc) {
-      this._baseResourceCache = {
-        doc: ydoc,
-        baseResource: new BaseResource(ydoc, this, () => {
-          throw new Error("not implemetned");
-        }),
-      };
+    if (!this._baseResourceCache || this._baseResourceCache.ydoc !== ydoc) {
+      this._baseResourceCache = new BaseResource(ydoc, this.identifier, this);
     }
 
-    return this._baseResourceCache.baseResource;
+    return this._baseResourceCache;
   }
 
   public async revert() {
-    this.manager = await this.manager.clearAndReload();
+    const manager = await this.manager?.clearAndReload();
+    runInAction(() => {
+      this.manager = manager;
+    });
   }
 
   // TODO: fork github or file sources
   public async fork() {
-    if (!getStoreService().sessionStore.loggedInUserId) {
-      throw new Error("not logged in");
+    if (!this.sessionStore.loggedInUserId) {
+      throw new Error("fork, but not logged in");
     }
 
-    throw new Error("TODO");
-    /*
-    const result = await this.manager.fork();
-
-    if (typeof result === "string") {
-      return result;
+    const doc = this.tryDoc;
+    if (!doc) {
+      throw new Error("fork, but no doc");
     }
 
-    if (cache.get(result.identifier.toString())) {
-      throw new Error("create called, but already in cache");
+    const connection = await DocConnection.createNewDocConnection(
+      this.sessionStore.getIdentifierForNewDocument(),
+      this.sessionStore
+    );
+
+    await this.revert();
+
+    const forkDoc = await connection.waitForDoc();
+    // if (typeof forkDoc === "string") {
+    //   throw new Error("no baseresource after fork");
+    // }
+    forkDoc.addRef(ForkReference, this.identifier);
+    return forkDoc;
+  }
+
+  private static async createNewDocConnection(
+    identifier: Identifier,
+    sessionStore: SessionStore,
+    forkSource?: Y.Doc,
+    isInbox = false
+  ) {
+    if (cache.has(identifier.toString())) {
+      throw new Error("unexpected, doc already in cache");
     }
 
-    const connection = new DocConnection(result.identifier, result);
-    cache.set(result.identifier.toString(), connection);
+    if (!isInbox && identifier.toString().endsWith("/.inbox")) {
+      throw new Error("unexpected, inbox identifier");
+    }
+
+    if (!isInbox) {
+      const inboxIdentifier = parseIdentifier(
+        identifier.toString() + "/.inbox"
+      );
+      const inboxConnection = await DocConnection.createNewDocConnection(
+        inboxIdentifier,
+        sessionStore,
+        undefined,
+        true
+      );
+
+      const doc = await inboxConnection.waitForDoc();
+      doc.create("!inbox");
+
+      // TODO: delay?
+      inboxConnection.dispose();
+    }
+
+    const manager = SyncManager.create(identifier, sessionStore, forkSource);
+
+    const connection = new DocConnection(
+      manager.identifier,
+      manager,
+      sessionStore
+    );
+    cache.set(manager.identifier.toString(), connection);
     connection.addRef();
-
-    const doc = connection.doc;
-    if (typeof doc === "string") {
-      throw new Error("no baseresource after fork");
-    }
-    return doc;*/
+    return connection;
   }
 
   public async waitForDoc() {
@@ -182,18 +221,27 @@ export class DocConnection extends lifecycle.Disposable {
     return doc;
   }
 
-  // public async reinitialize() {
-  //   console.log("reinitialize", this.identifier.id);
-  //   runInAction(() => {
-  //     this.doc = "loading";
-  //   });
-  //   this.manager.dispose();
-  //   await this.initializeNoCatch();
-  // }
+  public async loadInboxResource(id: Identifier): Promise<InboxResource> {
+    if (!(id instanceof TypeCellIdentifier)) {
+      throw new Error(
+        "unimplemented, only typecellidentifier supported for loadInboxResource"
+      );
+    }
+    if (id.toString().endsWith("/.inbox")) {
+      throw new Error("unexpected, inbox identifier");
+    }
+
+    const doc = DocConnection.load(
+      parseIdentifier(id.toString() + "/.inbox"),
+      this.sessionStore
+    );
+    const ret = await doc.waitForDoc();
+    const inbox = ret.getSpecificType<InboxResource>(InboxResource as any);
+    return inbox;
+  }
 
   // TODO: async or not?
-  public static async create() {
-    const sessionStore = getStoreService().sessionStore;
+  public static async create(sessionStore = getStoreService().sessionStore) {
     if (!sessionStore.loggedInUserId) {
       // Note: can happen on sign up
       console.warn(
@@ -202,32 +250,15 @@ export class DocConnection extends lifecycle.Disposable {
     }
 
     const identifier = sessionStore.getIdentifierForNewDocument();
+
     // TODO: async or not?
-    const syncManager = SyncManager.create(
+    const connection = await DocConnection.createNewDocConnection(
       identifier,
-      getStoreService().sessionStore
+      sessionStore
     );
-
-    if (cache.get(identifier.toString())) {
-      throw new Error("create called, but already in cache");
-    }
-
-    const connection = new DocConnection(identifier, syncManager);
-    cache.set(identifier.toString(), connection);
-    connection.addRef();
 
     return connection.waitForDoc();
   }
-
-  // TODO
-  public static inboxLoader = async (id: string) => {
-    const con = DocConnection.load(id);
-    await con.waitForDoc();
-    const inbox = con.tryDoc!.getSpecificType<InboxResource>(
-      InboxResource as any
-    );
-    return inbox;
-  };
 
   public static get(identifier: string | Identifier) {
     if (!(identifier instanceof Identifier)) {
@@ -238,19 +269,19 @@ export class DocConnection extends lifecycle.Disposable {
     return connection;
   }
 
-  public static load(identifier: string | Identifier) {
+  public static load(
+    identifier: string | Identifier,
+    sessionStore = getStoreService().sessionStore
+  ) {
     if (!(identifier instanceof Identifier)) {
       identifier = parseIdentifier(identifier);
     }
 
     let connection = cache.get(identifier.toString());
     if (!connection) {
-      const syncManager = SyncManager.load(
-        identifier,
-        getStoreService().sessionStore
-      );
+      const syncManager = SyncManager.load(identifier, sessionStore);
 
-      connection = new DocConnection(identifier, syncManager);
+      connection = new DocConnection(identifier, syncManager, sessionStore);
       cache.set(identifier.toString(), connection);
     }
     connection.addRef();
@@ -273,7 +304,7 @@ export class DocConnection extends lifecycle.Disposable {
       super.dispose();
 
       this._baseResourceCache = undefined;
-      this.manager.dispose();
+      this.manager?.dispose();
       cache.delete(this.identifier.toString());
       this.disposed = true;
     }
