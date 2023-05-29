@@ -13,7 +13,6 @@ import {
 import { keymap } from "prosemirror-keymap";
 import { EditorState, Selection } from "prosemirror-state";
 import { EditorView, NodeView } from "prosemirror-view";
-import React from "react";
 import { MonacoElement } from "./MonacoElement";
 
 function arrowHandler(
@@ -44,21 +43,20 @@ const arrowHandlers = keymap({
   ArrowDown: arrowHandler("down"),
 } as any);
 
-const ComponentWithWrapper = React.forwardRef(
-  (props: NodeViewProps & { block: any; htmlAttributes: any }, ref) => {
-    const { htmlAttributes, ...restProps } = props;
-    console.log("html", htmlAttributes);
-    return (
-      <NodeViewWrapper
-        // className={blockStyles.blockContent}
-        // data-content-type={blockConfig.type}
-        {...htmlAttributes}>
-        {/* @ts-ignore */}
-        <MonacoElement {...restProps} ref={ref} />
-      </NodeViewWrapper>
-    );
-  }
-);
+const ComponentWithWrapper = (
+  props: NodeViewProps & { block: any; htmlAttributes: any }
+) => {
+  const { htmlAttributes, ...restProps } = props;
+  return (
+    <NodeViewWrapper
+      // className={blockStyles.blockContent}
+      // data-content-type={blockConfig.type}
+      {...htmlAttributes}>
+      {/* @ts-ignore */}
+      <MonacoElement {...restProps} />
+    </NodeViewWrapper>
+  );
+};
 
 // TODO: clean up listeners
 export const MonacoBlockContent = createTipTapBlock({
@@ -88,7 +86,7 @@ export const MonacoBlockContent = createTipTapBlock({
   },
 
   addNodeView() {
-    const BlockContent = React.forwardRef((props: any, ref) => {
+    const BlockContent = (props: any) => {
       // const Content = blockConfig.render;
 
       // Add props as HTML attributes in kebab-case with "data-" prefix
@@ -113,16 +111,17 @@ export const MonacoBlockContent = createTipTapBlock({
       // Get the block
       const block = editor.getBlock(blockIdentifier)!;
 
+      console.log("ComponentWithWrapper");
       return (
         <ComponentWithWrapper
           htmlAttributes={htmlAttributes}
           block={block}
           editor={editor}
           {...props}
-          ref={ref}
+          // ref={ref}
         />
       );
-    });
+    };
 
     return (props) => {
       if (!(props.editor as any).contentComponent) {
@@ -142,7 +141,8 @@ export const MonacoBlockContent = createTipTapBlock({
       };
 
       // disable contentdom, because we render the content ourselves in MonacoElement
-      (ret as any).contentDOMElement = undefined;
+      // TODO: set contentDOM to undefined, but this causes a bug in PM
+      // (ret as any).contentDOMElement = undefined;
 
       // This is a hack because tiptap doesn't support innerDeco, and this information is normally dropped
       const oldUpdated = ret.update!.bind(ret);

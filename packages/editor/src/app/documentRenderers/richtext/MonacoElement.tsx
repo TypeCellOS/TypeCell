@@ -2,11 +2,9 @@ import { NodeViewProps } from "@tiptap/core";
 
 import * as monaco from "monaco-editor";
 import React, {
-  forwardRef,
   useCallback,
   useContext,
   useEffect,
-  useImperativeHandle,
   useMemo,
   useRef,
   useState,
@@ -20,15 +18,17 @@ import {
 } from "./MonacoProsemirrorHelpers";
 import { RichTextContext } from "./RichTextContext";
 
-const MonacoElementComponent = forwardRef(function MonacoElement(
-  props: NodeViewProps & { block: any; selectionHack: any },
-  ref
+const MonacoElementComponent = function MonacoElement(
+  props: NodeViewProps & { block: any; selectionHack: any }
 ) {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
-
+  const refa = useRef<any>(Math.random());
   const context = useContext(RichTextContext);
 
+  // hacky way to only initialize some resources once
+  // probably useMemo is not the best fit for this
   const models = useMemo(() => {
+    console.log("create", props.block.id, refa.current);
     const uri = monaco.Uri.parse(
       `file:///!@${context.document.id}/${(props as any).block.id}.cell.tsx`
     );
@@ -48,6 +48,17 @@ const MonacoElementComponent = forwardRef(function MonacoElement(
         node: props.node,
         lastDecorations: [] as string[],
       },
+      dispose: () => {
+        codeModel.dispose();
+        model.dispose();
+      },
+    };
+  }, []);
+
+  // hacky way to dispose of the useMemo values above
+  useEffect(() => {
+    return () => {
+      models.dispose();
     };
   }, []);
 
@@ -67,17 +78,17 @@ const MonacoElementComponent = forwardRef(function MonacoElement(
     }
   }, [props.node, props.decorations]);
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        setSelection(anchor: number, head: number) {
-          console.log("SET");
-        },
-      };
-    },
-    []
-  );
+  // useImperativeHandle(
+  //   ref,
+  //   () => {
+  //     return {
+  //       setSelection(anchor: number, head: number) {
+  //         console.log("SET");
+  //       },
+  //     };
+  //   },
+  //   []
+  // );
 
   useEffect(() => {
     console.log("selected effect", props.selected);
@@ -201,7 +212,7 @@ const MonacoElementComponent = forwardRef(function MonacoElement(
       </div>
     </div>
   );
-});
+};
 
 // TODO: check why this doesn't work
 export const MonacoElement = React.memo(MonacoElementComponent);

@@ -7,7 +7,6 @@ import {
   DefaultBlockSchema,
   PartialBlock,
   defaultBlockSchema,
-  defaultProps,
 } from "@blocknote/core";
 import "@blocknote/core/style.css";
 import {
@@ -100,7 +99,12 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     blockSchema: {
       ...defaultBlockSchema,
       monaco: {
-        propSchema: defaultProps,
+        propSchema: {
+          language: {
+            type: "string",
+            default: "typescript",
+          },
+        },
         node: MonacoBlockContent,
       },
     },
