@@ -1,8 +1,8 @@
 import { observer } from "mobx-react-lite";
-import { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import Output from "../../../components/Output";
-import { FrameConnection } from "./FrameConnection";
 import "./Frame.css";
+import { FrameConnection } from "./FrameConnection";
 
 // The sandbox frame where end-user code gets evaluated.
 // It is loaded from index.iframe.ts

@@ -1,6 +1,8 @@
 import { autorun } from "mobx";
 import { lifecycle } from "vscode-lib";
 import * as Y from "yjs";
+import { parseIdentifier } from "../identifiers";
+import { Identifier } from "../identifiers/Identifier";
 import { UnreachableCaseError } from "../util/UnreachableCaseError";
 import { BaseResource } from "./BaseResource";
 import { InboxResource, RefInboxMessage } from "./InboxResource";
@@ -38,6 +40,7 @@ export class InboxValidator<
   private readonly validMessages = new Set<string>();
   private readonly pendingMessages = new Set<string>();
 
+  // TODO: store this somewhere locally
   private readonly seenMessages = new Set<string>();
 
   private readonly documentDisposers = new Map<string, () => void>();
@@ -46,18 +49,19 @@ export class InboxValidator<
   constructor(
     private readonly inbox: InboxResource,
     private referenceDefinition: T,
-    loader: (identifier: string) => Promise<BaseResource>
+    loader: (identifier: Identifier) => Promise<BaseResource>
   ) {
     super();
     const dispose = autorun(() => {
       this.allRefMessages.forEach(async (message) => {
+        // console.log("message", message);
         if (this.seenMessages.has(message.id)) {
           return;
         }
         this.seenMessages.add(message.id);
         this.pendingMessages.add(message.id);
 
-        const resource = await loader(message.source);
+        const resource = await loader(parseIdentifier(message.source));
         const handler = () => {
           this.updateMessageStateFromResource(message, resource);
         };
@@ -126,6 +130,7 @@ export class InboxValidator<
     const state = Y.getState(resource.ydoc.store, clientNum);
     if (state < clockNum) {
       // we need to wait for the document to be updated
+      // console.log("wait");
       return "wait";
     }
 
@@ -134,8 +139,10 @@ export class InboxValidator<
       this.inbox.inboxTarget
     );
     if (!ref || ref.target !== this.inbox.inboxTarget) {
+      // console.log("invalid");
       return false;
     }
+    // console.log("valid");
     return true;
   }
 
@@ -143,6 +150,7 @@ export class InboxValidator<
    * This is the list of all ref messages of type referenceDefinition that are currently in the inbox.
    */
   private get allRefMessages() {
+    // console.log("serialize", this.inbox.ydoc.toJSON());
     return this.inbox.getRefMessages(this.referenceDefinition);
   }
 

@@ -4,7 +4,7 @@ import {
 } from "@hocuspocus/provider";
 import { uniqueId } from "@typecell-org/common";
 import * as Y from "yjs";
-import { getRandomUserData } from "../../test/dataUtil";
+import { getRandomUserData } from "../../../../commonTest/src/randomUser";
 import { generateUuid } from "../../util/uuid";
 import { createAnonClient } from "../supabase";
 // const SUPABASE_URL = "http://localhost:8000/";

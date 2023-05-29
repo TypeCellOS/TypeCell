@@ -7,7 +7,6 @@ import Spinner from "@atlaskit/spinner";
 import { MatrixMemberReader, getMatrixRoomAccess } from "matrix-crdt";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
-import { DocConnection } from "../../../../store/DocConnection";
 import { MatrixRemote } from "../../../../store/yjs-sync/remote/MatrixRemote";
 import PermissionSettings from "./PermissionsSettings";
 import styles from "./PermissionsSettings.module.css";
@@ -15,7 +14,7 @@ import { PermissionData, UserPermission } from "./permissionUtils";
 
 const PermissionsLoader = observer(
   (props: {
-    document: DocConnection;
+    remote: MatrixRemote;
     user: string | undefined;
     matrixClient: any;
     closeCallback: () => void;
@@ -25,7 +24,7 @@ const PermissionsLoader = observer(
       PermissionData | undefined
     >();
 
-    const mxRemote = props.document.remote;
+    const mxRemote = props.remote;
 
     if (!(mxRemote instanceof MatrixRemote)) {
       throw new Error("MatrixRemote not available");
@@ -68,7 +67,7 @@ const PermissionsLoader = observer(
       return () => {
         setPermissionData(undefined);
       };
-    }, [props.document, mxProvider, mxReader, props.matrixClient]);
+    }, [props.remote, mxProvider, mxReader, props.matrixClient]);
 
     if (!permissionData) {
       return (

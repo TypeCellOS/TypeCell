@@ -8,7 +8,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { uri } from "vscode-lib";
 import * as Y from "yjs";
 import { Identifier } from "../identifiers/Identifier";
-import { BaseResource } from "./BaseResource";
+import {
+  BaseResource,
+  UnimplementedBaseResourceExternalManager,
+} from "./BaseResource";
 import { InboxResource } from "./InboxResource";
 import { InboxValidator } from "./InboxValidatorStore";
 import { ChildReference } from "./referenceDefinitions/child";
@@ -67,10 +70,7 @@ function createDocAndAllowAccess(forUsers: User[], docId: DocId) {
     user.allowedToWriteDocs.add(docId + "-inbox");
     const inboxBaseResource = new BaseResource(
       inboxDoc,
-      new TestIdentifier(docId + "-inbox"),
-      () => {
-        throw new Error("can't resolve inbox of inbox");
-      }
+      new TestIdentifier(docId + "-inbox")
     );
     inboxBaseResource.create("!inbox");
     const resourceAsInbox = inboxBaseResource.getSpecificType<InboxResource>(
@@ -86,24 +86,23 @@ function createDocAndAllowAccess(forUsers: User[], docId: DocId) {
 
     // create main doc
     const ydoc = new Y.Doc();
-    const resource = new BaseResource(
-      ydoc,
-      new TestIdentifier(docId),
-      async (id) => {
-        const testIdentifier = new TestIdentifier(id);
+    const resource = new BaseResource(ydoc, new TestIdentifier(docId), {
+      ...UnimplementedBaseResourceExternalManager,
+      loadInboxResource: async (id) => {
+        const testIdentifier = new TestIdentifier(id.toString());
         const inbox = user.docs[testIdentifier.id + "-inbox"].resourceAsInbox;
         if (!inbox) {
           throw new Error("can't resolve inbox id " + id);
         }
         return inbox;
-      }
-    );
+      },
+    });
 
     const validator = new InboxValidator(
       resourceAsInbox!,
       ChildReference,
       async (identifier) => {
-        const testIdentifier = uri.URI.parse(identifier).path.substring(1);
+        const testIdentifier = identifier.uri.path.substring(1);
         return user.docs[testIdentifier].resource;
       }
     );
@@ -163,7 +162,10 @@ describe("links", () => {
     createDocAndAllowAccess([user1, user2], "doc1");
     createDocAndAllowAccess([user1, user2], "doc2");
 
-    await user1.docs.doc1.resource.addRef(ChildReference, "doc2");
+    await user1.docs.doc1.resource.addRef(
+      ChildReference,
+      new TestIdentifier("doc2")
+    );
 
     expect(user1.docs.doc1.resource.getRefs(ChildReference).length).toBe(1);
     expect(user2.docs.doc1.resource.getRefs(ChildReference).length).toBe(0);

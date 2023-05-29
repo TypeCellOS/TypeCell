@@ -1,13 +1,9 @@
+import { createClient } from "@supabase/supabase-js";
 import { computed, makeObservable, observable, runInAction } from "mobx";
 import { arrays, uri } from "vscode-lib";
 import { SessionStore } from "../../store/local/SessionStore";
 // @ts-ignore
-import { createClient } from "@supabase/supabase-js";
-
-import { ANON_KEY } from "./supabaseConfig";
-
 import { uniqueId } from "@typecell-org/common";
-
 import * as Y from "yjs";
 import type { Database } from "../../../../../packages/server/src/types/schema";
 import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
@@ -19,7 +15,10 @@ import { BaseResource } from "../../store/BaseResource";
 import ProfileResource from "../../store/ProfileResource";
 import { TypeCellRemote } from "../../store/yjs-sync/remote/TypeCellRemote";
 import { navigateRef } from "../GlobalNavigateRef";
-export type SupabaseClientType = SupabaseSessionStore["supabase"];
+import { ANON_KEY } from "./supabaseConfig";
+
+
+export type SupabaseClientType = ReturnType<typeof createClient<Database>>;
 
 const colors = [
   "#958DF1",
@@ -38,10 +37,7 @@ const colors = [
 export class SupabaseSessionStore extends SessionStore {
   public storePrefix: string = "tc";
 
-  public readonly supabase = createClient<Database>(
-    "http://localhost:54321",
-    ANON_KEY
-  );
+  public readonly supabase: SupabaseClientType;
 
   private initialized = false;
   public userId: string | undefined = undefined;
@@ -102,13 +98,18 @@ export class SupabaseSessionStore extends SessionStore {
     );
   }
 
-  constructor() {
+  constructor(persist: boolean = true) {
     super();
     makeObservable(this, {
       user: observable.ref,
       userId: observable.ref,
       isLoggedIn: computed,
       isLoaded: computed,
+    });
+    this.supabase = createClient<Database>("http://localhost:54321", ANON_KEY, {
+      auth: {
+        persistSession: persist,
+      },
     });
     this.initializeReactions();
   }
@@ -157,10 +158,9 @@ export class SupabaseSessionStore extends SessionStore {
 
     const workspaceId = this.getIdentifierForNewDocument();
     {
+      // TODO: use syncmanager
       const ydoc = new Y.Doc();
-      const ret = new BaseResource(ydoc, workspaceId, () => {
-        throw new Error("not implemented");
-      });
+      const ret = new BaseResource(ydoc, workspaceId);
       ret.create("!project");
       const remote = new TypeCellRemote(ydoc, workspaceId, this);
       await remote.createAndRetry();
@@ -171,10 +171,9 @@ export class SupabaseSessionStore extends SessionStore {
     // TODO: manage aliases
     const profileId = this.getIdentifierForNewDocument();
     {
+      // TODO: use syncmanager
       const ydoc = new Y.Doc();
-      const ret = new BaseResource(ydoc, profileId, () => {
-        throw new Error("not implemented");
-      });
+      const ret = new BaseResource(ydoc, profileId);
       ret.create("!profile");
       const profile = ret.getSpecificType(ProfileResource);
       profile.workspaces.set("public", workspaceId.toString());

@@ -20,6 +20,7 @@ import {
 import { MenuBar } from "../menuBar/MenuBar";
 
 import { TypeCellIdentifier } from "../../../../identifiers/TypeCellIdentifier";
+import { MatrixRemote } from "../../../../store/yjs-sync/remote/MatrixRemote";
 import MatrixPermissionsDialog from "../../../matrix-auth/routes/permissions/PermissionsDialog";
 import SupabasePermissionsDialog from "../../../supabase-auth/routes/permissions/PermissionsDialog";
 import { Breadcrumb } from "./Breadcrumb";
@@ -58,9 +59,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
   return (
     <MenuBar>
       <Breadcrumb />
-      {props.document.connection!.needsFork && (
-        <ForkAlert document={props.document} />
-      )}
+      {props.document.needsFork && <ForkAlert document={props.document} />}
 
       <aside className={styles.actions}>
         <ul>
@@ -101,7 +100,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
           <MatrixPermissionsDialog
             close={() => ClosePermissionsDialog(navigate)}
             isOpen={IsPermissionsDialogOpen(location)}
-            connection={props.document.connection!}
+            remote={props.document.remote as MatrixRemote}
           />
         )}
       {canEditPermissions &&
@@ -109,7 +108,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
           <SupabasePermissionsDialog
             close={() => ClosePermissionsDialog(navigate)}
             isOpen={IsPermissionsDialogOpen(location)}
-            connection={props.document.connection!}
+            identifier={props.document.identifier}
           />
         )}
     </MenuBar>

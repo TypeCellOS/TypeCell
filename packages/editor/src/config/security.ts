@@ -36,7 +36,8 @@ export function validateFrameDomain() {
   const hostname = window.location.hostname;
 
   if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
-    return hostname === "127.0.0.1";
+    return hostname === "localhost";
+    // return hostname === "127.0.0.1";
   }
 
   if (ENVIRONMENT === "STAGING") {
@@ -48,7 +49,8 @@ export function validateFrameDomain() {
 export function getFrameDomain() {
   if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
     const port = window.location.host.match(/^localhost:(\d+)$/)![1];
-    return "127.0.0.1:" + port;
+    // return "127.0.0.1:" + port;
+    return "localhost:" + port;
   }
 
   if (ENVIRONMENT === "STAGING") {
@@ -60,7 +62,8 @@ export function getFrameDomain() {
 
 export function getMainDomainFromIframe() {
   if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
-    const port = window.location.host.match(/^127\.0\.0\.1:(\d+)$/)![1];
+    // const port = window.location.host.match(/^127\.0\.0\.1:(\d+)$/)![1];
+    const port = window.location.host.match(/^localhost:(\d+)$/)![1];
     return "localhost:" + port;
   }
 

@@ -1,5 +1,10 @@
 import * as Y from "yjs";
-import { BaseResource, BaseResourceConnection } from "./BaseResource";
+import { Identifier } from "../identifiers/Identifier";
+import {
+  BaseResource,
+  BaseResourceExternalManager,
+  UnimplementedBaseResourceExternalManager,
+} from "./BaseResource";
 import { ReferenceDefinition } from "./Ref";
 
 export type RefInboxMessage<T extends ReferenceDefinition> = {
@@ -16,14 +21,10 @@ export class InboxResource extends BaseResource {
   /** @internal */
   constructor(
     ydoc: Y.Doc,
-    connection: BaseResourceConnection,
-    inboxLoader: any
+    identifier: Identifier,
+    manager: BaseResourceExternalManager = UnimplementedBaseResourceExternalManager
   ) {
-    super(
-      ydoc,
-      connection as any, // TODO
-      inboxLoader
-    );
+    super(ydoc, identifier, manager);
     if (this.type !== "!inbox") {
       throw new Error("invalid type for InboxResource");
     }

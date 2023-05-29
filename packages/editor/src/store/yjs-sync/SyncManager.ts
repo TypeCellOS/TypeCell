@@ -89,16 +89,13 @@ export class SyncManager extends lifecycle.Disposable {
       docOrStatus: computed,
     });
 
-    // this._ydoc = new Y.Doc({ guid: this.identifier.toString() });
-
     this.remote = this.remoteForIdentifier(identifier);
 
-    // TODO
-    // this._register({
-    //   dispose: () => {
-    //     this._ydoc.destroy();
-    //   },
-    // });
+    this._register({
+      dispose: () => {
+        this.ydoc.destroy();
+      },
+    });
     this._register(this.remote);
     this._register({
       dispose: () => (this.disposed = true),
@@ -184,7 +181,7 @@ export class SyncManager extends lifecycle.Disposable {
     // listen for events
   }
 
-  public async create(forkSource?: Y.Doc) {
+  private async create(forkSource?: Y.Doc) {
     if (this.initializeCalled) {
       throw new Error("load() called when already initialized");
     }
@@ -192,6 +189,10 @@ export class SyncManager extends lifecycle.Disposable {
 
     if (!this.sessionStore.documentCoordinator) {
       throw new Error("no documentCoordinator. logged out while creating?");
+    }
+
+    if (forkSource) {
+      Y.applyUpdateV2(this.ydoc, Y.encodeStateAsUpdateV2(forkSource));
     }
 
     const doc = await this.sessionStore.documentCoordinator.createDocument(
@@ -203,10 +204,6 @@ export class SyncManager extends lifecycle.Disposable {
       return;
     }
 
-    if (forkSource) {
-      Y.applyUpdateV2(doc.ydoc, Y.encodeStateAsUpdateV2(forkSource)); // TODO
-    }
-
     runInAction(() => {
       this.state = {
         status: "syncing",
@@ -216,7 +213,7 @@ export class SyncManager extends lifecycle.Disposable {
     return this.startSyncing();
   }
 
-  public async load() {
+  private async load() {
     if (this.initializeCalled) {
       throw new Error("load() called when already initialized");
     }
@@ -249,6 +246,10 @@ export class SyncManager extends lifecycle.Disposable {
   }
 
   public async clearAndReload() {
+    if (this.disposed) {
+      throw new Error("clearAndReload: already disposed");
+    }
+
     if (!this.sessionStore.documentCoordinator) {
       throw new Error("logged out while clearAndReload");
     }
@@ -257,43 +258,6 @@ export class SyncManager extends lifecycle.Disposable {
 
     return SyncManager.load(this.identifier, this.sessionStore);
   }
-
-  public async fork() {
-    throw new Error("not implemented");
-  }
-  //   if (!getStoreService().sessionStore.loggedInUserId) {
-  //     throw new Error("not logged in");
-  //   }
-
-  //   let tryN = 1;
-
-  //   do {
-  //     // TODO
-  //     if (!(this.identifier instanceof MatrixIdentifier)) {
-  //       throw new Error("not implemented");
-  //     }
-  //     // TODO: test
-  //     const newIdentifier = new MatrixIdentifier(
-  //       uri.URI.from({
-  //         scheme: this.identifier.uri.scheme,
-  //         // TODO: use user authority,
-  //         path:
-  //           getStoreService().sessionStore.loggedInUserId +
-  //           "/" +
-  //           this.identifier.document +
-  //           (tryN > 1 ? "-" + tryN : ""),
-  //       })
-  //     );
-
-  //     const manager = await YDocSyncManager2.create(newIdentifier, this._ydoc);
-
-  //     if (manager !== "already-exists") {
-  //       await this.clearAndReload();
-  //       return manager;
-  //     }
-  //     tryN++;
-  //   } while (true);
-  // }
 
   public dispose() {
     console.log("SyncManager dispose", this.identifier.toString());

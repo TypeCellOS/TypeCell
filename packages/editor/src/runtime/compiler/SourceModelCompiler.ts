@@ -1,8 +1,8 @@
 import type * as monaco from "monaco-editor";
-import { lifecycle, event } from "vscode-lib";
-import { compile } from "./compilers/MonacoCompiler";
+import { event, lifecycle } from "vscode-lib";
 import { CompiledCodeModel } from "../../models/CompiledCodeModel";
 import { TypeCellCodeModel } from "../../models/TypeCellCodeModel";
+import { compile } from "./compilers/MonacoCompiler";
 
 export default class SourceModelCompiler extends lifecycle.Disposable {
   private disposed: boolean = false;
@@ -22,6 +22,7 @@ export default class SourceModelCompiler extends lifecycle.Disposable {
               linkify: true,
               typographer: true,
           });
+          debugger;
           const render = md.render(${JSON.stringify(sourceModel.getValue())});
           const el = document.createElement("div");
           el.className = "markdown-body";

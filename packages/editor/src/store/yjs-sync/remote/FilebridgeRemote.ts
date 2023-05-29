@@ -69,9 +69,7 @@ export class FilebridgeRemote extends Remote {
         .getMap("meta")
         .set("title", path.basename(this.identifier.path));
     }
-    const project = new ProjectResource(this._ydoc, this.identifier, () => {
-      throw new Error("not implemented");
-    }); // TODO
+    const project = new ProjectResource(this._ydoc, this.identifier); // TODO
 
     this.watcher = this._register(
       new Watcher(pathWithTrailingSlash + "**/*.md")
@@ -94,7 +92,9 @@ export class FilebridgeRemote extends Remote {
           this.documentsByPath.add(path);
         } else if (e.event === "unlink") {
           this.documentsByPath.delete(path);
-          project.removeRef(ChildReference, path);
+          const id = getIdentifierWithAppendedPath(this.identifier, path);
+          // TODO: check if this works
+          project.removeRef(ChildReference, id);
         }
 
         const tree = filesToTreeNodes(
@@ -107,7 +107,7 @@ export class FilebridgeRemote extends Remote {
               this.identifier,
               node.fileName
             );
-            project.removeRef(ChildReference, id.toString());
+            project.removeRef(ChildReference, id);
           }
         });
 
@@ -117,7 +117,7 @@ export class FilebridgeRemote extends Remote {
             node.fileName
           );
 
-          project.addRef(ChildReference, id.toString(), undefined, false);
+          project.addRef(ChildReference, id, undefined, false);
         });
       })
     );

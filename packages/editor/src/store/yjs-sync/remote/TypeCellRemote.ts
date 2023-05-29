@@ -16,20 +16,30 @@ import { SupabaseSessionStore } from "../../../app/supabase-auth/SupabaseSession
 import { TypeCellIdentifier } from "../../../identifiers/TypeCellIdentifier";
 import { Remote } from "./Remote";
 
-let wsProvider: HocuspocusProviderWebsocket | undefined;
+let wsProviders = new Map<string, HocuspocusProviderWebsocket | undefined>();
 
 function toHex(arr: Uint8Array) {
   return [...arr].map((x) => x.toString(16).padStart(2, "0") as any).join("");
 }
-function getWSProvider() {
+
+function getWSProvider(session: SupabaseSessionStore) {
+  if (!session.userId) {
+    throw new Error("no user available on create document");
+  }
+  let wsProvider = wsProviders.get(session.userId);
   if (!wsProvider) {
+    console.log("new ws provider");
     wsProvider = new HocuspocusProviderWebsocket({
       url: "ws://localhost:1234",
       // WebSocketPolyfill: ws,
+      onConnect() {
+        console.log("connected");
+      },
     });
     if (TypeCellRemote.Offline) {
       wsProvider.disconnect();
     }
+    wsProviders.set(session.userId, wsProvider);
   }
   return wsProvider;
 }
@@ -53,9 +63,13 @@ export class TypeCellRemote extends Remote {
 
   public static set Offline(val: boolean) {
     if (val) {
-      wsProvider?.disconnect();
+      wsProviders.forEach((wsProvider) => {
+        wsProvider?.disconnect();
+      });
     } else {
-      wsProvider?.connect();
+      wsProviders.forEach((wsProvider) => {
+        wsProvider?.connect();
+      });
     }
     this._offline = val;
   }
@@ -114,14 +128,20 @@ export class TypeCellRemote extends Remote {
       updated_at: date,
       data: "\\x" + toHex(data),
       nano_id: this.identifier.documentId,
-      public_access_level: "read",
+      public_access_level: this.identifier.documentId.endsWith("/.inbox")
+        ? "write"
+        : "read", // TODO: shouldn't be hardcoded here
       user_id: sessionStore.userId,
     } as const;
 
     if (TypeCellRemote.Offline) {
       throw new Error("offline");
     }
-
+    console.log(
+      "insert doc",
+      (await sessionStore.supabase.auth.getSession()).data.session?.user.id,
+      doc
+    );
     const ret = await sessionStore.supabase
       .from("documents")
       .insert(doc)
@@ -157,12 +177,14 @@ export class TypeCellRemote extends Remote {
       return;
     }
 
+    console.log("token", token);
     const hocuspocusProvider = new HocuspocusProvider({
       name: this.identifier.documentId,
       document: this._ydoc,
       token,
-      websocketProvider: getWSProvider(),
+      websocketProvider: getWSProvider(this.sessionStore),
       broadcast: false,
+
       onSynced: () => {
         runInAction(() => {
           this.unsyncedChanges = hocuspocusProvider.unsyncedChanges;
@@ -186,7 +208,7 @@ export class TypeCellRemote extends Remote {
     this.hocuspocusProvider = hocuspocusProvider;
 
     this._register({
-      dispose: () => hocuspocusProvider.destroy,
+      dispose: () => hocuspocusProvider.destroy(),
     });
 
     this._awarenessAtom.reportChanged();

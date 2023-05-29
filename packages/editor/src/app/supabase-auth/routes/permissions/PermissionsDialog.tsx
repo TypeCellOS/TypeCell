@@ -1,17 +1,13 @@
 import { ModalTransition } from "@atlaskit/modal-dialog";
 import { observer } from "mobx-react-lite";
-import { DocConnection } from "../../../../store/DocConnection";
 import { getStoreService } from "../../../../store/local/stores";
 
+import { Identifier } from "../../../../identifiers/Identifier";
 import { SupabaseSessionStore } from "../../SupabaseSessionStore";
 import PermissionsLoader from "./PermissionsLoader";
 
 const PermissionsDialog = observer(
-  (props: {
-    isOpen: boolean;
-    close: () => void;
-    connection: DocConnection;
-  }) => {
+  (props: { isOpen: boolean; close: () => void; identifier: Identifier }) => {
     const sessionStore = getStoreService().sessionStore;
     if (!(sessionStore instanceof SupabaseSessionStore)) {
       throw new Error("sessionStore is not a SupabaseSessionStore");
@@ -26,7 +22,7 @@ const PermissionsDialog = observer(
         {props.isOpen && (
           <PermissionsLoader
             currentUserId={user.fullUserId}
-            document={props.connection}
+            identifier={props.identifier}
             supabaseClient={user.supabase}
             user={user.userId}
             closeCallback={props.close}></PermissionsLoader>
