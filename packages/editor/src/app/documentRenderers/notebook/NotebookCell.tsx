@@ -12,10 +12,8 @@ import React, {
 import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
 import { MonacoBinding } from "y-monaco";
 import { Awareness } from "y-protocols/awareness";
-import {
-  getTypeCellCodeModel,
-  TypeCellCodeModel,
-} from "../../../models/TypeCellCodeModel";
+import { TypeCellCodeModel } from "../../../models/TypeCellCodeModel";
+import { getTypeCellCodeModel } from "../../../models/YTextTypeCellCodeModel";
 import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import { ExecutionHost } from "../../../runtime/executor/executionHosts/ExecutionHost";
@@ -249,7 +247,7 @@ const NotebookCell: React.FC<Props> = observer((props) => {
           style={{ position: "relative" }}>
           {model &&
             props.executionHost.renderOutput(
-              model,
+              model.path,
               hoverTrackerContext.setHover
             )}
         </div>

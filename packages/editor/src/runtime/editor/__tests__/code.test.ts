@@ -5,7 +5,7 @@ import { expect, it } from "vitest";
 import { event } from "vscode-lib";
 import * as Y from "yjs";
 import { setMonacoDefaults } from "..";
-import { TypeCellCodeModel } from "../../../models/TypeCellCodeModel";
+import { YTextTypeCellCodeModel } from "../../../models/YTextTypeCellCodeModel";
 import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 import { getTypeCellResolver } from "../../executor/resolver/resolver";
 /**
@@ -23,7 +23,7 @@ it("basic code execution", async () => {
 
   //monaco.editor.createModel("// tesdft", "typescript");
 
-  let m1 = new TypeCellCodeModel("c1a.ts", "typescript", m1Code, monaco);
+  let m1 = new YTextTypeCellCodeModel("c1a.ts", "typescript", m1Code, monaco);
 
   let compiler = new SourceModelCompiler(monaco);
   compiler.registerModel(m1);

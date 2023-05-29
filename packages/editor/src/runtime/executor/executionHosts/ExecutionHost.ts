@@ -1,6 +1,5 @@
 import React from "react";
 import { lifecycle } from "vscode-lib";
-import { TypeCellCodeModel } from "../../../models/TypeCellCodeModel";
 
 /**
  * The ExecutionHost is responsible for rendering the output of a notebook/code cell.
@@ -30,7 +29,7 @@ export type ExecutionHost = lifecycle.IDisposable & {
    *   The actual output is rendered in the <iframe> which is rendered in renderContainer()
    */
   renderOutput(
-    model: TypeCellCodeModel,
+    modelPath: string,
     setHovering?: (hover: boolean) => void
   ): React.ReactElement;
 };

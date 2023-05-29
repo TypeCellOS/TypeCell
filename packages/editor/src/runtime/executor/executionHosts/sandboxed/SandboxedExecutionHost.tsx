@@ -6,7 +6,6 @@ import { AsyncMethodReturns, Connection, connectToChild } from "penpal";
 import { lifecycle } from "vscode-lib";
 import { getFrameDomain } from "../../../../config/security";
 import { CompiledCodeModel } from "../../../../models/CompiledCodeModel";
-import { TypeCellCodeModel } from "../../../../models/TypeCellCodeModel";
 import { ContainedElement } from "../../../../util/ContainedElement";
 import SourceModelCompiler from "../../../compiler/SourceModelCompiler";
 import { VisualizerExtension } from "../../../extensions/visualizer/VisualizerExtension";
@@ -14,9 +13,9 @@ import { TypeCellModuleCompiler } from "../../resolver/typecell/TypeCellModuleCo
 import { ExecutionHost } from "../ExecutionHost";
 import { FreezeAlert } from "./FreezeAlert";
 import { HostBridgeMethods } from "./HostBridgeMethods";
-import { IframeBridgeMethods } from "./iframesandbox/IframeBridgeMethods";
 import { ModelForwarder } from "./ModelForwarder";
 import OutputShadow from "./OutputShadow";
+import { IframeBridgeMethods } from "./iframesandbox/IframeBridgeMethods";
 
 let ENGINE_ID = 0;
 const FREEZE_TIMEOUT = 3000;
@@ -394,15 +393,15 @@ export default class SandboxedExecutionHost
    * but the actual output is rendered in the iframe
    */
   public renderOutput(
-    model: TypeCellCodeModel,
+    modelPath: string,
     setHovering: (hover: boolean) => void
   ) {
     return (
       <OutputShadow
         // dimensions are determined by the iframe which knows the actual output dimensions
-        dimensions={this.dimensionStore.get(model.path)!}
+        dimensions={this.dimensionStore.get(modelPath)!}
         positionOffsetElement={this.iframe}
-        positions={this.positionCacheStore.get(model.path)!}
+        positions={this.positionCacheStore.get(modelPath)!}
         onMouseMove={() => {
           this.disableIframePointerEvents();
           this.resetHovering = () => setHovering(false);

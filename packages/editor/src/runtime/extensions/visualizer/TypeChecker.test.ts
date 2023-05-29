@@ -3,7 +3,7 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 import "monaco-editor/esm/vs/language/typescript/monaco.contribution.js";
 import { expect, it } from "vitest";
 import * as Y from "yjs";
-import { TypeCellCodeModel } from "../../../models/TypeCellCodeModel";
+import { YTextTypeCellCodeModel } from "../../../models/YTextTypeCellCodeModel";
 import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 import { setMonacoDefaults } from "../../editor";
 import setupTypecellTypeResolver from "../../editor/languages/typescript/typecellTypeResolver";
@@ -35,14 +35,14 @@ it(
 
     //monaco.editor.createModel("// tesdft", "typescript");
 
-    let m1 = new TypeCellCodeModel(
+    let m1 = new YTextTypeCellCodeModel(
       "!@mx://mx.typecell.org/@owner/doc/1.cell.tsx",
       "typescript",
       m1Code,
       monaco
     );
 
-    let m2 = new TypeCellCodeModel(
+    let m2 = new YTextTypeCellCodeModel(
       "!@mx://mx.typecell.org/@owner/doc/2.cell.tsx",
       "typescript",
       m2Code,

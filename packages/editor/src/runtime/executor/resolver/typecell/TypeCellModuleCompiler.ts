@@ -1,7 +1,7 @@
 import { autorun, untracked } from "mobx";
 import type * as monaco from "monaco-editor";
 import { parseIdentifier } from "../../../../identifiers";
-import { getTypeCellCodeModel } from "../../../../models/TypeCellCodeModel";
+import { getTypeCellCodeModel } from "../../../../models/YTextTypeCellCodeModel";
 import { DocConnection } from "../../../../store/DocConnection";
 import SourceModelCompiler from "../../../compiler/SourceModelCompiler";
 

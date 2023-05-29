@@ -1,10 +1,35 @@
 import { NodeViewProps } from "@tiptap/core";
 import { NodeViewWrapper } from "@tiptap/react";
 import * as monaco from "monaco-editor";
-import { useCallback, useEffect, useRef } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
+import { MonacoTypeCellCodeModel } from "../../../models/MonacoTypeCellCodeModel";
+import { RichTextContext } from "./RichTextContext";
 
 export function MonacoElement(props: NodeViewProps) {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
+
+  const context = useContext(RichTextContext);
+
+  const models = useMemo(() => {
+    const uri = monaco.Uri.parse(
+      `file:///!@${context.document.id}/${props.node.attrs.id}.cell.tsx`
+    );
+    const model = monaco.editor.createModel("hello", "typescript", uri);
+    const codeModel = new MonacoTypeCellCodeModel(model);
+    context.compiler.registerModel(codeModel); // TODO: cleanup
+    return {
+      model,
+      codeModel,
+    };
+  }, []);
 
   useEffect(() => {
     if (props.selected) {
@@ -26,19 +51,7 @@ export function MonacoElement(props: NodeViewProps) {
 
     console.log("crate");
     let newEditor = monaco.editor.create(el, {
-      value: "hello",
-      language: "javascript",
-      scrollBeyondLastLine: false,
-      minimap: {
-        enabled: false,
-      },
-      overviewRulerLanes: 0,
-      lineNumbersMinChars: 1,
-      lineNumbers: "on",
-      tabSize: 2,
-      scrollbar: {
-        alwaysConsumeMouseWheel: false,
-      },
+      model: models.model,
       theme: "typecellTheme",
     });
 
@@ -71,11 +84,51 @@ export function MonacoElement(props: NodeViewProps) {
 
     editorRef.current = newEditor;
   }, []);
+  const [codeVisible, setCodeVisible] = useState(true);
 
   return (
     <NodeViewWrapper>
-      <div contentEditable={false} ref={codeRefCallback}>
-        Monaco
+      <div
+        contentEditable={false}
+        className={`notebookCell ${
+          codeVisible ? "expanded" : "collapsed"
+        } ${"props.cell.language TODO"}`}
+        style={{ display: "flex", flexDirection: "row" }}>
+        {codeVisible ? (
+          <VscChevronDown
+            title="Show / hide code"
+            className="notebookCell-sideIcon"
+            onClick={() => setCodeVisible(false)}
+          />
+        ) : (
+          <VscChevronRight
+            title="Show / hide code"
+            className="notebookCell-sideIcon"
+            onClick={() => setCodeVisible(true)}
+          />
+        )}
+        {}
+        <div style={{ flex: 1 }} className="notebookCell-content">
+          {codeVisible && (
+            <div className="notebookCell-codeContainer">
+              {/* {props.toolbar && props.toolbar} */}
+              <div
+                className="code"
+                ref={codeRefCallback}
+                style={{ height: "100%" }}></div>
+            </div>
+          )}
+
+          <div
+            className="output"
+            contentEditable={false}
+            style={{ position: "relative" }}>
+            {context.executionHost.renderOutput(
+              models.model.uri.toString(),
+              () => {}
+            )}
+          </div>
+        </div>
       </div>
     </NodeViewWrapper>
   );

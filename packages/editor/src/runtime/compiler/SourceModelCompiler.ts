@@ -1,6 +1,7 @@
 import type * as monaco from "monaco-editor";
 import { event, lifecycle } from "vscode-lib";
 import { CompiledCodeModel } from "../../models/CompiledCodeModel";
+import { MonacoTypeCellCodeModel } from "../../models/MonacoTypeCellCodeModel";
 import { TypeCellCodeModel } from "../../models/TypeCellCodeModel";
 import { compile } from "./compilers/MonacoCompiler";
 
@@ -70,7 +71,9 @@ export default class SourceModelCompiler extends lifecycle.Disposable {
    * When the model is disposed (model.dispose()), the model is automatically unregistered.
    * @param model model to register
    */
-  public registerModel(sourceModel: TypeCellCodeModel) {
+  public registerModel(
+    sourceModel: TypeCellCodeModel | MonacoTypeCellCodeModel
+  ) {
     if (this.disposed) {
       throw new Error("registering model on disposed engine");
     }

@@ -1,15 +1,15 @@
+import { CodeModel, Engine } from "@typecell-org/engine";
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { Engine, CodeModel } from "@typecell-org/engine";
-import { getTypeCellCodeModel } from "../../../models/TypeCellCodeModel";
+import { getTypeCellCodeModel } from "../../../models/YTextTypeCellCodeModel";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
 import { runtimeStore } from "../../../store/local/runtimeStore";
 
-import RetryErrorBoundary from "../../../util/RetryErrorBoundary";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import { getTypeCellResolver } from "../../../runtime/executor/resolver/resolver";
+import RetryErrorBoundary from "../../../util/RetryErrorBoundary";
 
 // TODO: should this be a React component or raw JS?
 
