@@ -61,6 +61,12 @@ export function bindMonacoAndProsemirror(
       return;
     }
 
+    if (!mon.hasTextFocus()) {
+      // only update prosemirror selection if the monaco editor actually has focus
+      // this makes sure prettier updates on blur don't reset the selection to the code editor
+      return;
+    }
+
     let offset = getPos() + 1;
 
     let tr = view.state.tr;
@@ -109,12 +115,17 @@ export function bindMonacoAndProsemirror(
       }
       // TODO: update offset?
     });
-    getTransactionForSelectionUpdate(
-      mon.getSelection(),
-      mon.getModel(),
-      offset,
-      tr as any
-    );
+
+    if (mon.hasTextFocus()) {
+      // only update prosemirror selection if the monaco editor actually has focus
+      // this makes sure prettier updates on blur don't reset the selection to the code editor
+      getTransactionForSelectionUpdate(
+        mon.getSelection(),
+        mon.getModel(),
+        offset,
+        tr as any
+      );
+    }
     try {
       view.dispatch(tr);
 
