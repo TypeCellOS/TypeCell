@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 // import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost"
 import {
   BaseSlashMenuItem,
@@ -22,6 +22,7 @@ import { ExecutionHost } from "../../../runtime/executor/executionHosts/Executio
 import SandboxedExecutionHost from "../../../runtime/executor/executionHosts/sandboxed/SandboxedExecutionHost";
 import { DocumentResource } from "../../../store/DocumentResource";
 import { getStoreService } from "../../../store/local/stores";
+import { MonacoColorManager } from "../notebook/MonacoColorManager";
 import { MonacoBlockContent } from "./MonacoBlockContent";
 import { RichTextContext } from "./RichTextContext";
 import styles from "./RichTextRenderer.module.css";
@@ -32,6 +33,9 @@ type Props = {
 window.React = React;
 window.ReactDOM = ReactDOM;
 
+class FakeProvider {
+  constructor(public readonly awareness: any) {}
+}
 function insertOrUpdateBlock<BSchema extends DefaultBlockSchema>(
   editor: BlockNoteEditor<BSchema>,
   block: PartialBlock<BSchema>
@@ -70,6 +74,24 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     return { newCompiler, newExecutionHost };
   }, []);
 
+  useEffect(() => {
+    // make sure color info is broadcast, and color info from other users are reflected in monaco editor styles
+    if (props.document.awareness) {
+      const colorManager = new MonacoColorManager(
+        props.document.awareness,
+        sessionStore.loggedInUserId || "Anonymous",
+        sessionStore.userColor
+      );
+      return () => {
+        colorManager.dispose();
+      };
+    }
+  }, [
+    props.document.awareness,
+    sessionStore.loggedInUserId,
+    sessionStore.userColor,
+  ]);
+
   const editor = useBlockNote({
     editorDOMAttributes: {
       class: styles.editor,
@@ -93,6 +115,14 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         ["m"]
       ),
     ],
+    collaboration: {
+      provider: new FakeProvider(props.document.awareness),
+      user: {
+        name: sessionStore.loggedInUserId || "Anonymous",
+        color: sessionStore.userColor,
+      },
+      fragment: props.document.data as any,
+    },
     // onUpdate: ({ editor }) => {
     //   console.log(editor.getJSON());
     // },

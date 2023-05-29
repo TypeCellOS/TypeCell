@@ -242,17 +242,23 @@ export function applyNodeChangesToMonaco(
  */
 export function applyDecorationsToMonaco(
   modal: monaco.editor.ITextModel,
-  decorations: Decoration[],
+  decorations: {
+    decorations: Decoration[];
+    innerDecorations: { local: Decoration[] };
+  },
   mon: monaco.editor.IStandaloneCodeEditor,
   lastDecorations: string[]
 ) {
+  if (!decorations.innerDecorations) {
+    return [];
+  }
   const newDecorations: monaco.editor.IModelDeltaDecoration[] = [];
   // const decs = (innerDecorations as any).local as Decoration[];
 
-  decorations
+  decorations.innerDecorations.local
     .filter((d) => d.spec.type === "cursor")
     .forEach((cursorDec) => {
-      const selectionDec = decorations.find(
+      const selectionDec = decorations.innerDecorations.local.find(
         (d) =>
           d.spec.type === "selection" &&
           d.spec.clientID === cursorDec.spec.clientID
@@ -275,13 +281,13 @@ export function applyDecorationsToMonaco(
         end = modal.getPositionAt(to);
         afterContentClassName =
           "yRemoteSelectionHead yRemoteSelectionHead-" +
-          cursorDec.spec.clientID;
+          cursorDec.spec.clientId;
       } else {
         start = modal.getPositionAt(to);
         end = modal.getPositionAt(from);
         beforeContentClassName =
           "yRemoteSelectionHead yRemoteSelectionHead-" +
-          cursorDec.spec.clientID;
+          cursorDec.spec.clientId;
       }
       newDecorations.push({
         range: new monaco.Range(
@@ -292,7 +298,7 @@ export function applyDecorationsToMonaco(
         ),
         options: {
           className:
-            "yRemoteSelection yRemoteSelection-" + cursorDec.spec.clientID,
+            "yRemoteSelection yRemoteSelection-" + cursorDec.spec.clientId,
           afterContentClassName,
           beforeContentClassName,
         },

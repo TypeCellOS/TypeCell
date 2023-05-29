@@ -124,6 +124,10 @@ export const MonacoBlockContent = createTipTapBlock({
     });
 
     return (props) => {
+      if (!(props.editor as any).contentComponent) {
+        // same logic as in ReactNodeViewRenderer
+        return {};
+      }
       const ret = ReactNodeViewRenderer(BlockContent, {
         stopEvent: () => true,
       })(props) as NodeView;
@@ -136,6 +140,23 @@ export const MonacoBlockContent = createTipTapBlock({
         });
       };
 
+      // This is a hack because tiptap doesn't support innerDeco, and this information is normally dropped
+      const oldUpdated = ret.update!.bind(ret);
+      ret.update = (node, outerDeco, innerDeco) => {
+        const retAsAny = ret as any;
+        let decorations = retAsAny.decorations;
+        if (
+          retAsAny.decorations.decorations !== outerDeco ||
+          retAsAny.decorations.innerDecorations !== innerDeco
+        ) {
+          // change the format of "decorations" to have both the outerDeco and innerDeco
+          decorations = {
+            decorations: outerDeco,
+            innerDecorations: innerDeco,
+          };
+        }
+        return oldUpdated(node, decorations, undefined as any);
+      };
       return ret;
     };
   },

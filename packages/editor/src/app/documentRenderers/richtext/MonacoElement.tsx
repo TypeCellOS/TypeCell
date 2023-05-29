@@ -58,7 +58,7 @@ const MonacoElementComponent = forwardRef(function MonacoElement(
       applyNodeChangesToMonaco(props.node, models.model);
       models.state.lastDecorations = applyDecorationsToMonaco(
         models.model,
-        props.decorations,
+        props.decorations as any,
         editorRef.current!,
         models.state.lastDecorations
       );
@@ -87,7 +87,7 @@ const MonacoElementComponent = forwardRef(function MonacoElement(
   }, [props.selected]);
 
   useEffect(() => {
-    console.log("selectionHack effect", props.selectionHack);
+    // console.log("selectionHack effect", props.selectionHack);
     if (!props.selectionHack) {
       return;
     }

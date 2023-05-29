@@ -246,7 +246,7 @@ export class SupabaseHocuspocus extends Database {
       this.refsChanged(data.socketId, data.context.documentId, event, tr);
 
     data.document.getMap("refs").observeDeep(refListener);
-
+    console.log("set reflistener", data.document.guid);
     this.refListenersByDocument.set(data.document, refListener);
 
     await super.onLoadDocument(data);
@@ -254,9 +254,11 @@ export class SupabaseHocuspocus extends Database {
 
   async onDisconnect(data: onDisconnectPayload): Promise<any> {
     if (data.clientsCount === 0) {
+      console.log("remove reflistener", data.document.guid);
       const refListener = this.refListenersByDocument.get(data.document);
       if (!refListener) {
-        throw new Error("unexpected: refListener not set");
+        console.error("unexpected: refListener not set"); // TODO should be an error
+        // throw new Error("unexpected: refListener not set");
       }
 
       data.document.getMap("refs").unobserveDeep(refListener);
