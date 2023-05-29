@@ -47,6 +47,7 @@ const arrowHandlers = keymap({
 const ComponentWithWrapper = React.forwardRef(
   (props: NodeViewProps & { block: any; htmlAttributes: any }, ref) => {
     const { htmlAttributes, ...restProps } = props;
+    console.log("html", htmlAttributes);
     return (
       <NodeViewWrapper
         // className={blockStyles.blockContent}
@@ -92,11 +93,11 @@ export const MonacoBlockContent = createTipTapBlock({
 
       // Add props as HTML attributes in kebab-case with "data-" prefix
       const htmlAttributes: Record<string, string> = {};
-      for (const [attribute, value] of Object.entries(props.node.attrs)) {
-        // if (attribute in blockConfig.propSchema) {
-        //   htmlAttributes[camelToDataKebab(attribute)] = value;
-        // }
-      }
+      // for (const [attribute, value] of Object.entries(props.node.attrs)) {
+      // if (attribute in blockConfig.propSchema) {
+      //   htmlAttributes[camelToDataKebab(attribute)] = value;
+      // }
+      // }
 
       // Gets BlockNote editor instance
       const editor = this.options.editor!;
@@ -139,6 +140,9 @@ export const MonacoBlockContent = createTipTapBlock({
           selectionHack: { anchor, head },
         });
       };
+
+      // disable contentdom, because we render the content ourselves in MonacoElement
+      (ret as any).contentDOMElement = undefined;
 
       // This is a hack because tiptap doesn't support innerDeco, and this information is normally dropped
       const oldUpdated = ret.update!.bind(ret);
