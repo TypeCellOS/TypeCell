@@ -1,5 +1,4 @@
-import { lifecycle } from "vscode-lib";
-
+/*
 export class BackgroundSyncer extends lifecycle.Disposable {
   private loadedDocuments = new Map<string, LocalDoc>();
 
@@ -13,4 +12,4 @@ export class BackgroundSyncer extends lifecycle.Disposable {
   public async initialize() {
     await this.indexedDBProvider.whenSynced;
   }
-}
+}*/
