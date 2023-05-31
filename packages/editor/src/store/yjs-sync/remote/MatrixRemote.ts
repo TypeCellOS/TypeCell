@@ -109,7 +109,7 @@ export class MatrixRemote extends Remote {
         }
       )
     );
-
+    (this.matrixProvider as any).isRemote = true;
     this.matrixProvider.initialize();
     this._canWriteAtom.reportChanged();
 

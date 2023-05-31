@@ -5,11 +5,11 @@ import { Identifier } from "../../identifiers/Identifier";
 
 export type LocalDoc = {
   ydoc: Y.Doc;
-  meta: Document;
+  meta: DocumentInfo;
   idbProvider: IndexeddbPersistence;
 };
 
-export type Document = {
+export type DocumentInfo = {
   id: string;
   created_at: Date;
   create_source: "local" | "remote";
@@ -42,14 +42,19 @@ export class DocumentCoordinator extends lifecycle.Disposable {
     await this.indexedDBProvider.whenSynced;
   }
 
+  /**
+   * Return all info on documents that we have in our local-first storage
+   */
   public get documents() {
     if (!this.indexedDBProvider.synced) {
       throw new Error("not initialized");
     }
-    return this.doc.getMap<Document>("documents");
+    return this.doc.getMap<DocumentInfo>("documents");
   }
 
-  // create a new document locally
+  /**
+   * Create and register a new document in our local store
+   */
   public async createDocument(
     identifier: Identifier,
     targetYDoc: Y.Doc
@@ -62,7 +67,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       throw new Error("createDocument: document already exists");
     }
 
-    const meta: Document = {
+    const meta: DocumentInfo = {
       id: idStr,
       created_at: new Date(),
       create_source: "local",
@@ -72,27 +77,17 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
     this.documents.set(idStr, meta);
 
-    // TODO: listen to updates
-
-    const idbProvider = new IndexeddbPersistence(
-      this.userId + "-doc-" + idStr,
-      targetYDoc
-    );
-
-    const doc: LocalDoc = {
-      ydoc: targetYDoc,
-      meta,
-      idbProvider,
-    };
-
-    targetYDoc.on("destroy", () => {
-      this.loadedDocuments.delete(idStr);
-    });
-
-    this.loadedDocuments.set(idStr, doc);
-    return doc;
+    const ret = this.loadDocument(identifier, targetYDoc);
+    if (ret === "not-found") {
+      // can't happen, because it's just been created
+      throw new Error("createDocument: document not found");
+    }
+    return ret;
   }
 
+  /**
+   * Create a document in local storage that has been retrieved from a Remote
+   */
   public createDocumentFromRemote(
     identifier: Identifier,
     targetYDoc: Y.Doc
@@ -105,7 +100,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       throw new Error("createDocument: document already exists");
     }
 
-    const meta: Document = {
+    const meta: DocumentInfo = {
       id: idStr,
       created_at: new Date(),
       create_source: "remote",
@@ -115,29 +110,18 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
     this.documents.set(idStr, meta);
 
-    // TODO: listen to updates
-
-    const idbProvider = new IndexeddbPersistence(
-      this.userId + "-doc-" + idStr,
-      targetYDoc
-    );
-
-    const doc: LocalDoc = {
-      ydoc: targetYDoc,
-      meta,
-      idbProvider,
-    };
-
-    targetYDoc.on("destroy", () => {
-      this.loadedDocuments.delete(idStr);
-    });
-
-    this.loadedDocuments.set(idStr, doc);
-
-    return doc;
+    const ret = this.loadDocument(identifier, targetYDoc);
+    if (ret === "not-found") {
+      // can't happen, because it's just been created
+      throw new Error("createDocumentFromRemote: document not found");
+    }
+    return ret;
   }
 
-  // load a document from local store
+  /**
+   * Load a local document if we have it in local storage
+   * Otherwise return "not-found"
+   */
   public loadDocument(
     identifier: Identifier,
     targetYDoc: Y.Doc
@@ -155,18 +139,19 @@ export class DocumentCoordinator extends lifecycle.Disposable {
     const meta = this.documents.get(idStr);
 
     if (!meta) {
-      //   this.documents.set(idStr, {
-      //     id: idStr,
-      //     created_at: new Date(),
-      //     create_source: "remote",
-      //     updated_at: new Date(),
-      //     last_synced_at: null,
-      //   });
-
       return "not-found";
     }
 
-    // TODO: listen to updates
+    targetYDoc.on("update", (update, origin) => {
+      console.log("update", origin);
+      // for indexeddb, origin is null
+      // for typecell (hocuspocus) or matrix, origin has .isRemote = true
+      if (!origin || origin.isRemote) {
+        return;
+      }
+      // mark change
+      // TODO: mark synced on hocuspocus synced
+    });
 
     const idbProvider = new IndexeddbPersistence(
       this.userId + "-doc-" + idStr,
@@ -187,6 +172,9 @@ export class DocumentCoordinator extends lifecycle.Disposable {
     return doc;
   }
 
+  /**
+   * Delete a document from our local storage
+   */
   public async deleteLocal(identifier: Identifier) {
     const idStr = identifier.toString();
     if (!this.indexedDBProvider.synced) {

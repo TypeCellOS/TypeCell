@@ -198,6 +198,8 @@ export class TypeCellRemote extends Remote {
         });
       },
     });
+    (hocuspocusProvider as any).isRemote = true;
+
     hocuspocusProvider.on("unsyncedChanges", () => {
       runInAction(() => {
         this.unsyncedChanges = hocuspocusProvider.unsyncedChanges;
