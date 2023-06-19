@@ -71,9 +71,9 @@ export default class LocalExecutionHost
 
   public renderOutput(modelPath: string) {
     return (
-      <div style={{ padding: "10px" }}>
-        <Output outputs={this.outputs} modelPath={modelPath} />
-      </div>
+      // <div style={{ padding: "10px" }}>
+      <Output outputs={this.outputs} modelPath={modelPath} />
+      // </div>
     );
   }
 

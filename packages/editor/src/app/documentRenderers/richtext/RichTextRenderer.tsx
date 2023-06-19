@@ -17,11 +17,11 @@ import {
 import ReactDOM from "react-dom";
 import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
-import { ExecutionHost } from "../../../runtime/executor/executionHosts/ExecutionHost";
-import SandboxedExecutionHost from "../../../runtime/executor/executionHosts/sandboxed/SandboxedExecutionHost";
+import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost";
 import { DocumentResource } from "../../../store/DocumentResource";
 import { getStoreService } from "../../../store/local/stores";
 import { MonacoColorManager } from "../notebook/MonacoColorManager";
+import { InlineMonacoContent } from "./InlineMonacoContent";
 import { MonacoBlockContent } from "./MonacoBlockContent";
 import { RichTextContext } from "./RichTextContext";
 import styles from "./RichTextRenderer.module.css";
@@ -39,7 +39,7 @@ function insertOrUpdateBlock<BSchema extends DefaultBlockSchema>(
   editor: BlockNoteEditor<BSchema>,
   block: PartialBlock<BSchema>
 ) {
-  const currentBlock = editor.getTextCursorPosition().block;
+  const currentBlock = editor.getTextCursorPosition()!.block;
 
   if (
     (currentBlock.content.length === 1 &&
@@ -50,7 +50,7 @@ function insertOrUpdateBlock<BSchema extends DefaultBlockSchema>(
     editor.updateBlock(currentBlock, block);
   } else {
     editor.insertBlocks([block], currentBlock, "after");
-    editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
+    editor.setTextCursorPosition(editor.getTextCursorPosition()!.nextBlock!);
   }
 }
 
@@ -65,11 +65,17 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     //   );
     //   // newExecutionHost = new LocalExecutionHost(props.document.id, newCompiler, monaco);
     // }
-    const newExecutionHost: ExecutionHost = new SandboxedExecutionHost(
+    const newExecutionHost: LocalExecutionHost = new LocalExecutionHost(
       props.document.id,
       newCompiler,
       monaco
     );
+
+    // const newExecutionHost: ExecutionHost = new SandboxedExecutionHost(
+    //   props.document.id,
+    //   newCompiler,
+    //   monaco
+    // );
     return { newCompiler, newExecutionHost };
   }, []);
 
@@ -107,6 +113,15 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         },
         node: MonacoBlockContent,
       },
+      abc: {
+        propSchema: {
+          language: {
+            type: "string",
+            default: "typescript",
+          },
+        },
+        node: InlineMonacoContent,
+      },
     },
     slashCommands: [
       ...(defaultReactSlashMenuItems as any),
@@ -116,6 +131,19 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
           insertOrUpdateBlock(editor, {
             type: "monaco",
           } as any),
+        ["m"]
+      ),
+      new BaseSlashMenuItem(
+        "Inline",
+        (editor) => {
+          // state.tr.replaceSelectionWith(dinoType.create({type}))
+          const node = editor._tiptapEditor.schema.node("abc");
+          const tr = editor._tiptapEditor.state.tr.replaceSelectionWith(node);
+          editor._tiptapEditor.view.dispatch(tr);
+        },
+        // insertOrUpdateBlock(editor, {
+        //   type: "abc",
+        // } as any),
         ["m"]
       ),
     ],

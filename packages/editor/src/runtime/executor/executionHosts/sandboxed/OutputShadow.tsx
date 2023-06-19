@@ -63,3 +63,13 @@ export const OutputShadow = observer(
 );
 
 export default OutputShadow;
+
+/*
+a) content kopieren naar parent doc incl styles, zodat we correcte maat hebben
+b) goed maat op kunnen nemen in child doc
+c) direct rendere naar parent doc
+
+
+a+b -> styles kopieren naar child doc
+
+*/

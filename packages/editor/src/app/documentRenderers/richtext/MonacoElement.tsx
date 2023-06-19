@@ -9,12 +9,10 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
 import { MonacoTypeCellCodeModel } from "../../../models/MonacoTypeCellCodeModel";
 import {
   applyDecorationsToMonaco,
   applyNodeChangesToMonaco,
-  bindMonacoAndProsemirror,
 } from "./MonacoProsemirrorHelpers";
 import { RichTextContext } from "./RichTextContext";
 
@@ -28,9 +26,9 @@ const MonacoElementComponent = function MonacoElement(
   // hacky way to only initialize some resources once
   // probably useMemo is not the best fit for this
   const models = useMemo(() => {
-    console.log("create", props.block.id, refa.current);
+    // console.log("create", props.block.id, refa.current);
     const uri = monaco.Uri.parse(
-      `file:///!@${context.document.id}/${(props as any).block.id}.cell.tsx`
+      `file:///!@${context.document.id}/${Math.random()}.cell.tsx`
     );
     const model = monaco.editor.createModel(
       props.node.textContent,
@@ -130,12 +128,12 @@ const MonacoElementComponent = function MonacoElement(
       theme: "typecellTheme",
     });
 
-    bindMonacoAndProsemirror(
-      newEditor,
-      props.editor.view,
-      props.getPos,
-      models.state
-    );
+    // bindMonacoAndProsemirror(
+    //   newEditor,
+    //   props.editor.view,
+    //   props.getPos,
+    //   models.state
+    // );
 
     // disable per-cell find command (https://github.com/microsoft/monaco-editor/issues/102)
     (newEditor as any)._standaloneKeybindingService.addDynamicKeybinding(
@@ -158,7 +156,7 @@ const MonacoElementComponent = function MonacoElement(
       try {
         newEditor.layout({
           height: contentHeight,
-          width: newEditor.getContainerDomNode()!.offsetWidth,
+          width: 100, //newEditor.getContainerDomNode()!.offsetWidth,
         });
       } finally {
       }
@@ -169,48 +167,62 @@ const MonacoElementComponent = function MonacoElement(
   const [codeVisible, setCodeVisible] = useState(true);
 
   return (
-    <div
-      contentEditable={false}
-      className={`notebookCell ${
-        codeVisible ? "expanded" : "collapsed"
-      } ${"props.cell.language TODO"}`}
-      style={{ display: "flex", flexDirection: "row" }}>
-      {codeVisible ? (
-        <VscChevronDown
-          title="Show / hide code"
-          className="notebookCell-sideIcon"
-          onClick={() => setCodeVisible(false)}
-        />
-      ) : (
-        <VscChevronRight
-          title="Show / hide code"
-          className="notebookCell-sideIcon"
-          onClick={() => setCodeVisible(true)}
-        />
-      )}
-      {}
-      <div style={{ flex: 1 }} className="notebookCell-content">
-        {codeVisible && (
-          <div className="notebookCell-codeContainer">
-            {/* {props.toolbar && props.toolbar} */}
-            <div
-              className="code"
-              ref={codeRefCallback}
-              style={{ height: "100%" }}></div>
-          </div>
-        )}
+    // <div
+    //   contentEditable={false}
+    //   className={`notebookCell ${
+    //     codeVisible ? "expanded" : "collapsed"
+    //   } ${"props.cell.language TODO"}`}
+    //   style={{ display: "flex", flexDirection: "row" }}>
+    //   {codeVisible ? (
+    //     <VscChevronDown
+    //       title="Show / hide code"
+    //       className="notebookCell-sideIcon"
+    //       onClick={() => setCodeVisible(false)}
+    //     />
+    //   ) : (
+    //     <VscChevronRight
+    //       title="Show / hide code"
+    //       className="notebookCell-sideIcon"
+    //       onClick={() => setCodeVisible(true)}
+    //     />
+    //   )}
+    //   {}
+    //   <div style={{ flex: 1 }} className="notebookCell-content">
+    //     {codeVisible && (
+    //       <div className="notebookCell-codeContainer">
+    //         {/* {props.toolbar && props.toolbar} */}
+    //         <div
+    //           className="code"
+    //           ref={codeRefCallback}
+    //           style={{ height: "100%" }}></div>
+    //       </div>
+    //     )}
 
-        <div
-          className="output"
-          contentEditable={false}
-          style={{ position: "relative" }}>
-          {context.executionHost.renderOutput(
-            models.model.uri.toString(),
-            () => {}
-          )}
-        </div>
-      </div>
-    </div>
+    <>
+      <span contentEditable={false}>
+        {context.executionHost.renderOutput(
+          models.model.uri.toString(),
+          () => {}
+        )}
+      </span>
+      {/* {props.toolbar && props.toolbar} */}
+      <div
+        className="code"
+        contentEditable={false}
+        ref={codeRefCallback}
+        style={{ height: "50px", width: "100px", position: "absolute" }}></div>
+      {/* <div
+        className="output"
+        contentEditable={false}
+        style={{ position: "relative" }}>
+        {context.executionHost.renderOutput(
+          models.model.uri.toString(),
+          () => {}
+        )}
+      </div> */}
+    </>
+    // </div>
+    // </div>
   );
 };
 
