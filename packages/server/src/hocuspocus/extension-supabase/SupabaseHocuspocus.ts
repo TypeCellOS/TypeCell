@@ -128,8 +128,8 @@ export class SupabaseHocuspocus extends Database {
 
     if (ret2.count === 1) {
       // document exists, but user only has read access
-      // data.connection.readOnly = true; TODO
-      console.log("readonly", data.documentName);
+      data.connection.readOnly = true;
+      // console.log("readonly", data.documentName);
       return;
     }
 

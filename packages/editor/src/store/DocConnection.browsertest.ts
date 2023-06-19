@@ -54,7 +54,7 @@ describe.only("DocConnection tests", () => {
     wsProvider.destroy();
   });
 
-  it.skip("bob cannot modify doc by alice", async () => {
+  it("bob cannot modify doc by alice", async () => {
     const doc = await DocConnection.create(sessionStoreAlice);
     doc.ydoc.getMap("test").set("hello", "world");
 
@@ -70,7 +70,7 @@ describe.only("DocConnection tests", () => {
     expect(doc.ydoc.getMap("test").get("hello")).to.equal("world");
   });
 
-  it.only("can load an unknown remote document online", async () => {
+  it("can load an unknown remote document online", async () => {
     const doc = await DocConnection.create(sessionStoreAlice);
     doc.ydoc.getMap("test").set("hello", "world");
 

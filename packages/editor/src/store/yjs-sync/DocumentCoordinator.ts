@@ -143,7 +143,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
     }
 
     targetYDoc.on("update", (update, origin) => {
-      console.log("update", origin);
+      // console.log("update", origin);
       // for indexeddb, origin is null
       // for typecell (hocuspocus) or matrix, origin has .isRemote = true
       if (!origin || origin.isRemote) {

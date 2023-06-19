@@ -3,9 +3,9 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
-    "@hocuspocus/extension-database": "^2.0.6",
-    "@hocuspocus/extension-logger": "^2.0.6",
-    "@hocuspocus/server": "^2.0.6",
+    "@hocuspocus/extension-database": "file:/Users/yousef/Programming/hocuspocus/packages/extension-database",
+    "@hocuspocus/extension-logger": "file:/Users/yousef/Programming/hocuspocus/packages/extension-logger",
+    "@hocuspocus/server": "file:/Users/yousef/Programming/hocuspocus/packages/server",
     "@supabase/supabase-js": "^2.12.1",
     "vscode-lib": "^0.1.2"
   },

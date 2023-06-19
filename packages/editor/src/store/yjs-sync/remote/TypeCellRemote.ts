@@ -177,7 +177,7 @@ export class TypeCellRemote extends Remote {
       return;
     }
 
-    console.log("token", token);
+    // console.log("token", token);
     const hocuspocusProvider = new HocuspocusProvider({
       name: this.identifier.documentId,
       document: this._ydoc,
