@@ -26,7 +26,7 @@ export class InboxResource extends BaseResource {
   ) {
     super(ydoc, identifier, manager);
     if (this.type !== "!inbox") {
-      throw new Error("invalid type for InboxResource");
+      throw new Error("invalid type for InboxResource: " + this.type);
     }
   }
 

@@ -5,6 +5,7 @@ import { uniqueId } from "@typecell-org/common";
 import { expect } from "chai";
 import * as mobx from "mobx";
 import { when } from "mobx";
+import { async } from "vscode-lib";
 import * as Y from "yjs";
 import {
   createDocument,
@@ -18,6 +19,9 @@ import { parseIdentifier } from "../../identifiers";
 import { SyncManager } from "./SyncManager";
 import { TypeCellRemote } from "./remote/TypeCellRemote";
 
+/**
+ * Helper function that creates a doc in the backend and loads it into a SyncManager
+ */
 export async function createDocInBackendAndLoad(
   user: Awaited<ReturnType<typeof createRandomUser>>,
   wsProvider: HocuspocusProviderWebsocket,
@@ -54,6 +58,46 @@ export async function createDocInBackendAndLoad(
   return { user, doc, backendYDoc, manager, identifier };
 }
 
+export async function createDocInBackendAndWaitForLoad(
+  user: Awaited<ReturnType<typeof createRandomUser>>,
+  wsProvider: HocuspocusProviderWebsocket,
+  sessionStore: SupabaseSessionStore,
+  publicAccessLevel: "read" | "write" | "no-access" = "write"
+) {
+  const ret = await createDocInBackendAndLoad(
+    user,
+    wsProvider,
+    sessionStore,
+
+    publicAccessLevel
+  );
+
+  expect(ret.manager.docOrStatus).eq("loading");
+
+  const manager = await ret.manager.waitTillLoaded();
+
+  // wait till initial data came in
+  await when(
+    () => manager.state.localDoc.ydoc.getMap("mymap").get("hello") === "world"
+  );
+
+  return { ...ret, manager };
+}
+
+// /**
+//  * Helper function to wait for a MobX dependent condition to eventually succeed
+//  */
+// async function whenExpect(condition: () => Chai.Assertion) {
+//   return await when(() => {
+//     try {
+//       condition();
+//     } catch (e) {
+//       return false;
+//     }
+//     return true;
+//   });
+// }
+
 describe("SyncManager tests", () => {
   let sessionStore: SupabaseSessionStore;
   let alice: Awaited<ReturnType<typeof createRandomUser>>;
@@ -76,7 +120,7 @@ describe("SyncManager tests", () => {
 
     await loginAsNewRandomUser(sessionStore, "testuser");
 
-    console.log("when", sessionStore.coordinators, sessionStore.userPrefix);
+    // console.log("when", sessionStore.coordinators, sessionStore.userPrefix);
     await when(() => !!sessionStore.coordinators);
   });
 
@@ -87,38 +131,11 @@ describe("SyncManager tests", () => {
     wsProvider.destroy();
   });
 
-  // it("directly importing a local module", async () => {
-  //   await start();
-
-  //   try
-  //   const syncer = await SyncManager.create(
-  //     sessionStore.getIdentifierForNewDocument(),
-  //     sessionStore
-  //   );
-  //   console.log(syncer.doc);
-  // });
-
   it("can load an unknown remote document online", async () => {
-    const { manager } = await createDocInBackendAndLoad(
+    const { manager } = await createDocInBackendAndWaitForLoad(
       alice,
       wsProvider,
       sessionStore
-    );
-
-    expect(manager.docOrStatus).eq("loading");
-
-    // validate loading goes ok
-    await when(() => manager.state.status === "syncing");
-
-    if (manager.state.status !== "syncing") {
-      throw new Error("unexpected");
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // validate syncing
-    expect(manager.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
-      "world"
     );
 
     expect(manager.state.localDoc.meta.create_source).eq("remote");
@@ -128,89 +145,60 @@ describe("SyncManager tests", () => {
     // TODO: would be nicer to force browser to go offline
     TypeCellRemote.Offline = true;
 
-    const { manager } = await createDocInBackendAndLoad(
+    let { manager } = await createDocInBackendAndLoad(
       alice,
       wsProvider,
       sessionStore
     );
     expect(manager.docOrStatus).eq("loading");
 
-    // validate loading doesn't work
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // validate loading doesn't work, by waiting 1s and validate status is still loading
+    await async.timeout(1000);
     expect(manager.docOrStatus).eq("loading");
 
     // go online
     TypeCellRemote.Offline = false;
 
     // validate loading
-    await when(() => manager.state.status === "syncing");
-
-    if (manager.state.status !== "syncing") {
-      throw new Error("unexpected");
-    }
+    let loadedManager = await manager.waitTillLoaded();
 
     // validate syncing
-    expect(manager.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
+    expect(loadedManager.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
       "world"
     );
 
-    expect(manager.state.localDoc.meta.create_source).eq("remote");
+    expect(loadedManager.state.localDoc.meta.create_source).eq("remote");
   });
 
   it("can load a known remote document", async () => {
-    const { manager, identifier } = await createDocInBackendAndLoad(
+    const { manager, identifier } = await createDocInBackendAndWaitForLoad(
       alice,
       wsProvider,
       sessionStore
     );
-    await when(() => manager.state.status === "syncing");
-    if (manager.state.status !== "syncing") {
-      throw new Error("unexpected");
-    }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    expect(manager.state.localDoc.meta.create_source).eq("remote");
-    expect(manager.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
-      "world"
-    );
     // dispose
     manager.dispose();
 
     // load document
     const manager2 = SyncManager.load(identifier, sessionStore);
-    await when(() => manager2.state.status === "syncing");
-
-    if (manager2.state.status !== "syncing") {
-      throw new Error("unexpected");
-    }
+    let loadedManager2 = await manager2.waitTillLoaded();
 
     // validate syncing
-    expect(manager2.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
+    expect(loadedManager2.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
       "world"
     );
 
-    expect(manager2.state.localDoc.meta.create_source).eq("remote");
+    expect(loadedManager2.state.localDoc.meta.create_source).eq("remote");
   });
 
   it("can load a known remote document offline", async () => {
-    const { manager, identifier } = await createDocInBackendAndLoad(
+    const { manager, identifier } = await createDocInBackendAndWaitForLoad(
       alice,
       wsProvider,
       sessionStore
     );
 
-    await when(() => manager.state.status === "syncing");
-    if (manager.state.status !== "syncing") {
-      throw new Error("unexpected");
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    expect(manager.state.localDoc.meta.create_source).eq("remote");
-    expect(manager.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
-      "world"
-    );
     // dispose
     manager.dispose();
 
@@ -219,18 +207,14 @@ describe("SyncManager tests", () => {
 
     // load document
     const manager2 = SyncManager.load(identifier, sessionStore);
-    await when(() => manager2.state.status === "syncing");
-
-    if (manager2.state.status !== "syncing") {
-      throw new Error("unexpected");
-    }
+    const loadedManager2 = await manager2.waitTillLoaded();
 
     // validate syncing
-    expect(manager2.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
+    expect(loadedManager2.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
       "world"
     );
 
-    expect(manager2.state.localDoc.meta.create_source).eq("remote");
+    expect(loadedManager2.state.localDoc.meta.create_source).eq("remote");
   });
 
   it("can create a new document", async () => {
@@ -238,14 +222,10 @@ describe("SyncManager tests", () => {
     // create document
     const manager = SyncManager.create(id, sessionStore);
 
-    await when(() => manager.state.status === "syncing");
-    if (manager.state.status !== "syncing") {
-      throw new Error("unexpected");
-    }
+    const loadedManager = await manager.waitTillLoaded();
+    loadedManager.state.localDoc.ydoc.getMap("mymap").set("hello", "world");
 
-    manager.state.localDoc.ydoc.getMap("mymap").set("hello", "world");
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await async.timeout(100); // write data
 
     manager.dispose();
 
@@ -253,12 +233,9 @@ describe("SyncManager tests", () => {
     // validate syncing
     const manager2 = SyncManager.load(id, sessionStore);
 
-    await when(() => manager2.state.status === "syncing");
-    if (manager2.state.status !== "syncing") {
-      throw new Error("unexpected");
-    }
+    const loadedManager2 = await manager2.waitTillLoaded();
 
-    expect(manager2.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
+    expect(loadedManager2.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
       "world"
     );
   });
@@ -296,34 +273,21 @@ describe("SyncManager tests", () => {
 
     const id = parseIdentifier(uniqueId.generateId("document"));
     const manager = SyncManager.create(id, sessionStore);
+    const loadedManager = await manager.waitTillLoaded();
 
-    await when(() => manager.state.status === "syncing");
-    if (manager.state.status !== "syncing") {
-      throw new Error("unexpected");
-    }
-
-    manager.state.localDoc.ydoc.getMap("mymap").set("hello", "world");
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    loadedManager.state.localDoc.ydoc.getMap("mymap").set("hello", "world");
 
     manager.dispose();
 
     // go online
     // validate syncing
     const manager2 = SyncManager.load(id, sessionStore);
+    const loadedManager2 = await manager2.waitTillLoaded();
 
-    console.log("manager2", manager2.state.status);
-    await when(() => manager2.state.status === "syncing");
-    if (manager2.state.status !== "syncing") {
-      throw new Error("unexpected");
-    }
-
-    expect(manager2.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
+    expect(loadedManager2.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
       "world"
     );
-
-    // TODO: make sure it will be synced online
-    // - make sure it will also sync without loading new syncmanager
+    manager2.dispose();
   });
 
   it("creates document remotely that was created offline earlier", async () => {
@@ -334,79 +298,46 @@ describe("SyncManager tests", () => {
     // validate syncing
   });
 
-  it("can load a known document that was created offline earlier", async () => {
-    // go offline
-    // create document
-    // dispose
-    // load document
-    //
-  });
-
   it("can clear local status and reload", async () => {
-    const { manager, backendYDoc } = await createDocInBackendAndLoad(
+    const { manager, backendYDoc } = await createDocInBackendAndWaitForLoad(
       alice,
       wsProvider,
       sessionStore,
       "read"
     );
 
-    await when(() => manager.state.status === "syncing");
-    if (manager.state.status !== "syncing") {
-      throw new Error("unexpected");
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    expect(manager.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
-      "world"
-    );
-
     manager.state.localDoc.ydoc.getMap("mymap").set("hello", "world2");
-    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // read only, so shouldn't have changed
+    // read only, so other doc shouldn't change even after waiting 1s
+    await async.timeout(1000);
     expect(backendYDoc.getMap("mymap").get("hello")).eq("world");
 
+    // local doc should still reflect change
     expect(manager.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
       "world2"
     );
 
-    const newManager = await manager.clearAndReload();
-
-    await when(() => newManager.state.status === "syncing");
-    if (newManager.state.status !== "syncing") {
-      throw new Error("unexpected");
-    }
+    const manager2 = await manager.clearAndReload();
+    const loadedManager2 = await manager2.waitTillLoaded();
 
     expect(backendYDoc.getMap("mymap").get("hello")).eq("world");
-    expect(newManager.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
+    expect(loadedManager2.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
       "world"
     );
   });
 
   it("can fork a document", async () => {
-    const { manager, backendYDoc } = await createDocInBackendAndLoad(
+    const { manager, backendYDoc } = await createDocInBackendAndWaitForLoad(
       alice,
       wsProvider,
       sessionStore,
       "read"
     );
 
-    await when(() => manager.state.status === "syncing");
-    if (manager.state.status !== "syncing") {
-      throw new Error("unexpected");
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    expect(manager.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
-      "world"
-    );
-
     manager.state.localDoc.ydoc.getMap("mymap").set("hello", "world2");
-    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // read only, so shouldn't have changed
+    // read only, so other doc shouldn't change even after waiting 1s
+    await async.timeout(1000);
     expect(backendYDoc.getMap("mymap").get("hello")).eq("world");
 
     expect(manager.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
@@ -423,24 +354,15 @@ describe("SyncManager tests", () => {
     // revert existing doc
     const newManager = await manager.clearAndReload();
 
-    await when(
-      () =>
-        forkManager.state.status === "syncing" &&
-        newManager.state.status === "syncing"
-    );
-    if (
-      forkManager.state.status !== "syncing" ||
-      newManager.state.status !== "syncing"
-    ) {
-      throw new Error("unexpected");
-    }
+    const forkManagerLoaded = await forkManager.waitTillLoaded();
+    const newManagerLoaded = await newManager.waitTillLoaded();
 
     expect(backendYDoc.getMap("mymap").get("hello")).eq("world");
-    expect(forkManager.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
-      "world2"
-    );
-    expect(newManager.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
-      "world"
-    );
+    expect(
+      forkManagerLoaded.state.localDoc.ydoc.getMap("mymap").get("hello")
+    ).eq("world2");
+    expect(
+      newManagerLoaded.state.localDoc.ydoc.getMap("mymap").get("hello")
+    ).eq("world");
   });
 });

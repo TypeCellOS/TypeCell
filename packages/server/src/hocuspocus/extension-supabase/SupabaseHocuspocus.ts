@@ -13,6 +13,7 @@ import {
 import * as Y from "yjs";
 import { createAnonClient, createServiceClient } from "../../supabase/supabase";
 
+const documentIdByDocument = new WeakMap<Y.Doc, string>();
 // export const schema = `CREATE TABLE IF NOT EXISTS "documents" (
 //   "name" varchar(255) NOT NULL,
 //   "data" blob NOT NULL,
@@ -52,7 +53,7 @@ export class SupabaseHocuspocus extends Database {
           throw new Error("unexpected: not found when fetching");
         }
 
-        data.context.documentId = ret.data[0].id;
+        documentIdByDocument.set(data.document, ret.data[0].id);
 
         const decoded = Buffer.from(ret.data[0].data.substring(2), "hex"); // skip \x
         if (!decoded.length) {
@@ -163,7 +164,7 @@ export class SupabaseHocuspocus extends Database {
     }
 
     if (!documentId) {
-      throw new Error("unexpected: no documentId on context");
+      throw new Error("unexpected: no documentId in refsChanged");
     }
 
     const children = await supabase
@@ -236,14 +237,19 @@ export class SupabaseHocuspocus extends Database {
 
   private refListenersByDocument = new WeakMap<Y.Doc, any>();
 
-  async onLoadDocument(data: onLoadDocumentPayload): Promise<any> {
-    console.log("onLoadDocument", data.documentName);
+  async afterLoadDocument(data: onLoadDocumentPayload): Promise<any> {
+    console.log("afterLoadDocument", data.documentName);
     if (this.refListenersByDocument.has(data.document)) {
       throw new Error("unexpected: refListener already set");
     }
 
     const refListener = (event: Y.YEvent<any>[], tr: Y.Transaction) =>
-      this.refsChanged(data.socketId, data.context.documentId, event, tr);
+      this.refsChanged(
+        data.socketId,
+        documentIdByDocument.get(data.document)!,
+        event,
+        tr
+      );
 
     data.document.getMap("refs").observeDeep(refListener);
 

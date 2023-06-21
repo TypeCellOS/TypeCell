@@ -139,7 +139,6 @@ export class DocConnection extends lifecycle.Disposable {
     runInAction(() => {
       this.manager = manager;
     });
-    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   // TODO: fork github or file sources
@@ -197,10 +196,20 @@ export class DocConnection extends lifecycle.Disposable {
       doc.create("!inbox");
       doc.ydoc.getMap("inboxmeta").set("target", identifier.toString()); // TODO
 
-      // TODO: get rid of this, immedaitely dispose and make a bg manager responsible for syncing the change
-      setTimeout(() => {
-        inboxConnection.dispose();
-      }, 2000);
+      // debugger;
+      // we can dispose immediately, bg manager is responsible for syncing the change
+      inboxConnection.dispose();
+      const doc2 = await DocConnection.load(inboxIdentifier, sessionStore);
+      const doc22 = await doc2.waitForDoc();
+      console.log("doc22", doc22.type);
+      doc2.dispose();
+
+      console.log(
+        "bg",
+        (
+          sessionStore.coordinators?.backgroundSyncer as any
+        ).loadedConnections.keys()
+      );
     }
 
     const manager = SyncManager.create(identifier, sessionStore, forkSource);

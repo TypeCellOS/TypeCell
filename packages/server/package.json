@@ -10,7 +10,7 @@
     "vscode-lib": "^0.1.2"
   },
   "devDependencies": {
-    "@hocuspocus/provider": "^2.0.6",
+    "@hocuspocus/provider": "file:/Users/yousef/Programming/hocuspocus/packages/provider",
     "@playwright/test": "^1.33.0",
     "@vitest/coverage-c8": "^0.24.4",
     "jsdom": "^20.0.0",
@@ -21,7 +21,7 @@
     "vite-node": "^0.29.7",
     "vitest": "^0.24.4",
     "ws": "^8.13.0",
-    "yjs": "^13.0.0"
+    "yjs": "^13.6.4"
   },
   "source": "src/index.ts",
   "types": "types/index.d.ts",

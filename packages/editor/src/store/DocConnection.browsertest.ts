@@ -5,6 +5,7 @@ import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
 import { expect } from "chai";
 import * as mobx from "mobx";
 import { when } from "mobx";
+import { async } from "vscode-lib";
 import { createWsProvider } from "../../../../packages/server/src/supabase/test/supabaseTestUtil";
 import { loginAsNewRandomUser } from "../../tests/util/loginUtil";
 import { SupabaseSessionStore } from "../app/supabase-auth/SupabaseSessionStore";
@@ -25,7 +26,7 @@ async function initSessionStore(name: string) {
   return sessionStore;
 }
 
-describe.only("DocConnection tests", () => {
+describe("DocConnection tests", () => {
   let sessionStoreAlice: SupabaseSessionStore;
   let sessionStoreBob: SupabaseSessionStore;
   let wsProvider: HocuspocusProviderWebsocket;
@@ -66,27 +67,30 @@ describe.only("DocConnection tests", () => {
 
     bobResource.ydoc.getMap("test").set("hello", "from bob");
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    // even after waiting 1s, the change should not be visible
+    await async.timeout(1000);
     expect(doc.ydoc.getMap("test").get("hello")).to.equal("world");
   });
 
-  it("can load an unknown remote document online", async () => {
+  it("can fork a modified read-only doc", async () => {
     const doc = await DocConnection.create(sessionStoreAlice);
     doc.ydoc.getMap("test").set("hello", "world");
 
     await when(() => doc.remote!.status === "loaded");
 
-    console.log("DOCID", doc.identifier);
     const bobDoc = await DocConnection.load(doc.identifier, sessionStoreBob);
     let bobResource = await bobDoc.waitForDoc();
-
     expect(bobResource.ydoc.getMap("test").get("hello")).to.equal("world");
+
     bobResource.ydoc.getMap("test").set("hello", "from bob");
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    // expect(doc.ydoc.getMap("test").get("hello")).to.equal("world"); // TODO
+    // even after waiting 1s, the change should not be visible
+    await async.timeout(1000);
+    expect(doc.ydoc.getMap("test").get("hello")).to.equal("world");
 
-    // // expect(bobResource.needsFork).to.be.true; TODO
+    expect(bobResource.needsFork).to.be.true;
+
+    await async.timeout(1000);
 
     const fork = await bobResource.fork();
 
@@ -98,7 +102,7 @@ describe.only("DocConnection tests", () => {
 
     expect(fork.getRefs(ForkReference)).to.have.length(1);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // TODO
+    await async.timeout(1000);
 
     // TODO: convoluted API
     const r = await DocConnection.loadInboxResource(
@@ -106,13 +110,13 @@ describe.only("DocConnection tests", () => {
       sessionStoreAlice
     );
 
-    console.log("inbox", r.identifier.toString(), r.ydoc.toJSON());
+    // console.log("inbox", r.identifier.toString(), r.ydoc.toJSON());
 
     const validator = new InboxValidator(r, ForkReference, (id) => {
       const doc = DocConnection.load(id, sessionStoreAlice);
       return doc.waitForDoc();
     });
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // TODO
+    await async.timeout(1000); // TODO
     await when(() => validator.validRefMessages.length > 0);
     expect(validator.validRefMessages).to.have.length(1);
     expect(validator.validRefMessages[0].source).to.equal(

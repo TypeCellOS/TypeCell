@@ -33,7 +33,7 @@ function getWSProvider(session: SupabaseSessionStore) {
       url: "ws://localhost:1234",
       // WebSocketPolyfill: ws,
       onConnect() {
-        console.log("connected");
+        // console.log("connected");
       },
     });
     if (TypeCellRemote.Offline) {
@@ -205,16 +205,14 @@ export class TypeCellRemote extends Remote {
         this.unsyncedChanges = hocuspocusProvider.unsyncedChanges;
       });
     });
-    this.unsyncedChanges = hocuspocusProvider.unsyncedChanges;
-
     this.hocuspocusProvider = hocuspocusProvider;
 
     this._register({
       dispose: () => hocuspocusProvider.destroy(),
     });
-
+    console.log("start");
     this._awarenessAtom.reportChanged();
-    this._canWriteAtom.reportChanged();
+    // this._canWriteAtom.reportChanged();
     // this.hocuspocusProvider?.on("");
   }
   //   `this._register(
