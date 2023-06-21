@@ -5,10 +5,12 @@ import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
 import { expect } from "chai";
 import * as mobx from "mobx";
 import { when } from "mobx";
+import { async } from "vscode-lib";
 import { createWsProvider } from "../../../../packages/server/src/supabase/test/supabaseTestUtil";
 import { loginAsNewRandomUser } from "../../tests/util/loginUtil";
 import { SupabaseSessionStore } from "../app/supabase-auth/SupabaseSessionStore";
 import { DocConnection } from "./DocConnection";
+import { TypeCellRemote } from "./yjs-sync/remote/TypeCellRemote";
 
 async function initSessionStore(name: string) {
   const sessionStore = new SupabaseSessionStore(false);
@@ -23,7 +25,7 @@ async function initSessionStore(name: string) {
   return sessionStore;
 }
 
-describe("DocConnection tests", () => {
+describe("BackgroundSyncer tests", () => {
   let sessionStoreAlice: SupabaseSessionStore;
   let sessionStoreBob: SupabaseSessionStore;
   let wsProvider: HocuspocusProviderWebsocket;
@@ -67,5 +69,38 @@ describe("DocConnection tests", () => {
     const reload = await DocConnection.load(doc.identifier, sessionStoreAlice);
     const reloadedDoc = await reload.waitForDoc();
     expect(reloadedDoc.ydoc.getMap("test").get("hello")).to.eq("world");
+  });
+
+  it.only("creates document remotely that was created offline earlier", async () => {
+    TypeCellRemote.Offline = true;
+    const doc = await DocConnection.create(sessionStoreAlice);
+    doc.ydoc.getMap("test").set("hello", "world");
+    doc.dispose();
+
+    await async.timeout(1000);
+
+    // validate that document is kept around by background syncer
+    expect(
+      sessionStoreAlice.coordinators?.backgroundSyncer?.numberOfDocumentsSyncing
+    ).to.eq(2);
+
+    [...sessionStoreAlice.documentCoordinator!.documents.values()].forEach(
+      (doc) => {
+        expect(doc.exists_at_remote).to.be.false;
+      }
+    );
+
+    TypeCellRemote.Offline = false;
+
+    await when(
+      () =>
+        sessionStoreAlice.coordinators?.backgroundSyncer
+          ?.numberOfDocumentsSyncing === 0
+    );
+    [...sessionStoreAlice.documentCoordinator!.documents.values()].forEach(
+      (doc) => {
+        expect(doc.exists_at_remote).to.be.true;
+      }
+    );
   });
 });

@@ -240,31 +240,6 @@ describe("SyncManager tests", () => {
     );
   });
 
-  // it.only("instant create and load", async () => {
-  //   const id = parseIdentifier(uniqueId.generateId("document"));
-  //   // create document
-  //   const manager = SyncManager.create(id, sessionStore);
-
-  //   await when(() => manager.state.status === "syncing");
-  //   if (manager.state.status !== "syncing") {
-  //     throw new Error("unexpected");
-  //   }
-
-  //   manager.state.localDoc.ydoc.getMap("mymap").set("hello", "world");
-  //   manager.dispose();
-
-  //   const manager2 = SyncManager.load(id, sessionStore);
-
-  //   await when(() => manager2.state.status === "syncing");
-  //   if (manager2.state.status !== "syncing") {
-  //     throw new Error("unexpected");
-  //   }
-
-  //   expect(manager2.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
-  //     "world"
-  //   );
-  // });
-
   it("can create a new document offline", async () => {
     // go offline
     TypeCellRemote.Offline = true;
@@ -288,14 +263,6 @@ describe("SyncManager tests", () => {
       "world"
     );
     manager2.dispose();
-  });
-
-  it("creates document remotely that was created offline earlier", async () => {
-    // go offline
-    // create document
-    // dispose
-    // go online
-    // validate syncing
   });
 
   it("can clear local status and reload", async () => {

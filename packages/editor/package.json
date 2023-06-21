@@ -118,7 +118,7 @@
     "lint": "eslint src",
     "test-watch": "vitest watch",
     "unittest:vitest": "vitest",
-    "unittest:playwright": "playwright-test '**/*.browsertest.ts' --debug",
+    "unittest:playwright": "playwright-test '**/BackgroundSyncer.browsertest.ts' --debug",
     "test": "npm run unittest:vitest",
     "vite:dev": "vite",
     "vite:build": "vite build",

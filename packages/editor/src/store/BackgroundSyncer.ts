@@ -9,6 +9,10 @@ export class BackgroundSyncer extends lifecycle.Disposable {
   private loadedConnections = new Map<string, DocConnection>();
   private identifiersToSync = new ObservableSet<string>();
 
+  public get numberOfDocumentsSyncing() {
+    return this.identifiersToSync.size;
+  }
+
   constructor(
     private readonly coordinator: DocumentCoordinator,
     private readonly sessionStore: SessionStore

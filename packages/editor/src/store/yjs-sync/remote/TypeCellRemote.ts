@@ -135,7 +135,7 @@ export class TypeCellRemote extends Remote {
     } as const;
 
     if (TypeCellRemote.Offline) {
-      throw new Error("offline");
+      throw new Error("fake-offline");
     }
     console.log(
       "insert doc",

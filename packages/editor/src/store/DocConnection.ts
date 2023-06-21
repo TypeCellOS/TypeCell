@@ -196,20 +196,8 @@ export class DocConnection extends lifecycle.Disposable {
       doc.create("!inbox");
       doc.ydoc.getMap("inboxmeta").set("target", identifier.toString()); // TODO
 
-      // debugger;
       // we can dispose immediately, bg manager is responsible for syncing the change
       inboxConnection.dispose();
-      const doc2 = await DocConnection.load(inboxIdentifier, sessionStore);
-      const doc22 = await doc2.waitForDoc();
-      console.log("doc22", doc22.type);
-      doc2.dispose();
-
-      console.log(
-        "bg",
-        (
-          sessionStore.coordinators?.backgroundSyncer as any
-        ).loadedConnections.keys()
-      );
     }
 
     const manager = SyncManager.create(identifier, sessionStore, forkSource);
