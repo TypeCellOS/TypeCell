@@ -23,10 +23,10 @@ function toHex(arr: Uint8Array) {
 }
 
 function getWSProvider(session: SupabaseSessionStore) {
-  if (!session.userId) {
+  if (!session.userPrefix) {
     throw new Error("no user available on create document");
   }
-  let wsProvider = wsProviders.get(session.userId);
+  let wsProvider = wsProviders.get(session.userPrefix);
   if (!wsProvider) {
     console.log("new ws provider");
     wsProvider = new HocuspocusProviderWebsocket({
@@ -39,7 +39,7 @@ function getWSProvider(session: SupabaseSessionStore) {
     if (TypeCellRemote.Offline) {
       wsProvider.disconnect();
     }
-    wsProviders.set(session.userId, wsProvider);
+    wsProviders.set(session.userPrefix, wsProvider);
   }
   return wsProvider;
 }

@@ -331,7 +331,7 @@ export class SyncManager extends lifecycle.Disposable {
     console.log("SyncManager load", identifier.toString());
     let manager = new SyncManager(identifier, sessionStore);
     manager.load().catch((e) => {
-      console.error("error in SyncManager.create", e);
+      console.error("error in SyncManager.load", e);
     });
     // TODO: don't return synced when idb is still loading
 

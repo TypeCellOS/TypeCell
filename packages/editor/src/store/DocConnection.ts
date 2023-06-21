@@ -91,7 +91,7 @@ export class DocConnection extends lifecycle.Disposable {
 
   /** @internal */
   public get awareness() {
-    console.log("awareness", this.manager?.awareness);
+    // console.log("awareness", this.manager?.awareness);
     return this.manager?.awareness;
   }
 
