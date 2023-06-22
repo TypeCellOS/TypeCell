@@ -115,7 +115,7 @@ jobs:
         run: npm run start:preview & npx wait-on http://localhost:4173 -c ./packages/editor/wait-on.conf.json
         env:
           CI: true
-          MODE: staging
+          MODE: development
 
       - name: Run Playwright tests (against preview)
         run: npm run playwright:preview
