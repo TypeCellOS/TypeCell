@@ -25,6 +25,20 @@ export interface Database {
           document_id?: string
           user_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "document_permissions_document_id_fkey"
+            columns: ["document_id"]
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_permissions_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       document_relations: {
         Row: {
@@ -39,6 +53,20 @@ export interface Database {
           child_id?: string
           parent_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "document_relations_child_id_fkey"
+            columns: ["child_id"]
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_relations_parent_id_fkey"
+            columns: ["parent_id"]
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       documents: {
         Row: {
@@ -68,6 +96,14 @@ export interface Database {
           updated_at?: string
           user_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "documents_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       workspaces: {
         Row: {
@@ -94,6 +130,20 @@ export interface Database {
           name?: string
           owner_user_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "workspaces_document_nano_id_fkey"
+            columns: ["document_nano_id"]
+            referencedRelation: "documents"
+            referencedColumns: ["nano_id"]
+          },
+          {
+            foreignKeyName: "workspaces_owner_user_id_fkey"
+            columns: ["owner_user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {
