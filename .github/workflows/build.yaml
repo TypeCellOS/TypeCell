@@ -10,10 +10,32 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
       - name: Setup Node.js 18.x
         uses: actions/setup-node@master
         with:
           node-version: 18.x
+
+      # from https://github.com/supabase/supabase-action-example/
+      - run: supabase db start
+        working-directory: packages/server
+      - run: supabase db lint
+        working-directory: packages/server
+      - run: supabase test db
+        working-directory: packages/server
+
+      - name: Verify generated supabase types are checked in
+        working-directory: packages/server
+        run: |
+          npm run gentypes
+          if ! git diff --ignore-space-at-eol --exit-code --quiet src/types/schema.ts; then
+            echo "Detected uncommitted changes after build. See status below:"
+            git diff
+            exit 1
+          fi
 
       # doesn't seem to cause significant speed up, probably because it still needs to install deps
       - name: cache playwright
@@ -45,17 +67,17 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
-      - name: Set correct access for docker containers (server/test/data)
-        run: chmod -R a+rw test-util/server/data
+      # - name: Set correct access for docker containers (server/test/data)
+      #   run: chmod -R a+rw test-util/server/data
 
-      - name: Build the docker-compose stack
-        run: docker-compose -f test-util/server/docker-compose.yml up -d
+      # - name: Build the docker-compose stack
+      #   run: docker-compose -f test-util/server/docker-compose.yml up -d
 
-      - name: Check running containers
-        run: docker ps -a
+      # - name: Check running containers
+      #   run: docker ps -a
 
-      - name: Check docker logs
-        run: docker logs synapse
+      # - name: Check docker logs
+      #   run: docker logs synapse
 
       - name: NPM CI
         run: npm ci
@@ -63,11 +85,16 @@ jobs:
       # - name: Bootstrap packages
       #   run: npm run bootstrap
 
-      - name: Wait for Matrix
-        run: npx wait-on http://localhost:8888/_matrix/static/
+      # - name: Wait for Matrix
+      #   run: npx wait-on http://localhost:8888/_matrix/static/
 
       - name: Build packages
         run: npm run build
+        env:
+          CI: true
+
+      - name: Lint
+        run: npm run lint
         env:
           CI: true
 
@@ -77,31 +104,19 @@ jobs:
         # env:
         # PLAYWRIGHT_BROWSERS_PATH: 0 # https://github.com/microsoft/playwright/blob/main/docs/src/ci.md#caching-browsers
 
-      - name: Lint
-        run: npm run lint
+      - name: Start HocusPocus server
+        run: npm run start:server
         env:
           CI: true
 
-      # Option A: don't build in CI, but test against dev server
-      # (with Vite, building in CI is now fast enough so we can go for option B)
-
-      # - name: Run dev server
-      #   # Wait on config file needed for vite dev server: https://github.com/jeffbski/wait-on/issues/78
-      #   run: npm run start:local & npx wait-on http://localhost:5173 -c ./packages/editor/wait-on.conf.json
-      #   env:
-      #     CI: true
-
-      # - name: Run Playwright tests (against dev server)
-      #   run: npm run playwright:dev
-
-      # Option B: actually build and run react code and run tests against that
-      - name: Build and run preview server
+      # Actually build and run react code and run tests against that
+      - name: Build and run preview
         # Wait on config file needed for vite dev server: https://github.com/jeffbski/wait-on/issues/78
         run: npm run start:preview & npx wait-on http://localhost:4173 -c ./packages/editor/wait-on.conf.json
         env:
           CI: true
 
-      - name: Run Playwright tests (against preview server)
+      - name: Run Playwright tests (against preview)
         run: npm run playwright:preview
 
       - uses: actions/upload-artifact@v2

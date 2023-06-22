@@ -114,7 +114,8 @@ create table "public"."workspaces" (
     "created_at" timestamp with time zone not null default now(),
     "name" character varying not null,
     "owner_user_id" uuid not null,
-    "is_username" boolean not null
+    "is_username" boolean not null,
+    "document_nano_id" character varying not null
 );
 
 alter table "public"."workspaces" enable row level security;
@@ -131,6 +132,11 @@ alter table "public"."workspaces" add constraint "workspaces_owner_user_id_fkey"
 
 alter table "public"."workspaces" validate constraint "workspaces_owner_user_id_fkey";
 
+alter table "public"."workspaces" add constraint "workspaces_document_nano_id_fkey" FOREIGN KEY (document_nano_id) REFERENCES documents(nano_id) not valid;
+
+alter table "public"."workspaces" validate constraint "workspaces_document_nano_id_fkey";
+
+
 create policy "Enable insert for authenticated users only"
 on "public"."workspaces"
 as permissive
@@ -145,6 +151,9 @@ as permissive
 for select
 to public
 using (true);
+
+
+
 
 -- TODO: prevent select * using https://stackoverflow.com/questions/74283527/postgresql-remove-ability-to-query-every-row-in-a-table
 -- TODO: validate formats of nanoids and usernames
