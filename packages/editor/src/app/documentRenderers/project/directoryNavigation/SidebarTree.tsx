@@ -7,15 +7,8 @@ import Tree, {
   TreeDestinationPosition,
   TreeSourcePosition,
 } from "@atlaskit/tree";
-import _ from "lodash";
 import { observer } from "mobx-react-lite";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import {
   VscAdd,
   VscChevronDown,
@@ -122,24 +115,34 @@ const RenderItem =
     );
   };
 
+function updateAkTree(oldTree: TreeData, newTree: TreeData) {
+  for (let [key, item] of Object.entries(newTree.items)) {
+    if (oldTree.items[key]) {
+      item.isExpanded = oldTree.items[key].isExpanded;
+    }
+  }
+}
+
 export const SidebarTree = observer(
   (props: {
     tree: TreeData;
     onClick: (item: Identifier) => void;
     onAddNewPage: (parent?: string) => Promise<void>;
   }) => {
-    const [akTree, setAktree] = useState(props.tree);
+    // A little cumbersome logic because we want to update the currentTree
+    // both from outside this component and inside
+    const currentTree = useRef(props.tree);
+    const prevTreeFromProps = useRef(props.tree);
     const cache = useRef(new Map<string, DocConnection>());
+    const [forceUpdate, setForceUpdate] = React.useState(0);
 
-    const updateAkTree = (newTree: TreeData) => {
-      for (let [key, item] of Object.entries(newTree.items)) {
-        if (akTree.items[key]) {
-          item.isExpanded = akTree.items[key].isExpanded;
-        }
-      }
-
-      setAktree(newTree);
-    };
+    // detect change in props
+    if (prevTreeFromProps.current !== props.tree) {
+      updateAkTree(currentTree.current, props.tree);
+      currentTree.current = props.tree;
+      prevTreeFromProps.current = props.tree;
+    }
+    const akTree = currentTree.current;
 
     useEffect(() => {
       const itemsToLoad = new Set<string>();
@@ -168,26 +171,18 @@ export const SidebarTree = observer(
       }
     }, [akTree]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const update = useCallback(
-      _.debounce(updateAkTree, 100, { leading: true }),
-      [akTree]
-    );
-
-    useEffect(() => {
-      update(props.tree);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.tree]);
-
     const onExpand = (id: ItemId) => {
       const mutated = mutateTree(akTree, id, {
         isExpanded: true,
       });
-      setAktree(mutated);
+      currentTree.current = mutated;
+      setForceUpdate(forceUpdate + 1);
     };
 
     const onCollapse = (id: ItemId) => {
-      setAktree(mutateTree(akTree, id, { isExpanded: false }));
+      const mutated = mutateTree(akTree, id, { isExpanded: false });
+      currentTree.current = mutated;
+      setForceUpdate(forceUpdate + 1);
     };
 
     const renderItem = useMemo(
