@@ -29,7 +29,7 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node dist/server/src/index.js",
     "clean": "rimraf dist && rimraf types",
     "dev": "vite-node src/index.ts",
     "build": "npm run clean && tsc -p tsconfig.json",
