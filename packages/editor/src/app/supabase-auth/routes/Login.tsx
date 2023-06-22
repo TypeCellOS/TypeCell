@@ -9,9 +9,13 @@ import {
 import { createClient } from "@supabase/supabase-js";
 import { SessionStore } from "../../../store/local/SessionStore";
 import { Logo } from "../../main/components/Logo";
-import { ANON_KEY } from "../supabaseConfig";
+
 import AuthStyles from "./AuthStyles.module.css";
-const supabase = createClient("http://localhost:54321", ANON_KEY);
+
+const supabase = createClient(
+  import.meta.env.VITE_TYPECELL_SUPABASE_URL,
+  import.meta.env.VITE_TYPECELL_SUPABASE_ANON_KEY
+);
 
 export const Login = observer((props: { sessionStore: SessionStore }) => {
   const { sessionStore } = props;

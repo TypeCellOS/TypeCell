@@ -5,7 +5,7 @@ import { SessionStore } from "../../store/local/SessionStore";
 // @ts-ignore
 import { uniqueId } from "@typecell-org/common";
 import * as Y from "yjs";
-import type { Database } from "../../../../../packages/server/src/types/schema";
+import type { Database } from "../../../../server/src/@types/schema";
 import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
 import {
   DefaultShorthandResolver,
@@ -15,7 +15,6 @@ import { BaseResource } from "../../store/BaseResource";
 import ProfileResource from "../../store/ProfileResource";
 import { TypeCellRemote } from "../../store/yjs-sync/remote/TypeCellRemote";
 import { navigateRef } from "../GlobalNavigateRef";
-import { ANON_KEY } from "./supabaseConfig";
 
 
 export type SupabaseClientType = ReturnType<typeof createClient<Database>>;
@@ -106,7 +105,7 @@ export class SupabaseSessionStore extends SessionStore {
       isLoggedIn: computed,
       isLoaded: computed,
     });
-    this.supabase = createClient<Database>("http://localhost:54321", ANON_KEY, {
+    this.supabase = createClient<Database>(import.meta.env.VITE_TYPECELL_SUPABASE_URL, import.meta.env.VITE_TYPECELL_SUPABASE_ANON_KEY, {
       auth: {
         persistSession: persist,
       },

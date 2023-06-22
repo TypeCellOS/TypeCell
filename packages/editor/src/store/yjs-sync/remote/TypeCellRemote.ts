@@ -30,7 +30,7 @@ function getWSProvider(session: SupabaseSessionStore) {
   if (!wsProvider) {
     console.log("new ws provider");
     wsProvider = new HocuspocusProviderWebsocket({
-      url: "ws://localhost:1234",
+      url: import.meta.env.VITE_TYPECELL_BACKEND_WS_URL,
       // WebSocketPolyfill: ws,
       onConnect() {
         // console.log("connected");

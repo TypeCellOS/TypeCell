@@ -1,5 +1,4 @@
-import { ENVIRONMENT } from "./config";
-
+const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT;
 /*
 Helper functions to ensure we're loading the application (host) and user-code frame (sandbox) from the correct domains
 
@@ -20,7 +19,7 @@ PROD:
 export function validateHostDomain() {
   const hostname = window.location.hostname;
 
-  if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
+  if (ENVIRONMENT === "DEV") {
     return hostname === "localhost";
   }
 
@@ -35,7 +34,7 @@ export function validateHostDomain() {
 export function validateFrameDomain() {
   const hostname = window.location.hostname;
 
-  if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
+  if (ENVIRONMENT === "DEV") {
     return hostname === "localhost";
     // return hostname === "127.0.0.1";
   }
@@ -47,7 +46,7 @@ export function validateFrameDomain() {
 }
 
 export function getFrameDomain() {
-  if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
+  if (ENVIRONMENT === "DEV") {
     const port = window.location.host.match(/^localhost:(\d+)$/)![1];
     // return "127.0.0.1:" + port;
     return "localhost:" + port;
@@ -61,7 +60,7 @@ export function getFrameDomain() {
 }
 
 export function getMainDomainFromIframe() {
-  if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
+  if (ENVIRONMENT === "DEV") {
     // const port = window.location.host.match(/^127\.0\.0\.1:(\d+)$/)![1];
     const port = window.location.host.match(/^localhost:(\d+)$/)![1];
     return "localhost:" + port;

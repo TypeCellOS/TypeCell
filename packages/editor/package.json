@@ -106,12 +106,10 @@
     "copytypes:alldeps": "npm run copytypes:dep --pkgname=common && npm run copytypes:dep --pkgname=engine",
     "copytypes": "npm run copytypes:self && npm run copytypes:alldeps && npm run copytypes:allexternaldeps",
     "start": "npm run copytypes && npm run vite:dev",
-    "start:local": "npm run copytypes && cross-env VITE_REACT_APP_HOMESERVER_URI=http://localhost:8888 VITE_REACT_APP_HOMESERVER_NAME=test.typecell.org npm run vite:dev",
     "copy-docs": "node copy-docs.mjs > public/_docs/index.json",
     "build": "tsc -v && npm run copytypes && npm run copy-docs",
     "build:react": "npm run build && cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true npm run vite:build",
-    "build:react:local-preview": "npm run build && cross-env NODE_OPTIONS=--max_old_space_size=8192 VITE_REACT_APP_PREVIEW=true VITE_REACT_APP_HOMESERVER_URI=http://localhost:8888 VITE_REACT_APP_HOMESERVER_NAME=test.typecell.org npm run vite:build",
-    "build:react:preview": "npm run build && cross-env NODE_OPTIONS=--max_old_space_size=8192 VITE_REACT_APP_PREVIEW=true npm run vite:build",
+    "build:react:staging": "npm run build && cross-env NODE_OPTIONS=--max_old_space_size=8192 npm run vite:build --mode=staging",
     "install-playwright": "npx playwright install --with-deps",
     "playwright:dev": "cross-env TYPECELL_BASE_URL=http://localhost:5173 npx playwright test --ui",
     "playwright:preview": "cross-env TYPECELL_BASE_URL=http://localhost:4173 npx playwright test",
@@ -123,7 +121,7 @@
     "vite:dev": "vite",
     "vite:build": "vite build",
     "vite:preview": "vite preview",
-    "preview": "npm run build:react:local-preview && npm run vite:preview"
+    "preview": "npm run build:react && npm run vite:preview"
   },
   "eslintConfig": {
     "extends": [

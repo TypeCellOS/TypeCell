@@ -8,7 +8,8 @@
     "@hocuspocus/extension-logger": "^2.1.0",
     "@hocuspocus/server": "^2.1.0",
     "@supabase/supabase-js": "^2.12.1",
-    "vscode-lib": "^0.1.2"
+    "vscode-lib": "^0.1.2",
+    "dotenv": "^16.3.1"
   },
   "devDependencies": {
     "@hocuspocus/provider": "^2.1.0",
@@ -31,7 +32,7 @@
   "scripts": {
     "start": "node dist/server/src/index.js",
     "clean": "rimraf dist && rimraf types",
-    "dev": "vite-node src/index.ts",
+    "dev": "MODE=development vite-node src/index.ts",
     "build": "npm run clean && tsc -p tsconfig.json",
     "watch": "tsc --watch",
     "test-watch": "vitest watch",

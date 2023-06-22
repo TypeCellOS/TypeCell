@@ -29,7 +29,6 @@
     "start": "npm run start-react",
     "start-filebridge": "npx filebridge packages/editor/public/_docs",
     "start-react": "lerna run --scope @typecell-org/editor start --stream",
-    "start:local": "lerna run --scope @typecell-org/editor start:local --stream",
     "start:preview": "lerna run --scope @typecell-org/editor preview --stream",
     "start:server": "lerna run --scope @typecell-org/server dev --stream",
     "prepublishOnly": "npm run test && npm run build",
