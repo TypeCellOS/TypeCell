@@ -2,10 +2,10 @@ begin;
 select plan(1); -- only one statement to run
 
 SELECT has_column(
-    'auth',
-    'users',
-    'id',
-    'id should exist'
+    'public',
+    'documents',
+    'nano_id',
+    'nano_id should exist'
 );
 
 select * from finish();
