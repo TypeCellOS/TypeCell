@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Database } from "../types/schema";
+import type { Database } from "../types/schema";
 
 const SUPABASE_URL = "http://localhost:54321/";
 const ANON_KEY =

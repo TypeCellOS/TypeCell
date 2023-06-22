@@ -11,7 +11,10 @@ import {
   storePayload,
 } from "@hocuspocus/server";
 import * as Y from "yjs";
-import { createAnonClient, createServiceClient } from "../../supabase/supabase";
+import {
+  createAnonClient,
+  createServiceClient,
+} from "../../supabase/supabase.js";
 
 const documentIdByDocument = new WeakMap<Y.Doc, string>();
 // export const schema = `CREATE TABLE IF NOT EXISTS "documents" (

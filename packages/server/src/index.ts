@@ -4,7 +4,7 @@ import {
   onChangePayload,
   Server,
 } from "@hocuspocus/server";
-import { SupabaseHocuspocus } from "./hocuspocus/extension-supabase/SupabaseHocuspocus";
+import { SupabaseHocuspocus } from "./hocuspocus/extension-supabase/SupabaseHocuspocus.js";
 
 async function onAuthenticate(data: onAuthenticatePayload) {
   const { token } = data;
