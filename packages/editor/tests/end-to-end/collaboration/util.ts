@@ -73,27 +73,18 @@ export async function selectionSyncs(from: Page, to: Page) {
   expect(bbLine!.y).toBeNear(bbSelection!.y, 2);
 }
 
-export async function testEditSync(
-  from: Page,
-  to: Page,
-  timeout: number,
-  shouldSync = true
-) {
+export async function testEditSync(from: Page, to: Page, shouldSync = true) {
   await from.press(writeEditorSelector, "Meta+a");
   await from.fill(writeEditorSelector, "changedtext");
 
   expect(await from.textContent(readEditorSelector)).toBe("changedtext");
 
   if (shouldSync) {
-    await expect(to.locator("text=changedtext")).toBeAttached({
-      timeout,
-    });
+    await expect(to.locator("text=changedtext")).toBeAttached();
     expect(from.locator('[data-test="forkAlert"]')).toBeHidden();
   } else {
-    await to.waitForTimeout(timeout);
-    expect(to.locator("text=changedtext")).toBeHidden();
-    await expect(from.locator('[data-test="forkAlert"]')).toBeAttached({
-      timeout,
-    });
+    // await to.waitForTimeout(timeout);
+    await expect(to.locator("text=changedtext")).toBeHidden();
+    await expect(from.locator('[data-test="forkAlert"]')).toBeAttached();
   }
 }

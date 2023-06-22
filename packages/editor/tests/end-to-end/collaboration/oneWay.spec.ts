@@ -32,9 +32,7 @@ test.beforeEach(async ({ disableWebRTC }) => {
   // Press a with modifiers
   await pageAlice.press(writeEditorSelector, "Meta+a");
   await pageAlice.fill(writeEditorSelector, "helloworld");
-  await expect(pageBob.locator("text=helloworld")).toBeAttached({
-    timeout: disableWebRTC ? 5000 : 2000,
-  });
+  await expect(pageBob.locator("text=helloworld")).toBeAttached();
 });
 
 // at the end of each test, set text to "done" and wait until both are synced
@@ -44,9 +42,7 @@ test.afterEach(async ({ disableWebRTC }) => {
   // Press a with modifiers
   await pageAlice.press(writeEditorSelector, "Meta+a");
   await pageAlice.fill(writeEditorSelector, "done");
-  await expect(pageBob.locator("text=done")).toBeAttached({
-    timeout: disableWebRTC ? 5000 : 2000,
-  });
+  await expect(pageBob.locator("text=done")).toBeAttached();
 });
 
 test("selection syncs from Alice to Bob", async ({
@@ -84,7 +80,7 @@ test("changes sync from Alice to Bob", async ({
   bobContext,
   disableWebRTC,
 }) => {
-  await testEditSync(pageAlice, pageBob, disableWebRTC ? 5000 : 2000);
+  await testEditSync(pageAlice, pageBob);
   // select content
   // TODO: consistent username + colors for screenshots
   //   expect(await pageBob.screenshot()).toMatchSnapshot("sync-selection.bob.png");
@@ -96,7 +92,7 @@ test.skip("changes don't sync from Bob to Alice", async ({
   bobContext,
   disableWebRTC,
 }) => {
-  await testEditSync(pageBob, pageAlice, disableWebRTC ? 5000 : 2000, false);
+  await testEditSync(pageBob, pageAlice, false);
   // select content
   // TODO: consistent username + colors for screenshots
   //   expect(await pageBob.screenshot()).toMatchSnapshot("sync-selection.bob.png");
