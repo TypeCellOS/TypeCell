@@ -97,7 +97,6 @@ export const OwnerAliasRoute = observer(
           return;
         }
 
-        // @ts-expect-error
         const nanoId = data.document_nano_id;
         const id = new TypeCellIdentifier(
           uri.URI.from({
