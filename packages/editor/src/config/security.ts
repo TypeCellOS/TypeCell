@@ -32,10 +32,13 @@ export function validateHostDomain() {
 }
 
 export function validateSupabaseConfig() {
-  if (import.meta.env.VITE_SUPABASE_URL.includes("guzxrzrjknsekuefovon")) {
+  if (
+    import.meta.env.VITE_TYPECELL_SUPABASE_URL.includes("guzxrzrjknsekuefovon")
+  ) {
     // only allow prod database on prod environment
     return ENVIRONMENT === "PROD";
   }
+  return true;
 }
 
 export function validateFrameDomain() {
