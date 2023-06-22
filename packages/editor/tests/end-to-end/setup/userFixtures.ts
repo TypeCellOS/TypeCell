@@ -35,7 +35,7 @@ async function registerUserMatrix(
   page: Page,
   user: { username: string; password: string }
 ) {
-  await page.goto(process.env.TYPECELL_BASE_URL + "/register");
+  await page.goto("/register");
   const field = page.locator("input[name='username']");
   await field.type(user.username);
   const pwField = page.locator("input[name='password']");
@@ -58,7 +58,7 @@ async function registerUserSupabase(
   page: Page,
   user: { username: string; password: string }
 ) {
-  await page.goto(process.env.TYPECELL_BASE_URL + "/register");
+  await page.goto("/register");
   const field = page.locator("input[name='email']");
   await field.type(user.username + "@fakeemail.typecell.org");
   const pwField = page.locator("input[name='password']");
