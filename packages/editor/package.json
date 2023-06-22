@@ -109,7 +109,6 @@
     "copy-docs": "node copy-docs.mjs > public/_docs/index.json",
     "build": "tsc -v && npm run copytypes && npm run copy-docs",
     "build:react": "npm run build && cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true npm run vite:build",
-    "build:react:staging": "npm run build && cross-env NODE_OPTIONS=--max_old_space_size=8192 npm run vite:build --mode=staging",
     "install-playwright": "npx playwright install --with-deps",
     "playwright:dev": "cross-env TYPECELL_BASE_URL=http://localhost:5173 npx playwright test --ui",
     "playwright:preview": "cross-env TYPECELL_BASE_URL=http://localhost:4173 npx playwright test",
@@ -119,7 +118,7 @@
     "unittest:playwright": "playwright-test '**/BackgroundSyncer.browsertest.ts' --debug",
     "test": "npm run unittest:vitest",
     "vite:dev": "vite",
-    "vite:build": "vite build",
+    "vite:build": "vite build --mode=$MODE",
     "vite:preview": "vite preview",
     "preview": "npm run build:react && npm run vite:preview"
   },
