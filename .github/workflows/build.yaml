@@ -31,7 +31,7 @@ jobs:
         working-directory: packages/server
         run: |
           npm run gentypes
-          if ! git diff --ignore-space-at-eol --exit-code --quiet src/types/schema.ts; then
+          if ! git diff --ignore-space-at-eol --exit-code --quiet src/@types/schema.ts; then
             echo "Detected uncommitted changes after build. See status below:"
             git diff
             exit 1
