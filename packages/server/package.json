@@ -3,14 +3,14 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
-    "@hocuspocus/extension-database": "file:/Users/yousef/Programming/hocuspocus/packages/extension-database",
-    "@hocuspocus/extension-logger": "file:/Users/yousef/Programming/hocuspocus/packages/extension-logger",
-    "@hocuspocus/server": "file:/Users/yousef/Programming/hocuspocus/packages/server",
+    "@hocuspocus/extension-database": "^2.1.0",
+    "@hocuspocus/extension-logger": "^2.1.0",
+    "@hocuspocus/server": "^2.1.0",
     "@supabase/supabase-js": "^2.12.1",
     "vscode-lib": "^0.1.2"
   },
   "devDependencies": {
-    "@hocuspocus/provider": "file:/Users/yousef/Programming/hocuspocus/packages/provider",
+    "@hocuspocus/provider": "^2.1.0",
     "@playwright/test": "^1.33.0",
     "@vitest/coverage-c8": "^0.24.4",
     "jsdom": "^20.0.0",

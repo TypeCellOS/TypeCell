@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
-    "@hocuspocus/provider": "file:/Users/yousef/Programming/hocuspocus/packages/provider",
+    "@hocuspocus/provider": "^2.1.0",
     "@atlaskit/atlassian-navigation": "^2.2.6",
     "@atlaskit/avatar": "^21.1.1",
     "@atlaskit/banner": "^11.6.1",

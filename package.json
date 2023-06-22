@@ -7,7 +7,7 @@
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
     "lerna": "^5.0.0",
-    "patch-package": "^6.4.7",
+    "patch-package": "^7.0.0",
     "playwright": "^1.33.0"
   },
   "workspaces": [
