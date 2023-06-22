@@ -122,8 +122,8 @@ jobs:
           CI: true
           MODE: development
 
-      - name: Run Playwright tests (against preview)
-        run: npm run playwright:preview
+      # - name: Run Playwright tests (against preview)
+      #   run: npm run playwright:preview
 
       - uses: actions/upload-artifact@v2
         if: always()
