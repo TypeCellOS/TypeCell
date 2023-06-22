@@ -31,6 +31,13 @@ export function validateHostDomain() {
   );
 }
 
+export function validateSupabaseConfig() {
+  if (import.meta.env.VITE_SUPABASE_URL.includes("guzxrzrjknsekuefovon")) {
+    // only allow prod database on prod environment
+    return ENVIRONMENT === "PROD";
+  }
+}
+
 export function validateFrameDomain() {
   const hostname = window.location.hostname;
 
@@ -40,7 +47,7 @@ export function validateFrameDomain() {
   }
 
   if (ENVIRONMENT === "STAGING") {
-    return hostname.match(/^typecell-next-[A-z0-9-]+-yousefed.vercel.app$/);
+    return hostname.match(/^typecell-[A-z0-9-]+-typecell.vercel.app$/);
   }
   return hostname.match(/^.*\.typescriptrepl\.com$/);
 }

@@ -9,7 +9,7 @@ import { matrixAuthProvider } from "./app/matrix-auth/MatrixAuthProvider";
 import { SupabaseSessionStore } from "./app/supabase-auth/SupabaseSessionStore";
 import { supabaseAuthProvider } from "./app/supabase-auth/supabaseAuthProvider";
 import { DEFAULT_PROVIDER } from "./config/config";
-import { validateHostDomain } from "./config/security";
+import { validateHostDomain, validateSupabaseConfig } from "./config/security";
 import { setMonacoDefaults } from "./runtime/editor";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
 import setupNpmTypeResolver from "./runtime/editor/languages/typescript/npmTypeResolver";
@@ -35,6 +35,10 @@ console.log("Loading host", window.location.href);
 async function init() {
   if (!validateHostDomain()) {
     throw new Error("invalid hostname for host");
+  }
+
+  if (!validateSupabaseConfig()) {
+    throw new Error("accessing prod db on non-prod");
   }
 
   yjsBindings.enableMobxBindings(mobx);
