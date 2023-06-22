@@ -2,6 +2,7 @@ import { Page } from "@playwright/test";
 import { test } from "../setup/fixtures";
 import {
   createNotebook,
+  readEditorSelector,
   selectionSyncs,
   testEditSync,
   writeEditorSelector,
@@ -34,6 +35,7 @@ test.beforeAll(async ({ aliceContext, bobContext }) => {
 
   // TODO: would be nice to have a way to apply permissions on the fly with hocuspocus
   await pageBob.reload();
+  await pageBob.waitForSelector(readEditorSelector);
 });
 
 test.afterAll(() => {
