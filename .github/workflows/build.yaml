@@ -20,7 +20,7 @@ jobs:
           node-version: 18.x
 
       # from https://github.com/supabase/supabase-action-example/
-      - run: supabase db start --debug
+      - run: supabase start --debug
         working-directory: packages/server
       - run: supabase db lint
         working-directory: packages/server
