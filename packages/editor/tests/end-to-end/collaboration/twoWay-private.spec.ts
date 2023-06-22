@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { Page, expect } from "@playwright/test";
 import { test } from "../setup/fixtures";
 import {
   createNotebook,
@@ -51,7 +51,7 @@ test.beforeEach(async ({ disableWebRTC }) => {
   await pageAlice.press(writeEditorSelector, "Meta+a");
   await pageAlice.fill(writeEditorSelector, "helloworld");
 
-  await pageBob.waitForSelector("text=helloworld", {
+  await expect(pageBob.locator("text=helloworld")).toBeAttached({
     timeout: disableWebRTC ? 5000 : 2000,
   });
 });
@@ -64,7 +64,7 @@ test.afterEach(async ({ disableWebRTC }) => {
   await pageAlice.press(writeEditorSelector, "Meta+a");
   await pageAlice.fill(writeEditorSelector, "done");
 
-  await pageBob.waitForSelector("text=done", {
+  await expect(pageBob.locator("text=done")).toBeAttached({
     timeout: disableWebRTC ? 5000 : 2000,
   });
 });

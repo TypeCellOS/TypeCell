@@ -29,14 +29,14 @@ export async function createNotebook(
   await pageAlice.click('button:has-text("Create")');
 
   // wait until alice loads
-  await pageAlice.waitForSelector(readEditorSelector);
+  await expect(pageAlice.locator(readEditorSelector)).toBeAttached();
 
   const pageBob = await bobContext.newPage();
   //   debugger;
   await pageBob.goto(pageAlice.url());
 
   // wait until bob loads
-  await pageBob.waitForSelector(readEditorSelector);
+  await expect(pageBob.locator(readEditorSelector)).toBeAttached();
 
   return { pageAlice, pageBob };
 }
@@ -85,13 +85,15 @@ export async function testEditSync(
   expect(await from.textContent(readEditorSelector)).toBe("changedtext");
 
   if (shouldSync) {
-    await to.waitForSelector("text=changedtext", {
+    await expect(to.locator("text=changedtext")).toBeAttached({
       timeout,
     });
     expect(from.locator('[data-test="forkAlert"]')).toBeHidden();
   } else {
     await to.waitForTimeout(timeout);
     expect(to.locator("text=changedtext")).toBeHidden();
-    await from.waitForSelector('[data-test="forkAlert"]');
+    await expect(from.locator('[data-test="forkAlert"]')).toBeAttached({
+      timeout,
+    });
   }
 }
