@@ -6,6 +6,7 @@ import * as process from "process";
 import { createRoot } from "react-dom/client";
 import App from "./app/App";
 import { matrixAuthProvider } from "./app/matrix-auth/MatrixAuthProvider";
+import { SupabaseSessionStore } from "./app/supabase-auth/SupabaseSessionStore";
 import { supabaseAuthProvider } from "./app/supabase-auth/supabaseAuthProvider";
 import { DEFAULT_PROVIDER } from "./config/config";
 import { validateHostDomain } from "./config/security";
@@ -13,6 +14,7 @@ import { setMonacoDefaults } from "./runtime/editor";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
 import setupNpmTypeResolver from "./runtime/editor/languages/typescript/npmTypeResolver";
 import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typecellTypeResolver";
+import { SessionStore } from "./store/local/SessionStore";
 import "./styles/index.css";
 
 // polyfills (mostly required for matrix-crdt)
@@ -46,11 +48,18 @@ async function init() {
   const authProvider =
     DEFAULT_PROVIDER === "matrix" ? matrixAuthProvider : supabaseAuthProvider;
 
+  const sessionStore: SessionStore =
+    DEFAULT_PROVIDER === "matrix"
+      ? new SupabaseSessionStore() //new MatrixSessionStore(new MatrixAuthStore())
+      : new SupabaseSessionStore();
+
+  await sessionStore.initialize();
+
   root.render(
     // TODO: support strictmode
     // <React.StrictMode>
     <MonacoContext.Provider value={{ monaco }}>
-      <App authProvider={authProvider} />
+      <App authProvider={authProvider} sessionStore={sessionStore} />
     </MonacoContext.Provider>
     // </React.StrictMode>
   );

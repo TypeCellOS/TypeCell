@@ -10,7 +10,7 @@ import {
 } from "../../identifiers/paths/identifierPathHelpers";
 import { DocConnection } from "../../store/DocConnection";
 import ProfileResource from "../../store/ProfileResource";
-import { getStoreService } from "../../store/local/stores";
+import { SessionStore } from "../../store/local/SessionStore";
 import DocumentView from "../documentRenderers/DocumentView";
 import { SupabaseSessionStore } from "../supabase-auth/SupabaseSessionStore";
 import { RouteContext } from "./RouteContext";
@@ -19,10 +19,10 @@ type Props = {
   owner: string;
   workspace?: string;
   document?: string;
+  sessionStore: SessionStore;
 };
 export const OwnerAliasRoute = observer(
-  ({ owner, workspace, document }: Props) => {
-    const sessionStore = getStoreService().sessionStore;
+  ({ owner, workspace, document, sessionStore }: Props) => {
     if (!(sessionStore instanceof SupabaseSessionStore)) {
       throw new Error("No session store");
     }
@@ -50,13 +50,13 @@ export const OwnerAliasRoute = observer(
         return;
       }
 
-      const doc = DocConnection.load(ownerProfileIdentifier);
+      const doc = DocConnection.load(ownerProfileIdentifier, sessionStore);
       setOwnerDoc(doc);
 
       return () => {
         doc.dispose();
       };
-    }, [ownerProfileIdentifier]);
+    }, [ownerProfileIdentifier, sessionStore]);
 
     // TODO: cache in local alias cache
     useEffect(() => {
@@ -142,7 +142,11 @@ export const OwnerAliasRoute = observer(
       const id = parseFullIdentifierString(ownerProfileIdentifier);
       return (
         <RouteContext.Provider value={{ groups: [[id]] }}>
-          <DocumentView id={id} subIdentifiers={[]} />
+          <DocumentView
+            id={id}
+            subIdentifiers={[]}
+            sessionStore={sessionStore}
+          />
         </RouteContext.Provider>
       );
     }
@@ -191,7 +195,11 @@ export const OwnerAliasRoute = observer(
       return (
         <RouteContext.Provider
           value={{ groups: [[doc.identifier], [parsedIdentifier]] }}>
-          <DocumentView id={parsedIdentifier} subIdentifiers={[]} />
+          <DocumentView
+            id={parsedIdentifier}
+            subIdentifiers={[]}
+            sessionStore={sessionStore}
+          />
         </RouteContext.Provider>
       );
     }
@@ -200,7 +208,11 @@ export const OwnerAliasRoute = observer(
     return (
       <RouteContext.Provider
         value={{ groups: [[doc.identifier], [id, ...subs]] }}>
-        <DocumentView id={id} subIdentifiers={subs} />
+        <DocumentView
+          id={id}
+          subIdentifiers={subs}
+          sessionStore={sessionStore}
+        />
       </RouteContext.Provider>
     );
 

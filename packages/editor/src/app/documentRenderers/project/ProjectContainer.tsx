@@ -12,6 +12,7 @@ import { identifiersToPath } from "../../../identifiers/paths/identifierPathHelp
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
 import ProjectResource from "../../../store/ProjectResource";
+import { SessionStore } from "../../../store/local/SessionStore";
 import { ChildReference } from "../../../store/referenceDefinitions/child";
 import styles from "./ProjectContainer.module.css";
 import SidebarTree from "./directoryNavigation/SidebarTree";
@@ -21,6 +22,7 @@ type Props = {
   activeChild?: Identifier;
   isNested?: boolean;
   children?: any;
+  sessionStore: SessionStore;
 };
 
 let id = 0;
@@ -28,11 +30,12 @@ let id = 0;
 function docToTreeItem(
   doc: BaseResource,
   items: Record<string, TreeItem>,
+  sessionStore: SessionStore,
   root = false
 ) {
   const children = doc.getRefs(ChildReference);
   const childrenWithDocs = children.map((c) => {
-    const doc = DocConnection.get(c.target);
+    const doc = DocConnection.get(c.target, sessionStore);
     const resource = doc?.tryDoc;
     return {
       doc: resource,
@@ -49,7 +52,7 @@ function docToTreeItem(
 
   childrenWithLoadedDocs.forEach((c) => {
     if (c.doc) {
-      childrenIds.push(docToTreeItem(c.doc, items).id as string);
+      childrenIds.push(docToTreeItem(c.doc, items, sessionStore).id as string);
     }
   });
 
@@ -77,9 +80,13 @@ function docToTreeItem(
   return ret;
 }
 
-function docToAkTree(doc: BaseResource, activeId?: Identifier) {
+function docToAkTree(
+  doc: BaseResource,
+  sessionStore: SessionStore,
+  activeId?: Identifier
+) {
   const items: Record<string, TreeItem> = {};
-  const rootItem = docToTreeItem(doc, items, true);
+  const rootItem = docToTreeItem(doc, items, sessionStore, true);
   const root: TreeData = {
     rootId: rootItem.id,
     items,
@@ -106,7 +113,11 @@ function docToAkTree(doc: BaseResource, activeId?: Identifier) {
 const ProjectContainer = observer((props: Props) => {
   const navigate = useNavigate();
 
-  const tree = docToAkTree(props.project, props.activeChild);
+  const tree = docToAkTree(
+    props.project,
+    props.sessionStore,
+    props.activeChild
+  );
 
   // const files = Array.from(props.project.files.keys()).sort();
 
@@ -117,7 +128,7 @@ const ProjectContainer = observer((props: Props) => {
   // );
 
   const onAddPageHandler = async (parentId?: string) => {
-    const ret = await DocConnection.create();
+    const ret = await DocConnection.create(props.sessionStore);
     if (typeof ret === "string") {
       throw new Error("Error creating doc: " + ret);
     }
@@ -125,7 +136,7 @@ const ProjectContainer = observer((props: Props) => {
 
     if (parentId) {
       // add to parent
-      const parentDoc = DocConnection.get(parentId)?.tryDoc;
+      const parentDoc = DocConnection.get(parentId, props.sessionStore)?.tryDoc;
       if (!parentDoc) {
         throw new Error("Parent not found: " + parentId);
       }
@@ -228,6 +239,7 @@ const ProjectContainer = observer((props: Props) => {
                   onClick={onClick}
                   tree={tree}
                   onAddNewPage={onAddPageHandler}
+                  sessionStore={props.sessionStore}
                 />
               </div>
             </LeftSidebar>

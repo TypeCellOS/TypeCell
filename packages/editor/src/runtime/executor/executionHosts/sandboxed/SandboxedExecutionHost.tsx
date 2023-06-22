@@ -7,6 +7,7 @@ import { lifecycle } from "vscode-lib";
 import { getFrameDomain } from "../../../../config/security";
 import { CompiledCodeModel } from "../../../../models/CompiledCodeModel";
 import { TypeCellCodeModel } from "../../../../models/TypeCellCodeModel";
+import { SessionStore } from "../../../../store/local/SessionStore";
 import { ContainedElement } from "../../../../util/ContainedElement";
 import SourceModelCompiler from "../../../compiler/SourceModelCompiler";
 import { VisualizerExtension } from "../../../extensions/visualizer/VisualizerExtension";
@@ -14,9 +15,9 @@ import { TypeCellModuleCompiler } from "../../resolver/typecell/TypeCellModuleCo
 import { ExecutionHost } from "../ExecutionHost";
 import { FreezeAlert } from "./FreezeAlert";
 import { HostBridgeMethods } from "./HostBridgeMethods";
-import { IframeBridgeMethods } from "./iframesandbox/IframeBridgeMethods";
 import { ModelForwarder } from "./ModelForwarder";
 import OutputShadow from "./OutputShadow";
+import { IframeBridgeMethods } from "./iframesandbox/IframeBridgeMethods";
 
 let ENGINE_ID = 0;
 const FREEZE_TIMEOUT = 3000;
@@ -86,7 +87,8 @@ export default class SandboxedExecutionHost
   constructor(
     private readonly documentId: string,
     private readonly compileEngine: SourceModelCompiler,
-    private monacoInstance: typeof monaco
+    private monacoInstance: typeof monaco,
+    private readonly sessionStore: SessionStore
   ) {
     super();
 
@@ -155,7 +157,8 @@ export default class SandboxedExecutionHost
       }
       const compiler = new TypeCellModuleCompiler(
         moduleName,
-        this.monacoInstance
+        this.monacoInstance,
+        this.sessionStore
       );
       const forwarder = new ModelForwarder(
         "modules/" + moduleName,

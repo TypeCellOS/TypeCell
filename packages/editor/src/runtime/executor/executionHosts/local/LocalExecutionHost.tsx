@@ -2,15 +2,16 @@ import { Engine } from "@typecell-org/engine";
 import { observable } from "mobx";
 import type * as monaco from "monaco-editor";
 import { lifecycle } from "vscode-lib";
-import Output from "../../components/Output";
 import { CompiledCodeModel } from "../../../../models/CompiledCodeModel";
 import { TypeCellCodeModel } from "../../../../models/TypeCellCodeModel";
-import { ModelOutput } from "../../components/ModelOutput";
-import { getTypeCellResolver } from "../../resolver/resolver";
-import { ExecutionHost } from "../ExecutionHost";
+import { SessionStore } from "../../../../store/local/SessionStore";
 import SourceModelCompiler from "../../../compiler/SourceModelCompiler";
-import { TypeCellModuleCompiler } from "../../resolver/typecell/TypeCellModuleCompiler";
 import { VisualizerExtension } from "../../../extensions/visualizer/VisualizerExtension";
+import { ModelOutput } from "../../components/ModelOutput";
+import Output from "../../components/Output";
+import { getTypeCellResolver } from "../../resolver/resolver";
+import { TypeCellModuleCompiler } from "../../resolver/typecell/TypeCellModuleCompiler";
+import { ExecutionHost } from "../ExecutionHost";
 
 let ENGINE_ID = 0;
 
@@ -30,12 +31,17 @@ export default class LocalExecutionHost
   constructor(
     private readonly documentId: string,
     compileEngine: SourceModelCompiler,
-    monacoInstance: typeof monaco
+    monacoInstance: typeof monaco,
+    sessionStore: SessionStore
   ) {
     super();
     this.engine = new Engine(
       getTypeCellResolver(documentId, "LEH-" + this.id, (moduleName) => {
-        return new TypeCellModuleCompiler(moduleName, monacoInstance);
+        return new TypeCellModuleCompiler(
+          moduleName,
+          monacoInstance,
+          sessionStore
+        );
       })
     );
     this.engine.registerModelProvider(compileEngine);

@@ -6,7 +6,6 @@ import { MatrixClientPeg } from "../../../app/matrix-auth/MatrixClientPeg";
 import { MatrixSessionStore } from "../../../app/matrix-auth/MatrixSessionStore";
 import { getTestFlags } from "../../../config/config";
 import { MatrixIdentifier } from "../../../identifiers/MatrixIdentifier";
-import { getStoreService } from "../../local/stores";
 import { Remote } from "./Remote";
 
 export class MatrixRemote extends Remote {
@@ -22,7 +21,11 @@ export class MatrixRemote extends Remote {
     return this._awareness;
   }
 
-  constructor(_ydoc: Y.Doc, private readonly identifier: MatrixIdentifier) {
+  constructor(
+    _ydoc: Y.Doc,
+    private readonly identifier: MatrixIdentifier,
+    private readonly sessionStore: MatrixSessionStore
+  ) {
     super(_ydoc);
     if (!(identifier instanceof MatrixIdentifier)) {
       throw new Error("invalid identifier");
@@ -42,14 +45,12 @@ export class MatrixRemote extends Remote {
   }
 
   public async create() {
-    if (!getStoreService().sessionStore.loggedInUserId) {
+    if (!this.sessionStore.loggedInUserId) {
       throw new Error("no user available on create document");
     }
 
     // TODO: check authority
-    if (
-      this.identifier.owner !== getStoreService().sessionStore.loggedInUserId
-    ) {
+    if (this.identifier.owner !== this.sessionStore.loggedInUserId) {
       throw new Error("not authorized to create this document");
     }
 
@@ -74,10 +75,7 @@ export class MatrixRemote extends Remote {
       console.warn("already disposed");
       return;
     }
-    const matrixSessionStore = getStoreService().sessionStore;
-    if (!(matrixSessionStore instanceof MatrixSessionStore)) {
-      throw new Error("invalid sessionStore (expected MatrixSessionStore)");
-    }
+    const matrixSessionStore = this.sessionStore;
     matrixSessionStore.enableGuest();
     const user = matrixSessionStore.user;
     if (typeof user === "string") {

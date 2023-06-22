@@ -7,14 +7,14 @@ import {
   ThemeSupa,
 } from "@supabase/auth-ui-shared";
 import { createClient } from "@supabase/supabase-js";
-import { getStoreService } from "../../../store/local/stores";
+import { SessionStore } from "../../../store/local/SessionStore";
 import { Logo } from "../../main/components/Logo";
 import { ANON_KEY } from "../supabaseConfig";
 import AuthStyles from "./AuthStyles.module.css";
 const supabase = createClient("http://localhost:54321", ANON_KEY);
 
-export const Register = observer((props: {}) => {
-  const { sessionStore } = getStoreService();
+export const Register = observer((props: { sessionStore: SessionStore }) => {
+  const { sessionStore } = props;
 
   const location = useLocation();
   //   const navigate = useNavigate();

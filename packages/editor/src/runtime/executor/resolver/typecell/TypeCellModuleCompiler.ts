@@ -3,6 +3,7 @@ import type * as monaco from "monaco-editor";
 import { parseIdentifier } from "../../../../identifiers";
 import { getTypeCellCodeModel } from "../../../../models/TypeCellCodeModel";
 import { DocConnection } from "../../../../store/DocConnection";
+import { SessionStore } from "../../../../store/local/SessionStore";
 import SourceModelCompiler from "../../../compiler/SourceModelCompiler";
 
 export class TypeCellModuleCompiler extends SourceModelCompiler {
@@ -11,7 +12,8 @@ export class TypeCellModuleCompiler extends SourceModelCompiler {
 
   constructor(
     private readonly moduleName: string,
-    monacoInstance: typeof monaco
+    monacoInstance: typeof monaco,
+    sessionStore: SessionStore
   ) {
     super(monacoInstance);
     if (!moduleName.startsWith("!@")) {
@@ -19,9 +21,9 @@ export class TypeCellModuleCompiler extends SourceModelCompiler {
     }
 
     // TODO
-    const identifier = parseIdentifier(moduleName.substr(1));
+    const identifier = parseIdentifier(moduleName.substring(1));
 
-    this.connection = DocConnection.load(identifier);
+    this.connection = DocConnection.load(identifier, sessionStore);
 
     const disposeAutorun = autorun(() => {
       const cells = this.connection.tryDoc?.doc.cells;

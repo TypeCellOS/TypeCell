@@ -1,20 +1,22 @@
+import { CodeModel, Engine } from "@typecell-org/engine";
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { Engine, CodeModel } from "@typecell-org/engine";
 import { getTypeCellCodeModel } from "../../../models/TypeCellCodeModel";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
 import { runtimeStore } from "../../../store/local/runtimeStore";
 
-import RetryErrorBoundary from "../../../util/RetryErrorBoundary";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import { getTypeCellResolver } from "../../../runtime/executor/resolver/resolver";
+import { SessionStore } from "../../../store/local/SessionStore";
+import RetryErrorBoundary from "../../../util/RetryErrorBoundary";
 
 // TODO: should this be a React component or raw JS?
 
 type Props = {
   document: BaseResource;
+  sessionStore: SessionStore;
 };
 
 /**
@@ -35,12 +37,12 @@ export const CustomRenderer = observer((props: Props) => {
     if (!renderer) {
       return;
     }
-    const loader = DocConnection.load(renderer.rendererId);
+    const loader = DocConnection.load(renderer.rendererId, props.sessionStore);
     setRendererDocument(loader);
     return () => {
       loader.dispose();
     };
-  }, [renderer]);
+  }, [props.sessionStore, renderer]);
 
   // TODO: also useMemo to get engine, instead of useEffect?
   useEffect(() => {

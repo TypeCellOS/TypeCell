@@ -8,7 +8,7 @@ import { observer } from "mobx-react-lite";
 import { useCallback } from "react";
 import { VscSignIn } from "react-icons/vsc";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { getStoreService } from "../../../store/local/stores";
+import { SessionStore } from "../../../store/local/SessionStore";
 import { toDocs, toLoginScreen } from "../../routes/routes";
 import { Logo } from "./Logo";
 import styles from "./Navigation.module.css";
@@ -24,8 +24,8 @@ const ProductHome = () => {
   );
 };
 
-export const Navigation = observer(() => {
-  const sessionStore = getStoreService().sessionStore;
+export const Navigation = observer((props: { sessionStore: SessionStore }) => {
+  const { sessionStore } = props;
   const navigate = useNavigate();
   const location = useLocation();
 

@@ -7,7 +7,7 @@ import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import { ExecutionHost } from "../../../runtime/executor/executionHosts/ExecutionHost";
 import SandboxedExecutionHost from "../../../runtime/executor/executionHosts/sandboxed/SandboxedExecutionHost";
 import { DocumentResource } from "../../../store/DocumentResource";
-import { getStoreService } from "../../../store/local/stores";
+import { SessionStore } from "../../../store/local/SessionStore";
 import CellListDraggableCell from "./CellListDraggableCell";
 import NotebookLanguageSelector from "./LanguageSelector";
 import { MonacoColorManager } from "./MonacoColorManager";
@@ -15,12 +15,13 @@ import NotebookCell from "./NotebookCell";
 
 type Props = {
   document: DocumentResource;
+  sessionStore: SessionStore;
 };
 
 const USE_SAFE_IFRAME = true;
 
 const NotebookRenderer: React.FC<Props> = observer((props) => {
-  const sessionStore = getStoreService().sessionStore;
+  const { sessionStore } = props;
   const disposer = useRef<() => void>();
   const monaco = useContext(MonacoContext).monaco;
 
@@ -57,7 +58,8 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
     const newExecutionHost: ExecutionHost = new SandboxedExecutionHost(
       props.document.id,
       newCompiler,
-      monaco
+      monaco,
+      sessionStore
     );
 
     disposer.current = () => {
@@ -66,7 +68,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
     };
 
     return [newCompiler, newExecutionHost];
-  }, [props.document.id, monaco]);
+  }, [props.document.id, monaco, sessionStore]);
 
   useEffect(() => {
     return () => {
@@ -118,6 +120,7 @@ const NotebookRenderer: React.FC<Props> = observer((props) => {
                   // onRemove={() => remove(i)}
                 />
               }
+              sessionStore={sessionStore}
             />
           </CellListDraggableCell>
         ))}

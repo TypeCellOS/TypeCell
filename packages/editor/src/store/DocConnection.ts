@@ -16,7 +16,6 @@ import { Identifier } from "../identifiers/Identifier";
 import { TypeCellIdentifier } from "../identifiers/TypeCellIdentifier";
 import { InboxResource } from "./InboxResource";
 import { SessionStore } from "./local/SessionStore";
-import { getStoreService } from "./local/stores";
 import { ForkReference } from "./referenceDefinitions/fork";
 import { SyncManager } from "./yjs-sync/SyncManager";
 
@@ -228,7 +227,7 @@ export class DocConnection extends lifecycle.Disposable {
 
   public static async loadInboxResource(
     id: Identifier,
-    sessionStore = getStoreService().sessionStore
+    sessionStore: SessionStore
   ): Promise<InboxResource> {
     if (!(id instanceof TypeCellIdentifier)) {
       throw new Error(
@@ -249,7 +248,7 @@ export class DocConnection extends lifecycle.Disposable {
   }
 
   // TODO: async or not?
-  public static async create(sessionStore = getStoreService().sessionStore) {
+  public static async create(sessionStore: SessionStore) {
     if (!sessionStore.loggedInUserId) {
       // Note: can happen on sign up
       console.warn(
@@ -270,7 +269,7 @@ export class DocConnection extends lifecycle.Disposable {
 
   public static get(
     identifier: string | Identifier,
-    sessionStore = getStoreService().sessionStore
+    sessionStore: SessionStore
   ) {
     if (!(identifier instanceof Identifier)) {
       identifier = parseIdentifier(identifier);
@@ -284,7 +283,7 @@ export class DocConnection extends lifecycle.Disposable {
 
   public static load(
     identifier: string | Identifier,
-    sessionStore = getStoreService().sessionStore
+    sessionStore: SessionStore
   ) {
     if (!(identifier instanceof Identifier)) {
       identifier = parseIdentifier(identifier);

@@ -7,17 +7,18 @@ import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import ReactDOM from "react-dom";
 import { DocumentResource } from "../../../store/DocumentResource";
-import { getStoreService } from "../../../store/local/stores";
+import { SessionStore } from "../../../store/local/SessionStore";
 import styles from "./RichTextRenderer.module.css";
 
 type Props = {
   document: DocumentResource;
+  sessionStore: SessionStore;
 };
 window.React = React;
 window.ReactDOM = ReactDOM;
 
 const RichTextRenderer: React.FC<Props> = observer((props) => {
-  const sessionStore = getStoreService().sessionStore;
+  const { sessionStore } = props;
 
   const editor = useEditor({
     onUpdate: ({ editor }) => {

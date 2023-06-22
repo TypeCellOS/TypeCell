@@ -17,6 +17,7 @@ import {
 } from "react-icons/vsc";
 import { Identifier } from "../../../../identifiers/Identifier";
 import { DocConnection } from "../../../../store/DocConnection";
+import { SessionStore } from "../../../../store/local/SessionStore";
 import { ChildReference } from "../../../../store/referenceDefinitions/child";
 import styles from "./SidebarTree.module.css";
 
@@ -26,11 +27,11 @@ const RenderItem =
     onAddChild: (parentId: string) => void
   ) =>
   ({ item, onExpand, onCollapse, provided, depth }: RenderItemParams) => {
-    const doc = DocConnection.get(item.data.identifier)?.tryDoc;
-    if (!doc) {
-      console.warn("Doc not found but should be loaded", item.data.identifier);
-      return null;
-    }
+    // const doc = DocConnection.get(item.data.identifier)?.tryDoc;
+    // if (!doc) {
+    //   console.warn("Doc not found but should be loaded", item.data.identifier);
+    //   return null;
+    // }
 
     const onClickHandler = () => {
       // main item has clicked (not chevron, always call onExpand)
@@ -128,19 +129,21 @@ export const SidebarTree = observer(
     tree: TreeData;
     onClick: (item: Identifier) => void;
     onAddNewPage: (parent?: string) => Promise<void>;
+    sessionStore: SessionStore;
   }) => {
+    const { sessionStore, tree } = props;
     // A little cumbersome logic because we want to update the currentTree
     // both from outside this component and inside
-    const currentTree = useRef(props.tree);
-    const prevTreeFromProps = useRef(props.tree);
+    const currentTree = useRef(tree);
+    const prevTreeFromProps = useRef(tree);
     const cache = useRef(new Map<string, DocConnection>());
     const [forceUpdate, setForceUpdate] = React.useState(0);
 
     // detect change in props
-    if (prevTreeFromProps.current !== props.tree) {
-      updateAkTree(currentTree.current, props.tree);
-      currentTree.current = props.tree;
-      prevTreeFromProps.current = props.tree;
+    if (prevTreeFromProps.current !== tree) {
+      updateAkTree(currentTree.current, tree);
+      currentTree.current = tree;
+      prevTreeFromProps.current = tree;
     }
     const akTree = currentTree.current;
 
@@ -165,11 +168,11 @@ export const SidebarTree = observer(
       // load items
       for (let key of itemsToLoad) {
         if (!cache.current.has(key)) {
-          const item = DocConnection.load(key);
+          const item = DocConnection.load(key, sessionStore);
           cache.current.set(key, item);
         }
       }
-    }, [akTree]);
+    }, [akTree, sessionStore]);
 
     const onExpand = (id: ItemId) => {
       const mutated = mutateTree(akTree, id, {
@@ -198,10 +201,12 @@ export const SidebarTree = observer(
         return;
       }
       const sourceDoc = DocConnection.get(
-        akTree.items[source.parentId].data!.id + ""
+        akTree.items[source.parentId].data!.id + "",
+        sessionStore
       )?.tryDoc;
       const destDoc = DocConnection.get(
-        akTree.items[destination.parentId].data!.id + ""
+        akTree.items[destination.parentId].data!.id + "",
+        sessionStore
       )?.tryDoc;
       if (!sourceDoc || !destDoc) {
         throw new Error("Doc not found but should be loaded");
