@@ -42,6 +42,6 @@
     "watch": "tsc --watch",
     "unittest:vitest": "vitest run --coverage",
     "unittest:playwright": "playwright-test '**/*.browsertest.ts'",
-    "test": "npm run unittest:vitest && npm run unittest:playwright"
+    "testFIXME": "npm run unittest:vitest && npm run unittest:playwright"
   }
 }

@@ -109,6 +109,11 @@ jobs:
         env:
           CI: true
 
+      - name: Run Tests
+        run: npm run test
+        env:
+          CI: true
+
       # Actually build and run react code and run tests against that
       - name: Build and run preview
         # Wait on config file needed for vite dev server: https://github.com/jeffbski/wait-on/issues/78
@@ -133,11 +138,6 @@ jobs:
           name: playwright-report-engine
           path: packages/engine/playwright-report/
           retention-days: 30
-
-      - name: Run Tests
-        run: npm run test
-        env:
-          CI: true
 
       # - name: Upload to coveralls
       #   uses: coverallsapp/github-action@master
