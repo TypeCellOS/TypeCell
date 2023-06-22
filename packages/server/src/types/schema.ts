@@ -12,32 +12,32 @@ export interface Database {
       document_permissions: {
         Row: {
           access_level: Database["public"]["Enums"]["access_level"]
-          document_id: string | null
-          user_id: string | null
+          document_id: string
+          user_id: string
         }
         Insert: {
           access_level: Database["public"]["Enums"]["access_level"]
-          document_id?: string | null
-          user_id?: string | null
+          document_id: string
+          user_id: string
         }
         Update: {
           access_level?: Database["public"]["Enums"]["access_level"]
-          document_id?: string | null
-          user_id?: string | null
+          document_id?: string
+          user_id?: string
         }
       }
       document_relations: {
         Row: {
-          child_id: string | null
-          parent_id: string | null
+          child_id: string
+          parent_id: string
         }
         Insert: {
-          child_id?: string | null
-          parent_id?: string | null
+          child_id: string
+          parent_id: string
         }
         Update: {
-          child_id?: string | null
-          parent_id?: string | null
+          child_id?: string
+          parent_id?: string
         }
       }
       documents: {
@@ -72,6 +72,7 @@ export interface Database {
       workspaces: {
         Row: {
           created_at: string
+          document_nano_id: string
           id: string
           is_username: boolean
           name: string
@@ -79,6 +80,7 @@ export interface Database {
         }
         Insert: {
           created_at?: string
+          document_nano_id: string
           id?: string
           is_username: boolean
           name: string
@@ -86,6 +88,7 @@ export interface Database {
         }
         Update: {
           created_at?: string
+          document_nano_id?: string
           id?: string
           is_username?: boolean
           name?: string
