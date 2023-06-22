@@ -108,7 +108,7 @@
     "start": "npm run copytypes && npm run vite:dev",
     "copy-docs": "node copy-docs.mjs > public/_docs/index.json",
     "build": "tsc -v && npm run copytypes && npm run copy-docs",
-    "build:react": "npm run build && cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true npm run vite:build",
+    "build:react": "cross-env NODE_OPTIONS=--max_old_space_size=8192 CI=true npm run vite:build",
     "install-playwright": "npx playwright install --with-deps",
     "playwright:dev": "cross-env TYPECELL_BASE_URL=http://localhost:5173 npx playwright test --ui",
     "playwright:preview": "cross-env TYPECELL_BASE_URL=http://localhost:4173 npx playwright test",

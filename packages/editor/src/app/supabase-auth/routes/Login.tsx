@@ -30,6 +30,8 @@ export const Login = observer((props: { sessionStore: SessionStore }) => {
     return <Navigate to={from} replace={true} />;
   }
 
+  const redirectTo = window.location.origin + "/login";
+
   return (
     <div className={AuthStyles.AuthPage}>
       <div className={AuthStyles.AuthHeader}>
@@ -44,6 +46,7 @@ export const Login = observer((props: { sessionStore: SessionStore }) => {
             supabaseClient={supabase}
             view="sign_in"
             appearance={{ theme: ThemeSupa }}
+            redirectTo={redirectTo}
           />
           {/* <div className={AuthStyles.AuthFormFooter}>sdfsdf</div> */}
         </div>
