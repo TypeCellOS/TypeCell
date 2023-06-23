@@ -45,6 +45,7 @@ export const Register = observer((props: { sessionStore: SessionStore }) => {
             view="sign_up"
             appearance={{ theme: ThemeSupa }}
             redirectTo={redirectTo}
+            providers={["google", "github"]}
           />
           {/* <div className={AuthStyles.AuthFormFooter}>sdfsdf</div> */}
         </div>

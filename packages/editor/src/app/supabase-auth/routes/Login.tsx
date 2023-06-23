@@ -47,6 +47,7 @@ export const Login = observer((props: { sessionStore: SessionStore }) => {
             view="sign_in"
             appearance={{ theme: ThemeSupa }}
             redirectTo={redirectTo}
+            providers={["google", "github"]}
           />
           {/* <div className={AuthStyles.AuthFormFooter}>sdfsdf</div> */}
         </div>
