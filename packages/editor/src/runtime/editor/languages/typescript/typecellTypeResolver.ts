@@ -58,7 +58,7 @@ function refreshUserModelTypes(folder: string, monacoInstance: typeof monaco) {
   // TODO: we register two libs. Would be nicer to detect the main notebook from imported libs and register them appropriately
 
   // for main notebook
-  // register the typings as a node_module in the full folder name (e.g.: !@mx://mx.typecell.org/@abc/abcccc)
+  // register the typings as a node_module in the full folder name (e.g.: !@mx:mx.typecell.org/@abc/abcccc)
   // These typings are automatically imported as $ in ts.worker.ts
   monacoInstance.languages.typescript.typescriptDefaults.addExtraLib(
     content,

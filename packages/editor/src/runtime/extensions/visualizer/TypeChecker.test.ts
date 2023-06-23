@@ -36,14 +36,14 @@ it(
     //monaco.editor.createModel("// tesdft", "typescript");
 
     let m1 = new TypeCellCodeModel(
-      "!@mx://mx.typecell.org/@owner/doc/1.cell.tsx",
+      "!@mx:mx.typecell.org/@owner/doc/1.cell.tsx",
       "typescript",
       m1Code,
       monaco
     );
 
     let m2 = new TypeCellCodeModel(
-      "!@mx://mx.typecell.org/@owner/doc/2.cell.tsx",
+      "!@mx:mx.typecell.org/@owner/doc/2.cell.tsx",
       "typescript",
       m2Code,
       monaco
@@ -59,7 +59,7 @@ it(
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
     const typeChecker = new TypeChecker(
-      "mx://mx.typecell.org/@owner/doc",
+      "mx:mx.typecell.org/@owner/doc",
       monaco
     );
     const visualizers = await typeChecker.findMatchingVisualizers(m1);
