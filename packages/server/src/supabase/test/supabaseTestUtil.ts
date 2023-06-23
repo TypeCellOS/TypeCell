@@ -50,9 +50,9 @@ export async function createRandomUser(
   };
 }
 
-export function createWsProvider(ws?: any) {
+export function createWsProvider(url: string, ws?: any) {
   return new HocuspocusProviderWebsocket({
-    url: "ws://localhost:1234",
+    url,
     WebSocketPolyfill: ws,
   });
 }

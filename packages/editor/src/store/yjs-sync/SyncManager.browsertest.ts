@@ -111,7 +111,7 @@ describe("SyncManager tests", () => {
 
   beforeEach(async () => {
     TypeCellRemote.Offline = false;
-    wsProvider = createWsProvider();
+    wsProvider = createWsProvider("ws://localhost:1234");
 
     // initialize the main user we're testing
     // await coordinator.initialize();

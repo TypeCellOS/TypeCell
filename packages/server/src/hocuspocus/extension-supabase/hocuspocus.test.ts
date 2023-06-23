@@ -10,13 +10,14 @@ import {
 } from "../../supabase/test/supabaseTestUtil";
 import { SupabaseHocuspocus } from "./SupabaseHocuspocus";
 
+let server: typeof Server;
 beforeAll(async () => {
   // await resetSupabaseDB();
-  const server = Server.configure({
+  server = Server.configure({
     extensions: [new SupabaseHocuspocus({})],
     debounce: 0,
   });
-  await server.listen(1234);
+  await server.listen(0); // 0 for random port
 });
 /*
 it("should sync user data via yjs", async () => {
@@ -92,7 +93,7 @@ describe("SupabaseHocuspocus", () => {
     it.skip("should sync when Alice reopens", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider(ws);
+      const wsProvider = createWsProvider(server.URL, ws);
 
       const provider = createHPProvider(
         docId,
@@ -121,7 +122,7 @@ describe("SupabaseHocuspocus", () => {
     it.skip("should sync when Alice opens 2 connections", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider(ws);
+      const wsProvider = createWsProvider(server.URL, ws);
 
       const provider = createHPProvider(
         docId,
@@ -149,7 +150,7 @@ describe("SupabaseHocuspocus", () => {
     it.skip("should not sync to Bob", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider(ws);
+      const wsProvider = createWsProvider(server.URL, ws);
 
       const provider = createHPProvider(
         docId,
@@ -224,7 +225,7 @@ describe("SupabaseHocuspocus", () => {
     it.skip("should add and remove refs to database", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider(ws);
+      const wsProvider = createWsProvider(server.URL, ws);
 
       const provider = createHPProvider(
         docId,
