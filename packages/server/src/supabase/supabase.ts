@@ -19,8 +19,8 @@ const storage = {
 
 export async function createServiceClient() {
   const supabase = createClient(
-    process.env.TYPECELL_SUPABASE_URL!,
-    process.env.TYPECELL_SUPABASE_SERVICE_KEY!,
+    process.env.VITE_TYPECELL_SUPABASE_URL!,
+    process.env.VITE_TYPECELL_SUPABASE_SERVICE_KEY!,
     {
       auth: {
         autoRefreshToken: false,
@@ -34,8 +34,8 @@ export async function createServiceClient() {
 
 export async function createAnonClient() {
   const supabase = createClient<Database>(
-    process.env.TYPECELL_SUPABASE_URL!,
-    process.env.TYPECELL_SUPABASE_ANON_KEY!,
+    process.env.VITE_TYPECELL_SUPABASE_URL!,
+    process.env.VITE_TYPECELL_SUPABASE_ANON_KEY!,
     {
       auth: {
         autoRefreshToken: false,

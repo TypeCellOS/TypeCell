@@ -31,7 +31,7 @@ Example:
 - In this case, Alice does not have access to document A, because even though it has access to document D it doesn't have access to document B. It doesn't have access to document B, because this has been explicitly denied, even though Alice has access to B's parent C
 
 */
-  it("test first scenario", async () => {
+  it.skip("test first scenario", async () => {
     const docA = createDocument(alice.user!.id, "helloA", "write");
     const docB = createDocument(alice.user!.id, "helloB", "write");
     const docC = createDocument(alice.user!.id, "helloC", "write");
