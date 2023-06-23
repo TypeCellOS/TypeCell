@@ -14,6 +14,7 @@ A few principles:
 - All components should be easy to self-host, we don't want forced dependencies on any cloud provider (note that both supabase and the server are self-hostable).
 - Only www.typecell.org is considered `prod`. All Vercel branch-preview environments are considered `staging`, except the main branch which is `prod`.
 - Preview environments all share the same `staging` database. This means feature-branches must be compatible in terms of database schema.
+- Preview environments all share the same `HocusPocus backend server` (`packages/server`). This means feature-branches must be compatible to run against the same `packages/server`.
 - DB Migrations are deployed to `staging` / `prod` when they are pushed to the `staging` / `main` branch (see github workflows).
 
 ## Self-host
