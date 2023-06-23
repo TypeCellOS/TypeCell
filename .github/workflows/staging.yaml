@@ -7,13 +7,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  release:
+  deploy:
     runs-on: ubuntu-latest
 
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
       PROJECT_ID: glsqqdamehahvdqssxow
+      TYPECELL_GITHUB_OAUTH_SECRET: NOT-USED # not used but needs to be set, otherwise supabase cli complains
+      TYPECELL_GOOGLE_OAUTH_SECRET: NOT-USED # not used but needs to be set, otherwise supabase cli complains
 
     steps:
       - uses: actions/checkout@v3
