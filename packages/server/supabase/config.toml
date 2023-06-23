@@ -64,7 +64,7 @@ enable_confirmations = false
 [auth.external.github]
 enabled = true
 client_id = "Iv1.bdf3f05846bd5feb"
-secret = "07c7dfced313bf3b94735cdd632a4d7668a8064f"
+secret = "env(TYPECELL_GITHUB_OAUTH_SECRET)"
 # Overrides the default auth redirectUrl.
 redirect_uri = "http://localhost:54321/auth/v1/callback"
 # Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
@@ -74,7 +74,7 @@ url = ""
 [auth.external.google]
 enabled = true
 client_id = "1046482895817-hgrqvil6i6s7uhlfoosq0nhvhpf4n9je.apps.googleusercontent.com"
-secret = "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"
+secret = "env(TYPECELL_GOOGLE_OAUTH_SECRET)"
 # Overrides the default auth redirectUrl.
 redirect_uri = "http://localhost:54321/auth/v1/callback"
 # Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,

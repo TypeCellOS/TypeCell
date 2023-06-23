@@ -31,6 +31,8 @@
   "type": "module",
   "scripts": {
     "start": "node dist/server/src/index.js",
+    "start:supabase": "./supabase.sh start",
+    "stop:supabase": "./supabase.sh stop",
     "clean": "rimraf dist && rimraf types",
     "dev": "MODE=development vite-node src/index.ts",
     "build": "npm run clean && tsc -p tsconfig.json",
