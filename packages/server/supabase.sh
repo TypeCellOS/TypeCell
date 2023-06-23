@@ -5,4 +5,4 @@
 source .env.local
 export TYPECELL_GOOGLE_OAUTH_SECRET
 export TYPECELL_GITHUB_OAUTH_SECRET
-npx supabase $1
+npx supabase "$@"

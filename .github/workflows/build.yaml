@@ -39,12 +39,15 @@ jobs:
       - name: Verify generated supabase types are checked in
         working-directory: packages/server
         run: |
-          npm run gentypes
+          supabase gen types typescript --local --schema public > src/@types/schema.ts
           if ! git diff --ignore-space-at-eol --exit-code --quiet src/@types/schema.ts; then
             echo "Detected uncommitted changes after build. See status below:"
             git diff
             exit 1
           fi
+        env:
+          TYPECELL_GITHUB_OAUTH_SECRET: ${{ secrets.TYPECELL_GITHUB_OAUTH_SECRET }}
+          TYPECELL_GOOGLE_OAUTH_SECRET: ${{ secrets.TYPECELL_GOOGLE_OAUTH_SECRET }}
 
       # doesn't seem to cause significant speed up, probably because it still needs to install deps
       - name: cache playwright
