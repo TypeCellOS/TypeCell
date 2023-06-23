@@ -5,7 +5,7 @@
 import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
 import * as mobx from "mobx";
 import { beforeEach, describe, expect, it } from "vitest";
-import { uri } from "vscode-lib";
+import { async, uri } from "vscode-lib";
 import * as Y from "yjs";
 import { Identifier } from "../identifiers/Identifier";
 import {
@@ -76,7 +76,7 @@ function createDocAndAllowAccess(forUsers: User[], docId: DocId) {
     const resourceAsInbox = inboxBaseResource.getSpecificType<InboxResource>(
       InboxResource as any
     );
-    resourceAsInbox.inboxTarget = docId;
+    resourceAsInbox.inboxTarget = "test:test/" + docId;
     user.docs[docId + "-inbox"] = {
       resourceAsInbox,
       resource: inboxBaseResource,
@@ -86,24 +86,27 @@ function createDocAndAllowAccess(forUsers: User[], docId: DocId) {
 
     // create main doc
     const ydoc = new Y.Doc();
-    const resource = new BaseResource(ydoc, new TestIdentifier(docId), {
-      ...UnimplementedBaseResourceExternalManager,
-      loadInboxResource: async (id) => {
-        const testIdentifier = new TestIdentifier(id.toString());
-        const inbox = user.docs[testIdentifier.id + "-inbox"].resourceAsInbox;
+    const manager: any = {
+      loadInboxResource: async (id: TestIdentifier) => {
+        // const testIdentifier = new TestIdentifier(id.toString());
+        const inbox = user.docs[id.id + "-inbox"].resourceAsInbox;
         if (!inbox) {
           throw new Error("can't resolve inbox id " + id);
         }
         return inbox;
       },
-    });
+    };
+    manager.prototype = UnimplementedBaseResourceExternalManager;
+    const resource = new BaseResource(ydoc, new TestIdentifier(docId), manager);
 
     const validator = new InboxValidator(
       resourceAsInbox!,
       ChildReference,
-      async (identifier) => {
-        const testIdentifier = identifier.uri.path.substring(1);
-        return user.docs[testIdentifier].resource;
+      async (idStr) => {
+        // hacky
+        const testIdentifier = uri.URI.parse(idStr.replace("test:", "test://"));
+        const docId = testIdentifier.path.substring(1);
+        return user.docs[docId].resource;
       }
     );
 
@@ -158,7 +161,7 @@ describe("links", () => {
     expect(user2.docs.doc1.ydoc.getMap("test").get("hello")).toBeUndefined();
   });
 
-  it.only("adds a ref", async () => {
+  it("adds a ref", async () => {
     createDocAndAllowAccess([user1, user2], "doc1");
     createDocAndAllowAccess([user1, user2], "doc2");
 
@@ -173,6 +176,8 @@ describe("links", () => {
     expect(user2.docs.doc1.resource.getRefs(ChildReference).length).toBe(1);
 
     await new Promise((resolve) => setImmediate(resolve)); // allow autorun to fire
+
+    await async.timeout(100);
 
     expect(user1.docs.doc2.validator!.validRefMessages.length).toBe(1);
     expect(user2.docs.doc2.validator!.validRefMessages.length).toBe(0);
