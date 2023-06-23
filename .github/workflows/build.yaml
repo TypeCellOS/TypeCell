@@ -27,8 +27,14 @@ jobs:
           TYPECELL_GOOGLE_OAUTH_SECRET: ${{ secrets.TYPECELL_GOOGLE_OAUTH_SECRET }}
       - run: supabase db lint
         working-directory: packages/server
+        env:
+          TYPECELL_GITHUB_OAUTH_SECRET: ${{ secrets.TYPECELL_GITHUB_OAUTH_SECRET }}
+          TYPECELL_GOOGLE_OAUTH_SECRET: ${{ secrets.TYPECELL_GOOGLE_OAUTH_SECRET }}
       - run: supabase test db
         working-directory: packages/server
+        env:
+          TYPECELL_GITHUB_OAUTH_SECRET: ${{ secrets.TYPECELL_GITHUB_OAUTH_SECRET }}
+          TYPECELL_GOOGLE_OAUTH_SECRET: ${{ secrets.TYPECELL_GOOGLE_OAUTH_SECRET }}
 
       - name: Verify generated supabase types are checked in
         working-directory: packages/server
