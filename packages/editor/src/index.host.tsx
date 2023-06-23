@@ -9,6 +9,7 @@ import { matrixAuthProvider } from "./app/matrix-auth/MatrixAuthProvider";
 import { SupabaseSessionStore } from "./app/supabase-auth/SupabaseSessionStore";
 import { supabaseAuthProvider } from "./app/supabase-auth/supabaseAuthProvider";
 import { DEFAULT_PROVIDER } from "./config/config";
+import { env } from "./config/env";
 import { validateHostDomain, validateSupabaseConfig } from "./config/security";
 import { setMonacoDefaults } from "./runtime/editor";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
@@ -21,7 +22,7 @@ import "./styles/index.css";
 (window as any).Buffer = Buffer;
 (window as any).process = process;
 
-if (import.meta.env.DEV) {
+if (env.VITE_ENVIRONMENT === "development") {
   // disables error overlays
   // We make use of React Error Boundaries to catch exceptions during rendering of
   // user-defined react components. It's annoying (and slow) to get the React error overlay

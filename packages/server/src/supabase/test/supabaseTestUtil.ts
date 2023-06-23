@@ -25,10 +25,20 @@ export function createDocument(
   } as const;
 }
 
-export async function createRandomUser(name: string) {
+export async function createRandomUser(
+  name: string,
+  env: {
+    VITE_TYPECELL_SUPABASE_URL: string;
+    VITE_TYPECELL_SUPABASE_ANON_KEY: string;
+  } = {
+    VITE_TYPECELL_SUPABASE_URL: process.env.VITE_TYPECELL_SUPABASE_URL!,
+    VITE_TYPECELL_SUPABASE_ANON_KEY:
+      process.env.VITE_TYPECELL_SUPABASE_ANON_KEY!,
+  }
+) {
   const userData = getRandomUserData(name);
 
-  const supabase = await createAnonClient();
+  const supabase = await createAnonClient(env);
   const { data, error } = await supabase.auth.signUp(userData);
   if (error) {
     throw error;

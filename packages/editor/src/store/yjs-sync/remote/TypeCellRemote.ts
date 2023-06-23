@@ -13,6 +13,7 @@ import { uuid } from "vscode-lib";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
 import { SupabaseSessionStore } from "../../../app/supabase-auth/SupabaseSessionStore";
+import { env } from "../../../config/env";
 import { TypeCellIdentifier } from "../../../identifiers/TypeCellIdentifier";
 import { Remote } from "./Remote";
 
@@ -30,7 +31,7 @@ function getWSProvider(session: SupabaseSessionStore) {
   if (!wsProvider) {
     console.log("new ws provider");
     wsProvider = new HocuspocusProviderWebsocket({
-      url: import.meta.env.VITE_TYPECELL_BACKEND_WS_URL,
+      url: env.VITE_TYPECELL_BACKEND_WS_URL,
       // WebSocketPolyfill: ws,
       onConnect() {
         // console.log("connected");

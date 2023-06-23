@@ -15,6 +15,7 @@ import {
 } from "../../../../../packages/server/src/supabase/test/supabaseTestUtil";
 import { loginAsNewRandomUser } from "../../../tests/util/loginUtil";
 import { SupabaseSessionStore } from "../../app/supabase-auth/SupabaseSessionStore";
+import { env } from "../../config/env";
 import { parseIdentifier } from "../../identifiers";
 import { SyncManager } from "./SyncManager";
 import { TypeCellRemote } from "./remote/TypeCellRemote";
@@ -105,7 +106,7 @@ describe("SyncManager tests", () => {
 
   before(async () => {
     enableMobxBindings(mobx);
-    alice = await createRandomUser("alice");
+    alice = await createRandomUser("alice", env);
   });
 
   beforeEach(async () => {
@@ -190,6 +191,7 @@ describe("SyncManager tests", () => {
     );
 
     expect(loadedManager2.state.localDoc.meta.create_source).eq("remote");
+    manager2.dispose();
   });
 
   it("can load a known remote document offline", async () => {
@@ -215,6 +217,7 @@ describe("SyncManager tests", () => {
     );
 
     expect(loadedManager2.state.localDoc.meta.create_source).eq("remote");
+    manager2.dispose();
   });
 
   it("can create a new document", async () => {
@@ -238,6 +241,7 @@ describe("SyncManager tests", () => {
     expect(loadedManager2.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
       "world"
     );
+    manager2.dispose();
   });
 
   it("can create a new document offline", async () => {
@@ -291,6 +295,8 @@ describe("SyncManager tests", () => {
     expect(loadedManager2.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
       "world"
     );
+    manager2.dispose();
+    manager.dispose();
   });
 
   it("can fork a document", async () => {
@@ -331,5 +337,8 @@ describe("SyncManager tests", () => {
     expect(
       newManagerLoaded.state.localDoc.ydoc.getMap("mymap").get("hello")
     ).eq("world");
+    manager.dispose();
+    forkManager.dispose();
+    newManager.dispose();
   });
 });

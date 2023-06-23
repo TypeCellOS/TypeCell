@@ -63,6 +63,7 @@ export class BackgroundSyncer extends lifecycle.Disposable {
             this.identifiersToSync.delete(id);
             const connection = this.loadedConnections.get(id)!;
             connection.dispose();
+            this.loadedConnections.delete(id);
           }
         }
       }, 0); // settimeout is needed because otherwise it conflicts with creation in DocumentManager - this is a bit ugly

@@ -7,13 +7,14 @@ import {
   ThemeSupa,
 } from "@supabase/auth-ui-shared";
 import { createClient } from "@supabase/supabase-js";
+import { env } from "../../../config/env";
 import { SessionStore } from "../../../store/local/SessionStore";
 import { Logo } from "../../main/components/Logo";
 import AuthStyles from "./AuthStyles.module.css";
 
 const supabase = createClient(
-  import.meta.env.VITE_TYPECELL_SUPABASE_URL,
-  import.meta.env.VITE_TYPECELL_SUPABASE_ANON_KEY
+  env.VITE_TYPECELL_SUPABASE_URL,
+  env.VITE_TYPECELL_SUPABASE_ANON_KEY
 );
 
 export const Register = observer((props: { sessionStore: SessionStore }) => {

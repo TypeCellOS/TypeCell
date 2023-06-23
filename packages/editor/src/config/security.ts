@@ -1,4 +1,6 @@
-const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT;
+import { env } from "./env";
+
+const ENVIRONMENT = env.VITE_ENVIRONMENT;
 /*
 Helper functions to ensure we're loading the application (host) and user-code frame (sandbox) from the correct domains
 
@@ -32,9 +34,7 @@ export function validateHostDomain() {
 }
 
 export function validateSupabaseConfig() {
-  if (
-    import.meta.env.VITE_TYPECELL_SUPABASE_URL.includes("guzxrzrjknsekuefovon")
-  ) {
+  if (env.VITE_TYPECELL_SUPABASE_URL.includes("guzxrzrjknsekuefovon")) {
     // only allow prod database on prod environment
     return ENVIRONMENT === "PROD";
   }

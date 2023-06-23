@@ -53,10 +53,10 @@ export class DocConnection extends lifecycle.Disposable {
     const dispose = reaction(
       () => this.sessionStore.documentCoordinator,
       async () => {
-        console.log(
-          "sessionstore change",
-          this.sessionStore.documentCoordinator
-        );
+        // console.log(
+        //   "sessionstore change",
+        //   this.sessionStore.documentCoordinator
+        // );
 
         this._baseResourceCache = undefined;
         this.manager?.dispose();

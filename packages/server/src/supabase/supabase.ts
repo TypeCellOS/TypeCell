@@ -32,10 +32,19 @@ export async function createServiceClient() {
   return supabase;
 }
 
-export async function createAnonClient() {
+export async function createAnonClient(
+  env: {
+    VITE_TYPECELL_SUPABASE_URL: string;
+    VITE_TYPECELL_SUPABASE_ANON_KEY: string;
+  } = {
+    VITE_TYPECELL_SUPABASE_URL: process.env.VITE_TYPECELL_SUPABASE_URL!,
+    VITE_TYPECELL_SUPABASE_ANON_KEY:
+      process.env.VITE_TYPECELL_SUPABASE_ANON_KEY!,
+  }
+) {
   const supabase = createClient<Database>(
-    process.env.VITE_TYPECELL_SUPABASE_URL!,
-    process.env.VITE_TYPECELL_SUPABASE_ANON_KEY!,
+    env.VITE_TYPECELL_SUPABASE_URL!,
+    env.VITE_TYPECELL_SUPABASE_ANON_KEY!,
     {
       auth: {
         autoRefreshToken: false,

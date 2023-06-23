@@ -6,6 +6,7 @@ import { SessionStore } from "../../store/local/SessionStore";
 import { uniqueId } from "@typecell-org/common";
 import * as Y from "yjs";
 import type { Database } from "../../../../server/src/@types/schema";
+import { env } from "../../config/env";
 import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
 import {
   DefaultShorthandResolver,
@@ -105,7 +106,7 @@ export class SupabaseSessionStore extends SessionStore {
       isLoggedIn: computed,
       isLoaded: computed,
     });
-    this.supabase = createClient<Database>(import.meta.env.VITE_TYPECELL_SUPABASE_URL, import.meta.env.VITE_TYPECELL_SUPABASE_ANON_KEY, {
+    this.supabase = createClient<Database>(env.VITE_TYPECELL_SUPABASE_URL, env.VITE_TYPECELL_SUPABASE_ANON_KEY, {
       auth: {
         persistSession: persist,
       },

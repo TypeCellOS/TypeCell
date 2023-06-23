@@ -1,9 +1,8 @@
-import {
-  resetSupabaseDB,
-  startSupabase,
-} from "../supabase/test/supabaseCLIUtil";
+import { startSupabase } from "../supabase/test/supabaseCLIUtil";
 
 export default async function () {
-  await startSupabase();
-  await resetSupabaseDB();
+  if (!process.env.CI) {
+    await startSupabase();
+  }
+  // await resetSupabaseDB();
 }

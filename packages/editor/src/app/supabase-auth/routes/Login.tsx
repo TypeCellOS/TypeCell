@@ -10,11 +10,12 @@ import { createClient } from "@supabase/supabase-js";
 import { SessionStore } from "../../../store/local/SessionStore";
 import { Logo } from "../../main/components/Logo";
 
+import { env } from "../../../config/env";
 import AuthStyles from "./AuthStyles.module.css";
 
 const supabase = createClient(
-  import.meta.env.VITE_TYPECELL_SUPABASE_URL,
-  import.meta.env.VITE_TYPECELL_SUPABASE_ANON_KEY
+  env.VITE_TYPECELL_SUPABASE_URL,
+  env.VITE_TYPECELL_SUPABASE_ANON_KEY
 );
 
 export const Login = observer((props: { sessionStore: SessionStore }) => {

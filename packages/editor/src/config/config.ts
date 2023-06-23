@@ -1,9 +1,10 @@
 import { uri } from "vscode-lib";
+import { env } from "./env";
 
 export const DEFAULT_PROVIDER: "matrix" | "supabase" = "supabase";
 
 export const DEFAULT_HOMESERVER_URI = uri.URI.parse(
-  import.meta.env?.VITE_MATRIX_HOMESERVER_URI
+  env.VITE_MATRIX_HOMESERVER_URI
 );
 
 export const DEFAULT_IDENTIFIER_BASE =
@@ -23,7 +24,7 @@ export const DEFAULT_IDENTIFIER_BASE_STRING =
   DEFAULT_IDENTIFIER_BASE.toString().replace("://", ":");
 
 export const MATRIX_CONFIG = {
-  hsName: import.meta.env.VITE_MATRIX_HOMESERVER_NAME,
+  hsName: env.VITE_MATRIX_HOMESERVER_NAME,
   hsUrl: DEFAULT_HOMESERVER_URI.toString(),
   isUrl: undefined as any, // "https://vector.im",
   defaultDeviceDisplayName: "TypeCell web",
