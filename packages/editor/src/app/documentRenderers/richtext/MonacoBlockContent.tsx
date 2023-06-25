@@ -26,8 +26,7 @@ function arrowHandler(
         state.doc.resolve(side > 0 ? $head.after() : $head.before()),
         side
       );
-      console.log("nextPos", nextPos.$head.parent.type.name);
-      if (nextPos.$head && nextPos.$head.parent.type.name === "monaco") {
+      if (nextPos.$head && nextPos.$head.parent.type.name === "codeNode") {
         dispatch(state.tr.setSelection(nextPos));
         return true;
       }
@@ -53,14 +52,14 @@ const ComponentWithWrapper = (
       // data-content-type={blockConfig.type}
       {...htmlAttributes}>
       {/* @ts-ignore */}
-      <MonacoElement {...restProps} />
+      <MonacoElement inline={false} {...restProps} />
     </NodeViewWrapper>
   );
 };
 
 // TODO: clean up listeners
 export const MonacoBlockContent = createTipTapBlock({
-  name: "monaco",
+  name: "codeNode",
   content: "inline*",
   editable: true,
   selectable: true,

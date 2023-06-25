@@ -575,3 +575,8 @@ see https://atlassian.design/foundations/color for more info */
 :focus {
   outline: none;
 }
+
+.tippy-svg-arrow {
+  /* TODO: module.css */
+  fill: #f4f5f7;
+}

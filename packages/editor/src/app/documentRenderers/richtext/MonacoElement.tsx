@@ -1,5 +1,5 @@
+import Tippy from "@tippyjs/react";
 import { NodeViewProps } from "@tiptap/core";
-
 import * as monaco from "monaco-editor";
 import React, {
   useCallback,
@@ -9,18 +9,21 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
+import { roundArrow } from "tippy.js";
+import "tippy.js/dist/svg-arrow.css";
 import { MonacoTypeCellCodeModel } from "../../../models/MonacoTypeCellCodeModel";
 import {
   applyDecorationsToMonaco,
   applyNodeChangesToMonaco,
+  bindMonacoAndProsemirror,
 } from "./MonacoProsemirrorHelpers";
 import { RichTextContext } from "./RichTextContext";
-
 const MonacoElementComponent = function MonacoElement(
-  props: NodeViewProps & { block: any; selectionHack: any }
+  props: NodeViewProps & { block: any; selectionHack: any; inline: boolean }
 ) {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
-  const refa = useRef<any>(Math.random());
+  const tippyRef = useRef<any>();
   const context = useContext(RichTextContext);
 
   // hacky way to only initialize some resources once
@@ -76,27 +79,13 @@ const MonacoElementComponent = function MonacoElement(
     }
   }, [props.node, props.decorations]);
 
-  // useImperativeHandle(
-  //   ref,
-  //   () => {
-  //     return {
-  //       setSelection(anchor: number, head: number) {
-  //         console.log("SET");
-  //       },
-  //     };
-  //   },
-  //   []
-  // );
-
   useEffect(() => {
-    console.log("selected effect", props.selected);
     if (props.selected) {
       editorRef.current?.focus();
     }
   }, [props.selected]);
 
   useEffect(() => {
-    // console.log("selectionHack effect", props.selectionHack);
     if (!props.selectionHack) {
       return;
     }
@@ -107,6 +96,11 @@ const MonacoElementComponent = function MonacoElement(
       monaco.Selection.fromPositions(startPos, endPos)
     );
     models.state.isUpdating = false;
+
+    if (tippyRef.current) {
+      tippyRef.current.show();
+    }
+
     editorRef.current?.focus();
   }, [props.selectionHack]);
 
@@ -122,18 +116,18 @@ const MonacoElementComponent = function MonacoElement(
       return;
     }
 
-    console.log("create");
     let newEditor = monaco.editor.create(el, {
       model: models.model,
       theme: "typecellTheme",
+      renderLineHighlight: props.inline ? "none" : "all",
     });
 
-    // bindMonacoAndProsemirror(
-    //   newEditor,
-    //   props.editor.view,
-    //   props.getPos,
-    //   models.state
-    // );
+    bindMonacoAndProsemirror(
+      newEditor,
+      props.editor.view,
+      props.getPos,
+      models.state
+    );
 
     // disable per-cell find command (https://github.com/microsoft/monaco-editor/issues/102)
     (newEditor as any)._standaloneKeybindingService.addDynamicKeybinding(
@@ -152,77 +146,149 @@ const MonacoElementComponent = function MonacoElement(
     });
 
     newEditor.onDidContentSizeChange(() => {
-      const contentHeight = Math.min(500, newEditor.getContentHeight());
+      const height = Math.min(500, newEditor.getContentHeight());
+      const width = props.inline
+        ? newEditor.getContentWidth() + 50
+        : newEditor.getContainerDomNode()!.offsetWidth;
       try {
         newEditor.layout({
-          height: contentHeight,
-          width: 100, //newEditor.getContainerDomNode()!.offsetWidth,
+          height,
+          width,
         });
       } finally {
       }
     });
 
+    newEditor.onDidBlurEditorText(() => {
+      if (tippyRef.current) {
+        tippyRef.current.hide();
+      }
+    });
+
+    // setInterval(() => {
+    //   const contentHeight = Math.min(500, newEditor.getContentHeight());
+    //   newEditor.layout({
+    //     height: contentHeight,
+    //     width: props.inline
+    //       ? 600
+    //       : newEditor.getContainerDomNode()!.offsetWidth,
+    //   });
+    // }, 10000);
     editorRef.current = newEditor;
   }, []);
   const [codeVisible, setCodeVisible] = useState(true);
-
+  if (props.inline) {
+    return (
+      <>
+        <Tippy
+          interactive={true}
+          interactiveBorder={20}
+          arrow={roundArrow}
+          maxWidth={600}
+          placement="top-start"
+          appendTo={document.body}
+          onCreate={(tip) => (tippyRef.current = tip)}
+          onHide={(p) => {
+            if (editorRef.current?.hasTextFocus()) {
+              return false;
+            }
+          }}
+          onMount={(p) => {
+            const contentWidth = editorRef.current!.getContentWidth() + 50;
+            const contentHeight = editorRef.current!.getContentHeight();
+            editorRef.current?.layout({
+              height: contentHeight,
+              width: contentWidth,
+            });
+            // p.popperInstance?.update();
+          }}
+          delay={[0, 200]}
+          content={
+            <div
+              className="code"
+              contentEditable={false}
+              ref={codeRefCallback}
+              style={{
+                // width: "300px",
+                // height: "20px",
+                zIndex: 1000,
+                borderRadius: "4px",
+                boxShadow: "rgb(235, 236, 240) 0px 0px 0px 1.2px",
+              }}></div>
+          }>
+          <span
+            contentEditable={false}
+            style={{
+              display: "inline-block",
+              verticalAlign: "top",
+            }}
+            // onMouseOver={() => setCodeVisible(true)}
+            // onMouseOut={() => setCodeVisible(false)}
+          >
+            {context.executionHost.renderOutput(
+              models.model.uri.toString(),
+              () => {}
+            )}
+          </span>
+        </Tippy>
+        {/* {props.toolbar && props.toolbar} */}
+        {/* {codeVisible && (
+          
+        )} */}
+        {/* <div
+      className="output"
+      contentEditable={false}
+      style={{ position: "relative" }}>
+      {context.executionHost.renderOutput(
+        models.model.uri.toString(),
+        () => {}
+      )}
+    </div> */}
+      </>
+    );
+  }
   return (
-    // <div
-    //   contentEditable={false}
-    //   className={`notebookCell ${
-    //     codeVisible ? "expanded" : "collapsed"
-    //   } ${"props.cell.language TODO"}`}
-    //   style={{ display: "flex", flexDirection: "row" }}>
-    //   {codeVisible ? (
-    //     <VscChevronDown
-    //       title="Show / hide code"
-    //       className="notebookCell-sideIcon"
-    //       onClick={() => setCodeVisible(false)}
-    //     />
-    //   ) : (
-    //     <VscChevronRight
-    //       title="Show / hide code"
-    //       className="notebookCell-sideIcon"
-    //       onClick={() => setCodeVisible(true)}
-    //     />
-    //   )}
-    //   {}
-    //   <div style={{ flex: 1 }} className="notebookCell-content">
-    //     {codeVisible && (
-    //       <div className="notebookCell-codeContainer">
-    //         {/* {props.toolbar && props.toolbar} */}
-    //         <div
-    //           className="code"
-    //           ref={codeRefCallback}
-    //           style={{ height: "100%" }}></div>
-    //       </div>
-    //     )}
-
-    <>
-      <span contentEditable={false}>
-        {context.executionHost.renderOutput(
-          models.model.uri.toString(),
-          () => {}
+    <div
+      contentEditable={false}
+      className={`notebookCell ${
+        codeVisible ? "expanded" : "collapsed"
+      } ${"props.cell.language TODO"}`}
+      style={{ display: "flex", flexDirection: "row" }}>
+      {codeVisible ? (
+        <VscChevronDown
+          title="Show / hide code"
+          className="notebookCell-sideIcon"
+          onClick={() => setCodeVisible(false)}
+        />
+      ) : (
+        <VscChevronRight
+          title="Show / hide code"
+          className="notebookCell-sideIcon"
+          onClick={() => setCodeVisible(true)}
+        />
+      )}
+      {}
+      <div style={{ flex: 1 }} className="notebookCell-content">
+        {codeVisible && (
+          <div className="notebookCell-codeContainer">
+            {/* {props.toolbar && props.toolbar} */}
+            <div
+              className="code"
+              ref={codeRefCallback}
+              style={{ height: "100%" }}></div>
+          </div>
         )}
-      </span>
-      {/* {props.toolbar && props.toolbar} */}
-      <div
-        className="code"
-        contentEditable={false}
-        ref={codeRefCallback}
-        style={{ height: "50px", width: "100px", position: "absolute" }}></div>
-      {/* <div
-        className="output"
-        contentEditable={false}
-        style={{ position: "relative" }}>
-        {context.executionHost.renderOutput(
-          models.model.uri.toString(),
-          () => {}
-        )}
-      </div> */}
-    </>
-    // </div>
-    // </div>
+        <div
+          className="output"
+          contentEditable={false}
+          style={{ position: "relative" }}>
+          {context.executionHost.renderOutput(
+            models.model.uri.toString(),
+            () => {}
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 

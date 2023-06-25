@@ -19,15 +19,16 @@ function arrowHandler(
   dir: "up" | "down" | "left" | "right" | "forward" | "backward"
 ) {
   return (state: EditorState, dispatch: any, view: EditorView) => {
-    if (state.selection.empty && view.endOfTextblock(dir)) {
+    if (state.selection.empty) {
       let side = dir === "left" || dir === "up" ? -1 : 1;
       let $head = state.selection.$head;
+
       let nextPos = Selection.near(
-        state.doc.resolve(side > 0 ? $head.after() : $head.before()),
+        state.doc.resolve(side > 0 ? $head.pos + 1 : $head.pos - 1),
         side
       );
-      console.log("nextPos", nextPos.$head.parent.type.name);
-      if (nextPos.$head && nextPos.$head.parent.type.name === "monaco") {
+
+      if (nextPos.$head && nextPos.$head.parent.type.name === "inlineCode") {
         dispatch(state.tr.setSelection(nextPos));
         return true;
       }
@@ -54,17 +55,18 @@ const ComponentWithWrapper = (
       // data-content-type={blockConfig.type}
       {...htmlAttributes}>
       {/* @ts-ignore */}
-      <MonacoElement {...restProps} />
+      <MonacoElement inline={true} {...restProps} />
     </NodeViewWrapper>
   );
 };
 
 // TODO: clean up listeners
 export const InlineMonacoContent = createTipTapBlock({
-  name: "abc",
+  name: "inlineCode",
   // inline: true,
+  content: "inline*",
   editable: true,
-  selectable: true,
+  selectable: false,
   parseHTML() {
     return [
       {

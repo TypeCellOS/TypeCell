@@ -106,7 +106,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     },
     blockSchema: {
       ...defaultBlockSchema,
-      monaco: {
+      codeNode: {
         propSchema: {
           language: {
             type: "string",
@@ -115,7 +115,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         },
         node: MonacoBlockContent,
       },
-      abc: {
+      inlineCode: {
         propSchema: {
           language: {
             type: "string",
@@ -131,7 +131,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         "Monaco",
         (editor: any) =>
           insertOrUpdateBlock(editor, {
-            type: "monaco",
+            type: "codeNode",
           } as any),
         ["m"]
       ),
@@ -139,7 +139,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         "Inline",
         (editor) => {
           // state.tr.replaceSelectionWith(dinoType.create({type}))
-          const node = editor._tiptapEditor.schema.node("abc");
+          const node = editor._tiptapEditor.schema.node("inlineCode");
           const tr = editor._tiptapEditor.state.tr.replaceSelectionWith(node);
           editor._tiptapEditor.view.dispatch(tr);
         },
