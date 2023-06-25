@@ -3,6 +3,7 @@ import { observable } from "mobx";
 import type * as monaco from "monaco-editor";
 import { lifecycle } from "vscode-lib";
 import { CompiledCodeModel } from "../../../../models/CompiledCodeModel";
+import { SessionStore } from "../../../../store/local/SessionStore";
 import SourceModelCompiler from "../../../compiler/SourceModelCompiler";
 import { VisualizerExtension } from "../../../extensions/visualizer/VisualizerExtension";
 import { ModelOutput } from "../../components/ModelOutput";
@@ -29,12 +30,17 @@ export default class LocalExecutionHost
   constructor(
     private readonly documentId: string,
     compileEngine: SourceModelCompiler,
-    monacoInstance: typeof monaco
+    monacoInstance: typeof monaco,
+    sessionStore: SessionStore
   ) {
     super();
     this.engine = new Engine(
       getTypeCellResolver(documentId, "LEH-" + this.id, (moduleName) => {
-        return new TypeCellModuleCompiler(moduleName, monacoInstance);
+        return new TypeCellModuleCompiler(
+          moduleName,
+          monacoInstance,
+          sessionStore
+        );
       })
     );
     this.engine.registerModelProvider(compileEngine);

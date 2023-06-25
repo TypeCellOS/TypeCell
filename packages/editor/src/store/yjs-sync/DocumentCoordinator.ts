@@ -1,3 +1,4 @@
+import { makeYDocObservable } from "@syncedstore/yjs-reactive-bindings";
 import { lifecycle } from "vscode-lib";
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
@@ -13,8 +14,8 @@ export type DocumentInfo = {
   id: string;
   created_at: Date;
   create_source: "local" | "remote";
-  updated_at: Date;
-  last_synced_at: Date | null;
+  exists_at_remote: boolean;
+  needs_save_since: Date | undefined;
 };
 
 export class DocumentCoordinator extends lifecycle.Disposable {
@@ -26,6 +27,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
   constructor(private readonly userId: string) {
     super();
     this.doc = new Y.Doc();
+    makeYDocObservable(this.doc);
     this.indexedDBProvider = new IndexeddbPersistence(
       userId + "-coordinator",
       this.doc
@@ -71,8 +73,8 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       id: idStr,
       created_at: new Date(),
       create_source: "local",
-      updated_at: new Date(),
-      last_synced_at: null,
+      needs_save_since: new Date(),
+      exists_at_remote: false,
     };
 
     this.documents.set(idStr, meta);
@@ -104,8 +106,8 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       id: idStr,
       created_at: new Date(),
       create_source: "remote",
-      updated_at: new Date(),
-      last_synced_at: new Date(),
+      needs_save_since: undefined,
+      exists_at_remote: true,
     };
 
     this.documents.set(idStr, meta);
@@ -142,15 +144,23 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       return "not-found";
     }
 
-    targetYDoc.on("update", (update, origin) => {
-      console.log("update", origin);
+    targetYDoc.on("update", (_update, origin) => {
       // for indexeddb, origin is null
       // for typecell (hocuspocus) or matrix, origin has .isRemote = true
       if (!origin || origin.isRemote) {
         return;
       }
       // mark change
-      // TODO: mark synced on hocuspocus synced
+      const meta = this.documents.get(idStr);
+
+      if (!meta) {
+        throw new Error("document meta not found");
+      }
+
+      if (meta.needs_save_since === undefined) {
+        meta.needs_save_since = new Date();
+        this.documents.set(idStr, meta);
+      }
     });
 
     const idbProvider = new IndexeddbPersistence(
@@ -195,7 +205,12 @@ export class DocumentCoordinator extends lifecycle.Disposable {
   }
 
   public async markSynced(localDoc: LocalDoc) {
-    localDoc.meta.last_synced_at = new Date();
+    localDoc.meta.needs_save_since = undefined;
+    this.documents.set(localDoc.meta.id, localDoc.meta);
+  }
+
+  public async markCreated(localDoc: LocalDoc) {
+    localDoc.meta.exists_at_remote = true;
     this.documents.set(localDoc.meta.id, localDoc.meta);
   }
 }

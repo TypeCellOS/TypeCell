@@ -1,5 +1,6 @@
 import Breadcrumbs, { BreadcrumbsItem } from "@atlaskit/breadcrumbs";
 import { useNavigate } from "react-router-dom";
+import { SessionStore } from "../../../store/local/SessionStore";
 import { NotebookOverview } from "../../matrix-auth/routes/overview/NotebookOverview";
 import { toProfilePage } from "../../routes/routes";
 import styles from "./Profile.module.css";
@@ -7,6 +8,7 @@ import { MenuBar } from "./menuBar/MenuBar";
 
 interface ProfileProps {
   owner: string;
+  sessionStore: SessionStore;
 }
 
 export const Profile = function (props: ProfileProps) {
@@ -26,7 +28,10 @@ export const Profile = function (props: ProfileProps) {
         </Breadcrumbs>
       </MenuBar>
       <div className={styles.wrapper}>
-        <NotebookOverview owner={props.owner} />
+        <NotebookOverview
+          owner={props.owner}
+          sessionStore={props.sessionStore}
+        />
       </div>
     </>
   );

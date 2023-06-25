@@ -7,14 +7,19 @@ import {
   ThemeSupa,
 } from "@supabase/auth-ui-shared";
 import { createClient } from "@supabase/supabase-js";
-import { getStoreService } from "../../../store/local/stores";
+import { SessionStore } from "../../../store/local/SessionStore";
 import { Logo } from "../../main/components/Logo";
-import { ANON_KEY } from "../supabaseConfig";
-import AuthStyles from "./AuthStyles.module.css";
-const supabase = createClient("http://localhost:54321", ANON_KEY);
 
-export const Login = observer((props: {}) => {
-  const { sessionStore } = getStoreService();
+import { env } from "../../../config/env";
+import AuthStyles from "./AuthStyles.module.css";
+
+const supabase = createClient(
+  env.VITE_TYPECELL_SUPABASE_URL,
+  env.VITE_TYPECELL_SUPABASE_ANON_KEY
+);
+
+export const Login = observer((props: { sessionStore: SessionStore }) => {
+  const { sessionStore } = props;
 
   const location = useLocation();
   //   const navigate = useNavigate();
@@ -25,6 +30,8 @@ export const Login = observer((props: {}) => {
   if (sessionStore.isLoggedIn) {
     return <Navigate to={from} replace={true} />;
   }
+
+  const redirectTo = window.location.origin + "/login";
 
   return (
     <div className={AuthStyles.AuthPage}>
@@ -40,6 +47,8 @@ export const Login = observer((props: {}) => {
             supabaseClient={supabase}
             view="sign_in"
             appearance={{ theme: ThemeSupa }}
+            redirectTo={redirectTo}
+            providers={["google", "github"]}
           />
           {/* <div className={AuthStyles.AuthFormFooter}>sdfsdf</div> */}
         </div>

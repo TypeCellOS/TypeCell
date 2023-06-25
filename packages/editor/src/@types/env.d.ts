@@ -1,11 +1,12 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly PROD: boolean;
-  readonly DEV: boolean;
-  readonly VITE_REACT_APP_STAGING: string;
-  readonly VITE_REACT_APP_HOMESERVER_URI: string;
-  readonly VITE_REACT_APP_HOMESERVER_NAME: string;
+  readonly VITE_ENVIRONMENT: "PROD" | "DEV" | "STAGING";
+  readonly VITE_TYPECELL_BACKEND_WS_URL: string;
+  readonly VITE_TYPECELL_SUPABASE_URL: string;
+  readonly VITE_TYPECELL_SUPABASE_ANON_KEY: string;
+  readonly VITE_MATRIX_HOMESERVER_URI: string;
+  readonly VITE_MATRIX_HOMESERVER_NAME: string;
   // more env variables...
 }
 

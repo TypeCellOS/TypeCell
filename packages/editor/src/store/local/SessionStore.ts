@@ -7,6 +7,7 @@ import {
 } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { Identifier } from "../../identifiers/Identifier";
+import { BackgroundSyncer } from "../BackgroundSyncer";
 import { AliasCoordinator } from "../yjs-sync/AliasCoordinator";
 import { DocumentCoordinator } from "../yjs-sync/DocumentCoordinator";
 
@@ -83,6 +84,7 @@ export abstract class SessionStore extends lifecycle.Disposable {
 
         this.coordinators?.coordinator.dispose();
         this.coordinators?.aliasStore.dispose();
+        this.coordinators?.backgroundSyncer.dispose();
         runInAction(() => {
           this.coordinators = undefined;
         });
@@ -92,13 +94,16 @@ export abstract class SessionStore extends lifecycle.Disposable {
         }
 
         (async () => {
+          const coordinator = new DocumentCoordinator(userPrefix);
           const coordinators = {
             userPrefix,
-            coordinator: new DocumentCoordinator(userPrefix),
+            coordinator: coordinator,
             aliasStore: new AliasCoordinator(userPrefix),
+            backgroundSyncer: new BackgroundSyncer(coordinator, this),
           };
           await coordinators.coordinator.initialize();
           await coordinators.aliasStore.initialize();
+          await coordinators.backgroundSyncer.initialize();
           runInAction(() => {
             if (this.userPrefix === userPrefix) {
               // console.log("set coordinators", userPrefix);
@@ -128,36 +133,9 @@ export abstract class SessionStore extends lifecycle.Disposable {
         userPrefix: string;
         coordinator: DocumentCoordinator;
         aliasStore: AliasCoordinator;
+        backgroundSyncer: BackgroundSyncer;
       }
     | undefined = undefined;
-
-  /*public get coordinators() {
-    if (
-      this._coordinators &&
-      this._coordinators.userPrefix === this.userPrefix
-    ) {
-      return this._coordinators;
-    }
-
-    console.log("dispose");
-    this._coordinators?.coordinator.dispose();
-    this._coordinators?.aliasStore.dispose();
-
-    runInAction(() => {
-      this._coo;
-    });
-
-    if (!this.userPrefix) {
-      return undefined;
-    }
-
-    this._coordinators = {
-      userPrefix: this.userPrefix,
-      coordinator: new DocumentCoordinator(this.userPrefix),
-      aliasStore: new AliasCoordinator(this.userPrefix),
-    };
-    return this._coordinators;
-  }*/
 
   public get documentCoordinator() {
     return this.coordinators?.coordinator;

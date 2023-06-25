@@ -1,17 +1,18 @@
 import { ModalTransition } from "@atlaskit/modal-dialog";
 import { observer } from "mobx-react-lite";
-import { getStoreService } from "../../../../store/local/stores";
 
 import { Identifier } from "../../../../identifiers/Identifier";
 import { SupabaseSessionStore } from "../../SupabaseSessionStore";
 import PermissionsLoader from "./PermissionsLoader";
 
 const PermissionsDialog = observer(
-  (props: { isOpen: boolean; close: () => void; identifier: Identifier }) => {
-    const sessionStore = getStoreService().sessionStore;
-    if (!(sessionStore instanceof SupabaseSessionStore)) {
-      throw new Error("sessionStore is not a SupabaseSessionStore");
-    }
+  (props: {
+    isOpen: boolean;
+    close: () => void;
+    identifier: Identifier;
+    sessionStore: SupabaseSessionStore;
+  }) => {
+    const { sessionStore } = props;
     const user = sessionStore.user;
     if (typeof user === "string" || user.type === "guest-user") {
       return null;

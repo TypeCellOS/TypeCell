@@ -1,8 +1,5 @@
 // import * as octokit from "octokit";
-import { inc } from "semver";
-import { Identifier } from "../../identifiers/Identifier";
 import { CellModel } from "../../models/CellModel";
-import { DocConnection } from "../../store/DocConnection";
 
 import { base64 } from "@typecell-org/common";
 
@@ -244,47 +241,47 @@ export async function getTargetInfo(repo: RepoOptions): Promise<ParentCommit> {
   // return {repoInfo.data.default_branch;
 }
 
-export async function saveDocumentToGithub(id: Identifier) {
-  const targetRepo = {
-    owner: "yousefed",
-    repo: "testrep",
-  };
+// export async function saveDocumentToGithub(id: Identifier) {
+//   const targetRepo = {
+//     owner: "yousefed",
+//     repo: "testrep",
+//   };
 
-  const dc = DocConnection.load(id);
-  const doc = await dc.waitForDoc();
-  const template = await getTemplateTree();
+//   const dc = DocConnection.load(id);
+//   const doc = await dc.waitForDoc();
+//   const template = await getTemplateTree();
 
-  const targetInfo = await getTargetInfo(targetRepo);
+//   const targetInfo = await getTargetInfo(targetRepo);
 
-  let newVersion = "1.0.0";
-  if (targetInfo.version) {
-    let versionBumped = inc(targetInfo.version, "minor");
-    if (!versionBumped) {
-      throw new Error("couldn't parse version");
-    }
-    newVersion = versionBumped;
-  }
-  const copy = await copyTree(
-    templateRepo,
-    targetRepo,
-    template.data.tree,
-    doc.doc.cells,
-    newVersion
-  );
+//   let newVersion = "1.0.0";
+//   if (targetInfo.version) {
+//     let versionBumped = inc(targetInfo.version, "minor");
+//     if (!versionBumped) {
+//       throw new Error("couldn't parse version");
+//     }
+//     newVersion = versionBumped;
+//   }
+//   const copy = await copyTree(
+//     templateRepo,
+//     targetRepo,
+//     template.data.tree,
+//     doc.doc.cells,
+//     newVersion
+//   );
 
-  let branch: string = await getUnusedBranch(targetRepo, "v" + newVersion);
+//   let branch: string = await getUnusedBranch(targetRepo, "v" + newVersion);
 
-  await commit(targetRepo, copy, branch, targetInfo.commitSHA);
+//   await commit(targetRepo, copy, branch, targetInfo.commitSHA);
 
-  await githubClient.rest.pulls.create({
-    ...targetRepo,
-    head: branch,
-    base: targetInfo.defaultBranch,
-    title: branch,
-  });
+//   await githubClient.rest.pulls.create({
+//     ...targetRepo,
+//     head: branch,
+//     base: targetInfo.defaultBranch,
+//     title: branch,
+//   });
 
-  return template;
-}
+//   return template;
+// }
 
 export async function getUnusedBranch(repo: RepoOptions, branch: string) {
   let tryN = 1;

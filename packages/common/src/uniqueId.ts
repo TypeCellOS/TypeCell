@@ -1,5 +1,5 @@
 import * as nano from "nanoid";
-import { UnreachableCaseError } from "./error";
+import { UnreachableCaseError } from "./error.js";
 const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz";
 const nanoid = nano.customAlphabet(alphabet, 12);
 

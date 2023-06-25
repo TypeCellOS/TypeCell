@@ -19,7 +19,7 @@ import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost";
 import { DocumentResource } from "../../../store/DocumentResource";
-import { getStoreService } from "../../../store/local/stores";
+import { SessionStore } from "../../../store/local/SessionStore";
 import { MonacoColorManager } from "../notebook/MonacoColorManager";
 import { InlineMonacoContent } from "./InlineMonacoContent";
 import { MonacoBlockContent } from "./MonacoBlockContent";
@@ -28,6 +28,7 @@ import styles from "./RichTextRenderer.module.css";
 
 type Props = {
   document: DocumentResource;
+  sessionStore: SessionStore;
 };
 window.React = React;
 window.ReactDOM = ReactDOM;
@@ -55,7 +56,7 @@ function insertOrUpdateBlock<BSchema extends DefaultBlockSchema>(
 }
 
 const RichTextRenderer: React.FC<Props> = observer((props) => {
-  const sessionStore = getStoreService().sessionStore;
+  const { sessionStore } = props;
   const monaco = useContext(MonacoContext).monaco;
   const tools = useMemo(() => {
     const newCompiler = new SourceModelCompiler(monaco);
@@ -68,7 +69,8 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     const newExecutionHost: LocalExecutionHost = new LocalExecutionHost(
       props.document.id,
       newCompiler,
-      monaco
+      monaco,
+      sessionStore
     );
 
     // const newExecutionHost: ExecutionHost = new SandboxedExecutionHost(

@@ -2,7 +2,6 @@ import { observer } from "mobx-react-lite";
 import qs from "qs";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { MATRIX_CONFIG } from "../../../config/config";
-import { getStoreService } from "../../../store/local/stores";
 import Registration from "../../matrix-auth/auth/Registration";
 import { ValidatedServerConfig } from "../../matrix-auth/auth/util/AutoDiscoveryUtils";
 import { toLoginScreen } from "../../routes/routes";
@@ -29,53 +28,55 @@ function makeRegistrationUrl(params: any) {
   return url;
 }
 
-export const Register = observer((props: { config: ValidatedServerConfig }) => {
-  const { sessionStore } = getStoreService();
-  if (!(sessionStore instanceof MatrixSessionStore)) {
-    throw new Error("sessionStore is not a MatrixSessionStore");
+export const Register = observer(
+  (props: {
+    config: ValidatedServerConfig;
+    sessionStore: MatrixSessionStore;
+  }) => {
+    const { sessionStore } = props;
+    const navigate = useNavigate();
+    const location = useLocation();
+    const params = qs.parse(window.location.search);
+
+    if (params.hs_url && params.hs_url !== MATRIX_CONFIG.hsUrl) {
+      throw new Error("different homeserver not supported");
+    }
+
+    if (params.is_url && params.is_url !== MATRIX_CONFIG.isUrl) {
+      throw new Error("different identity server not supported");
+    }
+
+    const from = (location.state as any)?.from?.pathname || "/";
+    let pageAfterLogin = window.location.origin + from;
+
+    if (sessionStore.isLoggedIn) {
+      return <Navigate to={from} replace={true} />;
+    }
+
+    // const email = ThreepidInviteStore.instance.pickBestInvite()?.toEmail;
+    return (
+      <Registration
+        clientSecret={params.client_secret as string | undefined}
+        sessionId={params.session_id as string | undefined}
+        idSid={params.sid as string | undefined}
+        email={undefined}
+        brand={"TypeCell"}
+        makeRegistrationUrl={makeRegistrationUrl}
+        onLoggedIn={sessionStore.matrixAuthStore.onUserCompletedLoginFlow}
+        onLoginClick={() => {
+          navigate(toLoginScreen(), {
+            state: { from: (location.state as any)?.from },
+          });
+        }}
+        onServerConfigChange={() => {
+          // TODO
+          console.log("config change (not implemented)");
+        }}
+        defaultDeviceDisplayName={"TypeCell web"}
+        // TODO: does this work correctly after SSO login is declined?
+        pageAfterLogin={pageAfterLogin}
+        serverConfig={props.config}
+      />
+    );
   }
-  const navigate = useNavigate();
-  const location = useLocation();
-  const params = qs.parse(window.location.search);
-
-  if (params.hs_url && params.hs_url !== MATRIX_CONFIG.hsUrl) {
-    throw new Error("different homeserver not supported");
-  }
-
-  if (params.is_url && params.is_url !== MATRIX_CONFIG.isUrl) {
-    throw new Error("different identity server not supported");
-  }
-
-  const from = (location.state as any)?.from?.pathname || "/";
-  let pageAfterLogin = window.location.origin + from;
-
-  if (sessionStore.isLoggedIn) {
-    return <Navigate to={from} replace={true} />;
-  }
-
-  // const email = ThreepidInviteStore.instance.pickBestInvite()?.toEmail;
-  return (
-    <Registration
-      clientSecret={params.client_secret as string | undefined}
-      sessionId={params.session_id as string | undefined}
-      idSid={params.sid as string | undefined}
-      email={undefined}
-      brand={"TypeCell"}
-      makeRegistrationUrl={makeRegistrationUrl}
-      onLoggedIn={sessionStore.matrixAuthStore.onUserCompletedLoginFlow}
-      onLoginClick={() => {
-        navigate(toLoginScreen(), {
-          state: { from: (location.state as any)?.from },
-        });
-      }}
-      onServerConfigChange={() => {
-        // TODO
-        console.log("config change (not implemented)");
-      }}
-      defaultDeviceDisplayName={"TypeCell web"}
-      // TODO: does this work correctly after SSO login is declined?
-      pageAfterLogin={pageAfterLogin}
-      serverConfig={props.config}
-    />
-  );
-});
+);

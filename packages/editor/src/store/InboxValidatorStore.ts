@@ -1,8 +1,6 @@
 import { autorun } from "mobx";
 import { lifecycle } from "vscode-lib";
 import * as Y from "yjs";
-import { parseIdentifier } from "../identifiers";
-import { Identifier } from "../identifiers/Identifier";
 import { UnreachableCaseError } from "../util/UnreachableCaseError";
 import { BaseResource } from "./BaseResource";
 import { InboxResource, RefInboxMessage } from "./InboxResource";
@@ -49,7 +47,7 @@ export class InboxValidator<
   constructor(
     private readonly inbox: InboxResource,
     private referenceDefinition: T,
-    loader: (identifier: Identifier) => Promise<BaseResource>
+    loader: (idString: string) => Promise<BaseResource>
   ) {
     super();
     const dispose = autorun(() => {
@@ -61,7 +59,7 @@ export class InboxValidator<
         this.seenMessages.add(message.id);
         this.pendingMessages.add(message.id);
 
-        const resource = await loader(parseIdentifier(message.source));
+        const resource = await loader(message.source);
         const handler = () => {
           this.updateMessageStateFromResource(message, resource);
         };
@@ -130,7 +128,7 @@ export class InboxValidator<
     const state = Y.getState(resource.ydoc.store, clientNum);
     if (state < clockNum) {
       // we need to wait for the document to be updated
-      // console.log("wait");
+      console.log("wait");
       return "wait";
     }
 
@@ -139,10 +137,10 @@ export class InboxValidator<
       this.inbox.inboxTarget
     );
     if (!ref || ref.target !== this.inbox.inboxTarget) {
-      // console.log("invalid");
+      // console.log("invalid", ref?.target, this.inbox.inboxTarget);
       return false;
     }
-    // console.log("valid");
+    // console.log("valid", ref.target, this.inbox.inboxTarget);
     return true;
   }
 

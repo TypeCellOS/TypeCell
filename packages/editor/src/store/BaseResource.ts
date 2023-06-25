@@ -263,10 +263,7 @@ export class BaseResource {
         },
       ]);
 
-      // TODO: remove setTimeout and immediately dispose, should be taken care of by bg syncer
-      setTimeout(() => {
-        inbox.dispose();
-      }, 1000);
+      inbox.dispose();
     }
     this._refs.set(key, ref);
   }

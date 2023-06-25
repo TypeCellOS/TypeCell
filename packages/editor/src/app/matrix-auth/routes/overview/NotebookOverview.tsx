@@ -3,7 +3,7 @@ import { Method } from "matrix-js-sdk";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getStoreService } from "../../../../store/local/stores";
+import { SessionStore } from "../../../../store/local/SessionStore";
 import { MatrixSessionStore } from "../../MatrixSessionStore";
 import styles from "./NotebookOverview.module.css";
 
@@ -48,6 +48,7 @@ const RoomInfo = function (props: { room: Room }) {
 
 type NotebookOverviewProps = {
   owner: string;
+  sessionStore: SessionStore;
 };
 
 /**
@@ -65,7 +66,7 @@ export const NotebookOverview = observer(function (
 
   const [searchString, setSearchString] = useState("");
 
-  const sessionStore = getStoreService().sessionStore;
+  const { sessionStore } = props;
 
   useEffect(() => {
     // async function resolveRoom(roomId: string): Promise<Room | undefined> {

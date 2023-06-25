@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import type { Database } from "../../types/schema";
+import type { Database } from "../../@types/schema";
 import { createDocument, createRandomUser } from "./supabaseTestUtil";
 
 // revoke update on documents in schema public from anon;

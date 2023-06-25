@@ -6,6 +6,7 @@ import { AsyncMethodReturns, Connection, connectToChild } from "penpal";
 import { lifecycle } from "vscode-lib";
 import { getFrameDomain } from "../../../../config/security";
 import { CompiledCodeModel } from "../../../../models/CompiledCodeModel";
+import { SessionStore } from "../../../../store/local/SessionStore";
 import { ContainedElement } from "../../../../util/ContainedElement";
 import SourceModelCompiler from "../../../compiler/SourceModelCompiler";
 import { VisualizerExtension } from "../../../extensions/visualizer/VisualizerExtension";
@@ -85,7 +86,8 @@ export default class SandboxedExecutionHost
   constructor(
     private readonly documentId: string,
     private readonly compileEngine: SourceModelCompiler,
-    private monacoInstance: typeof monaco
+    private monacoInstance: typeof monaco,
+    private readonly sessionStore: SessionStore
   ) {
     super();
 
@@ -154,7 +156,8 @@ export default class SandboxedExecutionHost
       }
       const compiler = new TypeCellModuleCompiler(
         moduleName,
-        this.monacoInstance
+        this.monacoInstance,
+        this.sessionStore
       );
       const forwarder = new ModelForwarder(
         "modules/" + moduleName,

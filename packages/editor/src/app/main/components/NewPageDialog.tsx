@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import * as Y from "yjs";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
+import { SessionStore } from "../../../store/local/SessionStore";
 import { UnreachableCaseError } from "../../../util/UnreachableCaseError";
 import { toDocument } from "../../routes/routes";
 import { Card } from "./common/card/Card";
@@ -22,6 +23,7 @@ export const NewPageDialog = (props: {
   isOpen: boolean;
   close: () => void;
   ownerId: string;
+  sessionStore: SessionStore;
 }) => {
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState<"!richtext" | "!notebook">(
@@ -50,7 +52,7 @@ export const NewPageDialog = (props: {
                 setError("");
                 setLoading(true);
 
-                const ret = await DocConnection.create();
+                const ret = await DocConnection.create(props.sessionStore);
 
                 setLoading(false);
 

@@ -3,15 +3,13 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { DocumentResource } from "../../store/DocumentResource";
-import { getStoreService } from "../../store/local/stores";
+import { SessionStore } from "../../store/local/SessionStore";
 import { CloseNewPageDialog, IsNewPageDialogOpen } from "../routes/routes";
+import styles from "./Main.module.css";
 import { Navigation } from "./components/Navigation";
 import NewPageDialog from "./components/NewPageDialog";
-import styles from "./Main.module.css";
 
-const Main = observer((props: {}) => {
-  const sessionStore = getStoreService().sessionStore;
-
+const Main = observer((props: { sessionStore: SessionStore }) => {
   let location = useLocation();
   let navigate = useNavigate();
 
@@ -27,11 +25,12 @@ const Main = observer((props: {}) => {
           " " +
           (location.pathname === "/ai" ? styles.ai : "")
         }>
-        <Navigation />
+        <Navigation sessionStore={props.sessionStore} />
         <Outlet />
-        {sessionStore.loggedInUserId && (
+        {props.sessionStore.loggedInUserId && (
           <NewPageDialog
-            ownerId={sessionStore.loggedInUserId}
+            sessionStore={props.sessionStore}
+            ownerId={props.sessionStore.loggedInUserId}
             close={() => CloseNewPageDialog(navigate)}
             isOpen={IsNewPageDialogOpen(location)}
           />
