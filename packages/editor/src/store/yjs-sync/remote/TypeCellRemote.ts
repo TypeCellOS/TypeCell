@@ -13,6 +13,7 @@ import { uuid } from "vscode-lib";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
 import { SupabaseSessionStore } from "../../../app/supabase-auth/SupabaseSessionStore";
+import { env } from "../../../config/env";
 import { TypeCellIdentifier } from "../../../identifiers/TypeCellIdentifier";
 import { Remote } from "./Remote";
 
@@ -23,23 +24,23 @@ function toHex(arr: Uint8Array) {
 }
 
 function getWSProvider(session: SupabaseSessionStore) {
-  if (!session.userId) {
+  if (!session.userPrefix) {
     throw new Error("no user available on create document");
   }
-  let wsProvider = wsProviders.get(session.userId);
+  let wsProvider = wsProviders.get(session.userPrefix);
   if (!wsProvider) {
     console.log("new ws provider");
     wsProvider = new HocuspocusProviderWebsocket({
-      url: "ws://localhost:1234",
+      url: env.VITE_TYPECELL_BACKEND_WS_URL,
       // WebSocketPolyfill: ws,
       onConnect() {
-        console.log("connected");
+        // console.log("connected");
       },
     });
     if (TypeCellRemote.Offline) {
       wsProvider.disconnect();
     }
-    wsProviders.set(session.userId, wsProvider);
+    wsProviders.set(session.userPrefix, wsProvider);
   }
   return wsProvider;
 }
@@ -135,7 +136,7 @@ export class TypeCellRemote extends Remote {
     } as const;
 
     if (TypeCellRemote.Offline) {
-      throw new Error("offline");
+      throw new Error("fake-offline");
     }
     console.log(
       "insert doc",
@@ -177,7 +178,7 @@ export class TypeCellRemote extends Remote {
       return;
     }
 
-    console.log("token", token);
+    // console.log("token", token);
     const hocuspocusProvider = new HocuspocusProvider({
       name: this.identifier.documentId,
       document: this._ydoc,
@@ -205,16 +206,14 @@ export class TypeCellRemote extends Remote {
         this.unsyncedChanges = hocuspocusProvider.unsyncedChanges;
       });
     });
-    this.unsyncedChanges = hocuspocusProvider.unsyncedChanges;
-
     this.hocuspocusProvider = hocuspocusProvider;
 
     this._register({
       dispose: () => hocuspocusProvider.destroy(),
     });
-
+    console.log("start");
     this._awarenessAtom.reportChanged();
-    this._canWriteAtom.reportChanged();
+    // this._canWriteAtom.reportChanged();
     // this.hocuspocusProvider?.on("");
   }
   //   `this._register(

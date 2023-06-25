@@ -10,6 +10,7 @@ import { Identifier } from "../../../../identifiers/Identifier";
 import { identifiersToPath } from "../../../../identifiers/paths/identifierPathHelpers";
 import { DocConnection } from "../../../../store/DocConnection";
 import ProfileResource from "../../../../store/ProfileResource";
+import { SessionStore } from "../../../../store/local/SessionStore";
 import { RouteContext } from "../../../routes/RouteContext";
 
 const buttonStyle = {
@@ -29,8 +30,11 @@ const buttonStyle = {
   minWidth: 0,
 };
 
-function getTitleForIdentifier(identifier: Identifier) {
-  const doc = DocConnection.get(identifier);
+function getTitleForIdentifier(
+  identifier: Identifier,
+  sessionStore: SessionStore
+) {
+  const doc = DocConnection.get(identifier, sessionStore);
   if (doc) {
     switch (doc.tryDoc?.type) {
       case "!project":
@@ -48,7 +52,7 @@ function getTitleForIdentifier(identifier: Identifier) {
   return "…";
 }
 
-const BreadcrumbItems = observer(() => {
+const BreadcrumbItems = observer((props: { sessionStore: SessionStore }) => {
   const items: JSX.Element[] = [];
   const navigate = useNavigate();
 
@@ -83,7 +87,7 @@ const BreadcrumbItems = observer(() => {
       items.push(
         <BreadcrumbsItem
           iconBefore={icon}
-          text={getTitleForIdentifier(identifier)}
+          text={getTitleForIdentifier(identifier, props.sessionStore)}
           component={component}
           href={path}
           onClick={(e) => {
@@ -95,77 +99,13 @@ const BreadcrumbItems = observer(() => {
     });
   });
 
-  // const toRoot = () => {
-  //   if (identifier.title === "Docs") {
-  //     navigate({
-  //       pathname: "/docs",
-  //     });
-  //   } else {
-  //     navigate({
-  //       pathname: "/" + identifier.toString(),
-  //     });
-  //   }
-  // };
-
-  // if (identifier instanceof FileIdentifier) {
-  //   // Show path as single item
-  //   items.push(
-  //     <BreadcrumbsItem
-  //       iconBefore={<VscFile style={{ marginRight: 5, marginTop: -2 }} />}
-  //       text={identifier.title || identifier.uri.toString()}
-  //       onClick={toRoot}
-  //     />
-  //   );
-  // } else if (identifier instanceof GithubIdentifier) {
-  //   // Show path as single item
-  //   items.push(
-  //     <BreadcrumbsItem
-  //       iconBefore={<VscGithub style={{ marginRight: 5 }} />}
-  //       href=""
-  //       onClick={toRoot}
-  //       text={identifier.title || identifier.uri.toString()}
-  //     />
-  //   );
-  // } else if (identifier instanceof HttpsIdentifier) {
-  //   // Show path as single item
-  //   items.push(
-  //     <BreadcrumbsItem
-  //       iconBefore={<VscGlobe style={{ marginRight: 5 }} />}
-  //       href=""
-  //       text={identifier.title || identifier.uri.toString()}
-  //       onClick={toRoot}
-  //     />
-  //   );
-  // } else if (identifier instanceof MatrixIdentifier) {
-  //   items.push(
-  //     <BreadcrumbsItem
-  //       key={identifier.owner}
-  //       href=""
-  //       text={identifier.owner}
-  //       onClick={() => {
-  //         navigate(toProfilePage(identifier.owner));
-  //       }}
-  //     />,
-  //     <BreadcrumbsItem
-  //       key={identifier.document}
-  //       text={identifier.document}
-  //       component={() => (
-  //         // Replace default component so it doesn't render as a link
-  //         <button style={{ ...buttonStyle, cursor: "normal" }}>
-  //           <span>{identifier.document}</span>
-  //         </button>
-  //       )}
-  //     />
-  //   );
-  // }
-
   return <>{[...items]}</>;
 });
 
-export const Breadcrumb = () => {
+export const Breadcrumb = (props: { sessionStore: SessionStore }) => {
   return (
     <Breadcrumbs>
-      <BreadcrumbItems />
+      <BreadcrumbItems sessionStore={props.sessionStore} />
     </Breadcrumbs>
   );
 };

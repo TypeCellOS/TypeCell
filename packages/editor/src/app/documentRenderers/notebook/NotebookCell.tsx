@@ -17,7 +17,7 @@ import { getTypeCellCodeModel } from "../../../models/YTextTypeCellCodeModel";
 import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import { ExecutionHost } from "../../../runtime/executor/executionHosts/ExecutionHost";
-import { getStoreService } from "../../../store/local/stores";
+import { SessionStore } from "../../../store/local/SessionStore";
 import { HoverTrackerContext } from "./HoverTrackerContext";
 import { NotebookCellModel } from "./NotebookCellModel";
 
@@ -31,10 +31,11 @@ type Props = {
   initialFocus?: boolean;
   awareness: Awareness | undefined;
   toolbar?: React.ReactElement;
+  sessionStore: SessionStore;
 };
 
 const NotebookCell: React.FC<Props> = observer((props) => {
-  const { cell, awareness, compiler, initialFocus } = props;
+  const { cell, awareness, compiler, initialFocus, sessionStore } = props;
 
   const initial = useRef(true);
   const [model, setModel] = useState<TypeCellCodeModel>();
@@ -46,7 +47,6 @@ const NotebookCell: React.FC<Props> = observer((props) => {
   const monaco = useContext(MonacoContext).monaco;
   // const [codeRef, setCodeRef] = useState<HTMLDivElement>();
 
-  const sessionStore = getStoreService().sessionStore;
   const user = sessionStore.loggedInUserId;
 
   const [codeVisible, setCodeVisible] = useState(

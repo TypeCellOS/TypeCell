@@ -1,5 +1,5 @@
 import type * as monaco from "monaco-editor";
-import { lifecycle, event } from "vscode-lib";
+import { event, lifecycle } from "vscode-lib";
 import { CompiledCodeModel } from "../../../models/CompiledCodeModel";
 import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 import { TypeChecker } from "./TypeChecker";
@@ -7,10 +7,7 @@ import { TypeChecker } from "./TypeChecker";
 export type VisualizersByPath = { [key: string]: string[] };
 
 export class VisualizerExtension extends lifecycle.Disposable {
-  private readonly typeChecker = new TypeChecker(
-    this.documentId,
-    this.monacoInstance
-  );
+  private readonly typeChecker: TypeChecker;
 
   private readonly _onUpdateVisualizers: event.Emitter<VisualizersByPath> =
     this._register(new event.Emitter<VisualizersByPath>());
@@ -24,6 +21,7 @@ export class VisualizerExtension extends lifecycle.Disposable {
     private readonly monacoInstance: typeof monaco
   ) {
     super();
+    this.typeChecker = new TypeChecker(this.documentId, this.monacoInstance);
     compiler.compiledModels.forEach((m) => this.registerModel(m));
     this._register(
       compiler.onDidCreateCompiledModel((m) => {

@@ -29,7 +29,7 @@ export class CellListModel {
     const newCellsById = new Map<string, CellModel>();
     for (let child of children) {
       const id = child.getAttribute("block-id")!; // TODO: !
-      const lang = child.getAttribute("language");
+      const lang = child.getAttribute("language")!; // TODO: !
 
       const old = this._previousCellsById.get(id);
 

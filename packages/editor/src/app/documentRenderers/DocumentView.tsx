@@ -11,6 +11,7 @@ import ProjectResource from "../../store/ProjectResource";
 import styles from "./DocumentView.module.css";
 // import { CustomRenderer } from "./custom/CustomRenderer";
 import ProfileResource from "../../store/ProfileResource";
+import { SessionStore } from "../../store/local/SessionStore";
 import { DocumentMenu } from "../main/components/documentMenu/DocumentMenu";
 import { MenuBar } from "../main/components/menuBar/MenuBar";
 import NotebookRenderer from "./notebook/NotebookRenderer";
@@ -25,6 +26,7 @@ type Props = {
   subIdentifiers: Identifier[];
   isNested?: boolean;
   hideDocumentMenu?: boolean;
+  sessionStore: SessionStore;
 };
 
 /**
@@ -35,7 +37,7 @@ const DocumentView = observer((props: Props) => {
   const [connection, setConnection] = useState<DocConnection>();
 
   React.useEffect(() => {
-    const newConnection = DocConnection.load(props.id);
+    const newConnection = DocConnection.load(props.id, props.sessionStore);
 
     setConnection(newConnection);
     // for testing:
@@ -47,7 +49,7 @@ const DocumentView = observer((props: Props) => {
       setConnection(undefined);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.id.toString()]);
+  }, [props.id.toString(), props.sessionStore]);
 
   if (!connection) {
     return null;
@@ -67,9 +69,15 @@ const DocumentView = observer((props: Props) => {
     return (
       <div className={styles.view}>
         {!props.hideDocumentMenu && (
-          <DocumentMenu document={doc}></DocumentMenu>
+          <DocumentMenu
+            document={doc}
+            sessionStore={props.sessionStore}></DocumentMenu>
         )}
-        <NotebookRenderer key={connection.doc.id} document={doc} />
+        <NotebookRenderer
+          key={connection.doc.id}
+          document={doc}
+          sessionStore={props.sessionStore}
+        />
       </div>
     );
   } else if (connection.doc.type === "!project") {
@@ -86,6 +94,7 @@ const DocumentView = observer((props: Props) => {
             isNested={true}
             key={connection.doc.id}
             project={connection.doc.getSpecificType(ProjectResource)!}
+            sessionStore={props.sessionStore}
           />
         </div>
       );
@@ -95,6 +104,7 @@ const DocumentView = observer((props: Props) => {
           key={connection.doc.id}
           project={connection.doc.getSpecificType(ProjectResource)!}
           subIdentifiers={props.subIdentifiers}
+          sessionStore={props.sessionStore}
         />
       );
     }
@@ -104,11 +114,14 @@ const DocumentView = observer((props: Props) => {
     return (
       <div className={styles.view}>
         {!props.hideDocumentMenu && (
-          <DocumentMenu document={doc}></DocumentMenu>
+          <DocumentMenu
+            document={doc}
+            sessionStore={props.sessionStore}></DocumentMenu>
         )}
         <RichTextRenderer
           key={connection.doc.id}
           document={connection.doc.doc!}
+          sessionStore={props.sessionStore}
         />
       </div>
     );

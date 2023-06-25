@@ -1,4 +1,4 @@
-import { BrowserContext, Page } from "@playwright/test";
+import { BrowserContext, Page, expect } from "@playwright/test";
 import { DEFAULT_PROVIDER } from "./config";
 import { test as base } from "./networkRequestFilter";
 
@@ -35,7 +35,7 @@ async function registerUserMatrix(
   page: Page,
   user: { username: string; password: string }
 ) {
-  await page.goto(process.env.TYPECELL_BASE_URL + "/register");
+  await page.goto("/register");
   const field = page.locator("input[name='username']");
   await field.type(user.username);
   const pwField = page.locator("input[name='password']");
@@ -48,7 +48,9 @@ async function registerUserMatrix(
   await registerBtn.click();
 
   // registered + signed in when profile button is visible
-  await page.waitForSelector("button[data-testid='profile-button']");
+  await expect(
+    page.locator("button[data-testid='profile-button']")
+  ).toBeAttached();
 }
 
 /**
@@ -58,7 +60,7 @@ async function registerUserSupabase(
   page: Page,
   user: { username: string; password: string }
 ) {
-  await page.goto(process.env.TYPECELL_BASE_URL + "/register");
+  await page.goto("/register");
   const field = page.locator("input[name='email']");
   await field.type(user.username + "@fakeemail.typecell.org");
   const pwField = page.locator("input[name='password']");
@@ -67,7 +69,7 @@ async function registerUserSupabase(
   const registerBtn = page.locator("button[type='submit']");
   await registerBtn.click();
 
-  await page.waitForSelector("input[name='username']");
+  await expect(page.locator("input[name='username']")).toBeAttached();
 
   const usernameField = page.locator("input[name='username']");
   await usernameField.type(user.username);
@@ -76,7 +78,9 @@ async function registerUserSupabase(
   await setUsernameBtn.click();
 
   // registered + signed in when profile button is visible
-  await page.waitForSelector("button[data-testid='profile-button']");
+  await expect(
+    page.locator("button[data-testid='profile-button']")
+  ).toBeAttached();
 }
 
 // This fixture exposes information (username / password) of alice / bob

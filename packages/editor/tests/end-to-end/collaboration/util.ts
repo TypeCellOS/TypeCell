@@ -29,14 +29,14 @@ export async function createNotebook(
   await pageAlice.click('button:has-text("Create")');
 
   // wait until alice loads
-  await pageAlice.waitForSelector(readEditorSelector);
+  await expect(pageAlice.locator(readEditorSelector)).toBeAttached();
 
   const pageBob = await bobContext.newPage();
   //   debugger;
   await pageBob.goto(pageAlice.url());
 
   // wait until bob loads
-  await pageBob.waitForSelector(readEditorSelector);
+  await expect(pageBob.locator(readEditorSelector)).toBeAttached();
 
   return { pageAlice, pageBob };
 }
@@ -73,25 +73,18 @@ export async function selectionSyncs(from: Page, to: Page) {
   expect(bbLine!.y).toBeNear(bbSelection!.y, 2);
 }
 
-export async function testEditSync(
-  from: Page,
-  to: Page,
-  timeout: number,
-  shouldSync = true
-) {
+export async function testEditSync(from: Page, to: Page, shouldSync = true) {
   await from.press(writeEditorSelector, "Meta+a");
   await from.fill(writeEditorSelector, "changedtext");
 
   expect(await from.textContent(readEditorSelector)).toBe("changedtext");
 
   if (shouldSync) {
-    await to.waitForSelector("text=changedtext", {
-      timeout,
-    });
+    await expect(to.locator("text=changedtext")).toBeAttached();
     expect(from.locator('[data-test="forkAlert"]')).toBeHidden();
   } else {
-    await to.waitForTimeout(timeout);
-    expect(to.locator("text=changedtext")).toBeHidden();
-    await from.waitForSelector('[data-test="forkAlert"]');
+    // await to.waitForTimeout(timeout);
+    await expect(to.locator("text=changedtext")).toBeHidden();
+    await expect(from.locator('[data-test="forkAlert"]')).toBeAttached();
   }
 }

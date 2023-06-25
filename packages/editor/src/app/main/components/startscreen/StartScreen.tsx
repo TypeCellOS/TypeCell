@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { getStoreService } from "../../../../store/local/stores";
+import { SessionStore } from "../../../../store/local/SessionStore";
 import buttonStyles from "../../../../styles/buttons.module.css";
 import { NotebookOverviewItem } from "../../../matrix-auth/routes/overview/NotebookOverviewItem";
 import {
@@ -19,8 +19,8 @@ import lightning from "./assets/lightning.svg";
 import npm from "./assets/npm.svg";
 import timePreviewImage from "./assets/time_preview.jpg";
 
-export const StartScreen = observer(() => {
-  const { sessionStore } = getStoreService();
+export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
+  const { sessionStore } = props;
   const navigate = useNavigate();
   const location = useLocation();
 

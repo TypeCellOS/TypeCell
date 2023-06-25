@@ -16,7 +16,6 @@ import { Identifier } from "../identifiers/Identifier";
 import { TypeCellIdentifier } from "../identifiers/TypeCellIdentifier";
 import { InboxResource } from "./InboxResource";
 import { SessionStore } from "./local/SessionStore";
-import { getStoreService } from "./local/stores";
 import { ForkReference } from "./referenceDefinitions/fork";
 import { SyncManager } from "./yjs-sync/SyncManager";
 
@@ -54,10 +53,10 @@ export class DocConnection extends lifecycle.Disposable {
     const dispose = reaction(
       () => this.sessionStore.documentCoordinator,
       async () => {
-        console.log(
-          "sessionstore change",
-          this.sessionStore.documentCoordinator
-        );
+        // console.log(
+        //   "sessionstore change",
+        //   this.sessionStore.documentCoordinator
+        // );
 
         this._baseResourceCache = undefined;
         this.manager?.dispose();
@@ -91,7 +90,7 @@ export class DocConnection extends lifecycle.Disposable {
 
   /** @internal */
   public get awareness() {
-    console.log("awareness", this.manager?.awareness);
+    // console.log("awareness", this.manager?.awareness);
     return this.manager?.awareness;
   }
 
@@ -139,7 +138,6 @@ export class DocConnection extends lifecycle.Disposable {
     runInAction(() => {
       this.manager = manager;
     });
-    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   // TODO: fork github or file sources
@@ -197,10 +195,8 @@ export class DocConnection extends lifecycle.Disposable {
       doc.create("!inbox");
       doc.ydoc.getMap("inboxmeta").set("target", identifier.toString()); // TODO
 
-      // TODO: get rid of this, immedaitely dispose and make a bg manager responsible for syncing the change
-      setTimeout(() => {
-        inboxConnection.dispose();
-      }, 2000);
+      // we can dispose immediately, bg manager is responsible for syncing the change
+      inboxConnection.dispose();
     }
 
     const manager = SyncManager.create(identifier, sessionStore, forkSource);
@@ -231,7 +227,7 @@ export class DocConnection extends lifecycle.Disposable {
 
   public static async loadInboxResource(
     id: Identifier,
-    sessionStore = getStoreService().sessionStore
+    sessionStore: SessionStore
   ): Promise<InboxResource> {
     if (!(id instanceof TypeCellIdentifier)) {
       throw new Error(
@@ -252,7 +248,7 @@ export class DocConnection extends lifecycle.Disposable {
   }
 
   // TODO: async or not?
-  public static async create(sessionStore = getStoreService().sessionStore) {
+  public static async create(sessionStore: SessionStore) {
     if (!sessionStore.loggedInUserId) {
       // Note: can happen on sign up
       console.warn(
@@ -273,7 +269,7 @@ export class DocConnection extends lifecycle.Disposable {
 
   public static get(
     identifier: string | Identifier,
-    sessionStore = getStoreService().sessionStore
+    sessionStore: SessionStore
   ) {
     if (!(identifier instanceof Identifier)) {
       identifier = parseIdentifier(identifier);
@@ -287,7 +283,7 @@ export class DocConnection extends lifecycle.Disposable {
 
   public static load(
     identifier: string | Identifier,
-    sessionStore = getStoreService().sessionStore
+    sessionStore: SessionStore
   ) {
     if (!(identifier instanceof Identifier)) {
       identifier = parseIdentifier(identifier);

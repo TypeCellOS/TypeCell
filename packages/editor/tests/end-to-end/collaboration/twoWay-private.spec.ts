@@ -1,7 +1,8 @@
-import { Page } from "@playwright/test";
+import { Page, expect } from "@playwright/test";
 import { test } from "../setup/fixtures";
 import {
   createNotebook,
+  readEditorSelector,
   selectionSyncs,
   testEditSync,
   writeEditorSelector,
@@ -36,6 +37,7 @@ test.beforeAll(async ({ aliceContext, bobContext, bobUser }) => {
 
   // TODO: would be nice to have a way to apply permissions on the fly with hocuspocus
   await pageBob.reload();
+  await expect(pageBob.locator(readEditorSelector)).toBeAttached();
 });
 
 test.afterAll(() => {
@@ -51,9 +53,7 @@ test.beforeEach(async ({ disableWebRTC }) => {
   await pageAlice.press(writeEditorSelector, "Meta+a");
   await pageAlice.fill(writeEditorSelector, "helloworld");
 
-  await pageBob.waitForSelector("text=helloworld", {
-    timeout: disableWebRTC ? 5000 : 2000,
-  });
+  await expect(pageBob.locator("text=helloworld")).toBeAttached();
 });
 
 // at the end of each test, set text to "done" and wait until both are synced
@@ -64,9 +64,7 @@ test.afterEach(async ({ disableWebRTC }) => {
   await pageAlice.press(writeEditorSelector, "Meta+a");
   await pageAlice.fill(writeEditorSelector, "done");
 
-  await pageBob.waitForSelector("text=done", {
-    timeout: disableWebRTC ? 5000 : 2000,
-  });
+  await expect(pageBob.locator("text=done")).toBeAttached();
 });
 
 test("selection syncs from Alice to Bob", async ({
@@ -104,7 +102,7 @@ test("changes sync from Alice to Bob", async ({
   bobContext,
   disableWebRTC,
 }) => {
-  await testEditSync(pageAlice, pageBob, disableWebRTC ? 5000 : 2000);
+  await testEditSync(pageAlice, pageBob);
   // select content
   // TODO: consistent username + colors for screenshots
   //   expect(await pageBob.screenshot()).toMatchSnapshot("sync-selection.bob.png");
@@ -115,7 +113,7 @@ test("changes sync from Bob to Alice", async ({
   bobContext,
   disableWebRTC,
 }) => {
-  await testEditSync(pageBob, pageAlice, disableWebRTC ? 500000 : 200000);
+  await testEditSync(pageBob, pageAlice);
   // select content
   // TODO: consistent username + colors for screenshots
   //   expect(await pageBob.screenshot()).toMatchSnapshot("sync-selection.bob.png");

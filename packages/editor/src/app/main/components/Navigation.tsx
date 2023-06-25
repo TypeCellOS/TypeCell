@@ -5,9 +5,10 @@ import {
   PrimaryButton,
 } from "@atlaskit/atlassian-navigation";
 import { observer } from "mobx-react-lite";
+import { useCallback } from "react";
 import { VscSignIn } from "react-icons/vsc";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { getStoreService } from "../../../store/local/stores";
+import { SessionStore } from "../../../store/local/SessionStore";
 import { toDocs, toLoginScreen } from "../../routes/routes";
 import { Logo } from "./Logo";
 import styles from "./Navigation.module.css";
@@ -23,10 +24,20 @@ const ProductHome = () => {
   );
 };
 
-export const Navigation = observer(() => {
-  const sessionStore = getStoreService().sessionStore;
+export const Navigation = observer((props: { sessionStore: SessionStore }) => {
+  const { sessionStore } = props;
   const navigate = useNavigate();
   const location = useLocation();
+
+  const renderProfile = useCallback(() => {
+    return (
+      <>
+        {sessionStore.isLoggedIn && (
+          <ProfilePopup sessionStore={sessionStore} />
+        )}
+      </>
+    );
+  }, [sessionStore]);
 
   return (
     <AtlassianNavigation
@@ -38,7 +49,7 @@ export const Navigation = observer(() => {
             Documentation
           </Link>
           <a
-            href="https://www.github.com/yousefed/typecell"
+            href="https://www.github.com/TypeCellOS/TypeCell"
             className={styles.link}
             target="_blank">
             GitHub
@@ -48,13 +59,7 @@ export const Navigation = observer(() => {
         //   Documentation
         // </PrimaryButton>,
       ]}
-      renderProfile={observer(() => (
-        <>
-          {sessionStore.isLoggedIn && (
-            <ProfilePopup sessionStore={sessionStore} />
-          )}
-        </>
-      ))}
+      renderProfile={renderProfile}
       // renderHelp={() => (
       //   <Link className={styles.link} to={toDocs()}>
       //     Documentation

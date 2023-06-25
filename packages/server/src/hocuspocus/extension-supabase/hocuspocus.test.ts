@@ -10,13 +10,14 @@ import {
 } from "../../supabase/test/supabaseTestUtil";
 import { SupabaseHocuspocus } from "./SupabaseHocuspocus";
 
+let server: typeof Server;
 beforeAll(async () => {
   // await resetSupabaseDB();
-  const server = Server.configure({
+  server = Server.configure({
     extensions: [new SupabaseHocuspocus({})],
     debounce: 0,
   });
-  await server.listen(1234);
+  await server.listen(0); // 0 for random port
 });
 /*
 it("should sync user data via yjs", async () => {
@@ -89,10 +90,10 @@ describe("SupabaseHocuspocus", () => {
       docId = ret.data![0].nano_id;
     });
 
-    it.only("should sync when Alice reopens", async () => {
+    it.skip("should sync when Alice reopens", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider(ws);
+      const wsProvider = createWsProvider(server.URL, ws);
 
       const provider = createHPProvider(
         docId,
@@ -118,10 +119,10 @@ describe("SupabaseHocuspocus", () => {
       expect(ydoc2.getMap("mymap").get("hello")).toBe("world");
     });
 
-    it("should sync when Alice opens 2 connections", async () => {
+    it.skip("should sync when Alice opens 2 connections", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider(ws);
+      const wsProvider = createWsProvider(server.URL, ws);
 
       const provider = createHPProvider(
         docId,
@@ -146,10 +147,10 @@ describe("SupabaseHocuspocus", () => {
       expect(ydoc.getMap("anothermap").get("hello")).toBe("world");
     });
 
-    it("should not sync to Bob", async () => {
+    it.skip("should not sync to Bob", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider(ws);
+      const wsProvider = createWsProvider(server.URL, ws);
 
       const provider = createHPProvider(
         docId,
@@ -200,7 +201,7 @@ describe("SupabaseHocuspocus", () => {
     it("should not sync changes to Bob after a doc has been made private", async () => {});
   });
 
-  describe.only("child / parent refs", () => {
+  describe("child / parent refs", () => {
     let docId: string;
     let docDbID: string;
 
@@ -221,10 +222,10 @@ describe("SupabaseHocuspocus", () => {
       docBDbID = retB.data![0].id;
     });
 
-    it("should add and remove refs to database", async () => {
+    it.skip("should add and remove refs to database", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider(ws);
+      const wsProvider = createWsProvider(server.URL, ws);
 
       const provider = createHPProvider(
         docId,

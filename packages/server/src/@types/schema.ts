@@ -12,33 +12,61 @@ export interface Database {
       document_permissions: {
         Row: {
           access_level: Database["public"]["Enums"]["access_level"]
-          document_id: string | null
-          user_id: string | null
+          document_id: string
+          user_id: string
         }
         Insert: {
           access_level: Database["public"]["Enums"]["access_level"]
-          document_id?: string | null
-          user_id?: string | null
+          document_id: string
+          user_id: string
         }
         Update: {
           access_level?: Database["public"]["Enums"]["access_level"]
-          document_id?: string | null
-          user_id?: string | null
+          document_id?: string
+          user_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "document_permissions_document_id_fkey"
+            columns: ["document_id"]
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_permissions_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       document_relations: {
         Row: {
-          child_id: string | null
-          parent_id: string | null
+          child_id: string
+          parent_id: string
         }
         Insert: {
-          child_id?: string | null
-          parent_id?: string | null
+          child_id: string
+          parent_id: string
         }
         Update: {
-          child_id?: string | null
-          parent_id?: string | null
+          child_id?: string
+          parent_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "document_relations_child_id_fkey"
+            columns: ["child_id"]
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_relations_parent_id_fkey"
+            columns: ["parent_id"]
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       documents: {
         Row: {
@@ -68,10 +96,19 @@ export interface Database {
           updated_at?: string
           user_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "documents_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       workspaces: {
         Row: {
           created_at: string
+          document_nano_id: string
           id: string
           is_username: boolean
           name: string
@@ -79,6 +116,7 @@ export interface Database {
         }
         Insert: {
           created_at?: string
+          document_nano_id: string
           id?: string
           is_username: boolean
           name: string
@@ -86,11 +124,26 @@ export interface Database {
         }
         Update: {
           created_at?: string
+          document_nano_id?: string
           id?: string
           is_username?: boolean
           name?: string
           owner_user_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "workspaces_document_nano_id_fkey"
+            columns: ["document_nano_id"]
+            referencedRelation: "documents"
+            referencedColumns: ["nano_id"]
+          },
+          {
+            foreignKeyName: "workspaces_owner_user_id_fkey"
+            columns: ["owner_user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {

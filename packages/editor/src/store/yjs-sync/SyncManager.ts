@@ -1,4 +1,11 @@
-import { computed, makeObservable, observable, runInAction, when } from "mobx";
+import {
+  autorun,
+  computed,
+  makeObservable,
+  observable,
+  runInAction,
+  when,
+} from "mobx";
 import { lifecycle } from "vscode-lib";
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
@@ -13,15 +20,23 @@ import FetchRemote from "./remote/FetchRemote";
 import { FilebridgeRemote } from "./remote/FilebridgeRemote";
 import GithubRemote from "./remote/GithubRemote";
 // import { MatrixRemote } from "./remote/MatrixRemote";
+import { makeYDocObservable } from "@syncedstore/yjs-reactive-bindings";
 import { SupabaseSessionStore } from "../../app/supabase-auth/SupabaseSessionStore";
 import { SessionStore } from "../local/SessionStore";
 import { Remote } from "./remote/Remote";
 import { TypeCellRemote } from "./remote/TypeCellRemote";
 
+type SyncingSyncManager = SyncManager & {
+  state: {
+    status: "syncing";
+    localDoc: LocalDoc;
+  };
+};
+
 export class SyncManager extends lifecycle.Disposable {
-  // private _ydoc: Y.Doc;
   private initializeCalled = false;
   private disposed = false;
+  private readonly ydoc: Y.Doc;
 
   public state:
     | { status: "loading" }
@@ -44,18 +59,6 @@ export class SyncManager extends lifecycle.Disposable {
     }
     return this.state.localDoc.ydoc;
   }
-
-  private readonly ydoc: Y.Doc;
-
-  /**
-   * Get the managed "doc". Returns:
-   * - a Y.Doc encapsulating the loaded doc if available
-   * - "not-found" if the document doesn't exist locally / remote
-   * - "loading" if we're still loading the document
-   *
-   * (mobx observable)
-   */
-  // public doc: "loading" | "not-found" | Y.Doc = "loading";
 
   public get awareness() {
     return this.remote.awareness;
@@ -83,7 +86,7 @@ export class SyncManager extends lifecycle.Disposable {
     // }
 
     this.ydoc = new Y.Doc({ guid: this.identifier.toString() });
-
+    makeYDocObservable(this.ydoc);
     makeObservable(this, {
       state: observable.ref,
       docOrStatus: computed,
@@ -91,6 +94,31 @@ export class SyncManager extends lifecycle.Disposable {
 
     this.remote = this.remoteForIdentifier(identifier);
 
+    const disposeAutorun = autorun(() => {
+      if (this.remote instanceof TypeCellRemote) {
+        const unsyncedChanges = this.remote.unsyncedChanges;
+        if (this.remote.status !== "loaded") {
+          return; // don't update sync status if remote has not initialized sync yet
+        }
+        if (unsyncedChanges === 0) {
+          if (!this.sessionStore.documentCoordinator) {
+            throw new Error(
+              "no documentCoordinator. logged out while syncing?"
+            );
+          }
+          if (this.state.status === "loading") {
+            throw new Error("not possible");
+          }
+          this.sessionStore.documentCoordinator.markSynced(this.state.localDoc);
+        }
+      }
+    });
+
+    this._register({
+      dispose: () => {
+        disposeAutorun();
+      },
+    });
     this._register({
       dispose: () => {
         this.ydoc.destroy();
@@ -133,13 +161,13 @@ export class SyncManager extends lifecycle.Disposable {
     if (this.state.status !== "syncing") {
       throw new Error("not syncing");
     }
-    if (this.state.localDoc.meta.last_synced_at === null) {
+    if (!this.state.localDoc.meta.exists_at_remote) {
       await this.remote.createAndRetry();
 
       if (!this.sessionStore.documentCoordinator) {
         throw new Error("no documentCoordinator. logged out while syncing?");
       }
-      this.sessionStore.documentCoordinator.markSynced(this.state.localDoc);
+      this.sessionStore.documentCoordinator.markCreated(this.state.localDoc);
     }
     this.remote.startSyncing();
     // listen for events
@@ -164,11 +192,6 @@ export class SyncManager extends lifecycle.Disposable {
         this.identifier,
         this.ydoc
       );
-
-    if (localDoc.meta.last_synced_at === null) {
-      // TODO
-      // throw new Error("not possible");
-    }
 
     runInAction(() => {
       this.state = {
@@ -234,7 +257,7 @@ export class SyncManager extends lifecycle.Disposable {
 
       // TODO: catch when doc didn't exist locally
       await doc.idbProvider.whenSynced;
-      console.log("done synced", doc.ydoc.toJSON());
+      // console.log("done synced", doc.ydoc.toJSON());
       runInAction(() => {
         this.state = {
           status: "syncing",
@@ -261,9 +284,17 @@ export class SyncManager extends lifecycle.Disposable {
 
   public dispose() {
     console.log("SyncManager dispose", this.identifier.toString());
-    this.ydoc.destroy();
+    setTimeout(() => {
+      this.ydoc.destroy();
+    }, 0);
+
     this.disposed = true;
     super.dispose();
+  }
+
+  public async waitTillLoaded() {
+    await when(() => this.state.status === "syncing");
+    return this as SyncingSyncManager;
   }
 
   public static create(
@@ -297,21 +328,10 @@ export class SyncManager extends lifecycle.Disposable {
     //  - load from coordinator
     //  - start syncing, update values in coordinator
 
-    // const doc = coordinator.loadDocument(identifier);
-
-    // let manager: SyncManager;
-    // if (doc === "not-found") {
-    //   manager = new SyncManager(identifier, undefined, sessionStore);
-    //   manager.loadFromRemote();
-    // } else {
-    //   manager = new SyncManager(identifier, doc, sessionStore);
-    //   manager.startSyncing();
-    // }
-
     console.log("SyncManager load", identifier.toString());
     let manager = new SyncManager(identifier, sessionStore);
     manager.load().catch((e) => {
-      console.error("error in SyncManager.create", e);
+      console.error("error in SyncManager.load", e);
     });
     // TODO: don't return synced when idb is still loading
 

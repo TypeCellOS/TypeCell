@@ -2,13 +2,13 @@ import * as cp from "child_process";
 
 export async function stopSupabase() {
   console.log("supabase stop");
-  cp.execSync("npx --no supabase stop");
+  cp.execSync("./supabase.sh stop");
   console.log("end: supabase stop");
 }
 
 export async function startSupabase() {
   console.log("supabase start");
-  cp.execSync("npx --no supabase start");
+  cp.execSync("./supabase.sh start");
   console.log("end: supabase start");
 }
 
