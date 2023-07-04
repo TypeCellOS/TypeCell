@@ -124,9 +124,9 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         },
         node: InlineMonacoContent,
       },
-    },
+    } as any,
     slashCommands: [
-      ...(defaultReactSlashMenuItems as any),
+      ...defaultReactSlashMenuItems(),
       new BaseSlashMenuItem(
         "Monaco",
         (editor: any) =>
@@ -139,8 +139,13 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         "Inline",
         (editor) => {
           // state.tr.replaceSelectionWith(dinoType.create({type}))
-          const node = editor._tiptapEditor.schema.node("inlineCode");
+          const node = editor._tiptapEditor.schema.node(
+            "inlineCode",
+            undefined,
+            editor._tiptapEditor.schema.text("export default ")!
+          );
           const tr = editor._tiptapEditor.state.tr.replaceSelectionWith(node);
+          // TODO: set selection at end of ""export default " and open inline node
           editor._tiptapEditor.view.dispatch(tr);
         },
         // insertOrUpdateBlock(editor, {
@@ -149,14 +154,14 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         ["m"]
       ),
     ],
-    collaboration: {
-      provider: new FakeProvider(props.document.awareness),
-      user: {
-        name: sessionStore.loggedInUserId || "Anonymous",
-        color: sessionStore.userColor,
-      },
-      fragment: props.document.data as any,
-    },
+    // collaboration: {
+    //   provider: new FakeProvider(props.document.awareness),
+    //   user: {
+    //     name: sessionStore.loggedInUserId || "Anonymous",
+    //     color: sessionStore.userColor,
+    //   },
+    //   fragment: props.document.data as any,
+    // },
     // onUpdate: ({ editor }) => {
     //   console.log(editor.getJSON());
     // },

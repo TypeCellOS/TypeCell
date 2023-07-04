@@ -8,9 +8,9 @@ import {
   SkypackResolver,
 } from "@typecell-org/engine";
 import getExposeGlobalVariables from "../lib/exports";
+import * as jsxRuntime from "../lib/jsx";
 import { LocalResolver } from "./LocalResolver";
 import { TypeCellCompiledCodeProvider } from "./typecell/TypeCellCompiledCodeProvider";
-
 // Used for resolving NPM imports
 const esmshResolver = new ESMshResolver();
 const skypackResolver = new SkypackResolver();
@@ -64,6 +64,11 @@ export function getTypeCellResolver<T extends CodeModel>(
         module: {
           default: getExposeGlobalVariables(documentId),
         },
+        dispose: () => {},
+      };
+    } else if (moduleName === "typecell/jsx-runtime") {
+      return {
+        module: jsxRuntime,
         dispose: () => {},
       };
     }

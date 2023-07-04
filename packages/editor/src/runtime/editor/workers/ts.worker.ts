@@ -1,16 +1,31 @@
 // based on https://github.com/microsoft/TypeScript-Website/issues/191#issuecomment-579531308
 // and https://github.com/TypeScriptToLua/TypeScriptToLua.github.io/blob/source/src/pages/play/ts.worker.ts
-
+import type * as ts from "typescript";
 // @ts-ignore
 import * as worker from "monaco-editor/esm/vs/editor/editor.worker.js";
 
 // @ts-ignore
 import { TypeScriptWorker } from "monaco-editor/esm/vs/language/typescript/ts.worker.js";
+import testTransformer from "./TestTransformer.js";
 
 export class CustomTypeScriptWorker extends TypeScriptWorker {
   // eslint-disable-next-line
   constructor(context: any, createData: any) {
     super(context, createData);
+  }
+
+  public getCustomTransformers(): ts.CustomTransformers {
+    return {
+      before: [
+        // () => {
+        //   debugger;
+        //   return (node) => {
+        //     return node;
+        //   };
+        // },
+        testTransformer((this as any)._languageService.getProgram(), {}),
+      ],
+    };
   }
 
   public _getScriptText(fileName: string): string {

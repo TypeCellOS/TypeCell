@@ -1,5 +1,6 @@
 import { computed } from "mobx";
 import { Input } from "./input/Input";
+import { TCInput } from "./input/inputs/TCInput";
 
 /**
  * This is used in ../resolver/resolver.ts and exposes the "typecell" helper functions
@@ -21,6 +22,7 @@ export default function getExposeGlobalVariables(id: string) {
     // ) => {
     //   return createOneToManyReferenceDefinition(id, type, reverseType, sorted);
     // },
+    TCInput,
     TypeVisualizer,
     computed: computed as (func: () => any) => any,
   };

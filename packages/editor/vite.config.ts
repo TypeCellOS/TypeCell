@@ -33,6 +33,9 @@ export default defineConfig({
     // Node.js global to browser globalThis
     // global: "globalThis", // breaks some modules work because of https://github.com/vitejs/vite/issues/6295, done in index.tsx instead
     // process & buffer are added to global scope in index.host.tsx
+    process: {
+      env: {},
+    },
   },
   plugins: [react(), redirectAll()],
   resolve: {
@@ -59,6 +62,11 @@ export default defineConfig({
       // used during production bundling
       plugins: [nodePolyfills()],
     },
+  },
+  worker: {
+    // Enable rollup polyfills plugin
+    // used during production bundling
+    plugins: [nodePolyfills()],
   },
   test: {
     exclude: [

@@ -72,3 +72,50 @@ export const ReactViewElement = observer(
 );
 
 export default ReactViewElement;
+
+// export let val = 0;
+// ---
+// const el = document.createElement("span");
+
+// new scrubber(el, {
+//   adapter: {
+//     change: (value) => {
+//       $.val = 0
+//     }
+//   }
+// })
+
+// export default view(el, )
+
+// let x = view(() => {
+//   const el = document.createElement("span");
+
+//   new scrubber(el, {
+//     adapter: {
+//       change: (value) => {
+//         b.set(value)
+//       }
+//     }
+//   })
+
+//   return el;
+// }, 5)
+
+// export let x = <ScrubberView defaultValue={4} />
+
+// function ScrubberView(props: { defaultValue: number }) {
+
+//   const b = useObservable(props.defaultValue)
+
+//   const el = document.createElement("span");
+
+//   new scrubber(el, {
+//     adapter: {
+//       change: (value) => {
+//         b.set(value)
+//       }
+//     }
+//   })
+
+//   return <span ref={el}>{b.get()}</span>;
+// }

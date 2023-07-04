@@ -92,6 +92,8 @@
     "styled-components": "3.2.6",
     "tippy.js": "^6.3.1",
     "typescript": "5.0.4",
+    "typescript-json-schema": "^0.58.1",
+    "ts-json-schema-generator": "v0.97.1-next.0",
     "ua-parser-js": "^0.7.28",
     "uuid": "^8.3.2",
     "vscode-lib": "^0.1.2",
