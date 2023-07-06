@@ -61,7 +61,7 @@ function insertOrUpdateBlock<BSchema extends DefaultBlockSchema>(
 const baseSlashCommands = [
   ...defaultReactSlashMenuItems,
   new BaseSlashMenuItem(
-    "Monaco",
+    "Code",
     (editor: any) =>
       insertOrUpdateBlock(editor, {
         type: "codeNode",
@@ -69,7 +69,7 @@ const baseSlashCommands = [
     ["m"]
   ),
   new BaseSlashMenuItem(
-    "Inline",
+    "Inline code",
     (editor) => {
       // state.tr.replaceSelectionWith(dinoType.create({type}))
       const node = editor._tiptapEditor.schema.node(
@@ -134,6 +134,8 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
                       },
                       content: `// @default-collapsed
 import * as doc from "${moduleName}";
+
+export let myMap = doc;
 
 export default {
 block: doc.${key},

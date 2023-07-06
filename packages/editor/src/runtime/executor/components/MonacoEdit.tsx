@@ -113,6 +113,12 @@ const MonacoEdit: React.FC<Props> = observer((props) => {
     };
   }, [props.onChange]);
 
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.setValue("export default " + props.code);
+    }
+  }, [props.code]);
+
   return (
     <div className="notebookCell-codeContainer">
       <div

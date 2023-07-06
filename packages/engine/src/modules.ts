@@ -78,7 +78,7 @@ export function createExecutionScope(context: TypeCellContext<any>) {
   const scope = {
     autorun: (f: () => any) => {
       // if the code hasn't changed we should need to run a new autorun
-      if ((scope as any).initial) {
+      if ((scope as any).initial || true) {
         // run in setTimeout so that the outer autorun doesn't track dependencies of the inner
         setTimeout(() => {
           autorun(f);

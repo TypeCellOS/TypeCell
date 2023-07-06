@@ -41,6 +41,8 @@ import * as doc from "${docUrl}";
 
 ${autoruns.join("\n\n")}
 
+export let myMap = doc;
+
 export default {
 block: doc.${objName},
 doc,
@@ -96,6 +98,7 @@ const FormField = observer(
                   onChange={(code) => {
                     // remove trailing ;
                     code = code.replace(/;$/, "");
+                    code = code === "undefined" ? undefined : (code as any);
                     const bindings = {
                       ...props.bindings,
                       [inputKey]: code,
@@ -144,7 +147,20 @@ const FormField = observer(
             {!error && (
               <HelperMessage>
                 <Button
-                  // onClick={() => setShowCode(!showCode)}
+                  onClick={() => {
+                    const bindings = {
+                      ...props.bindings,
+                      [inputKey]: JSON.stringify(currentValue),
+                    };
+                    props.setBindings(JSON.stringify(bindings));
+                    props.setCode(
+                      getCodeFromBindings(
+                        bindings,
+                        props.mainExport.doc.__moduleName,
+                        props.objKey
+                      )
+                    );
+                  }}
                   style={{ height: "auto" }}
                   appearance="subtle-link"
                   iconBefore={<VscArrowCircleUp size={18} />}></Button>

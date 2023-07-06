@@ -10,7 +10,11 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
+import {
+  VscChevronDown,
+  VscChevronRight,
+  VscSettingsGear,
+} from "react-icons/vsc";
 import { roundArrow } from "tippy.js";
 import "tippy.js/dist/svg-arrow.css";
 import { MonacoTypeCellCodeModel } from "../../../models/MonacoTypeCellCodeModel";
@@ -38,7 +42,7 @@ const MonacoElementComponent = function MonacoElement(
     );
     const model = monaco.editor.createModel(
       props.node.textContent,
-      props.block.props.language, // TODO: string type
+      props.block?.props.language || "typescript", // TODO: string type
       uri
     ); // TODO
     const codeModel = new MonacoTypeCellCodeModel(model);
@@ -187,6 +191,26 @@ const MonacoElementComponent = function MonacoElement(
     untracked(() => !props.node.textContent.startsWith("// @default-collapsed"))
   );
 
+  useEffect(() => {
+    if (!codeVisible || !editorRef.current) {
+      return;
+    }
+    const editor = editorRef.current;
+    const height = Math.min(500, editor.getContentHeight());
+    const width = props.inline
+      ? editor.getContentWidth() + 50
+      : editor.getContainerDomNode()!.offsetWidth;
+    try {
+      editor.layout({
+        height,
+        width,
+      });
+    } finally {
+    }
+  }, [codeVisible]);
+
+  const [settingsVisible, setSettingsVisible] = useState(false);
+
   if (props.inline) {
     return (
       <>
@@ -265,40 +289,50 @@ const MonacoElementComponent = function MonacoElement(
         codeVisible ? "expanded" : "collapsed"
       } ${"props.cell.language TODO"}`}
       style={{ display: "flex", flexDirection: "row" }}>
-      {codeVisible ? (
-        <VscChevronDown
-          title="Show / hide code"
-          className="notebookCell-sideIcon"
-          onClick={() => setCodeVisible(false)}
-        />
-      ) : (
-        <VscChevronRight
-          title="Show / hide code"
-          className="notebookCell-sideIcon"
-          onClick={() => setCodeVisible(true)}
-        />
-      )}
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        {codeVisible ? (
+          <VscChevronDown
+            title="Show / hide code"
+            className="notebookCell-sideIcon"
+            onClick={() => setCodeVisible(false)}
+          />
+        ) : (
+          <VscChevronRight
+            title="Show / hide code"
+            className="notebookCell-sideIcon"
+            onClick={() => setCodeVisible(true)}
+          />
+        )}
+        {props.block?.props.moduleName && (
+          <VscSettingsGear
+            size={12}
+            style={{ marginTop: "10px" }}
+            onClick={() => setSettingsVisible(!settingsVisible)}
+          />
+        )}
+      </div>
       {}
       <div style={{ flex: 1 }} className="notebookCell-content">
-        {codeVisible && (
-          <div className="notebookCell-codeContainer">
-            <NotebookLanguageSelector
-              language={props.block.props.language}
-              onChangeLanguage={(language) => {
-                // TODO: use blocknote api
-                props.updateAttributes({
-                  language,
-                });
-              }}
-              // onRemove={() => remove(i)}
-            />
+        <div
+          className="notebookCell-codeContainer"
+          style={{ display: codeVisible ? "block" : "none" }}>
+          <NotebookLanguageSelector
+            language={props.block.props.language}
+            onChangeLanguage={(language) => {
+              // TODO: use blocknote api
+              props.updateAttributes({
+                language,
+              });
+            }}
+            // onRemove={() => remove(i)}
+          />
 
-            <div
-              className="code"
-              ref={codeRefCallback}
-              style={{ height: "100%" }}></div>
-          </div>
-        )}
+          <div
+            className="code"
+            ref={codeRefCallback}
+            style={{ height: "100%" }}></div>
+        </div>
+
         <div
           className="output"
           contentEditable={false}
@@ -308,24 +342,26 @@ const MonacoElementComponent = function MonacoElement(
             () => {}
           )}
         </div>
-        <div>
-          {(context.executionHost as LocalExecutionHost).renderEditArea(
-            models.model.uri.toString(),
-            models.codeModel.getValue(),
-            (code) => {
-              models.model.setValue(code);
-            },
-            props.node.attrs.key,
-            props.node.attrs.bindings,
-            (bindings: string) => {
-              models.state.isUpdating = true;
-              props.updateAttributes({
-                bindings,
-              });
-              models.state.isUpdating = false;
-            }
-          )}
-        </div>
+        {settingsVisible && (
+          <div>
+            {(context.executionHost as LocalExecutionHost).renderEditArea(
+              models.model.uri.toString(),
+              models.codeModel.getValue(),
+              (code) => {
+                models.model.setValue(code);
+              },
+              props.node.attrs.key,
+              props.node.attrs.bindings,
+              (bindings: string) => {
+                // models.state.isUpdating = true;
+                props.updateAttributes({
+                  bindings,
+                });
+                // models.state.isUpdating = false;
+              }
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
