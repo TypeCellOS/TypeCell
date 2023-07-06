@@ -2,11 +2,10 @@
 // and https://github.com/TypeScriptToLua/TypeScriptToLua.github.io/blob/source/src/pages/play/ts.worker.ts
 import type * as ts from "typescript";
 // @ts-ignore
-import * as worker from "monaco-editor/esm/vs/editor/editor.worker.js";
 
 // @ts-ignore
 import { TypeScriptWorker } from "monaco-editor/esm/vs/language/typescript/ts.worker.js";
-import testTransformer from "./TestTransformer.js";
+import testTransformer from "./TestTransformer";
 
 export class CustomTypeScriptWorker extends TypeScriptWorker {
   // eslint-disable-next-line
@@ -38,14 +37,16 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
       return text;
     }
     fileName = fileName.substr("file:///".length);
-    const cleaned = decodeURIComponent(fileName);
+    let cleaned = decodeURIComponent(fileName);
 
+    // remove .edit.*.tsx from end of path
+    cleaned = cleaned.replace(/\.edit\..*\.tsx$/, "");
     // console.log("worker", cleaned, fileName);
     // for typecell modules (files named /!@owner/document/cell.(ts|tsx))
     // automatically import the context ($) of other cells
     // The type of this context is defined setupTypecellTypeResolver.ts, and available under !@owner/document
     if (
-      cleaned.startsWith("!@") &&
+      cleaned.startsWith("!") &&
       (cleaned.endsWith(".ts") || cleaned.endsWith(".tsx"))
     ) {
       if (cleaned.endsWith(".cell.tsx")) {
@@ -74,7 +75,6 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
         
         // @ts-ignore
         import * as React from 'react';
-        `;
         // always add an empty export to file to make sure it's seen as a module
         // text += "\nexport{};";
       }

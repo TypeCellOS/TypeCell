@@ -37,12 +37,15 @@ export function createContext<T>(storage?: Storage): TypeCellContext<T> {
       //     return Reflect.set(storage, property, value, receiver);
       //   }
       // }
-      const ret = untracked(() => Reflect.get(target, property, receiver));
-      if (isReactView(ret)) {
-        ret.props.__tcObservable.set(value);
-        return true;
-      }
-      return Reflect.set(target, property, value, receiver);
+      let ret = untracked(() => {
+        const ret = Reflect.get(target, property, receiver);
+        if (isReactView(ret)) {
+          ret.props.__tcObservable.set(value);
+          return true;
+        }
+        return Reflect.set(target, property, value, receiver);
+      });
+      return ret;
     },
   });
 

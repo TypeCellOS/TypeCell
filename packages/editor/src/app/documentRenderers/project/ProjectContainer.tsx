@@ -72,7 +72,11 @@ function docToTreeItem(
       id: doc.id,
       identifier: doc.identifier,
       allChildren: children.map((c) => c.target),
-      title: doc.type === "!notebook" ? doc.doc.title : "",
+      title:
+        // TODO, decide on notebook vs richtext
+        doc.type === "!notebook" || doc.type === "!richtext"
+          ? doc.doc.title
+          : "",
     },
   };
 
@@ -132,7 +136,7 @@ const ProjectContainer = observer((props: Props) => {
     if (typeof ret === "string") {
       throw new Error("Error creating doc: " + ret);
     }
-    ret.create("!notebook");
+    ret.create("!richtext");
 
     if (parentId) {
       // add to parent

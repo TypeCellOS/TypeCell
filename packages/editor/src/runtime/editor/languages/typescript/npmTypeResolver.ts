@@ -1,5 +1,5 @@
-import { detectNewImportsToAcquireTypeFor } from "./typeAcquisition";
 import type * as monaco from "monaco-editor";
+import { detectNewImportsToAcquireTypeFor } from "./typeAcquisition";
 
 export function acquireTypes(code: string, monacoInstance: typeof monaco) {
   detectNewImportsToAcquireTypeFor(
@@ -18,7 +18,7 @@ export function acquireTypes(code: string, monacoInstance: typeof monaco) {
 
 export default function setupNpmTypeResolver(monacoInstance: typeof monaco) {
   monacoInstance.editor.onDidCreateModel((model) => {
-    if (!model.uri.path.startsWith("/!@") /*!@*/) {
+    if (!model.uri.path.startsWith("/!") /*!@*/) {
       return;
     }
 

@@ -81,6 +81,7 @@ export function createCellEvaluator(
         throw new Error("expected exactly 1 module");
       }
 
+      (executionScope as any).initial = true;
       // log.debug("runModule", cell.path);
       moduleExecution = await runModule(
         modules[0],
@@ -91,6 +92,7 @@ export function createCellEvaluator(
         onError,
         moduleExecution?.disposeVariables
       );
+      (executionScope as any).initial = false;
       await moduleExecution.initialRun;
     } catch (e) {
       console.error(e);

@@ -172,7 +172,7 @@ const convertToModuleReferenceID = (
     moduleDeclaration.split("/").length === 1;
   const isPackageRootImport = modIsPackageOnly || modIsScopedPackageOnly;
 
-  if (moduleDeclaration.startsWith("!@")) {
+  if (moduleDeclaration.startsWith("!")) {
     return moduleDeclaration + ".d.ts"; // typecell
   } else if (isPackageRootImport) {
     return moduleDeclaration;
@@ -581,7 +581,7 @@ const getDependenciesForModule = async (
       !isPackageRootImport &&
       !moduleToDownload.startsWith(".") &&
       moduleToDownload.includes("/"); // absolute path
-    if (moduleToDownload.startsWith("!@")) {
+    if (moduleToDownload.startsWith("!")) {
       // typecell imports are loaded in TypecellTypeResolver
       return;
       // config.addLibraryToRuntime(code.dtsCode, moduleToDownload+".d.ts");

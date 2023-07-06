@@ -79,7 +79,7 @@ export const setMonacoDefaults = (monaco: typeof Monaco) => {
     ...defaults.getDiagnosticsOptions(),
     noSemanticValidation: false,
     // This is when tslib is not found
-    diagnosticCodesToIgnore: [2354, 1108, 1378], // TODO: move except 2354, should probably be passed in from sandbox consumer
+    diagnosticCodesToIgnore: [2354, 1108, 1378, 2540], // TODO: move except 2354, should probably be passed in from sandbox consumer
   });
 
   let compilerOptions = {

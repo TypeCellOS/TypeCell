@@ -16,7 +16,7 @@ export class TypeCellModuleCompiler extends SourceModelCompiler {
     sessionStore: SessionStore
   ) {
     super(monacoInstance);
-    if (!moduleName.startsWith("!@")) {
+    if (!moduleName.startsWith("!")) {
       throw new Error("invalid module name");
     }
 

@@ -2,6 +2,7 @@ import * as _ from "lodash";
 import type * as Y from "yjs";
 import { Identifier } from "../identifiers/Identifier";
 import { CellListModel } from "../models/CellListModel";
+import { CellModel } from "../models/CellModel";
 import {
   BaseResource,
   BaseResourceExternalManager,
@@ -30,6 +31,18 @@ export class DocumentResource extends BaseResource {
       return baseTitle;
     }
 
+    if (this.type === "!richtext") {
+      if (
+        (this.data.firstChild as any)?.firstChild?.firstChild?.nodeName ===
+        "heading"
+      ) {
+        //hacky
+        return (this.data.firstChild as any)?.firstChild?.firstChild?.firstChild
+          ?.toString()
+          .trim();
+      }
+      return undefined;
+    }
     let cell = this.cells[0];
     if (!cell || cell.language !== "markdown") {
       return undefined;
@@ -63,6 +76,22 @@ export class DocumentResource extends BaseResource {
   }
 
   public get cells() {
+    if (this.type === "!richtext") {
+      return this.blockCells;
+    }
     return this.cellList.cells;
+  }
+
+  public get blockCells(): CellModel[] {
+    const container = this.data.firstChild! as Y.XmlElement;
+
+    const codeBlocks = container.toArray().filter((val) => {
+      return (val as any).firstChild?.nodeName === "codeNode";
+    }) as Y.XmlElement[];
+
+    return codeBlocks.map((codeBlock) => {
+      const id = codeBlock.getAttribute("id");
+      return new CellModel(this.id, codeBlock.firstChild as Y.XmlElement, id);
+    });
   }
 }

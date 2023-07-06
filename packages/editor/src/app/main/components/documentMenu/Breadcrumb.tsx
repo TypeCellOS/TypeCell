@@ -44,6 +44,7 @@ function getTitleForIdentifier(
         return doc.tryDoc!.getSpecificType(ProfileResource).title;
       case "!notebook":
       case "!document":
+      case "!richtext":
         return doc.tryDoc!.doc.title || "Untitled";
       default:
         return "…";

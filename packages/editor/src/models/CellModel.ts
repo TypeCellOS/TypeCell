@@ -14,9 +14,9 @@ export class CellModel implements NotebookCellModel {
   constructor(
     public readonly parentDocumentId: string,
     /** @internal */
-    public readonly xmlElement: Y.XmlElement // public readonly path: string, // /** @internal */ // public readonly code: Y.Text
+    public readonly xmlElement: Y.XmlElement, // public readonly path: string, // /** @internal */ // public readonly code: Y.Text
+    id = xmlElement.getAttribute("block-id")
   ) {
-    const id = xmlElement.getAttribute("block-id");
     if (!id) {
       throw new Error("no id specified");
     }
@@ -58,7 +58,7 @@ export class CellModel implements NotebookCellModel {
 
   public get path() {
     return (
-      "!@" + this.parentDocumentId + "/" + this.id + ".cell." + this.extension
+      "!" + this.parentDocumentId + "/" + this.id + ".cell." + this.extension
     );
   }
 
