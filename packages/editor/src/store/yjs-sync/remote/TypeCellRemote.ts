@@ -114,7 +114,8 @@ export class TypeCellRemote extends Remote {
     const sessionStore = this.sessionStore;
 
     if (!sessionStore.userId) {
-      throw new Error("no user available on create document");
+      return "error";
+      // throw new Error("no user available on create document");
     }
 
     if (!sessionStore.loggedInUserId) {

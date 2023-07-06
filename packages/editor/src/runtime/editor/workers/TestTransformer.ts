@@ -46,12 +46,12 @@ export class Transformer {
     const visitor: ts.Visitor = (
       node: ts.Node
     ): ts.VisitResult<ts.Node | undefined> => {
-      console.log(
-        "VISIT",
-        tsObj.versionMajorMinor,
-        node,
-        tsObj.SyntaxKind[node.kind]
-      );
+      // console.log(
+      //   "VISIT",
+      //   tsObj.versionMajorMinor,
+      //   node,
+      //   tsObj.SyntaxKind[node.kind]
+      // );
       if (tsObj.isCallExpression(node)) {
         if (
           typeof node.typeArguments === "undefined" ||
@@ -61,7 +61,7 @@ export class Transformer {
         }
 
         // const signature = typeChecker.getResolvedSignature(node);
-
+        console.log("expr", node.expression.getText());
         if (node.expression.getText() === "JsonSchema.fromType") {
           // if (signature !== undefined && signature.declaration !== undefined) {
           // const sourceName = signature.declaration.getSourceFile().fileName;
@@ -85,7 +85,6 @@ export class Transformer {
             throw new Error(`Could not find symbol for passed type`);
           }
 
-          debugger;
           (globalThis as any).process.cwd = () => "";
           const sg = new tgen.SchemaGenerator(
             program as any,

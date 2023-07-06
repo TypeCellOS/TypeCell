@@ -6,6 +6,7 @@ import { CompiledCodeModel } from "../../../../models/CompiledCodeModel";
 import { SessionStore } from "../../../../store/local/SessionStore";
 import SourceModelCompiler from "../../../compiler/SourceModelCompiler";
 import { VisualizerExtension } from "../../../extensions/visualizer/VisualizerExtension";
+import EditArea from "../../components/EditArea";
 import { ModelOutput } from "../../components/ModelOutput";
 import Output from "../../components/Output";
 import { getTypeCellResolver } from "../../resolver/resolver";
@@ -24,24 +25,30 @@ export default class LocalExecutionHost
     deep: false,
   });
 
-  private readonly engine: Engine<CompiledCodeModel>;
+  public readonly engine: Engine<CompiledCodeModel>;
   private readonly id = ENGINE_ID++;
 
   constructor(
     private readonly documentId: string,
     compileEngine: SourceModelCompiler,
     monacoInstance: typeof monaco,
-    sessionStore: SessionStore
+    sessionStore: SessionStore,
+    loadPlugins: (obj: any) => void
   ) {
     super();
     this.engine = new Engine(
-      getTypeCellResolver(documentId, "LEH-" + this.id, (moduleName) => {
-        return new TypeCellModuleCompiler(
-          moduleName,
-          monacoInstance,
-          sessionStore
-        );
-      })
+      getTypeCellResolver(
+        documentId,
+        "LEH-" + this.id,
+        (moduleName) => {
+          return new TypeCellModuleCompiler(
+            moduleName,
+            monacoInstance,
+            sessionStore
+          );
+        },
+        loadPlugins
+      )
     );
     this.engine.registerModelProvider(compileEngine);
 
@@ -75,7 +82,33 @@ export default class LocalExecutionHost
     return <></>;
   }
 
+  public renderEditArea(
+    modelPath: string,
+    code: string,
+    setCode: (code: string) => void,
+    objKey: string,
+    bindings: string,
+    setBindings: (bindings: string) => void
+  ) {
+    // this.outputs.get
+    console.log("render bindings", bindings);
+    return (
+      <div style={{ padding: "10px" }}>
+        <EditArea
+          code={code}
+          objKey={objKey}
+          setCode={setCode}
+          bindings={bindings}
+          setBindings={setBindings}
+          outputs={this.outputs}
+          modelPath={modelPath}
+        />
+      </div>
+    );
+  }
+
   public renderOutput(modelPath: string) {
+    // this.outputs.get
     return (
       // <div style={{ padding: "10px" }}>
       <Output outputs={this.outputs} modelPath={modelPath} />

@@ -1,5 +1,6 @@
 import Tippy from "@tippyjs/react";
 import { NodeViewProps } from "@tiptap/core";
+import { untracked } from "mobx";
 import * as monaco from "monaco-editor";
 import React, {
   useCallback,
@@ -13,6 +14,8 @@ import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
 import { roundArrow } from "tippy.js";
 import "tippy.js/dist/svg-arrow.css";
 import { MonacoTypeCellCodeModel } from "../../../models/MonacoTypeCellCodeModel";
+import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost";
+import NotebookLanguageSelector from "../notebook/LanguageSelector";
 import {
   applyDecorationsToMonaco,
   applyNodeChangesToMonaco,
@@ -35,7 +38,7 @@ const MonacoElementComponent = function MonacoElement(
     );
     const model = monaco.editor.createModel(
       props.node.textContent,
-      "typescript",
+      props.block.props.language, // TODO: string type
       uri
     ); // TODO
     const codeModel = new MonacoTypeCellCodeModel(model);
@@ -64,6 +67,9 @@ const MonacoElementComponent = function MonacoElement(
   }, []);
 
   useEffect(() => {
+    if (!editorRef.current) {
+      return;
+    }
     models.state.isUpdating = true;
     models.state.node = props.node;
     try {
@@ -176,7 +182,11 @@ const MonacoElementComponent = function MonacoElement(
     // }, 10000);
     editorRef.current = newEditor;
   }, []);
-  const [codeVisible, setCodeVisible] = useState(true);
+
+  const [codeVisible, setCodeVisible] = useState(
+    untracked(() => !props.node.textContent.startsWith("// @default-collapsed"))
+  );
+
   if (props.inline) {
     return (
       <>
@@ -247,6 +257,7 @@ const MonacoElementComponent = function MonacoElement(
       </>
     );
   }
+
   return (
     <div
       contentEditable={false}
@@ -271,7 +282,17 @@ const MonacoElementComponent = function MonacoElement(
       <div style={{ flex: 1 }} className="notebookCell-content">
         {codeVisible && (
           <div className="notebookCell-codeContainer">
-            {/* {props.toolbar && props.toolbar} */}
+            <NotebookLanguageSelector
+              language={props.block.props.language}
+              onChangeLanguage={(language) => {
+                // TODO: use blocknote api
+                props.updateAttributes({
+                  language,
+                });
+              }}
+              // onRemove={() => remove(i)}
+            />
+
             <div
               className="code"
               ref={codeRefCallback}
@@ -285,6 +306,24 @@ const MonacoElementComponent = function MonacoElement(
           {context.executionHost.renderOutput(
             models.model.uri.toString(),
             () => {}
+          )}
+        </div>
+        <div>
+          {(context.executionHost as LocalExecutionHost).renderEditArea(
+            models.model.uri.toString(),
+            models.codeModel.getValue(),
+            (code) => {
+              models.model.setValue(code);
+            },
+            props.node.attrs.key,
+            props.node.attrs.bindings,
+            (bindings: string) => {
+              models.state.isUpdating = true;
+              props.updateAttributes({
+                bindings,
+              });
+              models.state.isUpdating = false;
+            }
           )}
         </div>
       </div>

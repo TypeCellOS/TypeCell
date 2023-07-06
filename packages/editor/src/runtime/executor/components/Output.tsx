@@ -70,6 +70,10 @@ const Output: React.FC<Props> = observer((props) => {
       }
     }
 
+    if (mainExport?.block) {
+      mainExport = mainExport.block.obj;
+    }
+
     return (
       <>
         <DefaultOutputVisualizer

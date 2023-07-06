@@ -3,4 +3,4 @@ import * as binary from "./binary.js";
 import * as error from "./error.js";
 import * as uniqueId from "./uniqueId.js";
 
-export { base64, uniqueId, binary, error };
+export { base64, binary, error, uniqueId };

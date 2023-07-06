@@ -6,7 +6,11 @@ import { TCInput } from "./input/inputs/TCInput";
  * This is used in ../resolver/resolver.ts and exposes the "typecell" helper functions
  * (e.g.: typecell.Input)
  */
-export default function getExposeGlobalVariables(id: string) {
+
+export default function getExposeGlobalVariables(
+  id: string,
+  loadPlugins: (obj: any) => void
+) {
   return {
     // routing,
     // // DocumentView,
@@ -24,6 +28,8 @@ export default function getExposeGlobalVariables(id: string) {
     // },
     TCInput,
     TypeVisualizer,
+    Block,
+    loadPlugins,
     computed: computed as (func: () => any) => any,
   };
 }
@@ -41,5 +47,18 @@ export class TypeVisualizer<T> {
     ) {
       throw new Error("invalid args");
     }
+  }
+}
+
+export class Block<T> {
+  // public readonly name: string;
+  // public readonly function: (arg: T) => any;
+  public readonly inputs: T[];
+  constructor(
+    public readonly name: string,
+    public readonly obj: any,
+    ...inputs: T[]
+  ) {
+    this.inputs = inputs;
   }
 }

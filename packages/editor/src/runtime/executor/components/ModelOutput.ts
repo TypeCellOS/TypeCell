@@ -1,6 +1,6 @@
 import { makeObservable, observable, runInAction } from "mobx";
 import { lifecycle } from "vscode-lib";
-import { TypeVisualizer } from "../lib/exports";
+import { Block, TypeVisualizer } from "../lib/exports";
 // import {
 //   findMatchingVisualizers,
 //   TypeChecker,
@@ -16,6 +16,12 @@ export class ModelOutput extends lifecycle.Disposable {
     }
   >();
 
+  public blocks = observable.map<
+    string,
+    {
+      get block(): Block | undefined;
+    }
+  >();
   constructor(private context: any) {
     super();
     makeObservable(this, {
@@ -50,22 +56,6 @@ export class ModelOutput extends lifecycle.Disposable {
         );
       }
     }
-    // this.autorunDisposer?.();
-    // this.autorunDisposer = autorun(() => {
-    //   const visualizers = newValue.map((visualizerKey) => {
-    //     const visualizer = this.context[visualizerKey];
-    //     if (!visualizer || !(visualizer instanceof TypeVisualizer)) {
-    //       console.warn("visualizer with key not found", visualizerKey);
-    //       return undefined;
-    //     }
-    //     return [visualizerKey, visualizer];
-    //   });
-    //   runInAction(() => {
-    //     this.typeVisualizers = visualizers.filter(
-    //       (v): v is TypeVisualizer<any> => !!v
-    //     );
-    //   });
-    // });
   }
 
   public dispose() {

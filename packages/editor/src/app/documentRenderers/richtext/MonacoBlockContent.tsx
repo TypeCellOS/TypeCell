@@ -84,6 +84,49 @@ export const MonacoBlockContent = createTipTapBlock({
     ];
   },
 
+  addAttributes() {
+    return {
+      language: {
+        default: "typescript",
+        parseHTML: (element) => element.getAttribute("data-language"),
+        renderHTML: (attributes) => {
+          return {
+            "data-language": attributes.language,
+          };
+        },
+      },
+      // TODO
+      moduleName: {
+        default: "",
+        parseHTML: (element) => element.getAttribute("data-moduleName"),
+        renderHTML: (attributes) => {
+          return {
+            "data-moduleName": attributes.moduleName,
+          };
+        },
+      },
+      // TODO
+      key: {
+        default: "",
+        parseHTML: (element) => element.getAttribute("data-key"),
+        renderHTML: (attributes) => {
+          return {
+            "data-key": attributes.key,
+          };
+        },
+      },
+      bindings: {
+        default: "",
+        parseHTML: (element) => element.getAttribute("data-bindings"),
+        renderHTML: (attributes) => {
+          return {
+            "data-bindings": attributes.bindings,
+          };
+        },
+      },
+    };
+  },
+
   addNodeView() {
     const BlockContent = (props: any) => {
       // const Content = blockConfig.render;
@@ -141,7 +184,7 @@ export const MonacoBlockContent = createTipTapBlock({
 
       // disable contentdom, because we render the content ourselves in MonacoElement
       // TODO: set contentDOM to undefined, but this causes a bug in PM
-      // (ret as any).contentDOMElement = undefined;
+      (ret as any).contentDOMElement = undefined;
 
       // This is a hack because tiptap doesn't support innerDeco, and this information is normally dropped
       const oldUpdated = ret.update!.bind(ret);

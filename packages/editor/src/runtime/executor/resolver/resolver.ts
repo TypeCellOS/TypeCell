@@ -51,7 +51,8 @@ export function getTypeCellResolver<T extends CodeModel>(
   cacheKey: string,
   createTypeCellCompiledCodeProvider?: (
     moduleName: string
-  ) => TypeCellCompiledCodeProvider
+  ) => TypeCellCompiledCodeProvider,
+  loadPlugins?: (obj: any) => void
 ) {
   // TODO: probably we can just use a random id here, or refactor this all to use class + local cache
   const resolveImportNested = async (
@@ -62,7 +63,10 @@ export function getTypeCellResolver<T extends CodeModel>(
       // Resolve the typecell helper library
       return {
         module: {
-          default: getExposeGlobalVariables(documentId),
+          default: getExposeGlobalVariables(
+            documentId,
+            loadPlugins || (() => {})
+          ),
         },
         dispose: () => {},
       };
@@ -75,7 +79,8 @@ export function getTypeCellResolver<T extends CodeModel>(
     const resolved = await resolveImport(
       moduleName,
       cacheKey + "$$" + forModel.path,
-      createTypeCellCompiledCodeProvider
+      createTypeCellCompiledCodeProvider,
+      loadPlugins
     );
 
     return resolved;
@@ -88,9 +93,10 @@ async function resolveImport(
   cacheKey: string,
   createTypeCellCompiledCodeProvider?: (
     moduleName: string
-  ) => TypeCellCompiledCodeProvider
+  ) => TypeCellCompiledCodeProvider,
+  loadPlugins?: (obj: any) => void
 ): Promise<ResolvedImport> {
-  if (!moduleName.startsWith("!@")) {
+  if (!moduleName.startsWith("!")) {
     // It's a regular NPM import like `import * as _ from "lodash"`;
     return importShimResolver.resolveImport(moduleName);
   }
@@ -109,8 +115,15 @@ async function resolveImport(
   const provider = createTypeCellCompiledCodeProvider(moduleName);
 
   const engine = new Engine(
-    getTypeCellResolver(moduleName, key, createTypeCellCompiledCodeProvider)
+    getTypeCellResolver(
+      moduleName,
+      key,
+      createTypeCellCompiledCodeProvider,
+      loadPlugins
+    )
   );
+  // debugger;
+  engine.observableContext.context.__moduleName = moduleName;
 
   engine.registerModelProvider(provider);
 

@@ -1,3 +1,4 @@
+import { autorun } from "mobx";
 import { observer } from "mobx-react-lite";
 import React, { useContext, useEffect, useMemo } from "react";
 // import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost"
@@ -18,9 +19,11 @@ import ReactDOM from "react-dom";
 import SourceModelCompiler from "../../../runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "../../../runtime/editor/MonacoContext";
 import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost";
+import { Block } from "../../../runtime/executor/lib/exports";
 import { DocumentResource } from "../../../store/DocumentResource";
 import { SessionStore } from "../../../store/local/SessionStore";
 import { MonacoColorManager } from "../notebook/MonacoColorManager";
+import { CustomDragHandleMenu } from "./CustomDragHandleMenu";
 import { InlineMonacoContent } from "./InlineMonacoContent";
 import { MonacoBlockContent } from "./MonacoBlockContent";
 import { RichTextContext } from "./RichTextContext";
@@ -55,6 +58,38 @@ function insertOrUpdateBlock<BSchema extends DefaultBlockSchema>(
   }
 }
 
+const baseSlashCommands = [
+  ...defaultReactSlashMenuItems,
+  new BaseSlashMenuItem(
+    "Monaco",
+    (editor: any) =>
+      insertOrUpdateBlock(editor, {
+        type: "codeNode",
+      } as any),
+    ["m"]
+  ),
+  new BaseSlashMenuItem(
+    "Inline",
+    (editor) => {
+      // state.tr.replaceSelectionWith(dinoType.create({type}))
+      const node = editor._tiptapEditor.schema.node(
+        "inlineCode",
+        undefined,
+        editor._tiptapEditor.schema.text("export default ")!
+      );
+      const tr = editor._tiptapEditor.state.tr.replaceSelectionWith(node);
+      // TODO: set selection at end of ""export default " and open inline node
+      editor._tiptapEditor.view.dispatch(tr);
+    },
+    // insertOrUpdateBlock(editor, {
+    //   type: "abc",
+    // } as any),
+    ["m"]
+  ),
+];
+
+const slashCommands = [...baseSlashCommands];
+
 const RichTextRenderer: React.FC<Props> = observer((props) => {
   const { sessionStore } = props;
   const monaco = useContext(MonacoContext).monaco;
@@ -70,9 +105,50 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       props.document.id,
       newCompiler,
       monaco,
-      sessionStore
+      sessionStore,
+      (obj) => console.log("loadPlugins", obj)
     );
 
+    console.log("context", newExecutionHost.engine.observableContext.context);
+    autorun(() => {
+      const customSlashCommands: any[] = [];
+      for (let [_key, val] of Object.entries(
+        newExecutionHost.engine.observableContext.context
+      )) {
+        if (typeof val === "object" && (val as any)?.__moduleName) {
+          const moduleName = (val as any)?.__moduleName;
+          for (let [key, obj] of Object.entries(val as any)) {
+            if (obj instanceof Block) {
+              console.log("blockcomp", key, val);
+              customSlashCommands.push(
+                new BaseSlashMenuItem(obj.name, (editor) => {
+                  insertOrUpdateBlock(
+                    editor as any,
+                    {
+                      type: "codeNode",
+                      props: {
+                        language: "typescript",
+                        moduleName: moduleName,
+                        key,
+                        bindings: "",
+                      },
+                      content: `// @default-collapsed
+import { ${key} } from "${moduleName}";
+export default ${key}.obj;`,
+                    } as any
+                  );
+                })
+              );
+            }
+          }
+        }
+      }
+      slashCommands.splice(
+        baseSlashCommands.length,
+        slashCommands.length - baseSlashCommands.length,
+        ...customSlashCommands
+      );
+    });
     // const newExecutionHost: ExecutionHost = new SandboxedExecutionHost(
     //   props.document.id,
     //   newCompiler,
@@ -104,6 +180,9 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       class: styles.editor,
       "data-test": "editor",
     },
+    customElements: {
+      dragHandleMenu: CustomDragHandleMenu,
+    },
     blockSchema: {
       ...defaultBlockSchema,
       codeNode: {
@@ -111,6 +190,18 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
           language: {
             type: "string",
             default: "typescript",
+          },
+          moduleName: {
+            type: "string",
+            default: "",
+          },
+          key: {
+            type: "string",
+            default: "",
+          },
+          bindings: {
+            type: "string",
+            default: "",
           },
         },
         node: MonacoBlockContent,
@@ -125,43 +216,15 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         node: InlineMonacoContent,
       },
     } as any,
-    slashCommands: [
-      ...defaultReactSlashMenuItems(),
-      new BaseSlashMenuItem(
-        "Monaco",
-        (editor: any) =>
-          insertOrUpdateBlock(editor, {
-            type: "codeNode",
-          } as any),
-        ["m"]
-      ),
-      new BaseSlashMenuItem(
-        "Inline",
-        (editor) => {
-          // state.tr.replaceSelectionWith(dinoType.create({type}))
-          const node = editor._tiptapEditor.schema.node(
-            "inlineCode",
-            undefined,
-            editor._tiptapEditor.schema.text("export default ")!
-          );
-          const tr = editor._tiptapEditor.state.tr.replaceSelectionWith(node);
-          // TODO: set selection at end of ""export default " and open inline node
-          editor._tiptapEditor.view.dispatch(tr);
-        },
-        // insertOrUpdateBlock(editor, {
-        //   type: "abc",
-        // } as any),
-        ["m"]
-      ),
-    ],
-    // collaboration: {
-    //   provider: new FakeProvider(props.document.awareness),
-    //   user: {
-    //     name: sessionStore.loggedInUserId || "Anonymous",
-    //     color: sessionStore.userColor,
-    //   },
-    //   fragment: props.document.data as any,
-    // },
+    slashCommands,
+    collaboration: {
+      provider: new FakeProvider(props.document.awareness),
+      user: {
+        name: sessionStore.loggedInUserId || "Anonymous",
+        color: sessionStore.userColor,
+      },
+      fragment: props.document.data as any,
+    },
     // onUpdate: ({ editor }) => {
     //   console.log(editor.getJSON());
     // },

@@ -56,8 +56,8 @@ export function getDefaultSandboxCompilerOptions(
     target: typescript.ScriptTarget.ES2020,
     jsx: typescript.JsxEmit.ReactJSX,
     module: typescript.ModuleKind.AMD,
-    jsxFactory: "h",
-    jsxImportSource: "typecell",
+    // jsxFactory: "h",
+    // jsxImportSource: "typecell",
 
     // typeRoots: ["node_modules/@types"],
   };
