@@ -133,8 +133,12 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
                         bindings: "",
                       },
                       content: `// @default-collapsed
-import { ${key} } from "${moduleName}";
-export default ${key}.obj;`,
+import * as doc from "${moduleName}";
+
+export default {
+block: doc.${key},
+doc,
+};`,
                     } as any
                   );
                 })

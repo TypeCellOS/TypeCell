@@ -47,119 +47,121 @@ doc,
 };`;
 }
 
-const FormField = (props: {
-  mainExport: any;
-  inputKey: string;
-  modelPath: string;
-  bindings: any;
-  setBindings: (bindings: string) => void;
-  setCode: (code: string) => void;
-  objKey: string;
-}) => {
-  console.log("element bindings", props.bindings);
-  let [showCode, setShowCode] = React.useState(false);
-  const { mainExport, inputKey } = props;
-  const currentValue = mainExport.doc[inputKey];
+const FormField = observer(
+  (props: {
+    mainExport: any;
+    inputKey: string;
+    modelPath: string;
+    bindings: any;
+    setBindings: (bindings: string) => void;
+    setCode: (code: string) => void;
+    objKey: string;
+  }) => {
+    console.log("element bindings", props.bindings);
+    let [showCode, setShowCode] = React.useState(false);
+    const { mainExport, inputKey } = props;
+    const currentValue = mainExport.doc[inputKey];
 
-  let currentBinding = props.bindings[inputKey];
-  let currentParsedBinding: string | number | undefined;
+    let currentBinding = props.bindings[inputKey];
+    let currentParsedBinding: string | number | undefined;
 
-  if (currentBinding) {
-    try {
-      // remove trailing ;
-      currentBinding = currentBinding.replace(/;$/, "");
-      let parsed = JSON.parse(currentBinding);
-      if (typeof parsed === "string" || typeof parsed === "number") {
-        currentParsedBinding = parsed;
-      }
-    } catch (e) {}
-  }
+    if (currentBinding) {
+      try {
+        // remove trailing ;
+        currentBinding = currentBinding.replace(/;$/, "");
+        let parsed = JSON.parse(currentBinding);
+        if (typeof parsed === "string" || typeof parsed === "number") {
+          currentParsedBinding = parsed;
+        }
+      } catch (e) {}
+    }
 
-  const canUseInput =
-    typeof currentParsedBinding !== "undefined" ||
-    (typeof currentBinding === "undefined" &&
-      (typeof currentValue === "string" || typeof currentValue === "number"));
+    const canUseInput =
+      typeof currentParsedBinding !== "undefined" ||
+      (typeof currentBinding === "undefined" &&
+        (typeof currentValue === "string" || typeof currentValue === "number"));
 
-  showCode = showCode || !canUseInput;
+    showCode = showCode || !canUseInput;
 
-  const code = `${currentBinding};`;
+    const code = `${currentBinding};`;
 
-  return (
-    <Field name={inputKey} label={inputKey}>
-      {({ fieldProps, error }) => (
-        <Fragment>
-          <div style={{ display: "flex" }}>
-            {showCode ? (
-              <MonacoEdit
-                code={code}
-                onChange={(code) => {
-                  // remove trailing ;
-                  code = code.replace(/;$/, "");
-                  const bindings = {
-                    ...props.bindings,
-                    [inputKey]: code,
-                  };
-                  props.setBindings(JSON.stringify(bindings));
-                  props.setCode(
-                    getCodeFromBindings(
-                      bindings,
-                      props.mainExport.doc.__moduleName,
-                      props.objKey
-                    )
-                  );
-                }}
-                documentid={props.modelPath}
-              />
-            ) : (
-              <TextField
-                autoComplete="off"
-                {...fieldProps}
-                value={currentParsedBinding || ""}
-                onChange={(e) => {
-                  const bindings = {
-                    ...props.bindings,
-                    [inputKey]: JSON.stringify((e.target as any).value),
-                  };
-                  props.setBindings(JSON.stringify(bindings));
-                  props.setCode(
-                    getCodeFromBindings(
-                      bindings,
-                      props.mainExport.doc.__moduleName,
-                      props.objKey
-                    )
-                  );
-                }}
+    return (
+      <Field name={inputKey} label={inputKey}>
+        {({ fieldProps, error }) => (
+          <Fragment>
+            <div style={{ display: "flex" }}>
+              {showCode ? (
+                <MonacoEdit
+                  code={code}
+                  onChange={(code) => {
+                    // remove trailing ;
+                    code = code.replace(/;$/, "");
+                    const bindings = {
+                      ...props.bindings,
+                      [inputKey]: code,
+                    };
+                    props.setBindings(JSON.stringify(bindings));
+                    props.setCode(
+                      getCodeFromBindings(
+                        bindings,
+                        props.mainExport.doc.__moduleName,
+                        props.objKey
+                      )
+                    );
+                  }}
+                  documentid={props.modelPath}
+                />
+              ) : (
+                <TextField
+                  autoComplete="off"
+                  {...fieldProps}
+                  value={currentParsedBinding || ""}
+                  onChange={(e) => {
+                    const bindings = {
+                      ...props.bindings,
+                      [inputKey]: JSON.stringify((e.target as any).value),
+                    };
+                    props.setBindings(JSON.stringify(bindings));
+                    props.setCode(
+                      getCodeFromBindings(
+                        bindings,
+                        props.mainExport.doc.__moduleName,
+                        props.objKey
+                      )
+                    );
+                  }}
 
-                // elemAfterInput={<VscCode />}
-              />
-            )}
-            <Button
-              isSelected={showCode}
-              isDisabled={!canUseInput}
-              onClick={() => setShowCode(!showCode)}
-              style={{ height: "auto" }}
-              iconBefore={<VscCode size={20} />}></Button>
-          </div>
-          {!error && (
-            <HelperMessage>
+                  // elemAfterInput={<VscCode />}
+                />
+              )}
               <Button
-                // onClick={() => setShowCode(!showCode)}
+                isSelected={showCode}
+                isDisabled={!canUseInput}
+                onClick={() => setShowCode(!showCode)}
                 style={{ height: "auto" }}
-                appearance="subtle-link"
-                iconBefore={<VscArrowCircleUp size={18} />}></Button>
-              Current: {JSON.stringify(currentValue)}{" "}
-            </HelperMessage>
-          )}
-          {/* {error && (
+                iconBefore={<VscCode size={20} />}></Button>
+            </div>
+            {!error && (
+              <HelperMessage>
+                <Button
+                  // onClick={() => setShowCode(!showCode)}
+                  style={{ height: "auto" }}
+                  appearance="subtle-link"
+                  iconBefore={<VscArrowCircleUp size={18} />}></Button>
+                Current: {JSON.stringify(currentValue)}{" "}
+              </HelperMessage>
+            )}
+            {/* {error && (
             <ErrorMessage>
               This username is already in use, try another one.
             </ErrorMessage>
           )} */}
-        </Fragment>
-      )}
-    </Field>
-  );
-};
+          </Fragment>
+        )}
+      </Field>
+    );
+  }
+);
 
 const EditArea: React.FC<Props> = observer((props) => {
   const modelOutput = props.outputs.get(props.modelPath);

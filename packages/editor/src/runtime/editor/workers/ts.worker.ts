@@ -2,6 +2,7 @@
 // and https://github.com/TypeScriptToLua/TypeScriptToLua.github.io/blob/source/src/pages/play/ts.worker.ts
 import type * as ts from "typescript";
 // @ts-ignore
+import * as worker from "monaco-editor/esm/vs/editor/editor.worker.js";
 
 // @ts-ignore
 import { TypeScriptWorker } from "monaco-editor/esm/vs/language/typescript/ts.worker.js";
@@ -74,7 +75,7 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
         import typecell from "typecell";
         
         // @ts-ignore
-        import * as React from 'react';
+        import * as React from 'react';`;
         // always add an empty export to file to make sure it's seen as a module
         // text += "\nexport{};";
       }
