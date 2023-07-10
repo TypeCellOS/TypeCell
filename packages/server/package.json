@@ -19,7 +19,7 @@
     "jsdom": "^20.0.0",
     "nanoid": "^4.0.1",
     "playwright-test": "^9.0.0",
-    "supabase": "^1.68.6",
+    "supabase": "^1.75.3",
     "typescript": "5.0.4",
     "vite-node": "^0.29.7",
     "vitest": "^0.24.4",
