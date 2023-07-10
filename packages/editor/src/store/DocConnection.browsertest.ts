@@ -2,11 +2,11 @@
 import { HocuspocusProviderWebsocket } from "@hocuspocus/provider";
 
 import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
+import { createWsProvider } from "@typecell-org/shared-test";
 import { expect } from "chai";
 import * as mobx from "mobx";
 import { when } from "mobx";
 import { async } from "vscode-lib";
-import { createWsProvider } from "../../../../packages/server/src/supabase/test/supabaseTestUtil";
 import { loginAsNewRandomUser } from "../../tests/util/loginUtil";
 import { SupabaseSessionStore } from "../app/supabase-auth/SupabaseSessionStore";
 import { DocConnection } from "./DocConnection";

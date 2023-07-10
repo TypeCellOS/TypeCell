@@ -1,5 +1,5 @@
+import { createDocument, createRandomUser } from "@typecell-org/shared-test";
 import { beforeAll, describe, expect, it } from "vitest";
-import { createDocument, createRandomUser } from "./supabaseTestUtil";
 
 /*
 

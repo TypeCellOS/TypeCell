@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { base64 } from "@typecell-org/util";
 import { getCrypto } from "./utils";
-import { base64 } from "@typecell-org/common";
 
 const subtleCrypto =
   typeof window !== "undefined" && window.crypto

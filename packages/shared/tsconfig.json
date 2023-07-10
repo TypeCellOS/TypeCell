@@ -18,7 +18,8 @@
     "declarationDir": "types",
     "sourceMap": true,
     "downlevelIteration": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "composite": true
   },
   "include": ["src"]
 }

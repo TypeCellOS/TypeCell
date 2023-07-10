@@ -1,13 +1,13 @@
 import { Server } from "@hocuspocus/server";
-import { beforeAll, describe, expect, it } from "vitest";
-import ws from "ws";
-import * as Y from "yjs";
 import {
   createDocument,
   createHPProvider,
   createRandomUser,
   createWsProvider,
-} from "../../supabase/test/supabaseTestUtil";
+} from "@typecell-org/shared-test";
+import { beforeAll, describe, expect, it } from "vitest";
+import ws from "ws";
+import * as Y from "yjs";
 import { SupabaseHocuspocus } from "./SupabaseHocuspocus";
 
 let server: typeof Server;

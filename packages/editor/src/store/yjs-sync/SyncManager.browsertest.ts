@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { HocuspocusProviderWebsocket } from "@hocuspocus/provider";
 import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
-import { uniqueId } from "@typecell-org/common";
-import { expect } from "chai";
-import * as mobx from "mobx";
-import { when } from "mobx";
-import { async } from "vscode-lib";
-import * as Y from "yjs";
 import {
   createDocument,
   createHPProvider,
   createRandomUser,
   createWsProvider,
-} from "../../../../../packages/server/src/supabase/test/supabaseTestUtil";
+} from "@typecell-org/shared-test";
+import { uniqueId } from "@typecell-org/util";
+import { expect } from "chai";
+import * as mobx from "mobx";
+import { when } from "mobx";
+import { async } from "vscode-lib";
+import * as Y from "yjs";
 import { loginAsNewRandomUser } from "../../../tests/util/loginUtil";
 import { SupabaseSessionStore } from "../../app/supabase-auth/SupabaseSessionStore";
 import { env } from "../../config/env";
