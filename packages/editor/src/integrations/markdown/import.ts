@@ -1,5 +1,5 @@
-import { uniqueId } from "@typecell-org/common";
 import * as parsers from "@typecell-org/parsers";
+import { uniqueId } from "@typecell-org/util";
 
 import * as Y from "yjs";
 

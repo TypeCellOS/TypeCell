@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
-    "@typecell-org/common": "*",
+    "@typecell-org/util": "*",
     "@typecell-org/engine": "*",
     "@typecell-org/parsers": "*",
     "es-module-shims": "1.4.3",

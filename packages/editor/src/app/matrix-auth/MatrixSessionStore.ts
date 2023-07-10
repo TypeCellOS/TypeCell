@@ -6,7 +6,7 @@ import { MatrixAuthStore } from "./MatrixAuthStore";
 import { MatrixClientPeg } from "./MatrixClientPeg";
 import { getUserFromMatrixId } from "./matrixUserIds";
 // @ts-ignore
-import { uniqueId } from "@typecell-org/common";
+import { uniqueId } from "@typecell-org/util";
 import { DEFAULT_HOMESERVER_URI } from "../../config/config";
 import { Identifier } from "../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";

@@ -3,7 +3,8 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
-    "@typecell-org/common": "^0.0.3",
+    "@typecell-org/shared-test": "^0.0.3",
+    "@typecell-org/util": "^0.0.3",
     "@hocuspocus/extension-database": "^2.1.0",
     "@hocuspocus/extension-logger": "^2.1.0",
     "@hocuspocus/server": "^2.1.0",
@@ -41,6 +42,6 @@
     "unittest:vitest": "vitest run --coverage ",
     "unittest:playwright": "playwright-test '**/*.browsertest.ts'",
     "test": "npm run unittest:vitest && npm run unittest:playwright",
-    "gentypes": "./supabase.sh gen types typescript --local --schema public > src/@types/schema.ts"
+    "gentypes": "./supabase.sh gen types typescript --local --schema public > ../shared/src/schema.ts"
   }
 }

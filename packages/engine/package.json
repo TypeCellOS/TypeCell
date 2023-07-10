@@ -28,8 +28,8 @@
     "playwright-core": "1.33.0"
   },
   "source": "src/index.ts",
-  "types": "types/index.d.ts",
-  "main": "dist/index.js",
+  "types": "types/src/index.d.ts",
+  "main": "dist/src/index.js",
   "type": "module",
   "scripts": {
     "clean": "rimraf dist && rimraf types",

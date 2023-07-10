@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
-    "@typecell-org/common": "*",
+    "@typecell-org/util": "*",
     "@typecell-org/engine": "*",
     "vscode-lib": "^0.1.2",
     "remark-parse": "^10.0.1",
@@ -27,8 +27,8 @@
     "playwright-core": "1.33.0"
   },
   "source": "src/index.ts",
-  "types": "types/index.d.ts",
-  "main": "dist/index.js",
+  "types": "types/src/index.d.ts",
+  "main": "dist/src/index.js",
   "type": "module",
   "scripts": {
     "clean": "rimraf dist && rimraf types",

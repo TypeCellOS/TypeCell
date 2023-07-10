@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "../@types/schema";
+import type { Database } from "@typecell-org/shared";
 
 const storage = {
   getItem: (_data: any) => {
