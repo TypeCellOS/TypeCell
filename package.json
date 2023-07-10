@@ -8,7 +8,8 @@
     "@types/react-dom": "^18.0.9",
     "lerna": "^5.0.0",
     "patch-package": "^7.0.0",
-    "playwright": "^1.33.0"
+    "playwright": "^1.33.0",
+    "vitest": "^0.33.0"
   },
   "workspaces": [
     "packages/*"
@@ -33,7 +34,8 @@
     "start:server": "lerna run --scope @typecell-org/server dev --stream",
     "prepublishOnly": "npm run test && npm run build",
     "deploy": "lerna publish",
-    "link-matrix-crdt": "npm link matrix-crdt"
+    "link-matrix-crdt": "npm link matrix-crdt",
+    "vitest": "vitest run --coverage"
   },
   "overrides": {
     "--comment": "needed so that playwright-test doesn't install a different version of pw",

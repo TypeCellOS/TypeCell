@@ -2,6 +2,6 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    globalSetup: ["./src/test/setup.ts"],
+    // globalSetup: ["./packages/server/src/test/setup.ts"],
   },
 });
