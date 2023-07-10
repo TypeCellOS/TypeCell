@@ -72,7 +72,7 @@ export class BaseResource {
   }
 
   public get needsFork() {
-    return this.manager.needsFork;
+    return false; // this.manager.needsFork;
   }
 
   public get type(): string {

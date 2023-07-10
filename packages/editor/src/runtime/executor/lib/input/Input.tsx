@@ -35,7 +35,7 @@ export function Input<T extends string | string[] | number = string>(
 ): TypeCellView<T extends string ? string : T> {
   // don't use string literals
   if (el.type !== "input" && el.type !== "select" && el.type !== "textarea") {
-    throw new Error("invalid element passed");
+    // throw new Error("invalid element passed");
   }
 
   if (

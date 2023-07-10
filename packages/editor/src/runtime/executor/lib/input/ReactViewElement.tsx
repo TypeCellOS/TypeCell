@@ -66,7 +66,15 @@ export const ReactViewElement = observer(
         value: __tcObservable.get(),
       });
     } else {
-      throw new Error("not supported");
+      return React.createElement(__type, {
+        ...elementProps,
+        // onChange: (e: any) => {
+        //   __tcObservable.set(
+        //     Array.from(e.target.selectedOptions, (option: any) => option.value)
+        //   );
+        // },
+        // value: __tcObservable.get(),
+      });
     }
   }
 );

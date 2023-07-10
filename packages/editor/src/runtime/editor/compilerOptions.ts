@@ -54,7 +54,7 @@ export function getDefaultSandboxCompilerOptions(
     moduleResolution: typescript.ModuleResolutionKind.NodeJs,
 
     target: typescript.ScriptTarget.ES2020,
-    jsx: typescript.JsxEmit.ReactJSX,
+    jsx: typescript.JsxEmit.React,
     module: typescript.ModuleKind.AMD,
     // jsxFactory: "h",
     // jsxImportSource: "typecell",

@@ -87,6 +87,12 @@ const FormField = observer(
 
     const code = `${currentBinding};`;
 
+    let currentStringified = "<complex object>";
+
+    try {
+      currentStringified = JSON.stringify(currentValue);
+    } catch (e) {}
+
     return (
       <Field name={inputKey} label={inputKey}>
         {({ fieldProps, error }) => (
@@ -164,7 +170,7 @@ const FormField = observer(
                   style={{ height: "auto" }}
                   appearance="subtle-link"
                   iconBefore={<VscArrowCircleUp size={18} />}></Button>
-                Current: {JSON.stringify(currentValue)}{" "}
+                Current: {currentStringified}
               </HelperMessage>
             )}
             {/* {error && (

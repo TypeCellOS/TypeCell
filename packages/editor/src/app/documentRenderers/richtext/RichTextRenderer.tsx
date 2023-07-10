@@ -149,10 +149,12 @@ doc,
           }
         }
       }
+      console.log("customSlashCommands", customSlashCommands.length);
       slashCommands.splice(
         baseSlashCommands.length,
         slashCommands.length - baseSlashCommands.length,
-        ...customSlashCommands
+        // ...customSlashCommands
+        ...customSlashCommands.slice(0)
       );
     });
     // const newExecutionHost: ExecutionHost = new SandboxedExecutionHost(
