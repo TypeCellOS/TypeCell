@@ -1,11 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@typecell-org/shared";
+import { uniqueId } from "@typecell-org/util";
 import { computed, makeObservable, observable, runInAction } from "mobx";
 import { arrays, uri } from "vscode-lib";
-import { SessionStore } from "../../store/local/SessionStore";
-// @ts-ignore
-import { uniqueId } from "@typecell-org/common";
 import * as Y from "yjs";
-import type { Database } from "../../../../server/src/@types/schema";
 import { env } from "../../config/env";
 import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
 import {
@@ -14,6 +12,7 @@ import {
 } from "../../identifiers/paths/identifierPathHelpers";
 import { BaseResource } from "../../store/BaseResource";
 import ProfileResource from "../../store/ProfileResource";
+import { SessionStore } from "../../store/local/SessionStore";
 import { TypeCellRemote } from "../../store/yjs-sync/remote/TypeCellRemote";
 import { navigateRef } from "../GlobalNavigateRef";
 

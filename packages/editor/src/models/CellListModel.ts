@@ -1,4 +1,4 @@
-import { uniqueId } from "@typecell-org/common";
+import { uniqueId } from "@typecell-org/util";
 import * as _ from "lodash";
 import * as Y from "yjs";
 import { CellLanguage, CellModel } from "./CellModel";

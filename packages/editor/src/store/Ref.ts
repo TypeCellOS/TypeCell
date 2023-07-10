@@ -1,4 +1,4 @@
-import { generateId } from "@typecell-org/common/src/uniqueId";
+import { generateId } from "@typecell-org/util/src/uniqueId";
 import { hash } from "../util/hash";
 
 export function createRef<T extends ReferenceDefinition>(

@@ -18,7 +18,16 @@
     "declarationDir": "types",
     "sourceMap": true,
     "downlevelIteration": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "composite": true
   },
-  "include": ["src", "template/src/notebook.ts"]
+  "include": ["src", "template/src/notebook.ts"],
+  "references": [
+    {
+      "path": "../util"
+    },
+    {
+      "path": "../engine"
+    }
+  ]
 }

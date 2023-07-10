@@ -2,11 +2,17 @@ import {
   HocuspocusProvider,
   HocuspocusProviderWebsocket,
 } from "@hocuspocus/provider";
-import { uniqueId } from "@typecell-org/common";
+import { uniqueId } from "@typecell-org/util";
 import * as Y from "yjs";
-import { getRandomUserData } from "../../../../commonTest/src/randomUser";
-import { generateUuid } from "../../util/uuid";
-import { createAnonClient } from "../supabase";
+import { getRandomUserData } from "./randomUser.js";
+import { createAnonClient } from "./supabase.js";
+
+export function createWsProvider(url: string, ws?: any) {
+  return new HocuspocusProviderWebsocket({
+    url,
+    WebSocketPolyfill: ws,
+  });
+}
 
 export function createDocument(
   userId: string,
@@ -15,7 +21,7 @@ export function createDocument(
 ) {
   const date = JSON.stringify(new Date());
   return {
-    id: generateUuid(),
+    id: uniqueId.generateUuid(),
     created_at: date,
     updated_at: date,
     data,
@@ -48,13 +54,6 @@ export async function createRandomUser(
     session: data.session,
     supabase,
   };
-}
-
-export function createWsProvider(url: string, ws?: any) {
-  return new HocuspocusProviderWebsocket({
-    url,
-    WebSocketPolyfill: ws,
-  });
 }
 
 export function createHPProvider(

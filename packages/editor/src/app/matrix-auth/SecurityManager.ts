@@ -22,7 +22,7 @@ import { ICryptoCallbacks, MatrixClient } from "matrix-js-sdk";
 // import { decodeRecoveryKey } from "matrix-js-sdk/src/crypto/recoverykey";
 // import Modal from "./Modal";
 // import * as sdk from "./index";
-import { base64 } from "@typecell-org/common";
+import { base64 } from "@typecell-org/util";
 import { MatrixClientPeg } from "./MatrixClientPeg";
 // import { isSecureBackupRequired } from "./utils/WellKnownUtils";
 // import AccessSecretStorageDialog from "./components/views/dialogs/security/AccessSecretStorageDialog";

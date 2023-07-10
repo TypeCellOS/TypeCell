@@ -1,11 +1,11 @@
-import { IMatrixClientCreds } from "./auth/util/matrix";
+import { base64 } from "@typecell-org/util";
+import { MatrixClient } from "matrix-js-sdk";
 import { IStoredSession } from "./MatrixAuthStore";
-import createMatrixClient from "./createMatrixClient";
 import * as StorageManager from "./StorageManager";
 import { idbLoad, idbSave } from "./StorageManager";
+import { IMatrixClientCreds } from "./auth/util/matrix";
+import createMatrixClient from "./createMatrixClient";
 import { encryptAES } from "./unexported/aes";
-import { base64 } from "@typecell-org/common";
-import { MatrixClient } from "matrix-js-sdk";
 
 const HOMESERVER_URL_KEY = "mx_hs_url";
 const ID_SERVER_URL_KEY = "mx_is_url";
