@@ -152,8 +152,4 @@ for select
 to public
 using (true);
 
-
-
-
 -- TODO: prevent select * using https://stackoverflow.com/questions/74283527/postgresql-remove-ability-to-query-every-row-in-a-table
--- TODO: validate formats of nanoids and usernames
