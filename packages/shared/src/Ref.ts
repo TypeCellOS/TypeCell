@@ -1,5 +1,6 @@
 import { generateId } from "@typecell-org/util/src/uniqueId";
-import { hash } from "../util/hash";
+
+import { hash } from "vscode-lib";
 
 export function createRef<T extends ReferenceDefinition>(
   definition: T,
@@ -127,12 +128,14 @@ export function getHashForReference(
   targetId: string
 ): string {
   // uniqueness by namespace + type
-  let hashcode = hash(definition.namespace) ^ hash(definition.type);
+  let hashcode =
+    hash.stringHash(definition.namespace, 0) ^
+    hash.stringHash(definition.type, 0);
 
   if (definition.relationship === "many") {
     // If many of the namspace/type relations can exists
     // add uniqueness by targetId
-    hashcode = hashcode ^ hash(targetId);
+    hashcode = hashcode ^ hash.stringHash(targetId, 0);
   }
   return hashcode + "";
 }

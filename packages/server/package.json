@@ -39,7 +39,7 @@
     "build": "npm run clean && tsc -p tsconfig.json",
     "watch": "tsc --watch",
     "test-watch": "vitest watch",
-    "unittest:vitest": "vitest run --coverage ",
+    "unittest:vitest": "vitest run ",
     "unittest:playwright": "playwright-test '**/*.browsertest.ts'",
     "test": "npm run unittest:vitest && npm run unittest:playwright",
     "gentypes": "./supabase.sh gen types typescript --local --schema public > ../shared/src/schema.ts"

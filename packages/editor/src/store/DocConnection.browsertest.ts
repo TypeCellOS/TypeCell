@@ -2,6 +2,7 @@
 import { HocuspocusProviderWebsocket } from "@hocuspocus/provider";
 
 import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
+import { ForkReference } from "@typecell-org/shared";
 import { createWsProvider } from "@typecell-org/shared-test";
 import { expect } from "chai";
 import * as mobx from "mobx";
@@ -11,7 +12,6 @@ import { loginAsNewRandomUser } from "../../tests/util/loginUtil";
 import { SupabaseSessionStore } from "../app/supabase-auth/SupabaseSessionStore";
 import { DocConnection } from "./DocConnection";
 import { InboxValidator } from "./InboxValidatorStore";
-import { ForkReference } from "./referenceDefinitions/fork";
 
 async function initSessionStore(name: string) {
   const sessionStore = new SupabaseSessionStore(false);
@@ -94,7 +94,6 @@ describe("DocConnection tests", () => {
 
     const fork = await bobResource.fork();
 
-    // await new Promise((resolve) => setTimeout(resolve, 1000));
     expect(fork.ydoc.getMap("test").get("hello")).to.equal("from bob");
 
     bobResource = await bobDoc.waitForDoc(); // TODO: we should be able to keep using the old resource

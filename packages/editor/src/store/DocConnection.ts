@@ -10,13 +10,13 @@ import {
 import { lifecycle } from "vscode-lib";
 import { BaseResource } from "./BaseResource";
 
+import { ForkReference } from "@typecell-org/shared";
 import * as Y from "yjs";
 import { parseIdentifier } from "../identifiers";
 import { Identifier } from "../identifiers/Identifier";
 import { TypeCellIdentifier } from "../identifiers/TypeCellIdentifier";
 import { InboxResource } from "./InboxResource";
 import { SessionStore } from "./local/SessionStore";
-import { ForkReference } from "./referenceDefinitions/fork";
 import { SyncManager } from "./yjs-sync/SyncManager";
 
 const cache = new ObservableMap<string, DocConnection>();

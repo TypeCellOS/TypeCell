@@ -1,5 +1,6 @@
 import * as cp from "child_process";
 import fetch from "cross-fetch";
+import { async } from "vscode-lib";
 
 export const MATRIX_HOME_URL = new URL("http://localhost:8888/_matrix/static/");
 
@@ -27,9 +28,7 @@ async function waitForMatrixStart() {
       console.log("Matrix has started!");
       return;
     }
-    await new Promise((resolve) => {
-      setTimeout(resolve, 2000);
-    });
+    await async.timeout(2000);
   }
 }
 

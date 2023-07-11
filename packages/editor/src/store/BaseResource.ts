@@ -1,17 +1,17 @@
 import { makeYDocObservable } from "@syncedstore/yjs-reactive-bindings";
-import { generateKeyBetween } from "fractional-indexing";
-import type * as Y from "yjs";
-import { createID, getState } from "yjs";
-import { Identifier } from "../identifiers/Identifier";
-import { DocumentResource } from "./DocumentResource";
-import { InboxResource } from "./InboxResource";
 import {
   Ref,
   ReferenceDefinition,
   createRef,
   getHashForReference,
   validateRef,
-} from "./Ref";
+} from "@typecell-org/shared/src/Ref";
+import { generateKeyBetween } from "fractional-indexing";
+import type * as Y from "yjs";
+import { createID, getState } from "yjs";
+import { Identifier } from "../identifiers/Identifier";
+import { DocumentResource } from "./DocumentResource";
+import { InboxResource } from "./InboxResource";
 import { Remote } from "./yjs-sync/remote/Remote";
 
 export type BaseResourceExternalManager = {

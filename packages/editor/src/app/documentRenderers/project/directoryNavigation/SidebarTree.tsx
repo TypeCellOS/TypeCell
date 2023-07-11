@@ -18,7 +18,8 @@ import {
 import { Identifier } from "../../../../identifiers/Identifier";
 import { DocConnection } from "../../../../store/DocConnection";
 import { SessionStore } from "../../../../store/local/SessionStore";
-import { ChildReference } from "../../../../store/referenceDefinitions/child";
+
+import { ChildReference } from "@typecell-org/shared";
 import styles from "./SidebarTree.module.css";
 
 const RenderItem =

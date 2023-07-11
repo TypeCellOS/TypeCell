@@ -2,6 +2,7 @@ import fetch from "cross-fetch";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 import "monaco-editor/esm/vs/language/typescript/monaco.contribution.js";
 import { expect, it } from "vitest";
+import { async } from "vscode-lib";
 import * as Y from "yjs";
 import { TypeCellCodeModel } from "../../../models/TypeCellCodeModel";
 import SourceModelCompiler from "../../compiler/SourceModelCompiler";
@@ -57,7 +58,7 @@ it(
     //   getTypeCellResolver("docid", "testEngine", false, monaco)
     // );
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await async.timeout(1000);
     const typeChecker = new TypeChecker(
       "mx:mx.typecell.org/@owner/doc",
       monaco

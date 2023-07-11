@@ -1,3 +1,4 @@
+import { ReferenceDefinition } from "@typecell-org/shared/src/Ref";
 import * as Y from "yjs";
 import { Identifier } from "../identifiers/Identifier";
 import {
@@ -5,7 +6,6 @@ import {
   BaseResourceExternalManager,
   UnimplementedBaseResourceExternalManager,
 } from "./BaseResource";
-import { ReferenceDefinition } from "./Ref";
 
 export type RefInboxMessage<T extends ReferenceDefinition> = {
   message_type: "ref";
