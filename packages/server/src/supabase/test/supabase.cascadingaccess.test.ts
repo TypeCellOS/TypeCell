@@ -28,21 +28,24 @@ Example:
 - Document A is also a child of Document D
 - User Alice has read/write access to Document C, and Document D
 - User Alice explicitly has no access to document B
-- In this case, Alice does not have access to document A, because even though it has access to document D it doesn't have access to document B. It doesn't have access to document B, because this has been explicitly denied, even though Alice has access to B's parent C
+- In this case, Alice does not have access to document A, because even though it has access to document D it doesn't have access to document B. 
+  It doesn't have access to document B, because this has been explicitly denied, even though Alice has access to B's parent C
 
 */
-  it.skip("test first scenario", async () => {
-    const docA = createDocument(alice.user!.id, "helloA", "write");
-    const docB = createDocument(alice.user!.id, "helloB", "write");
-    const docC = createDocument(alice.user!.id, "helloC", "write");
-    const docD = createDocument(alice.user!.id, "helloD", "write");
+  it("test first scenario", async () => {
+    // insert documents
+    const docA = createDocument(alice.user!.id, "helloA", "no-access");
+    const docB = createDocument(alice.user!.id, "helloB", "no-access");
+    const docC = createDocument(alice.user!.id, "helloC", "no-access");
+    const docD = createDocument(alice.user!.id, "helloD", "no-access");
     const ret = await alice.supabase
       .from("documents")
       .insert([docA, docB, docC, docD])
       .select();
-    console.log(ret.error);
+
     expect(ret.error).toBeNull();
 
+    // insert relations
     const retRels = await alice.supabase.from("document_relations").insert([
       { child_id: docA.id, parent_id: docB.id },
       { child_id: docB.id, parent_id: docC.id },
@@ -50,6 +53,7 @@ Example:
     ]);
     expect(retRels.error).toBeNull();
 
+    // insert permissions
     const retPerms = await alice.supabase.from("document_permissions").insert([
       {
         document_id: docC.id,
@@ -70,13 +74,14 @@ Example:
 
     expect(retPerms.error).toBeNull();
 
+    // validate access to C and D only
     const ret2 = await bob.supabase
       .from("documents")
-      .select()
-      .eq("id", docA.id);
+      .select("id")
+      .in("id", [docA.id, docB.id, docC.id, docD.id]);
 
     expect(ret2.error).toBeNull();
-    expect(ret2.data!.length).toBe(0);
+    expect(ret2.data?.map((doc) => doc.id)).toEqual([docC.id, docD.id]);
   });
 
   /*
@@ -90,17 +95,19 @@ Example:
 - In this case, Alice does have access to document A, because it has access to document D and to document B. It has access to document B because it's been granted explicitly, even though she does not have access to it's parent C
 */
   it("test second scenario", async () => {
-    const docA = createDocument(alice.user!.id, "helloA", "write");
-    const docB = createDocument(alice.user!.id, "helloB", "write");
-    const docC = createDocument(alice.user!.id, "helloC", "write");
-    const docD = createDocument(alice.user!.id, "helloD", "write");
+    // insert documents
+    const docA = createDocument(alice.user!.id, "helloA", "no-access");
+    const docB = createDocument(alice.user!.id, "helloB", "no-access");
+    const docC = createDocument(alice.user!.id, "helloC", "no-access");
+    const docD = createDocument(alice.user!.id, "helloD", "no-access");
+
     const ret = await alice.supabase
       .from("documents")
       .insert([docA, docB, docC, docD])
       .select();
-    console.log(ret.error);
     expect(ret.error).toBeNull();
 
+    // insert relations
     const retRels = await alice.supabase.from("document_relations").insert([
       { child_id: docA.id, parent_id: docB.id },
       { child_id: docB.id, parent_id: docC.id },
@@ -108,6 +115,7 @@ Example:
     ]);
     expect(retRels.error).toBeNull();
 
+    // insert permissions
     const retPerms = await alice.supabase.from("document_permissions").insert([
       {
         document_id: docC.id,
@@ -128,12 +136,17 @@ Example:
 
     expect(retPerms.error).toBeNull();
 
+    // validate access to A, B and D
     const ret2 = await bob.supabase
       .from("documents")
-      .select()
-      .eq("id", docA.id);
+      .select("id")
+      .in("id", [docA.id, docB.id, docC.id, docD.id]);
 
     expect(ret2.error).toBeNull();
-    expect(ret2.data!.length).toBe(1);
+    expect(ret2.data?.map((doc) => doc.id)).toEqual([
+      docA.id,
+      docB.id,
+      docD.id,
+    ]);
   });
 });
