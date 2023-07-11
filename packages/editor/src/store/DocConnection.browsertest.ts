@@ -94,7 +94,6 @@ describe("DocConnection tests", () => {
 
     const fork = await bobResource.fork();
 
-    // await new Promise((resolve) => setTimeout(resolve, 1000));
     expect(fork.ydoc.getMap("test").get("hello")).to.equal("from bob");
 
     bobResource = await bobDoc.waitForDoc(); // TODO: we should be able to keep using the old resource
