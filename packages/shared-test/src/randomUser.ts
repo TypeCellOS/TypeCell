@@ -4,7 +4,7 @@ export function getRandomUserData(basename: string) {
     .replace(/[^a-z]+/g, "")
     .substring(0, 5);
 
-  const name = basename + "-" + randomID;
+  const name = basename + "_" + randomID;
   return {
     email: `${name}@email.com`,
     password: `password-${name}`,
