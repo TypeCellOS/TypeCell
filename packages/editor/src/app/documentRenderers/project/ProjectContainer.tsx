@@ -13,7 +13,8 @@ import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
 import ProjectResource from "../../../store/ProjectResource";
 import { SessionStore } from "../../../store/local/SessionStore";
-import { ChildReference } from "../../../store/referenceDefinitions/child";
+
+import { ChildReference } from "@typecell-org/shared";
 import styles from "./ProjectContainer.module.css";
 import SidebarTree from "./directoryNavigation/SidebarTree";
 

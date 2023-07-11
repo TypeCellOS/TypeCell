@@ -1,10 +1,10 @@
+import { ReferenceDefinition } from "@typecell-org/shared/src/Ref";
 import { autorun } from "mobx";
 import { lifecycle } from "vscode-lib";
 import * as Y from "yjs";
 import { UnreachableCaseError } from "../util/UnreachableCaseError";
 import { BaseResource } from "./BaseResource";
 import { InboxResource, RefInboxMessage } from "./InboxResource";
-import { ReferenceDefinition } from "./Ref";
 
 /*
  * References are bi-directional links between documents.

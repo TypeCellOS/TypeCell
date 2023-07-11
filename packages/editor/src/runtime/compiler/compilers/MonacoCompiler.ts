@@ -1,6 +1,6 @@
 import type * as monaco from "monaco-editor";
+import { hash } from "vscode-lib";
 import { TypeCellCodeModel } from "../../../models/TypeCellCodeModel";
-import { hash } from "../../../util/hash";
 
 let mainWorker: WorkerType;
 
@@ -132,7 +132,7 @@ async function _compile(
   monacoInstance: typeof monaco
 ) {
   const tscode = model.getValue();
-  const hsh = hash(tscode) + "";
+  const hsh = hash.stringHash(tscode, 0) + "";
 
   if (ENABLE_CACHE) {
     const cached = getCachedItem(model);

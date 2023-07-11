@@ -3,6 +3,7 @@
  */
 
 import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
+import { ChildReference } from "@typecell-org/shared";
 import * as mobx from "mobx";
 import { beforeEach, describe, expect, it } from "vitest";
 import { async, uri } from "vscode-lib";
@@ -14,7 +15,7 @@ import {
 } from "./BaseResource";
 import { InboxResource } from "./InboxResource";
 import { InboxValidator } from "./InboxValidatorStore";
-import { ChildReference } from "./referenceDefinitions/child";
+
 enableMobxBindings(mobx);
 type Username = string;
 type DocId = string;
