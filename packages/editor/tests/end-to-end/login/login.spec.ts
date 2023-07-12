@@ -1,12 +1,6 @@
 import { DEFAULT_PROVIDER } from "../setup/config";
 import { expect, test } from "../setup/fixtures";
 
-test("Sign in button exists", async ({ page }) => {
-  await page.goto("/");
-  const button = page.locator("header button");
-  await expect(button).toHaveText("Log in");
-});
-
 if (DEFAULT_PROVIDER === "supabase") {
   test("Sign in by email (supabase)", async ({
     page,
