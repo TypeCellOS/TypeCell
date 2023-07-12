@@ -257,6 +257,7 @@ export class SupabaseSessionStore extends SessionStore {
     } else {
       runInAction(() => {
         setDefaultShorthandResolver(new DefaultShorthandResolver()); // hacky
+        this.userId = undefined;
         this.user = {
           type: "guest-user",
           supabase: this.supabase,

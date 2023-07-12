@@ -9,7 +9,7 @@ CHECK (
   VALUE NOT ILIKE '%typecell%' AND 
   VALUE NOT ILIKE '%admin%' AND 
   LENGTH(VALUE) BETWEEN 3 AND 20 AND 
-  VALUE ~ '^[A-Za-z0-9_]*$' AND -- ensures the username only contains alphanumeric characters and underscores. 
+  VALUE ~ '^[A-Za-z][A-Za-z0-9_]*$' AND -- ensures the username only contains alphanumeric characters and underscores, and starts with a letter
   VALUE ~ '^([^_]*(_[^_]*)*)$' -- ensures the username does not start with, end with, or contain consecutive underscores.
 );
 

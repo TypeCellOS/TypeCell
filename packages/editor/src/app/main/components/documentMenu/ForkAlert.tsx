@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { DocumentResource } from "../../../../store/DocumentResource";
 
 import { SessionStore } from "../../../../store/local/SessionStore";
-import { toLoginScreen } from "../../../routes/routes";
+import { toRegisterScreen } from "../../../routes/routes";
 import styles from "./ForkAlert.module.css";
 
 export const ForkAlert = observer(
@@ -39,8 +39,8 @@ export const ForkAlert = observer(
         <span>save a copy</span>
       </a>
     ) : (
-      <Link to={toLoginScreen()} state={{ from: location }}>
-        <span>sign in to save a copy</span>
+      <Link to={toRegisterScreen()} state={{ from: location }}>
+        <span>sign up to save a copy</span>
       </Link>
     );
 
