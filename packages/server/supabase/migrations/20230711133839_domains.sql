@@ -23,3 +23,25 @@ ALTER COLUMN "document_nano_id" TYPE document_nano_id_domain;
 -- make case insensitive
 DROP INDEX IF EXISTS workspaces_name_key;
 CREATE UNIQUE INDEX workspaces_name_key ON public.workspaces USING btree (lower(name));
+
+-- more RLS policies
+alter table "public"."document_permissions" enable row level security;
+alter table "public"."document_relations" enable row level security;
+
+CREATE POLICY document_permissions_insert_policy
+ON document_permissions
+FOR INSERT
+TO authenticated
+WITH CHECK ((SELECT user_id FROM documents WHERE id = document_id) = auth.uid());
+
+CREATE POLICY document_permissions_update_policy
+ON document_permissions
+FOR UPDATE
+TO authenticated
+USING ((SELECT user_id FROM documents WHERE id = document_id) = auth.uid());
+
+CREATE POLICY document_permissions_delete_policy
+ON document_permissions
+FOR DELETE
+TO authenticated
+USING ((SELECT user_id FROM documents WHERE id = document_id) = auth.uid());
