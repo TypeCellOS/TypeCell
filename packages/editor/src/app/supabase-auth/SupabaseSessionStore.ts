@@ -153,11 +153,10 @@ export class SupabaseSessionStore extends SessionStore {
       }
     }
 
-    // TODO: first check if username is available?
-
+    // create workspace
     const workspaceId = this.getIdentifierForNewDocument();
     {
-      // TODO: use syncmanager
+      // TODO: use syncmanager?
       const ydoc = new Y.Doc();
       const ret = new BaseResource(ydoc, workspaceId);
       ret.create("!project");
@@ -167,10 +166,10 @@ export class SupabaseSessionStore extends SessionStore {
       remote.dispose();
     }
 
-    // TODO: manage aliases
+    // create profile
     const profileId = this.getIdentifierForNewDocument();
     {
-      // TODO: use syncmanager
+      // TODO: use syncmanager?
       const ydoc = new Y.Doc();
       const ret = new BaseResource(ydoc, profileId);
       ret.create("!profile");
@@ -258,6 +257,7 @@ export class SupabaseSessionStore extends SessionStore {
     } else {
       runInAction(() => {
         setDefaultShorthandResolver(new DefaultShorthandResolver()); // hacky
+        this.userId = undefined;
         this.user = {
           type: "guest-user",
           supabase: this.supabase,

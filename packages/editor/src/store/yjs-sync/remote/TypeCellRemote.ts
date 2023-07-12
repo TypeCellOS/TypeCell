@@ -123,7 +123,7 @@ export class TypeCellRemote extends Remote {
       id: uuid.generateUuid(),
       created_at: date,
       updated_at: date,
-      data: "\\x" + hash.toHexString(data),
+      data: "\\x" + hash.toHexString(data.buffer),
       nano_id: this.identifier.documentId,
       public_access_level: this.identifier.documentId.endsWith("/.inbox")
         ? "write"

@@ -133,6 +133,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       throw new Error("not initialized");
     }
 
+    // console.log("Coordinator load debug", idStr, this.userId);
     if (this.loadedDocuments.has(idStr)) {
       // we expect loadDocument only to be called once per document
       throw new Error("loadDocument: document already loaded");
