@@ -21,5 +21,5 @@ ALTER COLUMN "name" TYPE name_domain,
 ALTER COLUMN "document_nano_id" TYPE document_nano_id_domain;
 
 -- make case insensitive
-ALTER TABLE public.workspaces DROP CONSTRAINT IF EXISTS workspaces_name_key;
+DROP INDEX IF EXISTS workspaces_name_key;
 CREATE UNIQUE INDEX workspaces_name_key ON public.workspaces USING btree (lower(name));
