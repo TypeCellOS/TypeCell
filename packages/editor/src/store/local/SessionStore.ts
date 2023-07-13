@@ -39,6 +39,7 @@ export abstract class SessionStore extends lifecycle.Disposable {
         fullUserId: string;
         userId: string;
         profileId: string;
+        isSignUp: boolean;
       };
 
   /**
@@ -94,7 +95,7 @@ export abstract class SessionStore extends lifecycle.Disposable {
 
         this.coordinators?.coordinator.dispose();
         this.coordinators?.aliasStore.dispose();
-        this.coordinators?.backgroundSyncer.dispose();
+        this.coordinators?.backgroundSyncer?.dispose();
         runInAction(() => {
           this.coordinators = undefined;
           this.profileDoc?.dispose();

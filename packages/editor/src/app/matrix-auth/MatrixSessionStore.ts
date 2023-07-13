@@ -46,6 +46,7 @@ export class MatrixSessionStore extends SessionStore {
         matrixClient: MatrixClient;
         coordinator: DocumentCoordinator;
         profileId: string;
+        isSignUp: boolean;
       } = "loading";
 
   /**
@@ -176,6 +177,7 @@ export class MatrixSessionStore extends SessionStore {
               "user-mx-" + matrixClient.getUserId()
             ),
             profileId: "TODO",
+            isSignUp: false, // TODO
           };
         });
       }

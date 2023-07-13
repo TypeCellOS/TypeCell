@@ -55,7 +55,8 @@ export class SupabaseSessionStore extends SessionStore {
         fullUserId: string;
         userId: string;
         supabase: any;
-        profileId: string
+        profileId: string;
+        isSignUp: boolean;
       } = "loading";
 
   public get isLoaded() {
@@ -205,12 +206,12 @@ export class SupabaseSessionStore extends SessionStore {
     }
 
     const session = (await this.supabase.auth.getSession()).data.session || undefined;
-    await this.updateStateFromAuthStore(session);
+    await this.updateStateFromAuthStore(session, true);
   }
   /**
    * Updates the state of sessionStore based on the internal matrixAuthStore.loggedIn
    */
-  private async updateStateFromAuthStore(session: Session | undefined ) {
+  private async updateStateFromAuthStore(session: Session | undefined, isSignUp = false) {
     // TODO: make work in offline mode (save username offline)
     // TODO: don't trigger on refresh of other browser window
 
@@ -254,7 +255,7 @@ export class SupabaseSessionStore extends SessionStore {
             this.userId = session.user.id;
           });
           console.log("redirect");
-          navigateRef.current?.("/username");
+          navigateRef.current?.("/username", { state: window.history?.state?.usr});
           // runInAction(() => {
           //   this.user = {
           //     type: "user",
@@ -278,7 +279,8 @@ export class SupabaseSessionStore extends SessionStore {
             supabase: this.supabase,
             userId: username,
             fullUserId: username,
-            profileId: profile_id
+            profileId: profile_id,
+            isSignUp
           };
         });
       }
