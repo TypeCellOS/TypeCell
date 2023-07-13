@@ -19,9 +19,6 @@ import {
 import { MenuBar } from "../menuBar/MenuBar";
 
 import { TypeCellIdentifier } from "../../../../identifiers/TypeCellIdentifier";
-import { MatrixRemote } from "../../../../store/yjs-sync/remote/MatrixRemote";
-import { MatrixSessionStore } from "../../../matrix-auth/MatrixSessionStore";
-import MatrixPermissionsDialog from "../../../matrix-auth/routes/permissions/PermissionsDialog";
 import { SupabaseSessionStore } from "../../../supabase-auth/SupabaseSessionStore";
 import SupabasePermissionsDialog from "../../../supabase-auth/routes/permissions/PermissionsDialog";
 import { Breadcrumb } from "./Breadcrumb";
@@ -61,18 +58,6 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
 
   let permissionsArea: any;
   if (
-    props.document.identifier instanceof MatrixIdentifier &&
-    sessionStore instanceof MatrixSessionStore
-  ) {
-    permissionsArea = (
-      <MatrixPermissionsDialog
-        close={() => ClosePermissionsDialog(navigate)}
-        isOpen={IsPermissionsDialogOpen(location)}
-        remote={props.document.remote as MatrixRemote}
-        sessionStore={sessionStore}
-      />
-    );
-  } else if (
     props.document.identifier instanceof TypeCellIdentifier &&
     sessionStore instanceof SupabaseSessionStore
   ) {

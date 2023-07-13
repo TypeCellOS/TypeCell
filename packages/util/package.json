@@ -10,8 +10,7 @@
   "devDependencies": {
     "rimraf": "^3.0.2",
     "typescript": "5.0.4",
-    "@types/uuid": "^8.3.4",
-    "rollup-plugin-node-polyfills": "^0.2.1"
+    "@types/uuid": "^8.3.4"
   },
   "source": "src/index.ts",
   "types": "types/src/index.d.ts",
