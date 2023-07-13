@@ -2,7 +2,9 @@
   "name": "@typecell-org/shared",
   "version": "0.0.3",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "typecell-org/util": "^0.0.3"
+  },
   "devDependencies": {
     "typescript": "5.0.4"
   },
