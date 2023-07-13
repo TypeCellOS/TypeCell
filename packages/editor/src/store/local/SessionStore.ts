@@ -8,6 +8,8 @@ import {
 import { lifecycle } from "vscode-lib";
 import { Identifier } from "../../identifiers/Identifier";
 import { BackgroundSyncer } from "../BackgroundSyncer";
+import { DocConnection } from "../DocConnection";
+import ProfileResource from "../ProfileResource";
 import { AliasCoordinator } from "../yjs-sync/AliasCoordinator";
 import { DocumentCoordinator } from "../yjs-sync/DocumentCoordinator";
 
@@ -16,6 +18,11 @@ import { DocumentCoordinator } from "../yjs-sync/DocumentCoordinator";
  * (e.g.: is the user logged in, what is the user name, etc)
  */
 export abstract class SessionStore extends lifecycle.Disposable {
+  public profileDoc: DocConnection | undefined = undefined;
+  public get profile() {
+    return this.profileDoc?.tryDoc?.getSpecificType(ProfileResource);
+  }
+
   public abstract storePrefix: string;
 
   public abstract userColor: string;
@@ -31,6 +38,7 @@ export abstract class SessionStore extends lifecycle.Disposable {
         type: "user";
         fullUserId: string;
         userId: string;
+        profileId: string;
       };
 
   /**
@@ -69,6 +77,8 @@ export abstract class SessionStore extends lifecycle.Disposable {
       aliasCoordinator: computed,
       userPrefix: computed,
       coordinators: observable.ref,
+      profileDoc: observable.ref,
+      profile: computed,
     });
   }
 
@@ -87,6 +97,8 @@ export abstract class SessionStore extends lifecycle.Disposable {
         this.coordinators?.backgroundSyncer.dispose();
         runInAction(() => {
           this.coordinators = undefined;
+          this.profileDoc?.dispose();
+          this.profileDoc = undefined;
         });
 
         if (!userPrefix) {
@@ -99,15 +111,21 @@ export abstract class SessionStore extends lifecycle.Disposable {
             userPrefix,
             coordinator: coordinator,
             aliasStore: new AliasCoordinator(userPrefix),
-            backgroundSyncer: new BackgroundSyncer(coordinator, this),
+            backgroundSyncer:
+              typeof this.user !== "string" && this.user.type !== "guest-user"
+                ? new BackgroundSyncer(coordinator, this)
+                : undefined,
           };
           await coordinators.coordinator.initialize();
           await coordinators.aliasStore.initialize();
-          await coordinators.backgroundSyncer.initialize();
+          await coordinators.backgroundSyncer?.initialize();
           runInAction(() => {
             if (this.userPrefix === userPrefix) {
               // console.log("set coordinators", userPrefix);
               this.coordinators = coordinators;
+              if (typeof this.user !== "string" && this.user.type === "user") {
+                this.profileDoc = DocConnection.load(this.user.profileId, this);
+              }
             }
           });
         })();
@@ -133,7 +151,7 @@ export abstract class SessionStore extends lifecycle.Disposable {
         userPrefix: string;
         coordinator: DocumentCoordinator;
         aliasStore: AliasCoordinator;
-        backgroundSyncer: BackgroundSyncer;
+        backgroundSyncer?: BackgroundSyncer;
       }
     | undefined = undefined;
 

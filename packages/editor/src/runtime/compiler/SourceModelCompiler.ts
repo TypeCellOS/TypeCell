@@ -22,7 +22,7 @@ export default class SourceModelCompiler extends lifecycle.Disposable {
               linkify: true,
               typographer: true,
           });
-          debugger;
+
           const render = md.render(${JSON.stringify(sourceModel.getValue())});
           const el = document.createElement("div");
           el.className = "markdown-body";

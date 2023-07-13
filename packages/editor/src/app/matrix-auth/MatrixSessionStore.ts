@@ -45,6 +45,7 @@ export class MatrixSessionStore extends SessionStore {
         userId: string;
         matrixClient: MatrixClient;
         coordinator: DocumentCoordinator;
+        profileId: string;
       } = "loading";
 
   /**
@@ -174,6 +175,7 @@ export class MatrixSessionStore extends SessionStore {
             coordinator: new DocumentCoordinator(
               "user-mx-" + matrixClient.getUserId()
             ),
+            profileId: "TODO",
           };
         });
       }

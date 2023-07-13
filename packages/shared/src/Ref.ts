@@ -1,4 +1,4 @@
-import { generateId } from "@typecell-org/util/src/uniqueId";
+import { uniqueId } from "@typecell-org/util";
 
 import { hash } from "vscode-lib";
 
@@ -15,7 +15,7 @@ export function createRef<T extends ReferenceDefinition>(
       throw new Error("unexpected sortKey");
     }
     let ref: Ref<T> = {
-      id: generateId("reference"),
+      id: uniqueId.generateId("reference"),
       namespace: definition.namespace,
       type: definition.type,
       target: targetId,
@@ -26,7 +26,7 @@ export function createRef<T extends ReferenceDefinition>(
       throw new Error("expected sortKey");
     }
     let ref: Ref<T> = {
-      id: generateId("reference"),
+      id: uniqueId.generateId("reference"),
       namespace: definition.namespace,
       type: definition.type,
       target: targetId,
@@ -154,7 +154,7 @@ export function getHashForReference(
 //   };
 // }
 
-export function createOneToManyReferenceDefinition(
+export function createManyToOneReferenceDefinition(
   namespace: string,
   type: string
 ): ReferenceDefinition {

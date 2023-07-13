@@ -91,6 +91,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
   return (
     <MenuBar>
       <Breadcrumb sessionStore={sessionStore} />
+
       {props.document.needsFork && (
         <ForkAlert document={props.document} sessionStore={sessionStore} />
       )}

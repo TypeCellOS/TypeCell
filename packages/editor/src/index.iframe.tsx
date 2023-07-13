@@ -1,7 +1,7 @@
 import React from "react";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { createRoot } from "react-dom/client";
-import * as reo from "react-error-overlay";
+
 import {
   getMainDomainFromIframe,
   validateFrameDomain,
@@ -15,11 +15,13 @@ if (import.meta.env.DEV) {
   // user-defined react components. It's annoying (and slow) to get the React error overlay
   // while editing TypeCell cells
   // Note that this breaks hot reloading
-  try {
-    (reo as any).stopReportingRuntimeErrors();
-  } catch (e) {
-    console.error(e);
-  }
+  // import("react-error-overlay").then((m) => {
+  //   try {
+  //     (m as any).stopReportingRuntimeErrors();
+  //   } catch (e) {
+  //     console.error(e);
+  //   }
+  // });
 }
 
 console.log("Loading iframe", window.location.href);

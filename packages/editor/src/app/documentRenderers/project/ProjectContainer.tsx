@@ -120,14 +120,6 @@ const ProjectContainer = observer((props: Props) => {
     props.activeChild
   );
 
-  // const files = Array.from(props.project.files.keys()).sort();
-
-  // const tree = filesToTreeNodes(
-  //   files.map((f) => ({
-  //     fileName: f,
-  //   }))
-  // );
-
   const onAddPageHandler = async (parentId?: string) => {
     const ret = await DocConnection.create(props.sessionStore);
     if (typeof ret === "string") {
@@ -197,6 +189,9 @@ const ProjectContainer = observer((props: Props) => {
       </div>
     );
   } else {
+    const userIsOwner = [
+      ...(props.sessionStore.profile?.workspaces.values() || []),
+    ].includes(props.project.identifier.toString());
     return (
       <div className={styles.projectContainer}>
         <PageLayout
@@ -241,6 +236,7 @@ const ProjectContainer = observer((props: Props) => {
                   tree={tree}
                   onAddNewPage={onAddPageHandler}
                   sessionStore={props.sessionStore}
+                  enableAddRootPage={userIsOwner}
                 />
               </div>
             </LeftSidebar>
