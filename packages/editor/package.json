@@ -147,6 +147,7 @@
     "@playwright/test": "^1.33.0",
     "@playwright/experimental-ct-react": "^1.33.0",
     "@svgr/webpack": "^5.5.0",
+    "@typecell-org/shared-test": "^0.0.3",
     "@types/lodash": "^4.14.168",
     "@types/lowlight": "0.0.2",
     "@types/markdown-it": "^10.0.3",
