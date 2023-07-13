@@ -254,7 +254,7 @@ TODO:
 */
 
 // https://stackoverflow.com/a/23756653
-async function databaseExists(dbname) {
+async function databaseExists(dbname: string) {
   return new Promise<boolean>((resolve) => {
     let req = indexedDB.open(dbname);
     let existed = true;

@@ -24,6 +24,9 @@
       "path": "../shared"
     },
     {
+      "path": "../shared-test"
+    },
+    {
       "path": "../util"
     },
     {
