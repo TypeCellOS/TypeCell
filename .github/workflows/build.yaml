@@ -144,6 +144,11 @@ jobs:
           path: packages/editor/playwright-report/
           retention-days: 30
 
+      # Upload webpack-stats.json to use on relative-ci.yaml workflow
+      - name: Upload webpack stats artifact
+        uses: relative-ci/agent-upload-artifact-action@v1
+        with:
+          webpackStatsFile: ./packages/editor/dist/webpack-stats.json
       # - name: Upload to coveralls
       #   uses: coverallsapp/github-action@master
       #   with:
