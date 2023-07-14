@@ -116,10 +116,8 @@ jobs:
         # env:
         # PLAYWRIGHT_BROWSERS_PATH: 0 # https://github.com/microsoft/playwright/blob/main/docs/src/ci.md#caching-browsers
 
-      - uses: JarvusInnovations/background-action@v1
-        name: Start HocusPocus server
-        with:
-          run: npm run start:server &
+      - name: Start HocusPocus server
+        run: RUNNER_TRACKING_ID="" && npm run start:server &
         env:
           CI: true
 
