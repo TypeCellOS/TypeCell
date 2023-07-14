@@ -59,7 +59,7 @@ const parseFileForModuleReferences = (
 ) => {
   if (moduleName === "react") {
     // speed up, hardcode
-    return ["csstype", "prop-types", "scheduler/tracing"];
+    return ["prop-types", "scheduler/tracing"];
   }
   if (moduleName && isBuiltInModule(moduleName)) {
     // speed up
