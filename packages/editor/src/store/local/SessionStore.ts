@@ -71,7 +71,7 @@ export abstract class SessionStore extends lifecycle.Disposable {
 
   public abstract getIdentifierForNewDocument(): Identifier;
 
-  constructor() {
+  constructor(private loadProfile = true) {
     super();
     makeObservable(this, {
       documentCoordinator: computed,
@@ -125,7 +125,9 @@ export abstract class SessionStore extends lifecycle.Disposable {
               // console.log("set coordinators", userPrefix);
               this.coordinators = coordinators;
               if (typeof this.user !== "string" && this.user.type === "user") {
-                this.profileDoc = DocConnection.load(this.user.profileId, this);
+                this.profileDoc = this.loadProfile
+                  ? DocConnection.load(this.user.profileId, this)
+                  : undefined;
               }
             }
           });

@@ -99,8 +99,8 @@ export class SupabaseSessionStore extends SessionStore {
     );
   }
 
-  constructor(persist: boolean = true) {
-    super();
+  constructor(loadProfile = true, persist: boolean = true) {
+    super(loadProfile);
     makeObservable(this, {
       user: observable.ref,
       userId: observable.ref,
