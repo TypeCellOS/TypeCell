@@ -100,7 +100,7 @@
     "lint": "eslint src",
     "test-watch": "vitest watch",
     "unittest:vitest": "vitest",
-    "unittest:playwright": "playwright-test '**/*.browsertest.ts'",
+    "unittest:playwright": "playwright-test '**/*.browsertest.ts' --runner mocha",
     "test": "npm run unittest:vitest && npm run unittest:playwright",
     "vite:dev": "vite",
     "vite:build": "vite build --mode=$MODE",
