@@ -52,7 +52,7 @@ export default defineConfig({
 
       /* Project-specific settings. */
       use: {
-        headless: false,
+        // headless: false,
         ...devices["Desktop Chrome"],
       },
     },
