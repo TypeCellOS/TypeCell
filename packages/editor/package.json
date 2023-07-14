@@ -86,7 +86,7 @@
   "scripts": {
     "copytypes:self": "tsc --declaration --emitDeclarationOnly --noEmit false --composite false --declarationDir ./public/types/@typecell-org/editor",
     "copytypes:externaldep": "mkdir -p public/types/$npm_config_pkgname && cp -rf ../../node_modules/$npm_config_pkgname/. public/types/$npm_config_pkgname",
-    "copytypes:allexternaldeps": "npm run copytypes:externaldep --pkgname=@types/react && npm run copytypes:externaldep --pkgname=@types/scheduler && npm run copytypes:externaldep --pkgname=@types/prop-types",
+    "copytypes:allexternaldeps": "npm run copytypes:externaldep --pkgname=@types/react && npm run copytypes:externaldep --pkgname=@types/scheduler && npm run copytypes:externaldep --pkgname=@types/prop-types && npm run copytypes:externaldep --pkgname=csstype",
     "copytypes:dep": "mkdir -p public/types/@typecell-org/$npm_config_pkgname && cp -rf ../$npm_config_pkgname/types/. public/types/@typecell-org/$npm_config_pkgname",
     "copytypes:alldeps": "npm run copytypes:dep --pkgname=util && npm run copytypes:dep --pkgname=engine",
     "copytypes": "npm run copytypes:self && npm run copytypes:alldeps && npm run copytypes:allexternaldeps",
