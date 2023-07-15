@@ -1,6 +1,7 @@
 import react from "@vitejs/plugin-react";
 import history from "connect-history-api-fallback";
 import nodePolyfills from "rollup-plugin-polyfill-node";
+import { webpackStats } from "rollup-plugin-webpack-stats";
 import { ViteDevServer } from "vite";
 import { defineConfig } from "vitest/config";
 
@@ -34,12 +35,12 @@ export default defineConfig({
     // global: "globalThis", // breaks some modules work because of https://github.com/vitejs/vite/issues/6295, done in index.tsx instead
     // process & buffer are added to global scope in index.host.tsx
   },
-  plugins: [react(), redirectAll()],
+  plugins: [react(), redirectAll(), webpackStats()],
   resolve: {
-    alias: {
-      buffer: "rollup-plugin-node-polyfills/polyfills/buffer-es6",
-      process: "rollup-plugin-node-polyfills/polyfills/process-es6",
-    },
+    // alias: {
+    //   buffer: "rollup-plugin-node-polyfills/polyfills/buffer-es6",
+    //   process: "rollup-plugin-node-polyfills/polyfills/process-es6",
+    // },
   },
   optimizeDeps: {
     esbuildOptions: {
@@ -51,7 +52,6 @@ export default defineConfig({
         // NodeModulesPolyfillPlugin(),
       ],
     },
-    include: ["simple-peer"], // needed for matrix-crdt
   },
   build: {
     rollupOptions: {

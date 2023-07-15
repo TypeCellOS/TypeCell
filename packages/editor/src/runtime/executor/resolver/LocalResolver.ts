@@ -39,11 +39,6 @@ async function resolveNestedModule(id: string, mode?: string) {
     return reactdom;
   }
 
-  // was used for some experiments, let's disable for now
-  // if (id === "frontend-collective-react-dnd-scrollzone") {
-  //   return sz;
-  // }
-
   // if (id === "react-dnd") {
   //   return reactdnd;
   // }

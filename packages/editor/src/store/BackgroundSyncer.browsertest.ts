@@ -13,7 +13,7 @@ import { DocConnection } from "./DocConnection";
 import { TypeCellRemote } from "./yjs-sync/remote/TypeCellRemote";
 
 async function initSessionStore(name: string) {
-  const sessionStore = new SupabaseSessionStore(false);
+  const sessionStore = new SupabaseSessionStore(false, false);
   await sessionStore.initialize();
 
   await loginAsNewRandomUser(sessionStore, name);

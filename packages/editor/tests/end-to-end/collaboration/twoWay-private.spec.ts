@@ -24,7 +24,8 @@ test.beforeAll(async ({ aliceContext, bobContext, bobUser }) => {
 
   await pageAlice.click('svg:has-text("Options")');
   await pageAlice.click("text=Permissions");
-  await pageAlice.click("text=Find a person...");
+  await pageAlice.pause();
+  // await pageAlice.click("text=Find a person...");
   await pageAlice.fill("#react-select-add-user-input", bobUser.username);
 
   // Click #react-select-add-user-option-0 >> text=@bob-zvghe-0:localhost:8888

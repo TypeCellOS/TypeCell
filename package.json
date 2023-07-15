@@ -6,39 +6,45 @@
     "@playwright/experimental-ct-react": "^1.33.0",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
-    "lerna": "^5.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "patch-package": "^7.0.0",
     "playwright": "^1.33.0"
   },
   "workspaces": [
-    "packages/*"
+    "packages/util",
+    "packages/shared",
+    "packages/shared-test",
+    "packages/engine",
+    "packages/parsers",
+    "packages/editor",
+    "packages/server",
+    "packages/packager"
   ],
   "scripts": {
     "patch-package": "patch-package",
     "postinstall": "patch-package",
-    "playwright:dev": "lerna run playwright:dev --stream",
-    "playwright:preview": "lerna run playwright:preview --stream",
+    "playwright:dev": "npm run playwright:dev --workspaces",
+    "playwright:preview": "npm run playwright:preview --workspaces",
     "install-playwright": "npx playwright install --with-deps",
-    "test": "lerna run test --concurrency 1 --stream",
-    "unittest:vitest": "lerna run unittest:vitest --concurrency 1 --stream",
+    "test": "npm run test --workspaces",
+    "unittest:vitest": "npm run unittest:vitest --workspaces",
     "wip:unittest:vitest:coverage": "vitest run --coverage -r packages/xxx",
-    "build": "lerna run build --concurrency 1",
-    "build:react": "lerna run build:react --concurrency 1 --stream",
-    "lint": "lerna run lint --concurrency 1 --stream",
-    "watch": "npm run build && lerna run --parallel watch",
+    "build": "npm run build --workspaces",
+    "build:react": "npm run build:react --workspaces",
+    "lint": "npm run lint --workspaces",
+    "watch": "npm run build && npm run --parallel watch",
     "start": "npm run start-react",
     "start-filebridge": "npx filebridge packages/editor/public/_docs",
-    "start-react": "lerna run --scope @typecell-org/editor start --stream",
-    "start:preview": "lerna run --scope @typecell-org/editor preview --stream",
-    "start:server": "lerna run --scope @typecell-org/server dev --stream",
-    "prepublishOnly": "npm run test && npm run build",
-    "deploy": "lerna publish",
-    "link-matrix-crdt": "npm link matrix-crdt"
+    "start-react": "npm run start --workspace=packages/editor",
+    "start:preview": "npm run preview --workspace=packages/editor",
+    "start:server": "npm run dev --workspace=packages/server",
+    "prepublishOnly": "npm run test && npm run build"
   },
   "overrides": {
-    "--comment": "needed so that playwright-test doesn't install a different version of pw",
-    "playwright-core": "1.33.0",
     "@types/react": "^18.0.25",
-    "@types/react-dom": "^18.0.9"
+    "@types/react-dom": "^18.0.9",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }

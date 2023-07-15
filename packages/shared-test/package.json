@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
-    "@hocuspocus/provider": "^2.1.0",
+    "@hocuspocus/provider": "2.1.0",
     "@typecell-org/shared": "*"
   },
   "devDependencies": {
