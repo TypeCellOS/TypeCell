@@ -12,7 +12,14 @@
     "playwright": "^1.33.0"
   },
   "workspaces": [
-    "packages/*"
+    "packages/util",
+    "packages/shared",
+    "packages/shared-test",
+    "packages/engine",
+    "packages/parsers",
+    "packages/editor",
+    "packages/server",
+    "packages/packager"
   ],
   "scripts": {
     "patch-package": "patch-package",
