@@ -96,7 +96,7 @@
     "playwright:preview": "cross-env TYPECELL_BASE_URL=http://localhost:4173 npx playwright test",
     "lint": "eslint src",
     "test-watch": "vitest watch",
-    "unittest:vitest": "vitest",
+    "unittest:vitest": "vitest run",
     "unittest:playwright": "playwright-test '**/*.browsertest.ts' --runner mocha",
     "test": "npm run unittest:vitest && npm run unittest:playwright",
     "vite:dev": "vite",

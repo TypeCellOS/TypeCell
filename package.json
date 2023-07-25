@@ -18,8 +18,7 @@
     "packages/engine",
     "packages/parsers",
     "packages/editor",
-    "packages/server",
-    "packages/packager"
+    "packages/server"
   ],
   "scripts": {
     "patch-package": "patch-package",
