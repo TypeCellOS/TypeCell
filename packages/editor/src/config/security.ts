@@ -28,7 +28,9 @@ export function validateHostDomain() {
     return hostname.match(/^typecell-next-[A-z0-9-]+-yousefed.vercel.app$/);
   }
   return (
-    hostname === "notebooks.typecell.org" || hostname === "www.typecell.org"
+    hostname === "notebooks.typecell.org" ||
+    hostname === "www.typecell.org" ||
+    hostname === "old.typecell.org"
   );
 }
 
