@@ -1,5 +1,5 @@
+import { getRandomUserData } from "@typecell-org/shared-test";
 import { when } from "mobx";
-import { getRandomUserData } from "../../../commonTest/src/randomUser";
 import { SupabaseSessionStore } from "../../src/app/supabase-auth/SupabaseSessionStore";
 
 export async function loginAsNewRandomUser(

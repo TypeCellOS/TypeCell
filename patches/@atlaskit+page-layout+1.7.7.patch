@@ -1,0 +1,48 @@
+diff --git a/node_modules/@atlaskit/page-layout/dist/esm/common/constants.js b/node_modules/@atlaskit/page-layout/dist/esm/common/constants.js
+index b5c13f3..f9ddcb5 100644
+--- a/node_modules/@atlaskit/page-layout/dist/esm/common/constants.js
++++ b/node_modules/@atlaskit/page-layout/dist/esm/common/constants.js
+@@ -21,7 +21,7 @@ export var RIGHT_SIDEBAR = 'right-sidebar';
+ // Default slot dimension values
+ export var DEFAULT_BANNER_HEIGHT = 56;
+ export var DEFAULT_TOP_NAVIGATION_HEIGHT = 56;
+-export var DEFAULT_LEFT_SIDEBAR_WIDTH = 240;
++export var DEFAULT_LEFT_SIDEBAR_WIDTH = 140;
+ export var DEFAULT_RIGHT_SIDEBAR_WIDTH = 280;
+ export var DEFAULT_RIGHT_PANEL_WIDTH = 368;
+ export var DEFAULT_LEFT_PANEL_WIDTH = 368;
+@@ -31,7 +31,7 @@ export var COLLAPSED_LEFT_SIDEBAR_WIDTH = 20;
+ export var MOBILE_COLLAPSED_LEFT_SIDEBAR_WIDTH = 16;
+ export var MIN_LEFT_SIDEBAR_WIDTH = 80;
+ export var DEFAULT_LEFT_SIDEBAR_FLYOUT_WIDTH = 240;
+-export var MIN_LEFT_SIDEBAR_DRAG_THRESHOLD = 200;
++export var MIN_LEFT_SIDEBAR_DRAG_THRESHOLD = 40;
+ export var MAX_MOBILE_SIDEBAR_FLYOUT_WIDTH = 350;
+ export var TRANSITION_DURATION = 300;
+ export var FLYOUT_DELAY = 200;
+diff --git a/node_modules/@atlaskit/page-layout/dist/esm/components/resize-control/index.js b/node_modules/@atlaskit/page-layout/dist/esm/components/resize-control/index.js
+index bfaa17b..f95e43c 100644
+--- a/node_modules/@atlaskit/page-layout/dist/esm/components/resize-control/index.js
++++ b/node_modules/@atlaskit/page-layout/dist/esm/components/resize-control/index.js
+@@ -191,7 +191,7 @@ var ResizeControl = function ResizeControl(_ref) {
+       return rafSchd(function (_ref2) {
+         var clientX = _ref2.clientX;
+         // Allow the sidebar to be 50% of the available page width
+-        var maxWidth = Math.round(window.innerWidth / 2);
++        var maxWidth = Math.min(450, Math.round(window.innerWidth / 2));
+         var leftPanelWidth = getLeftPanelWidth();
+         var leftSidebarWidth = stableSidebarState.current.leftSidebarWidth;
+         var hasResizedOffLeftOfScreen = clientX < 0;
+diff --git a/node_modules/@atlaskit/page-layout/dist/esm/components/slots/left-sidebar.js b/node_modules/@atlaskit/page-layout/dist/esm/components/slots/left-sidebar.js
+index 172173f..8bcc873 100644
+--- a/node_modules/@atlaskit/page-layout/dist/esm/components/slots/left-sidebar.js
++++ b/node_modules/@atlaskit/page-layout/dist/esm/components/slots/left-sidebar.js
+@@ -115,7 +115,7 @@ var LeftSidebar = function LeftSidebar(props) {
+       }
+     };
+   }, [isLocked, lastLeftSidebarWidth, setLeftSidebarState]);
+-  var _width = Math.max(width || 0, DEFAULT_LEFT_SIDEBAR_WIDTH);
++  var _width = Math.max(width || 0, DEFAULT_LEFT_SIDEBAR_WIDTH + 100);
+   var collapsedStateOverrideOpen = collapsedState === 'expanded';
+   var leftSidebarWidthOnMount;
+   if (collapsedStateOverrideOpen) {

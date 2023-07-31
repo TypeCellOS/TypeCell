@@ -1,7 +1,7 @@
 // import * as octokit from "octokit";
 import { CellModel } from "../../models/CellModel";
 
-import { base64 } from "@typecell-org/common";
+import { base64 } from "@typecell-org/util";
 
 type ParentCommit = {
   version: string | undefined;

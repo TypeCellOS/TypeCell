@@ -86,6 +86,7 @@ const BreadcrumbItems = observer((props: { sessionStore: SessionStore }) => {
       const path = "/" + identifiersToPath(identifiers.slice(0, i + 1));
       items.push(
         <BreadcrumbsItem
+          key={identifier.toString()}
           iconBefore={icon}
           text={getTitleForIdentifier(identifier, props.sessionStore)}
           component={component}

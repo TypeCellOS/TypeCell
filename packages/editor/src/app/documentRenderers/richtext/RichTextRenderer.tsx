@@ -109,6 +109,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
         },
         node: MonacoBlockContent,
       },
+      fragment: props.document.data as any,
     },
     slashCommands: [
       ...(defaultReactSlashMenuItems as any),

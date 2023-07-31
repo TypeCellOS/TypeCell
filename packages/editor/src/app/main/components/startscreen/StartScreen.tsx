@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SessionStore } from "../../../../store/local/SessionStore";
 import buttonStyles from "../../../../styles/buttons.module.css";
-import { NotebookOverviewItem } from "../../../matrix-auth/routes/overview/NotebookOverviewItem";
+// import { NotebookOverviewItem } from "../../../matrix-auth/routes/overview/NotebookOverviewItem";
 import {
   OpenNewPageDialog,
   toDocs,
@@ -11,13 +11,10 @@ import {
   toTutorial,
 } from "../../../routes/routes";
 import styles from "./StartScreen.module.css";
-import apiPreviewImage from "./assets/api_preview.jpg";
-import chartsPreviewImage from "./assets/charts_preview.jpg";
 import globe from "./assets/globe.svg";
 import intro from "./assets/intro.gif";
 import lightning from "./assets/lightning.svg";
 import npm from "./assets/npm.svg";
-import timePreviewImage from "./assets/time_preview.jpg";
 
 export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
   const { sessionStore } = props;
@@ -149,7 +146,7 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
 
             <div className={styles.overview + " row"}>
               <div className={styles.notebook}>
-                <NotebookOverviewItem
+                {/* <NotebookOverviewItem
                   title="It’s all about timing"
                   description="Explore TypeCell's reactivity with the help of time"
                   previewImage={timePreviewImage}
@@ -157,14 +154,11 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
                     username: "niklas",
                     profileImageUrl: "",
                   }}
-                  to={
-                    "TODO" /*toIdentifierString(
-                    "@niklas/time"
-                  )*/
-                  }></NotebookOverviewItem>
+                  
+                  }></NotebookOverviewItem> */}
               </div>
               <div className={styles.notebook}>
-                <NotebookOverviewItem
+                {/* <NotebookOverviewItem
                   title="Fun with charts"
                   description="Visualize weather data with two React chart libraries"
                   previewImage={chartsPreviewImage}
@@ -172,14 +166,11 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
                     username: "yousef",
                     profileImageUrl: "",
                   }}
-                  to={
-                    "TODO" /*toIdentifierString(
-                    "@yousef/charts"
-                  )*/
-                  }></NotebookOverviewItem>
+                  
+                  }></NotebookOverviewItem> */}
               </div>
               <div className={styles.notebook}>
-                <NotebookOverviewItem
+                {/* <NotebookOverviewItem
                   title="File upload using API"
                   description="Connect a React file uploader with an API"
                   previewImage={apiPreviewImage}
@@ -188,8 +179,8 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
                     profileImageUrl: "",
                   }}
                   to={
-                    "TODO" /*toIdentifierString("@niklas/api")*/
-                  }></NotebookOverviewItem>
+                    "TODO"
+                  }></NotebookOverviewItem> */}
               </div>
             </div>
           </div>

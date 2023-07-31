@@ -10,11 +10,12 @@ import {
   onLoadDocumentPayload,
   storePayload,
 } from "@hocuspocus/server";
-import * as Y from "yjs";
+import { ChildReference } from "@typecell-org/shared";
 import {
   createAnonClient,
   createServiceClient,
-} from "../../supabase/supabase.js";
+} from "@typecell-org/shared-test";
+import * as Y from "yjs";
 
 const documentIdByDocument = new WeakMap<Y.Doc, string>();
 // export const schema = `CREATE TABLE IF NOT EXISTS "documents" (
@@ -183,7 +184,11 @@ export class SupabaseHocuspocus extends Database {
     const serviceClient = await createServiceClient();
 
     const refs = [...tr.doc.getMap("refs").values()]
-      .filter((r) => r.namespace === "typecell" && r.type === "childOf") // TODO: use ChildReference
+      .filter(
+        (r) =>
+          r.namespace === ChildReference.namespace &&
+          r.type === ChildReference.type
+      )
       .map((r) => r.target as string);
 
     const refsIds = await serviceClient
@@ -241,7 +246,6 @@ export class SupabaseHocuspocus extends Database {
   private refListenersByDocument = new WeakMap<Y.Doc, any>();
 
   async afterLoadDocument(data: onLoadDocumentPayload): Promise<any> {
-    console.log("afterLoadDocument", data.documentName);
     if (this.refListenersByDocument.has(data.document)) {
       throw new Error("unexpected: refListener already set");
     }

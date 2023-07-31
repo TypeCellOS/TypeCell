@@ -133,6 +133,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       throw new Error("not initialized");
     }
 
+    // console.log("Coordinator load debug", idStr, this.userId);
     if (this.loadedDocuments.has(idStr)) {
       // we expect loadDocument only to be called once per document
       throw new Error("loadDocument: document already loaded");
@@ -213,6 +214,30 @@ export class DocumentCoordinator extends lifecycle.Disposable {
     localDoc.meta.exists_at_remote = true;
     this.documents.set(localDoc.meta.id, localDoc.meta);
   }
+
+  public async loadFromGuest(identifier: string, targetYdoc: Y.Doc) {
+    const dbname = "user-tc-guest-doc-" + identifier; // bit hacky, "officially" we don't know the exact source name prefix here
+    let dbExists = await databaseExists(dbname);
+
+    if (dbExists) {
+      const guestIndexedDBProvider = new IndexeddbPersistence(
+        dbname,
+        targetYdoc
+      );
+      // wait for sync
+      await new Promise<void>((resolve) => {
+        guestIndexedDBProvider.once("synced", () => {
+          resolve();
+        });
+      });
+      guestIndexedDBProvider.destroy();
+      console.log("applied changes from guest");
+      return true;
+    } else {
+      console.log("did not apply changes from guest");
+      return false;
+    }
+  }
 }
 
 /*
@@ -227,3 +252,21 @@ TODO:
 
 
 */
+
+// https://stackoverflow.com/a/23756653
+async function databaseExists(dbname: string) {
+  return new Promise<boolean>((resolve) => {
+    let req = indexedDB.open(dbname);
+    let existed = true;
+    req.onsuccess = function () {
+      req.result.close();
+      if (!existed) {
+        indexedDB.deleteDatabase(dbname);
+      }
+      resolve(existed);
+    };
+    req.onupgradeneeded = function () {
+      existed = false;
+    };
+  });
+}

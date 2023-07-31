@@ -1,6 +1,9 @@
+import {
+  createAnonClient,
+  createRandomUser,
+  createServiceClient,
+} from "@typecell-org/shared-test";
 import { beforeAll, describe, expect, it } from "vitest";
-import { createAnonClient, createServiceClient } from "../supabase";
-import { createRandomUser } from "./supabaseTestUtil";
 
 describe("supabase basics", () => {
   beforeAll(async () => {

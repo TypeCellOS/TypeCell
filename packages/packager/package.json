@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
-    "@typecell-org/common": "*",
+    "@typecell-org/util": "*",
     "@typecell-org/engine": "*",
     "@typecell-org/parsers": "*",
     "es-module-shims": "1.4.3",
@@ -24,13 +24,10 @@
     "rimraf": "^3.0.2",
     "typescript": "5.0.4",
     "@playwright/test": "^1.33.0",
-    "playwright-test": "^9.0.0",
-    "vitest": "^0.24.4",
-    "jsdom": "^20.0.0",
-    "@vitest/coverage-c8": "^0.24.4"
-  },
-  "overrides": {
-    "playwright-core": "1.33.0"
+    "playwright-test": "^11.0.4",
+    "vitest": "^0.33.0",
+    "jsdom": "^22.1.0",
+    "@vitest/coverage-v8": "^0.33.0"
   },
   "source": "src/index.ts",
   "types": "types/index.d.ts",
@@ -41,7 +38,7 @@
     "build": "npm run clean && tsc -p tsconfig.json",
     "watch": "tsc --watch",
     "unittest:vitest": "vitest run --coverage",
-    "unittest:playwright": "playwright-test '**/*.browsertest.ts'",
-    "testFIXME": "npm run unittest:vitest && npm run unittest:playwright"
+    "unittest:playwright": "playwright-test '**/*.browsertest.ts' --runner mocha",
+    "test": "npm run unittest:vitest && npm run unittest:playwright"
   }
 }

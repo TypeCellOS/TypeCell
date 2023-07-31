@@ -1,0 +1,20 @@
+{
+  "name": "@typecell-org/shared",
+  "version": "0.0.3",
+  "private": true,
+  "dependencies": {
+    "@typecell-org/util": "^0.0.3"
+  },
+  "devDependencies": {
+    "typescript": "5.0.4"
+  },
+  "source": "src/index.ts",
+  "types": "types/src/index.d.ts",
+  "main": "dist/src/index.js",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf dist && rimraf types",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "watch": "tsc --watch"
+  }
+}

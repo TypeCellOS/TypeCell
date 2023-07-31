@@ -91,7 +91,7 @@ export const testWithUsers = base.extend<
   aliceUser: [
     async ({}, use, workerInfo) => {
       const aliceUser: TestUser = {
-        username: "alice-" + SESSION_ID + "-" + workerInfo.workerIndex,
+        username: "alice_" + SESSION_ID + "_" + workerInfo.workerIndex,
         password: "myPw123ABC@#$",
       };
 
@@ -102,7 +102,7 @@ export const testWithUsers = base.extend<
   bobUser: [
     async ({}, use, workerInfo) => {
       const bobUser: TestUser = {
-        username: "bob-" + SESSION_ID + "-" + workerInfo.workerIndex,
+        username: "bob_" + SESSION_ID + "_" + workerInfo.workerIndex,
         password: "myB0bPw123ABC@#$",
       };
 

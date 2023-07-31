@@ -58,7 +58,6 @@ export const OwnerAliasRoute = observer(
       };
     }, [ownerProfileIdentifier, sessionStore]);
 
-    // TODO: cache in local alias cache
     useEffect(() => {
       if (!owner) {
         throw new Error("No owner");
@@ -79,7 +78,7 @@ export const OwnerAliasRoute = observer(
       }
 
       (async () => {
-        console.log("load");
+        console.log("load alias", owner);
         const { data, error } = await sessionStore.supabase
           .from("workspaces")
           .select()

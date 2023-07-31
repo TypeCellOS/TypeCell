@@ -9,7 +9,7 @@ import {
   observable,
   runInAction,
 } from "mobx";
-import { uuid } from "vscode-lib";
+import { hash, uuid } from "vscode-lib";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
 import { SupabaseSessionStore } from "../../../app/supabase-auth/SupabaseSessionStore";
@@ -18,10 +18,6 @@ import { TypeCellIdentifier } from "../../../identifiers/TypeCellIdentifier";
 import { Remote } from "./Remote";
 
 let wsProviders = new Map<string, HocuspocusProviderWebsocket | undefined>();
-
-function toHex(arr: Uint8Array) {
-  return [...arr].map((x) => x.toString(16).padStart(2, "0") as any).join("");
-}
 
 function getWSProvider(session: SupabaseSessionStore) {
   if (!session.userPrefix) {
@@ -95,15 +91,18 @@ export class TypeCellRemote extends Remote {
     return this.hocuspocusProvider?.awareness;
   }
 
+  // TODO: "canWrite" isn't a great name, because it's actually "hasNoChanges Or CanWriteAndWaitingForSync". We should probably split "pending messages" and "access" into two separate properties.
   public get canWrite() {
-    return this.unsyncedChanges === 0;
-    // this._canWriteAtom.reportObserved();
-    // if (!this.hocuspocusProvider) {
-    //   return true;
-    // }
-    // return true;
-    // // TODO
-    // // return this.hocuspocusProvider.canWrite;
+    console.log(
+      "canWrite",
+      this.unsyncedChanges,
+      this.hocuspocusProvider?.authorizedScope
+    );
+    return (
+      this.unsyncedChanges === 0 ||
+      !this.hocuspocusProvider?.authorizedScope || // initializing
+      this.hocuspocusProvider?.authorizedScope === "read-write"
+    );
   }
 
   public get canCreate() {
@@ -127,7 +126,7 @@ export class TypeCellRemote extends Remote {
       id: uuid.generateUuid(),
       created_at: date,
       updated_at: date,
-      data: "\\x" + toHex(data),
+      data: "\\x" + hash.toHexString(data.buffer),
       nano_id: this.identifier.documentId,
       public_access_level: this.identifier.documentId.endsWith("/.inbox")
         ? "write"
@@ -213,32 +212,7 @@ export class TypeCellRemote extends Remote {
     });
     console.log("start");
     this._awarenessAtom.reportChanged();
-    // this._canWriteAtom.reportChanged();
-    // this.hocuspocusProvider?.on("");
   }
-  //   `this._register(
-  //     this.matrixProvider.onCanWriteChanged(() => {
-  //       this._canWriteAtom.reportChanged();
-  //     })
-  //   );
-
-  //   this._register(
-  //     this.matrixProvider.onDocumentAvailable(() => {
-  //       console.log("doc available");
-  //       runInAction(() => {
-  //         this.status = "loaded";
-  //       });
-  //     })
-  //   );
-
-  //   this._register(
-  //     this.matrixProvider.onDocumentUnavailable(() => {
-  //       runInAction(() => {
-  //         this.status = "not-found";
-  //       });
-  //     })
-  //   );
-  // }`
 
   public dispose(): void {
     this.disposed = true;

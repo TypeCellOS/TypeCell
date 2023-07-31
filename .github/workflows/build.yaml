@@ -39,8 +39,8 @@ jobs:
       - name: Verify generated supabase types are checked in
         working-directory: packages/server
         run: |
-          supabase gen types typescript --local --schema public > src/@types/schema.ts
-          if ! git diff --ignore-space-at-eol --exit-code --quiet src/@types/schema.ts; then
+          supabase gen types typescript --local --schema public > ../shared/src/schema.ts
+          if ! git diff --ignore-space-at-eol --exit-code --quiet ../shared/src/schema.ts; then
             echo "Detected uncommitted changes after build. See status below:"
             git diff
             exit 1
@@ -117,7 +117,7 @@ jobs:
         # PLAYWRIGHT_BROWSERS_PATH: 0 # https://github.com/microsoft/playwright/blob/main/docs/src/ci.md#caching-browsers
 
       - name: Start HocusPocus server
-        run: npm run start:server &
+        run: RUNNER_TRACKING_ID="" && npm run start:server &
         env:
           CI: true
 
@@ -144,6 +144,11 @@ jobs:
           path: packages/editor/playwright-report/
           retention-days: 30
 
+      # Upload webpack-stats.json to use on relative-ci.yaml workflow
+      - name: Upload webpack stats artifact
+        uses: relative-ci/agent-upload-artifact-action@v1
+        with:
+          webpackStatsFile: ./packages/editor/dist/webpack-stats.json
       # - name: Upload to coveralls
       #   uses: coverallsapp/github-action@master
       #   with:

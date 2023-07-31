@@ -46,6 +46,7 @@ export const Username = observer(
     //   let pageAfterLogin = window.location.origin + from;
 
     if (sessionStore.isLoggedIn) {
+      debugger;
       return <Navigate to={from} replace={true} />;
     }
 

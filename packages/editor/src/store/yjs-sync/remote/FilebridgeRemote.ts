@@ -9,7 +9,8 @@ import { getIdentifierWithAppendedPath } from "../../../identifiers/paths/identi
 import { xmlFragmentToMarkdown } from "../../../integrations/markdown/export";
 import { markdownToXmlFragment } from "../../../integrations/markdown/import";
 import ProjectResource from "../../ProjectResource";
-import { ChildReference } from "../../referenceDefinitions/child";
+
+import { ChildReference } from "@typecell-org/shared";
 import { Remote } from "./Remote";
 
 function isEmptyDoc(doc: Y.Doc) {

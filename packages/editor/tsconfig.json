@@ -15,7 +15,25 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "composite": true
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests"],
+  "references": [
+    {
+      "path": "../shared"
+    },
+    {
+      "path": "../shared-test"
+    },
+    {
+      "path": "../util"
+    },
+    {
+      "path": "../engine"
+    },
+    {
+      "path": "../parsers"
+    }
+  ]
 }

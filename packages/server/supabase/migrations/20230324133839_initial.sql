@@ -83,7 +83,7 @@ BEGIN
       SELECT MIN(check_document_access(uid, parent_id)) FROM document_relations r WHERE child_id = doc_id
     );
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 create policy "Enable insert for authenticated users only"
 on "public"."documents"
@@ -152,8 +152,4 @@ for select
 to public
 using (true);
 
-
-
-
 -- TODO: prevent select * using https://stackoverflow.com/questions/74283527/postgresql-remove-ability-to-query-every-row-in-a-table
--- TODO: validate formats of nanoids and usernames

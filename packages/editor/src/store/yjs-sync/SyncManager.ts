@@ -142,7 +142,7 @@ export class SyncManager extends lifecycle.Disposable {
     } else if (identifier instanceof HttpsIdentifier) {
       return new FetchRemote(this.ydoc, identifier);
     } else if (identifier instanceof MatrixIdentifier) {
-      throw new Error("nope");
+      throw new Error("not implemented anymore");
       // return new MatrixRemote(this.ydoc, identifier);
     } else if (identifier instanceof TypeCellIdentifier) {
       if (!(this.sessionStore instanceof SupabaseSessionStore)) {

@@ -13,7 +13,8 @@ import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
 import ProjectResource from "../../../store/ProjectResource";
 import { SessionStore } from "../../../store/local/SessionStore";
-import { ChildReference } from "../../../store/referenceDefinitions/child";
+
+import { ChildReference } from "@typecell-org/shared";
 import styles from "./ProjectContainer.module.css";
 import SidebarTree from "./directoryNavigation/SidebarTree";
 
@@ -119,14 +120,6 @@ const ProjectContainer = observer((props: Props) => {
     props.activeChild
   );
 
-  // const files = Array.from(props.project.files.keys()).sort();
-
-  // const tree = filesToTreeNodes(
-  //   files.map((f) => ({
-  //     fileName: f,
-  //   }))
-  // );
-
   const onAddPageHandler = async (parentId?: string) => {
     const ret = await DocConnection.create(props.sessionStore);
     if (typeof ret === "string") {
@@ -196,6 +189,9 @@ const ProjectContainer = observer((props: Props) => {
       </div>
     );
   } else {
+    const userIsOwner = [
+      ...(props.sessionStore.profile?.workspaces.values() || []),
+    ].includes(props.project.identifier.toString());
     return (
       <div className={styles.projectContainer}>
         <PageLayout
@@ -240,6 +236,7 @@ const ProjectContainer = observer((props: Props) => {
                   tree={tree}
                   onAddNewPage={onAddPageHandler}
                   sessionStore={props.sessionStore}
+                  enableAddRootPage={userIsOwner}
                 />
               </div>
             </LeftSidebar>

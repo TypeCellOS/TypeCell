@@ -40,4 +40,13 @@ export default class ProfileResource extends BaseResource {
 
     return ret;
   }
+
+  // these documents (forks) don't have a parent workspace, so we store them on the profile
+  // (perhaps not the nicest architecture, but we probably want to revisit the concept of forking entirely)
+  public get forks() {
+    // we use a map with the same value (identifier) as key and value, effectively using it as a set
+    const ret = this.ydoc.getMap<string>("forks");
+
+    return ret;
+  }
 }

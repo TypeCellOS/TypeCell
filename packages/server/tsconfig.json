@@ -18,7 +18,16 @@
     "declarationDir": "types",
     "sourceMap": true,
     "downlevelIteration": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "composite": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../util"
+    },
+    {
+      "path": "../shared-test"
+    }
+  ]
 }

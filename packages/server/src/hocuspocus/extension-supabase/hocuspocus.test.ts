@@ -1,13 +1,15 @@
 import { Server } from "@hocuspocus/server";
-import { beforeAll, describe, expect, it } from "vitest";
-import ws from "ws";
-import * as Y from "yjs";
+import { ChildReference } from "@typecell-org/shared";
 import {
   createDocument,
   createHPProvider,
   createRandomUser,
   createWsProvider,
-} from "../../supabase/test/supabaseTestUtil";
+} from "@typecell-org/shared-test";
+import { beforeAll, describe, expect, it } from "vitest";
+import { async } from "vscode-lib";
+import ws from "ws";
+import * as Y from "yjs";
 import { SupabaseHocuspocus } from "./SupabaseHocuspocus";
 
 let server: typeof Server;
@@ -19,56 +21,6 @@ beforeAll(async () => {
   });
   await server.listen(0); // 0 for random port
 });
-/*
-it("should sync user data via yjs", async () => {
-  const ydoc = new Y.Doc();
-
-  let pResolve = () => {};
-  const p = new Promise<void>((resolve) => {
-    pResolve = resolve;
-  });
-  const wsProvider = new HocuspocusProviderWebsocket({
-    url: "ws://localhost:1234",
-    WebSocketPolyfill: ws,
-  });
-
-  const provider = new HocuspocusProvider({
-    name: generateId(),
-    document: ydoc,
-    token: alice.session?.access_token,
-    onAuthenticated: () => {
-      console.log("onAuthenticated");
-    },
-    onAuthenticationFailed(data) {
-      console.log("onAuthenticationFailed", data);
-    },
-    onStatus: (data) => {
-      console.log("onStatus", data);
-    },
-    onSynced: () => {
-      console.log("onSynced");
-      pResolve();
-    },
-    onConnect() {
-      console.log("onConnect");
-    },
-    websocketProvider: wsProvider,
-    broadcast: false,
-  });
-
-  provider.on("awarenessUpdate", () => {
-    console.log("awareness");
-  });
-  await p;
-  ydoc.getMap("hello").set("world", "hello");
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-  console.log("next change");
-  ydoc.getMap("hello").set("world", "hello2");
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  // await provider.connect();
-  //   await p;
-  //   provider.on("synced", () => {});
-});*/
 
 describe("SupabaseHocuspocus", () => {
   let alice: Awaited<ReturnType<typeof createRandomUser>>;
@@ -90,10 +42,10 @@ describe("SupabaseHocuspocus", () => {
       docId = ret.data![0].nano_id;
     });
 
-    it.skip("should sync when Alice reopens", async () => {
+    it("should sync when Alice reopens", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider(server.URL, ws);
+      const wsProvider = createWsProvider(server.webSocketURL, ws);
 
       const provider = createHPProvider(
         docId,
@@ -103,26 +55,36 @@ describe("SupabaseHocuspocus", () => {
       );
 
       ydoc.getMap("mymap").set("hello", "world");
+
+      // sync
+      await async.timeout(100);
+
+      //disconnect
       provider.disconnect();
       wsProvider.disconnect();
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      await async.timeout(100);
+
+      // reconnect
       await wsProvider.connect();
 
       const ydoc2 = new Y.Doc();
       const provider2 = createHPProvider(
         docId,
-        ydoc,
-        alice.session?.access_token + "", // TODO
+        ydoc2,
+        alice.session?.access_token + "$" + alice.session?.refresh_token,
         wsProvider
       );
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      await async.timeout(100);
+
       expect(ydoc2.getMap("mymap").get("hello")).toBe("world");
     });
 
-    it.skip("should sync when Alice opens 2 connections", async () => {
+    it("should sync when Alice opens 2 connections", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider(server.URL, ws);
+      const wsProvider = createWsProvider(server.webSocketURL, ws);
 
       const provider = createHPProvider(
         docId,
@@ -137,20 +99,22 @@ describe("SupabaseHocuspocus", () => {
       const provider2 = createHPProvider(
         docId,
         ydoc2,
-        alice.session?.access_token + "", // TODO
+        alice.session?.access_token + "$" + alice.session?.refresh_token,
         wsProvider
       );
 
       ydoc2.getMap("anothermap").set("hello", "world");
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await async.timeout(1000);
+      console.log(provider2.isConnected);
+      console.log(provider2.unsyncedChanges);
       expect(ydoc2.getMap("mymap").get("hello")).toBe("world");
       expect(ydoc.getMap("anothermap").get("hello")).toBe("world");
     });
 
-    it.skip("should not sync to Bob", async () => {
+    it("should not sync to Bob", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider(server.URL, ws);
+      const wsProvider = createWsProvider(server.webSocketURL, ws);
 
       const provider = createHPProvider(
         docId,
@@ -169,7 +133,7 @@ describe("SupabaseHocuspocus", () => {
         wsProvider
       );
       ydoc2.getMap("anothermap").set("hello", "world");
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await async.timeout(100);
       expect(ydoc2.getMap("mymap").get("hello")).toBe("world");
       expect(ydoc.getMap("anothermap").get("hello")).toBe("world");
     });
@@ -222,10 +186,10 @@ describe("SupabaseHocuspocus", () => {
       docBDbID = retB.data![0].id;
     });
 
-    it.skip("should add and remove refs to database", async () => {
+    it("should add and remove refs to database", async () => {
       const ydoc = new Y.Doc();
 
-      const wsProvider = createWsProvider(server.URL, ws);
+      const wsProvider = createWsProvider(server.webSocketURL, ws);
 
       const provider = createHPProvider(
         docId,
@@ -236,11 +200,11 @@ describe("SupabaseHocuspocus", () => {
 
       ydoc.getMap("refs").set("fakekey", {
         target: docBId,
-        type: "child",
-        namespace: "typecell",
+        type: ChildReference.type,
+        namespace: ChildReference.namespace,
       });
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await async.timeout(100);
 
       const refs = await alice.supabase
         .from("document_relations")
@@ -252,7 +216,7 @@ describe("SupabaseHocuspocus", () => {
 
       ydoc.getMap("refs").delete("fakekey");
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await async.timeout(100);
 
       const newrefs = await alice.supabase
         .from("document_relations")

@@ -1,12 +1,6 @@
 import { DEFAULT_PROVIDER } from "../setup/config";
 import { expect, test } from "../setup/fixtures";
 
-test("Sign in button exists", async ({ page }) => {
-  await page.goto("/");
-  const button = page.locator("header button");
-  await expect(button).toHaveText("Sign in");
-});
-
 if (DEFAULT_PROVIDER === "supabase") {
   test("Sign in by email (supabase)", async ({
     page,
@@ -20,7 +14,7 @@ if (DEFAULT_PROVIDER === "supabase") {
     aliceContext = aliceContext;
 
     await page.goto("/");
-    const button = page.locator("button", { hasText: "Sign in" });
+    const button = page.locator("button", { hasText: "Log in" });
 
     await button.click();
 
@@ -61,7 +55,7 @@ if (DEFAULT_PROVIDER === "supabase") {
     aliceContext = aliceContext;
 
     await page.goto("/");
-    const button = page.locator("button", { hasText: "Sign in" });
+    const button = page.locator("button", { hasText: "Log in" });
 
     await button.click();
 

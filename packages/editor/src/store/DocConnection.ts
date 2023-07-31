@@ -10,13 +10,13 @@ import {
 import { lifecycle } from "vscode-lib";
 import { BaseResource } from "./BaseResource";
 
+import { ForkReference } from "@typecell-org/shared";
 import * as Y from "yjs";
 import { parseIdentifier } from "../identifiers";
 import { Identifier } from "../identifiers/Identifier";
 import { TypeCellIdentifier } from "../identifiers/TypeCellIdentifier";
 import { InboxResource } from "./InboxResource";
 import { SessionStore } from "./local/SessionStore";
-import { ForkReference } from "./referenceDefinitions/fork";
 import { SyncManager } from "./yjs-sync/SyncManager";
 
 const cache = new ObservableMap<string, DocConnection>();
@@ -62,8 +62,14 @@ export class DocConnection extends lifecycle.Disposable {
         this.manager?.dispose();
         let newManager: SyncManager | undefined = undefined;
 
-        if (sessionStore.user && sessionStore.documentCoordinator) {
+        if (this.sessionStore.user && this.sessionStore.documentCoordinator) {
+          // This is hacky, we should clear cache and probably dispose all docconnections when the sessionstore changes
           newManager = SyncManager.load(identifier, this.sessionStore);
+          const cacheKey = DocConnection.getCacheKey(
+            this.sessionStore,
+            identifier
+          );
+          cache.set(cacheKey, this);
         }
         runInAction(() => {
           this.manager = newManager;
@@ -292,6 +298,7 @@ export class DocConnection extends lifecycle.Disposable {
     const cacheKey = DocConnection.getCacheKey(sessionStore, identifier);
     let connection = cache.get(cacheKey);
     if (!connection) {
+      // console.log("DocConnection load debug", cacheKey);
       const syncManager = SyncManager.load(identifier, sessionStore);
 
       connection = new DocConnection(identifier, syncManager, sessionStore);
