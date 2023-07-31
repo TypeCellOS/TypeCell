@@ -1,6 +1,6 @@
-import { createOneToManyReferenceDefinition } from "../Ref";
+import { createManyToOneReferenceDefinition } from "../Ref";
 
-export const ForkReference = createOneToManyReferenceDefinition(
+export const ForkReference = createManyToOneReferenceDefinition(
   "typecell",
   "forkOf"
 );

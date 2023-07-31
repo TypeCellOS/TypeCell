@@ -199,7 +199,7 @@ const addBuiltInTypesToRuntime = async (
     typePath = "@typecell-org/editor/src";
   } else if (isBuiltInModule(mod)) {
     if (mod === "csstype") {
-      typePath = "@types/react/node_modules/csstype"; // TODO: would be better to have 1 version of csstype, and in @types/csstype
+      typePath = "csstype";
     } else {
       typePath = "@types/" + mod;
     }

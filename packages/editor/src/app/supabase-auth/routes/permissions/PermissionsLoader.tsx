@@ -103,7 +103,9 @@ const PermissionsLoader = observer(
 
     if (!permissionData) {
       return (
-        <Modal css={{ overflow: "visible" }} onClose={props.closeCallback}>
+        <Modal
+          // css={{ overflow: "visible" }}
+          onClose={props.closeCallback}>
           <ModalHeader>
             <ModalTitle>Sharing & Permissions</ModalTitle>
           </ModalHeader>

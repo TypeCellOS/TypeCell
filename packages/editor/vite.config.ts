@@ -37,10 +37,10 @@ export default defineConfig({
   },
   plugins: [react(), redirectAll(), webpackStats()],
   resolve: {
-    alias: {
-      buffer: "rollup-plugin-node-polyfills/polyfills/buffer-es6",
-      process: "rollup-plugin-node-polyfills/polyfills/process-es6",
-    },
+    // alias: {
+    //   buffer: "rollup-plugin-node-polyfills/polyfills/buffer-es6",
+    //   process: "rollup-plugin-node-polyfills/polyfills/process-es6",
+    // },
   },
   optimizeDeps: {
     esbuildOptions: {
@@ -52,7 +52,6 @@ export default defineConfig({
         // NodeModulesPolyfillPlugin(),
       ],
     },
-    include: ["simple-peer"], // needed for matrix-crdt
   },
   build: {
     rollupOptions: {

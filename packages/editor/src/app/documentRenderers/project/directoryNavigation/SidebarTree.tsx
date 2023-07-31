@@ -77,11 +77,13 @@ const RenderItem =
           appearance="subtle"
           iconAfter={
             <>
-              <VscKebabVertical
-                onClick={onKebabClick}
-                className={styles.kebab}
-                title=""
-              />
+              {false && ( // disabled for now
+                <VscKebabVertical
+                  onClick={onKebabClick}
+                  className={styles.kebab}
+                  title=""
+                />
+              )}
               <VscAdd
                 onClick={onAddClick}
                 className={styles.addChild}
@@ -130,6 +132,7 @@ export const SidebarTree = observer(
     tree: TreeData;
     onClick: (item: Identifier) => void;
     onAddNewPage: (parent?: string) => Promise<void>;
+    enableAddRootPage: boolean;
     sessionStore: SessionStore;
   }) => {
     const { sessionStore, tree } = props;
@@ -254,23 +257,25 @@ export const SidebarTree = observer(
           isDragEnabled
           isNestingEnabled
         />
-        <Button
-          className={styles.sidebarButton}
-          component="div"
-          style={{
-            paddingLeft: 2,
-          }}
-          iconBefore={
-            <VscAdd
-              // onClick={onChevronClick}
-              className={styles.add}
-              title=""
-            />
-          }
-          onClick={() => props.onAddNewPage()}
-          appearance="subtle">
-          Add a page
-        </Button>
+        {props.enableAddRootPage && (
+          <Button
+            className={styles.sidebarButton}
+            component="div"
+            style={{
+              paddingLeft: 2,
+            }}
+            iconBefore={
+              <VscAdd
+                // onClick={onChevronClick}
+                className={styles.add}
+                title=""
+              />
+            }
+            onClick={() => props.onAddNewPage()}
+            appearance="subtle">
+            Add a page
+          </Button>
+        )}
       </>
     );
   }

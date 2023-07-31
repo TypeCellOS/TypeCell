@@ -12,7 +12,6 @@ import { navigateRef, setNavigateRef } from "./GlobalNavigateRef";
 import Main from "./main/Main";
 import { AILanding } from "./main/components/startscreen/AILanding";
 import { StartScreen } from "./main/components/startscreen/StartScreen";
-import { matrixAuthProvider } from "./matrix-auth/MatrixAuthProvider";
 import { DocumentRoute } from "./routes/document";
 import { supabaseAuthProvider } from "./supabase-auth/supabaseAuthProvider";
 
@@ -34,7 +33,7 @@ const Wrapper = observer((props: { sessionStore: SessionStore }) => {
 
 export const App = observer(
   (props: {
-    authProvider: typeof matrixAuthProvider | typeof supabaseAuthProvider;
+    authProvider: typeof supabaseAuthProvider;
     sessionStore: SessionStore;
   }) => {
     console.log("app render");

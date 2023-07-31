@@ -91,15 +91,18 @@ export class TypeCellRemote extends Remote {
     return this.hocuspocusProvider?.awareness;
   }
 
+  // TODO: "canWrite" isn't a great name, because it's actually "hasNoChanges Or CanWriteAndWaitingForSync". We should probably split "pending messages" and "access" into two separate properties.
   public get canWrite() {
-    return this.unsyncedChanges === 0;
-    // this._canWriteAtom.reportObserved();
-    // if (!this.hocuspocusProvider) {
-    //   return true;
-    // }
-    // return true;
-    // // TODO
-    // // return this.hocuspocusProvider.canWrite;
+    console.log(
+      "canWrite",
+      this.unsyncedChanges,
+      this.hocuspocusProvider?.authorizedScope
+    );
+    return (
+      this.unsyncedChanges === 0 ||
+      !this.hocuspocusProvider?.authorizedScope || // initializing
+      this.hocuspocusProvider?.authorizedScope === "read-write"
+    );
   }
 
   public get canCreate() {
@@ -209,32 +212,7 @@ export class TypeCellRemote extends Remote {
     });
     console.log("start");
     this._awarenessAtom.reportChanged();
-    // this._canWriteAtom.reportChanged();
-    // this.hocuspocusProvider?.on("");
   }
-  //   `this._register(
-  //     this.matrixProvider.onCanWriteChanged(() => {
-  //       this._canWriteAtom.reportChanged();
-  //     })
-  //   );
-
-  //   this._register(
-  //     this.matrixProvider.onDocumentAvailable(() => {
-  //       console.log("doc available");
-  //       runInAction(() => {
-  //         this.status = "loaded";
-  //       });
-  //     })
-  //   );
-
-  //   this._register(
-  //     this.matrixProvider.onDocumentUnavailable(() => {
-  //       runInAction(() => {
-  //         this.status = "not-found";
-  //       });
-  //     })
-  //   );
-  // }`
 
   public dispose(): void {
     this.disposed = true;

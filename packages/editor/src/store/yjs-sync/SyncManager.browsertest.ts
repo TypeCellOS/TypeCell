@@ -116,7 +116,7 @@ describe("SyncManager tests", () => {
     // initialize the main user we're testing
     // await coordinator.initialize();
 
-    sessionStore = new SupabaseSessionStore();
+    sessionStore = new SupabaseSessionStore(false, false);
     await sessionStore.initialize();
 
     await loginAsNewRandomUser(sessionStore, "testuser");

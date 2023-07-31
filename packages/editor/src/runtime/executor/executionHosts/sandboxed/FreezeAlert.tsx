@@ -1,4 +1,3 @@
-import * as React from "react";
 import Flag from "@atlaskit/flag";
 import { VscWarning } from "react-icons/vsc";
 
@@ -12,18 +11,18 @@ export const FreezeAlert = (props: {
 }) => {
   return (
     <Flag
-      css={{
-        zIndex: 2000,
-        backgroundColor: "rgb(222, 53, 11)",
-      }}
+      // css={{
+      //   zIndex: 2000,
+      //   backgroundColor: "rgb(222, 53, 11)",
+      // }}
       appearance="error"
       icon={
         <VscWarning
-          css={{
-            width: "24px",
-            height: "24px",
-            padding: "2px",
-          }}
+        // css={{
+        //   width: "24px",
+        //   height: "24px",
+        //   padding: "2px",
+        // }}
         />
       }
       id="error"

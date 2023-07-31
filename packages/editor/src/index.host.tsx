@@ -5,7 +5,6 @@ import * as monaco from "monaco-editor";
 import * as process from "process";
 import { createRoot } from "react-dom/client";
 import App from "./app/App";
-import { matrixAuthProvider } from "./app/matrix-auth/MatrixAuthProvider";
 import { SupabaseSessionStore } from "./app/supabase-auth/SupabaseSessionStore";
 import { supabaseAuthProvider } from "./app/supabase-auth/supabaseAuthProvider";
 import { DEFAULT_PROVIDER } from "./config/config";
@@ -50,8 +49,7 @@ async function init() {
 
   const root = createRoot(document.getElementById("root")!);
 
-  const authProvider =
-    DEFAULT_PROVIDER === "matrix" ? matrixAuthProvider : supabaseAuthProvider;
+  const authProvider = supabaseAuthProvider;
 
   const sessionStore: SessionStore =
     DEFAULT_PROVIDER === "matrix"
