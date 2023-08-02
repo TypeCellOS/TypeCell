@@ -125,7 +125,7 @@ const ProjectContainer = observer((props: Props) => {
     if (typeof ret === "string") {
       throw new Error("Error creating doc: " + ret);
     }
-    ret.create("!notebook");
+    ret.create("!richtext");
 
     if (parentId) {
       // add to parent

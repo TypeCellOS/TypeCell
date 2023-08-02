@@ -18,7 +18,7 @@ import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
 import { LocalDoc } from "./DocumentCoordinator";
 import FetchRemote from "./remote/FetchRemote";
 import { FilebridgeRemote } from "./remote/FilebridgeRemote";
-import GithubRemote from "./remote/GithubRemote";
+
 // import { MatrixRemote } from "./remote/MatrixRemote";
 import { makeYDocObservable } from "@syncedstore/yjs-reactive-bindings";
 import { SupabaseSessionStore } from "../../app/supabase-auth/SupabaseSessionStore";
@@ -138,7 +138,8 @@ export class SyncManager extends lifecycle.Disposable {
     if (identifier instanceof FileIdentifier) {
       return new FilebridgeRemote(this.ydoc, identifier);
     } else if (identifier instanceof GithubIdentifier) {
-      return new GithubRemote(this.ydoc, identifier);
+      throw new Error("not implemented anymore");
+      // return new GithubRemote(this.ydoc, identifier);
     } else if (identifier instanceof HttpsIdentifier) {
       return new FetchRemote(this.ydoc, identifier);
     } else if (identifier instanceof MatrixIdentifier) {

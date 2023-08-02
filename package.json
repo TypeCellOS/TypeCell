@@ -17,6 +17,7 @@
     "packages/shared-test",
     "packages/engine",
     "packages/parsers",
+    "packages/frame",
     "packages/editor",
     "packages/server"
   ],

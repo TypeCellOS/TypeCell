@@ -1,5 +1,5 @@
 import { CodeModel } from "../../CodeModel.js";
-import { ResolvedImport } from "../../Engine.js";
+import { ResolvedImport } from "../../ReactiveEngine.js";
 import { CodeModelMock } from "./CodeModelMock.js";
 
 export function waitTillEvent<T>(

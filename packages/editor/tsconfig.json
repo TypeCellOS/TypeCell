@@ -18,7 +18,7 @@
     "downlevelIteration": true,
     "composite": true
   },
-  "include": ["src", "tests"],
+  "include": ["src", "tests", "../util/src/react/ContainedElement.tsx"],
   "references": [
     {
       "path": "../shared"
@@ -34,6 +34,9 @@
     },
     {
       "path": "../parsers"
+    },
+    {
+      "path": "../frame"
     }
   ]
 }

@@ -1,7 +1,6 @@
 import * as yjsBindings from "@syncedstore/yjs-reactive-bindings";
 import { Buffer } from "buffer";
 import * as mobx from "mobx";
-import * as monaco from "monaco-editor";
 import * as process from "process";
 import { createRoot } from "react-dom/client";
 import App from "./app/App";
@@ -10,10 +9,8 @@ import { supabaseAuthProvider } from "./app/supabase-auth/supabaseAuthProvider";
 import { DEFAULT_PROVIDER } from "./config/config";
 import { env } from "./config/env";
 import { validateHostDomain, validateSupabaseConfig } from "./config/security";
-import { setMonacoDefaults } from "./runtime/editor";
-import { MonacoContext } from "./runtime/editor/MonacoContext";
-import setupNpmTypeResolver from "./runtime/editor/languages/typescript/npmTypeResolver";
-import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typecellTypeResolver";
+
+import React from "react";
 import { SessionStore } from "./store/local/SessionStore";
 import "./styles/index.css";
 
@@ -43,10 +40,6 @@ async function init() {
 
   yjsBindings.enableMobxBindings(mobx);
 
-  setMonacoDefaults(monaco);
-  setupTypecellTypeResolver(monaco);
-  setupNpmTypeResolver(monaco);
-
   const root = createRoot(document.getElementById("root")!);
 
   const authProvider = supabaseAuthProvider;
@@ -59,12 +52,9 @@ async function init() {
   await sessionStore.initialize();
 
   root.render(
-    // TODO: support strictmode
-    // <React.StrictMode>
-    <MonacoContext.Provider value={{ monaco }}>
+    <React.StrictMode>
       <App authProvider={authProvider} sessionStore={sessionStore} />
-    </MonacoContext.Provider>
-    // </React.StrictMode>
+    </React.StrictMode>
   );
 }
 

@@ -8,13 +8,13 @@ import Modal, {
   ModalTransition,
 } from "@atlaskit/modal-dialog";
 import Textfield from "@atlaskit/textfield";
+import { error as errorUtil } from "@typecell-org/util";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Y from "yjs";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
 import { SessionStore } from "../../../store/local/SessionStore";
-import { UnreachableCaseError } from "../../../util/UnreachableCaseError";
 import { toDocument } from "../../routes/routes";
 import { Card } from "./common/card/Card";
 import { CardContainer } from "./common/card/CardContainer";
@@ -66,7 +66,7 @@ export const NewPageDialog = (props: {
                       console.error(ret);
                       break;
                     default:
-                      throw new UnreachableCaseError(ret);
+                      throw new errorUtil.UnreachableCaseError(ret);
                   }
                 } else if (ret instanceof BaseResource) {
                   if (selectedType === "!richtext") {
@@ -84,15 +84,17 @@ export const NewPageDialog = (props: {
 
                     ret.doc.data.insert(0, [blockgroup]);
                   } else if (selectedType === "!notebook") {
-                    ret.create("!notebook");
-                    ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
-                    ret.doc.cellList.addCell(
-                      1,
-                      "typescript",
-                      `export let message = "Hello World"`
-                    );
+                    // TODO
+                    throw new Error("not implemented");
+                    // ret.create("!notebook");
+                    // ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
+                    // ret.doc.cellList.addCell(
+                    //   1,
+                    //   "typescript",
+                    //   `export let message = "Hello World"`
+                    // );
                   } else {
-                    throw new UnreachableCaseError(selectedType);
+                    throw new errorUtil.UnreachableCaseError(selectedType);
                   }
 
                   navigate(toDocument(ret));
@@ -104,7 +106,7 @@ export const NewPageDialog = (props: {
                     ret.dispose();
                   }, 50000); // TODO
                 } else {
-                  throw new UnreachableCaseError(ret);
+                  throw new errorUtil.UnreachableCaseError(ret);
                 }
                 //   setName(obj.name);
                 //   setIsOpen(false);

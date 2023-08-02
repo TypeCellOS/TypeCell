@@ -1,8 +1,9 @@
-import { ReferenceDefinition } from "@typecell-org/shared/src/Ref";
+import { ReferenceDefinition } from "@typecell-org/shared";
+import { error } from "@typecell-org/util";
 import { autorun } from "mobx";
 import { lifecycle } from "vscode-lib";
 import * as Y from "yjs";
-import { UnreachableCaseError } from "../util/UnreachableCaseError";
+
 import { BaseResource } from "./BaseResource";
 import { InboxResource, RefInboxMessage } from "./InboxResource";
 
@@ -107,7 +108,7 @@ export class InboxValidator<
       this.documentDisposers.get(message.id)?.();
       this.documentDisposers.delete(message.id);
     } else {
-      throw new UnreachableCaseError(result);
+      throw new error.UnreachableCaseError(result);
     }
   }
 

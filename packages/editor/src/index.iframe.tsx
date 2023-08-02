@@ -1,12 +1,12 @@
-import React from "react";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { createRoot } from "react-dom/client";
-
 import {
   getMainDomainFromIframe,
   validateFrameDomain,
 } from "./config/security";
-import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
+// import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
+import { Frame } from "@typecell-org/frame";
+import React from "react";
 import "./styles/iframe.css";
 
 if (import.meta.env.DEV) {
@@ -38,9 +38,15 @@ async function init() {
     throw new Error("invalid hostname for frame");
   }
   const root = createRoot(document.getElementById("root")!);
+  const search = new URLSearchParams(window.location.search);
   root.render(
     <React.StrictMode>
-      <Frame />
+      <Frame
+        documentIdString={search.get("documentId")!}
+        roomName={search.get("roomName")!}
+        userColor={search.get("userColor")!}
+        userName={search.get("userName")!}
+      />
     </React.StrictMode>
   );
 }
