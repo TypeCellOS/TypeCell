@@ -196,7 +196,7 @@ const addBuiltInTypesToRuntime = async (
   let typePath = mod;
 
   if (mod === "typecell") {
-    typePath = "@typecell-org/editor/src";
+    typePath = "@typecell-org/frame/src";
   } else if (isBuiltInModule(mod)) {
     if (mod === "csstype") {
       typePath = "csstype";
@@ -213,7 +213,10 @@ const addBuiltInTypesToRuntime = async (
   if (import.meta.env.NODE_ENV === "test") {
     // TODO: extract this case
     let fs = require("fs");
-    content = fs.readFileSync("public/types/" + typePath + "/" + path, "utf-8");
+    content = fs.readFileSync(
+      "../editor/public/types/" + typePath + "/" + path,
+      "utf-8"
+    );
   } else {
     const url = new URL("/types/" + typePath + "/" + path, import.meta.url);
     // console.log("RESOLVE", mod, url.toString(), path);

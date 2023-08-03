@@ -35,13 +35,13 @@ it(
     //monaco.editor.createModel("// tesdft", "typescript");
 
     let m1 = new BasicCodeModel(
-      "!@mx:mx.typecell.org/@owner/doc/1.cell.tsx",
+      "!mx:mx.typecell.org/@owner/doc/1.cell.tsx",
       m1Code,
       "typescript"
     );
 
     let m2 = new BasicCodeModel(
-      "!@mx:mx.typecell.org/@owner/doc/2.cell.tsx",
+      "!mx:mx.typecell.org/@owner/doc/2.cell.tsx",
       m2Code,
       "typescript"
     );

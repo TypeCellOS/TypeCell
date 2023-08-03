@@ -66,7 +66,7 @@
     "copytypes:externaldep": "mkdir -p public/types/$npm_config_pkgname && cp -rf ../../node_modules/$npm_config_pkgname/. public/types/$npm_config_pkgname",
     "copytypes:allexternaldeps": "npm run copytypes:externaldep --pkgname=@types/react && npm run copytypes:externaldep --pkgname=@types/scheduler && npm run copytypes:externaldep --pkgname=@types/prop-types && npm run copytypes:externaldep --pkgname=csstype",
     "copytypes:dep": "mkdir -p public/types/@typecell-org/$npm_config_pkgname && cp -rf ../$npm_config_pkgname/types/. public/types/@typecell-org/$npm_config_pkgname",
-    "copytypes:alldeps": "npm run copytypes:dep --pkgname=util && npm run copytypes:dep --pkgname=engine",
+    "copytypes:alldeps": "npm run copytypes:dep --pkgname=util && npm run copytypes:dep --pkgname=engine && npm run copytypes:dep --pkgname=frame",
     "copytypes": "npm run copytypes:self && npm run copytypes:alldeps && npm run copytypes:allexternaldeps",
     "start": "npm run copytypes && npm run vite:dev",
     "copy-docs": "node copy-docs.mjs > public/_docs/index.json",

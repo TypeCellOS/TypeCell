@@ -49,7 +49,7 @@ function refreshUserModelTypes(folder: string, monacoInstance: typeof monaco) {
     })
     .map((m) => m.uri.toString().replace(/(\.ts|\.tsx)$/, ""));
 
-  if (!folder.startsWith("/!@") && !folder.endsWith("/")) {
+  if (!folder.startsWith("/!") && !folder.endsWith("/")) {
     throw new Error("expected folder to start with / and end with /");
   }
 
@@ -121,7 +121,7 @@ function listenForTypecellUserModels(monacoInstance: typeof monaco) {
     );
   }
   monacoInstance.editor.onDidCreateModel((model) => {
-    if (!model.uri.path.startsWith("/!@")) {
+    if (!model.uri.path.startsWith("/!")) {
       return;
     }
 

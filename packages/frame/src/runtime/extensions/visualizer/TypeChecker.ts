@@ -43,7 +43,7 @@ export class TypeChecker extends lifecycle.Disposable {
     // console.log(uristring, this.documentId.replace("//", "/"));
     const code = `
 
-    import * as doc from "!@${this.documentId.replace("//", "/")}";
+    import * as doc from "!${this.documentId.replace("//", "/")}";
     import * as mod from "${uristring}";
     import tc from "typecell";
     import { TypeVisualizer } from "typecell/runtime/executor/lib/exports";
@@ -104,17 +104,17 @@ export class TypeChecker extends lifecycle.Disposable {
     let ts = (await this.worker(this.model.uri))!;
 
     // Uncomment for debugging / error checking purposes
-    // (await ts.getSyntacticDiagnostics(this.model.uri.toString())).forEach(
-    //   (d) => {
-    //     console.log("syn", d.messageText);
-    //   }
-    // );
+    (await ts.getSyntacticDiagnostics(this.model.uri.toString())).forEach(
+      (d) => {
+        console.log("syn", d.messageText);
+      }
+    );
 
-    // (await ts.getSemanticDiagnostics(this.model.uri.toString())).forEach(
-    //   (d) => {
-    //     console.log("sem", d.messageText);
-    //   }
-    // );
+    (await ts.getSemanticDiagnostics(this.model.uri.toString())).forEach(
+      (d) => {
+        console.log("sem", d.messageText);
+      }
+    );
 
     const completions = await ts.getCompletionsAtPosition(
       this.model.uri.toString(),

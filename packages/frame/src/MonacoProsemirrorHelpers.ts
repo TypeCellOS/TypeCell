@@ -99,9 +99,9 @@ export function bindMonacoAndProsemirror(
     // tmp fix for https://github.com/ProseMirror/prosemirror/issues/1407
     try {
       getPos();
-      console.log("getpos succeeded", id, view);
+      console.log("getpos succeeded");
     } catch (e) {
-      console.log("getpos failed", id, view);
+      console.log("getpos failed");
       return;
     }
 

@@ -1,3 +1,4 @@
+import { uri } from "vscode-lib";
 type Event<T> = {
   (listener: (e: T) => any): { dispose: () => void };
 };
@@ -8,4 +9,5 @@ export type CodeModel = {
   getValue(): string;
   readonly path: string;
   readonly language: string;
+  readonly uri: uri.URI;
 };

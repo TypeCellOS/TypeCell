@@ -1,6 +1,5 @@
 import { CodeModel } from "@typecell-org/engine";
-import { event, lifecycle } from "vscode-lib";
-
+import { event, lifecycle, uri } from "vscode-lib";
 export class BasicCodeModel extends lifecycle.Disposable implements CodeModel {
   private readonly _onWillDispose: event.Emitter<void> = this._register(
     new event.Emitter<void>()
@@ -31,6 +30,10 @@ export class BasicCodeModel extends lifecycle.Disposable implements CodeModel {
     }
     this.code = code;
     this._onDidChangeContent.fire();
+  }
+
+  get uri(): uri.URI {
+    return uri.URI.parse("file:///" + this.path);
   }
 
   public dispose() {

@@ -1,4 +1,4 @@
-import * as monaco from "monaco-editor";
+import type * as monaco from "monaco-editor";
 import { event, lifecycle } from "vscode-lib";
 
 import { CodeModel } from "@typecell-org/engine";
@@ -31,6 +31,10 @@ export class MonacoTypeCellCodeModel
         this._onWillDispose.fire();
       })
     );
+  }
+
+  public get uri() {
+    return this.monacoModel.uri;
   }
 
   public get path() {

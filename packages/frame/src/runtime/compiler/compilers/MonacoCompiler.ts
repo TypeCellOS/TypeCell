@@ -1,7 +1,5 @@
-import { CodeModel } from "@typecell-org/engine";
-import * as monaco from "monaco-editor";
-import { hash, uri } from "vscode-lib";
-import { MonacoTypeCellCodeModel } from "../../../models/MonacoCodeModel";
+import type * as monaco from "monaco-editor";
+import { hash } from "vscode-lib";
 
 let mainWorker: WorkerType;
 
@@ -76,15 +74,15 @@ function awaitFirst<T extends Function>(func: T): T {
 const ENABLE_CACHE = true;
 
 function saveCachedItem(
-  model: CodeModel,
+  model: monaco.editor.ITextModel,
   item: { hash: string; compiledCode: string }
 ) {
-  const key = "cc-" + model.path;
+  const key = "cc-" + model.uri.toString();
   localStorage.setItem(key, JSON.stringify(item));
 }
 
-function getCachedItem(model: CodeModel) {
-  const key = "cc-" + model.path;
+function getCachedItem(model: monaco.editor.ITextModel) {
+  const key = "cc-" + model.uri.toString();
   const cached = localStorage.getItem(key);
   if (cached) {
     try {
@@ -128,54 +126,35 @@ async function getWorker(monacoInstance: typeof monaco) {
 
   return mainWorker;
 }
-async function _compile(model: CodeModel, monacoInstance: typeof monaco) {
+async function _compile(
+  model: monaco.editor.ITextModel,
+  monacoInstance: typeof monaco
+) {
   const tscode = model.getValue();
   const hsh = hash.stringHash(tscode, 0) + "";
 
   if (ENABLE_CACHE) {
     const cached = getCachedItem(model);
     if (cached && cached.hash === hsh) {
-      console.log("cache hit", model.path);
+      console.log("cache hit", model.uri.toString());
       return cached.compiledCode;
     }
   }
 
-  console.log("recompile", model.path);
+  console.log("recompile", model.uri.toString());
 
-  // const monacoModel = model.acquireMonacoModel();
-  const monacoModel = monacoModelFromCodeModel(model);
   try {
     const worker = await getWorker(monacoInstance);
-    let compiledCode = (await getCompiledCode(worker, monacoModel.uri))
-      .firstJSCode;
+    let compiledCode = (await getCompiledCode(worker, model.uri)).firstJSCode;
     if (ENABLE_CACHE) {
       saveCachedItem(model, { hash: hsh, compiledCode });
     }
     // console.log(tscode, compiledCode);
     return compiledCode;
   } finally {
+    // monacoModel.dispose();
     // model.releaseMonacoModel();
   }
 }
 
 export const compile = awaitFirst(_compile);
-
-function monacoModelFromCodeModel(model: CodeModel) {
-  const existingModel = monaco.editor.getModel(uri.URI.parse(model.path));
-  if (existingModel) {
-    return existingModel;
-  }
-
-  if (model instanceof MonacoTypeCellCodeModel) {
-    throw new Error(
-      "unexpected, monaco should already have this model registered"
-    );
-  }
-
-  // TODO: when to delete this model
-  return monaco.editor.createModel(
-    model.getValue(),
-    model.language,
-    uri.URI.parse(model.path)
-  );
-}

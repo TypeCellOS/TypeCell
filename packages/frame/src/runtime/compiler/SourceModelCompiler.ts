@@ -4,6 +4,7 @@ import { event, lifecycle } from "vscode-lib";
 import { CodeModel } from "@typecell-org/engine";
 import { ModelProvider } from "../../interop/ModelProvider";
 import { BasicCodeModel } from "../../models/BasicCodeModel";
+import { getMonacoModel } from "../../models/MonacoModelManager";
 import { compile } from "./compilers/MonacoCompiler";
 
 export default class SourceModelCompiler
@@ -12,11 +13,11 @@ export default class SourceModelCompiler
 {
   public disposed: boolean = false;
 
-  private async compile(sourceModel: CodeModel) {
-    if (sourceModel.language === "typescript") {
-      const js = await compile(sourceModel, this.monacoInstance);
+  private async compile(model: monaco.editor.ITextModel) {
+    if (model.getLanguageId() === "typescript") {
+      const js = await compile(model, this.monacoInstance);
       return js;
-    } else if (sourceModel.language === "markdown") {
+    } else if (model.getLanguageId() === "markdown") {
       // TODO: this is a hacky way to quickly support markdown. We compile markdown to JS so it can pass through the regular "evaluator".
       // We should refactor to support different languages, probably by creating different CellEvaluators per language
       return `define(["require", "exports", "markdown-it"], function (require, exports, markdown_it_1) {
@@ -28,14 +29,14 @@ export default class SourceModelCompiler
               typographer: true,
           });
 
-          const render = md.render(${JSON.stringify(sourceModel.getValue())});
+          const render = md.render(${JSON.stringify(model.getValue())});
           const el = document.createElement("div");
           el.className = "markdown-body";
           el.innerHTML = render;
           exports.default = el;
           ;
       });`;
-    } else if (sourceModel.language === "css") {
+    } else if (model.getLanguageId() === "css") {
       // TODO: same as above comment for markdown
       return `define(["require", "exports"], function (require, exports) {
           "use strict";
@@ -43,7 +44,7 @@ export default class SourceModelCompiler
           const style = document.createElement("style");
           style.setAttribute("type", "text/css");
           style.appendChild(document.createTextNode(${JSON.stringify(
-            sourceModel.getValue()
+            model.getValue()
           )}));
           exports.default = style;
           ;
@@ -54,7 +55,11 @@ export default class SourceModelCompiler
 
   public readonly registeredModels = new Map<
     string,
-    { sourceModel: CodeModel; compiledModel: BasicCodeModel }
+    {
+      sourceModel: CodeModel;
+      monacoModel: { object: monaco.editor.ITextModel; dispose: () => void };
+      compiledModel: BasicCodeModel;
+    }
   >();
 
   private readonly _onDidCreateModel: event.Emitter<BasicCodeModel> =
@@ -89,10 +94,22 @@ export default class SourceModelCompiler
       "",
       "javascript"
     );
-    this.registeredModels.set(sourceModel.path, { sourceModel, compiledModel });
+
+    const monacoModel = getMonacoModel(
+      sourceModel.getValue(),
+      sourceModel.language,
+      sourceModel.uri,
+      this.monacoInstance
+    );
+
+    this.registeredModels.set(sourceModel.path, {
+      sourceModel,
+      monacoModel,
+      compiledModel,
+    });
     const compile = async () => {
       try {
-        const compiled = await this.compile(sourceModel);
+        const compiled = await this.compile(monacoModel.object);
         compiledModel.setValue(compiled);
       } catch (e) {
         console.error("compile error", e);
@@ -103,14 +120,19 @@ export default class SourceModelCompiler
 
     this._register(
       sourceModel.onDidChangeContent((_event) => {
-        if (sourceModel.getValue() !== prevValue) {
-          // make sure there were actual changes from the previous value
-
-          prevValue = sourceModel.getValue();
-          compile();
-        } else {
+        // make sure there were actual changes from the previous value
+        const newValue = sourceModel.getValue();
+        if (newValue === prevValue) {
           console.warn("same value");
+          return;
         }
+        if (monacoModel.object.getValue() !== newValue) {
+          // make sure models are in sync. If sourceModel is actualy a MonacoCodeModel, this will already be the case
+          monacoModel.object.setValue(newValue);
+        }
+
+        prevValue = newValue;
+        compile();
       })
     );
 
@@ -119,14 +141,13 @@ export default class SourceModelCompiler
 
     this._register(
       sourceModel.onWillDispose(() => {
-        const compiledModel = this.registeredModels.get(
-          sourceModel.path
-        )?.compiledModel;
-        if (!compiledModel) {
-          throw new Error("unexpected: compiled model not found");
+        const models = this.registeredModels.get(sourceModel.path);
+        if (!models) {
+          throw new Error("unexpected: model not found");
         }
         this.registeredModels.delete(sourceModel.path);
-        compiledModel.dispose();
+        models.compiledModel.dispose();
+        models.monacoModel.dispose();
       })
     );
     this._onDidCreateModel.fire(compiledModel);
@@ -143,6 +164,12 @@ export default class SourceModelCompiler
     if (this.disposed) {
       throw new Error("CompileEngine already disposed");
     }
+
+    this.registeredModels.forEach((el) => {
+      el.compiledModel.dispose();
+      el.monacoModel.dispose();
+    });
+
     this.disposed = true;
     super.dispose();
   }

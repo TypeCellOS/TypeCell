@@ -22,7 +22,7 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
     if (!fileName.startsWith("file:///")) {
       return text;
     }
-    fileName = fileName.substr("file:///".length);
+    fileName = fileName.substring("file:///".length);
     const cleaned = decodeURIComponent(fileName);
 
     // console.log("worker", cleaned, fileName);
@@ -30,7 +30,7 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
     // automatically import the context ($) of other cells
     // The type of this context is defined setupTypecellTypeResolver.ts, and available under !@owner/document
     if (
-      cleaned.startsWith("!@") &&
+      cleaned.startsWith("!") &&
       (cleaned.endsWith(".ts") || cleaned.endsWith(".tsx"))
     ) {
       if (cleaned.endsWith(".cell.tsx")) {
