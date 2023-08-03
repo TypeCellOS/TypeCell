@@ -6,7 +6,6 @@ import {
 } from "./config/security";
 // import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
 import { Frame } from "@typecell-org/frame";
-import React from "react";
 import "./styles/iframe.css";
 
 if (import.meta.env.DEV) {
@@ -40,14 +39,14 @@ async function init() {
   const root = createRoot(document.getElementById("root")!);
   const search = new URLSearchParams(window.location.search);
   root.render(
-    <React.StrictMode>
-      <Frame
-        documentIdString={search.get("documentId")!}
-        roomName={search.get("roomName")!}
-        userColor={search.get("userColor")!}
-        userName={search.get("userName")!}
-      />
-    </React.StrictMode>
+    //<React.StrictMode>
+    <Frame
+      documentIdString={search.get("documentId")!}
+      roomName={search.get("roomName")!}
+      userColor={search.get("userColor")!}
+      userName={search.get("userName")!}
+    />
+    //</React.StrictMode>
   );
 }
 

@@ -2,7 +2,6 @@ import { observer } from "mobx-react-lite";
 import React, { useEffect, useMemo, useRef } from "react";
 // import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost"
 import {
-  BaseSlashMenuItem,
   BlockNoteEditor,
   DefaultBlockSchema,
   PartialBlock,
@@ -11,7 +10,9 @@ import {
 import "@blocknote/core/style.css";
 import {
   BlockNoteView,
-  defaultReactSlashMenuItems,
+  SideMenuPositioner,
+  SlashMenuPositioner,
+  getDefaultReactSlashMenuItems,
   useBlockNote,
 } from "@blocknote/react";
 import * as mobx from "mobx";
@@ -234,16 +235,16 @@ export const Frame: React.FC<Props> = observer((props) => {
         node: MonacoBlockContent,
       },
     },
-    slashCommands: [
-      ...(defaultReactSlashMenuItems as any),
-      new BaseSlashMenuItem(
-        "Monaco",
-        (editor: any) =>
+    slashMenuItems: [
+      ...getDefaultReactSlashMenuItems(),
+      {
+        name: "Monaco",
+        execute: (editor: any) =>
           insertOrUpdateBlock(editor, {
             type: "monaco",
           } as any),
-        ["m"]
-      ),
+        aliases: ["m"],
+      },
     ],
     collaboration: {
       provider: new FakeProvider(document.awareness),
@@ -264,7 +265,10 @@ export const Frame: React.FC<Props> = observer((props) => {
             compiler: tools.newCompiler,
             documentId: props.documentIdString,
           }}>
-          <BlockNoteView editor={editor} />
+          <BlockNoteView editor={editor}>
+            <SideMenuPositioner editor={editor} />
+            <SlashMenuPositioner editor={editor} />
+          </BlockNoteView>
         </RichTextContext.Provider>
       </MonacoContext.Provider>
     </div>

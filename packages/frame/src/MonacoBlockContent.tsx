@@ -122,7 +122,7 @@ export const MonacoBlockContent = createTipTapBlock({
         />
       );
     };
-
+    // console.log("addnodeview");
     return (props) => {
       if (!(props.editor as any).contentComponent) {
         // same logic as in ReactNodeViewRenderer
@@ -142,10 +142,14 @@ export const MonacoBlockContent = createTipTapBlock({
 
       // disable contentdom, because we render the content ourselves in MonacoElement
       (ret as any).contentDOMElement = undefined;
-
+      // ret.destroy = () => {
+      //   console.log("destroy element");
+      //   // (ret as any).renderer.destroy();
+      // };
       // This is a hack because tiptap doesn't support innerDeco, and this information is normally dropped
       const oldUpdated = ret.update!.bind(ret);
       ret.update = (node, outerDeco, innerDeco) => {
+        // console.log("update");
         const retAsAny = ret as any;
         let decorations = retAsAny.decorations;
         if (

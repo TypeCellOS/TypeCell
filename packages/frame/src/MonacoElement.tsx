@@ -118,9 +118,15 @@ const MonacoElementComponent = function MonacoElement(
   const codeRefCallback = useCallback((el: HTMLDivElement) => {
     let editor = editorRef.current;
 
-    if (editor && editor?.getContainerDomNode() !== el) {
-      editor.dispose();
-      editorRef.current = undefined;
+    if (editor) {
+      if (editor?.getContainerDomNode() !== el) {
+        // console.log("DISPOSE EDITOR");
+        editor.dispose();
+        editorRef.current = undefined;
+      } else {
+        // no need for new editor
+        return;
+      }
     }
 
     if (!el) {

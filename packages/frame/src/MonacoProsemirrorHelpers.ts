@@ -47,6 +47,7 @@ export function bindMonacoAndProsemirror(
     node: Node;
   }
 ) {
+  // const id = Math.random();
   /**
    * When the user selection changes in the monaco editor, we want to make sure the selection in the prosemirror document is updated accordingly.
    */
@@ -92,6 +93,15 @@ export function bindMonacoAndProsemirror(
     }
 
     if (state.isUpdating) {
+      return;
+    }
+
+    // tmp fix for https://github.com/ProseMirror/prosemirror/issues/1407
+    try {
+      getPos();
+      console.log("getpos succeeded", id, view);
+    } catch (e) {
+      console.log("getpos failed", id, view);
       return;
     }
 
