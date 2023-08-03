@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { ObjectInspector } from "react-inspector";
 import { DefaultOutputVisualizer } from "./DefaultOutputVisualizer";
 import { ModelOutput } from "./ModelOutput";
+import { OutputWrapper } from "./OutputWrapper";
 
 type Props = {
   modelPath: string;
@@ -107,9 +108,9 @@ const Output: React.FC<Props> = observer((props) => {
     );
   } catch (e: any) {
     return (
-      <span className="outputWrapper">
+      <OutputWrapper>
         <ObjectInspector data={e.toString()} expandLevel={1}></ObjectInspector>
-      </span>
+      </OutputWrapper>
     );
   }
 });

@@ -255,8 +255,6 @@ export const Frame: React.FC<Props> = observer((props) => {
     },
   });
 
-  console.log("compilers", tools.newCompiler, tools.newCompiler.disposed);
-
   return (
     <div className={styles.container}>
       <MonacoContext.Provider value={{ monaco }}>

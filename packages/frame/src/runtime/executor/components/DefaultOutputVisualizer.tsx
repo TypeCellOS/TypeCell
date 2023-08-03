@@ -1,6 +1,7 @@
 import { ContainedElement, RetryErrorBoundary } from "@typecell-org/util";
 import React, { useEffect, useState } from "react";
 import { ObjectInspector } from "react-inspector";
+import { OutputWrapper } from "./OutputWrapper";
 
 // TODO: later maybe also use https://github.com/samdenty/console-feed to capture console messages
 
@@ -76,12 +77,12 @@ export const DefaultOutputVisualizer = (props: {
       );
     } else if (mainExport instanceof HTMLStyleElement) {
       return (
-        <span className="outputWrapper">
+        <OutputWrapper>
           <ObjectInspector
             name={mainKey}
             data={styleElement}
             expandLevel={0}></ObjectInspector>
-        </span>
+        </OutputWrapper>
       );
     } else if (
       mainExport instanceof HTMLElement ||
@@ -94,12 +95,12 @@ export const DefaultOutputVisualizer = (props: {
       );
     } else {
       return (
-        <span className="outputWrapper">
+        <OutputWrapper>
           <ObjectInspector
             name={mainKey}
             data={mainExport}
             expandLevel={0}></ObjectInspector>
-        </span>
+        </OutputWrapper>
       );
     }
   }
@@ -107,17 +108,17 @@ export const DefaultOutputVisualizer = (props: {
   if (output.stack) {
     // TODO: proper error check
     return (
-      <span className="outputWrapper">
+      <OutputWrapper>
         <ObjectInspector
           data={output.toString()}
           expandLevel={1}></ObjectInspector>
-      </span>
+      </OutputWrapper>
     );
   } else {
     return (
-      <span className="outputWrapper">
+      <OutputWrapper>
         <ObjectInspector data={outputJS} expandLevel={1}></ObjectInspector>
-      </span>
+      </OutputWrapper>
     );
   }
 };

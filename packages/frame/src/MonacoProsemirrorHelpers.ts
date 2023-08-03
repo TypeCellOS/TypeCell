@@ -198,10 +198,10 @@ export function bindMonacoAndProsemirror(
  */
 export function applyNodeChangesToMonaco(
   node: Node,
-  modal: monaco.editor.ITextModel
+  model: monaco.editor.ITextModel
 ) {
   let newText = node.textContent;
-  let curText = modal.getValue();
+  let curText = model.getValue();
   if (newText === curText) {
     return;
   }
@@ -223,11 +223,11 @@ export function applyNodeChangesToMonaco(
     newEnd--;
   }
 
-  modal.applyEdits([
+  model.applyEdits([
     {
       range: monaco.Range.fromPositions(
-        modal.getPositionAt(start),
-        modal.getPositionAt(curEnd)
+        model.getPositionAt(start),
+        model.getPositionAt(curEnd)
       ),
       text: newText.slice(start, newEnd),
     },
@@ -241,7 +241,7 @@ export function applyNodeChangesToMonaco(
  * It's similar to this logic from y-monaco: https://github.com/yjs/y-monaco/blob/96a73c6a67daf85f75e8a136bc66c8f29b329ed9/src/y-monaco.js#L88
  */
 export function applyDecorationsToMonaco(
-  modal: monaco.editor.ITextModel,
+  model: monaco.editor.ITextModel,
   decorations: {
     decorations: Decoration[];
     innerDecorations: { local: Decoration[] };
@@ -277,14 +277,14 @@ export function applyDecorationsToMonaco(
         : to;
 
       if (from < to) {
-        start = modal.getPositionAt(from);
-        end = modal.getPositionAt(to);
+        start = model.getPositionAt(from);
+        end = model.getPositionAt(to);
         afterContentClassName =
           "yRemoteSelectionHead yRemoteSelectionHead-" +
           cursorDec.spec.clientId;
       } else {
-        start = modal.getPositionAt(to);
-        end = modal.getPositionAt(from);
+        start = model.getPositionAt(to);
+        end = model.getPositionAt(from);
         beforeContentClassName =
           "yRemoteSelectionHead yRemoteSelectionHead-" +
           cursorDec.spec.clientId;

@@ -1,0 +1,40 @@
+.codeCell {
+  display: flex;
+  flex-direction: row;
+}
+
+.codeCellSideIcon {
+  opacity: 0.5;
+  transition: opacity 0.25s ease-in-out;
+  margin-top: 2px;
+  margin-left: -5px;
+  margin-right: 4px;
+}
+
+.codeCellSideIcon:hover {
+  opacity: 1;
+  transition: opacity 0.05s ease-in-out;
+}
+
+.codeCellContent {
+  border-radius: 4px;
+  box-shadow: rgb(235, 236, 240) 0px 0px 0px 1.2px;
+  width: 100%;
+  flex: 1;
+}
+
+.codeCellCode {
+  position: relative;
+  padding-left: 10px;
+  background: #f4f5f7;
+  width: 100%; /* todo: fix when making window smaller */
+  min-height: 40px; /* so toolbar fits */
+}
+
+.monacoContainer {
+  height: 100%;
+}
+.codeCellOutput {
+  line-height: 0;
+  position: relative;
+}

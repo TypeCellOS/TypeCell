@@ -11,6 +11,7 @@ import React, {
 import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
 
 import { useResource } from "@typecell-org/util";
+import styles from "./MonacoElement.module.css";
 import {
   applyDecorationsToMonaco,
   applyNodeChangesToMonaco,
@@ -126,7 +127,7 @@ const MonacoElementComponent = function MonacoElement(
       return;
     }
 
-    console.log("create");
+    console.log("create editor");
     let newEditor = monaco.editor.create(el, {
       model: models.model,
       theme: "typecellTheme",
@@ -173,39 +174,33 @@ const MonacoElementComponent = function MonacoElement(
   return (
     <div
       contentEditable={false}
-      className={`notebookCell ${
-        codeVisible ? "expanded" : "collapsed"
-      } ${"props.cell.language TODO"}`}
-      style={{ display: "flex", flexDirection: "row" }}>
+      className={[
+        styles.codeCell,
+        codeVisible ? styles.expanded : styles.collapsed,
+      ].join(" ")}>
       {codeVisible ? (
         <VscChevronDown
           title="Show / hide code"
-          className="notebookCell-sideIcon"
+          className={styles.codeCellSideIcon}
           onClick={() => setCodeVisible(false)}
         />
       ) : (
         <VscChevronRight
           title="Show / hide code"
-          className="notebookCell-sideIcon"
+          className={styles.codeCellSideIcon}
           onClick={() => setCodeVisible(true)}
         />
       )}
       {}
-      <div style={{ flex: 1 }} className="notebookCell-content">
+      <div className={styles.codeCellContent}>
         {codeVisible && (
-          <div className="notebookCell-codeContainer">
+          <div className={styles.codeCellCode}>
             {/* {props.toolbar && props.toolbar} */}
-            <div
-              className="code"
-              ref={codeRefCallback}
-              style={{ height: "100%" }}></div>
+            <div className={styles.monacoContainer} ref={codeRefCallback}></div>
           </div>
         )}
 
-        <div
-          className="output"
-          contentEditable={false}
-          style={{ position: "relative" }}>
+        <div className={styles.codeCellOutput} contentEditable={false}>
           {context.executionHost.renderOutput(
             models.model.uri.toString(),
             () => {}

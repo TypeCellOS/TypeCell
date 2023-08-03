@@ -141,8 +141,7 @@ export const MonacoBlockContent = createTipTapBlock({
       };
 
       // disable contentdom, because we render the content ourselves in MonacoElement
-      // TODO: set contentDOM to undefined, but this causes a bug in PM
-      // (ret as any).contentDOMElement = undefined;
+      (ret as any).contentDOMElement = undefined;
 
       // This is a hack because tiptap doesn't support innerDeco, and this information is normally dropped
       const oldUpdated = ret.update!.bind(ret);
