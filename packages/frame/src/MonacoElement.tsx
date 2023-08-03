@@ -5,12 +5,12 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
 import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
 
+import { useResource } from "@typecell-org/util";
 import {
   applyDecorationsToMonaco,
   applyNodeChangesToMonaco,
@@ -18,6 +18,7 @@ import {
 } from "./MonacoProsemirrorHelpers";
 import { RichTextContext } from "./RichTextContext";
 import { MonacoTypeCellCodeModel } from "./models/MonacoCodeModel";
+import { getMonacoModel } from "./models/MonacoModelManager";
 
 const MonacoElementComponent = function MonacoElement(
   props: NodeViewProps & { block: any; selectionHack: any }
@@ -26,44 +27,44 @@ const MonacoElementComponent = function MonacoElement(
   const refa = useRef<any>(Math.random());
   const context = useContext(RichTextContext);
 
-  // hacky way to only initialize some resources once
-  // probably useMemo is not the best fit for this
-  const models = useMemo(() => {
+  const models = useResource(() => {
     console.log("create", props.block.id, refa.current);
     const uri = monaco.Uri.parse(
       `file:///!${context.documentId}/${props.block.id}.cell.tsx`
     );
-    const model = monaco.editor.createModel(
+    console.log("allocate model", uri.toString());
+    let model = getMonacoModel(
       props.node.textContent,
       "typescript",
-      uri
-    ); // TODO
-    const codeModel = new MonacoTypeCellCodeModel(model);
+      uri,
+      monaco
+    );
+
+    const codeModel = new MonacoTypeCellCodeModel(model.object);
     context.compiler.registerModel(codeModel); // TODO: cleanup
 
-    return {
-      model,
-      codeModel,
-      state: {
-        isUpdating: false,
-        node: props.node,
-        lastDecorations: [] as string[],
+    return [
+      {
+        model: model.object,
+        codeModel,
+        state: {
+          isUpdating: false,
+          node: props.node,
+          lastDecorations: [] as string[],
+        },
       },
-      dispose: () => {
+      () => {
+        console.log("dispose model", model.object.uri.toString());
         codeModel.dispose();
         model.dispose();
       },
-    };
-  }, []);
-
-  // hacky way to dispose of the useMemo values above
-  useEffect(() => {
-    return () => {
-      models.dispose();
-    };
-  }, []);
+    ];
+  }, [context.compiler]);
 
   useEffect(() => {
+    if (models.model.isDisposed()) {
+      return;
+    }
     models.state.isUpdating = true;
     models.state.node = props.node;
     try {
@@ -77,7 +78,7 @@ const MonacoElementComponent = function MonacoElement(
     } finally {
       models.state.isUpdating = false;
     }
-  }, [props.node, props.decorations]);
+  }, [props.node, props.decorations, models]);
 
   // useImperativeHandle(
   //   ref,

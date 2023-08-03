@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { ErrorBoundary } from "./ErrorBoundary.jsx";
+import { ErrorBoundary } from "./ErrorBoundary.js";
 
 /**
  * An ErrorBoundary that will still rerender on the next render cycle, when an error has occured in the previous cycle

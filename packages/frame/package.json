@@ -19,7 +19,8 @@
     "vscode-lib": "^0.1.2",
     "y-protocols": "^1.0.5",
     "y-websocket": "^1.5.0",
-    "yjs": "^13.6.4"
+    "yjs": "^13.6.4",
+    "use-disposable": "^1.0.1"
   },
   "devDependencies": {
     "typescript": "5.0.4",

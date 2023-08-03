@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "es6",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -14,14 +14,15 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": false,
-    "jsx": "react-jsx",
-    "downlevelIteration": true,
-    "composite": true,
     "declaration": true,
     "declarationDir": "types",
-    "outDir": "dist"
+    "sourceMap": true,
+    "downlevelIteration": true,
+    "outDir": "dist",
+    "composite": true,
+    "jsx": "react-jsx"
   },
-  "include": ["src", "tests"],
+  "include": ["src"],
   "references": [
     {
       "path": "../shared"

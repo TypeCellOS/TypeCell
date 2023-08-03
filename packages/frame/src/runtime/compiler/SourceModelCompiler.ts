@@ -10,7 +10,7 @@ export default class SourceModelCompiler
   extends lifecycle.Disposable
   implements ModelProvider
 {
-  private disposed: boolean = false;
+  public disposed: boolean = false;
 
   private async compile(sourceModel: CodeModel) {
     if (sourceModel.language === "typescript") {

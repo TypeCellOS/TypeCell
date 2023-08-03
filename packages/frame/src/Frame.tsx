@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { useContext, useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 // import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost"
 import {
   BaseSlashMenuItem,
@@ -26,6 +26,7 @@ import LocalExecutionHost from "./runtime/executor/executionHosts/local/LocalExe
 
 import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
 import { ReactiveEngine } from "@typecell-org/engine";
+import { useResource } from "@typecell-org/util";
 import * as monaco from "monaco-editor";
 import { AsyncMethodReturns, connectToParent } from "penpal";
 import { WebsocketProvider } from "y-websocket";
@@ -152,44 +153,55 @@ export const Frame: React.FC<Props> = observer((props) => {
     };
   }, []);
 
-  const monaco = useContext(MonacoContext).monaco;
+  const tools = useResource(
+    // "compilers",
+    () => {
+      const newCompiler = new SourceModelCompiler(monaco);
+      const resolver = new Resolver((moduleName) => {
+        // How to resolve typecell modules (i.e.: `import * as nb from "!@user/notebook`")
+        const subcompiler = new SourceModelCompiler(monaco);
 
-  const tools = useMemo(() => {
-    const newCompiler = new SourceModelCompiler(monaco);
-    const resolver = new Resolver((moduleName) => {
-      // How to resolve typecell modules (i.e.: `import * as nb from "!@user/notebook`")
-      const subcompiler = new SourceModelCompiler(monaco);
+        const modelReceiver = new ModelReceiver();
+        // TODO: what if we have multiple usage of the same module?
+        modelReceivers.set("modules/" + moduleName, modelReceiver);
+        connectionMethods.current!.registerTypeCellModuleCompiler(moduleName);
 
-      const modelReceiver = new ModelReceiver();
-      // TODO: what if we have multiple usage of the same module?
-      modelReceivers.set("modules/" + moduleName, modelReceiver);
-      connectionMethods.current!.registerTypeCellModuleCompiler(moduleName);
+        modelReceiver.onDidCreateModel((model) => {
+          subcompiler.registerModel(model);
+        });
 
-      modelReceiver.onDidCreateModel((model) => {
-        subcompiler.registerModel(model);
+        // TODO: dispose modelReceiver
+        return subcompiler;
       });
+      const newEngine = new ReactiveEngine<BasicCodeModel>(
+        resolver.resolveImport
+      );
+      const newExecutionHost: ExecutionHost = new LocalExecutionHost(
+        props.documentIdString,
+        newCompiler,
+        monaco,
+        newEngine
+      );
+      return [
+        { newCompiler, newExecutionHost },
+        () => {
+          newCompiler.dispose();
+        },
+      ];
+    },
+    [props.documentIdString, monaco]
+  );
 
-      // TODO: dispose modelReceiver
-      return subcompiler;
-    });
-    const newEngine = new ReactiveEngine<BasicCodeModel>(
-      resolver.resolveImport
-    );
-    const newExecutionHost: ExecutionHost = new LocalExecutionHost(
-      props.documentIdString,
-      newCompiler,
-      monaco,
-      newEngine
-    );
-    return { newCompiler, newExecutionHost };
-  }, [props.documentIdString, monaco]);
-
-  useEffect(() => {
-    return () => {
-      tools.newCompiler.dispose();
-      tools.newExecutionHost.dispose();
-    };
-  }, [tools]);
+  // useEffect(() => {
+  //   const t = tools;
+  //   if (!t) {
+  //     return;
+  //   }
+  //   return () => {
+  //     t.newCompiler.dispose();
+  //     t.newExecutionHost.dispose();
+  //   };
+  // }, [tools]);
 
   // useEffect(() => {
   //   // make sure color info is broadcast, and color info from other users are reflected in monaco editor styles
@@ -242,8 +254,11 @@ export const Frame: React.FC<Props> = observer((props) => {
       fragment: document.ydoc.getXmlFragment("data"),
     },
   });
+
+  console.log("compilers", tools.newCompiler, tools.newCompiler.disposed);
+
   return (
-    <div style={{ position: "relative" }}>
+    <div className={styles.container}>
       <MonacoContext.Provider value={{ monaco }}>
         <RichTextContext.Provider
           value={{

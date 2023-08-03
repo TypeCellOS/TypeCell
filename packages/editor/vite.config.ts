@@ -1,10 +1,10 @@
 import react from "@vitejs/plugin-react";
 import history from "connect-history-api-fallback";
+import path from "path";
 import nodePolyfills from "rollup-plugin-polyfill-node";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { ViteDevServer } from "vite";
 import { defineConfig } from "vitest/config";
-
 // solves issue that vite dev server doesn't redirect urls with a "." (such as docs/xxx.md) to the SPA fallback. See https://github.com/vitejs/vite/issues/2190
 // code from https://github.com/ivesia/vite-plugin-rewrite-all/blob/master/src/index.ts
 function redirectAll() {
@@ -26,7 +26,7 @@ function redirectAll() {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig((conf) => ({
   server: {
     host: "localhost",
   },
@@ -41,6 +41,15 @@ export default defineConfig({
     //   buffer: "rollup-plugin-node-polyfills/polyfills/buffer-es6",
     //   process: "rollup-plugin-node-polyfills/polyfills/process-es6",
     // },
+
+    alias:
+      conf.command === "build"
+        ? ({} as {})
+        : {
+            // load live from sources with live reload working
+            "@typecell-org/frame": path.resolve(__dirname, "../frame/src/"),
+            "@typecell-org/util": path.resolve(__dirname, "../util/src/"),
+          },
   },
   optimizeDeps: {
     esbuildOptions: {
@@ -59,6 +68,7 @@ export default defineConfig({
       // used during production bundling
       plugins: [nodePolyfills()],
     },
+    // sourcemap: true
   },
   test: {
     exclude: [
@@ -73,4 +83,4 @@ export default defineConfig({
     },
     setupFiles: "src/setupTests.ts",
   },
-});
+}));

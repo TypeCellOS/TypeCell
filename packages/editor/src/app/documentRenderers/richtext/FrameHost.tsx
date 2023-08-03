@@ -54,10 +54,10 @@ export function FrameHost(props: {
     };
 
     const iframe = document.createElement("iframe");
-    iframe.style.position = "absolute";
-    iframe.style.width = "100%";
-    iframe.style.height = "100%";
-    iframe.style.pointerEvents = "all";
+    // iframe.style.position = "absolute";
+    // iframe.style.width = "100%";
+    // iframe.style.height = "100%";
+    // iframe.style.pointerEvents = "all";
     iframe.style.border = "none";
     iframe.className = "fullSize";
     iframe.sandbox.add(
