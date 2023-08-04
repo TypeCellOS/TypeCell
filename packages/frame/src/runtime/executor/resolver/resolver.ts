@@ -33,7 +33,9 @@ export class Resolver<T extends CodeModel> {
   private readonly typecellResolver: TypeCellModuleResolver<T>;
 
   constructor(
-    typeCellModuleCompilerFactory: (moduleName: string) => SourceModelCompiler
+    typeCellModuleCompilerFactory: (
+      moduleName: string
+    ) => Promise<SourceModelCompiler>
   ) {
     this.typecellResolver = new TypeCellModuleResolver(
       typeCellModuleCompilerFactory,

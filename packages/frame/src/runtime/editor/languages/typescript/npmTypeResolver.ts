@@ -1,7 +1,7 @@
 import type * as monaco from "monaco-editor";
 import { detectNewImportsToAcquireTypeFor } from "./typeAcquisition";
 
-export function acquireTypes(code: string, monacoInstance: typeof monaco) {
+function acquireTypes(code: string, monacoInstance: typeof monaco) {
   detectNewImportsToAcquireTypeFor(
     code,
     (code: string, path: string) => {
@@ -16,7 +16,7 @@ export function acquireTypes(code: string, monacoInstance: typeof monaco) {
   );
 }
 
-export default function setupNpmTypeResolver(monacoInstance: typeof monaco) {
+export function setupNpmTypeResolver(monacoInstance: typeof monaco) {
   monacoInstance.editor.onDidCreateModel((model) => {
     if (!model.uri.path.startsWith("/!")) {
       return;

@@ -10,7 +10,7 @@ export class TypeCellModuleResolver<T extends CodeModel> {
   constructor(
     private readonly createTypeCellCompiledCodeProvider: (
       moduleName: string
-    ) => ModelProvider,
+    ) => Promise<ModelProvider>,
     private readonly resolverForNestedModules: (
       moduleName: string,
       forModelList: T[]
@@ -30,7 +30,7 @@ export class TypeCellModuleResolver<T extends CodeModel> {
     if (cached) {
       return cached;
     }
-    const provider = this.createTypeCellCompiledCodeProvider(moduleName);
+    const provider = await this.createTypeCellCompiledCodeProvider(moduleName);
     const engine = new ReactiveEngine<T>((moduleName, forModel) =>
       this.resolverForNestedModules(moduleName, [...forModelList, forModel])
     );

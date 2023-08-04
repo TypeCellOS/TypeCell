@@ -28,8 +28,9 @@ export function FrameHost(props: { url: string; sessionStore: SessionStore }) {
           throw new Error("invalid module name");
         }
         const identifierStr = moduleName.substring(1);
+        const identifier = parseIdentifier(identifierStr);
         const provider = new DocumentResourceModelProvider(
-          parseIdentifier(identifierStr),
+          identifier,
           props.sessionStore
         );
 
@@ -40,6 +41,7 @@ export function FrameHost(props: { url: string; sessionStore: SessionStore }) {
         );
         moduleManagers.set(moduleName, { provider, forwarder });
         await forwarder.initialize();
+        return identifier.toString();
       },
       unregisterTypeCellModuleCompiler: async (moduleName: string) => {
         const moduleManager = moduleManagers.get(moduleName);

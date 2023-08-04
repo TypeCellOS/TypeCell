@@ -7,7 +7,7 @@ import { async } from "vscode-lib";
 import { BasicCodeModel } from "../../../models/BasicCodeModel";
 import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 import { setMonacoDefaults } from "../../editor";
-import setupTypecellTypeResolver from "../../editor/languages/typescript/typecellTypeResolver";
+import setupTypecellTypeResolver from "../../editor/languages/typescript/TypeCellModuleTypeResolver";
 import { TypeChecker } from "./TypeChecker";
 window.fetch = fetch;
 /**

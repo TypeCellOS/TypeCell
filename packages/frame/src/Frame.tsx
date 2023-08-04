@@ -37,8 +37,10 @@ import { IframeBridgeMethods } from "./interop/IframeBridgeMethods";
 import { ModelReceiver } from "./interop/ModelReceiver";
 import { BasicCodeModel } from "./models/BasicCodeModel";
 import { setMonacoDefaults } from "./runtime/editor";
-import setupNpmTypeResolver from "./runtime/editor/languages/typescript/npmTypeResolver";
-import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typecellTypeResolver";
+
+import { setupTypecellHelperTypeResolver } from "./runtime/editor/languages/typescript/TypeCellHelperTypeResolver";
+import { setupTypecellModuleTypeResolver } from "./runtime/editor/languages/typescript/TypeCellModuleTypeResolver";
+import { setupNpmTypeResolver } from "./runtime/editor/languages/typescript/npmTypeResolver";
 import { Resolver } from "./runtime/executor/resolver/resolver";
 
 enableMobxBindings(mobx);
@@ -47,7 +49,8 @@ window.React = React;
 window.ReactDOM = ReactDOM;
 
 setMonacoDefaults(monaco);
-setupTypecellTypeResolver(monaco);
+setupTypecellHelperTypeResolver(monaco);
+setupTypecellModuleTypeResolver(monaco);
 setupNpmTypeResolver(monaco);
 
 class FakeProvider {
@@ -162,18 +165,31 @@ export const Frame: React.FC<Props> = observer((props) => {
     // "compilers",
     () => {
       const newCompiler = new SourceModelCompiler(monaco);
-      const resolver = new Resolver((moduleName) => {
-        // How to resolve typecell modules (i.e.: `import * as nb from "!user/notebook`")
+      const resolver = new Resolver(async (moduleName) => {
+        // How to resolve typecell modules (i.e.: `import * as nb from "!dALYTUW8TXxsw"`)
         const subcompiler = new SourceModelCompiler(monaco);
 
         const modelReceiver = new ModelReceiver();
         // TODO: what if we have multiple usage of the same module?
         modelReceivers.set("modules/" + moduleName, modelReceiver);
-        connectionMethods.current!.registerTypeCellModuleCompiler(moduleName);
 
         modelReceiver.onDidCreateModel((model) => {
           subcompiler.registerModel(model);
         });
+
+        const fullIdentifier =
+          await connectionMethods.current!.registerTypeCellModuleCompiler(
+            moduleName
+          );
+
+        // register an alias for the module so that types resolve
+        // (e.g.: from "!dALYTUW8TXxsw" to "!typecell:typecell.org/dALYTUW8TXxsw")
+        if ("!" + fullIdentifier !== moduleName) {
+          monaco.languages.typescript.typescriptDefaults.addExtraLib(
+            `export * from "!${fullIdentifier}";`,
+            `file:///node_modules/@types/${moduleName}/index.d.ts`
+          );
+        }
 
         // TODO: dispose modelReceiver
         return subcompiler;
