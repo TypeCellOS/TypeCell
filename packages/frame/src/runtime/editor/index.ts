@@ -64,9 +64,9 @@ export const setMonacoDefaults = (monaco: typeof Monaco) => {
   monaco.editor.EditorOptions.minimap.defaultValue = { enabled: false } as any;
   monaco.editor.EditorOptions.scrollBeyondLastLine.defaultValue = false;
   monaco.editor.EditorOptions.overviewRulerLanes.defaultValue = 0;
-  monaco.editor.EditorOptions.lineNumbersMinChars.defaultValue = 1;
+  monaco.editor.EditorOptions.lineNumbersMinChars.defaultValue = 3;
 
-  // monaco.editor.EditorOptions.lineNumbers.defaultValue = "on";
+  // monaco.editor.EditorOptions.lineNumbers.defaultValue = 1 as any;
   // monaco.editor.EditorOptions.tab.defaultValue = 2;
   // monaco.editor.EditorOptions.scrollbar.defaultValue = {
   //   alwaysConsumeMouseWheel: false,

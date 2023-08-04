@@ -38,3 +38,7 @@
   line-height: 0;
   position: relative;
 }
+
+.codeCellOutput > * {
+  line-height: normal;
+}

@@ -64,12 +64,27 @@ export const MonacoBlockContent = createTipTapBlock({
   content: "inline*",
   editable: true,
   selectable: true,
+
+  addAttributes() {
+    return {
+      language: {
+        default: "typescript",
+        parseHTML: (element) => element.getAttribute("data-language"),
+        renderHTML: (attributes) => {
+          return {
+            "data-language": attributes.level,
+          };
+        },
+      },
+    };
+  },
+
   parseHTML() {
     return [
       {
-        tag: "p",
+        tag: "code",
         priority: 200,
-        node: "paragraph",
+        node: "monaco",
       },
     ];
   },

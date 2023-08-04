@@ -135,6 +135,9 @@ export const Frame: React.FC<Props> = observer((props) => {
   const document = useMemo(() => {
     const ydoc = new Y.Doc();
 
+    // ydoc.on("update", () => {
+    //   console.log("frame ydoc", ydoc.toJSON());
+    // });
     const provider = new WebsocketProvider("", props.roomName, ydoc, {
       connect: false,
     });
@@ -150,6 +153,7 @@ export const Frame: React.FC<Props> = observer((props) => {
 
   useEffect(() => {
     return () => {
+      console.log("DESTROY");
       document.provider.destroy();
     };
   }, []);
@@ -159,7 +163,7 @@ export const Frame: React.FC<Props> = observer((props) => {
     () => {
       const newCompiler = new SourceModelCompiler(monaco);
       const resolver = new Resolver((moduleName) => {
-        // How to resolve typecell modules (i.e.: `import * as nb from "!@user/notebook`")
+        // How to resolve typecell modules (i.e.: `import * as nb from "!user/notebook`")
         const subcompiler = new SourceModelCompiler(monaco);
 
         const modelReceiver = new ModelReceiver();
@@ -252,7 +256,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         name: props.userName,
         color: props.userColor,
       },
-      fragment: document.ydoc.getXmlFragment("data"),
+      fragment: document.ydoc.getXmlFragment("doc"),
     },
   });
 

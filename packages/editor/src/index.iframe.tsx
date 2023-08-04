@@ -32,7 +32,6 @@ base.setAttribute("target", "_blank");
 document.head.appendChild(base);
 
 async function init() {
-  // TODO: prevent monaco from loading in frame
   if (!validateFrameDomain()) {
     throw new Error("invalid hostname for frame");
   }

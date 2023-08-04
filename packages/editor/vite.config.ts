@@ -52,6 +52,7 @@ export default defineConfig((conf) => ({
           },
   },
   optimizeDeps: {
+    exclude: ["monaco-editor"],
     esbuildOptions: {
       plugins: [
         // NodeGlobalsPolyfillPlugin({

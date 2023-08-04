@@ -18,7 +18,7 @@
     "downlevelIteration": true,
     "composite": true
   },
-  "include": ["src", "tests", "../util/src/react/ContainedElement.tsx"],
+  "include": ["src", "tests"],
   "references": [
     {
       "path": "../shared"

@@ -66,7 +66,7 @@ function refreshUserModelTypes(folder: string, monacoInstance: typeof monaco) {
   );
 
   // TODO: this is hacky, we should not have a dependency on Identifier here
-  const identifierStr = folder.substring("/!@".length, folder.length - 1);
+  const identifierStr = folder.substring("/!".length, folder.length - 1);
   const identifier = identifierStr; // parseIdentifier(identifierStr); // TODO
   let packageName = identifier.toString();
   if (packageName.startsWith("/")) {

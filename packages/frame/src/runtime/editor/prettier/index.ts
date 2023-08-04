@@ -1,8 +1,8 @@
-import parserTypescript from "prettier/parser-typescript";
+import type * as monaco from "monaco-editor";
 import parserCSS from "prettier/parser-postcss";
+import parserTypescript from "prettier/parser-typescript";
 import prettier from "prettier/standalone";
 import { diffToMonacoTextEdits } from "./diffToMonacoTextEdits";
-import type * as monaco from "monaco-editor";
 
 export function setupPrettier(monacoInstance: typeof monaco) {
   monacoInstance.languages.registerDocumentFormattingEditProvider(
@@ -18,7 +18,10 @@ export function setupPrettier(monacoInstance: typeof monaco) {
             jsxBracketSameLine: true,
           });
 
-          let ret = diffToMonacoTextEdits(model, newText);
+          let ret = diffToMonacoTextEdits(
+            model,
+            newText.substring(0, newText.length - 1) // disable last \n added by prettier
+          );
           return ret;
         } catch (e) {
           console.warn("error while formatting ts code (prettier)", e);

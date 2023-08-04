@@ -39,7 +39,7 @@ export class DocumentResourceModelProvider
       if (!data) {
         return;
       }
-      const codeNodes = data.querySelectorAll("code");
+      const codeNodes = data.querySelectorAll("monaco");
       const seenIds = new Set<string>();
       const createdModels = new Set<BasicCodeModel>();
 
@@ -47,7 +47,7 @@ export class DocumentResourceModelProvider
         if (!(node instanceof Y.XmlElement)) {
           throw new Error("should be xml element");
         }
-        const id = node.getAttribute("block-id");
+        const id = (node.parent as Y.XmlElement).getAttribute("id");
         if (!id) {
           throw new Error("no id specified");
         }
@@ -74,7 +74,11 @@ export class DocumentResourceModelProvider
         }
 
         if (!model) {
-          model = new BasicCodeModel(id, code.toString(), attrLanguage);
+          model = new BasicCodeModel(
+            "!" + identifier.toString() + "/" + id + ".cell.tsx",
+            code.toString(),
+            attrLanguage
+          );
           this.modelMap.set(id, model);
           createdModels.add(model);
         }

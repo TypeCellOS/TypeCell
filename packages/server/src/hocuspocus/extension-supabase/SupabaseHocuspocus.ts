@@ -6,6 +6,7 @@ import {
   beforeHandleMessagePayload,
   fetchPayload,
   onAuthenticatePayload,
+  onChangePayload,
   onDisconnectPayload,
   onLoadDocumentPayload,
   storePayload,
@@ -279,13 +280,14 @@ export class SupabaseHocuspocus extends Database {
     }
   }
 
-  // async onChange(data: onChangePayload): Promise<any> {
-  //   console.log(
-  //     "ONCHANGE",
-  //     data.documentName,
-  //     data.document.getArray("inbox").toJSON()
-  //   );
-  // }
+  async onChange(_data: onChangePayload): Promise<any> {
+    // console.log(
+    //   "ONCHANGE",
+    //   data.documentName,
+    //   data.document.getXmlFragment("doc").toJSON()
+    //   // data.document.getArray("inbox").toJSON()
+    // );
+  }
 
   async beforeHandleMessage(data: beforeHandleMessagePayload): Promise<any> {
     // console.log("message", data);

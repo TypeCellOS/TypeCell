@@ -2,15 +2,11 @@ import { IframeBridgeMethods, ModelForwarder } from "@typecell-org/frame";
 import { ContainedElement } from "@typecell-org/util";
 import { AsyncMethodReturns, connectToChild } from "penpal";
 import { useMemo } from "react";
-import { getFrameDomain } from "../../../config/security";
 import { parseIdentifier } from "../../../identifiers";
 import { DocumentResourceModelProvider } from "../../../store/DocumentResourceModelProvider";
 import { SessionStore } from "../../../store/local/SessionStore";
 
-export function FrameHost(props: {
-  documentId: string;
-  sessionStore: SessionStore;
-}) {
+export function FrameHost(props: { url: string; sessionStore: SessionStore }) {
   const frame: HTMLIFrameElement = useMemo(() => {
     /**
      * Penpal postmessage connection methods exposed by the iframe
@@ -28,8 +24,12 @@ export function FrameHost(props: {
           console.warn("already has moduleManager for", moduleName);
           return;
         }
+        if (!moduleName.startsWith("!")) {
+          throw new Error("invalid module name");
+        }
+        const identifierStr = moduleName.substring(1);
         const provider = new DocumentResourceModelProvider(
-          parseIdentifier(moduleName),
+          parseIdentifier(identifierStr),
           props.sessionStore
         );
 
@@ -73,14 +73,7 @@ export function FrameHost(props: {
     iframe.allow =
       "geolocation; microphone; camera; midi; encrypted-media; autoplay; accelerometer; magnetometer; gyroscope";
     iframe.allowFullscreen = true;
-    iframe.src =
-      window.location.protocol +
-      "//" +
-      getFrameDomain() +
-      "/?frame" +
-      "&documentId=" +
-      encodeURIComponent(props.documentId) +
-      (window.location.search.includes("noRun") ? "&noRun" : "");
+    iframe.src = props.url;
 
     const connection = connectToChild<IframeBridgeMethods>({
       // The iframe to which a connection should be made
@@ -92,7 +85,7 @@ export function FrameHost(props: {
       connectionMethods = methods;
     });
     return iframe;
-  }, [props.documentId, props.sessionStore]);
+  }, [props.url, props.sessionStore]);
 
   return (
     <>
