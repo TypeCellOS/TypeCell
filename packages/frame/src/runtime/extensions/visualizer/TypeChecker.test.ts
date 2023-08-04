@@ -7,7 +7,9 @@ import { async } from "vscode-lib";
 import { BasicCodeModel } from "../../../models/BasicCodeModel";
 import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 import { setMonacoDefaults } from "../../editor";
-import setupTypecellTypeResolver from "../../editor/languages/typescript/TypeCellModuleTypeResolver";
+
+import { setupTypecellHelperTypeResolver } from "../../editor/languages/typescript/TypeCellHelperTypeResolver";
+import { setupTypecellModuleTypeResolver } from "../../editor/languages/typescript/TypeCellModuleTypeResolver";
 import { TypeChecker } from "./TypeChecker";
 window.fetch = fetch;
 /**
@@ -21,7 +23,8 @@ const timeout = 40000;
 it(
   "Find correct visualizer and ignore others",
   async () => {
-    await setupTypecellTypeResolver(monaco);
+    await setupTypecellHelperTypeResolver(monaco);
+    await setupTypecellModuleTypeResolver(monaco);
 
     const m1Code = `export let y = 7;`;
     const m2Code = `
@@ -34,19 +37,19 @@ it(
 
     //monaco.editor.createModel("// tesdft", "typescript");
 
-    let m1 = new BasicCodeModel(
+    const m1 = new BasicCodeModel(
       "!mx:mx.typecell.org/@owner/doc/1.cell.tsx",
       m1Code,
       "typescript"
     );
 
-    let m2 = new BasicCodeModel(
+    const m2 = new BasicCodeModel(
       "!mx:mx.typecell.org/@owner/doc/2.cell.tsx",
       m2Code,
       "typescript"
     );
 
-    let compiler = new SourceModelCompiler(monaco);
+    const compiler = new SourceModelCompiler(monaco);
     compiler.registerModel(m1);
     compiler.registerModel(m2);
 

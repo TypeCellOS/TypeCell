@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 // from https://github.com/microsoft/TypeScript-Website/blob/v2/packages/sandbox/src/typeAcquisition.ts
 
 import lzstring from "lz-string";
@@ -66,18 +68,24 @@ const parseFileForModuleReferences = (
     return [];
   }
   const foundModules = new Set<string>();
-  var match;
+  let match;
 
   while ((match = es6Pattern.exec(sourceCode)) !== null) {
-    if (match[6]) foundModules.add(match[6]);
+    if (match[6]) {
+      foundModules.add(match[6]);
+    }
   }
 
   while ((match = requirePattern.exec(sourceCode)) !== null) {
-    if (match[5]) foundModules.add(match[5]);
+    if (match[5]) {
+      foundModules.add(match[5]);
+    }
   }
 
   while ((match = es6ImportOnly.exec(sourceCode)) !== null) {
-    if (match[2]) foundModules.add(match[2]);
+    if (match[2]) {
+      foundModules.add(match[2]);
+    }
   }
 
   return Array.from(foundModules);
@@ -142,16 +150,23 @@ const mapModuleNameToModule = (name: string) => {
 const mapRelativePath = (moduleDeclaration: string, currentPath: string) => {
   // https://stackoverflow.com/questions/14780350/convert-relative-path-to-absolute-using-javascript
   function absolute(base: string, relative: string) {
-    if (!base) return relative;
+    if (!base) {
+      return relative;
+    }
 
     const stack = base.split("/");
     const parts = relative.split("/");
     stack.pop(); // remove current file name (or empty string)
 
-    for (var i = 0; i < parts.length; i++) {
-      if (parts[i] === ".") continue;
-      if (parts[i] === "..") stack.pop();
-      else stack.push(parts[i]);
+    for (let i = 0; i < parts.length; i++) {
+      if (parts[i] === ".") {
+        continue;
+      }
+      if (parts[i] === "..") {
+        stack.pop();
+      } else {
+        stack.push(parts[i]);
+      }
     }
     return stack.join("/");
   }
@@ -212,7 +227,8 @@ const addBuiltInTypesToRuntime = async (
   let content: string | void;
   if (import.meta.env.NODE_ENV === "test") {
     // TODO: extract this case
-    let fs = require("fs");
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const fs = require("fs");
     content = fs.readFileSync(
       "../editor/public/types/" + typePath + "/" + path,
       "utf-8"
@@ -423,7 +439,7 @@ const getCachedDTSString = async (config: ATAConfig, url: string) => {
     config.logger.warn(`possibly wrong file for typescript types at ${url}`);
   }
   // TODO: handle checking for a resolve to index.d.ts whens someone imports the folder
-  let content = await response.text();
+  const content = await response.text();
   if (!content) {
     return errorMsg(
       `Could not get text for DTS response at ${url}`,
@@ -451,14 +467,14 @@ const getReferenceDependencies = async (
   path: string,
   config: ATAConfig
 ) => {
-  var match;
+  let match;
   if (sourceCode.indexOf("reference path") > 0) {
     // https://regex101.com/r/DaOegw/1
 
     while ((match = referencePathExtractionPattern.exec(sourceCode)) !== null) {
       const relativePath = match[1];
       if (relativePath) {
-        let newPath = mapRelativePath(relativePath, path);
+        const newPath = mapRelativePath(relativePath, path);
         if (newPath) {
           if (isBuiltInModule(mod)) {
             await addBuiltInTypesToRuntime(mod, newPath, config);
@@ -623,10 +639,11 @@ const getDependenciesForModule = async (
       }
     } else {
       // E.g. import {Component} from "./MyThing"
-      if (!moduleToDownload || !path)
+      if (!moduleToDownload || !path) {
         throw new Error(
           `No outer module or path for a relative import: ${moduleToDownload}`
         );
+      }
 
       const absolutePathForModule = mapRelativePath(moduleToDownload, path);
 

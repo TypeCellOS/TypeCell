@@ -32,7 +32,7 @@ export class ModelForwarder extends lifecycle.Disposable {
   }
 
   public async initialize() {
-    for (let model of this.modelProvider.models) {
+    for (const model of this.modelProvider.models) {
       await this.registerModel(model, false);
     }
     // send in bulk

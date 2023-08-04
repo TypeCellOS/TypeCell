@@ -1,1 +1,1 @@
-export let variable = "3";
+export const variable = "3";

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   HocuspocusProvider,
   HocuspocusProviderWebsocket,
@@ -7,6 +8,7 @@ import * as Y from "yjs";
 import { getRandomUserData } from "./randomUser.js";
 import { createAnonClient } from "./supabase.js";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createWsProvider(url: string, ws?: any) {
   return new HocuspocusProviderWebsocket({
     url,

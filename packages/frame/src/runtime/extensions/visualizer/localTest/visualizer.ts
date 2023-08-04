@@ -1,21 +1,23 @@
 import { TypeVisualizer } from "../../../executor/lib/exports";
 
-// @ts-expect-error
-export let brokenVisualizer = new TypeVisualizer();
+// @ts-expect-error expected to be broken, that's the point of this test
+export const brokenVisualizer = new TypeVisualizer();
 
-export let anyVisualizer = new TypeVisualizer(
+export const anyVisualizer = new TypeVisualizer(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (x: any) => "hello",
   "test-string"
 );
 
-export let stringVisualizer = new TypeVisualizer(
+export const stringVisualizer = new TypeVisualizer(
   (x: string) => "hello",
   "test-string"
 );
 
-export let numberVisualizer = new TypeVisualizer(
+export const numberVisualizer = new TypeVisualizer(
   (x: number) => "hello",
   "test-number"
 );
 
-export let anyValue = {} as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const anyValue = {} as any;

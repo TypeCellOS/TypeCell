@@ -27,7 +27,7 @@ export class ModelReceiver
 
   public deleteModel(modelId: string) {
     console.log("deleteModel", modelId);
-    let model = this.registeredModels.get(modelId);
+    const model = this.registeredModels.get(modelId);
     if (model) {
       this.registeredModels.delete(modelId);
       model.dispose();

@@ -84,11 +84,12 @@ export class DefaultShorthandResolver extends ShorthandResolver {
       }
     | undefined {
     let match: { shorthand: string; identifier: string } | undefined;
-    for (let sh of Object.keys(this.shortHands)) {
+    for (const sh of Object.keys(this.shortHands)) {
       if (path.startsWith(sh)) {
         if (!match || sh.length > match.shorthand.length) {
           match = {
             shorthand: sh,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             identifier: this.shortHands[sh]!,
           };
         }
@@ -182,7 +183,7 @@ export function identifiersToPath(
   }
 
   let lastIdentifier: Identifier = identifiers[0];
-  let rootPath = getPathAndShorthandFromFirstIdentifier(
+  const rootPath = getPathAndShorthandFromFirstIdentifier(
     lastIdentifier,
     shorthandResolver
   );
@@ -224,7 +225,7 @@ export function parseFullIdentifierString(
   // our identifiers don't use scheme://xxx but scheme:xxx. Reason for this decision is to make it work with react-router
   identifierString = identifierString.replace(/([a-z]+:)/, "$1//");
 
-  let parsedUri = uri.URI.parse(identifierString);
+  const parsedUri = uri.URI.parse(identifierString);
 
   const identifierType = registeredIdentifiers.get(parsedUri.scheme);
   if (!identifierType) {
@@ -290,7 +291,7 @@ export function pathToIdentifiers(
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
 
-    let shortHandMatched = shorthandResolver.findShorthandAtStartOfPath(part);
+    const shortHandMatched = shorthandResolver.findShorthandAtStartOfPath(part);
 
     if (shortHandMatched) {
       identifiers.push(

@@ -26,6 +26,7 @@ export const DEFAULT_IDENTIFIER_BASE_STRING =
 export const MATRIX_CONFIG = {
   hsName: env.VITE_MATRIX_HOMESERVER_NAME,
   hsUrl: DEFAULT_HOMESERVER_URI.toString(),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isUrl: undefined as any, // "https://vector.im",
   defaultDeviceDisplayName: "TypeCell web",
 };
@@ -41,5 +42,6 @@ export const MATRIX_CONFIG = {
 export function getTestFlags(): {
   disableWebRTC?: boolean;
 } {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (window as any).__TEST_OPTIONS || {};
 }

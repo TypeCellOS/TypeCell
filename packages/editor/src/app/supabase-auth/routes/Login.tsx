@@ -24,6 +24,7 @@ export const Login = observer((props: { sessionStore: SessionStore }) => {
   const location = useLocation();
   //   const navigate = useNavigate();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const from = (location.state as any)?.from?.pathname || "/";
   //   let pageAfterLogin = window.location.origin + from;
 

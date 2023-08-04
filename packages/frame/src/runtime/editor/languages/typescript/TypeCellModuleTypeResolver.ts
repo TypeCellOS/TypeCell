@@ -5,7 +5,7 @@ function refreshUserModelTypes(folder: string, monacoInstance: typeof monaco) {
   const models = monacoInstance.editor
     .getModels()
     .filter((m) => {
-      let path = m.uri.path;
+      const path = m.uri.path;
       return (
         path.startsWith(folder) &&
         (path.endsWith(".tsx") ||
@@ -20,11 +20,8 @@ function refreshUserModelTypes(folder: string, monacoInstance: typeof monaco) {
 
   const folderName = folder.substring("/".length, folder.length - 1); // !typecell:typecell.org/dALYTUW8TXxsw
 
-  let content = models.map((f) => `export * from "${f}";`).join("\n");
+  const content = models.map((f) => `export * from "${f}";`).join("\n");
 
-  // TODO: we register two libs. Would be nicer to detect the main notebook from imported libs and register them appropriately
-  debugger;
-  // for main notebook
   // register the typings as a node_module in the full folder name (e.g.: !typecell:typecell.org/dALYTUW8TXxsw)
   // These typings are automatically imported as $ in ts.worker.ts
   monacoInstance.languages.typescript.typescriptDefaults.addExtraLib(

@@ -28,7 +28,9 @@ export async function importResolver(
       module: {
         default: {},
       },
-      dispose: () => {},
+      dispose: () => {
+        // Do nothing
+      },
     };
   };
 

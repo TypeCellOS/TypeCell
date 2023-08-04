@@ -57,6 +57,7 @@ export function validateFrameDomain() {
 
 export function getFrameDomain() {
   if (ENVIRONMENT === "DEV") {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const port = window.location.host.match(/^localhost:(\d+)$/)![1];
     // return "127.0.0.1:" + port;
     return "localhost:" + port;
@@ -72,6 +73,7 @@ export function getFrameDomain() {
 export function getMainDomainFromIframe() {
   if (ENVIRONMENT === "DEV") {
     // const port = window.location.host.match(/^127\.0\.0\.1:(\d+)$/)![1];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const port = window.location.host.match(/^localhost:(\d+)$/)![1];
     return "localhost:" + port;
   }

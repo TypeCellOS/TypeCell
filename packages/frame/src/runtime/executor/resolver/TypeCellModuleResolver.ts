@@ -35,6 +35,7 @@ export class TypeCellModuleResolver<T extends CodeModel> {
       this.resolverForNestedModules(moduleName, [...forModelList, forModel])
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     engine.registerModelProvider(provider as any); // TODO
 
     let disposed = false;

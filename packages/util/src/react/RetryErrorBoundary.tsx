@@ -4,7 +4,8 @@ import { ErrorBoundary } from "./ErrorBoundary.js";
 /**
  * An ErrorBoundary that will still rerender on the next render cycle, when an error has occured in the previous cycle
  */
-export function RetryErrorBoundary(props: { children: any }) {
+export function RetryErrorBoundary(props: { children: React.ReactNode }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const previousErrorBoundary = useRef<any>();
   const errorBoundaryKey = useRef(0);
 

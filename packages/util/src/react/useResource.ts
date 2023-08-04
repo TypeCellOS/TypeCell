@@ -14,16 +14,19 @@ export function useResource<T>(
 
   const subscribe = useCallback(() => {
     return () => {
-      console.log("cleanup");
-      val.current![1]();
+      if (!val.current) {
+        throw new Error("unexpected, no currentval when unsubscribing");
+      }
+      val.current[1]();
       val.current = undefined;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 
   return useSyncExternalStore(subscribe, () => {
     if (!val.current) {
       val.current = allocateResource();
     }
-    return val.current![0];
+    return val.current[0];
   });
 }

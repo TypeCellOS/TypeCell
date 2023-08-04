@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { makeObservable, observable, runInAction } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { TypeVisualizer } from "../lib/exports";
@@ -31,13 +32,13 @@ export class ModelOutput extends lifecycle.Disposable {
   }
 
   async updateVisualizers(newValue: string[]) {
-    for (let key of this.typeVisualizers.keys()) {
+    for (const key of this.typeVisualizers.keys()) {
       if (!newValue.includes(key)) {
         this.typeVisualizers.delete(key);
       }
     }
 
-    for (let key of newValue) {
+    for (const key of newValue) {
       if (!this.typeVisualizers.has(key)) {
         const ctx = this.context;
         this.typeVisualizers.set(

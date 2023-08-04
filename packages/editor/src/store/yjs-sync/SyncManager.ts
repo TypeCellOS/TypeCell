@@ -330,7 +330,7 @@ export class SyncManager extends lifecycle.Disposable {
     //  - start syncing, update values in coordinator
 
     console.log("SyncManager load", identifier.toString());
-    let manager = new SyncManager(identifier, sessionStore);
+    const manager = new SyncManager(identifier, sessionStore);
     manager.load().catch((e) => {
       console.error("error in SyncManager.load", e);
     });

@@ -14,13 +14,13 @@ export const DocumentRoute = observer(
       throw new Error("No session store");
     }
 
-    let location = useLocation();
+    const location = useLocation();
 
     if (!sessionStore.coordinators) {
       return <div>Loading</div>;
     }
 
-    let [owner, workspace, ...documentParts] = location.pathname
+    const [owner, workspace, ...documentParts] = location.pathname
       .substring(1)
       .split("/");
     const document = documentParts.join("/");
@@ -31,6 +31,7 @@ export const DocumentRoute = observer(
         return (
           <RouteContext.Provider value={{ groups: [identifiers] }}>
             <DocumentView
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               id={identifiers.shift()!}
               subIdentifiers={identifiers}
               sessionStore={sessionStore}
@@ -42,11 +43,9 @@ export const DocumentRoute = observer(
       }
     }
 
-    owner = owner.substring(1);
-
     return (
       <OwnerAliasRoute
-        owner={owner}
+        owner={owner.substring(1)}
         workspace={workspace}
         document={document}
         sessionStore={sessionStore}

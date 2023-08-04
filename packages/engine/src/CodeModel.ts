@@ -1,11 +1,8 @@
-import { uri } from "vscode-lib";
-type Event<T> = {
-  (listener: (e: T) => any): { dispose: () => void };
-};
+import { event, uri } from "vscode-lib";
 
 export type CodeModel = {
-  onWillDispose: Event<void>;
-  onDidChangeContent: Event<void>;
+  onWillDispose: event.Event<void>;
+  onDidChangeContent: event.Event<void>;
   getValue(): string;
   readonly path: string;
   readonly language: string;

@@ -22,8 +22,8 @@ function getTransactionForSelectionUpdate(
   tr: Transaction
 ) {
   if (selection && model) {
-    const selFrom = model!.getOffsetAt(selection.getStartPosition()) + offset;
-    const selEnd = model!.getOffsetAt(selection.getEndPosition()) + offset;
+    const selFrom = model.getOffsetAt(selection.getStartPosition()) + offset;
+    const selEnd = model.getOffsetAt(selection.getEndPosition()) + offset;
     tr.setSelection(
       TextSelection.create(
         tr.doc,
@@ -68,14 +68,14 @@ export function bindMonacoAndProsemirror(
       return;
     }
 
-    let offset = getPos() + 1;
+    const offset = getPos() + 1;
 
-    let tr = view.state.tr;
+    const tr = view.state.tr;
     getTransactionForSelectionUpdate(
       mon.getSelection(),
       mon.getModel(),
       offset,
-      tr as any
+      tr
     );
     try {
       view.dispatch(tr);
@@ -105,10 +105,10 @@ export function bindMonacoAndProsemirror(
       return;
     }
 
-    let offset = getPos() + 1;
+    const offset = getPos() + 1;
     // { main } = update.state.selection;
 
-    let tr = view.state.tr;
+    const tr = view.state.tr;
 
     e.changes.forEach((change) => {
       if (change.text.length) {
@@ -133,7 +133,7 @@ export function bindMonacoAndProsemirror(
         mon.getSelection(),
         mon.getModel(),
         offset,
-        tr as any
+        tr
       );
     }
     try {
@@ -210,8 +210,8 @@ export function applyNodeChangesToMonaco(
   node: Node,
   model: monaco.editor.ITextModel
 ) {
-  let newText = node.textContent;
-  let curText = model.getValue();
+  const newText = node.textContent;
+  const curText = model.getValue();
   if (newText === curText) {
     return;
   }

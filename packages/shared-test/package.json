@@ -2,12 +2,14 @@
   "name": "@typecell-org/shared-test",
   "version": "0.0.3",
   "private": true,
-  "dependencies": {
-    "@hocuspocus/provider": "2.1.0",
-    "@typecell-org/shared": "*"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "typescript": "5.0.4"
+    "@hocuspocus/provider": "2.1.0",
+    "@typecell-org/shared": "*",
+    "@typecell-org/util": "*",
+    "typescript": "5.0.4",
+    "yjs": "^13.6.4",
+    "@supabase/supabase-js": "^2.12.1"
   },
   "source": "src/index.ts",
   "types": "types/src/index.d.ts",
@@ -16,6 +18,12 @@
   "scripts": {
     "clean": "rimraf dist && rimraf types",
     "build": "npm run clean && tsc -p tsconfig.json",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "lint": "eslint src"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../shared/.eslintrc.cjs"
+    ]
   }
 }

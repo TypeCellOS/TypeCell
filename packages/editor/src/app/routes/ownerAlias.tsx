@@ -27,7 +27,7 @@ export const OwnerAliasRoute = observer(
       throw new Error("No session store");
     }
 
-    let location = useLocation();
+    const location = useLocation();
 
     const [aliasResolveStatus, setAliasResolveStatus] = useState<
       "loading" | "error" | "not-found" | "loaded"
@@ -35,7 +35,7 @@ export const OwnerAliasRoute = observer(
 
     const [ownerDoc, setOwnerDoc] = useState<DocConnection>();
 
-    const alias = sessionStore.aliasCoordinator?.aliases.get(owner!);
+    const alias = sessionStore.aliasCoordinator?.aliases.get(owner);
     const ownerProfileIdentifier = useMemo(() => {
       return (
         alias || {
@@ -174,11 +174,12 @@ export const OwnerAliasRoute = observer(
       profileDoc.identifier.toString()
     );
 
-    for (let item of profileDoc.workspaces.keys()) {
+    for (const item of profileDoc.workspaces.keys()) {
       const sh = "@" + owner + "/" + item;
 
       defaultShorthandResolver.current.addShorthand(
         sh,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         profileDoc.workspaces.get(item)!
       );
     }

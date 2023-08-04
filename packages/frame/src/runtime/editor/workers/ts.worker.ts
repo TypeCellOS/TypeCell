@@ -1,9 +1,11 @@
 // based on https://github.com/microsoft/TypeScript-Website/issues/191#issuecomment-579531308
 // and https://github.com/TypeScriptToLua/TypeScriptToLua.github.io/blob/source/src/pages/play/ts.worker.ts
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import * as worker from "monaco-editor/esm/vs/editor/editor.worker.js";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { TypeScriptWorker } from "monaco-editor/esm/vs/language/typescript/ts.worker.js";
 
@@ -81,6 +83,7 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
 
 globalThis.onmessage = () => {
   worker.initialize(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (context: any, createData: any) =>
       new CustomTypeScriptWorker(context, createData)
   );

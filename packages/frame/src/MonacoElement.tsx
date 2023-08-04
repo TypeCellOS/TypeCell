@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NodeViewProps } from "@tiptap/core";
 
 import * as monaco from "monaco-editor";
@@ -22,19 +23,20 @@ import { MonacoTypeCellCodeModel } from "./models/MonacoCodeModel";
 import { getMonacoModel } from "./models/MonacoModelManager";
 
 const MonacoElementComponent = function MonacoElement(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: NodeViewProps & { block: any; selectionHack: any }
 ) {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
-  const refa = useRef<any>(Math.random());
+  // const refa = useRef<any>(Math.random());
   const context = useContext(RichTextContext);
 
   const models = useResource(() => {
-    console.log("create", props.block.id, refa.current);
+    // console.log("create", props.block.id, refa.current);
     const uri = monaco.Uri.parse(
       `file:///!${context.documentId}/${props.block.id}.cell.tsx`
     );
     console.log("allocate model", uri.toString());
-    let model = getMonacoModel(
+    const model = getMonacoModel(
       props.node.textContent,
       "typescript",
       uri,
@@ -72,6 +74,7 @@ const MonacoElementComponent = function MonacoElement(
       applyNodeChangesToMonaco(props.node, models.model);
       models.state.lastDecorations = applyDecorationsToMonaco(
         models.model,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         props.decorations as any,
         editorRef.current!,
         models.state.lastDecorations
@@ -105,76 +108,81 @@ const MonacoElementComponent = function MonacoElement(
     if (!props.selectionHack) {
       return;
     }
-    let startPos = models.model.getPositionAt(props.selectionHack.anchor);
-    let endPos = models.model.getPositionAt(props.selectionHack.head);
+    const startPos = models.model.getPositionAt(props.selectionHack.anchor);
+    const endPos = models.model.getPositionAt(props.selectionHack.head);
     models.state.isUpdating = true;
     editorRef.current?.setSelection(
       monaco.Selection.fromPositions(startPos, endPos)
     );
     models.state.isUpdating = false;
     editorRef.current?.focus();
-  }, [props.selectionHack]);
+  }, [models.model, models.state, props.selectionHack]);
 
-  const codeRefCallback = useCallback((el: HTMLDivElement) => {
-    let editor = editorRef.current;
+  const codeRefCallback = useCallback(
+    (el: HTMLDivElement) => {
+      const editor = editorRef.current;
 
-    if (editor) {
-      if (editor?.getContainerDomNode() !== el) {
-        // console.log("DISPOSE EDITOR");
-        editor.dispose();
-        editorRef.current = undefined;
-      } else {
-        // no need for new editor
+      if (editor) {
+        if (editor?.getContainerDomNode() !== el) {
+          // console.log("DISPOSE EDITOR");
+          editor.dispose();
+          editorRef.current = undefined;
+        } else {
+          // no need for new editor
+          return;
+        }
+      }
+
+      if (!el) {
         return;
       }
-    }
 
-    if (!el) {
-      return;
-    }
+      console.log("create editor");
+      const newEditor = monaco.editor.create(el, {
+        model: models.model,
+        theme: "typecellTheme",
+      });
 
-    console.log("create editor");
-    let newEditor = monaco.editor.create(el, {
-      model: models.model,
-      theme: "typecellTheme",
-    });
+      bindMonacoAndProsemirror(
+        newEditor,
+        props.editor.view,
+        props.getPos,
+        models.state
+      );
 
-    bindMonacoAndProsemirror(
-      newEditor,
-      props.editor.view,
-      props.getPos,
-      models.state
-    );
+      // disable per-cell find command (https://github.com/microsoft/monaco-editor/issues/102)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (newEditor as any)._standaloneKeybindingService.addDynamicKeybinding(
+        "-actions.find",
+        null, // keybinding
+        () => {
+          // need to pass an empty handler
+        }
+      );
 
-    // disable per-cell find command (https://github.com/microsoft/monaco-editor/issues/102)
-    (newEditor as any)._standaloneKeybindingService.addDynamicKeybinding(
-      "-actions.find",
-      null, // keybinding
-      () => {} // need to pass an empty handler
-    );
+      // if (initialFocus && initial.current) {
+      //   initial.current = false;
+      //   // newEditor.focus();
+      // }
 
-    // if (initialFocus && initial.current) {
-    //   initial.current = false;
-    //   // newEditor.focus();
-    // }
+      newEditor.onDidBlurEditorWidget(() => {
+        newEditor.trigger("blur", "editor.action.formatDocument", {});
+      });
 
-    newEditor.onDidBlurEditorWidget(() => {
-      newEditor.trigger("blur", "editor.action.formatDocument", {});
-    });
+      newEditor.onDidContentSizeChange(() => {
+        const contentHeight = Math.min(500, newEditor.getContentHeight());
 
-    newEditor.onDidContentSizeChange(() => {
-      const contentHeight = Math.min(500, newEditor.getContentHeight());
-      try {
         newEditor.layout({
           height: contentHeight,
           width: newEditor.getContainerDomNode()!.offsetWidth,
         });
-      } finally {
-      }
-    });
+      });
 
-    editorRef.current = newEditor;
-  }, []);
+      editorRef.current = newEditor;
+    },
+    [models.model, models.state, props.editor.view, props.getPos]
+  );
+
   const [codeVisible, setCodeVisible] = useState(true);
 
   return (
@@ -209,7 +217,9 @@ const MonacoElementComponent = function MonacoElement(
         <div className={styles.codeCellOutput} contentEditable={false}>
           {context.executionHost.renderOutput(
             models.model.uri.toString(),
-            () => {}
+            () => {
+              // noop
+            }
           )}
         </div>
       </div>

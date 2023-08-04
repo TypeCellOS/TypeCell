@@ -1,7 +1,5 @@
 import * as yjsBindings from "@syncedstore/yjs-reactive-bindings";
-import { Buffer } from "buffer";
 import * as mobx from "mobx";
-import * as process from "process";
 import { createRoot } from "react-dom/client";
 import App from "./app/App";
 import { SupabaseSessionStore } from "./app/supabase-auth/SupabaseSessionStore";
@@ -14,9 +12,11 @@ import React from "react";
 import { SessionStore } from "./store/local/SessionStore";
 import "./styles/index.css";
 
-// polyfills (mostly required for matrix-crdt)
-(window as any).Buffer = Buffer;
-(window as any).process = process;
+// // polyfills (mostly required for matrix-crdt)
+// // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// (window as any).Buffer = Buffer;
+// // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// (window as any).process = process;
 
 if (env.VITE_ENVIRONMENT === "development") {
   // disables error overlays
@@ -40,6 +40,7 @@ async function init() {
 
   yjsBindings.enableMobxBindings(mobx);
 
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const root = createRoot(document.getElementById("root")!);
 
   const authProvider = supabaseAuthProvider;

@@ -1,3 +1,9 @@
+/* eslint-disable prefer-rest-params */
+/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable prefer-spread */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable import/first */
 // mock necessary for monaco
 Object.defineProperty(window, "matchMedia", {

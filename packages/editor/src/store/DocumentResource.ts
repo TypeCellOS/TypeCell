@@ -39,17 +39,18 @@ export class DocumentResource extends BaseResource {
     //   return match[1].trim();
     // }
 
-    return undefined;
+    // return undefined;
   }
 
   /** @internal */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public get comments(): Y.Map<any> {
     return this.ydoc.getMap("comments");
   }
 
   /** @internal */
   public get data(): Y.XmlFragment {
-    let xml = this.ydoc.getXmlFragment("doc");
+    const xml = this.ydoc.getXmlFragment("doc");
     return xml;
   }
 }

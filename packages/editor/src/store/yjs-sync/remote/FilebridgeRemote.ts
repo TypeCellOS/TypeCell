@@ -13,9 +13,9 @@ import ProjectResource from "../../ProjectResource";
 import { ChildReference } from "@typecell-org/shared";
 import { Remote } from "./Remote";
 
-function isEmptyDoc(doc: Y.Doc) {
-  return areDocsEqual(doc, new Y.Doc());
-}
+// function isEmptyDoc(doc: Y.Doc) {
+//   return areDocsEqual(doc, new Y.Doc());
+// }
 
 // NOTE: only changes in doc xml fragment are checked
 function areFragmentsEqual(fragment1: Y.XmlFragment, fragment2: Y.XmlFragment) {
@@ -25,20 +25,20 @@ function areFragmentsEqual(fragment1: Y.XmlFragment, fragment2: Y.XmlFragment) {
   );
 }
 
-function areDocsEqual(doc1: Y.Doc, doc2: Y.Doc) {
-  return areFragmentsEqual(
-    doc1.getXmlFragment("doc"),
-    doc2.getXmlFragment("doc")
-  );
-}
+// function areDocsEqual(doc1: Y.Doc, doc2: Y.Doc) {
+//   return areFragmentsEqual(
+//     doc1.getXmlFragment("doc"),
+//     doc2.getXmlFragment("doc")
+//   );
+// }
 
 /**
  * Given an identifier, manages local + remote syncing of a Y.Doc
  */
 export class FilebridgeRemote extends Remote {
   private disposed = false;
-  protected id: string = "filebridge";
-  public canCreate: boolean = false;
+  protected id = "filebridge";
+  public canCreate = false;
   private watcher: Watcher | undefined;
 
   public canWrite = true;
@@ -159,6 +159,7 @@ export class FilebridgeRemote extends Remote {
     const fragment = this._ydoc.getXmlFragment("doc");
 
     if (!areFragmentsEqual(fragment, newXml)) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const update = Y.encodeStateAsUpdateV2(newXml.doc!);
       Y.applyUpdateV2(this._ydoc, update, this);
     }
@@ -196,11 +197,12 @@ export class FilebridgeRemote extends Remote {
       throw new Error("invalid type");
     }
 
-    let xml = doc.getXmlFragment("doc");
+    const xml = doc.getXmlFragment("doc");
 
     return xmlFragmentToMarkdown(xml);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private documentUpdateListener = async (update: any, origin: any) => {
     if (origin === this) {
       // these are updates that came in from this provider

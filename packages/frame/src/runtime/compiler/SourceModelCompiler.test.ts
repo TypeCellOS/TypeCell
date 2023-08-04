@@ -15,9 +15,9 @@ setMonacoDefaults(monaco);
 it("compiles Typescript code", async () => {
   const m1Code = `export let y: number = 43;`;
 
-  let m1 = new BasicCodeModel("c1a.ts", m1Code, "typescript");
+  const m1 = new BasicCodeModel("c1a.ts", m1Code, "typescript");
 
-  let compiler = new SourceModelCompiler(monaco);
+  const compiler = new SourceModelCompiler(monaco);
   compiler.registerModel(m1);
   expect(compiler.models.length).toBe(1);
   const model = compiler.models[0];

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable prefer-spread */
 import type * as monaco from "monaco-editor";
 import { hash } from "vscode-lib";
 
@@ -40,6 +42,7 @@ type WorkerType = (
 ) => Promise<monaco.languages.typescript.TypeScriptWorker | undefined>;
 
 async function getCompiledCode(worker: WorkerType, uri: monaco.Uri) {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const process = (await worker(uri))!;
   const uriCode = await getCompiledCodeInternal(process, uri);
   return uriCode;
@@ -47,17 +50,21 @@ async function getCompiledCode(worker: WorkerType, uri: monaco.Uri) {
 
 // for performance: don't fire all compilations immediately. Compile once first, so we can use recompilation results
 // TODO: verify performance improvement
+// eslint-disable-next-line @typescript-eslint/ban-types
 function awaitFirst<T extends Function>(func: T): T {
   return async function () {
-    // @ts-ignore
-    let args = arguments;
+    // eslint-disable-next-line prefer-rest-params
+    const args = arguments;
     if (initialPromise) {
       try {
         await initialPromise;
-      } catch (e) {}
+      } catch (e) {
+        // noop
+      }
       return func.apply(null, args);
     }
 
+    // eslint-disable-next-line no-async-promise-executor
     initialPromise = new Promise<void>(async (resolve, reject) => {
       try {
         const ret = await func.apply(null, args);
@@ -145,7 +152,7 @@ async function _compile(
 
   try {
     const worker = await getWorker(monacoInstance);
-    let compiledCode = (await getCompiledCode(worker, model.uri)).firstJSCode;
+    const compiledCode = (await getCompiledCode(worker, model.uri)).firstJSCode;
     if (ENABLE_CACHE) {
       saveCachedItem(model, { hash: hsh, compiledCode });
     }

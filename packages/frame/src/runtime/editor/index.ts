@@ -2,17 +2,22 @@
 
 import type * as Monaco from "monaco-editor";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import EditorWorker from "./workers/editor.worker?worker"; // eslint-disable-line import/no-webpack-loader-syntax
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import TsWorker from "./workers/ts.worker?worker"; // eslint-disable-line import/no-webpack-loader-syntax
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import CSSWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
 
 import { getDefaultSandboxCompilerOptions } from "./compilerOptions";
 import { setupPrettier } from "./prettier";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 if (!(window as any).MonacoEnvironment) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).MonacoEnvironment = (global as any).MonacoEnvironment = {
     getWorker: function (workerId: string, label: string) {
       if (label === "typescript" || label === "javascript") {
@@ -61,6 +66,7 @@ const sharedEditorOptions: Monaco.editor.IEditorOptions = {
 export const setMonacoDefaults = (monaco: typeof Monaco) => {
   // const getWorker = monaco.languages.typescript.getTypeScriptWorker;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   monaco.editor.EditorOptions.minimap.defaultValue = { enabled: false } as any;
   monaco.editor.EditorOptions.scrollBeyondLastLine.defaultValue = false;
   monaco.editor.EditorOptions.overviewRulerLanes.defaultValue = 0;
@@ -82,7 +88,7 @@ export const setMonacoDefaults = (monaco: typeof Monaco) => {
     diagnosticCodesToIgnore: [2354, 1108, 1378], // TODO: move except 2354, should probably be passed in from sandbox consumer
   });
 
-  let compilerOptions = {
+  const compilerOptions = {
     ...getDefaultSandboxCompilerOptions(
       { useJavaScript: false },
       monaco.languages.typescript
@@ -96,6 +102,7 @@ export const setMonacoDefaults = (monaco: typeof Monaco) => {
     colors: {
       "editor.background": "#f4f5f7",
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rules: [{ background: "#f4f5f7" } as any],
   });
   setupPrettier(monaco);

@@ -48,9 +48,11 @@ describe("DocConnection tests", () => {
   afterEach(async () => {
     await sessionStoreAlice.supabase.auth.signOut();
     sessionStoreAlice.dispose();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sessionStoreAlice = undefined as any;
     await sessionStoreBob.supabase.auth.signOut();
     sessionStoreBob.dispose();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sessionStoreBob = undefined as any;
     wsProvider.destroy();
   });
@@ -76,6 +78,7 @@ describe("DocConnection tests", () => {
     const doc = await DocConnection.create(sessionStoreAlice);
     doc.ydoc.getMap("test").set("hello", "world");
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     await when(() => doc.remote!.status === "loaded");
 
     const bobDoc = await DocConnection.load(doc.identifier, sessionStoreBob);

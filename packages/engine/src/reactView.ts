@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { IObservableValue } from "mobx";
 import * as React from "react";
 

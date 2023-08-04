@@ -22,6 +22,7 @@ export default function getExposeGlobalVariables() {
     //   return createOneToManyReferenceDefinition(id, type, reverseType, sorted);
     // },
     TypeVisualizer,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     computed: computed as (func: () => any) => any,
   };
 }
@@ -30,6 +31,7 @@ export class TypeVisualizer<T> {
   // public readonly function: (arg: T) => any;
 
   constructor(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public readonly func: (arg: T) => any,
     public readonly name?: string
   ) {

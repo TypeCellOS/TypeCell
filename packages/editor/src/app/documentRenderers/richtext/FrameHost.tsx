@@ -37,6 +37,7 @@ export function FrameHost(props: { url: string; sessionStore: SessionStore }) {
         const forwarder = new ModelForwarder(
           "modules/" + moduleName,
           provider,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           connectionMethods!
         );
         moduleManagers.set(moduleName, { provider, forwarder });

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Database,
   DatabaseConfiguration,
@@ -36,6 +38,7 @@ const documentIdByDocument = new WeakMap<Y.Doc, string>();
 
 type SupabaseType = Awaited<ReturnType<typeof createAnonClient>>;
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SupabaseConfiguration extends DatabaseConfiguration {}
 
 export class SupabaseHocuspocus extends Database {

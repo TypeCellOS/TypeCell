@@ -34,6 +34,12 @@
     "watch": "tsc --watch",
     "unittest:vitest": "vitest run --coverage",
     "unittest:playwright": "playwright-test '**/*.browsertest.ts' --runner mocha",
-    "test": "npm run unittest:vitest && npm run unittest:playwright"
+    "test": "npm run unittest:vitest && npm run unittest:playwright",
+    "lint": "eslint src"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../shared/.eslintrc.cjs"
+    ]
   }
 }

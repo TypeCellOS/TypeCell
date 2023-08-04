@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ObservableMap, toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
@@ -54,6 +55,7 @@ const Output: React.FC<Props> = observer((props) => {
 
     if (Object.values(outputJS).length === 1) {
       [mainKey, mainExport] = Object.entries(outputJS)[0];
+      // eslint-disable-next-line no-prototype-builtins
     } else if (outputJS.hasOwnProperty("default")) {
       mainKey = "default";
       mainExport = outputJS["default"];
@@ -117,7 +119,7 @@ const Output: React.FC<Props> = observer((props) => {
 
 const btnStyle = {
   border: 0,
-  position: "relative" as "relative",
+  position: "relative" as const,
   bottom: -10,
   left: -10,
   background: "none",
@@ -125,7 +127,7 @@ const btnStyle = {
 
 const btnStyleActive = {
   ...btnStyle,
-  textDecoration: "underline" as "underline",
+  textDecoration: "underline" as const,
 };
 
 export default Output;

@@ -1,8 +1,6 @@
 import { observer } from "mobx-react-lite";
-import { useNavigate } from "react-router-dom";
 import { SessionStore } from "../../../../store/local/SessionStore";
 import buttonStyles from "../../../../styles/buttons.module.css";
-import { OpenNewPageDialog, toNewGuestNotebook } from "../../../routes/routes";
 import styles from "./StartScreen.module.css";
 import globe from "./assets/globe.svg";
 import intro from "./assets/intro.gif";
@@ -10,16 +8,16 @@ import lightning from "./assets/lightning.svg";
 import npm from "./assets/npm.svg";
 
 export const AILanding = observer((props: { sessionStore: SessionStore }) => {
-  const { sessionStore } = props;
-  const navigate = useNavigate();
-  function onNewNotebookClick(e: any) {
-    e.preventDefault();
-    if (sessionStore.isLoggedIn) {
-      OpenNewPageDialog(navigate);
-    } else {
-      navigate(toNewGuestNotebook());
-    }
-  }
+  // const { sessionStore } = props;
+  // const navigate = useNavigate();
+  // function onNewNotebookClick(e: any) {
+  //   e.preventDefault();
+  //   if (sessionStore.isLoggedIn) {
+  //     OpenNewPageDialog(navigate);
+  //   } else {
+  //     navigate(toNewGuestNotebook());
+  //   }
+  // }
 
   return (
     <>

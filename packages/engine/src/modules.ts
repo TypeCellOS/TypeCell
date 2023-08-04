@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { autorun, computed, observable, untracked } from "mobx";
 import { TypeCellContext } from "./context.js";
 // import { stored } from "./storage/stored";
@@ -24,7 +25,9 @@ export type Module = {
   }
  */
 export function getModulesFromWrappedPatchedTypeCellFunction(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   caller: () => any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scope: any
 ): Module[] {
   const modules: Module[] = [];
@@ -39,6 +42,7 @@ export function getModulesFromWrappedPatchedTypeCellFunction(
  */
 export function getModulesFromPatchedTypeCellCode(
   code: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scope: any
 ): Module[] {
   const modules: Module[] = [];
@@ -62,7 +66,8 @@ function createDefine(modules: Module[]) {
     const dependencyArray: string[] =
       typeof moduleNameOrDependencyArray === "string"
         ? dependencyArrayOrFactoryFunction
-        : (moduleNameOrDependencyArray as any);
+        : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (moduleNameOrDependencyArray as any);
     const func =
       factoryFunction || (dependencyArrayOrFactoryFunction as Function);
 
@@ -74,7 +79,7 @@ function createDefine(modules: Module[]) {
   };
 }
 
-export function createExecutionScope(context: TypeCellContext<any>) {
+export function createExecutionScope(context: TypeCellContext<unknown>) {
   const scope = {
     autorun,
     $: context.context,
@@ -89,6 +94,7 @@ export function createExecutionScope(context: TypeCellContext<any>) {
   return scope;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getPatchedTypeCellCode(compiledCode: string, scope: any) {
   // Checks if define([], function) like code is already present
   if (!compiledCode.match(/(define\((".*", )?\[.*\], )function/gm)) {
@@ -100,7 +106,7 @@ export function getPatchedTypeCellCode(compiledCode: string, scope: any) {
     throw new Error("invalid key on scope!");
   }
 
-  let variableImportCode = Object.keys(scope)
+  const variableImportCode = Object.keys(scope)
     .map((key) => `let ${key} = this.${key};`)
     .join("\n");
 

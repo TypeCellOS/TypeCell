@@ -18,7 +18,7 @@ export function setupPrettier(monacoInstance: typeof monaco) {
             jsxBracketSameLine: true,
           });
 
-          let ret = diffToMonacoTextEdits(
+          const ret = diffToMonacoTextEdits(
             model,
             newText.substring(0, newText.length - 1) // disable last \n added by prettier
           );
@@ -41,7 +41,7 @@ export function setupPrettier(monacoInstance: typeof monaco) {
           printWidth: 80,
         });
 
-        let ret = diffToMonacoTextEdits(model, newText);
+        const ret = diffToMonacoTextEdits(model, newText);
         return ret;
       } catch (e) {
         console.warn("error while formatting css code (prettier)", e);

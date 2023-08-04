@@ -7,7 +7,9 @@ export async function TypeCellHelperLibraryResolver(moduleName: string) {
       module: {
         default: getExposeGlobalVariables(),
       },
-      dispose: () => {},
+      dispose: () => {
+        // Do nothing
+      },
     };
   }
   return undefined;

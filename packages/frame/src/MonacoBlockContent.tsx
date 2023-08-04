@@ -2,9 +2,6 @@ import { createTipTapBlock } from "@blocknote/core";
 import { mergeAttributes } from "@tiptap/core";
 // import styles from "../../Block.module.css";
 
-// @ts-ignore
-// @ts-ignore
-// @ts-ignore
 import {
   NodeViewProps,
   NodeViewWrapper,
@@ -18,11 +15,12 @@ import { MonacoElement } from "./MonacoElement";
 function arrowHandler(
   dir: "up" | "down" | "left" | "right" | "forward" | "backward"
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (state: EditorState, dispatch: any, view: EditorView) => {
     if (state.selection.empty && view.endOfTextblock(dir)) {
-      let side = dir === "left" || dir === "up" ? -1 : 1;
-      let $head = state.selection.$head;
-      let nextPos = Selection.near(
+      const side = dir === "left" || dir === "up" ? -1 : 1;
+      const $head = state.selection.$head;
+      const nextPos = Selection.near(
         state.doc.resolve(side > 0 ? $head.after() : $head.before()),
         side
       );
@@ -41,10 +39,12 @@ const arrowHandlers = keymap({
   ArrowRight: arrowHandler("right"),
   ArrowUp: arrowHandler("up"),
   ArrowDown: arrowHandler("down"),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any);
 
 const ComponentWithWrapper = (
-  props: NodeViewProps & { block: any; htmlAttributes: any }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  props: NodeViewProps & { block: any; htmlAttributes: any; selectionHack: any }
 ) => {
   const { htmlAttributes, ...restProps } = props;
   return (
@@ -52,7 +52,6 @@ const ComponentWithWrapper = (
       // className={blockStyles.blockContent}
       // data-content-type={blockConfig.type}
       {...htmlAttributes}>
-      {/* @ts-ignore */}
       <MonacoElement {...restProps} />
     </NodeViewWrapper>
   );
@@ -89,7 +88,7 @@ export const MonacoBlockContent = createTipTapBlock({
     ];
   },
 
-  renderHTML({ HTMLAttributes }: any) {
+  renderHTML({ HTMLAttributes }) {
     return [
       "code",
       mergeAttributes(HTMLAttributes, {
@@ -101,6 +100,7 @@ export const MonacoBlockContent = createTipTapBlock({
   },
 
   addNodeView() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const BlockContent = (props: any) => {
       // const Content = blockConfig.render;
 
@@ -113,18 +113,18 @@ export const MonacoBlockContent = createTipTapBlock({
       // }
 
       // Gets BlockNote editor instance
-      const editor = this.options.editor!;
+      const editor = this.options.editor;
       // Gets position of the node
       const pos =
         typeof props.getPos === "function" ? props.getPos() : undefined;
       // Gets TipTap editor instance
       const tipTapEditor = editor._tiptapEditor;
       // Gets parent blockContainer node
-      const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
+      const blockContainer = tipTapEditor.state.doc.resolve(pos).node();
       // Gets block identifier
       const blockIdentifier = blockContainer.attrs.id;
       // Get the block
-      const block = editor.getBlock(blockIdentifier)!;
+      const block = editor.getBlock(blockIdentifier);
 
       console.log("ComponentWithWrapper");
       return (
@@ -139,6 +139,7 @@ export const MonacoBlockContent = createTipTapBlock({
     };
     // console.log("addnodeview");
     return (props) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (!(props.editor as any).contentComponent) {
         // same logic as in ReactNodeViewRenderer
         return {};
@@ -150,21 +151,25 @@ export const MonacoBlockContent = createTipTapBlock({
       ret.setSelection = (anchor, head) => {
         // This doesn't work because the Tiptap react renderer doesn't properly support forwardref
         // (ret as any).renderer.ref?.setSelection(anchor, head);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (ret as any).renderer.updateProps({
           selectionHack: { anchor, head },
         });
       };
 
       // disable contentdom, because we render the content ourselves in MonacoElement
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (ret as any).contentDOMElement = undefined;
       // ret.destroy = () => {
       //   console.log("destroy element");
       //   // (ret as any).renderer.destroy();
       // };
       // This is a hack because tiptap doesn't support innerDeco, and this information is normally dropped
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const oldUpdated = ret.update!.bind(ret);
       ret.update = (node, outerDeco, innerDeco) => {
         // console.log("update");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const retAsAny = ret as any;
         let decorations = retAsAny.decorations;
         if (
@@ -177,12 +182,13 @@ export const MonacoBlockContent = createTipTapBlock({
             innerDecorations: innerDeco,
           };
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return oldUpdated(node, decorations, undefined as any);
       };
       return ret;
     };
   },
   addProseMirrorPlugins() {
-    return [arrowHandlers] as any;
+    return [arrowHandlers];
   },
 });

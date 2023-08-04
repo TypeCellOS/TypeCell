@@ -13,6 +13,7 @@ import Main from "./main/Main";
 import { AILanding } from "./main/components/startscreen/AILanding";
 import { StartScreen } from "./main/components/startscreen/StartScreen";
 import { DocumentRoute } from "./routes/document";
+import { SupabaseSessionStore } from "./supabase-auth/SupabaseSessionStore";
 import { supabaseAuthProvider } from "./supabase-auth/supabaseAuthProvider";
 
 const Wrapper = observer((props: { sessionStore: SessionStore }) => {
@@ -64,14 +65,20 @@ export const App = observer(
             </Route>
             <Route
               path="/register"
-              element={props.authProvider.routes.register(sessionStore as any)}
+              element={props.authProvider.routes.register(
+                sessionStore as SupabaseSessionStore
+              )}
             />
             <Route path="/recover" element={<div>Not implemented yet</div>} />
             <Route
               path="/login"
-              element={props.authProvider.routes.login(sessionStore as any)}
+              element={props.authProvider.routes.login(
+                sessionStore as SupabaseSessionStore
+              )}
             />
-            {props.authProvider.routes.additionalRoutes(sessionStore as any)}
+            {props.authProvider.routes.additionalRoutes(
+              sessionStore as SupabaseSessionStore
+            )}
             {/* todo: notfound?  */}
           </Route>
         </Routes>

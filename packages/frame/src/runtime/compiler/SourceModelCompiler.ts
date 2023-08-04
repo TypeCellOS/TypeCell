@@ -11,7 +11,7 @@ export default class SourceModelCompiler
   extends lifecycle.Disposable
   implements ModelProvider
 {
-  public disposed: boolean = false;
+  public disposed = false;
 
   private async compile(model: monaco.editor.ITextModel) {
     if (model.getLanguageId() === "typescript") {

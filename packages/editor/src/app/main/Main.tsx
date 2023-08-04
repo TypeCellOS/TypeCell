@@ -10,8 +10,8 @@ import { Navigation } from "./components/Navigation";
 import NewPageDialog from "./components/NewPageDialog";
 
 const Main = observer((props: { sessionStore: SessionStore }) => {
-  let location = useLocation();
-  let navigate = useNavigate();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -42,4 +42,5 @@ const Main = observer((props: { sessionStore: SessionStore }) => {
 
 export default Main;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).DocumentResource = DocumentResource; // TODO: hacky

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import _ from "lodash";
 import { event, lifecycle } from "vscode-lib";
 import { createCellEvaluator } from "./CellEvaluator.js";
@@ -5,7 +6,7 @@ import { CodeModel } from "./CodeModel.js";
 import { TypeCellContext, createContext } from "./context.js";
 
 export type ResolvedImport = {
-  module: any;
+  module: unknown;
 } & lifecycle.IDisposable;
 
 /**
@@ -18,7 +19,7 @@ export type ResolvedImport = {
  */
 export class ReactiveEngine<T extends CodeModel> extends lifecycle.Disposable {
   private disposed = false;
-  public readonly observableContext = createContext<any>({} as any);
+  public readonly observableContext = createContext<unknown>();
   private readonly registeredModels = new Set<T>();
 
   private readonly evaluatorCache = new Map<
@@ -169,11 +170,12 @@ export class ReactiveEngine<T extends CodeModel> extends lifecycle.Disposable {
         )
       );
     }
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const evaluator = this.evaluatorCache.get(model)!;
     if (model.language !== "javascript") {
       throw new Error("can not evaluate non-javascript code");
     }
-    let code = model.getValue();
+    const code = model.getValue();
     console.log("evaluating", code);
     await evaluator.evaluate(code);
   }

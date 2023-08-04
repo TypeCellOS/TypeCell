@@ -1,4 +1,4 @@
-import { event } from "vscode-lib";
+import { event, uri } from "vscode-lib";
 import { CodeModel } from "../../CodeModel.js";
 
 export class CodeModelMock implements CodeModel {
@@ -6,7 +6,9 @@ export class CodeModelMock implements CodeModel {
 
   public onWillDispose() {
     return {
-      dispose: () => {},
+      dispose: () => {
+        // Do nothing
+      },
     };
   }
   public onDidChangeContent = this.contentChangeEmitter.event;
@@ -16,6 +18,10 @@ export class CodeModelMock implements CodeModel {
     public readonly path: string,
     public code: string
   ) {}
+
+  public get uri() {
+    return uri.URI.parse("file:///" + this.path);
+  }
 
   public getValue(): string {
     return this.code;

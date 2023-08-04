@@ -43,6 +43,7 @@ export const Navigation = observer((props: { sessionStore: SessionStore }) => {
           </Link>
           <a
             href="https://www.github.com/TypeCellOS/TypeCell"
+            rel="noreferrer"
             className={styles.link}
             target="_blank">
             GitHub

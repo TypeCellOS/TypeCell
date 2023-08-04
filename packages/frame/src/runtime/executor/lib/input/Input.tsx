@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { getReactViewValue } from "@typecell-org/engine";
 import { IObservableValue, isObservable, observable } from "mobx";
 import * as React from "react";
@@ -100,7 +102,7 @@ export function Input<T extends string | string[] | number = string>(
     }
   }
 
-  let element = (
+  const element = (
     <ReactViewElement __type={el.type} {...el.props} __tcObservable={val} />
   );
 

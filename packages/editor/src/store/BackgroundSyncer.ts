@@ -20,7 +20,7 @@ export class BackgroundSyncer extends lifecycle.Disposable {
     super();
     this._register({
       dispose: () => {
-        for (let doc of this.loadedConnections.values()) {
+        for (const doc of this.loadedConnections.values()) {
           doc.dispose();
         }
       },
@@ -43,7 +43,7 @@ export class BackgroundSyncer extends lifecycle.Disposable {
 
       setTimeout(() => {
         // see which resources we need to sync
-        for (let id of ids) {
+        for (const id of ids) {
           if (!this.identifiersToSync.has(id)) {
             console.log("bg syncer load", id);
             this.identifiersToSync.add(id);
@@ -56,11 +56,12 @@ export class BackgroundSyncer extends lifecycle.Disposable {
         }
 
         // cleanup already synced resources
-        for (let id of this.identifiersToSync) {
+        for (const id of this.identifiersToSync) {
           if (!ids.includes(id)) {
             // cleanup
             console.log("bg syncer unload", id);
             this.identifiersToSync.delete(id);
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const connection = this.loadedConnections.get(id)!;
             connection.dispose();
             this.loadedConnections.delete(id);

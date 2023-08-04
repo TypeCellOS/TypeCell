@@ -53,10 +53,10 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
     sessionStore,
     props.document.identifier
   );
-  let location = useLocation();
-  let navigate = useNavigate();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  let permissionsArea: any;
+  let permissionsArea: React.ReactElement;
   if (
     props.document.identifier instanceof TypeCellIdentifier &&
     sessionStore instanceof SupabaseSessionStore
@@ -94,6 +94,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
               trigger={({ triggerRef, isSelected, testId, ...props }) => (
                 <div
                   {...props}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   ref={triggerRef as any}
                   style={{ paddingRight: "0.5em", paddingLeft: "1em" }}>
                   <VscKebabVertical
@@ -103,7 +104,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
                 </div>
               )}
               placement="bottom-end">
-              <DropdownItem onClick={() => openAsMarkdown(props.document!.doc)}>
+              <DropdownItem onClick={() => openAsMarkdown(props.document.doc)}>
                 Export as markdown
               </DropdownItem>
               {canEditPermissions && (

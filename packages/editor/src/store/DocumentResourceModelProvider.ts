@@ -43,7 +43,7 @@ export class DocumentResourceModelProvider
       const seenIds = new Set<string>();
       const createdModels = new Set<BasicCodeModel>();
 
-      for (let node of codeNodes) {
+      for (const node of codeNodes) {
         if (!(node instanceof Y.XmlElement)) {
           throw new Error("should be xml element");
         }
@@ -57,7 +57,7 @@ export class DocumentResourceModelProvider
           throw new Error("should be text");
         }
 
-        let attrLanguage = node.getAttribute("language");
+        const attrLanguage = node.getAttribute("language");
         if (!attrLanguage) {
           throw new Error("no language specified");
         }
@@ -84,14 +84,14 @@ export class DocumentResourceModelProvider
         }
       }
 
-      for (let [id, model] of this.modelMap) {
+      for (const [id, model] of this.modelMap) {
         if (!seenIds.has(id)) {
           model.dispose();
           this.modelMap.delete(id);
         }
       }
 
-      for (let model of createdModels) {
+      for (const model of createdModels) {
         this._onDidCreateModel.fire(model);
       }
     });
@@ -105,7 +105,7 @@ export class DocumentResourceModelProvider
     super.dispose();
 
     this.connection.dispose();
-    for (let model of this.modelMap.values()) {
+    for (const model of this.modelMap.values()) {
       model.dispose();
     }
     this.modelMap.clear();

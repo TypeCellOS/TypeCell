@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { autorun, observable } from "mobx";
 
 export type View = any;

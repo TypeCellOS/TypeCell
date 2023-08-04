@@ -13,7 +13,7 @@ export default class LocalExecutionHost
   extends lifecycle.Disposable
   implements ExecutionHost
 {
-  private disposed: boolean = false;
+  private disposed = false;
 
   private readonly outputs = observable.map<string, ModelOutput>(undefined, {
     deep: false,
@@ -43,7 +43,8 @@ export default class LocalExecutionHost
 
     this._register(
       visualizerExtension.onUpdateVisualizers((e) => {
-        for (let [path, visualizers] of Object.entries(e)) {
+        for (const [path, visualizers] of Object.entries(e)) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           this.outputs.get(path)!.updateVisualizers(visualizers);
         }
       })

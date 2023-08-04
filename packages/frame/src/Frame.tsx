@@ -54,7 +54,7 @@ setupTypecellModuleTypeResolver(monaco);
 setupNpmTypeResolver(monaco);
 
 class FakeProvider {
-  constructor(public readonly awareness: any) {}
+  constructor(public readonly awareness: unknown) {}
 }
 
 function insertOrUpdateBlock<BSchema extends DefaultBlockSchema>(
@@ -72,6 +72,7 @@ function insertOrUpdateBlock<BSchema extends DefaultBlockSchema>(
     editor.updateBlock(currentBlock, block);
   } else {
     editor.insertBlocks([block], currentBlock, "after");
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
   }
 }
@@ -96,7 +97,7 @@ export const Frame: React.FC<Props> = observer((props) => {
           model: { value: string; language: string };
         }[]
       ) => {
-        for (let model of models) {
+        for (const model of models) {
           await methods.updateModel(bridgeId, model.modelId, model.model);
         }
       },
@@ -133,9 +134,9 @@ export const Frame: React.FC<Props> = observer((props) => {
     connection.promise.then((parent) => {
       connectionMethods.current = parent;
     });
-  }, []);
+  }, [modelReceivers]);
 
-  const document = useMemo(() => {
+  const document = useResource(() => {
     const ydoc = new Y.Doc();
 
     // ydoc.on("update", () => {
@@ -147,18 +148,16 @@ export const Frame: React.FC<Props> = observer((props) => {
 
     provider.connectBc();
 
-    return {
-      provider,
-      awareness: provider.awareness,
-      ydoc,
-    };
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      console.log("DESTROY");
-      document.provider.destroy();
-    };
+    return [
+      {
+        provider,
+        awareness: provider.awareness,
+        ydoc,
+      },
+      () => {
+        provider.destroy();
+      },
+    ];
   }, []);
 
   const tools = useResource(
@@ -178,6 +177,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         });
 
         const fullIdentifier =
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           await connectionMethods.current!.registerTypeCellModuleCompiler(
             moduleName
           );
@@ -259,10 +259,10 @@ export const Frame: React.FC<Props> = observer((props) => {
       ...getDefaultReactSlashMenuItems(),
       {
         name: "Monaco",
-        execute: (editor: any) =>
+        execute: (editor) =>
           insertOrUpdateBlock(editor, {
             type: "monaco",
-          } as any),
+          }),
         aliases: ["m"],
       },
     ],

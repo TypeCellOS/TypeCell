@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
 export class ErrorBoundary extends React.Component<
-  { children: any },
+  { children: React.ReactNode },
   {
     error: any;
     hasError: boolean;

@@ -12,6 +12,7 @@ export function CloseNewPageDialog(navigate: NavigateFunction) {
 }
 
 export function IsNewPageDialogOpen(location: Location) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (location as any).state?.NewPageDialog;
 }
 
@@ -24,6 +25,7 @@ export function ClosePermissionsDialog(navigate: NavigateFunction) {
 }
 
 export function IsPermissionsDialogOpen(location: Location) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (location as any).state?.permissionsDialog;
 }
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { observer } from "mobx-react-lite";
 import React from "react";
 

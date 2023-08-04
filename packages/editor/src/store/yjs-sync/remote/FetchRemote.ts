@@ -13,10 +13,10 @@ import { Remote } from "./Remote";
 
 export default class FetchRemote extends Remote {
   private disposed = false;
-  protected id: string = "fetch";
-  public canCreate: boolean = false;
+  protected id = "fetch";
+  public canCreate = false;
 
-  public canWrite: boolean = true; // always initialize as true until the user starts trying to make changes
+  public canWrite = true; // always initialize as true until the user starts trying to make changes
 
   public get awareness() {
     return undefined;
@@ -32,6 +32,7 @@ export default class FetchRemote extends Remote {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private documentUpdateListener = async (update: any, origin: any) => {
     if (origin === this) {
       // these are updates that came in from this provider
@@ -99,7 +100,7 @@ export default class FetchRemote extends Remote {
       json = json.filter((path) => path.startsWith(prefix));
       json = json.map((path) => path.substring(prefix.length));
       if (!json.length) {
-        return "not-found" as "not-found";
+        return "not-found" as const;
       }
       return this.getNewYDocFromDir(json);
     }

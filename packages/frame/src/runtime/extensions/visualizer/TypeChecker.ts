@@ -21,6 +21,7 @@ export class TypeChecker extends lifecycle.Disposable {
       `/typecell/typechecker/${documentId}/typechecker.ts`
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.model = monacoInstance.editor.getModel(uri)!;
 
     if (this.model) {
@@ -101,7 +102,8 @@ export class TypeChecker extends lifecycle.Disposable {
         await this.monacoInstance.languages.typescript.getTypeScriptWorker();
     }
 
-    let ts = (await this.worker(this.model.uri))!;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const ts = (await this.worker(this.model.uri))!;
 
     // Uncomment for debugging / error checking purposes
     // (await ts.getSyntacticDiagnostics(this.model.uri.toString())).forEach(
@@ -130,6 +132,7 @@ export class TypeChecker extends lifecycle.Disposable {
     }
 
     const pluginNames = completions.entries.map(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (entry: any) => entry.name
     ) as string[];
 

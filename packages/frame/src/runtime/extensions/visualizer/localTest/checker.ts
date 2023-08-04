@@ -13,6 +13,7 @@ type truePropertyNames<T> = {
   [K in keyof T]: T[K] extends never ? never : K;
 }[keyof T];
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type matchingPlugins<PluginsType, ObjectType> = any extends ObjectType
   ? never
   : truePropertyNames<{
@@ -53,18 +54,19 @@ type pluginsPossible = matchingPlugins<docPluginTypes, mainExportTypeModule>;
 
 // let test: Pick<docPluginTypes, pluginsPossible> = {} as any;
 // test
-let filteredPlugins: Pick<docPluginTypes, pluginsPossible> = {} as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const filteredPlugins: Pick<docPluginTypes, pluginsPossible> = {} as any;
 
 // eslint-disable @typescript-eslint/no-unused-expressions
 filteredPlugins.stringVisualizer;
 
-// @ts-expect-error
+// @ts-expect-error expected to be broken, that's the point of this test
 filteredPlugins.anyValue;
 
-// @ts-expect-error
+// @ts-expect-error expected to be broken, that's the point of this test
 filteredPlugins.numberVisualizer;
 
-// @ts-expect-error
+// @ts-expect-error expected to be broken, that's the point of this test
 filteredPlugins.brokenVisualizer;
 
 // TODO: support anyvisualizer

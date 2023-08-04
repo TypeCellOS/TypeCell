@@ -43,6 +43,7 @@ export const NewPageDialog = (props: {
                 // TODO: format title?
                 e.preventDefault();
                 const data = new FormData(e.target as HTMLFormElement);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const obj: any = {};
                 data.forEach((val, key) => {
                   obj[key] = val;

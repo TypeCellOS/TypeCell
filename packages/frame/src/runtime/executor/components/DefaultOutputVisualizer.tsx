@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ContainedElement, RetryErrorBoundary } from "@typecell-org/util";
 import React, { useEffect, useState } from "react";
 import { ObjectInspector } from "react-inspector";
@@ -17,9 +18,10 @@ function findStyleSheet(node: HTMLStyleElement) {
 // TODO: clean up props, make more simple / readable
 export const DefaultOutputVisualizer = (props: {
   mainKey: string | undefined;
-  mainExport: any;
+  mainExport: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   output: any;
-  outputJS: any;
+  outputJS: unknown;
 }) => {
   const { mainKey, mainExport, output, outputJS } = props;
 
@@ -43,16 +45,16 @@ export const DefaultOutputVisualizer = (props: {
         throw new Error("css sheet not found");
       }
       // based on: https://stackoverflow.com/a/33237161/194651
-      let rules = sheet.cssRules;
+      const rules = sheet.cssRules;
       // we loop over all rules
       for (let i = 0; i < rules.length; i++) {
-        let rule = rules[i];
+        const rule = rules[i];
         if (rule instanceof CSSStyleRule) {
-          let selector = rule.selectorText;
-          let def = rule.cssText.replace(selector, "");
+          const selector = rule.selectorText;
+          const def = rule.cssText.replace(selector, "");
 
           // we update the selector
-          let selector2 = selector.replace(
+          const selector2 = selector.replace(
             /([^,]+,?)/g,
             ".typecell-output $1 "
           );

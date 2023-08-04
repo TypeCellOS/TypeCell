@@ -41,7 +41,8 @@ export const ProfilePopup = observer(
         <DropdownItem onClick={() => OpenNewPageDialog(navigate)}>
           New page
         </DropdownItem>
-        <DropdownItemGroup title={"@" + props.sessionStore.loggedInUserId!}>
+        <DropdownItemGroup
+          title={"@" + props.sessionStore.loggedInUserId || ""}>
           {" "}
           {/* @${props.authStore.user?.username} */}
           {/* <DropdownItem>Profile</DropdownItem> */}

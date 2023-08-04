@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { createDocument, createRandomUser } from "@typecell-org/shared-test";
 import { beforeAll, describe, expect, it } from "vitest";
 

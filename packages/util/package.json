@@ -5,7 +5,9 @@
   "dependencies": {
     "buffer": "^6.0.3",
     "string.prototype.replaceall": "^1.0.5",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "nanoid": "^4.0.1",
+    "react": "^18.2.0"
   },
   "devDependencies": {
     "rimraf": "^3.0.2",
@@ -22,6 +24,12 @@
   "scripts": {
     "clean": "rimraf dist && rimraf types",
     "build": "npm run clean && tsc -p tsconfig.json",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "lint": "eslint src"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../shared/.eslintrc.cjs"
+    ]
   }
 }

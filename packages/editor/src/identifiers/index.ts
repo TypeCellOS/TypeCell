@@ -17,8 +17,8 @@ const factories = [
   FileIdentifier,
   HttpsIdentifier,
 ];
-for (let factory of factories) {
-  for (let scheme of factory.schemes) {
+for (const factory of factories) {
+  for (const scheme of factory.schemes) {
     registeredIdentifiers.set(scheme, factory);
   }
 }

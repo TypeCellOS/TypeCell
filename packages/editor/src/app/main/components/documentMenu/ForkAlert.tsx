@@ -30,6 +30,7 @@ export const ForkAlert = observer(
           when(
             () => !!sessionStore.profile,
             () => {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               sessionStore.profile!.forks.set(
                 result.identifier.toString(),
                 result.identifier.toString()

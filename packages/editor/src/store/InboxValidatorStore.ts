@@ -120,8 +120,8 @@ export class InboxValidator<
       throw new Error("invalid inbox message (ref)");
     }
     const [client, clock] = message.clock.split(":");
-    let clockNum = parseInt(clock);
-    let clientNum = parseInt(client);
+    const clockNum = parseInt(clock);
+    const clientNum = parseInt(client);
     if (isNaN(clockNum) || isNaN(clientNum)) {
       throw new Error("invalid inbox message (clock / client)");
     }
