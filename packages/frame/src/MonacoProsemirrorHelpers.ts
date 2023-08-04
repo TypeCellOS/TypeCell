@@ -257,7 +257,9 @@ export function applyDecorationsToMonaco(
     innerDecorations: { local: Decoration[] };
   },
   mon: monaco.editor.IStandaloneCodeEditor,
-  lastDecorations: string[]
+  lastDecorations: string[],
+  headSelectionClassName: string,
+  selectionClassName: string
 ) {
   if (!decorations.innerDecorations) {
     return [];
@@ -290,13 +292,19 @@ export function applyDecorationsToMonaco(
         start = model.getPositionAt(from);
         end = model.getPositionAt(to);
         afterContentClassName =
-          "yRemoteSelectionHead yRemoteSelectionHead-" +
+          headSelectionClassName +
+          " " +
+          headSelectionClassName +
+          "-" +
           cursorDec.spec.clientId;
       } else {
         start = model.getPositionAt(to);
         end = model.getPositionAt(from);
         beforeContentClassName =
-          "yRemoteSelectionHead yRemoteSelectionHead-" +
+          headSelectionClassName +
+          " " +
+          headSelectionClassName +
+          "-" +
           cursorDec.spec.clientId;
       }
       newDecorations.push({
@@ -308,7 +316,11 @@ export function applyDecorationsToMonaco(
         ),
         options: {
           className:
-            "yRemoteSelection yRemoteSelection-" + cursorDec.spec.clientId,
+            selectionClassName +
+            " " +
+            selectionClassName +
+            "-" +
+            cursorDec.spec.clientId,
           afterContentClassName,
           beforeContentClassName,
         },

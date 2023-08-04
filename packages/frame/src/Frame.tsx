@@ -38,6 +38,8 @@ import { ModelReceiver } from "./interop/ModelReceiver";
 import { BasicCodeModel } from "./models/BasicCodeModel";
 import { setMonacoDefaults } from "./runtime/editor";
 
+import { MonacoColorManager } from "./MonacoColorManager";
+import monacoStyles from "./MonacoSelection.module.css";
 import { setupTypecellHelperTypeResolver } from "./runtime/editor/languages/typescript/TypeCellHelperTypeResolver";
 import { setupTypecellModuleTypeResolver } from "./runtime/editor/languages/typescript/TypeCellModuleTypeResolver";
 import { setupNpmTypeResolver } from "./runtime/editor/languages/typescript/npmTypeResolver";
@@ -145,7 +147,13 @@ export const Frame: React.FC<Props> = observer((props) => {
     const provider = new WebsocketProvider("", props.roomName, ydoc, {
       connect: false,
     });
-
+    const colorManager = new MonacoColorManager(
+      provider.awareness,
+      props.userName,
+      props.userColor,
+      monacoStyles.yRemoteSelectionHead,
+      monacoStyles.yRemoteSelection
+    );
     provider.connectBc();
 
     return [
@@ -156,6 +164,7 @@ export const Frame: React.FC<Props> = observer((props) => {
       },
       () => {
         provider.destroy();
+        colorManager.dispose();
       },
     ];
   }, []);

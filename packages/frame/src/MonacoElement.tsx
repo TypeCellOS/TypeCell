@@ -18,6 +18,7 @@ import {
   applyNodeChangesToMonaco,
   bindMonacoAndProsemirror,
 } from "./MonacoProsemirrorHelpers";
+import monacoStyles from "./MonacoSelection.module.css";
 import { RichTextContext } from "./RichTextContext";
 import { MonacoTypeCellCodeModel } from "./models/MonacoCodeModel";
 import { getMonacoModel } from "./models/MonacoModelManager";
@@ -77,7 +78,9 @@ const MonacoElementComponent = function MonacoElement(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         props.decorations as any,
         editorRef.current!,
-        models.state.lastDecorations
+        models.state.lastDecorations,
+        monacoStyles.yRemoteSelectionHead,
+        monacoStyles.yRemoteSelection
       );
     } finally {
       models.state.isUpdating = false;
