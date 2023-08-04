@@ -39,15 +39,29 @@
     "playwright-test": "^11.0.4",
     "vitest": "^0.33.0",
     "jsdom": "^22.1.0",
-    "@vitest/coverage-v8": "^0.33.0"
+    "@vitest/coverage-v8": "^0.33.0",
+    "@vitejs/plugin-react": "^4.0.0"
   },
-  "source": "src/index.ts",
-  "types": "types/src/index.d.ts",
-  "main": "dist/src/index.js",
   "type": "module",
+  "source": "src/index.ts",
+  "types": "./types/src/index.d.ts",
+  "main": "./dist/typecell-frame.umd.cjs",
+  "module": "./dist/typecell-frame.js",
+  "exports": {
+    ".": {
+      "types": "./types/src/index.d.ts",
+      "import": "./dist/typecell-frame.js",
+      "require": "./dist/typecell-frame.umd.cjs"
+    },
+    "./style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  },
   "scripts": {
     "clean": "rimraf dist && rimraf types",
-    "build": "npm run clean && tsc -p tsconfig.json",
+    "build": "npm run clean && tsc -p tsconfig.json && vite build",
+    "build:react": "vite build",
     "watch": "tsc --watch",
     "unittest:vitest": "vitest run --coverage",
     "unittest:playwright": "playwright-test '**/*.browsertest.ts' --runner mocha",

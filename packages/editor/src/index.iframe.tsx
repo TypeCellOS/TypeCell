@@ -7,6 +7,7 @@ import {
 } from "./config/security";
 // import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
 import { Frame } from "@typecell-org/frame";
+import "@typecell-org/frame/style.css";
 import "./styles/iframe.css";
 
 if (import.meta.env.DEV) {

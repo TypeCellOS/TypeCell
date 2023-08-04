@@ -44,12 +44,14 @@ export default defineConfig((conf) => ({
 
     alias:
       conf.command === "build"
-        ? ({} as {})
-        : {
+        ? ({
+            // "@typecell-org/frame": path.resolve(__dirname, "../frame/src/"),
+          } as Record<string, string>)
+        : ({
             // load live from sources with live reload working
             "@typecell-org/frame": path.resolve(__dirname, "../frame/src/"),
             "@typecell-org/util": path.resolve(__dirname, "../util/src/"),
-          },
+          } as Record<string, string>),
   },
   optimizeDeps: {
     exclude: ["monaco-editor"],

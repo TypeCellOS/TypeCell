@@ -81,7 +81,7 @@
     "vite:dev": "vite",
     "vite:build": "vite build --mode=$MODE",
     "vite:preview": "vite preview",
-    "preview": "npm run build:react && npm run vite:preview"
+    "preview": "npm run vite:preview"
   },
   "eslintConfig": {
     "extends": [
