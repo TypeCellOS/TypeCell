@@ -109,6 +109,7 @@ jobs:
         run: npm run build:react
         env:
           CI: true
+          MODE: development
 
       - name: Lint
         run: npm run lint
