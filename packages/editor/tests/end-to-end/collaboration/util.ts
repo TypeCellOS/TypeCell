@@ -119,7 +119,7 @@ export async function setupBeforeTest(pageAlice: Page, pageBob: Page) {
   await pageAlice.keyboard.press("Meta+a");
   await pageAlice.keyboard.type("helloworld");
   await expect(
-    frameBob.getByText("text=helloworld", { exact: true })
+    frameBob.getByText("helloworld", { exact: true })
   ).toBeAttached();
 }
 
