@@ -54,7 +54,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     "//" +
     getFrameDomain() +
     "/?frame" +
-    "&" +
+    "#" +
     params.toString();
 
   return <FrameHost url={src} sessionStore={props.sessionStore} />;

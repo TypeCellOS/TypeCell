@@ -38,7 +38,7 @@ async function init() {
     throw new Error("invalid hostname for frame");
   }
   const root = createRoot(document.getElementById("root")!);
-  const search = new URLSearchParams(window.location.search);
+  const search = new URLSearchParams(window.location.hash.substring(1));
   root.render(
     //<React.StrictMode>
     <Frame
