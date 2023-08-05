@@ -1,5 +1,4 @@
-import { CodeModel } from "@typecell-org/engine";
-
+import { CodeModel } from "@typecell-org/shared";
 import type * as monaco from "monaco-editor";
 import { async, lifecycle } from "vscode-lib";
 

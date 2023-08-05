@@ -1,4 +1,4 @@
-import { CodeModel } from "../../CodeModel.js";
+import { CodeModel } from "@typecell-org/shared";
 import { ResolvedImport } from "../../ReactiveEngine.js";
 import { CodeModelMock } from "./CodeModelMock.js";
 

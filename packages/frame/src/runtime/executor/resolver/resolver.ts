@@ -1,4 +1,4 @@
-import { CodeModel } from "@typecell-org/engine";
+import { CodeModel } from "@typecell-org/shared";
 import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 import { NPMLibraryResolver } from "./NPMResolver";
 import { TypeCellHelperLibraryResolver } from "./TypeCellHelperLibraryResolver";

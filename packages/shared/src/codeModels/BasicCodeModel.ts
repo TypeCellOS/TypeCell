@@ -1,6 +1,6 @@
-import { CodeModel } from "@typecell-org/engine";
 import { event, lifecycle, uri } from "vscode-lib";
-export class BasicCodeModel extends lifecycle.Disposable implements CodeModel {
+
+export class BasicCodeModel extends lifecycle.Disposable {
   private readonly _onWillDispose: event.Emitter<void> = this._register(
     new event.Emitter<void>()
   );

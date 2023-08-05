@@ -5,7 +5,7 @@ import { event } from "vscode-lib";
 import { setMonacoDefaults } from "..";
 
 import { ReactiveEngine } from "@typecell-org/engine";
-import { BasicCodeModel } from "../../../models/BasicCodeModel";
+import { BasicCodeModel } from "../../../../../shared/src/codeModels/BasicCodeModel";
 import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 // import { getTypeCellResolver } from "../../executor/resolver/TypeCellModuleResolver";
 /**

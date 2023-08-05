@@ -1,6 +1,6 @@
+import { CodeModel } from "@typecell-org/shared";
 import { describe, expect, it } from "vitest";
 import { event } from "vscode-lib";
-import { CodeModel } from "./CodeModel.js";
 import { ReactiveEngine } from "./ReactiveEngine.js";
 import {
   buildMockedModel,

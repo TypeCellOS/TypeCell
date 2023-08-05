@@ -1,9 +1,5 @@
-import {
-  CodeModel,
-  ReactiveEngine,
-  ResolvedImport,
-} from "@typecell-org/engine";
-import { ModelProvider } from "../../../interop/ModelProvider";
+import { ReactiveEngine, ResolvedImport } from "@typecell-org/engine";
+import { CodeModel, ModelProvider } from "@typecell-org/shared";
 
 export class TypeCellModuleResolver<T extends CodeModel> {
   private readonly cache = new Map<string, ResolvedImport>();

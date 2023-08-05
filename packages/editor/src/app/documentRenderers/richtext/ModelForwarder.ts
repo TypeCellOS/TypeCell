@@ -1,7 +1,9 @@
+import {
+  BasicCodeModel,
+  IframeBridgeMethods,
+  ModelProvider,
+} from "@typecell-org/shared";
 import { lifecycle } from "vscode-lib";
-import { BasicCodeModel } from "../models/BasicCodeModel";
-import { IframeBridgeMethods } from "./IframeBridgeMethods";
-import { ModelProvider } from "./ModelProvider";
 
 export type MessageBridge = Pick<
   IframeBridgeMethods,

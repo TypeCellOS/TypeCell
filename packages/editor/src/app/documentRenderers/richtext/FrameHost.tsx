@@ -1,10 +1,11 @@
-import { IframeBridgeMethods, ModelForwarder } from "@typecell-org/frame";
+import { IframeBridgeMethods } from "@typecell-org/shared";
 import { ContainedElement } from "@typecell-org/util";
 import { AsyncMethodReturns, connectToChild } from "penpal";
 import { useMemo } from "react";
 import { parseIdentifier } from "../../../identifiers";
 import { DocumentResourceModelProvider } from "../../../store/DocumentResourceModelProvider";
 import { SessionStore } from "../../../store/local/SessionStore";
+import { ModelForwarder } from "./ModelForwarder";
 
 export function FrameHost(props: { url: string; sessionStore: SessionStore }) {
   const frame: HTMLIFrameElement = useMemo(() => {

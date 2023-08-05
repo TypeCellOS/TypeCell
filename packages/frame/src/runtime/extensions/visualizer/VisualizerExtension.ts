@@ -1,6 +1,6 @@
+import { BasicCodeModel } from "@typecell-org/shared/src/codeModels/BasicCodeModel";
 import type * as monaco from "monaco-editor";
 import { event, lifecycle } from "vscode-lib";
-import { BasicCodeModel } from "../../../models/BasicCodeModel";
 import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 import { TypeChecker } from "./TypeChecker";
 

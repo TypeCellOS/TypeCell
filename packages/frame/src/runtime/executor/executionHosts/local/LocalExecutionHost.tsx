@@ -1,8 +1,8 @@
 import { ReactiveEngine } from "@typecell-org/engine";
+import { BasicCodeModel } from "@typecell-org/shared/src/codeModels/BasicCodeModel";
 import { observable } from "mobx";
 import type * as monaco from "monaco-editor";
 import { lifecycle } from "vscode-lib";
-import { BasicCodeModel } from "../../../../models/BasicCodeModel";
 import SourceModelCompiler from "../../../compiler/SourceModelCompiler";
 import { VisualizerExtension } from "../../../extensions/visualizer/VisualizerExtension";
 import { ModelOutput } from "../../components/ModelOutput";

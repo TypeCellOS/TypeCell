@@ -27,15 +27,18 @@ import LocalExecutionHost from "./runtime/executor/executionHosts/local/LocalExe
 
 import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
 import { ReactiveEngine } from "@typecell-org/engine";
+import {
+  BasicCodeModel,
+  HostBridgeMethods,
+  IframeBridgeMethods,
+  ModelReceiver,
+} from "@typecell-org/shared";
 import { useResource } from "@typecell-org/util";
 import * as monaco from "monaco-editor";
 import { AsyncMethodReturns, connectToParent } from "penpal";
 import { WebsocketProvider } from "y-websocket";
 import styles from "./Frame.module.css";
-import { HostBridgeMethods } from "./interop/HostBridgeMethods";
-import { IframeBridgeMethods } from "./interop/IframeBridgeMethods";
-import { ModelReceiver } from "./interop/ModelReceiver";
-import { BasicCodeModel } from "./models/BasicCodeModel";
+
 import { setMonacoDefaults } from "./runtime/editor";
 
 import { MonacoColorManager } from "./MonacoColorManager";

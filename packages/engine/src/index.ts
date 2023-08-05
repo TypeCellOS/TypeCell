@@ -1,5 +1,4 @@
 export * from "./CellEvaluator.js";
-export * from "./CodeModel.js";
 export * from "./ReactiveEngine.js";
 export * from "./context.js";
 export * from "./executor.js";

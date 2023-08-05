@@ -4,7 +4,7 @@ import "monaco-editor/esm/vs/language/typescript/monaco.contribution.js";
 import { expect, it } from "vitest";
 import { async } from "vscode-lib";
 
-import { BasicCodeModel } from "../../../models/BasicCodeModel";
+import { BasicCodeModel } from "../../../../../shared/src/codeModels/BasicCodeModel";
 import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 import { setMonacoDefaults } from "../../editor";
 

@@ -3,7 +3,7 @@ import "monaco-editor/esm/vs/language/typescript/monaco.contribution.js";
 import { expect, it } from "vitest";
 import { event } from "vscode-lib";
 
-import { BasicCodeModel } from "../../models/BasicCodeModel";
+import { BasicCodeModel } from "../../../../shared/src/codeModels/BasicCodeModel";
 import { setMonacoDefaults } from "../editor";
 import SourceModelCompiler from "./SourceModelCompiler";
 /**

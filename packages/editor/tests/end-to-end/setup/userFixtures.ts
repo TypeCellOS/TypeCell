@@ -85,6 +85,7 @@ async function registerUserSupabase(
 
 // This fixture exposes information (username / password) of alice / bob
 export const testWithUsers = base.extend<
+  // eslint-disable-next-line @typescript-eslint/ban-types
   {},
   { aliceUser: TestUser; bobUser: TestUser }
 >({
@@ -100,7 +101,7 @@ export const testWithUsers = base.extend<
     { scope: "worker" },
   ],
   bobUser: [
-    async ({}, use, workerInfo) => {
+    async (_, use, workerInfo) => {
       const bobUser: TestUser = {
         username: "bob_" + SESSION_ID + "_" + workerInfo.workerIndex,
         password: "myB0bPw123ABC@#$",
@@ -114,6 +115,7 @@ export const testWithUsers = base.extend<
 
 // This fixture exposes a registered context for all users (alice / bob)
 export const test = testWithUsers.extend<
+  // eslint-disable-next-line @typescript-eslint/ban-types
   {},
   { aliceContext: BrowserContext; bobContext: BrowserContext }
 >({

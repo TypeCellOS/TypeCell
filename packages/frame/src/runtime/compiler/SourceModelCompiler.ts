@@ -1,9 +1,8 @@
 import type * as monaco from "monaco-editor";
 import { event, lifecycle } from "vscode-lib";
 
-import { CodeModel } from "@typecell-org/engine";
-import { ModelProvider } from "../../interop/ModelProvider";
-import { BasicCodeModel } from "../../models/BasicCodeModel";
+import { BasicCodeModel, CodeModel, ModelProvider } from "@typecell-org/shared";
+
 import { getMonacoModel } from "../../models/MonacoModelManager";
 import { compile } from "./compilers/MonacoCompiler";
 

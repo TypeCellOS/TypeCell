@@ -7,7 +7,8 @@
     "lodash": "^4.17.21",
     "mobx": "^6.2.0",
     "react": "^18.2.0",
-    "vscode-lib": "^0.1.2"
+    "vscode-lib": "^0.1.2",
+    "@typecell-org/shared": "*"
   },
   "devDependencies": {
     "chai": "^4.3.6",

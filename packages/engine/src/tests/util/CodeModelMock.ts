@@ -1,5 +1,5 @@
+import { CodeModel } from "@typecell-org/shared";
 import { event, uri } from "vscode-lib";
-import { CodeModel } from "../../CodeModel.js";
 
 export class CodeModelMock implements CodeModel {
   public contentChangeEmitter = new event.Emitter<void>();

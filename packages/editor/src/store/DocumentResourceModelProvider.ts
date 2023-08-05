@@ -1,7 +1,7 @@
+import { BasicCodeModel } from "@typecell-org/shared";
 import { autorun } from "mobx";
 import { event, lifecycle } from "vscode-lib";
 import * as Y from "yjs";
-import { BasicCodeModel } from "../../../frame/src/models/BasicCodeModel";
 import { Identifier } from "../identifiers/Identifier";
 import { DocConnection } from "./DocConnection";
 import { SessionStore } from "./local/SessionStore";

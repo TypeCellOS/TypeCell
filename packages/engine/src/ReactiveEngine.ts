@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { CodeModel } from "@typecell-org/shared/src/codeModels/CodeModel.js";
 import _ from "lodash";
 import { event, lifecycle } from "vscode-lib";
 import { createCellEvaluator } from "./CellEvaluator.js";
-import { CodeModel } from "./CodeModel.js";
 import { TypeCellContext, createContext } from "./context.js";
 
 export type ResolvedImport = {

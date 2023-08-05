@@ -1,7 +1,6 @@
+import { CodeModel } from "@typecell-org/shared";
 import type * as monaco from "monaco-editor";
 import { event, lifecycle } from "vscode-lib";
-
-import { CodeModel } from "@typecell-org/engine";
 
 export class MonacoTypeCellCodeModel
   extends lifecycle.Disposable
