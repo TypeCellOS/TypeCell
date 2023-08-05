@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { BrowserContext, Page, expect } from "@playwright/test";
 import { DEFAULT_PROVIDER } from "./config";
 import { test as base } from "./networkRequestFilter";
@@ -85,7 +86,6 @@ async function registerUserSupabase(
 
 // This fixture exposes information (username / password) of alice / bob
 export const testWithUsers = base.extend<
-  // eslint-disable-next-line @typescript-eslint/ban-types
   {},
   { aliceUser: TestUser; bobUser: TestUser }
 >({
@@ -115,7 +115,6 @@ export const testWithUsers = base.extend<
 
 // This fixture exposes a registered context for all users (alice / bob)
 export const test = testWithUsers.extend<
-  // eslint-disable-next-line @typescript-eslint/ban-types
   {},
   { aliceContext: BrowserContext; bobContext: BrowserContext }
 >({
