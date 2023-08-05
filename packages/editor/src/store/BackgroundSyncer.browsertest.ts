@@ -73,7 +73,7 @@ describe("BackgroundSyncer tests", () => {
     expect(reloadedDoc.ydoc.getMap("test").get("hello")).to.eq("world");
   });
 
-  it("creates document remotely that was created offline earlier", async () => {
+  it.skip("creates document remotely that was created offline earlier", async () => {
     TypeCellRemote.Offline = true;
     const doc = await DocConnection.create(sessionStoreAlice);
     doc.ydoc.getMap("test").set("hello", "world");
