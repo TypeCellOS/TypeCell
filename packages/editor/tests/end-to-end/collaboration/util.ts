@@ -92,6 +92,7 @@ export async function testEditSync(from: Page, to: Page, shouldSync = true) {
 
   await frameFrom.locator(".view-line").click();
   await from.keyboard.press("Meta+a");
+  await from.keyboard.press("Control+a");
   await from.keyboard.type("changedtext");
 
   expect(await frameFrom.locator(monacoSelector).textContent()).toBe(
@@ -117,6 +118,7 @@ export async function setupBeforeTest(pageAlice: Page, pageBob: Page) {
   await frameAlice.locator(".view-line").click();
   // Press a with modifiers
   await pageAlice.keyboard.press("Meta+a");
+  await pageAlice.keyboard.press("Control+a");
   await pageAlice.keyboard.type("helloworld");
   await expect(
     frameBob.getByText("helloworld", { exact: true })
@@ -132,6 +134,7 @@ export async function clearAfterTest(pageAlice: Page, pageBob: Page) {
   await frameAlice.locator(".view-line").click();
   // Press a with modifiers
   await pageAlice.keyboard.press("Meta+a");
+  await pageAlice.keyboard.press("Control+a");
   await pageAlice.keyboard.type("done");
   await expect(frameBob.locator("text=done")).toBeAttached();
 }
