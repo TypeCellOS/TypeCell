@@ -10,8 +10,6 @@ import {
 import "@blocknote/core/style.css";
 import {
   BlockNoteView,
-  SideMenuPositioner,
-  SlashMenuPositioner,
   getDefaultReactSlashMenuItems,
   useBlockNote,
 } from "@blocknote/react";
@@ -297,10 +295,7 @@ export const Frame: React.FC<Props> = observer((props) => {
             compiler: tools.newCompiler,
             documentId: props.documentIdString,
           }}>
-          <BlockNoteView editor={editor}>
-            <SideMenuPositioner editor={editor} />
-            <SlashMenuPositioner editor={editor} />
-          </BlockNoteView>
+          <BlockNoteView editor={editor}></BlockNoteView>
         </RichTextContext.Provider>
       </MonacoContext.Provider>
     </div>

@@ -1,3 +1,4 @@
+/* eslint-disable no-empty-pattern */
 /* eslint-disable @typescript-eslint/ban-types */
 import { BrowserContext, Page, expect } from "@playwright/test";
 import { DEFAULT_PROVIDER } from "./config";
@@ -101,7 +102,7 @@ export const testWithUsers = base.extend<
     { scope: "worker" },
   ],
   bobUser: [
-    async (_, use, workerInfo) => {
+    async ({}, use, workerInfo) => {
       const bobUser: TestUser = {
         username: "bob_" + SESSION_ID + "_" + workerInfo.workerIndex,
         password: "myB0bPw123ABC@#$",
