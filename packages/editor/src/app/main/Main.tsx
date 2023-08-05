@@ -1,17 +1,15 @@
 import { observer } from "mobx-react-lite";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { DocumentResource } from "../../store/DocumentResource";
 import { SessionStore } from "../../store/local/SessionStore";
-import { CloseNewPageDialog, IsNewPageDialogOpen } from "../routes/routes";
 import styles from "./Main.module.css";
 import { Navigation } from "./components/Navigation";
-import NewPageDialog from "./components/NewPageDialog";
 
 const Main = observer((props: { sessionStore: SessionStore }) => {
   const location = useLocation();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -27,14 +25,14 @@ const Main = observer((props: { sessionStore: SessionStore }) => {
         }>
         <Navigation sessionStore={props.sessionStore} />
         <Outlet />
-        {props.sessionStore.loggedInUserId && (
+        {/* {props.sessionStore.loggedInUserId && (
           <NewPageDialog
             sessionStore={props.sessionStore}
             ownerId={props.sessionStore.loggedInUserId}
             close={() => CloseNewPageDialog(navigate)}
             isOpen={IsNewPageDialogOpen(location)}
           />
-        )}
+        )} */}
       </div>
     </DndProvider>
   );

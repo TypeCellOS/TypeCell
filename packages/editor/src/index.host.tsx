@@ -8,7 +8,6 @@ import { DEFAULT_PROVIDER } from "./config/config";
 import { env } from "./config/env";
 import { validateHostDomain, validateSupabaseConfig } from "./config/security";
 
-import React from "react";
 import { SessionStore } from "./store/local/SessionStore";
 import "./styles/index.css";
 
@@ -53,9 +52,9 @@ async function init() {
   await sessionStore.initialize();
 
   root.render(
-    <React.StrictMode>
-      <App authProvider={authProvider} sessionStore={sessionStore} />
-    </React.StrictMode>
+    //<React.StrictMode>
+    <App authProvider={authProvider} sessionStore={sessionStore} />
+    //</React.StrictMode>
   );
 }
 

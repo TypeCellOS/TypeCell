@@ -90,6 +90,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
           <li className={styles.separator}></li>
           <li className={styles.options}>
             <DropdownMenu
+              spacing="compact"
               shouldFlip
               trigger={({ triggerRef, isSelected, testId, ...props }) => (
                 <div

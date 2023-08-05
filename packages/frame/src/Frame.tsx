@@ -267,12 +267,12 @@ export const Frame: React.FC<Props> = observer((props) => {
     slashMenuItems: [
       ...getDefaultReactSlashMenuItems(),
       {
-        name: "Monaco",
+        name: "Code block",
         execute: (editor) =>
           insertOrUpdateBlock(editor, {
             type: "monaco",
           }),
-        aliases: ["m"],
+        aliases: ["code"],
       },
     ],
     collaboration: {
