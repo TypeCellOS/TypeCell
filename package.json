@@ -17,6 +17,7 @@
     "packages/shared-test",
     "packages/engine",
     "packages/parsers",
+    "packages/frame",
     "packages/editor",
     "packages/server"
   ],
@@ -30,7 +31,7 @@
     "unittest:vitest": "npm run unittest:vitest --workspaces",
     "wip:unittest:vitest:coverage": "vitest run --coverage -r packages/xxx",
     "build": "npm run build --workspaces",
-    "build:react": "npm run build:react --workspaces",
+    "build:react": "npm run build:react --workspace=packages/editor",
     "lint": "npm run lint --workspaces",
     "watch": "npm run build && npm run --parallel watch",
     "start": "npm run start-react",

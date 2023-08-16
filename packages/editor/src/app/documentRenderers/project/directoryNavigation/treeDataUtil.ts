@@ -23,7 +23,7 @@ export function treeToTreeData(tree: TreeNode[]) {
   };
 
   function processTree(parent: string, tree: TreeNode[]) {
-    for (let child of tree) {
+    for (const child of tree) {
       // child.children.sort(sortTreeItems);
       const fullName = parent + child.fileName;
       ret.items[fullName] = {

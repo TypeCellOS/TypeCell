@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { HocuspocusProviderWebsocket } from "@hocuspocus/provider";
 import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
@@ -41,7 +42,7 @@ export async function createDocInBackendAndLoad(
 
   expect(ret.error).null;
 
-  const provider = createHPProvider(
+  createHPProvider(
     doc.nano_id,
     backendYDoc,
     user.session?.access_token + "$" + user.session?.refresh_token,
@@ -128,6 +129,7 @@ describe("SyncManager tests", () => {
   afterEach(async () => {
     await sessionStore.supabase.auth.signOut();
     sessionStore.dispose();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sessionStore = undefined as any;
     wsProvider.destroy();
   });
@@ -146,7 +148,7 @@ describe("SyncManager tests", () => {
     // TODO: would be nicer to force browser to go offline
     TypeCellRemote.Offline = true;
 
-    let { manager } = await createDocInBackendAndLoad(
+    const { manager } = await createDocInBackendAndLoad(
       alice,
       wsProvider,
       sessionStore
@@ -161,7 +163,7 @@ describe("SyncManager tests", () => {
     TypeCellRemote.Offline = false;
 
     // validate loading
-    let loadedManager = await manager.waitTillLoaded();
+    const loadedManager = await manager.waitTillLoaded();
 
     // validate syncing
     expect(loadedManager.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(
@@ -183,7 +185,7 @@ describe("SyncManager tests", () => {
 
     // load document
     const manager2 = SyncManager.load(identifier, sessionStore);
-    let loadedManager2 = await manager2.waitTillLoaded();
+    const loadedManager2 = await manager2.waitTillLoaded();
 
     // validate syncing
     expect(loadedManager2.state.localDoc.ydoc.getMap("mymap").get("hello")).eq(

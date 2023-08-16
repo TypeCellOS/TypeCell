@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@typecell-org/shared";
 
 const storage = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getItem: (_data: any) => {
     // console.error("getItem not expected to be called", data);
     // throw new Error("getItem not expected to be called");

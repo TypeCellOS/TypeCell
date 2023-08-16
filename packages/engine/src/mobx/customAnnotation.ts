@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { $mobx, observable } from "mobx";
 import type {
   Annotation,
   ObservableObjectAdministration,
 } from "mobx/dist/internal";
-import { observable, $mobx } from "mobx";
 import React from "react";
 
 const defaultAnnotation = (observable({}) as any)[$mobx].defaultAnnotation_;
@@ -63,7 +64,7 @@ export function hookDefaultAnnotation() {
     throw new Error("already hooked");
   }
   hooked = true;
-  let oldObject = observable.object;
+  const oldObject = observable.object;
   observable.object = (props, decorators, options) => {
     if (!options) {
       options = {

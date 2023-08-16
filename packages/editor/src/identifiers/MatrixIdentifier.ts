@@ -7,7 +7,7 @@ export class MatrixIdentifier extends Identifier {
   public readonly document: string;
 
   constructor(uriToParse: uri.URI, title?: string) {
-    let parts = uriToParse.path.split("/");
+    const parts = uriToParse.path.split("/");
 
     if (parts.length !== 3 || parts[0] !== "") {
       throw new Error("invalid identifier");
@@ -15,7 +15,7 @@ export class MatrixIdentifier extends Identifier {
     parts.shift();
 
     // TODO: validate parts, lowercase, alphanumeric?
-    let [owner, document] = parts;
+    const [owner, document] = parts;
 
     if (
       !owner.startsWith("@") ||

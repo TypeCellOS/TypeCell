@@ -25,7 +25,7 @@ const cache = new ObservableMap<string, DocConnection>();
  * Encapsulates a Y.Doc and exposes the Resource the Y.Doc represents
  */
 export class DocConnection extends lifecycle.Disposable {
-  private disposed: boolean = false;
+  private disposed = false;
   private _refCount = 0;
 
   /** @internal */
@@ -124,7 +124,7 @@ export class DocConnection extends lifecycle.Disposable {
    */
   public get doc(): "loading" | "not-found" | BaseResource {
     if (!this.manager) {
-      return "loading" as "loading";
+      return "loading" as const;
     }
 
     const ydoc = this.manager.docOrStatus;
@@ -140,6 +140,7 @@ export class DocConnection extends lifecycle.Disposable {
   }
 
   public async revert() {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const manager = await this.manager!.clearAndReload();
     runInAction(() => {
       this.manager = manager;
@@ -249,6 +250,7 @@ export class DocConnection extends lifecycle.Disposable {
       sessionStore
     );
     const ret = await doc.waitForDoc();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const inbox = ret.getSpecificType<InboxResource>(InboxResource as any);
     return inbox;
   }
@@ -281,7 +283,7 @@ export class DocConnection extends lifecycle.Disposable {
       identifier = parseIdentifier(identifier);
     }
 
-    let connection = cache.get(
+    const connection = cache.get(
       DocConnection.getCacheKey(sessionStore, identifier)
     );
     return connection;

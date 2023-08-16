@@ -39,14 +39,17 @@ export abstract class Remote extends lifecycle.Disposable {
       throw new Error("cannot create");
     }
 
-    let cleanup = {
-      cancel: () => {},
+    const cleanup = {
+      cancel: () => {
+        // will be overwritten
+      },
     };
 
     this._register({
       dispose: () => cleanup.cancel(),
     });
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       let retryTimeout = 10000;
       try {

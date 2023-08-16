@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useState } from "react";
 import { Identifier } from "../../identifiers/Identifier";
 import { DocConnection } from "../../store/DocConnection";
-import PluginResource from "../../store/PluginResource";
+
 import ProjectResource from "../../store/ProjectResource";
 
 // import { MenuBar } from "../maidocn/components/menuBar/MenuBar";
@@ -14,8 +15,7 @@ import ProfileResource from "../../store/ProfileResource";
 import { SessionStore } from "../../store/local/SessionStore";
 import { DocumentMenu } from "../main/components/documentMenu/DocumentMenu";
 import { MenuBar } from "../main/components/menuBar/MenuBar";
-import NotebookRenderer from "./notebook/NotebookRenderer";
-import PluginRenderer from "./plugin/PluginRenderer";
+
 import ProfileRenderer from "./profile/ProfileRenderer";
 import ProjectContainer from "./project/ProjectContainer";
 import ProjectRenderer from "./project/ProjectRenderer";
@@ -88,22 +88,7 @@ const DocumentView = observer((props: Props) => {
     return <div>Loading</div>;
   }
   if (connection.doc.type === "!notebook") {
-    const doc = connection.doc.doc;
-
-    return (
-      <div className={styles.view}>
-        {!props.hideDocumentMenu && (
-          <DocumentMenu
-            document={doc}
-            sessionStore={props.sessionStore}></DocumentMenu>
-        )}
-        <NotebookRenderer
-          key={connection.doc.id}
-          document={doc}
-          sessionStore={props.sessionStore}
-        />
-      </div>
-    );
+    throw new Error("Notebook not implemented");
   } else if (connection.doc.type === "!project") {
     if (props.isNested) {
       return (
@@ -150,12 +135,7 @@ const DocumentView = observer((props: Props) => {
       </div>
     );
   } else if (connection.doc.type === "!plugin") {
-    return (
-      <PluginRenderer
-        key={connection.doc.id}
-        plugin={connection.doc.getSpecificType(PluginResource)!}
-      />
-    );
+    throw new Error("Plugin not implemented");
   } else if (connection.doc.type === "!profile") {
     return (
       <ProfileRenderer

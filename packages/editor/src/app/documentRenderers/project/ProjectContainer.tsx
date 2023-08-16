@@ -22,11 +22,9 @@ type Props = {
   project: ProjectResource;
   activeChild?: Identifier;
   isNested?: boolean;
-  children?: any;
+  children?: React.ReactNode;
   sessionStore: SessionStore;
 };
-
-let id = 0;
 
 function docToTreeItem(
   doc: BaseResource,
@@ -100,7 +98,7 @@ function docToAkTree(
   };
 
   if (activeId) {
-    for (let item of Object.values(items)) {
+    for (const item of Object.values(items)) {
       if (item.data.id === activeId.toString()) {
         item.data.isActive = true;
       } else {
@@ -125,7 +123,7 @@ const ProjectContainer = observer((props: Props) => {
     if (typeof ret === "string") {
       throw new Error("Error creating doc: " + ret);
     }
-    ret.create("!notebook");
+    ret.create("!richtext");
 
     if (parentId) {
       // add to parent

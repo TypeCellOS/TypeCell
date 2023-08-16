@@ -13,23 +13,6 @@ import ProfileResource from "../../../../store/ProfileResource";
 import { SessionStore } from "../../../../store/local/SessionStore";
 import { RouteContext } from "../../../routes/RouteContext";
 
-const buttonStyle = {
-  alignItems: "baseline",
-  borderWidth: 0,
-  display: "inline-flex",
-  maxWidth: "100%",
-  textDecoration: "none",
-  background: "none",
-  height: "auto",
-  lineHeight: "inherit",
-  padding: 0,
-  verticalAlign: "baseline",
-  width: "auto",
-  justifyContent: "center",
-  fontWeight: 400,
-  minWidth: 0,
-};
-
 function getTitleForIdentifier(
   identifier: Identifier,
   sessionStore: SessionStore
@@ -41,9 +24,11 @@ function getTitleForIdentifier(
         // TODO
         return "public workspace";
       case "!profile":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return doc.tryDoc!.getSpecificType(ProfileResource).title;
       case "!notebook":
       case "!document":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return doc.tryDoc!.doc.title || "Untitled";
       default:
         return "…";
@@ -59,10 +44,10 @@ const BreadcrumbItems = observer((props: { sessionStore: SessionStore }) => {
   const { groups } = useContext(RouteContext);
 
   groups.forEach((identifiers) => {
-    const lastIdentifier = identifiers[identifiers.length - 1];
+    // const lastIdentifier = identifiers[identifiers.length - 1];
 
     identifiers.forEach((identifier, i) => {
-      let component: any;
+      // let component: any;
 
       // if (i === identifiers.length - 1) {
       //   component = () => (
@@ -89,7 +74,7 @@ const BreadcrumbItems = observer((props: { sessionStore: SessionStore }) => {
           key={identifier.toString()}
           iconBefore={icon}
           text={getTitleForIdentifier(identifier, props.sessionStore)}
-          component={component}
+          // component={component}
           href={path}
           onClick={(e) => {
             e.preventDefault();

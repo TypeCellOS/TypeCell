@@ -1,3 +1,5 @@
+/* eslint-disable no-empty-pattern */
+/* eslint-disable @typescript-eslint/ban-types */
 import { BrowserContext, Page, expect } from "@playwright/test";
 import { DEFAULT_PROVIDER } from "./config";
 import { test as base } from "./networkRequestFilter";

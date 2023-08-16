@@ -14,23 +14,25 @@ export function createRef<T extends ReferenceDefinition>(
     if (sortKey) {
       throw new Error("unexpected sortKey");
     }
-    let ref: Ref<T> = {
+    const ref: Ref<T> = {
       id: uniqueId.generateId("reference"),
       namespace: definition.namespace,
       type: definition.type,
       target: targetId,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any; // TODO: fix type
     return ref;
   } else {
     if (!sortKey) {
       throw new Error("expected sortKey");
     }
-    let ref: Ref<T> = {
+    const ref: Ref<T> = {
       id: uniqueId.generateId("reference"),
       namespace: definition.namespace,
       type: definition.type,
       target: targetId,
       sortKey,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any; // TODO: fix type
     return ref;
   }
@@ -49,6 +51,7 @@ export type Ref<T extends ReferenceDefinition> = {
 };
 
 export function validateRef<T extends ReferenceDefinition>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obj: any,
   referenceDefinition?: T
 ): obj is Ref<T> {

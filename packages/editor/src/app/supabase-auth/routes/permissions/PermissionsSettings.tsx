@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import Button, { LoadingButton } from "@atlaskit/button";
 import Modal, {
   ModalBody,
@@ -126,6 +127,7 @@ const PermissionsSettings = observer(
 
     return (
       <Modal
+        // TODO
         // css={{ overflow: "visible" }}
         onClose={() => props.closeCallback()}>
         <ModalHeader>

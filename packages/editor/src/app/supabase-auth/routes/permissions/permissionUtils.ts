@@ -56,7 +56,7 @@ export async function updatePermissionData(
   //   return;
   // }
 
-  for (let [userId, permission] of old.users) {
+  for (const [userId, permission] of old.users) {
     const newValue = newPermissions.users.get(userId);
     if (!newValue) {
       await supabaseClient
@@ -85,7 +85,7 @@ export async function updatePermissionData(
     }
   }
 
-  for (let [userId, permission] of newPermissions.users) {
+  for (const [userId, permission] of newPermissions.users) {
     const oldValue = old.users.get(userId);
     if (!oldValue) {
       await supabaseClient

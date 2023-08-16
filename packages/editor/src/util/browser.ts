@@ -19,9 +19,10 @@ if (typeof navigator !== "undefined") {
   );
 
   result.mac = /Mac/.test(navigator.platform);
-  let ie = (result.ie = !!(ieUpTo10 || ie11up || ieEdge));
+  const ie = (result.ie = !!(ieUpTo10 || ie11up || ieEdge));
   result.ie_version = ieUpTo10
-    ? (document as any).documentMode || 6
+    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (document as any).documentMode || 6
     : ie11up
     ? +ie11up[1]
     : ieEdge

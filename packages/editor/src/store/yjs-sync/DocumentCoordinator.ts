@@ -217,7 +217,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
   public async loadFromGuest(identifier: string, targetYdoc: Y.Doc) {
     const dbname = "user-tc-guest-doc-" + identifier; // bit hacky, "officially" we don't know the exact source name prefix here
-    let dbExists = await databaseExists(dbname);
+    const dbExists = await databaseExists(dbname);
 
     if (dbExists) {
       const guestIndexedDBProvider = new IndexeddbPersistence(
@@ -256,7 +256,7 @@ TODO:
 // https://stackoverflow.com/a/23756653
 async function databaseExists(dbname: string) {
   return new Promise<boolean>((resolve) => {
-    let req = indexedDB.open(dbname);
+    const req = indexedDB.open(dbname);
     let existed = true;
     req.onsuccess = function () {
       req.result.close();

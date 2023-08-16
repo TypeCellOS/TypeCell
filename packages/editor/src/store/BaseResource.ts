@@ -16,6 +16,7 @@ import { Remote } from "./yjs-sync/remote/Remote";
 
 export type BaseResourceExternalManager = {
   dispose: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   awareness: any | undefined;
   needsFork: boolean;
   loadInboxResource: (forIdentifier: Identifier) => Promise<InboxResource>;
@@ -26,13 +27,16 @@ export type BaseResourceExternalManager = {
 
 export const UnimplementedBaseResourceExternalManager: BaseResourceExternalManager =
   {
-    dispose: () => {},
+    dispose: () => {
+      // noop
+    },
     get awareness() {
       throw new Error("Not implemented");
     },
     get needsFork(): boolean {
       throw new Error("Not implemented");
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     get loadInboxResource(): any {
       throw new Error("Not implemented");
     },
@@ -76,7 +80,7 @@ export class BaseResource {
   }
 
   public get type(): string {
-    return this.ydoc.getMap("meta").get("type") as any;
+    return this.ydoc.getMap("meta").get("type") as string;
   }
 
   /** @internal */
@@ -102,11 +106,12 @@ export class BaseResource {
    */
   public get doc() {
     return this.getSpecificType<DocumentResource>(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).DocumentResource // TODO: hacky to prevent circular ref
     );
   }
 
-  private _specificType: any;
+  private _specificType: unknown;
 
   /** @internal */
   public getSpecificType<T extends BaseResource>(
@@ -124,7 +129,7 @@ export class BaseResource {
       this._specificType ||
       new constructor(this.ydoc, this.identifier, this.manager);
 
-    return this._specificType;
+    return this._specificType as T;
   }
 
   public create(type: string) {
@@ -132,8 +137,9 @@ export class BaseResource {
     this.ydoc.getMap("meta").set("created_at", Date.now());
   }
 
-  private get _refs(): Y.Map<any> {
-    let map: Y.Map<any> = this.ydoc.getMap("refs");
+  private get _refs(): Y.Map<unknown> {
+    // eslint-disable-next-line prefer-const
+    let map: Y.Map<unknown> = this.ydoc.getMap("refs");
     return map;
   }
 
@@ -142,6 +148,7 @@ export class BaseResource {
     // this.ydoc.getMap("refs").forEach((val, key) => {
     //   this.ydoc.getMap("refs").delete(key);
     // });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.ydoc.getMap("refs").forEach((val: any) => {
       if (
         val.namespace !== definition.namespace ||
@@ -192,7 +199,7 @@ export class BaseResource {
     index: number
   ) {
     const key = getHashForReference(definition, targetId.toString());
-    let existing = this.getRefByKey(definition, key);
+    const existing = this.getRefByKey(definition, key);
     if (!existing) {
       throw new Error("ref not found");
     }
@@ -229,7 +236,7 @@ export class BaseResource {
         // append as last item
         sortKey = generateKeyBetween(refs.pop()?.sortKey || null, null);
       } else {
-        let sortKeyA = index === 0 ? null : refs[index - 1].sortKey || null;
+        const sortKeyA = index === 0 ? null : refs[index - 1].sortKey || null;
         let sortKeyB =
           index >= refs.length ? null : refs[index].sortKey || null;
         if (sortKeyA === sortKeyB && sortKeyA !== null) {

@@ -19,7 +19,8 @@
     "sourceMap": true,
     "downlevelIteration": true,
     "outDir": "dist",
-    "composite": true
+    "composite": true,
+    "jsx": "react-jsx"
   },
   "include": ["src"]
 }

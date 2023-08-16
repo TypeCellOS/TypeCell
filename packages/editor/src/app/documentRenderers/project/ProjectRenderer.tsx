@@ -25,7 +25,7 @@ type Props = {
 //   return <DocumentView id={documentIdentifier} isNested={true} />;
 // };
 
-const RootDirectory = (props: {}) => {
+const RootDirectory = () => {
   return <div>hello</div>;
   // const defaultDoc = (useOutletContext() as any)?.defaultFileContent as any;
   // return defaultDoc || <></>;

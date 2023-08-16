@@ -1,8 +1,5 @@
 import * as yjsBindings from "@syncedstore/yjs-reactive-bindings";
-import { Buffer } from "buffer";
 import * as mobx from "mobx";
-import * as monaco from "monaco-editor";
-import * as process from "process";
 import { createRoot } from "react-dom/client";
 import App from "./app/App";
 import { SupabaseSessionStore } from "./app/supabase-auth/SupabaseSessionStore";
@@ -10,16 +7,15 @@ import { supabaseAuthProvider } from "./app/supabase-auth/supabaseAuthProvider";
 import { DEFAULT_PROVIDER } from "./config/config";
 import { env } from "./config/env";
 import { validateHostDomain, validateSupabaseConfig } from "./config/security";
-import { setMonacoDefaults } from "./runtime/editor";
-import { MonacoContext } from "./runtime/editor/MonacoContext";
-import setupNpmTypeResolver from "./runtime/editor/languages/typescript/npmTypeResolver";
-import setupTypecellTypeResolver from "./runtime/editor/languages/typescript/typecellTypeResolver";
+
 import { SessionStore } from "./store/local/SessionStore";
 import "./styles/index.css";
 
-// polyfills (mostly required for matrix-crdt)
-(window as any).Buffer = Buffer;
-(window as any).process = process;
+// // polyfills (mostly required for matrix-crdt)
+// // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// (window as any).Buffer = Buffer;
+// // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// (window as any).process = process;
 
 if (env.VITE_ENVIRONMENT === "development") {
   // disables error overlays
@@ -43,10 +39,7 @@ async function init() {
 
   yjsBindings.enableMobxBindings(mobx);
 
-  setMonacoDefaults(monaco);
-  setupTypecellTypeResolver(monaco);
-  setupNpmTypeResolver(monaco);
-
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const root = createRoot(document.getElementById("root")!);
 
   const authProvider = supabaseAuthProvider;
@@ -59,12 +52,9 @@ async function init() {
   await sessionStore.initialize();
 
   root.render(
-    // TODO: support strictmode
-    // <React.StrictMode>
-    <MonacoContext.Provider value={{ monaco }}>
-      <App authProvider={authProvider} sessionStore={sessionStore} />
-    </MonacoContext.Provider>
-    // </React.StrictMode>
+    //<React.StrictMode>
+    <App authProvider={authProvider} sessionStore={sessionStore} />
+    //</React.StrictMode>
   );
 }
 

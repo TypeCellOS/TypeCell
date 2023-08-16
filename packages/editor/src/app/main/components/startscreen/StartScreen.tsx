@@ -31,6 +31,7 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
     }
   }, [location.pathname, sessionStore.loggedInUserId, navigate]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function onNewNotebookClick(e: any) {
     e.preventDefault();
     if (sessionStore.isLoggedIn) {

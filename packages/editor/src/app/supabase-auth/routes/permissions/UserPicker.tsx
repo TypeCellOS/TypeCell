@@ -1,4 +1,4 @@
-import UserPicker from "@atlaskit/user-picker";
+import UserPicker, { OnChange } from "@atlaskit/user-picker";
 import { useCallback, useState } from "react";
 import { IntlProvider } from "react-intl-next";
 
@@ -14,7 +14,7 @@ export function SupabaseUserPicker(props: {
   // State and function for storing & updating the users to display in the user picker.
   const [displayedUsers, setDisplayedUsers] = useState<User[]>([]);
 
-  async function searchUsers(query: string = "") {
+  async function searchUsers(query = "") {
     if (query === "") {
       setDisplayedUsers([]);
     } else {
@@ -55,7 +55,7 @@ export function SupabaseUserPicker(props: {
         allowEmail={true}
         noOptionsMessage={() => null}
         onInputChange={searchUsers}
-        onChange={onChange as any}
+        onChange={onChange as OnChange}
         options={displayedUsers}
         menuPosition="fixed"
       />

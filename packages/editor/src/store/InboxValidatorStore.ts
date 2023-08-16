@@ -1,8 +1,9 @@
-import { ReferenceDefinition } from "@typecell-org/shared/src/Ref";
+import { ReferenceDefinition } from "@typecell-org/shared";
+import { error } from "@typecell-org/util";
 import { autorun } from "mobx";
 import { lifecycle } from "vscode-lib";
 import * as Y from "yjs";
-import { UnreachableCaseError } from "../util/UnreachableCaseError";
+
 import { BaseResource } from "./BaseResource";
 import { InboxResource, RefInboxMessage } from "./InboxResource";
 
@@ -107,7 +108,7 @@ export class InboxValidator<
       this.documentDisposers.get(message.id)?.();
       this.documentDisposers.delete(message.id);
     } else {
-      throw new UnreachableCaseError(result);
+      throw new error.UnreachableCaseError(result);
     }
   }
 
@@ -119,8 +120,8 @@ export class InboxValidator<
       throw new Error("invalid inbox message (ref)");
     }
     const [client, clock] = message.clock.split(":");
-    let clockNum = parseInt(clock);
-    let clientNum = parseInt(client);
+    const clockNum = parseInt(clock);
+    const clientNum = parseInt(client);
     if (isNaN(clockNum) || isNaN(clientNum)) {
       throw new Error("invalid inbox message (clock / client)");
     }

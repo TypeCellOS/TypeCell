@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Server } from "@hocuspocus/server";
 import { ChildReference } from "@typecell-org/shared";
 import {
@@ -69,7 +71,7 @@ describe("SupabaseHocuspocus", () => {
       await wsProvider.connect();
 
       const ydoc2 = new Y.Doc();
-      const provider2 = createHPProvider(
+      createHPProvider(
         docId,
         ydoc2,
         alice.session?.access_token + "$" + alice.session?.refresh_token,
@@ -86,7 +88,7 @@ describe("SupabaseHocuspocus", () => {
 
       const wsProvider = createWsProvider(server.webSocketURL, ws);
 
-      const provider = createHPProvider(
+      createHPProvider(
         docId,
         ydoc,
         alice.session?.access_token + "$" + alice.session?.refresh_token,
@@ -116,7 +118,7 @@ describe("SupabaseHocuspocus", () => {
 
       const wsProvider = createWsProvider(server.webSocketURL, ws);
 
-      const provider = createHPProvider(
+      createHPProvider(
         docId,
         ydoc,
         alice.session?.access_token + "$" + alice.session?.refresh_token,
@@ -126,7 +128,7 @@ describe("SupabaseHocuspocus", () => {
       ydoc.getMap("mymap").set("hello", "world");
 
       const ydoc2 = new Y.Doc();
-      const provider2 = createHPProvider(
+      createHPProvider(
         docId,
         ydoc2,
         bob.session?.access_token + "", // TODO
@@ -191,7 +193,7 @@ describe("SupabaseHocuspocus", () => {
 
       const wsProvider = createWsProvider(server.webSocketURL, ws);
 
-      const provider = createHPProvider(
+      createHPProvider(
         docId,
         ydoc,
         alice.session?.access_token + "$" + alice.session?.refresh_token,
