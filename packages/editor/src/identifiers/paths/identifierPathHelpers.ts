@@ -5,7 +5,6 @@ import {
   DEFAULT_IDENTIFIER_BASE,
   DEFAULT_IDENTIFIER_BASE_STRING,
 } from "../../config/config";
-import { FileIdentifier } from "../FileIdentifier";
 import { Identifier } from "../Identifier";
 import { TypeCellIdentifier } from "../TypeCellIdentifier";
 
@@ -51,9 +50,9 @@ abstract class ShorthandResolver {
 
 export class DefaultShorthandResolver extends ShorthandResolver {
   private readonly shortHands: Record<string, string> = {
-    // docs: "http:" + window.location.hostname + "/_docs/",
+    docs: "http:" + window.location.host + "/_docs/",
     // docs: "fs:localhost:3001",
-    docs: "http:localhost/_docs/",
+    // docs: "http:localhost/_docs/",
   };
 
   private readonly reverseShortHands = Object.entries(this.shortHands).reduce(
@@ -211,9 +210,13 @@ export function getIdentifierWithAppendedPath(
   pathToAppend: string
 ): Identifier {
   const uri = identifier.uri.with({
-    path: path.join(identifier.uri.path || "/", pathToAppend),
+    path: path.join(
+      identifier.uri.path || "/",
+      encodeURIComponent(pathToAppend)
+    ),
   });
-  return new FileIdentifier(uri);
+
+  return parseUriIdentifier(uri);
 }
 
 /**
@@ -227,6 +230,10 @@ export function parseFullIdentifierString(
 
   const parsedUri = uri.URI.parse(identifierString);
 
+  return parseUriIdentifier(parsedUri);
+}
+
+function parseUriIdentifier(parsedUri: uri.URI) {
   const identifierType = registeredIdentifiers.get(parsedUri.scheme);
   if (!identifierType) {
     throw new Error("identifier not found");

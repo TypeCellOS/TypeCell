@@ -28,7 +28,13 @@ export class DocumentResource extends BaseResource {
       return baseTitle;
     }
 
-    return "TODO";
+    // navigate to block (via blockgroup / blockcontainer)
+    const firstBlock = (this.data.firstChild as any)?.firstChild?.firstChild;
+    if (firstBlock?.nodeName === "heading") {
+      return firstBlock.firstChild.toString();
+    }
+
+    return undefined;
     // let cell = this.cells[0];
     // if (!cell || cell.language !== "markdown") {
     //   return undefined;

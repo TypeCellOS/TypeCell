@@ -27,6 +27,7 @@ function getTitleForIdentifier(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return doc.tryDoc!.getSpecificType(ProfileResource).title;
       case "!notebook":
+      case "!richtext":
       case "!document":
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return doc.tryDoc!.doc.title || "Untitled";

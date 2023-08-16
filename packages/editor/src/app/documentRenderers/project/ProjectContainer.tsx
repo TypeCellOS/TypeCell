@@ -71,7 +71,7 @@ function docToTreeItem(
       id: doc.id,
       identifier: doc.identifier,
       allChildren: children.map((c) => c.target),
-      title: doc.type === "!notebook" ? doc.doc.title : "",
+      title: doc.type === "!richtext" ? doc.doc.title : doc.title,
     },
   };
 

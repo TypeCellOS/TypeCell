@@ -17,7 +17,6 @@ import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";
 import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
 import { LocalDoc } from "./DocumentCoordinator";
 import FetchRemote from "./remote/FetchRemote";
-import { FilebridgeRemote } from "./remote/FilebridgeRemote";
 
 // import { MatrixRemote } from "./remote/MatrixRemote";
 import { makeYDocObservable } from "@syncedstore/yjs-reactive-bindings";
@@ -136,7 +135,8 @@ export class SyncManager extends lifecycle.Disposable {
 
   private remoteForIdentifier(identifier: Identifier): Remote {
     if (identifier instanceof FileIdentifier) {
-      return new FilebridgeRemote(this.ydoc, identifier);
+      throw new Error("not implemented anymore");
+      // return new FilebridgeRemote(this.ydoc, identifier);
     } else if (identifier instanceof GithubIdentifier) {
       throw new Error("not implemented anymore");
       // return new GithubRemote(this.ydoc, identifier);
@@ -245,6 +245,7 @@ export class SyncManager extends lifecycle.Disposable {
     if (!this.sessionStore.documentCoordinator) {
       throw new Error("logged out while loading");
     }
+
     const doc = this.sessionStore.documentCoordinator.loadDocument(
       this.identifier,
       this.ydoc
@@ -265,6 +266,9 @@ export class SyncManager extends lifecycle.Disposable {
           localDoc: doc,
         };
       });
+      if (this.identifier instanceof HttpsIdentifier) {
+        return;
+      }
       return this.startSyncing();
     }
   }

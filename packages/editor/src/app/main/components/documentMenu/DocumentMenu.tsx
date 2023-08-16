@@ -18,6 +18,7 @@ import {
 } from "../../../routes/routes";
 import { MenuBar } from "../menuBar/MenuBar";
 
+import { HttpsIdentifier } from "../../../../identifiers/HttpsIdentifier";
 import { TypeCellIdentifier } from "../../../../identifiers/TypeCellIdentifier";
 import { SupabaseSessionStore } from "../../../supabase-auth/SupabaseSessionStore";
 import SupabasePermissionsDialog from "../../../supabase-auth/routes/permissions/PermissionsDialog";
@@ -36,6 +37,9 @@ function userCanEditPermissions(
   sessionStore: SessionStore,
   identifier: Identifier
 ) {
+  if (identifier instanceof HttpsIdentifier) {
+    return false;
+  }
   if (identifier && identifier instanceof MatrixIdentifier) {
     return sessionStore.loggedInUserId === identifier.owner;
   }
@@ -56,21 +60,23 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  let permissionsArea: React.ReactElement;
-  if (
-    props.document.identifier instanceof TypeCellIdentifier &&
-    sessionStore instanceof SupabaseSessionStore
-  ) {
-    permissionsArea = (
-      <SupabasePermissionsDialog
-        close={() => ClosePermissionsDialog(navigate)}
-        isOpen={IsPermissionsDialogOpen(location)}
-        identifier={props.document.identifier}
-        sessionStore={sessionStore}
-      />
-    );
-  } else {
-    throw new Error("unexpected types");
+  let permissionsArea: React.ReactElement = <></>;
+  if (canEditPermissions) {
+    if (
+      props.document.identifier instanceof TypeCellIdentifier &&
+      sessionStore instanceof SupabaseSessionStore
+    ) {
+      permissionsArea = (
+        <SupabasePermissionsDialog
+          close={() => ClosePermissionsDialog(navigate)}
+          isOpen={IsPermissionsDialogOpen(location)}
+          identifier={props.document.identifier}
+          sessionStore={sessionStore}
+        />
+      );
+    } else {
+      throw new Error("unexpected types");
+    }
   }
 
   return (

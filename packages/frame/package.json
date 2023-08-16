@@ -3,8 +3,8 @@
   "version": "0.0.3",
   "private": true,
   "dependencies": {
-    "@blocknote/core": "^0.8.5",
-    "@blocknote/react": "^0.8.5",
+    "@blocknote/core": "file:../../../BlockNote/packages/core",
+    "@blocknote/react": "file:../../../BlockNote/packages/react",
     "@typecell-org/util": "^0.0.3",
     "@typecell-org/shared": "^0.0.3",
     "@typecell-org/engine": "^0.0.3",

@@ -25,7 +25,7 @@ function arrowHandler(
         side
       );
       console.log("nextPos", nextPos.$head.parent.type.name);
-      if (nextPos.$head && nextPos.$head.parent.type.name === "monaco") {
+      if (nextPos.$head && nextPos.$head.parent.type.name === "codeblock") {
         dispatch(state.tr.setSelection(nextPos));
         return true;
       }
@@ -59,11 +59,12 @@ const ComponentWithWrapper = (
 
 // TODO: clean up listeners
 export const MonacoBlockContent = createTipTapBlock({
-  name: "monaco",
+  name: "codeblock",
   content: "inline*",
   editable: true,
   selectable: true,
-
+  whitespace: "pre",
+  code: true,
   addAttributes() {
     return {
       language: {
@@ -83,7 +84,7 @@ export const MonacoBlockContent = createTipTapBlock({
       {
         tag: "code",
         priority: 200,
-        node: "monaco",
+        node: "codeblock",
       },
     ];
   },
@@ -95,7 +96,6 @@ export const MonacoBlockContent = createTipTapBlock({
         // class: styles.blockContent,
         "data-content-type": this.name,
       }),
-      ["p", 0],
     ];
   },
 

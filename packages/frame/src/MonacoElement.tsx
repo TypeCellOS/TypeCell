@@ -17,6 +17,7 @@ import {
   applyDecorationsToMonaco,
   applyNodeChangesToMonaco,
   bindMonacoAndProsemirror,
+  textFromPMNode,
 } from "./MonacoProsemirrorHelpers";
 import monacoStyles from "./MonacoSelection.module.css";
 import { RichTextContext } from "./RichTextContext";
@@ -38,7 +39,7 @@ const MonacoElementComponent = function MonacoElement(
     );
     console.log("allocate model", uri.toString());
     const model = getMonacoModel(
-      props.node.textContent,
+      textFromPMNode(props.node),
       "typescript",
       uri,
       monaco
@@ -186,7 +187,9 @@ const MonacoElementComponent = function MonacoElement(
     [models.model, models.state, props.editor.view, props.getPos]
   );
 
-  const [codeVisible, setCodeVisible] = useState(true);
+  const [codeVisible, setCodeVisible] = useState(
+    () => props.node.textContent.startsWith("// @default-collapsed") === false
+  );
 
   return (
     <div

@@ -11,6 +11,25 @@ import { markdownToYDoc } from "../../../integrations/markdown/import";
 import ProjectResource from "../../ProjectResource";
 import { Remote } from "./Remote";
 
+function isEmptyDoc(doc: Y.Doc) {
+  return areDocsEqual(doc, new Y.Doc());
+}
+
+// NOTE: only changes in doc xml fragment are checked
+function areFragmentsEqual(fragment1: Y.XmlFragment, fragment2: Y.XmlFragment) {
+  return _.eq(
+    (fragment1.toJSON() as string).replaceAll(/block-id=".*"/g, ""),
+    (fragment2.toJSON() as string).replaceAll(/block-id=".*"/g, "")
+  );
+}
+
+function areDocsEqual(doc1: Y.Doc, doc2: Y.Doc) {
+  return areFragmentsEqual(
+    doc1.getXmlFragment("doc"),
+    doc2.getXmlFragment("doc")
+  );
+}
+
 export default class FetchRemote extends Remote {
   private disposed = false;
   protected id = "fetch";
@@ -57,6 +76,8 @@ export default class FetchRemote extends Remote {
   private async getNewYDocFromDir(objects: string[]) {
     const newDoc = new Y.Doc();
     newDoc.getMap("meta").set("type", "!project");
+
+    newDoc.getMap("meta").set("title", path.basename(this.identifier.uri.path));
     const project = new ProjectResource(newDoc, this.identifier); // TODO
 
     const tree = filesToTreeNodes(
@@ -65,7 +86,6 @@ export default class FetchRemote extends Remote {
 
     tree.forEach((node) => {
       const id = getIdentifierWithAppendedPath(this.identifier, node.fileName);
-
       project.addRef(ChildReference, id, undefined, false);
     });
 
@@ -78,11 +98,11 @@ export default class FetchRemote extends Remote {
 
   private async getNewYDocFromFetch() {
     if (this.identifier.uri.path.endsWith(".json")) {
-      const json = await this.fetchIndex(this.identifier.uri.toString());
+      const json = await this.fetchIndex(this.identifier.uri.toString(true));
       return this.getNewYDocFromDir(json);
     } else if (this.identifier.uri.path.endsWith(".md")) {
       const contents = await (
-        await fetch(this.identifier.uri.toString())
+        await fetch(this.identifier.uri.toString(true))
       ).text();
 
       return markdownToYDoc(contents, path.basename(this.identifier.uri.path));
@@ -96,7 +116,10 @@ export default class FetchRemote extends Remote {
 
       let json = await this.fetchIndex(index.toString());
 
-      const prefix = remainders.join("/") + "/";
+      let prefix = remainders.join("/"); // + "/";
+      if (prefix) {
+        prefix = prefix + "/";
+      }
       json = json.filter((path) => path.startsWith(prefix));
       json = json.map((path) => path.substring(prefix.length));
       if (!json.length) {
@@ -122,6 +145,7 @@ export default class FetchRemote extends Remote {
       runInAction(() => {
         this.status = "loaded";
         const update = Y.encodeStateAsUpdateV2(docData);
+
         Y.applyUpdateV2(this._ydoc, update, this);
       });
       this._ydoc.on("update", this.documentUpdateListener);
