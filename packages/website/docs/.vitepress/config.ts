@@ -1,9 +1,8 @@
 import dotenv from "dotenv";
 // import mdFootnote from "markdown-it-footnote";
 // import { defineConfig, type HeadConfig } from 'vitepress';
-import container from "markdown-it-container";
 import { defineConfig, type HeadConfig } from "vitepress";
-import { renderSandbox } from "vitepress-plugin-sandpack";
+
 // import * as data from "../data";
 // @ts-check
 /** @type {import('vitepress').UserConfig} */
@@ -136,7 +135,7 @@ export default defineConfig({
     //     "/docs/:path",
     //   text: "Edit this page",
     // },
-    algolia: getAlgoliaConfig(process.env),
+    // algolia: getAlgoliaConfig(process.env),
     socialLinks: [
       { icon: "github", link: "https://github.com/TypeCellOS/BlockNote" },
       // { icon: "twitter", link: "https://twitter.com/TypeCellOS" },
@@ -147,17 +146,17 @@ export default defineConfig({
     ],
   },
 
-  markdown: {
-    config(md) {
-      md
-        // the second parameter is html tag name
-        .use(container, "sandbox", {
-          render(tokens, idx) {
-            return renderSandbox(tokens, idx, "sandbox");
-          },
-        });
-    },
-  },
+  // markdown: {
+  //   config(md) {
+  //     md
+  //       // the second parameter is html tag name
+  //       .use(container, "sandbox", {
+  //         render(tokens, idx) {
+  //           return renderSandbox(tokens, idx, "sandbox");
+  //         },
+  //       });
+  //   },
+  // },
 });
 
 function getHeadTags(env: NodeJS.ProcessEnv): HeadConfig[] {
@@ -195,12 +194,12 @@ function getHeadTags(env: NodeJS.ProcessEnv): HeadConfig[] {
   return tags;
 }
 
-function getAlgoliaConfig(env: NodeJS.ProcessEnv) {
-  if (env.VITE_ALGOLIA_ID && env.VITE_ALGOLIA_KEY) {
-    return {
-      indexName: "blocknote",
-      appId: env.VITE_ALGOLIA_ID,
-      apiKey: env.VITE_ALGOLIA_KEY,
-    };
-  }
-}
+// function getAlgoliaConfig(env: NodeJS.ProcessEnv) {
+//   if (env.VITE_ALGOLIA_ID && env.VITE_ALGOLIA_KEY) {
+//     return {
+//       indexName: "blocknote",
+//       appId: env.VITE_ALGOLIA_ID,
+//       apiKey: env.VITE_ALGOLIA_KEY,
+//     };
+//   }
+// }
