@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { autorun, runInAction } from "mobx";
 import { TypeCellContext } from "./context.js";
 import { installHooks } from "./hookDisposables.js";
@@ -20,7 +21,9 @@ async function resolveDependencyArray(
         return function () {
           return resolveImport(
             // cell,
+            // eslint-disable-next-line prefer-rest-params
             arguments[0][0]
+            // eslint-disable-next-line prefer-rest-params
           ).then(arguments[1], arguments[2]);
         };
         // return new Function("import(arguments[0][0]).then(arguments[1], arguments[2]);");
@@ -135,7 +138,7 @@ export async function runModule(
       // Running the assignments to `context` in action should be a performance improvement to prevent triggering observers one-by-one
       wouldLoopOnAutorun = true;
       runInAction(() => {
-        for (let propertyName in exports) {
+        for (const propertyName in exports) {
           // log.log(cell.id, "exported property:", propertyName, exports[propertyName]);
 
           const saveValue = (exported: any) => {
@@ -144,7 +147,7 @@ export async function runModule(
             }
           };
 
-          let exported = exports[propertyName];
+          const exported = exports[propertyName];
           if (isView(exported)) {
             disposeEveryRun.push(autorun(() => saveValue(exported.value)));
             // } else if (isReactView(exported)) {
@@ -183,7 +186,7 @@ export async function runModule(
 
       cleanVariablesFromContext.push((newExports: any) => {
         runInAction(() => {
-          for (let propertyName in exports) {
+          for (const propertyName in exports) {
             if (!(propertyName in newExports)) {
               // don't clean variables that are already exported, we will just overwrite them later in the runInAction above
               delete context.context[propertyName];

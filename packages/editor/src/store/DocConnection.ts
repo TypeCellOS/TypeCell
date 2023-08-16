@@ -4,17 +4,20 @@ import {
   makeObservable,
   observable,
   reaction,
+  runInAction,
   when,
 } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { BaseResource } from "./BaseResource";
 
+import { ForkReference } from "@typecell-org/shared";
 import * as Y from "yjs";
-import { parseIdentifier, tryParseIdentifier } from "../identifiers";
+import { parseIdentifier } from "../identifiers";
 import { Identifier } from "../identifiers/Identifier";
+import { TypeCellIdentifier } from "../identifiers/TypeCellIdentifier";
 import { InboxResource } from "./InboxResource";
-import { getStoreService } from "./local/stores";
-import { YDocSyncManager2 } from "./yjs-sync/YDocSyncManager";
+import { SessionStore } from "./local/SessionStore";
+import { SyncManager } from "./yjs-sync/SyncManager";
 
 const cache = new ObservableMap<string, DocConnection>();
 
@@ -22,21 +25,17 @@ const cache = new ObservableMap<string, DocConnection>();
  * Encapsulates a Y.Doc and exposes the Resource the Y.Doc represents
  */
 export class DocConnection extends lifecycle.Disposable {
-  private disposed: boolean = false;
+  private disposed = false;
   private _refCount = 0;
 
   /** @internal */
-  private manager: YDocSyncManager2;
-  private _baseResourceCache:
-    | undefined
-    | {
-        baseResource: BaseResource;
-        doc: Y.Doc;
-      };
+  private manager: SyncManager | undefined;
+  private _baseResourceCache: undefined | BaseResource;
 
   protected constructor(
     public readonly identifier: Identifier,
-    syncManager: YDocSyncManager2
+    syncManager: SyncManager,
+    private readonly sessionStore: SessionStore
   ) {
     super();
 
@@ -52,13 +51,31 @@ export class DocConnection extends lifecycle.Disposable {
     });
 
     const dispose = reaction(
-      () => getStoreService().sessionStore.user,
-      () => {
+      () => this.sessionStore.documentCoordinator,
+      async () => {
+        // console.log(
+        //   "sessionstore change",
+        //   this.sessionStore.documentCoordinator
+        // );
+
         this._baseResourceCache = undefined;
         this.manager?.dispose();
-        this.manager = YDocSyncManager2.load(identifier);
+        let newManager: SyncManager | undefined = undefined;
+
+        if (this.sessionStore.user && this.sessionStore.documentCoordinator) {
+          // This is hacky, we should clear cache and probably dispose all docconnections when the sessionstore changes
+          newManager = SyncManager.load(identifier, this.sessionStore);
+          const cacheKey = DocConnection.getCacheKey(
+            this.sessionStore,
+            identifier
+          );
+          cache.set(cacheKey, this);
+        }
+        runInAction(() => {
+          this.manager = newManager;
+        });
       },
-      { fireImmediately: true }
+      { fireImmediately: false }
     );
 
     this._register({
@@ -79,12 +96,12 @@ export class DocConnection extends lifecycle.Disposable {
 
   /** @internal */
   public get awareness() {
-    console.log("awareness", this.manager.awareness);
-    return this.manager.awareness;
+    // console.log("awareness", this.manager?.awareness);
+    return this.manager?.awareness;
   }
 
   public get remote() {
-    return this.manager.remote;
+    return this.manager?.remote;
   }
 
   public get needsFork() {
@@ -105,58 +122,100 @@ export class DocConnection extends lifecycle.Disposable {
    * @type {("loading" | "not-found" | BaseResource)}
    * @memberof DocConnection
    */
-  public get doc() {
+  public get doc(): "loading" | "not-found" | BaseResource {
     if (!this.manager) {
-      return "loading" as "loading";
+      return "loading" as const;
     }
 
-    const ydoc = this.manager.doc;
+    const ydoc = this.manager.docOrStatus;
     if (typeof ydoc === "string") {
       return ydoc;
     }
 
-    if (!this._baseResourceCache || this._baseResourceCache.doc !== ydoc) {
-      this._baseResourceCache = {
-        doc: ydoc,
-        baseResource: new BaseResource(ydoc, this, () => {
-          throw new Error("not implemetned");
-        }),
-      };
+    if (!this._baseResourceCache || this._baseResourceCache.ydoc !== ydoc) {
+      this._baseResourceCache = new BaseResource(ydoc, this.identifier, this);
     }
 
-    return this._baseResourceCache.baseResource;
+    return this._baseResourceCache;
   }
 
   public async revert() {
-    this.manager.dispose();
-    this.manager = await this.manager.clearAndReload();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const manager = await this.manager!.clearAndReload();
+    runInAction(() => {
+      this.manager = manager;
+    });
   }
 
   // TODO: fork github or file sources
   public async fork() {
-    if (!getStoreService().sessionStore.loggedInUserId) {
-      throw new Error("not logged in");
+    if (!this.sessionStore.loggedInUserId) {
+      throw new Error("fork, but not logged in");
     }
 
-    const result = await this.manager.fork();
-
-    if (typeof result === "string") {
-      return result;
+    const doc = this.tryDoc;
+    if (!doc) {
+      throw new Error("fork, but no doc");
     }
 
-    if (cache.get(result.identifier.toString())) {
-      throw new Error("create called, but already in cache");
+    const connection = await DocConnection.createNewDocConnection(
+      this.sessionStore.getIdentifierForNewDocument(),
+      this.sessionStore,
+      doc.ydoc
+    );
+
+    await this.revert();
+
+    const forkDoc = await connection.waitForDoc();
+
+    await forkDoc.addRef(ForkReference, this.identifier);
+    return forkDoc;
+  }
+
+  private static async createNewDocConnection(
+    identifier: Identifier,
+    sessionStore: SessionStore,
+    forkSource?: Y.Doc,
+    isInbox = false
+  ) {
+    const cacheKey = DocConnection.getCacheKey(sessionStore, identifier);
+    if (cache.has(cacheKey)) {
+      throw new Error("unexpected, doc already in cache");
     }
 
-    const connection = new DocConnection(result.identifier, result);
-    cache.set(result.identifier.toString(), connection);
+    if (!isInbox && identifier.toString().endsWith("/.inbox")) {
+      throw new Error("unexpected, inbox identifier");
+    }
+
+    if (!isInbox) {
+      const inboxIdentifier = parseIdentifier(
+        identifier.toString() + "/.inbox"
+      );
+      const inboxConnection = await DocConnection.createNewDocConnection(
+        inboxIdentifier,
+        sessionStore,
+        undefined,
+        true
+      );
+
+      const doc = await inboxConnection.waitForDoc();
+      doc.create("!inbox");
+      doc.ydoc.getMap("inboxmeta").set("target", identifier.toString()); // TODO
+
+      // we can dispose immediately, bg manager is responsible for syncing the change
+      inboxConnection.dispose();
+    }
+
+    const manager = SyncManager.create(identifier, sessionStore, forkSource);
+
+    const connection = new DocConnection(
+      manager.identifier,
+      manager,
+      sessionStore
+    );
+    cache.set(cacheKey, connection);
     connection.addRef();
-
-    const doc = connection.doc;
-    if (typeof doc === "string") {
-      throw new Error("no baseresource after fork");
-    }
-    return doc;
+    return connection;
   }
 
   public async waitForDoc() {
@@ -170,83 +229,82 @@ export class DocConnection extends lifecycle.Disposable {
     return doc;
   }
 
-  // public async reinitialize() {
-  //   console.log("reinitialize", this.identifier.id);
-  //   runInAction(() => {
-  //     this.doc = "loading";
-  //   });
-  //   this.manager.dispose();
-  //   await this.initializeNoCatch();
-  // }
+  public loadInboxResource = (id: Identifier) =>
+    DocConnection.loadInboxResource(id, this.sessionStore);
 
-  public static async create(id: string | { owner: string; document: string }) {
-    const sessionStore = getStoreService().sessionStore;
+  public static async loadInboxResource(
+    id: Identifier,
+    sessionStore: SessionStore
+  ): Promise<InboxResource> {
+    if (!(id instanceof TypeCellIdentifier)) {
+      throw new Error(
+        "unimplemented, only typecellidentifier supported for loadInboxResource"
+      );
+    }
+    if (id.toString().endsWith("/.inbox")) {
+      throw new Error("unexpected, inbox identifier");
+    }
+    // console.log("loadInboxResource", id.toString() + "/.inbox");
+    const doc = DocConnection.load(
+      parseIdentifier(id.toString() + "/.inbox"),
+      sessionStore
+    );
+    const ret = await doc.waitForDoc();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const inbox = ret.getSpecificType<InboxResource>(InboxResource as any);
+    return inbox;
+  }
+
+  // TODO: async or not?
+  public static async create(sessionStore: SessionStore) {
     if (!sessionStore.loggedInUserId) {
-      throw new Error("no user available on create document");
-    }
-    const identifier = tryParseIdentifier(id);
-
-    if (identifier === "invalid-identifier") {
-      return identifier;
+      // Note: can happen on sign up
+      console.warn(
+        "DocConnection: no loggedInUserId available on create document"
+      );
     }
 
-    const syncManager = await YDocSyncManager2.create(identifier);
+    const identifier = sessionStore.getIdentifierForNewDocument();
 
-    if (syncManager === "already-exists") {
-      return syncManager;
-    }
-
-    if (syncManager === "error") {
-      return syncManager;
-    }
-
-    if (cache.get(identifier.toString())) {
-      throw new Error("create called, but already in cache");
-    }
-
-    const connection = new DocConnection(identifier, syncManager);
-    cache.set(identifier.toString(), connection);
-    connection.addRef();
+    // TODO: async or not?
+    const connection = await DocConnection.createNewDocConnection(
+      identifier,
+      sessionStore
+    );
 
     return connection.waitForDoc();
   }
 
-  // TODO
-  public static inboxLoader = async (id: string) => {
-    const con = DocConnection.load(id);
-    await con.waitForDoc();
-    const inbox = con.tryDoc!.getSpecificType<InboxResource>(
-      InboxResource as any
-    );
-    return inbox;
-  };
-
   public static get(
-    identifier: string | { owner: string; document: string } | Identifier
+    identifier: string | Identifier,
+    sessionStore: SessionStore
   ) {
-    // TODO
     if (!(identifier instanceof Identifier)) {
       identifier = parseIdentifier(identifier);
     }
 
-    let connection = cache.get(identifier.toString());
+    const connection = cache.get(
+      DocConnection.getCacheKey(sessionStore, identifier)
+    );
     return connection;
   }
 
   public static load(
-    identifier: string | { owner: string; document: string } | Identifier
+    identifier: string | Identifier,
+    sessionStore: SessionStore
   ) {
-    // TODO
     if (!(identifier instanceof Identifier)) {
       identifier = parseIdentifier(identifier);
     }
 
-    let connection = cache.get(identifier.toString());
+    const cacheKey = DocConnection.getCacheKey(sessionStore, identifier);
+    let connection = cache.get(cacheKey);
     if (!connection) {
-      const syncManager = YDocSyncManager2.load(identifier);
+      // console.log("DocConnection load debug", cacheKey);
+      const syncManager = SyncManager.load(identifier, sessionStore);
 
-      connection = new DocConnection(identifier, syncManager);
-      cache.set(identifier.toString(), connection);
+      connection = new DocConnection(identifier, syncManager, sessionStore);
+      cache.set(cacheKey, connection);
     }
     connection.addRef();
     return connection;
@@ -268,9 +326,20 @@ export class DocConnection extends lifecycle.Disposable {
       super.dispose();
 
       this._baseResourceCache = undefined;
-      this.manager.dispose();
-      cache.delete(this.identifier.toString());
+      this.manager?.dispose();
+      cache.delete(this.getCacheKey());
       this.disposed = true;
     }
+  }
+
+  private getCacheKey() {
+    return DocConnection.getCacheKey(this.sessionStore, this.identifier);
+  }
+
+  private static getCacheKey(
+    sessionStore: SessionStore,
+    identifier: Identifier
+  ) {
+    return sessionStore.userPrefix + identifier.toString();
   }
 }

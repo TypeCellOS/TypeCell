@@ -1,10 +1,10 @@
-import {
-  resetSupabaseDB,
-  startSupabase,
-} from "../supabase/test/supabaseTestUtil";
+import { startSupabase } from "../supabase/test/supabaseCLIUtil";
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default async function () {
-  console.log("setup");
-  await startSupabase();
-  await resetSupabaseDB();
+  // in CI, supabase is already started
+  if (!process.env.CI) {
+    await startSupabase();
+  }
+  // await resetSupabaseDB();
 }

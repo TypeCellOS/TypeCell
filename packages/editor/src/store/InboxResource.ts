@@ -1,6 +1,11 @@
+import { ReferenceDefinition } from "@typecell-org/shared/src/Ref";
 import * as Y from "yjs";
-import { BaseResource, BaseResourceConnection } from "./BaseResource";
-import { ReferenceDefinition } from "./Ref";
+import { Identifier } from "../identifiers/Identifier";
+import {
+  BaseResource,
+  BaseResourceExternalManager,
+  UnimplementedBaseResourceExternalManager,
+} from "./BaseResource";
 
 export type RefInboxMessage<T extends ReferenceDefinition> = {
   message_type: "ref";
@@ -16,16 +21,12 @@ export class InboxResource extends BaseResource {
   /** @internal */
   constructor(
     ydoc: Y.Doc,
-    connection: BaseResourceConnection,
-    inboxLoader: any
+    identifier: Identifier,
+    manager: BaseResourceExternalManager = UnimplementedBaseResourceExternalManager
   ) {
-    super(
-      ydoc,
-      connection as any, // TODO
-      inboxLoader
-    );
+    super(ydoc, identifier, manager);
     if (this.type !== "!inbox") {
-      throw new Error("invalid type for InboxResource");
+      throw new Error("invalid type for InboxResource: " + this.type);
     }
   }
 
@@ -46,6 +47,7 @@ export class InboxResource extends BaseResource {
   }
 
   /** @internal */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public get inbox(): Y.Array<RefInboxMessage<any>> {
     return this.ydoc.getArray("inbox");
   }

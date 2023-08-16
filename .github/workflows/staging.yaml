@@ -1,0 +1,30 @@
+name: Deploy staging db
+
+on:
+  push:
+    branches:
+      - staging
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+      PROJECT_ID: glsqqdamehahvdqssxow
+      TYPECELL_GITHUB_OAUTH_SECRET: NOT-USED # not used but needs to be set, otherwise supabase cli complains
+      TYPECELL_GOOGLE_OAUTH_SECRET: NOT-USED # not used but needs to be set, otherwise supabase cli complains
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - run: supabase link --project-ref $PROJECT_ID
+        working-directory: packages/server
+      - run: supabase db push
+        working-directory: packages/server

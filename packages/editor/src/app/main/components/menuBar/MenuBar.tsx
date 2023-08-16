@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./MenuBar.module.css";
 
 type Props = {
-  children: any;
+  children: React.ReactNode;
 };
 
 export const MenuBar: React.FC<Props> = (props) => {

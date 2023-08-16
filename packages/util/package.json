@@ -1,0 +1,35 @@
+{
+  "name": "@typecell-org/util",
+  "version": "0.0.3",
+  "private": true,
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "string.prototype.replaceall": "^1.0.5",
+    "uuid": "^8.3.2",
+    "nanoid": "^4.0.1",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "typescript": "5.0.4",
+    "@types/uuid": "^8.3.4"
+  },
+  "peerDependencies": {
+    "react": "17 || 18"
+  },
+  "source": "src/index.ts",
+  "types": "types/src/index.d.ts",
+  "main": "dist/src/index.js",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf dist && rimraf types",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "watch": "tsc --watch",
+    "lint": "eslint src"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../shared/.eslintrc.cjs"
+    ]
+  }
+}

@@ -1,5 +1,5 @@
-import { uniqueId } from "@typecell-org/common";
 import * as parsers from "@typecell-org/parsers";
+import { uniqueId } from "@typecell-org/util";
 
 import * as Y from "yjs";
 
@@ -35,7 +35,7 @@ export function markdownToYDoc(markdown: string, title?: string) {
   const newDoc = new Y.Doc();
   newDoc.getMap("meta").set("type", "!notebook");
 
-  let xml = newDoc.getXmlFragment("doc");
+  const xml = newDoc.getXmlFragment("doc");
   markdownToXmlFragment(markdown, xml);
 
   if (title) {

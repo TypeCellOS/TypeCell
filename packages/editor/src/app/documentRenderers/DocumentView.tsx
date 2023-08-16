@@ -1,19 +1,22 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useState } from "react";
 import { Identifier } from "../../identifiers/Identifier";
 import { DocConnection } from "../../store/DocConnection";
-import PluginResource from "../../store/PluginResource";
+
 import ProjectResource from "../../store/ProjectResource";
-import DocumentMenu from "../main/components/documentMenu";
 
 // import { MenuBar } from "../maidocn/components/menuBar/MenuBar";
 // import RichTextRenderer from "./richtext/RichTextRenderer";
 import styles from "./DocumentView.module.css";
 // import { CustomRenderer } from "./custom/CustomRenderer";
+import ProfileResource from "../../store/ProfileResource";
+import { SessionStore } from "../../store/local/SessionStore";
+import { DocumentMenu } from "../main/components/documentMenu/DocumentMenu";
 import { MenuBar } from "../main/components/menuBar/MenuBar";
-import NotebookRenderer from "./notebook/NotebookRenderer";
-import PluginRenderer from "./plugin/PluginRenderer";
+
+import ProfileRenderer from "./profile/ProfileRenderer";
 import ProjectContainer from "./project/ProjectContainer";
 import ProjectRenderer from "./project/ProjectRenderer";
 import RichTextRenderer from "./richtext/RichTextRenderer";
@@ -23,6 +26,7 @@ type Props = {
   subIdentifiers: Identifier[];
   isNested?: boolean;
   hideDocumentMenu?: boolean;
+  sessionStore: SessionStore;
 };
 
 /**
@@ -33,7 +37,7 @@ const DocumentView = observer((props: Props) => {
   const [connection, setConnection] = useState<DocConnection>();
 
   React.useEffect(() => {
-    const newConnection = DocConnection.load(props.id);
+    const newConnection = DocConnection.load(props.id, props.sessionStore);
 
     setConnection(newConnection);
     // for testing:
@@ -45,7 +49,31 @@ const DocumentView = observer((props: Props) => {
       setConnection(undefined);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.id.toString()]);
+  }, [props.id.toString(), props.sessionStore]);
+
+  // if we're a fresh sign up, load changes made as guest. Not great to have this logic here
+  React.useEffect(() => {
+    const doc = connection?.tryDoc;
+    if (!doc) {
+      return;
+    }
+
+    if (
+      props.sessionStore.tryUser?.type === "user" &&
+      props.sessionStore.tryUser.isSignUp &&
+      (doc.type === "!richtext" || doc.type === "!notebook")
+    ) {
+      props.sessionStore.documentCoordinator?.loadFromGuest(
+        doc.identifier.toString(),
+        doc.ydoc
+      );
+    }
+  }, [
+    connection,
+    connection?.tryDoc,
+    props.sessionStore.documentCoordinator,
+    props.sessionStore.tryUser,
+  ]);
 
   if (!connection) {
     return null;
@@ -60,16 +88,7 @@ const DocumentView = observer((props: Props) => {
     return <div>Loading</div>;
   }
   if (connection.doc.type === "!notebook") {
-    const doc = connection.doc.doc;
-
-    return (
-      <div className={styles.view}>
-        {!props.hideDocumentMenu && (
-          <DocumentMenu document={doc}></DocumentMenu>
-        )}
-        <NotebookRenderer key={connection.doc.id} document={doc} />
-      </div>
-    );
+    throw new Error("Notebook not implemented");
   } else if (connection.doc.type === "!project") {
     if (props.isNested) {
       return (
@@ -84,6 +103,7 @@ const DocumentView = observer((props: Props) => {
             isNested={true}
             key={connection.doc.id}
             project={connection.doc.getSpecificType(ProjectResource)!}
+            sessionStore={props.sessionStore}
           />
         </div>
       );
@@ -93,6 +113,7 @@ const DocumentView = observer((props: Props) => {
           key={connection.doc.id}
           project={connection.doc.getSpecificType(ProjectResource)!}
           subIdentifiers={props.subIdentifiers}
+          sessionStore={props.sessionStore}
         />
       );
     }
@@ -102,19 +123,25 @@ const DocumentView = observer((props: Props) => {
     return (
       <div className={styles.view}>
         {!props.hideDocumentMenu && (
-          <DocumentMenu document={doc}></DocumentMenu>
+          <DocumentMenu
+            document={doc}
+            sessionStore={props.sessionStore}></DocumentMenu>
         )}
         <RichTextRenderer
           key={connection.doc.id}
           document={connection.doc.doc!}
+          sessionStore={props.sessionStore}
         />
       </div>
     );
   } else if (connection.doc.type === "!plugin") {
+    throw new Error("Plugin not implemented");
+  } else if (connection.doc.type === "!profile") {
     return (
-      <PluginRenderer
+      <ProfileRenderer
         key={connection.doc.id}
-        plugin={connection.doc.getSpecificType(PluginResource)!}
+        profile={connection.doc.getSpecificType(ProfileResource)!}
+        subIdentifiers={[]}
       />
     );
   } else if (connection.doc.type.startsWith("!")) {

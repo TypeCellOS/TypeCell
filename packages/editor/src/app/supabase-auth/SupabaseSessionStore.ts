@@ -1,14 +1,23 @@
+import { createClient, Session } from "@supabase/supabase-js";
+import type { Database } from "@typecell-org/shared";
+import { uniqueId } from "@typecell-org/util";
 import { computed, makeObservable, observable, runInAction } from "mobx";
-import { arrays } from "vscode-lib";
+import { arrays, uri } from "vscode-lib";
+import * as Y from "yjs";
+import { env } from "../../config/env";
+import {
+  DefaultShorthandResolver,
+  setDefaultShorthandResolver,
+} from "../../identifiers/paths/identifierPathHelpers";
+import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
+import { BaseResource } from "../../store/BaseResource";
 import { SessionStore } from "../../store/local/SessionStore";
-// @ts-ignore
-import { createClient } from "@supabase/supabase-js";
-import { navigateRef } from "../App";
-import { ANON_KEY } from "./supabaseConfig";
+import ProfileResource from "../../store/ProfileResource";
+import { TypeCellRemote } from "../../store/yjs-sync/remote/TypeCellRemote";
+import { navigateRef } from "../GlobalNavigateRef";
 
-import type { Database } from "../../../../../packages/server/src/types/schema";
 
-export type SupabaseClientType = SupabaseSessionStore["supabase"];
+export type SupabaseClientType = ReturnType<typeof createClient<Database>>;
 
 const colors = [
   "#958DF1",
@@ -25,14 +34,14 @@ const colors = [
  * (e.g.: is the user logged in, what is the user name, etc)
  */
 export class SupabaseSessionStore extends SessionStore {
-  public readonly supabase = createClient<Database>(
-    "http://localhost:54321",
-    ANON_KEY
-  );
+  public storePrefix = "tc";
+
+  public readonly supabase: SupabaseClientType;
 
   private initialized = false;
-  public userId: string = "";
+  public userId: string | undefined = undefined;
 
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   public userColor = arrays.getRandomElement(colors)!;
 
   public user:
@@ -40,13 +49,17 @@ export class SupabaseSessionStore extends SessionStore {
     | "offlineNoUser"
     | {
         type: "guest-user";
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         supabase: any;
       }
     | {
         type: "user";
         fullUserId: string;
         userId: string;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         supabase: any;
+        profileId: string;
+        isSignUp: boolean;
       } = "loading";
 
   public get isLoaded() {
@@ -79,14 +92,30 @@ export class SupabaseSessionStore extends SessionStore {
     await this.supabase.auth.signOut();
   };
 
-  constructor() {
-    super();
+  public getIdentifierForNewDocument() {
+    return new TypeCellIdentifier(
+      uri.URI.from({
+        scheme: "typecell",
+        authority: "typecell.org",
+        path: "/" + uniqueId.generateId("document"),
+      })
+    );
+  }
+
+  constructor(loadProfile = true, persist = true) {
+    super(loadProfile);
     makeObservable(this, {
       user: observable.ref,
       userId: observable.ref,
       isLoggedIn: computed,
       isLoaded: computed,
     });
+    this.supabase = createClient<Database>(env.VITE_TYPECELL_SUPABASE_URL, env.VITE_TYPECELL_SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: persist,
+      },
+    });
+    this.initializeReactions();
   }
 
   public async initialize() {
@@ -96,14 +125,23 @@ export class SupabaseSessionStore extends SessionStore {
     this.initialized = true;
 
     try {
-      this._register({
-        dispose: this.supabase.auth.onAuthStateChange((event, session) => {
-          this.updateStateFromAuthStore().catch((e) => {
+      const session = (await this.supabase.auth.getSession()).data.session || undefined;
+      let previousSessionId = session?.user.id;
+      const cbData = this.supabase.auth.onAuthStateChange((event, session) => {
+
+
+        // only trigger if user id changed
+        if (session?.user.id !== previousSessionId) {
+          previousSessionId = session?.user.id;
+          this.updateStateFromAuthStore(session || undefined).catch((e) => {
             console.error("error initializing sessionstore", e);
           });
-        }).data.subscription.unsubscribe,
+        }
       });
-      this.updateStateFromAuthStore();
+      this._register({
+        dispose: cbData.data.subscription.unsubscribe,
+      });
+      this.updateStateFromAuthStore(session);
     } catch (err) {
       // keep state as "loading"
       console.error("error loading session from supabase", err);
@@ -115,11 +153,54 @@ export class SupabaseSessionStore extends SessionStore {
       throw new Error("can't set username when not logged in");
     }
 
-    const { data, error } = await this.supabase.from("workspaces").insert([
+    {
+      const { data } = await this.supabase
+        .from("workspaces")
+        .select()
+        .eq("name", username)
+        .eq("is_username", true)
+        .single();
+
+      if (data) {
+        return "not-available";
+      }
+    }
+
+    // create workspace
+    const workspaceId = this.getIdentifierForNewDocument();
+    {
+      // TODO: use syncmanager?
+      const ydoc = new Y.Doc();
+      const ret = new BaseResource(ydoc, workspaceId);
+      ret.create("!project");
+      const remote = new TypeCellRemote(ydoc, workspaceId, this);
+      await remote.createAndRetry();
+      ret.dispose();
+      remote.dispose();
+    }
+
+    // create profile
+    const profileId = this.getIdentifierForNewDocument();
+    {
+      // TODO: use syncmanager?
+      const ydoc = new Y.Doc();
+      const ret = new BaseResource(ydoc, profileId);
+      ret.create("!profile");
+      const profile = ret.getSpecificType(ProfileResource);
+      profile.workspaces.set("public", workspaceId.toString());
+      profile.username = username;
+      const remote = new TypeCellRemote(ydoc, profileId, this);
+      await remote.createAndRetry();
+      ret.dispose();
+      remote.dispose();
+    }
+
+    const { error } = await this.supabase.from("workspaces").insert([
       {
         name: username,
         owner_user_id: this.userId,
         is_username: true,
+        document_nano_id: profileId.documentId,
       },
     ]);
 
@@ -127,55 +208,89 @@ export class SupabaseSessionStore extends SessionStore {
       throw new Error(error.message);
     }
 
-    await this.updateStateFromAuthStore();
+    const session = (await this.supabase.auth.getSession()).data.session || undefined;
+    await this.updateStateFromAuthStore(session, true);
   }
   /**
    * Updates the state of sessionStore based on the internal matrixAuthStore.loggedIn
    */
-  private async updateStateFromAuthStore() {
+  private async updateStateFromAuthStore(session: Session | undefined, isSignUp = false) {
+    // TODO: make work in offline mode (save username offline)
     // TODO: don't trigger on refresh of other browser window
-    const session = (await this.supabase.auth.getSession()).data.session;
+
     // TODO: check errors?
 
     if (session) {
-      const usernameRes = await this.supabase
-        .from("workspaces")
-        .select()
-        .eq("owner_user_id", session?.user.id)
-        .eq("is_username", true);
+      // if the session is the same as previous, and we have a fully initialized user,
+      // then there's no need to refresh
+      if (
+        this.userId === session.user.id &&
+        this.user !== "loading" &&
+        this.user !== "offlineNoUser" &&
+        this.user.type === "user"
+      ) {
+        return;
+      }
+      
+      let username = session.user.user_metadata.typecell_username;
+      let profile_id = session.user.user_metadata.typecell_profile_nano_id;
+      if (!username || !profile_id) {
+        const usernameRes = await this.supabase
+          .from("workspaces")
+          .select()
+          .eq("owner_user_id", session?.user.id)
+          .eq("is_username", true);
+          
+        if (usernameRes.data?.length === 1) {
+          username = usernameRes.data[0].name;
+          profile_id = usernameRes.data[0].document_nano_id;
+          await this.supabase.auth.updateUser({
+            data: {
+              typecell_username: username,
+              typecell_profile_nano_id: profile_id,
+            }
+          })
+        } else {
+          if (!navigateRef) {
+            throw new Error("no global navigateRef");
+          }
+          runInAction(() => {
+            this.userId = session.user.id;
+          });
+          console.log("redirect");
+          navigateRef.current?.("/username", { state: window.history?.state?.usr});
+          // runInAction(() => {
+          //   this.user = {
+          //     type: "user",
+          //     supabase: this.supabase,
+          //     userId: "username",
+          //     fullUserId: "username",
+          //   };
+          // });
+        }
+      }
 
-      if (usernameRes.data?.length === 1) {
-        const username: string = usernameRes.data[0].name;
-
+      if (username) {
+        if (!profile_id) {
+          throw new Error("no profile id");
+        }
         runInAction(() => {
+          setDefaultShorthandResolver(new DefaultShorthandResolver()); // hacky
           this.userId = session.user.id;
           this.user = {
             type: "user",
             supabase: this.supabase,
             userId: username,
             fullUserId: username,
+            profileId: profile_id,
+            isSignUp
           };
         });
-      } else {
-        if (!navigateRef) {
-          throw new Error("no global navigateRef");
-        }
-        runInAction(() => {
-          this.userId = session.user.id;
-        });
-        console.log("redirect");
-        navigateRef("/username");
-        // runInAction(() => {
-        //   this.user = {
-        //     type: "user",
-        //     supabase: this.supabase,
-        //     userId: "username",
-        //     fullUserId: "username",
-        //   };
-        // });
       }
     } else {
       runInAction(() => {
+        setDefaultShorthandResolver(new DefaultShorthandResolver()); // hacky
+        this.userId = undefined;
         this.user = {
           type: "guest-user",
           supabase: this.supabase,

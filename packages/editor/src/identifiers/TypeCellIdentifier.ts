@@ -1,7 +1,7 @@
 import { uri } from "vscode-lib";
 import { Identifier } from "./Identifier";
 
-const DEFAULT_AUTHORITY = "typecell.org";
+// const DEFAULT_AUTHORITY = "typecell.org";
 
 // takes a path string like "this-is-a-title~sd32Sfsdf123" and returns the id "sd32Sfsdf123"
 function getIdFromPath(path: string) {
@@ -12,44 +12,33 @@ function getIdFromPath(path: string) {
   if (parts.length !== 2 || parts[1].charAt(0) !== "d") {
     throw new Error("invalid path");
   }
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return parts.pop()!;
 }
 
 export class TypeCellIdentifier extends Identifier {
   public static schemes = ["typecell"];
-  public readonly owner: string;
-  public readonly documentId: string;
 
   constructor(uriToParse: uri.URI) {
-    // TODO: validate parts, lowercase, alphanumeric?
-    const parts = uriToParse.path.split("/");
-    if (parts.length !== 3 || parts[0] !== "") {
-      throw new Error("invalid identifier");
+    if (uriToParse.path.includes("~")) {
+      uriToParse = uriToParse.with({
+        path: "/" + getIdFromPath(uriToParse.path.substring(1)),
+      });
     }
-    parts.shift();
+    super(TypeCellIdentifier.schemes, uriToParse);
 
-    let [owner, document] = parts;
-    document = getIdFromPath(document);
-    if (
-      !owner.startsWith("@") ||
-      !owner.length ||
-      !document.length ||
-      owner.includes("/") ||
-      document.includes("/")
-    ) {
-      throw new Error("invalid identifier");
+    if (!this.uri.path.startsWith("/d")) {
+      throw new Error("invalid path " + this.uri.path);
     }
+    // if (this.uri.path.split("/").length !== 2) {
+    //   throw new Error("invalid path");
+    // }
+  }
 
-    super(
-      TypeCellIdentifier.schemes,
-      uri.URI.from({
-        scheme: uriToParse.scheme,
-        authority: uriToParse.authority || DEFAULT_AUTHORITY,
-        path: "/" + owner + "/~" + document,
-      })
-    );
-
-    this.owner = owner.substring(1);
-    this.documentId = document;
+  get documentId() {
+    if (!this.uri.path.startsWith("/d")) {
+      throw new Error("invalid path");
+    }
+    return this.uri.path.substring(1);
   }
 }

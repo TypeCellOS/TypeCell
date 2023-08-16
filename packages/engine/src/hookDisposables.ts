@@ -1,3 +1,6 @@
+/* eslint-disable prefer-rest-params */
+/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type FunctionPropertyNames<T> = {
   [K in keyof T]: T[K] extends Function ? K : never;
 }[keyof T];
@@ -18,6 +21,7 @@ function installHook<T, K extends FunctionPropertyNames<T>>(
   (obj[method] as any) = function (this: any) {
     const args = arguments;
     const ret = (originalFunction as any).apply(this, args); // TODO: fix any?
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const ctx = this;
     disposes.push(() => disposeSingle.call(ctx, ret, args));
     return ret;

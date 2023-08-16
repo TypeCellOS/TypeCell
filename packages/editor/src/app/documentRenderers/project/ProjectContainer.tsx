@@ -5,16 +5,16 @@ import {
   PageLayout,
 } from "@atlaskit/page-layout";
 import { TreeData, TreeItem } from "@atlaskit/tree";
-import { uniqueId } from "@typecell-org/common";
 import { observer } from "mobx-react-lite";
-import { useLocation, useNavigate } from "react-router-dom";
-import { parseIdentifier } from "../../../identifiers";
+import { useNavigate } from "react-router-dom";
 import { Identifier } from "../../../identifiers/Identifier";
 import { identifiersToPath } from "../../../identifiers/paths/identifierPathHelpers";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
 import ProjectResource from "../../../store/ProjectResource";
-import { ChildReference } from "../../../store/referenceDefinitions/child";
+import { SessionStore } from "../../../store/local/SessionStore";
+
+import { ChildReference } from "@typecell-org/shared";
 import styles from "./ProjectContainer.module.css";
 import SidebarTree from "./directoryNavigation/SidebarTree";
 
@@ -22,19 +22,19 @@ type Props = {
   project: ProjectResource;
   activeChild?: Identifier;
   isNested?: boolean;
-  children?: any;
+  children?: React.ReactNode;
+  sessionStore: SessionStore;
 };
-
-let id = 0;
 
 function docToTreeItem(
   doc: BaseResource,
   items: Record<string, TreeItem>,
+  sessionStore: SessionStore,
   root = false
 ) {
   const children = doc.getRefs(ChildReference);
   const childrenWithDocs = children.map((c) => {
-    const doc = DocConnection.get(c.target);
+    const doc = DocConnection.get(c.target, sessionStore);
     const resource = doc?.tryDoc;
     return {
       doc: resource,
@@ -51,7 +51,7 @@ function docToTreeItem(
 
   childrenWithLoadedDocs.forEach((c) => {
     if (c.doc) {
-      childrenIds.push(docToTreeItem(c.doc, items).id as string);
+      childrenIds.push(docToTreeItem(c.doc, items, sessionStore).id as string);
     }
   });
 
@@ -69,6 +69,7 @@ function docToTreeItem(
     isExpanded: root,
     data: {
       id: doc.id,
+      identifier: doc.identifier,
       allChildren: children.map((c) => c.target),
       title: doc.type === "!notebook" ? doc.doc.title : "",
     },
@@ -78,9 +79,13 @@ function docToTreeItem(
   return ret;
 }
 
-function docToAkTree(doc: BaseResource, activeId?: Identifier) {
+function docToAkTree(
+  doc: BaseResource,
+  sessionStore: SessionStore,
+  activeId?: Identifier
+) {
   const items: Record<string, TreeItem> = {};
-  const rootItem = docToTreeItem(doc, items, true);
+  const rootItem = docToTreeItem(doc, items, sessionStore, true);
   const root: TreeData = {
     rootId: rootItem.id,
     items,
@@ -93,7 +98,7 @@ function docToAkTree(doc: BaseResource, activeId?: Identifier) {
   };
 
   if (activeId) {
-    for (let item of Object.values(items)) {
+    for (const item of Object.values(items)) {
       if (item.data.id === activeId.toString()) {
         item.data.isActive = true;
       } else {
@@ -105,40 +110,31 @@ function docToAkTree(doc: BaseResource, activeId?: Identifier) {
 }
 
 const ProjectContainer = observer((props: Props) => {
-  // return <div>hello123</div>;
-  const location = useLocation();
   const navigate = useNavigate();
 
-  const tree = docToAkTree(props.project, props.activeChild);
-
-  // const files = Array.from(props.project.files.keys()).sort();
-
-  // const tree = filesToTreeNodes(
-  //   files.map((f) => ({
-  //     fileName: f,
-  //   }))
-  // );
+  const tree = docToAkTree(
+    props.project,
+    props.sessionStore,
+    props.activeChild
+  );
 
   const onAddPageHandler = async (parentId?: string) => {
-    const ret = await DocConnection.create({
-      owner: "demotest", // TODO
-      document: uniqueId.generateId("document"),
-    });
+    const ret = await DocConnection.create(props.sessionStore);
     if (typeof ret === "string") {
       throw new Error("Error creating doc: " + ret);
     }
-    ret.create("!notebook");
+    ret.create("!richtext");
 
     if (parentId) {
       // add to parent
-      const parentDoc = DocConnection.get(parentId)?.tryDoc;
+      const parentDoc = DocConnection.get(parentId, props.sessionStore)?.tryDoc;
       if (!parentDoc) {
         throw new Error("Parent not found: " + parentId);
       }
-      parentDoc.addRef(ChildReference, ret.id, undefined, false); // TODO: true
+      parentDoc.addRef(ChildReference, ret.identifier, undefined, false); // TODO: true
     } else {
       // add to root (project)
-      props.project.addRef(ChildReference, ret.id, undefined, false); // TODO: true
+      props.project.addRef(ChildReference, ret.identifier, undefined, false); // TODO: true
     }
     const path = identifiersToPath([props.project.identifier, ret.identifier]);
 
@@ -154,10 +150,8 @@ const ProjectContainer = observer((props: Props) => {
     // );
   };
 
-  const onClick = (item: string) => {
-    const id = parseIdentifier(item);
-
-    const path = identifiersToPath([props.project.identifier, id]);
+  const onClick = (identifier: Identifier) => {
+    const path = identifiersToPath([props.project.identifier, identifier]);
 
     navigate({
       pathname: "/" + path,
@@ -165,7 +159,7 @@ const ProjectContainer = observer((props: Props) => {
   };
 
   // let defaultFile = files.find((f) => f === "README.md");
-  let defaultFileContent = <></>;
+  // let defaultFileContent = <></>;
   // if (defaultFile) {
   //   // TODO: cleanup?
   //   // Directory listing with a default file
@@ -193,6 +187,9 @@ const ProjectContainer = observer((props: Props) => {
       </div>
     );
   } else {
+    const userIsOwner = [
+      ...(props.sessionStore.profile?.workspaces.values() || []),
+    ].includes(props.project.identifier.toString());
     return (
       <div className={styles.projectContainer}>
         <PageLayout
@@ -236,6 +233,8 @@ const ProjectContainer = observer((props: Props) => {
                   onClick={onClick}
                   tree={tree}
                   onAddNewPage={onAddPageHandler}
+                  sessionStore={props.sessionStore}
+                  enableAddRootPage={userIsOwner}
                 />
               </div>
             </LeftSidebar>

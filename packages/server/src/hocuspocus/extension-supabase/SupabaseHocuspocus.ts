@@ -1,17 +1,26 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Database,
   DatabaseConfiguration,
 } from "@hocuspocus/extension-database";
 import {
+  beforeHandleMessagePayload,
   fetchPayload,
   onAuthenticatePayload,
+  onChangePayload,
   onDisconnectPayload,
   onLoadDocumentPayload,
   storePayload,
 } from "@hocuspocus/server";
+import { ChildReference } from "@typecell-org/shared";
+import {
+  createAnonClient,
+  createServiceClient,
+} from "@typecell-org/shared-test";
 import * as Y from "yjs";
-import { createAnonClient, createServiceClient } from "../../supabase/supabase";
 
+const documentIdByDocument = new WeakMap<Y.Doc, string>();
 // export const schema = `CREATE TABLE IF NOT EXISTS "documents" (
 //   "name" varchar(255) NOT NULL,
 //   "data" blob NOT NULL,
@@ -29,6 +38,7 @@ import { createAnonClient, createServiceClient } from "../../supabase/supabase";
 
 type SupabaseType = Awaited<ReturnType<typeof createAnonClient>>;
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SupabaseConfiguration extends DatabaseConfiguration {}
 
 export class SupabaseHocuspocus extends Database {
@@ -51,7 +61,7 @@ export class SupabaseHocuspocus extends Database {
           throw new Error("unexpected: not found when fetching");
         }
 
-        data.context.documentId = ret.data[0].id;
+        documentIdByDocument.set(data.document, ret.data[0].id);
 
         const decoded = Buffer.from(ret.data[0].data.substring(2), "hex"); // skip \x
         if (!decoded.length) {
@@ -61,13 +71,12 @@ export class SupabaseHocuspocus extends Database {
       },
       store: async (data: storePayload) => {
         const supabase = this.supabaseMap.get(data.socketId);
-        console.log("store", data.documentName);
         if (!supabase) {
           throw new Error("unexpected: no db client on fetch");
         }
 
         const serviceClient = await createServiceClient();
-
+        // console.log("store", data.document.getArray("inbox").toJSON());
         const ret = await serviceClient
           .from("documents")
           .update(
@@ -77,7 +86,6 @@ export class SupabaseHocuspocus extends Database {
           .eq("nano_id", data.documentName)
           .select();
         if (ret.data?.length !== 1) {
-          debugger;
           throw new Error(
             "unexpected: not found when storing " + data.documentName
           );
@@ -117,6 +125,7 @@ export class SupabaseHocuspocus extends Database {
 
     if (ret.count === 1) {
       // document exists and was able to update it, so has write access
+      console.log("read+write", data.documentName);
       return;
     }
 
@@ -129,7 +138,7 @@ export class SupabaseHocuspocus extends Database {
     if (ret2.count === 1) {
       // document exists, but user only has read access
       data.connection.readOnly = true;
-      console.log("readonly", data.documentName);
+      // console.log("readonly", data.documentName);
       return;
     }
 
@@ -163,7 +172,7 @@ export class SupabaseHocuspocus extends Database {
     }
 
     if (!documentId) {
-      throw new Error("unexpected: no documentId on context");
+      throw new Error("unexpected: no documentId in refsChanged");
     }
 
     const children = await supabase
@@ -179,7 +188,11 @@ export class SupabaseHocuspocus extends Database {
     const serviceClient = await createServiceClient();
 
     const refs = [...tr.doc.getMap("refs").values()]
-      .filter((r) => r.namespace === "typecell" && r.type === "child")
+      .filter(
+        (r) =>
+          r.namespace === ChildReference.namespace &&
+          r.type === ChildReference.type
+      )
       .map((r) => r.target as string);
 
     const refsIds = await serviceClient
@@ -236,29 +249,51 @@ export class SupabaseHocuspocus extends Database {
 
   private refListenersByDocument = new WeakMap<Y.Doc, any>();
 
-  async onLoadDocument(data: onLoadDocumentPayload): Promise<any> {
-    console.log("onLoadDocument", data.documentName);
+  async afterLoadDocument(data: onLoadDocumentPayload): Promise<any> {
     if (this.refListenersByDocument.has(data.document)) {
       throw new Error("unexpected: refListener already set");
     }
 
     const refListener = (event: Y.YEvent<any>[], tr: Y.Transaction) =>
-      this.refsChanged(data.socketId, data.context.documentId, event, tr);
+      this.refsChanged(
+        data.socketId,
+        documentIdByDocument.get(data.document)!,
+        event,
+        tr
+      );
+
     data.document.getMap("refs").observeDeep(refListener);
+    console.log("set reflistener", data.document.guid);
     this.refListenersByDocument.set(data.document, refListener);
 
     await super.onLoadDocument(data);
   }
 
-  async onDisconnect?(data: onDisconnectPayload): Promise<any> {
+  async onDisconnect(data: onDisconnectPayload): Promise<any> {
     if (data.clientsCount === 0) {
+      console.log("remove reflistener", data.document.guid);
       const refListener = this.refListenersByDocument.get(data.document);
       if (!refListener) {
-        throw new Error("unexpected: refListener not set");
+        console.error("unexpected: refListener not set"); // TODO should be an error
+        // throw new Error("unexpected: refListener not set");
       }
 
       data.document.getMap("refs").unobserveDeep(refListener);
       this.refListenersByDocument.delete(data.document);
     }
+  }
+
+  async onChange(_data: onChangePayload): Promise<any> {
+    // console.log(
+    //   "ONCHANGE",
+    //   data.documentName,
+    //   data.document.getXmlFragment("doc").toJSON()
+    //   // data.document.getArray("inbox").toJSON()
+    // );
+  }
+
+  async beforeHandleMessage(data: beforeHandleMessagePayload): Promise<any> {
+    // console.log("message", data);
+    return undefined;
   }
 }

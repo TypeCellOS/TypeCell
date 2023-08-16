@@ -1,6 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable jest/no-conditional-expect */
+/* eslint-disable no-loop-func */
+import type { Database } from "@typecell-org/shared";
+import { createDocument, createRandomUser } from "@typecell-org/shared-test";
 import { beforeAll, describe, expect, it } from "vitest";
-import type { Database } from "../../types/schema";
-import { createDocument, createRandomUser } from "./supabaseTestUtil";
 
 // revoke update on documents in schema public from anon;
 // grant update(data, is_public, updated_at) on documents in schema public from anon;

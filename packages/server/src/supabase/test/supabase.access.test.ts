@@ -1,6 +1,10 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import {
+  createAnonClient,
+  createDocument,
+  createRandomUser,
+} from "@typecell-org/shared-test";
 import { beforeAll, describe, expect, it } from "vitest";
-import { createAnonClient } from "../supabase";
-import { createDocument, createRandomUser } from "./supabaseTestUtil";
 
 describe("supabase access tests", () => {
   let alice: Awaited<ReturnType<typeof createRandomUser>>;

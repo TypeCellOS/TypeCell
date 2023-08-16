@@ -1,6 +1,7 @@
 import { makeObservable, observable, runInAction } from "mobx";
 import { path, strings } from "vscode-lib";
 
+import { ChildReference } from "@typecell-org/shared";
 import _ from "lodash";
 import * as Y from "yjs";
 import { filesToTreeNodes } from "../../../app/documentRenderers/project/directoryNavigation/treeNodeUtil";
@@ -8,15 +9,14 @@ import { HttpsIdentifier } from "../../../identifiers/HttpsIdentifier";
 import { getIdentifierWithAppendedPath } from "../../../identifiers/paths/identifierPathHelpers";
 import { markdownToYDoc } from "../../../integrations/markdown/import";
 import ProjectResource from "../../ProjectResource";
-import { ChildReference } from "../../referenceDefinitions/child";
 import { Remote } from "./Remote";
 
 export default class FetchRemote extends Remote {
   private disposed = false;
-  protected id: string = "fetch";
-  public canCreate: boolean = false;
+  protected id = "fetch";
+  public canCreate = false;
 
-  public canWrite: boolean = true; // always initialize as true until the user starts trying to make changes
+  public canWrite = true; // always initialize as true until the user starts trying to make changes
 
   public get awareness() {
     return undefined;
@@ -32,6 +32,7 @@ export default class FetchRemote extends Remote {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private documentUpdateListener = async (update: any, origin: any) => {
     if (origin === this) {
       // these are updates that came in from this provider
@@ -56,9 +57,7 @@ export default class FetchRemote extends Remote {
   private async getNewYDocFromDir(objects: string[]) {
     const newDoc = new Y.Doc();
     newDoc.getMap("meta").set("type", "!project");
-    const project = new ProjectResource(newDoc, this.identifier, () => {
-      throw new Error("not implemented");
-    }); // TODO
+    const project = new ProjectResource(newDoc, this.identifier); // TODO
 
     const tree = filesToTreeNodes(
       objects.map((object) => ({ fileName: object }))
@@ -67,7 +66,7 @@ export default class FetchRemote extends Remote {
     tree.forEach((node) => {
       const id = getIdentifierWithAppendedPath(this.identifier, node.fileName);
 
-      project.addRef(ChildReference, id.toString(), undefined, false);
+      project.addRef(ChildReference, id, undefined, false);
     });
 
     return newDoc;
@@ -101,7 +100,7 @@ export default class FetchRemote extends Remote {
       json = json.filter((path) => path.startsWith(prefix));
       json = json.map((path) => path.substring(prefix.length));
       if (!json.length) {
-        return "not-found" as "not-found";
+        return "not-found" as const;
       }
       return this.getNewYDocFromDir(json);
     }
@@ -139,7 +138,7 @@ export default class FetchRemote extends Remote {
     }
   }
 
-  public load(): Promise<void> {
+  public startSyncing(): Promise<void> {
     return this.initialize();
   }
 

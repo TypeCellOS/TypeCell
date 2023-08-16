@@ -1,0 +1,33 @@
+{
+  "name": "@typecell-org/shared",
+  "version": "0.0.3",
+  "private": true,
+  "dependencies": {
+    "@typecell-org/util": "^0.0.3",
+    "vscode-lib": "^0.1.2"
+  },
+  "devDependencies": {
+    "typescript": "5.0.4",
+    "eslint": "^8.21.0",
+    "eslint-plugin-import": "^2.28.0",
+    "eslint-config-react-app": "^7.0.1",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@typescript-eslint/parser": "^5.5.0",
+    "@typescript-eslint/eslint-plugin": "^5.5.0"
+  },
+  "source": "src/index.ts",
+  "types": "types/src/index.d.ts",
+  "main": "dist/src/index.js",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf dist && rimraf types",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "watch": "tsc --watch",
+    "lint": "eslint src"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../shared/.eslintrc.cjs"
+    ]
+  }
+}

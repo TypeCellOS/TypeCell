@@ -1,12 +1,14 @@
-import type { PlaywrightTestConfig } from "@playwright/test";
+import { defineConfig } from "@playwright/experimental-ct-react";
 import { devices } from "@playwright/test";
-import { TestOptions } from "./tests/end-to-end/setup/fixtures";
-
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-const config: PlaywrightTestConfig<TestOptions> = {
-  testDir: "./tests",
+export default defineConfig({
+  testMatch: [
+    "tests/**/*.@(spec|test).?(m)[jt]s?(x)",
+    "src/**/*.@(pwctest).?(m)[jt]s?(x)",
+  ],
+  testDir: "./",
   globalSetup: "./tests/end-to-end/setup/globalSetup.ts",
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
@@ -16,7 +18,7 @@ const config: PlaywrightTestConfig<TestOptions> = {
      * Maximum time expect() should wait for the condition to be met.
      * For example in `await expect(locator).toHaveText();`
      */
-    timeout: 5000,
+    timeout: 10000,
   },
 
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -50,7 +52,7 @@ const config: PlaywrightTestConfig<TestOptions> = {
 
       /* Project-specific settings. */
       use: {
-        headless: false,
+        // headless: false,
         ...devices["Desktop Chrome"],
       },
     },
@@ -119,5 +121,5 @@ const config: PlaywrightTestConfig<TestOptions> = {
   //   timeout: 60 * 1000,
   //   port: 3000,
   // },
-};
-export default config;
+});
+// export default config;

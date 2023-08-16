@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import Button, { LoadingButton } from "@atlaskit/button";
 import Modal, {
   ModalBody,
@@ -126,7 +127,8 @@ const PermissionsSettings = observer(
 
     return (
       <Modal
-        css={{ overflow: "visible" }}
+        // TODO
+        // css={{ overflow: "visible" }}
         onClose={() => props.closeCallback()}>
         <ModalHeader>
           <ModalTitle>Sharing & Permissions</ModalTitle>

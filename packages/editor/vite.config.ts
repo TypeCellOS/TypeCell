@@ -1,9 +1,10 @@
 import react from "@vitejs/plugin-react";
 import history from "connect-history-api-fallback";
+import path from "path";
 import nodePolyfills from "rollup-plugin-polyfill-node";
+import { webpackStats } from "rollup-plugin-webpack-stats";
 import { ViteDevServer } from "vite";
 import { defineConfig } from "vitest/config";
-
 // solves issue that vite dev server doesn't redirect urls with a "." (such as docs/xxx.md) to the SPA fallback. See https://github.com/vitejs/vite/issues/2190
 // code from https://github.com/ivesia/vite-plugin-rewrite-all/blob/master/src/index.ts
 function redirectAll() {
@@ -17,7 +18,7 @@ function redirectAll() {
         });
 
         server.middlewares.use((req, res, next) => {
-          handler(req as Request, res as Response, next);
+          handler(req, res, next);
         });
       };
     },
@@ -25,7 +26,7 @@ function redirectAll() {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig((conf) => ({
   server: {
     host: "localhost",
   },
@@ -34,19 +35,26 @@ export default defineConfig({
     // global: "globalThis", // breaks some modules work because of https://github.com/vitejs/vite/issues/6295, done in index.tsx instead
     // process & buffer are added to global scope in index.host.tsx
   },
-  plugins: [
-    react({
-      jsxRuntime: "classic", // TODO: would prefer to move to new jsxRuntime, but doesn't seem compatible with atlaskit
-    }),
-    redirectAll(),
-  ],
+  plugins: [react(), redirectAll(), webpackStats()],
   resolve: {
-    alias: {
-      buffer: "rollup-plugin-node-polyfills/polyfills/buffer-es6",
-      process: "rollup-plugin-node-polyfills/polyfills/process-es6",
-    },
+    // alias: {
+    //   buffer: "rollup-plugin-node-polyfills/polyfills/buffer-es6",
+    //   process: "rollup-plugin-node-polyfills/polyfills/process-es6",
+    // },
+
+    alias:
+      conf.command === "build"
+        ? ({
+            // "@typecell-org/frame": path.resolve(__dirname, "../frame/src/"),
+          } as Record<string, string>)
+        : ({
+            // load live from sources with live reload working
+            "@typecell-org/frame": path.resolve(__dirname, "../frame/src/"),
+            "@typecell-org/util": path.resolve(__dirname, "../util/src/"),
+          } as Record<string, string>),
   },
   optimizeDeps: {
+    exclude: ["monaco-editor"],
     esbuildOptions: {
       plugins: [
         // NodeGlobalsPolyfillPlugin({
@@ -56,7 +64,6 @@ export default defineConfig({
         // NodeModulesPolyfillPlugin(),
       ],
     },
-    include: ["simple-peer"], // needed for matrix-crdt
   },
   build: {
     rollupOptions: {
@@ -64,6 +71,7 @@ export default defineConfig({
       // used during production bundling
       plugins: [nodePolyfills()],
     },
+    // sourcemap: true
   },
   test: {
     exclude: [
@@ -78,4 +86,4 @@ export default defineConfig({
     },
     setupFiles: "src/setupTests.ts",
   },
-});
+}));

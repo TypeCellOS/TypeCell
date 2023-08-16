@@ -2,40 +2,88 @@ import {
   HocuspocusProvider,
   HocuspocusProviderWebsocket,
 } from "@hocuspocus/provider";
-import { createAtom, runInAction } from "mobx";
-import { uuid } from "vscode-lib";
+import {
+  computed,
+  createAtom,
+  makeObservable,
+  observable,
+  runInAction,
+} from "mobx";
+import { hash, uuid } from "vscode-lib";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as Y from "yjs";
 import { SupabaseSessionStore } from "../../../app/supabase-auth/SupabaseSessionStore";
+import { env } from "../../../config/env";
 import { TypeCellIdentifier } from "../../../identifiers/TypeCellIdentifier";
-import { getStoreService } from "../../local/stores";
 import { Remote } from "./Remote";
 
-let wsProvider: HocuspocusProviderWebsocket | undefined;
+const wsProviders = new Map<string, HocuspocusProviderWebsocket | undefined>();
 
-function getWSProvider() {
+function getWSProvider(session: SupabaseSessionStore) {
+  if (!session.userPrefix) {
+    throw new Error("no user available on create document");
+  }
+  let wsProvider = wsProviders.get(session.userPrefix);
   if (!wsProvider) {
+    console.log("new ws provider");
     wsProvider = new HocuspocusProviderWebsocket({
-      url: "ws://localhost:1234",
+      url: env.VITE_TYPECELL_BACKEND_WS_URL,
       // WebSocketPolyfill: ws,
+      onConnect() {
+        // console.log("connected");
+      },
     });
+    if (TypeCellRemote.Offline) {
+      wsProvider.disconnect();
+    }
+    wsProviders.set(session.userPrefix, wsProvider);
   }
   return wsProvider;
 }
 
 export class TypeCellRemote extends Remote {
-  protected id: string = "typecell";
+  protected id = "typecell";
 
   private hocuspocusProvider: HocuspocusProvider | undefined;
   private _awarenessAtom = createAtom("_awarenessAtom");
   private _canWriteAtom = createAtom("_canWrite");
   private disposed = false;
 
-  constructor(_ydoc: Y.Doc, private readonly identifier: TypeCellIdentifier) {
+  public unsyncedChanges = 0;
+
+  // TODO: set to true and run tests
+  private static _offline = false;
+
+  public static get Offline() {
+    return this._offline;
+  }
+
+  public static set Offline(val: boolean) {
+    if (val) {
+      wsProviders.forEach((wsProvider) => {
+        wsProvider?.disconnect();
+      });
+    } else {
+      wsProviders.forEach((wsProvider) => {
+        wsProvider?.connect();
+      });
+    }
+    this._offline = val;
+  }
+
+  constructor(
+    _ydoc: Y.Doc,
+    private readonly identifier: TypeCellIdentifier,
+    private readonly sessionStore: SupabaseSessionStore
+  ) {
     super(_ydoc);
     if (!(identifier instanceof TypeCellIdentifier)) {
       throw new Error("invalid identifier");
     }
+    makeObservable(this, {
+      unsyncedChanges: observable.ref,
+      canWrite: computed,
+    });
   }
 
   public get awareness(): awarenessProtocol.Awareness | undefined {
@@ -43,14 +91,18 @@ export class TypeCellRemote extends Remote {
     return this.hocuspocusProvider?.awareness;
   }
 
+  // TODO: "canWrite" isn't a great name, because it's actually "hasNoChanges Or CanWriteAndWaitingForSync". We should probably split "pending messages" and "access" into two separate properties.
   public get canWrite() {
-    this._canWriteAtom.reportObserved();
-    if (!this.hocuspocusProvider) {
-      return true;
-    }
-    return true;
-    // TODO
-    // return this.hocuspocusProvider.canWrite;
+    console.log(
+      "canWrite",
+      this.unsyncedChanges,
+      this.hocuspocusProvider?.authorizedScope
+    );
+    return (
+      this.unsyncedChanges === 0 ||
+      !this.hocuspocusProvider?.authorizedScope || // initializing
+      this.hocuspocusProvider?.authorizedScope === "read-write"
+    );
   }
 
   public get canCreate() {
@@ -58,27 +110,38 @@ export class TypeCellRemote extends Remote {
   }
 
   public async create() {
-    const sessionStore = getStoreService().sessionStore;
+    const sessionStore = this.sessionStore;
 
-    if (!(sessionStore instanceof SupabaseSessionStore)) {
-      throw new Error("invalid sessionStore (expected SupabaseSessionStore)");
-    }
-
-    if (!sessionStore.loggedInUserId) {
+    if (!sessionStore.userId) {
       throw new Error("no user available on create document");
     }
 
+    if (!sessionStore.loggedInUserId) {
+      console.warn("no loggedInUserId available on create document");
+    }
+
     const date = JSON.stringify(new Date());
+    const data = Y.encodeStateAsUpdate(this._ydoc);
     const doc = {
       id: uuid.generateUuid(),
       created_at: date,
       updated_at: date,
-      data: "",
+      data: "\\x" + hash.toHexString(data.buffer),
       nano_id: this.identifier.documentId,
-      public_access_level: "read",
+      public_access_level: this.identifier.documentId.endsWith("/.inbox")
+        ? "write"
+        : "read", // TODO: shouldn't be hardcoded here
       user_id: sessionStore.userId,
     } as const;
 
+    if (TypeCellRemote.Offline) {
+      throw new Error("fake-offline");
+    }
+    console.log(
+      "insert doc",
+      (await sessionStore.supabase.auth.getSession()).data.session?.user.id,
+      doc
+    );
     const ret = await sessionStore.supabase
       .from("documents")
       .insert(doc)
@@ -92,35 +155,39 @@ export class TypeCellRemote extends Remote {
     return "ok";
   }
 
-  public async load() {
+  public async startSyncing() {
     if (this.disposed) {
       console.warn("already disposed");
       return;
     }
-    const sessionStore = getStoreService().sessionStore;
-    if (!(sessionStore instanceof SupabaseSessionStore)) {
-      throw new Error("invalid sessionStore (expected MatrixSessionStore)");
-    }
 
-    const user = sessionStore.user;
+    const user = this.sessionStore.user;
     if (typeof user === "string") {
       throw new Error("no user");
     }
 
-    const session = (await sessionStore.supabase.auth.getSession()).data
+    const session = (await this.sessionStore.supabase.auth.getSession()).data
       .session;
     const token = session
       ? session.access_token + "$" + session.refresh_token
       : "guest";
 
+    if (this.disposed) {
+      console.warn("already disposed");
+      return;
+    }
+
+    // console.log("token", token);
     const hocuspocusProvider = new HocuspocusProvider({
       name: this.identifier.documentId,
       document: this._ydoc,
       token,
-      websocketProvider: getWSProvider(),
+      websocketProvider: getWSProvider(this.sessionStore),
       broadcast: false,
+
       onSynced: () => {
         runInAction(() => {
+          this.unsyncedChanges = hocuspocusProvider.unsyncedChanges;
           this.status = "loaded";
         });
       },
@@ -131,39 +198,22 @@ export class TypeCellRemote extends Remote {
         });
       },
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (hocuspocusProvider as any).isRemote = true;
+
+    hocuspocusProvider.on("unsyncedChanges", () => {
+      runInAction(() => {
+        this.unsyncedChanges = hocuspocusProvider.unsyncedChanges;
+      });
+    });
     this.hocuspocusProvider = hocuspocusProvider;
 
     this._register({
-      dispose: () => hocuspocusProvider.destroy,
+      dispose: () => hocuspocusProvider.destroy(),
     });
-
+    console.log("start");
     this._awarenessAtom.reportChanged();
-    this._canWriteAtom.reportChanged();
-    // this.hocuspocusProvider?.on("");
   }
-  //   `this._register(
-  //     this.matrixProvider.onCanWriteChanged(() => {
-  //       this._canWriteAtom.reportChanged();
-  //     })
-  //   );
-
-  //   this._register(
-  //     this.matrixProvider.onDocumentAvailable(() => {
-  //       console.log("doc available");
-  //       runInAction(() => {
-  //         this.status = "loaded";
-  //       });
-  //     })
-  //   );
-
-  //   this._register(
-  //     this.matrixProvider.onDocumentUnavailable(() => {
-  //       runInAction(() => {
-  //         this.status = "not-found";
-  //       });
-  //     })
-  //   );
-  // }`
 
   public dispose(): void {
     this.disposed = true;

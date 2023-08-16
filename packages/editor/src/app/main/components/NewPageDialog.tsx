@@ -8,13 +8,13 @@ import Modal, {
   ModalTransition,
 } from "@atlaskit/modal-dialog";
 import Textfield from "@atlaskit/textfield";
+import { error as errorUtil } from "@typecell-org/util";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Y from "yjs";
-import { generateId } from "../../../../../common/src/uniqueId";
 import { BaseResource } from "../../../store/BaseResource";
 import { DocConnection } from "../../../store/DocConnection";
-import { UnreachableCaseError } from "../../../util/UnreachableCaseError";
+import { SessionStore } from "../../../store/local/SessionStore";
 import { toDocument } from "../../routes/routes";
 import { Card } from "./common/card/Card";
 import { CardContainer } from "./common/card/CardContainer";
@@ -23,6 +23,7 @@ export const NewPageDialog = (props: {
   isOpen: boolean;
   close: () => void;
   ownerId: string;
+  sessionStore: SessionStore;
 }) => {
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState<"!richtext" | "!notebook">(
@@ -42,6 +43,7 @@ export const NewPageDialog = (props: {
                 // TODO: format title?
                 e.preventDefault();
                 const data = new FormData(e.target as HTMLFormElement);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const obj: any = {};
                 data.forEach((val, key) => {
                   obj[key] = val;
@@ -51,10 +53,7 @@ export const NewPageDialog = (props: {
                 setError("");
                 setLoading(true);
 
-                const ret = await DocConnection.create({
-                  owner: props.ownerId,
-                  document: generateId("document"),
-                });
+                const ret = await DocConnection.create(props.sessionStore);
 
                 setLoading(false);
 
@@ -63,15 +62,12 @@ export const NewPageDialog = (props: {
                     case "already-exists":
                       setWarning("A page with this title already exists");
                       break;
-                    case "invalid-identifier":
-                      setWarning("Invalid title");
-                      break;
                     case "error":
                       setError("Unknown error while creating new document.");
                       console.error(ret);
                       break;
                     default:
-                      throw new UnreachableCaseError(ret);
+                      throw new errorUtil.UnreachableCaseError(ret);
                   }
                 } else if (ret instanceof BaseResource) {
                   if (selectedType === "!richtext") {
@@ -89,8 +85,9 @@ export const NewPageDialog = (props: {
 
                     ret.doc.data.insert(0, [blockgroup]);
                   } else if (selectedType === "!notebook") {
+                    // TODO
+                    throw new Error("not implemented");
                     // ret.create("!notebook");
-                    ret.create("!project");
                     // ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
                     // ret.doc.cellList.addCell(
                     //   1,
@@ -98,7 +95,7 @@ export const NewPageDialog = (props: {
                     //   `export let message = "Hello World"`
                     // );
                   } else {
-                    throw new UnreachableCaseError(selectedType);
+                    throw new errorUtil.UnreachableCaseError(selectedType);
                   }
 
                   navigate(toDocument(ret));
@@ -108,9 +105,9 @@ export const NewPageDialog = (props: {
                   // so it's nice to make sure we don't dispose it beforehand (and prevent a reload)
                   setTimeout(() => {
                     ret.dispose();
-                  }, 500);
+                  }, 50000); // TODO
                 } else {
-                  throw new UnreachableCaseError(ret);
+                  throw new errorUtil.UnreachableCaseError(ret);
                 }
                 //   setName(obj.name);
                 //   setIsOpen(false);

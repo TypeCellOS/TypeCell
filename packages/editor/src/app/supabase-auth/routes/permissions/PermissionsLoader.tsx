@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import Modal, {
   ModalBody,
   ModalHeader,
@@ -6,8 +7,8 @@ import Modal, {
 import Spinner from "@atlaskit/spinner";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
+import { Identifier } from "../../../../identifiers/Identifier";
 import { TypeCellIdentifier } from "../../../../identifiers/TypeCellIdentifier";
-import { DocConnection } from "../../../../store/DocConnection";
 import { SupabaseClientType } from "../../SupabaseSessionStore";
 import PermissionSettings from "./PermissionsSettings";
 import styles from "./PermissionsSettings.module.css";
@@ -15,18 +16,16 @@ import { PermissionData, updatePermissionData } from "./permissionUtils";
 
 const PermissionsLoader = observer(
   (props: {
-    document: DocConnection;
+    identifier: Identifier;
     user: string | undefined;
     supabaseClient: SupabaseClientType;
     closeCallback: () => void;
     currentUserId: string;
   }) => {
-    const identifier = props.document.identifier;
-
-    if (!(identifier instanceof TypeCellIdentifier)) {
+    if (!(props.identifier instanceof TypeCellIdentifier)) {
       throw new Error("unexpected identifier");
     }
-    const nanoId = identifier.documentId;
+    const nanoId = props.identifier.documentId;
 
     const [internalDocId, setInternalDocId] = useState<string>();
 
@@ -83,7 +82,8 @@ const PermissionsLoader = observer(
                 {
                   user: {
                     id: u.user_id!,
-                    name: usernamesMap.get(u.user_id!)!,
+                    name: "@" + usernamesMap.get(u.user_id!)!,
+                    nameWithoutAtSign: usernamesMap.get(u.user_id!)!,
                   },
                   permission: u.access_level,
                 },
@@ -100,11 +100,13 @@ const PermissionsLoader = observer(
       return () => {
         setPermissionData(undefined);
       };
-    }, [nanoId, props.document, props.supabaseClient]);
+    }, [nanoId, props.identifier, props.supabaseClient]);
 
     if (!permissionData) {
       return (
-        <Modal css={{ overflow: "visible" }} onClose={props.closeCallback}>
+        <Modal
+          // css={{ overflow: "visible" }}
+          onClose={props.closeCallback}>
           <ModalHeader>
             <ModalTitle>Sharing & Permissions</ModalTitle>
           </ModalHeader>

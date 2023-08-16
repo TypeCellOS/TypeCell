@@ -3,15 +3,19 @@
  */
 
 import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
+import { ChildReference } from "@typecell-org/shared";
 import * as mobx from "mobx";
 import { beforeEach, describe, expect, it } from "vitest";
-import { uri } from "vscode-lib";
+import { async, uri } from "vscode-lib";
 import * as Y from "yjs";
 import { Identifier } from "../identifiers/Identifier";
-import { BaseResource } from "./BaseResource";
+import {
+  BaseResource,
+  UnimplementedBaseResourceExternalManager,
+} from "./BaseResource";
 import { InboxResource } from "./InboxResource";
 import { InboxValidator } from "./InboxValidatorStore";
-import { ChildReference } from "./referenceDefinitions/child";
+
 enableMobxBindings(mobx);
 type Username = string;
 type DocId = string;
@@ -67,16 +71,14 @@ function createDocAndAllowAccess(forUsers: User[], docId: DocId) {
     user.allowedToWriteDocs.add(docId + "-inbox");
     const inboxBaseResource = new BaseResource(
       inboxDoc,
-      new TestIdentifier(docId + "-inbox"),
-      () => {
-        throw new Error("can't resolve inbox of inbox");
-      }
+      new TestIdentifier(docId + "-inbox")
     );
     inboxBaseResource.create("!inbox");
     const resourceAsInbox = inboxBaseResource.getSpecificType<InboxResource>(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       InboxResource as any
     );
-    resourceAsInbox.inboxTarget = docId;
+    resourceAsInbox.inboxTarget = "test:test/" + docId;
     user.docs[docId + "-inbox"] = {
       resourceAsInbox,
       resource: inboxBaseResource,
@@ -86,25 +88,29 @@ function createDocAndAllowAccess(forUsers: User[], docId: DocId) {
 
     // create main doc
     const ydoc = new Y.Doc();
-    const resource = new BaseResource(
-      ydoc,
-      new TestIdentifier(docId),
-      async (id) => {
-        const testIdentifier = new TestIdentifier(id);
-        const inbox = user.docs[testIdentifier.id + "-inbox"].resourceAsInbox;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const manager: any = {
+      loadInboxResource: async (id: TestIdentifier) => {
+        // const testIdentifier = new TestIdentifier(id.toString());
+        const inbox = user.docs[id.id + "-inbox"].resourceAsInbox;
         if (!inbox) {
           throw new Error("can't resolve inbox id " + id);
         }
         return inbox;
-      }
-    );
+      },
+    };
+    manager.prototype = UnimplementedBaseResourceExternalManager;
+    const resource = new BaseResource(ydoc, new TestIdentifier(docId), manager);
 
     const validator = new InboxValidator(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       resourceAsInbox!,
       ChildReference,
-      async (identifier) => {
-        const testIdentifier = uri.URI.parse(identifier).path.substring(1);
-        return user.docs[testIdentifier].resource;
+      async (idStr) => {
+        // hacky
+        const testIdentifier = uri.URI.parse(idStr.replace("test:", "test://"));
+        const docId = testIdentifier.path.substring(1);
+        return user.docs[docId].resource;
       }
     );
 
@@ -159,11 +165,14 @@ describe("links", () => {
     expect(user2.docs.doc1.ydoc.getMap("test").get("hello")).toBeUndefined();
   });
 
-  it.only("adds a ref", async () => {
+  it("adds a ref", async () => {
     createDocAndAllowAccess([user1, user2], "doc1");
     createDocAndAllowAccess([user1, user2], "doc2");
 
-    await user1.docs.doc1.resource.addRef(ChildReference, "doc2");
+    await user1.docs.doc1.resource.addRef(
+      ChildReference,
+      new TestIdentifier("doc2")
+    );
 
     expect(user1.docs.doc1.resource.getRefs(ChildReference).length).toBe(1);
     expect(user2.docs.doc1.resource.getRefs(ChildReference).length).toBe(0);
@@ -172,13 +181,18 @@ describe("links", () => {
 
     await new Promise((resolve) => setImmediate(resolve)); // allow autorun to fire
 
+    await async.timeout(100);
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(user1.docs.doc2.validator!.validRefMessages.length).toBe(1);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(user2.docs.doc2.validator!.validRefMessages.length).toBe(0);
 
     syncAllDocsFromUserToUser(user2, user1);
 
     await new Promise((resolve) => setImmediate(resolve)); // allow autorun to fire
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(user2.docs.doc2.validator!.validRefMessages.length).toBe(0);
   });
 });

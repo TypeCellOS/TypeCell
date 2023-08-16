@@ -10,10 +10,44 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: Setup Node.js 16.x
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Setup Node.js 18.x
         uses: actions/setup-node@master
         with:
-          node-version: 16.x
+          node-version: 18.x
+
+      # from https://github.com/supabase/supabase-action-example/
+      - run: supabase start -x studio,imgproxy,storage
+        working-directory: packages/server
+        env:
+          TYPECELL_GITHUB_OAUTH_SECRET: ${{ secrets.TYPECELL_GITHUB_OAUTH_SECRET }}
+          TYPECELL_GOOGLE_OAUTH_SECRET: ${{ secrets.TYPECELL_GOOGLE_OAUTH_SECRET }}
+      - run: supabase db lint
+        working-directory: packages/server
+        env:
+          TYPECELL_GITHUB_OAUTH_SECRET: ${{ secrets.TYPECELL_GITHUB_OAUTH_SECRET }}
+          TYPECELL_GOOGLE_OAUTH_SECRET: ${{ secrets.TYPECELL_GOOGLE_OAUTH_SECRET }}
+      - run: supabase test db
+        working-directory: packages/server
+        env:
+          TYPECELL_GITHUB_OAUTH_SECRET: ${{ secrets.TYPECELL_GITHUB_OAUTH_SECRET }}
+          TYPECELL_GOOGLE_OAUTH_SECRET: ${{ secrets.TYPECELL_GOOGLE_OAUTH_SECRET }}
+
+      - name: Verify generated supabase types are checked in
+        working-directory: packages/server
+        run: |
+          supabase gen types typescript --local --schema public > ../shared/src/schema.ts
+          if ! git diff --ignore-space-at-eol --exit-code --quiet ../shared/src/schema.ts; then
+            echo "Detected uncommitted changes after build. See status below:"
+            git diff
+            exit 1
+          fi
+        env:
+          TYPECELL_GITHUB_OAUTH_SECRET: ${{ secrets.TYPECELL_GITHUB_OAUTH_SECRET }}
+          TYPECELL_GOOGLE_OAUTH_SECRET: ${{ secrets.TYPECELL_GOOGLE_OAUTH_SECRET }}
 
       # doesn't seem to cause significant speed up, probably because it still needs to install deps
       - name: cache playwright
@@ -45,17 +79,17 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
-      - name: Set correct access for docker containers (server/test/data)
-        run: chmod -R a+rw test-util/server/data
+      # - name: Set correct access for docker containers (server/test/data)
+      #   run: chmod -R a+rw test-util/server/data
 
-      - name: Build the docker-compose stack
-        run: docker-compose -f test-util/server/docker-compose.yml up -d
+      # - name: Build the docker-compose stack
+      #   run: docker-compose -f test-util/server/docker-compose.yml up -d
 
-      - name: Check running containers
-        run: docker ps -a
+      # - name: Check running containers
+      #   run: docker ps -a
 
-      - name: Check docker logs
-        run: docker logs synapse
+      # - name: Check docker logs
+      #   run: docker logs synapse
 
       - name: NPM CI
         run: npm ci
@@ -63,11 +97,22 @@ jobs:
       # - name: Bootstrap packages
       #   run: npm run bootstrap
 
-      - name: Wait for Matrix
-        run: npx wait-on http://localhost:8888/_matrix/static/
+      # - name: Wait for Matrix
+      #   run: npx wait-on http://localhost:8888/_matrix/static/
 
       - name: Build packages
         run: npm run build
+        env:
+          CI: true
+
+      - name: Build packages (vite react)
+        run: npm run build:react
+        env:
+          CI: true
+          MODE: development
+
+      - name: Lint
+        run: npm run lint
         env:
           CI: true
 
@@ -77,31 +122,25 @@ jobs:
         # env:
         # PLAYWRIGHT_BROWSERS_PATH: 0 # https://github.com/microsoft/playwright/blob/main/docs/src/ci.md#caching-browsers
 
-      - name: Lint
-        run: npm run lint
+      - name: Start HocusPocus server
+        run: RUNNER_TRACKING_ID="" && npm run start:server &
         env:
           CI: true
 
-      # Option A: don't build in CI, but test against dev server
-      # (with Vite, building in CI is now fast enough so we can go for option B)
+      - name: Run Tests
+        run: npm run test
+        env:
+          CI: true
 
-      # - name: Run dev server
-      #   # Wait on config file needed for vite dev server: https://github.com/jeffbski/wait-on/issues/78
-      #   run: npm run start:local & npx wait-on http://localhost:5173 -c ./packages/editor/wait-on.conf.json
-      #   env:
-      #     CI: true
-
-      # - name: Run Playwright tests (against dev server)
-      #   run: npm run playwright:dev
-
-      # Option B: actually build and run react code and run tests against that
-      - name: Build and run preview server
+      # Actually build and run react code and run tests against that
+      - name: Build and run preview
         # Wait on config file needed for vite dev server: https://github.com/jeffbski/wait-on/issues/78
         run: npm run start:preview & npx wait-on http://localhost:4173 -c ./packages/editor/wait-on.conf.json
         env:
           CI: true
+          MODE: development
 
-      - name: Run Playwright tests (against preview server)
+      - name: Run Playwright tests (against preview)
         run: npm run playwright:preview
 
       - uses: actions/upload-artifact@v2
@@ -111,18 +150,11 @@ jobs:
           path: packages/editor/playwright-report/
           retention-days: 30
 
-      - uses: actions/upload-artifact@v2
-        if: always()
+      # Upload webpack-stats.json to use on relative-ci.yaml workflow
+      - name: Upload webpack stats artifact
+        uses: relative-ci/agent-upload-artifact-action@v1
         with:
-          name: playwright-report-engine
-          path: packages/engine/playwright-report/
-          retention-days: 30
-
-      - name: Run Tests
-        run: npm run test
-        env:
-          CI: true
-
+          webpackStatsFile: ./packages/editor/dist/webpack-stats.json
       # - name: Upload to coveralls
       #   uses: coverallsapp/github-action@master
       #   with:

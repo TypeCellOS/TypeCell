@@ -1,5 +1,6 @@
-import { ENVIRONMENT } from "./config";
+import { env } from "./env";
 
+const ENVIRONMENT = env.VITE_ENVIRONMENT;
 /*
 Helper functions to ensure we're loading the application (host) and user-code frame (sandbox) from the correct domains
 
@@ -20,35 +21,46 @@ PROD:
 export function validateHostDomain() {
   const hostname = window.location.hostname;
 
-  if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
+  if (ENVIRONMENT === "DEV") {
     return hostname === "localhost";
   }
 
   if (ENVIRONMENT === "STAGING") {
-    return hostname.match(/^typecell-next-[A-z0-9-]+-yousefed.vercel.app$/);
+    return hostname.match(/^typecell-[A-z0-9-]+-typecell.vercel.app$/);
   }
   return (
     hostname === "notebooks.typecell.org" || hostname === "www.typecell.org"
   );
 }
 
+export function validateSupabaseConfig() {
+  if (env.VITE_TYPECELL_SUPABASE_URL.includes("guzxrzrjknsekuefovon")) {
+    // only allow prod database on prod environment
+    return ENVIRONMENT === "PROD";
+  }
+  return true;
+}
+
 export function validateFrameDomain() {
   const hostname = window.location.hostname;
 
-  if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
-    return hostname === "127.0.0.1";
+  if (ENVIRONMENT === "DEV") {
+    return hostname === "localhost";
+    // return hostname === "127.0.0.1";
   }
 
   if (ENVIRONMENT === "STAGING") {
-    return hostname.match(/^typecell-next-[A-z0-9-]+-yousefed.vercel.app$/);
+    return hostname.match(/^typecell-[A-z0-9-]+-typecell.vercel.app$/);
   }
   return hostname.match(/^.*\.typescriptrepl\.com$/);
 }
 
 export function getFrameDomain() {
-  if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
+  if (ENVIRONMENT === "DEV") {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const port = window.location.host.match(/^localhost:(\d+)$/)![1];
-    return "127.0.0.1:" + port;
+    // return "127.0.0.1:" + port;
+    return "localhost:" + port;
   }
 
   if (ENVIRONMENT === "STAGING") {
@@ -59,8 +71,10 @@ export function getFrameDomain() {
 }
 
 export function getMainDomainFromIframe() {
-  if (ENVIRONMENT === "DEV" || ENVIRONMENT === "PREVIEW") {
-    const port = window.location.host.match(/^127\.0\.0\.1:(\d+)$/)![1];
+  if (ENVIRONMENT === "DEV") {
+    // const port = window.location.host.match(/^127\.0\.0\.1:(\d+)$/)![1];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const port = window.location.host.match(/^localhost:(\d+)$/)![1];
     return "localhost:" + port;
   }
 

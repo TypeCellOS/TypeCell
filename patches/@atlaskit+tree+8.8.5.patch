@@ -1,0 +1,13 @@
+diff --git a/node_modules/@atlaskit/tree/dist/esm/components/TreeItem/TreeItem.js b/node_modules/@atlaskit/tree/dist/esm/components/TreeItem/TreeItem.js
+index 521a2ae..4572bcb 100644
+--- a/node_modules/@atlaskit/tree/dist/esm/components/TreeItem/TreeItem.js
++++ b/node_modules/@atlaskit/tree/dist/esm/components/TreeItem/TreeItem.js
+@@ -34,7 +34,7 @@ var TreeItem = /*#__PURE__*/function (_Component) {
+       var transition = transitions.join(', ');
+       return _objectSpread(_objectSpread({}, draggableProps), {}, {
+         style: _objectSpread(_objectSpread({}, draggableProps.style), {}, {
+-          paddingLeft: (path.length - 1) * offsetPerLevel,
++          // paddingLeft: (path.length - 1) * offsetPerLevel,
+           // @ts-ignore
+           transition: transition
+         })

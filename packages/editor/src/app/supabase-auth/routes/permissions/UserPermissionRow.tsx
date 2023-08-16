@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import Button from "@atlaskit/button";
 import Select from "@atlaskit/select";
 import { useState } from "react";
@@ -22,7 +23,7 @@ export default function UserPermissionRow(props: {
     props.editCallback(props.user.id, permission!.value as DocPermission);
   }
 
-  function remove(e: any) {
+  function remove() {
     props.removeCallback(props.user.id);
   }
   console.log("defperm", {
@@ -33,7 +34,7 @@ export default function UserPermissionRow(props: {
     <div className={styles.userRow}>
       <div className={styles.userInfo}>
         <Avatar
-          name={props.user.name}
+          name={props.user.nameWithoutAtSign}
           size="32"
           round={true}
           textSizeRatio={2}

@@ -11,7 +11,7 @@ const localResolver = new LocalModuleResolver(async (moduleName) => {
   return undefined;
 });
 
-const resolvers: any[] = [new SkypackResolver()];
+const resolvers = [new SkypackResolver()];
 const resolver = new ImportShimResolver(resolvers, localResolver);
 
 describe("import tests", () => {

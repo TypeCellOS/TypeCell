@@ -11,7 +11,6 @@ import { MatrixIdentifier } from "../../../../identifiers/MatrixIdentifier";
 import { openAsMarkdown } from "../../../../integrations/markdown/export";
 import { DocumentResource } from "../../../../store/DocumentResource";
 import { SessionStore } from "../../../../store/local/SessionStore";
-import { getStoreService } from "../../../../store/local/stores";
 import {
   ClosePermissionsDialog,
   IsPermissionsDialogOpen,
@@ -20,14 +19,16 @@ import {
 import { MenuBar } from "../menuBar/MenuBar";
 
 import { TypeCellIdentifier } from "../../../../identifiers/TypeCellIdentifier";
-import MatrixPermissionsDialog from "../../../matrix-auth/routes/permissions/PermissionsDialog";
+import { SupabaseSessionStore } from "../../../supabase-auth/SupabaseSessionStore";
 import SupabasePermissionsDialog from "../../../supabase-auth/routes/permissions/PermissionsDialog";
+import { Breadcrumb } from "./Breadcrumb";
 import styles from "./DocumentMenu.module.css";
 import { ForkAlert } from "./ForkAlert";
 import { ShareButton } from "./ShareButton";
 
 type Props = {
   document: DocumentResource;
+  sessionStore: SessionStore;
 };
 
 // TODO: move?
@@ -38,26 +39,46 @@ function userCanEditPermissions(
   if (identifier && identifier instanceof MatrixIdentifier) {
     return sessionStore.loggedInUserId === identifier.owner;
   }
-  if (identifier && identifier instanceof TypeCellIdentifier) {
-    return sessionStore.loggedInUserId === identifier.owner;
-  }
-  return false;
+  return true;
+  // TODO
+  // if (identifier && identifier instanceof TypeCellIdentifier) {
+  //   return sessionStore.loggedInUserId === identifier.owner;
+  // }
+  // return false;
 }
 
 export const DocumentMenu: React.FC<Props> = observer((props) => {
-  const sessionStore = getStoreService().sessionStore;
+  const { sessionStore } = props;
   const canEditPermissions = userCanEditPermissions(
     sessionStore,
     props.document.identifier
   );
-  let location = useLocation();
-  let navigate = useNavigate();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  let permissionsArea: React.ReactElement;
+  if (
+    props.document.identifier instanceof TypeCellIdentifier &&
+    sessionStore instanceof SupabaseSessionStore
+  ) {
+    permissionsArea = (
+      <SupabasePermissionsDialog
+        close={() => ClosePermissionsDialog(navigate)}
+        isOpen={IsPermissionsDialogOpen(location)}
+        identifier={props.document.identifier}
+        sessionStore={sessionStore}
+      />
+    );
+  } else {
+    throw new Error("unexpected types");
+  }
+
   return (
     <MenuBar>
-      <div></div>
-      {/* <Breadcrumb identifier={props.document.identifier} /> */}
-      {props.document.connection!.needsFork && (
-        <ForkAlert document={props.document} />
+      <Breadcrumb sessionStore={sessionStore} />
+
+      {props.document.needsFork && (
+        <ForkAlert document={props.document} sessionStore={sessionStore} />
       )}
 
       <aside className={styles.actions}>
@@ -69,10 +90,12 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
           <li className={styles.separator}></li>
           <li className={styles.options}>
             <DropdownMenu
+              spacing="compact"
               shouldFlip
               trigger={({ triggerRef, isSelected, testId, ...props }) => (
                 <div
                   {...props}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   ref={triggerRef as any}
                   style={{ paddingRight: "0.5em", paddingLeft: "1em" }}>
                   <VscKebabVertical
@@ -82,7 +105,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
                 </div>
               )}
               placement="bottom-end">
-              <DropdownItem onClick={() => openAsMarkdown(props.document!.doc)}>
+              <DropdownItem onClick={() => openAsMarkdown(props.document.doc)}>
                 Export as markdown
               </DropdownItem>
               {canEditPermissions && (
@@ -94,22 +117,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
           </li>
         </ul>
       </aside>
-      {canEditPermissions &&
-        props.document.identifier instanceof MatrixIdentifier && (
-          <MatrixPermissionsDialog
-            close={() => ClosePermissionsDialog(navigate)}
-            isOpen={IsPermissionsDialogOpen(location)}
-            connection={props.document.connection!}
-          />
-        )}
-      {canEditPermissions &&
-        props.document.identifier instanceof TypeCellIdentifier && (
-          <SupabasePermissionsDialog
-            close={() => ClosePermissionsDialog(navigate)}
-            isOpen={IsPermissionsDialogOpen(location)}
-            connection={props.document.connection!}
-          />
-        )}
+      {canEditPermissions && permissionsArea}
     </MenuBar>
   );
 });

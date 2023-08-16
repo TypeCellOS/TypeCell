@@ -1,5 +1,4 @@
 import { Location, NavigateFunction, To } from "react-router-dom";
-import { parseIdentifier } from "../../identifiers";
 import { Identifier } from "../../identifiers/Identifier";
 import { identifiersToPath } from "../../identifiers/paths/identifierPathHelpers";
 import { BaseResource } from "../../store/BaseResource";
@@ -13,6 +12,7 @@ export function CloseNewPageDialog(navigate: NavigateFunction) {
 }
 
 export function IsNewPageDialogOpen(location: Location) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (location as any).state?.NewPageDialog;
 }
 
@@ -25,6 +25,7 @@ export function ClosePermissionsDialog(navigate: NavigateFunction) {
 }
 
 export function IsPermissionsDialogOpen(location: Location) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (location as any).state?.permissionsDialog;
 }
 
@@ -60,12 +61,9 @@ export function toIdentifier(identifier: Identifier): To {
   return { pathname: "/" + identifiersToPath(identifier) };
 }
 
-export function toIdentifierString(identifier: string): To {
-  return toIdentifier(parseIdentifier(identifier));
-}
-
 export function toNewGuestNotebook(): To {
-  return toIdentifier(parseIdentifier({ owner: "@typecell", document: "new" }));
+  return "/TODO";
+  // return toIdentifier(parseIdentifier({ owner: "@typecell", document: "new" }));
 }
 
 export function toProfilePage(owner: string): To {
