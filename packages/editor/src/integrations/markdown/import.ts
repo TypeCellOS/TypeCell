@@ -69,7 +69,6 @@ export async function markdownToYDoc(markdown: string, title?: string) {
   });
 
   const blocks = await editor.markdownToBlocks(markdown);
-
   editor.replaceBlocks(editor.topLevelBlocks, blocks);
 
   // markdownToXmlFragment(markdown, xml);
@@ -100,7 +99,7 @@ export const MonacoBlockContent = createTipTapBlock({
         parseHTML: (element) => element.getAttribute("data-language"),
         renderHTML: (attributes) => {
           return {
-            "data-language": attributes.level,
+            "data-language": attributes.language,
           };
         },
       },

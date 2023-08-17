@@ -130,6 +130,14 @@ export class SyncManager extends lifecycle.Disposable {
   }
 
   get canWrite(): boolean {
+    if (
+      this.remote instanceof FetchRemote &&
+      this.state.status === "syncing" &&
+      this.state.localDoc.meta.needs_save_since
+    ) {
+      // hacky fix for docs / httpidentifier
+      return false;
+    }
     return this.remote.canWrite;
   }
 
@@ -246,6 +254,12 @@ export class SyncManager extends lifecycle.Disposable {
       throw new Error("logged out while loading");
     }
 
+    if (this.identifier instanceof HttpsIdentifier) {
+      await this.sessionStore.documentCoordinator.clearIfNotChanged(
+        this.identifier
+      );
+    }
+
     const doc = this.sessionStore.documentCoordinator.loadDocument(
       this.identifier,
       this.ydoc
@@ -259,17 +273,18 @@ export class SyncManager extends lifecycle.Disposable {
 
       // TODO: catch when doc didn't exist locally
       await doc.idbProvider.whenSynced;
-      // console.log("done synced", doc.ydoc.toJSON());
+
       runInAction(() => {
         this.state = {
           status: "syncing",
           localDoc: doc,
         };
       });
-      if (this.identifier instanceof HttpsIdentifier) {
-        return;
+
+      // hacky fix for docs / httpidentifier
+      if (!(this.identifier instanceof HttpsIdentifier)) {
+        return this.startSyncing();
       }
-      return this.startSyncing();
     }
   }
 

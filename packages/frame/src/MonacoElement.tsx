@@ -11,7 +11,9 @@ import React, {
 } from "react";
 import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
 
+import { BlockNoteEditor } from "@blocknote/core";
 import { useResource } from "@typecell-org/util";
+import LanguageSelector from "./LanguageSelector";
 import styles from "./MonacoElement.module.css";
 import {
   applyDecorationsToMonaco,
@@ -26,7 +28,11 @@ import { getMonacoModel } from "./models/MonacoModelManager";
 
 const MonacoElementComponent = function MonacoElement(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  props: NodeViewProps & { block: any; selectionHack: any }
+  props: NodeViewProps & {
+    block: any;
+    selectionHack: any;
+    blockNoteEditor: any;
+  }
 ) {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
   // const refa = useRef<any>(Math.random());
@@ -38,9 +44,10 @@ const MonacoElementComponent = function MonacoElement(
       `file:///!${context.documentId}/${props.block.id}.cell.tsx`
     );
     console.log("allocate model", uri.toString());
+
     const model = getMonacoModel(
       textFromPMNode(props.node),
-      "typescript",
+      props.block.props.language,
       uri,
       monaco
     );
@@ -73,6 +80,12 @@ const MonacoElementComponent = function MonacoElement(
     models.state.isUpdating = true;
     models.state.node = props.node;
     try {
+      if (props.block.props.language !== models.codeModel.language) {
+        monaco.editor.setModelLanguage(
+          models.model,
+          props.block.props.language
+        );
+      }
       applyNodeChangesToMonaco(props.node, models.model);
       models.state.lastDecorations = applyDecorationsToMonaco(
         models.model,
@@ -86,7 +99,7 @@ const MonacoElementComponent = function MonacoElement(
     } finally {
       models.state.isUpdating = false;
     }
-  }, [props.node, props.decorations, models]);
+  }, [props.node, props.block, props.decorations, models]);
 
   // useImperativeHandle(
   //   ref,
@@ -216,6 +229,19 @@ const MonacoElementComponent = function MonacoElement(
         {codeVisible && (
           <div className={styles.codeCellCode}>
             {/* {props.toolbar && props.toolbar} */}
+            <LanguageSelector
+              language={props.block.props.language}
+              onChangeLanguage={(lang) => {
+                (props.blockNoteEditor as BlockNoteEditor<any>).updateBlock(
+                  props.block,
+                  {
+                    props: {
+                      language: lang,
+                    },
+                  }
+                );
+              }}
+            />
             <div className={styles.monacoContainer} ref={codeRefCallback}></div>
           </div>
         )}

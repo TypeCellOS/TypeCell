@@ -27,9 +27,10 @@ export const DocumentRoute = observer(
 
     if (!owner || owner.length < 2 || !owner.startsWith("@")) {
       const identifiers = tryPathToIdentifiers(location.pathname.substring(1));
+
       if (identifiers !== "invalid-identifier") {
         return (
-          <RouteContext.Provider value={{ groups: [identifiers] }}>
+          <RouteContext.Provider value={{ groups: [[...identifiers]] }}>
             <DocumentView
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               id={identifiers.shift()!}

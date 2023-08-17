@@ -72,7 +72,7 @@ export const MonacoBlockContent = createTipTapBlock({
         parseHTML: (element) => element.getAttribute("data-language"),
         renderHTML: (attributes) => {
           return {
-            "data-language": attributes.level,
+            "data-language": attributes.language,
           };
         },
       },
@@ -131,7 +131,7 @@ export const MonacoBlockContent = createTipTapBlock({
         <ComponentWithWrapper
           htmlAttributes={htmlAttributes}
           block={block}
-          editor={editor}
+          blockNoteEditor={editor}
           {...props}
           // ref={ref}
         />

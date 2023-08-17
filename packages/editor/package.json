@@ -30,7 +30,6 @@
     "@supabase/auth-ui-shared": "^0.1.6",
     "@supabase/supabase-js": "^2.26.0",
     "@syncedstore/yjs-reactive-bindings": "^0.5.1",
-    "@tippyjs/react": "^4.2.6",
     "@typecell-org/util": "^0.0.3",
     "@typecell-org/shared": "^0.0.3",
     "@typecell-org/engine": "^0.0.3",

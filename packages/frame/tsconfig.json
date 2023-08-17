@@ -22,7 +22,7 @@
     "composite": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", "../shared/src/codeModels/BasicCodeModel.ts"],
+  "include": ["src"],
   "references": [
     {
       "path": "../shared"

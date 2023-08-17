@@ -74,9 +74,10 @@ export const setMonacoDefaults = (monaco: typeof Monaco) => {
 
   // monaco.editor.EditorOptions.lineNumbers.defaultValue = 1 as any;
   // monaco.editor.EditorOptions.tab.defaultValue = 2;
-  // monaco.editor.EditorOptions.scrollbar.defaultValue = {
-  //   alwaysConsumeMouseWheel: false,
-  // };
+  monaco.editor.EditorOptions.scrollbar.defaultValue = {
+    ...monaco.editor.EditorOptions.scrollbar.defaultValue,
+    alwaysConsumeMouseWheel: false,
+  };
 
   monaco.editor.EditorOptions.formatOnPaste.defaultValue = true;
   const defaults = monaco.languages.typescript.typescriptDefaults;

@@ -207,7 +207,7 @@ export const Frame: React.FC<Props> = observer((props) => {
       const newEngine = new ReactiveEngine<BasicCodeModel>(
         resolver.resolveImport
       );
-      debugger;
+
       const newExecutionHost: ExecutionHost = new LocalExecutionHost(
         props.documentIdString,
         newCompiler,
