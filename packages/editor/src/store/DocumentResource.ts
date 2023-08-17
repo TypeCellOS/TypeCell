@@ -31,7 +31,7 @@ export class DocumentResource extends BaseResource {
     // navigate to block (via blockgroup / blockcontainer)
     const firstBlock = (this.data.firstChild as any)?.firstChild?.firstChild;
     if (firstBlock?.nodeName === "heading") {
-      return firstBlock.firstChild.toString();
+      return firstBlock.firstChild?.toString();
     }
 
     return undefined;

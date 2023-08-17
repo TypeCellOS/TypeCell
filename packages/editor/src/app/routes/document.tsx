@@ -5,6 +5,7 @@ import { SessionStore } from "../../store/local/SessionStore";
 import DocumentView from "../documentRenderers/DocumentView";
 import { SupabaseSessionStore } from "../supabase-auth/SupabaseSessionStore";
 import { RouteContext } from "./RouteContext";
+import { URLUpdater } from "./URLUpdater";
 import { OwnerAliasRoute } from "./ownerAlias";
 
 export const DocumentRoute = observer(
@@ -31,6 +32,10 @@ export const DocumentRoute = observer(
       if (identifiers !== "invalid-identifier") {
         return (
           <RouteContext.Provider value={{ groups: [[...identifiers]] }}>
+            <URLUpdater
+              identifiers={identifiers}
+              sessionStore={props.sessionStore}
+            />
             <DocumentView
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               id={identifiers.shift()!}
