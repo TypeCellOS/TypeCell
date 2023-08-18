@@ -7,7 +7,7 @@ import type * as Monaco from "monaco-editor";
 import EditorWorker from "./workers/editor.worker?worker"; // eslint-disable-line import/no-webpack-loader-syntax
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import TsWorker from "./workers/ts.worker?worker"; // eslint-disable-line import/no-webpack-loader-syntax
+import TsWorker from "./workers/ts.worker?sharedworker"; // eslint-disable-line import/no-webpack-loader-syntax
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import CSSWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
@@ -21,7 +21,31 @@ if (!(window as any).MonacoEnvironment) {
   (window as any).MonacoEnvironment = (global as any).MonacoEnvironment = {
     getWorker: function (workerId: string, label: string) {
       if (label === "typescript" || label === "javascript") {
-        return new TsWorker();
+        const w = new TsWorker(); // TsWorker();
+        // w.port.start();
+
+        return {
+          postMessage: w.port.postMessage.bind(w.port),
+          addEventListener: w.port.addEventListener.bind(w.port),
+          removeEventListener: w.port.removeEventListener.bind(w.port),
+          terminate: () => {
+            // noop
+          },
+          get onmessage() {
+            return w.port.onmessage;
+          },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          set onmessage(val: any) {
+            w.port.onmessage = val;
+          },
+          get onmessageerror() {
+            return w.port.onmessageerror;
+          },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          set onmessageerror(val: any) {
+            w.port.onmessageerror = val;
+          },
+        };
       }
       if (label === "json") {
         throw new Error("not implemented");
