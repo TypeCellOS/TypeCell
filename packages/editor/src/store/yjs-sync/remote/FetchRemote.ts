@@ -1,7 +1,7 @@
 import { makeObservable, observable, runInAction } from "mobx";
 import { path, strings } from "vscode-lib";
 
-import { ChildReference } from "@typecell-org/shared";
+import { ChildReference, IndexFileReference } from "@typecell-org/shared";
 import _ from "lodash";
 import * as Y from "yjs";
 import { filesToTreeNodes } from "../../../app/documentRenderers/project/directoryNavigation/treeNodeUtil";
@@ -81,8 +81,6 @@ export default class FetchRemote extends Remote {
   private async getNewYDocFromDir(indexFile: IndexFile) {
     const newDoc = new Y.Doc();
     newDoc.getMap("meta").set("type", "!project");
-
-    debugger;
     newDoc.getMap("meta").set("title", indexFile.title);
     const project = new ProjectResource(newDoc, this.identifier); // TODO
 
@@ -93,6 +91,11 @@ export default class FetchRemote extends Remote {
     tree.forEach((node) => {
       const id = getIdentifierWithAppendedPath(this.identifier, node.fileName);
       project.addRef(ChildReference, id, undefined, false);
+
+      if (node.fileName === "README.md") {
+        debugger;
+        project.addRef(IndexFileReference, id, undefined, false);
+      }
     });
 
     return newDoc;

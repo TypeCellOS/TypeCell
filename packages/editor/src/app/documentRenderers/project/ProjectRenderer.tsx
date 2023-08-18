@@ -1,5 +1,7 @@
+import { IndexFileReference } from "@typecell-org/shared";
 import { observer } from "mobx-react-lite";
 import React from "react";
+import { parseIdentifier } from "../../../identifiers";
 import { Identifier } from "../../../identifiers/Identifier";
 import ProjectResource from "../../../store/ProjectResource";
 import { SessionStore } from "../../../store/local/SessionStore";
@@ -20,7 +22,15 @@ const RootDirectory = () => {
 };
 
 const ProjectRenderer: React.FC<Props> = observer((props) => {
-  const [childId, ...remainingIds] = props.subIdentifiers;
+  let [childId, ...remainingIds] = props.subIdentifiers;
+
+  if (!childId) {
+    const children = props.project.getRefs(IndexFileReference);
+    if (children.length) {
+      childId = parseIdentifier(children[0].target);
+      remainingIds = [];
+    }
+  }
   return (
     <ProjectContainer
       project={props.project}
@@ -34,7 +44,11 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
           sessionStore={props.sessionStore}
         />
       ) : (
-        <RootDirectory />
+        <div>
+          {props.project.identifier.toString()}
+          {props.subIdentifiers.length}
+          <RootDirectory />
+        </div>
       )}
     </ProjectContainer>
   );
