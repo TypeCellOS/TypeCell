@@ -25,7 +25,7 @@ import styles from "./SidebarTree.module.css";
 const RenderItem =
   (
     onClick: (item: Identifier) => void,
-    onAddChild: (parentId: string) => void
+    onAddChild: ((parentId: string) => void) | false
   ) =>
   ({ item, onExpand, onCollapse, provided, depth }: RenderItemParams) => {
     // const doc = DocConnection.get(item.data.identifier)?.tryDoc;
@@ -50,6 +50,9 @@ const RenderItem =
     };
 
     const onAddClick = (e: React.MouseEvent) => {
+      if (!onAddChild) {
+        throw new Error("unexpected");
+      }
       e.stopPropagation();
       onExpand(item.id);
       onAddChild(item.data.identifier);
@@ -84,11 +87,13 @@ const RenderItem =
                   title=""
                 />
               )}
-              <VscAdd
-                onClick={onAddClick}
-                className={styles.addChild}
-                title=""
-              />
+              {onAddChild && (
+                <VscAdd
+                  onClick={onAddClick}
+                  className={styles.addChild}
+                  title=""
+                />
+              )}
             </>
           }
           iconBefore={
@@ -131,8 +136,9 @@ export const SidebarTree = observer(
   (props: {
     tree: TreeData;
     onClick: (item: Identifier) => void;
-    onAddNewPage: (parent?: string) => Promise<void>;
+    onAddNewPage: ((parent?: string) => Promise<void>) | false;
     enableAddRootPage: boolean;
+    enableDrag: boolean;
     sessionStore: SessionStore;
   }) => {
     const { sessionStore, tree } = props;
@@ -248,6 +254,8 @@ export const SidebarTree = observer(
       // });
     };
 
+    const onAddNewPage = props.onAddNewPage;
+
     return (
       <>
         <Tree
@@ -258,10 +266,10 @@ export const SidebarTree = observer(
           // onDragStart={() => {}}
           onDragEnd={onDragEnd}
           offsetPerLevel={17}
-          isDragEnabled
+          isDragEnabled={props.enableDrag}
           isNestingEnabled
         />
-        {props.enableAddRootPage && (
+        {props.enableAddRootPage && onAddNewPage && (
           <Button
             className={styles.sidebarButton}
             component="div"
@@ -275,7 +283,7 @@ export const SidebarTree = observer(
                 title=""
               />
             }
-            onClick={() => props.onAddNewPage()}
+            onClick={() => onAddNewPage()}
             appearance="subtle">
             Add a page
           </Button>

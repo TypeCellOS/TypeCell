@@ -20,6 +20,7 @@ import { MenuBar } from "../menuBar/MenuBar";
 
 import { HttpsIdentifier } from "../../../../identifiers/HttpsIdentifier";
 import { TypeCellIdentifier } from "../../../../identifiers/TypeCellIdentifier";
+import ProjectResource from "../../../../store/ProjectResource";
 import { SupabaseSessionStore } from "../../../supabase-auth/SupabaseSessionStore";
 import SupabasePermissionsDialog from "../../../supabase-auth/routes/permissions/PermissionsDialog";
 import { Breadcrumb } from "./Breadcrumb";
@@ -28,7 +29,7 @@ import { ForkAlert } from "./ForkAlert";
 import { ShareButton } from "./ShareButton";
 
 type Props = {
-  document: DocumentResource;
+  document: DocumentResource | ProjectResource;
   sessionStore: SessionStore;
 };
 
@@ -83,9 +84,10 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
     <MenuBar>
       <Breadcrumb sessionStore={sessionStore} />
 
-      {props.document.needsFork && (
-        <ForkAlert document={props.document} sessionStore={sessionStore} />
-      )}
+      {props.document.needsFork &&
+        props.document instanceof DocumentResource && (
+          <ForkAlert document={props.document} sessionStore={sessionStore} />
+        )}
 
       <aside className={styles.actions}>
         <ul>
@@ -111,9 +113,12 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
                 </div>
               )}
               placement="bottom-end">
-              <DropdownItem onClick={() => openAsMarkdown(props.document.doc)}>
-                Export as markdown
-              </DropdownItem>
+              {props.document instanceof DocumentResource && (
+                <DropdownItem
+                  onClick={() => openAsMarkdown(props.document.doc)}>
+                  Export as markdown
+                </DropdownItem>
+              )}
               {canEditPermissions && (
                 <DropdownItem onClick={() => OpenPermissionsDialog(navigate)}>
                   Permissions

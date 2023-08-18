@@ -28,18 +28,18 @@ export const DocumentRoute = observer(
 
     if (!owner || owner.length < 2 || !owner.startsWith("@")) {
       const identifiers = tryPathToIdentifiers(location.pathname.substring(1));
-
       if (identifiers !== "invalid-identifier") {
+        const [id, ...subs] = identifiers;
         return (
-          <RouteContext.Provider value={{ groups: [[...identifiers]] }}>
+          <RouteContext.Provider value={{ groups: [identifiers] }}>
             <URLUpdater
               identifiers={identifiers}
               sessionStore={props.sessionStore}
             />
             <DocumentView
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              id={identifiers.shift()!}
-              subIdentifiers={identifiers}
+              id={id}
+              subIdentifiers={subs}
               sessionStore={sessionStore}
             />
           </RouteContext.Provider>

@@ -11,6 +11,11 @@ import { markdownToYDoc } from "../../../integrations/markdown/import";
 import ProjectResource from "../../ProjectResource";
 import { Remote } from "./Remote";
 
+type IndexFile = {
+  title: string;
+  items: string[];
+};
+
 function isEmptyDoc(doc: Y.Doc) {
   return areDocsEqual(doc, new Y.Doc());
 }
@@ -73,15 +78,16 @@ export default class FetchRemote extends Remote {
     }
   }
 
-  private async getNewYDocFromDir(objects: string[]) {
+  private async getNewYDocFromDir(indexFile: IndexFile) {
     const newDoc = new Y.Doc();
     newDoc.getMap("meta").set("type", "!project");
 
-    newDoc.getMap("meta").set("title", path.basename(this.identifier.uri.path));
+    debugger;
+    newDoc.getMap("meta").set("title", indexFile.title);
     const project = new ProjectResource(newDoc, this.identifier); // TODO
 
     const tree = filesToTreeNodes(
-      objects.map((object) => ({ fileName: object }))
+      indexFile.items.map((object) => ({ fileName: object }))
     );
 
     tree.forEach((node) => {
@@ -93,7 +99,7 @@ export default class FetchRemote extends Remote {
   }
 
   private fetchIndex = _.memoize(async (path: string) => {
-    return (await (await fetch(path)).json()) as string[];
+    return (await (await fetch(path)).json()) as IndexFile;
   });
 
   private async getNewYDocFromFetch() {
@@ -105,7 +111,10 @@ export default class FetchRemote extends Remote {
         await fetch(this.identifier.uri.toString(true))
       ).text();
 
-      return markdownToYDoc(contents, path.basename(this.identifier.uri.path));
+      return markdownToYDoc(
+        contents,
+        decodeURIComponent(path.basename(this.identifier.uri.path))
+      );
     } else {
       // TODO: this is hacky. We should use json from parent route instead. Revise routing?
 
@@ -114,17 +123,19 @@ export default class FetchRemote extends Remote {
         .split("/");
       const index = this.identifier.uri.with({ path: root + "/index.json" });
 
-      let json = await this.fetchIndex(index.toString());
+      const json = await this.fetchIndex(index.toString());
 
       let prefix = remainders.join("/"); // + "/";
       if (prefix) {
         prefix = prefix + "/";
+        json.title = path.basename(this.identifier.uri.path);
       }
-      json = json.filter((path) => path.startsWith(prefix));
-      json = json.map((path) => path.substring(prefix.length));
-      if (!json.length) {
+      let items = json.items.filter((path) => path.startsWith(prefix));
+      items = items.map((path) => path.substring(prefix.length));
+      if (!items.length) {
         return "not-found" as const;
       }
+      json.items = items;
       return this.getNewYDocFromDir(json);
     }
   }

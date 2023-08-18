@@ -21,8 +21,8 @@ function getTitleForIdentifier(
   if (doc) {
     switch (doc.tryDoc?.type) {
       case "!project":
-        // TODO
-        return "public workspace";
+        return doc.tryDoc.title || "Untitled";
+      // return "public workspace";
       case "!profile":
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return doc.tryDoc!.getSpecificType(ProfileResource).title;
