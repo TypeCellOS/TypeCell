@@ -16,7 +16,7 @@ const ProductHome = () => {
   return (
     <>
       <Logo></Logo>
-      <span className={styles.sub}> Alpha preview</span>
+      {/* <span className={styles.sub}>beta</span> */}
       <div className={styles.separator}></div>
     </>
   );

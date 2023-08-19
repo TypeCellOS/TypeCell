@@ -1,4 +1,4 @@
-import { IndexFileReference } from "@typecell-org/shared";
+import { ChildReference, IndexFileReference } from "@typecell-org/shared";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { parseIdentifier } from "../../../identifiers";
@@ -7,6 +7,8 @@ import ProjectResource from "../../../store/ProjectResource";
 import { SessionStore } from "../../../store/local/SessionStore";
 import DocumentView from "../DocumentView";
 import ProjectContainer from "./ProjectContainer";
+
+import EmptyState from "@atlaskit/empty-state";
 
 type Props = {
   project: ProjectResource;
@@ -25,12 +27,21 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
   let [childId, ...remainingIds] = props.subIdentifiers;
 
   if (!childId) {
-    const children = props.project.getRefs(IndexFileReference);
+    const indexFile = props.project.getRefs(IndexFileReference);
+    if (indexFile.length) {
+      childId = parseIdentifier(indexFile[0].target);
+      remainingIds = [];
+    }
+  }
+
+  if (!childId) {
+    const children = props.project.getRefs(ChildReference);
     if (children.length) {
       childId = parseIdentifier(children[0].target);
       remainingIds = [];
     }
   }
+
   return (
     <ProjectContainer
       project={props.project}
@@ -45,9 +56,13 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
         />
       ) : (
         <div>
-          {props.project.identifier.toString()}
-          {props.subIdentifiers.length}
-          <RootDirectory />
+          <EmptyState
+            header="No page found yet!"
+            description="Add a page using the sidebar on the left-hand side."
+            // primaryAction={<Button appearance="primary">Request access</Button>}
+            // secondaryAction={<Button>View permissions</Button>}
+            // tertiaryAction={<Button appearance="link">Learn more</Button>}
+          />
         </div>
       )}
     </ProjectContainer>
