@@ -72,7 +72,7 @@ typecell
 │   ├── editor          - The main React application
 │   ├── engine          - The live-code execution engine
 │   ├── packager        - Tool to bundle TypeCell notebook apps (WIP)
-│   └── parsers         - Helpers to convert to / from TypeCell notebooks
+│   └── parsers         - Helpers to convert to / from TypeCell documents
 ├── patches             - patch-package patches
 └── test-util           - Server and data for unit tests
 ```

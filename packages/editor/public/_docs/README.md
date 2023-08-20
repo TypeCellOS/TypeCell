@@ -1,4 +1,4 @@
-# Welcome to TypeCell Notebooks
+# Welcome to TypeCell
 
 Hi there 👋 ! Welcome to the community preview of TypeCell, an experimental _live notebook programming_ environment for the web.
 

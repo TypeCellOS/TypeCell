@@ -37,7 +37,7 @@
 
   position: fixed;
   width: 100%;
-  z-index: 10000;
+  z-index: 100000;
 }
 
 .main.homepage.top > header[role="banner"] {
@@ -71,6 +71,7 @@
     rgba(255, 255, 255, 0.7) 50%,
     rgba(255, 255, 255, 1) 100%
   ); */
+  z-index: 10000;
 }
 
 /* Page wrapper styles */

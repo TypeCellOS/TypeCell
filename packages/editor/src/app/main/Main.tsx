@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
@@ -38,27 +39,15 @@ const Main = observer((props: { sessionStore: SessionStore }) => {
   return (
     <DndProvider backend={HTML5Backend}>
       <div
-        className={
-          (top ? styles.top : "") +
-          " " +
-          styles.main +
-          " " +
-          (location.pathname === "/" || location.pathname === "/ai"
-            ? styles.homepage
-            : "") +
-          " " +
-          (location.pathname === "/ai" ? styles.ai : "")
-        }>
+        className={classNames(
+          styles.main,
+          top && styles.top,
+          (location.pathname === "/" || location.pathname === "/ai") &&
+            styles.homepage,
+          location.pathname === "/ai" && styles.ai
+        )}>
         <Navigation sessionStore={props.sessionStore} />
         <Outlet />
-        {/* {props.sessionStore.loggedInUserId && (
-          <NewPageDialog
-            sessionStore={props.sessionStore}
-            ownerId={props.sessionStore.loggedInUserId}
-            close={() => CloseNewPageDialog(navigate)}
-            isOpen={IsNewPageDialogOpen(location)}
-          />
-        )} */}
       </div>
     </DndProvider>
   );
