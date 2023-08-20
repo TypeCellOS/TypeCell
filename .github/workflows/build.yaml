@@ -105,6 +105,12 @@ jobs:
         env:
           CI: true
 
+      - name: Build packages (vite react)
+        run: npm run build:react
+        env:
+          CI: true
+          MODE: development
+
       - name: Lint
         run: npm run lint
         env:

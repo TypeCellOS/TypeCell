@@ -14,6 +14,7 @@ import { SessionStore } from "../../store/local/SessionStore";
 import DocumentView from "../documentRenderers/DocumentView";
 import { SupabaseSessionStore } from "../supabase-auth/SupabaseSessionStore";
 import { RouteContext } from "./RouteContext";
+import { URLUpdater } from "./URLUpdater";
 
 type Props = {
   owner: string;
@@ -27,7 +28,7 @@ export const OwnerAliasRoute = observer(
       throw new Error("No session store");
     }
 
-    let location = useLocation();
+    const location = useLocation();
 
     const [aliasResolveStatus, setAliasResolveStatus] = useState<
       "loading" | "error" | "not-found" | "loaded"
@@ -35,7 +36,7 @@ export const OwnerAliasRoute = observer(
 
     const [ownerDoc, setOwnerDoc] = useState<DocConnection>();
 
-    const alias = sessionStore.aliasCoordinator?.aliases.get(owner!);
+    const alias = sessionStore.aliasCoordinator?.aliases.get(owner);
     const ownerProfileIdentifier = useMemo(() => {
       return (
         alias || {
@@ -174,11 +175,12 @@ export const OwnerAliasRoute = observer(
       profileDoc.identifier.toString()
     );
 
-    for (let item of profileDoc.workspaces.keys()) {
+    for (const item of profileDoc.workspaces.keys()) {
       const sh = "@" + owner + "/" + item;
 
       defaultShorthandResolver.current.addShorthand(
         sh,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         profileDoc.workspaces.get(item)!
       );
     }
@@ -202,10 +204,12 @@ export const OwnerAliasRoute = observer(
       );
     }
 
-    const [id, ...subs] = pathToIdentifiers(location.pathname.substring(1));
+    const identifiers = pathToIdentifiers(location.pathname.substring(1));
+    const [id, ...subs] = identifiers;
     return (
       <RouteContext.Provider
         value={{ groups: [[doc.identifier], [id, ...subs]] }}>
+        <URLUpdater identifiers={identifiers} sessionStore={sessionStore} />
         <DocumentView
           id={id}
           subIdentifiers={subs}

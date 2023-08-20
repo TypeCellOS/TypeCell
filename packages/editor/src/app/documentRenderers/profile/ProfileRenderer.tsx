@@ -9,7 +9,12 @@ type Props = {
 };
 
 const ProfileRenderer: React.FC<Props> = observer((props) => {
-  return <div>Hello {props.profile.title}</div>;
+  return (
+    <div>
+      <h1>Hello {props.profile.title}</h1>
+      <h2>Workspaces</h2>
+    </div>
+  );
 });
 
 export default ProfileRenderer;

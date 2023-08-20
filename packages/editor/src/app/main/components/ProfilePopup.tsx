@@ -7,8 +7,7 @@ import { observer } from "mobx-react-lite";
 import Avatar from "react-avatar";
 import { useNavigate } from "react-router-dom";
 import { SessionStore } from "../../../store/local/SessionStore";
-
-import { OpenNewPageDialog } from "../../routes/routes";
+import { toProfilePage } from "../../routes/routes";
 
 export const ProfilePopup = observer(
   (props: { sessionStore: SessionStore }) => {
@@ -17,6 +16,7 @@ export const ProfilePopup = observer(
     /* TODO: props.authStore.user!.firebase.photoURL! */
     return (
       <DropdownMenu
+        spacing="compact"
         trigger={(innerProps) => {
           const { triggerRef, isSelected, testId, ...passProps } = innerProps;
           return (
@@ -38,13 +38,18 @@ export const ProfilePopup = observer(
           );
         }}
         placement="bottom-end">
-        <DropdownItem onClick={() => OpenNewPageDialog(navigate)}>
+        {/* <DropdownItem onClick={() => OpenNewPageDialog(navigate)}>
           New page
-        </DropdownItem>
-        <DropdownItemGroup title={"@" + props.sessionStore.loggedInUserId!}>
-          {" "}
+        </DropdownItem> */}
+        <DropdownItemGroup
+          title={"@" + props.sessionStore.loggedInUserId || ""}>
           {/* @${props.authStore.user?.username} */}
-          {/* <DropdownItem>Profile</DropdownItem> */}
+          <DropdownItem
+            onClick={() => {
+              navigate(toProfilePage("@" + props.sessionStore.loggedInUserId));
+            }}>
+            Profile
+          </DropdownItem>
           {/* <DropdownItem>Account settings</DropdownItem> */}
           <DropdownItem onClick={props.sessionStore.logout}>
             Sign out

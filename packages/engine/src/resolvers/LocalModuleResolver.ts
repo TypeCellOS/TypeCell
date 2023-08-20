@@ -3,6 +3,7 @@ export class LocalModuleResolver {
     public readonly getModule: (
       moduleName: string,
       mode?: string
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ) => Promise<any>
   ) {}
   // public abstract getModule(moduleName: string, mode?: string): Promise<any>;

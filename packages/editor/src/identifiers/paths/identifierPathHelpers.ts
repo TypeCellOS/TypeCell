@@ -5,7 +5,6 @@ import {
   DEFAULT_IDENTIFIER_BASE,
   DEFAULT_IDENTIFIER_BASE_STRING,
 } from "../../config/config";
-import { FileIdentifier } from "../FileIdentifier";
 import { Identifier } from "../Identifier";
 import { TypeCellIdentifier } from "../TypeCellIdentifier";
 
@@ -51,9 +50,9 @@ abstract class ShorthandResolver {
 
 export class DefaultShorthandResolver extends ShorthandResolver {
   private readonly shortHands: Record<string, string> = {
-    // docs: "http:" + window.location.hostname + "/_docs/",
+    docs: window.location.protocol + window.location.host + "/_docs/",
     // docs: "fs:localhost:3001",
-    docs: "http:localhost/_docs/",
+    // docs: "http:localhost/_docs/",
   };
 
   private readonly reverseShortHands = Object.entries(this.shortHands).reduce(
@@ -84,11 +83,12 @@ export class DefaultShorthandResolver extends ShorthandResolver {
       }
     | undefined {
     let match: { shorthand: string; identifier: string } | undefined;
-    for (let sh of Object.keys(this.shortHands)) {
+    for (const sh of Object.keys(this.shortHands)) {
       if (path.startsWith(sh)) {
         if (!match || sh.length > match.shorthand.length) {
           match = {
             shorthand: sh,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             identifier: this.shortHands[sh]!,
           };
         }
@@ -182,7 +182,7 @@ export function identifiersToPath(
   }
 
   let lastIdentifier: Identifier = identifiers[0];
-  let rootPath = getPathAndShorthandFromFirstIdentifier(
+  const rootPath = getPathAndShorthandFromFirstIdentifier(
     lastIdentifier,
     shorthandResolver
   );
@@ -210,9 +210,13 @@ export function getIdentifierWithAppendedPath(
   pathToAppend: string
 ): Identifier {
   const uri = identifier.uri.with({
-    path: path.join(identifier.uri.path || "/", pathToAppend),
+    path: path.join(
+      identifier.uri.path || "/",
+      encodeURIComponent(pathToAppend)
+    ),
   });
-  return new FileIdentifier(uri);
+
+  return parseUriIdentifier(uri);
 }
 
 /**
@@ -224,8 +228,12 @@ export function parseFullIdentifierString(
   // our identifiers don't use scheme://xxx but scheme:xxx. Reason for this decision is to make it work with react-router
   identifierString = identifierString.replace(/([a-z]+:)/, "$1//");
 
-  let parsedUri = uri.URI.parse(identifierString);
+  const parsedUri = uri.URI.parse(identifierString);
 
+  return parseUriIdentifier(parsedUri);
+}
+
+function parseUriIdentifier(parsedUri: uri.URI) {
   const identifierType = registeredIdentifiers.get(parsedUri.scheme);
   if (!identifierType) {
     throw new Error("identifier not found");
@@ -290,7 +298,7 @@ export function pathToIdentifiers(
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
 
-    let shortHandMatched = shorthandResolver.findShorthandAtStartOfPath(part);
+    const shortHandMatched = shorthandResolver.findShorthandAtStartOfPath(part);
 
     if (shortHandMatched) {
       identifiers.push(

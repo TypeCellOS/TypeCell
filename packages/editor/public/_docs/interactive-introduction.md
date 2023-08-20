@@ -1,16 +1,15 @@
-# Introduction to TypeCell Notebooks
+# Introduction to TypeCell
 
-Welcome to TypeCell Notebooks. A notebook is a live, interactive programming environment for Javascript / Typescript
+Welcome to TypeCell. A TypeCell document is a live, interactive programming environment for Javascript / Typescript
 running in your browser.
 
-In this introduction, we will go through the basics of using TypeCell Notebooks.
+In this introduction, we will go through the basics of using TypeCell.
 
 ## Cats
 
 Let's say you're like my grandma, and you have a lot of cats. Our story will be about them.
 
 ### Step 1: give your cat a name!
-
 
 ```typescript
 export let cat = {
@@ -51,7 +50,6 @@ export default message;
 
 ### Step 2: Friends
 
-
 ```typescript
 export default (
   <div>I feel like our cat needs a friend. Let's call him {$.friend.name}.</div>
@@ -62,7 +60,6 @@ Uh oh, what's this? I forgot to add a cell defining our friend. Can you do it fo
 
 A cell is a container for code & output. To add one, click on the + above or below another cell.
 You can do it wherever you like.
-
 
 ```typescript
 // @default-collapsed
@@ -86,13 +83,12 @@ to access across cells! Exported variables are also displayed below the cell.
 
 Code cells automatically run when:
 
-*   You change the code of a cell
-*   Any of the reactive variables the cell references (from `$`) are changed
+- You change the code of a cell
+- Any of the reactive variables the cell references (from `$`) are changed
 
 ## Feeding neighbors
 
 Our cats have some neighbors. Let's involve them in the story too!
-
 
 ```typescript
 export let neighbors = [
@@ -114,7 +110,6 @@ export let neighbors = [
 Now, if you're like my grandma, you're feeding the entire neighborhood by yourself, but you don't
 yet know if our friend prefers dry/wet food or how many cans they eat per week.
 
-
 ```typescript
 // @default-collapsed
 
@@ -135,7 +130,6 @@ export default (
 ### Feeding the cats
 
 Alright, once you've completed steps 1 - 3, let's see how much food you need to prepare. We do this in the cell below:
-
 
 ```typescript
 // Repeats a character a number of times and returns the string.
@@ -191,7 +185,6 @@ JSX is part of React, and makes it easy to create type-safe HTML elements. In Ty
 Next, we'll create some user input fields to indicate how much food we have prepared.
 The built-in TypeCell Input library makes this easy:
 
-
 ```typescript
 export let dryFoodPrepared = typecell.Input<number>(
   <input type="range" min="0" max="20" />,
@@ -220,7 +213,6 @@ export default (
 ```
 
 Now, let's also create some cells to calculate whether we have prepared enough food:
-
 
 ```typescript
 // @default-collapsed
@@ -310,7 +302,7 @@ export default (
 These are just 2 of the many input types that TypeCell supports. To see the
 other choices, make sure to try the TypeCell inputs tutorial.
 
-*<strong>Tip:</strong> expand the 3 cells above to see how they work.*
+_<strong>Tip:</strong> expand the 3 cells above to see how they work._
 
 ## Final notes
 
@@ -321,6 +313,6 @@ There are a lot more features to discover, for example,
 did you know you can import any NPM package you like, or even compose different notebooks?
 Try creating your own notebook to give it a try, or have a look at the other examples.
 
-**Have fun using TypeCell Notebooks!**
+**Have fun using TypeCell!**
 
 <small>This tutorial is inspired by [pluto.jl](https://github.com/fonsp/Pluto.jl), thanks Fons & Nicholas!</small>

@@ -31,6 +31,7 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
     }
   }, [location.pathname, sessionStore.loggedInUserId, navigate]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function onNewNotebookClick(e: any) {
     e.preventDefault();
     if (sessionStore.isLoggedIn) {
@@ -42,17 +43,38 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
 
   return (
     <>
+      <header className={styles.header}>
+        <div className={styles.headerContent}>
+          <h1>
+            Interactive documents. <strong>Reimagined.</strong>
+            <br />
+          </h1>
+          {/* <!-- <h1>A fresh take on documents.<br /></h1> --> */}
+          <p>
+            TypeCell is a fresh take on what documents and software can look
+            like. Think <em>Notion + Jupyter Notebooks</em>. Open Source.
+          </p>
+          <div className={styles.ctaButtons}>
+            <Link to={toTutorial()}>Try interactive tutorial</Link>
+            <a className={styles.simple} onClick={onNewNotebookClick} href="/">
+              Create new notebook
+            </a>
+            {/* <CTAButton href="/docs/quickstart"
+          >Create your workspace (beta)</CTAButton
+        > */}
+            {/* <!-- <CTAButton href="/guides/introduction" layout="simple"
+          >Learn more</CTAButton
+        > --> */}
+          </div>
+        </div>
+        <div className={styles.headerMedia}>
+          <div className={styles.code_block}>
+            <img src={intro} alt="TypeCell Demo" />
+          </div>
+        </div>
+      </header>
       <div className={styles.page + "  centered"}>
-        <section className={styles.introduction}>
-          {/* <div className={styles.github}>
-            <GitHubButton
-              href="https://github.com/YousefED/typecell-next"
-              data-color-scheme="no-preference: dark; light: light; dark: dark;"
-              data-show-count="true"
-              aria-label="Star YousefED/typecell-next on GitHub">
-              Star
-            </GitHubButton>
-          </div> */}
+        {/* <section className={styles.introduction}>
           <div className="container">
             <div>
               <h1>Create &amp; share live interactive notebooks</h1>
@@ -79,7 +101,7 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
               <img src={intro} alt="TypeCell Demo" />
             </div>
           </div>
-        </section>
+        </section> */}
 
         <section className={styles.perksSection}>
           <div className={styles.perks}>

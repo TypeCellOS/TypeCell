@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Database,
   DatabaseConfiguration,
@@ -6,6 +8,7 @@ import {
   beforeHandleMessagePayload,
   fetchPayload,
   onAuthenticatePayload,
+  onChangePayload,
   onDisconnectPayload,
   onLoadDocumentPayload,
   storePayload,
@@ -35,6 +38,7 @@ const documentIdByDocument = new WeakMap<Y.Doc, string>();
 
 type SupabaseType = Awaited<ReturnType<typeof createAnonClient>>;
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SupabaseConfiguration extends DatabaseConfiguration {}
 
 export class SupabaseHocuspocus extends Database {
@@ -259,7 +263,7 @@ export class SupabaseHocuspocus extends Database {
       );
 
     data.document.getMap("refs").observeDeep(refListener);
-
+    console.log("set reflistener", data.document.guid);
     this.refListenersByDocument.set(data.document, refListener);
 
     await super.onLoadDocument(data);
@@ -267,9 +271,11 @@ export class SupabaseHocuspocus extends Database {
 
   async onDisconnect(data: onDisconnectPayload): Promise<any> {
     if (data.clientsCount === 0) {
+      console.log("remove reflistener", data.document.guid);
       const refListener = this.refListenersByDocument.get(data.document);
       if (!refListener) {
-        throw new Error("unexpected: refListener not set");
+        console.error("unexpected: refListener not set"); // TODO should be an error
+        // throw new Error("unexpected: refListener not set");
       }
 
       data.document.getMap("refs").unobserveDeep(refListener);
@@ -277,13 +283,14 @@ export class SupabaseHocuspocus extends Database {
     }
   }
 
-  // async onChange(data: onChangePayload): Promise<any> {
-  //   console.log(
-  //     "ONCHANGE",
-  //     data.documentName,
-  //     data.document.getArray("inbox").toJSON()
-  //   );
-  // }
+  async onChange(_data: onChangePayload): Promise<any> {
+    // console.log(
+    //   "ONCHANGE",
+    //   data.documentName,
+    //   data.document.getXmlFragment("doc").toJSON()
+    //   // data.document.getArray("inbox").toJSON()
+    // );
+  }
 
   async beforeHandleMessage(data: beforeHandleMessagePayload): Promise<any> {
     // console.log("message", data);

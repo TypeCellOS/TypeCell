@@ -18,7 +18,9 @@ import {
 } from "../../../routes/routes";
 import { MenuBar } from "../menuBar/MenuBar";
 
+import { HttpsIdentifier } from "../../../../identifiers/HttpsIdentifier";
 import { TypeCellIdentifier } from "../../../../identifiers/TypeCellIdentifier";
+import ProjectResource from "../../../../store/ProjectResource";
 import { SupabaseSessionStore } from "../../../supabase-auth/SupabaseSessionStore";
 import SupabasePermissionsDialog from "../../../supabase-auth/routes/permissions/PermissionsDialog";
 import { Breadcrumb } from "./Breadcrumb";
@@ -27,7 +29,7 @@ import { ForkAlert } from "./ForkAlert";
 import { ShareButton } from "./ShareButton";
 
 type Props = {
-  document: DocumentResource;
+  document: DocumentResource | ProjectResource;
   sessionStore: SessionStore;
 };
 
@@ -36,6 +38,9 @@ function userCanEditPermissions(
   sessionStore: SessionStore,
   identifier: Identifier
 ) {
+  if (identifier instanceof HttpsIdentifier) {
+    return false;
+  }
   if (identifier && identifier instanceof MatrixIdentifier) {
     return sessionStore.loggedInUserId === identifier.owner;
   }
@@ -53,33 +58,36 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
     sessionStore,
     props.document.identifier
   );
-  let location = useLocation();
-  let navigate = useNavigate();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  let permissionsArea: any;
-  if (
-    props.document.identifier instanceof TypeCellIdentifier &&
-    sessionStore instanceof SupabaseSessionStore
-  ) {
-    permissionsArea = (
-      <SupabasePermissionsDialog
-        close={() => ClosePermissionsDialog(navigate)}
-        isOpen={IsPermissionsDialogOpen(location)}
-        identifier={props.document.identifier}
-        sessionStore={sessionStore}
-      />
-    );
-  } else {
-    throw new Error("unexpected types");
+  let permissionsArea: React.ReactElement = <></>;
+  if (canEditPermissions) {
+    if (
+      props.document.identifier instanceof TypeCellIdentifier &&
+      sessionStore instanceof SupabaseSessionStore
+    ) {
+      permissionsArea = (
+        <SupabasePermissionsDialog
+          close={() => ClosePermissionsDialog(navigate)}
+          isOpen={IsPermissionsDialogOpen(location)}
+          identifier={props.document.identifier}
+          sessionStore={sessionStore}
+        />
+      );
+    } else {
+      throw new Error("unexpected types");
+    }
   }
 
   return (
     <MenuBar>
       <Breadcrumb sessionStore={sessionStore} />
 
-      {props.document.needsFork && (
-        <ForkAlert document={props.document} sessionStore={sessionStore} />
-      )}
+      {props.document.needsFork &&
+        props.document instanceof DocumentResource && (
+          <ForkAlert document={props.document} sessionStore={sessionStore} />
+        )}
 
       <aside className={styles.actions}>
         <ul>
@@ -90,10 +98,12 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
           <li className={styles.separator}></li>
           <li className={styles.options}>
             <DropdownMenu
+              spacing="compact"
               shouldFlip
               trigger={({ triggerRef, isSelected, testId, ...props }) => (
                 <div
                   {...props}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   ref={triggerRef as any}
                   style={{ paddingRight: "0.5em", paddingLeft: "1em" }}>
                   <VscKebabVertical
@@ -103,9 +113,12 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
                 </div>
               )}
               placement="bottom-end">
-              <DropdownItem onClick={() => openAsMarkdown(props.document!.doc)}>
-                Export as markdown
-              </DropdownItem>
+              {props.document instanceof DocumentResource && (
+                <DropdownItem
+                  onClick={() => openAsMarkdown(props.document.doc)}>
+                  Export as markdown
+                </DropdownItem>
+              )}
               {canEditPermissions && (
                 <DropdownItem onClick={() => OpenPermissionsDialog(navigate)}>
                   Permissions

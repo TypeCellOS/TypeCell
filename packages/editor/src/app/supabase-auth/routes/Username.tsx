@@ -42,6 +42,7 @@ export const Username = observer(
       }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const from = (location.state as any)?.from?.pathname || "/";
     //   let pageAfterLogin = window.location.origin + from;
 

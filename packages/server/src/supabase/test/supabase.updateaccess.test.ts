@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable jest/no-conditional-expect */
+/* eslint-disable no-loop-func */
 import type { Database } from "@typecell-org/shared";
 import { createDocument, createRandomUser } from "@typecell-org/shared-test";
 import { beforeAll, describe, expect, it } from "vitest";

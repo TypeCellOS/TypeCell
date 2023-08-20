@@ -25,7 +25,7 @@ import styles from "./SidebarTree.module.css";
 const RenderItem =
   (
     onClick: (item: Identifier) => void,
-    onAddChild: (parentId: string) => void
+    onAddChild: ((parentId: string) => void) | false
   ) =>
   ({ item, onExpand, onCollapse, provided, depth }: RenderItemParams) => {
     // const doc = DocConnection.get(item.data.identifier)?.tryDoc;
@@ -50,6 +50,9 @@ const RenderItem =
     };
 
     const onAddClick = (e: React.MouseEvent) => {
+      if (!onAddChild) {
+        throw new Error("unexpected");
+      }
       e.stopPropagation();
       onExpand(item.id);
       onAddChild(item.data.identifier);
@@ -84,11 +87,13 @@ const RenderItem =
                   title=""
                 />
               )}
-              <VscAdd
-                onClick={onAddClick}
-                className={styles.addChild}
-                title=""
-              />
+              {onAddChild && (
+                <VscAdd
+                  onClick={onAddClick}
+                  className={styles.addChild}
+                  title=""
+                />
+              )}
             </>
           }
           iconBefore={
@@ -120,7 +125,7 @@ const RenderItem =
   };
 
 function updateAkTree(oldTree: TreeData, newTree: TreeData) {
-  for (let [key, item] of Object.entries(newTree.items)) {
+  for (const [key, item] of Object.entries(newTree.items)) {
     if (oldTree.items[key]) {
       item.isExpanded = oldTree.items[key].isExpanded;
     }
@@ -131,8 +136,9 @@ export const SidebarTree = observer(
   (props: {
     tree: TreeData;
     onClick: (item: Identifier) => void;
-    onAddNewPage: (parent?: string) => Promise<void>;
+    onAddNewPage: ((parent?: string) => Promise<void>) | false;
     enableAddRootPage: boolean;
+    enableDrag: boolean;
     sessionStore: SessionStore;
   }) => {
     const { sessionStore, tree } = props;
@@ -153,8 +159,9 @@ export const SidebarTree = observer(
 
     useEffect(() => {
       const itemsToLoad = new Set<string>();
-      for (let item of Object.values(akTree.items)) {
+      for (const item of Object.values(akTree.items)) {
         if (item.isExpanded) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           item.data.allChildren.forEach((child: any) => {
             itemsToLoad.add(child as string);
           });
@@ -162,7 +169,7 @@ export const SidebarTree = observer(
       }
 
       // clear items from cache if not in itemsToLoad
-      for (let [key, item] of cache.current.entries()) {
+      for (const [key, item] of cache.current.entries()) {
         if (!itemsToLoad.has(key)) {
           item.dispose();
           cache.current.delete(key);
@@ -170,7 +177,7 @@ export const SidebarTree = observer(
       }
 
       // load items
-      for (let key of itemsToLoad) {
+      for (const key of itemsToLoad) {
         if (!cache.current.has(key)) {
           const item = DocConnection.load(key, sessionStore);
           cache.current.set(key, item);
@@ -205,10 +212,12 @@ export const SidebarTree = observer(
         return;
       }
       const sourceDoc = DocConnection.get(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         akTree.items[source.parentId].data!.id + "",
         sessionStore
       )?.tryDoc;
       const destDoc = DocConnection.get(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         akTree.items[destination.parentId].data!.id + "",
         sessionStore
       )?.tryDoc;
@@ -217,6 +226,7 @@ export const SidebarTree = observer(
       }
 
       const itemIdentifier: Identifier =
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         akTree.items[akTree.items[source.parentId].children[source.index]].data!
           .identifier;
 
@@ -244,6 +254,8 @@ export const SidebarTree = observer(
       // });
     };
 
+    const onAddNewPage = props.onAddNewPage;
+
     return (
       <>
         <Tree
@@ -254,10 +266,10 @@ export const SidebarTree = observer(
           // onDragStart={() => {}}
           onDragEnd={onDragEnd}
           offsetPerLevel={17}
-          isDragEnabled
+          isDragEnabled={props.enableDrag}
           isNestingEnabled
         />
-        {props.enableAddRootPage && (
+        {props.enableAddRootPage && onAddNewPage && (
           <Button
             className={styles.sidebarButton}
             component="div"
@@ -271,7 +283,7 @@ export const SidebarTree = observer(
                 title=""
               />
             }
-            onClick={() => props.onAddNewPage()}
+            onClick={() => onAddNewPage()}
             appearance="subtle">
             Add a page
           </Button>

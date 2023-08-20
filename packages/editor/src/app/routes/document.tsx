@@ -5,6 +5,7 @@ import { SessionStore } from "../../store/local/SessionStore";
 import DocumentView from "../documentRenderers/DocumentView";
 import { SupabaseSessionStore } from "../supabase-auth/SupabaseSessionStore";
 import { RouteContext } from "./RouteContext";
+import { URLUpdater } from "./URLUpdater";
 import { OwnerAliasRoute } from "./ownerAlias";
 
 export const DocumentRoute = observer(
@@ -14,13 +15,13 @@ export const DocumentRoute = observer(
       throw new Error("No session store");
     }
 
-    let location = useLocation();
+    const location = useLocation();
 
     if (!sessionStore.coordinators) {
       return <div>Loading</div>;
     }
 
-    let [owner, workspace, ...documentParts] = location.pathname
+    const [owner, workspace, ...documentParts] = location.pathname
       .substring(1)
       .split("/");
     const document = documentParts.join("/");
@@ -28,11 +29,17 @@ export const DocumentRoute = observer(
     if (!owner || owner.length < 2 || !owner.startsWith("@")) {
       const identifiers = tryPathToIdentifiers(location.pathname.substring(1));
       if (identifiers !== "invalid-identifier") {
+        const [id, ...subs] = identifiers;
         return (
           <RouteContext.Provider value={{ groups: [identifiers] }}>
+            <URLUpdater
+              identifiers={identifiers}
+              sessionStore={props.sessionStore}
+            />
             <DocumentView
-              id={identifiers.shift()!}
-              subIdentifiers={identifiers}
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              id={id}
+              subIdentifiers={subs}
               sessionStore={sessionStore}
             />
           </RouteContext.Provider>
@@ -42,11 +49,9 @@ export const DocumentRoute = observer(
       }
     }
 
-    owner = owner.substring(1);
-
     return (
       <OwnerAliasRoute
-        owner={owner}
+        owner={owner.substring(1)}
         workspace={workspace}
         document={document}
         sessionStore={sessionStore}

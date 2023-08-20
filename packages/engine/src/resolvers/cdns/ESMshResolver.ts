@@ -9,13 +9,13 @@ export class ESMshResolver extends ExternalModuleResolver {
     const prefix = "https://esm.sh/";
     if (url.startsWith(prefix)) {
       url = url.substring(prefix.length - 1);
-      let mode: string | undefined;
-      let library = url.match(/^\/(v\d+|stable)\/[^\/]+\.js$/);
+
+      const library = url.match(/^\/(v\d+|stable)\/[^/]+\.js$/);
 
       if (library) {
         return undefined;
       }
-      let matches = url.match(
+      const matches = url.match(
         /^\/(v\d+|stable)\/(.*)@[.\d]+(-[-a-z\d.]+)?\/(.*)$/
       );
       if (!matches || !matches[2]) {
@@ -24,7 +24,7 @@ export class ESMshResolver extends ExternalModuleResolver {
       const matchedModuleName = matches[2];
 
       // mode is necessary for jsx-runtime, e.g.: @yousef/use-p2
-      mode = matches[4];
+      const mode = matches[4];
 
       return {
         module: matchedModuleName,

@@ -1,12 +1,13 @@
-import React from "react";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { createRoot } from "react-dom/client";
-
 import {
   getMainDomainFromIframe,
   validateFrameDomain,
 } from "./config/security";
-import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
+// import Frame from "./runtime/executor/executionHosts/sandboxed/iframesandbox/Frame";
+import { Frame } from "@typecell-org/frame";
+import "@typecell-org/frame/style.css";
 import "./styles/iframe.css";
 
 if (import.meta.env.DEV) {
@@ -33,15 +34,20 @@ base.setAttribute("target", "_blank");
 document.head.appendChild(base);
 
 async function init() {
-  // TODO: prevent monaco from loading in frame
   if (!validateFrameDomain()) {
     throw new Error("invalid hostname for frame");
   }
   const root = createRoot(document.getElementById("root")!);
+  const search = new URLSearchParams(window.location.hash.substring(1));
   root.render(
-    <React.StrictMode>
-      <Frame />
-    </React.StrictMode>
+    //<React.StrictMode>
+    <Frame
+      documentIdString={search.get("documentId")!}
+      roomName={search.get("roomName")!}
+      userColor={search.get("userColor")!}
+      userName={search.get("userName")!}
+    />
+    //</React.StrictMode>
   );
 }
 

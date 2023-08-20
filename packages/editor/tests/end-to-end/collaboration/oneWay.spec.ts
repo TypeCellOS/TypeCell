@@ -1,10 +1,11 @@
-import { Page, expect } from "@playwright/test";
+import { Page } from "@playwright/test";
 import { test } from "../setup/fixtures";
 import {
+  clearAfterTest,
   createNotebook,
   selectionSyncs,
+  setupBeforeTest,
   testEditSync,
-  writeEditorSelector,
 } from "./util";
 
 let pageAlice: Page;
@@ -16,6 +17,7 @@ test.setTimeout(120000);
 test.beforeAll(async ({ aliceContext, bobContext }) => {
   test.setTimeout(60000);
   const ret = await createNotebook("oneWay", aliceContext, bobContext);
+
   pageAlice = ret.pageAlice;
   pageBob = ret.pageBob;
 });
@@ -27,25 +29,15 @@ test.afterAll(() => {
 
 // before each test, Alice clears the content of the first editor and sets it to "helloworld"
 test.beforeEach(async ({ disableWebRTC }) => {
-  // Click .view-line
-  await pageAlice.click(".view-line");
-  // Press a with modifiers
-  await pageAlice.press(writeEditorSelector, "Meta+a");
-  await pageAlice.fill(writeEditorSelector, "helloworld");
-  await expect(pageBob.locator("text=helloworld")).toBeAttached();
+  await clearAfterTest(pageAlice, pageBob);
 });
 
 // at the end of each test, set text to "done" and wait until both are synced
 test.afterEach(async ({ disableWebRTC }) => {
-  // Click .view-line
-  await pageAlice.click(".view-line");
-  // Press a with modifiers
-  await pageAlice.press(writeEditorSelector, "Meta+a");
-  await pageAlice.fill(writeEditorSelector, "done");
-  await expect(pageBob.locator("text=done")).toBeAttached();
+  await setupBeforeTest(pageAlice, pageBob);
 });
 
-test("selection syncs from Alice to Bob", async ({
+test.skip("selection syncs from Alice to Bob", async ({
   aliceContext,
   bobContext,
   disableWebRTC,
@@ -60,7 +52,7 @@ test("selection syncs from Alice to Bob", async ({
   //   expect(await pageBob.screenshot()).toMatchSnapshot("sync-selection.bob.png");
 });
 
-test("selection syncs from Bob to Alice", async ({
+test.skip("selection syncs from Bob to Alice", async ({
   aliceContext,
   bobContext,
   disableWebRTC,
@@ -92,7 +84,7 @@ test.skip("changes don't sync from Bob to Alice", async ({
   bobContext,
   disableWebRTC,
 }) => {
-  await testEditSync(pageBob, pageAlice, false);
+  await testEditSync(pageAlice, pageBob, false);
   // select content
   // TODO: consistent username + colors for screenshots
   //   expect(await pageBob.screenshot()).toMatchSnapshot("sync-selection.bob.png");

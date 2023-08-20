@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import _ from "lodash";
 import { ExternalModuleResolver } from "./ExternalModuleResolver.js";
 import { LocalModuleResolver } from "./LocalModuleResolver.js";
@@ -38,7 +39,9 @@ export class ImportShimResolver {
     if (local) {
       return {
         module: local,
-        dispose: () => {},
+        dispose: () => {
+          // noop
+        },
       };
     }
 
@@ -50,7 +53,7 @@ export class ImportShimResolver {
 
     This is decoded again in onImportShimResolve below
     */
-    for (let resolver of this.resolvers) {
+    for (const resolver of this.resolvers) {
       try {
         const module = await this.importShim(
           "use$" + resolver.name + "$" + moduleName
@@ -58,7 +61,9 @@ export class ImportShimResolver {
         console.log("loaded module", moduleName, "using", resolver.name);
         return {
           module,
-          dispose: () => {},
+          dispose: () => {
+            //do nothing
+          },
         };
       } catch (e) {
         console.error("failed loading module", resolver.name, e);
@@ -94,7 +99,7 @@ export class ImportShimResolver {
 
     // Try the registered resolvers
     if (defaultURL) {
-      for (let resolver of this.resolvers) {
+      for (const resolver of this.resolvers) {
         // Does the URL we're trying to load match with the resolver?
         const parsedModule = await resolver.getModuleInfoFromURL(defaultURL);
         if (parsedModule) {
@@ -208,6 +213,7 @@ export class ImportShimResolver {
       if (parts.length !== 3) {
         throw new Error("expected resolver name in import" + id);
       }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       resolver = this.resolvers.find((r) => r.name === parts[1])!;
       id = parts[2];
     } else {

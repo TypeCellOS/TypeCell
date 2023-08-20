@@ -75,6 +75,7 @@ function createDocAndAllowAccess(forUsers: User[], docId: DocId) {
     );
     inboxBaseResource.create("!inbox");
     const resourceAsInbox = inboxBaseResource.getSpecificType<InboxResource>(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       InboxResource as any
     );
     resourceAsInbox.inboxTarget = "test:test/" + docId;
@@ -87,6 +88,7 @@ function createDocAndAllowAccess(forUsers: User[], docId: DocId) {
 
     // create main doc
     const ydoc = new Y.Doc();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const manager: any = {
       loadInboxResource: async (id: TestIdentifier) => {
         // const testIdentifier = new TestIdentifier(id.toString());
@@ -101,6 +103,7 @@ function createDocAndAllowAccess(forUsers: User[], docId: DocId) {
     const resource = new BaseResource(ydoc, new TestIdentifier(docId), manager);
 
     const validator = new InboxValidator(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       resourceAsInbox!,
       ChildReference,
       async (idStr) => {
@@ -180,13 +183,16 @@ describe("links", () => {
 
     await async.timeout(100);
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(user1.docs.doc2.validator!.validRefMessages.length).toBe(1);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(user2.docs.doc2.validator!.validRefMessages.length).toBe(0);
 
     syncAllDocsFromUserToUser(user2, user1);
 
     await new Promise((resolve) => setImmediate(resolve)); // allow autorun to fire
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(user2.docs.doc2.validator!.validRefMessages.length).toBe(0);
   });
 });

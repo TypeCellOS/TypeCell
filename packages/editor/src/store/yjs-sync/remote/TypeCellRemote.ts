@@ -17,7 +17,7 @@ import { env } from "../../../config/env";
 import { TypeCellIdentifier } from "../../../identifiers/TypeCellIdentifier";
 import { Remote } from "./Remote";
 
-let wsProviders = new Map<string, HocuspocusProviderWebsocket | undefined>();
+const wsProviders = new Map<string, HocuspocusProviderWebsocket | undefined>();
 
 function getWSProvider(session: SupabaseSessionStore) {
   if (!session.userPrefix) {
@@ -42,7 +42,7 @@ function getWSProvider(session: SupabaseSessionStore) {
 }
 
 export class TypeCellRemote extends Remote {
-  protected id: string = "typecell";
+  protected id = "typecell";
 
   private hocuspocusProvider: HocuspocusProvider | undefined;
   private _awarenessAtom = createAtom("_awarenessAtom");
@@ -198,6 +198,7 @@ export class TypeCellRemote extends Remote {
         });
       },
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (hocuspocusProvider as any).isRemote = true;
 
     hocuspocusProvider.on("unsyncedChanges", () => {

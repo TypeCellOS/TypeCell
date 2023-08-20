@@ -12,7 +12,8 @@ export type TypeCellContext<T> = {
   // storage: Storage;
 };
 
-export function createContext<T>(storage?: Storage): TypeCellContext<T> {
+export function createContext<T>(): TypeCellContext<T> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const observableContext = observable<any>({
     __esModule: true,
   });

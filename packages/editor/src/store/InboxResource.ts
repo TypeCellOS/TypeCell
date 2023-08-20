@@ -47,6 +47,7 @@ export class InboxResource extends BaseResource {
   }
 
   /** @internal */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public get inbox(): Y.Array<RefInboxMessage<any>> {
     return this.ydoc.getArray("inbox");
   }

@@ -34,13 +34,14 @@ const colors = [
  * (e.g.: is the user logged in, what is the user name, etc)
  */
 export class SupabaseSessionStore extends SessionStore {
-  public storePrefix: string = "tc";
+  public storePrefix = "tc";
 
   public readonly supabase: SupabaseClientType;
 
   private initialized = false;
   public userId: string | undefined = undefined;
 
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   public userColor = arrays.getRandomElement(colors)!;
 
   public user:
@@ -48,12 +49,14 @@ export class SupabaseSessionStore extends SessionStore {
     | "offlineNoUser"
     | {
         type: "guest-user";
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         supabase: any;
       }
     | {
         type: "user";
         fullUserId: string;
         userId: string;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         supabase: any;
         profileId: string;
         isSignUp: boolean;
@@ -99,7 +102,7 @@ export class SupabaseSessionStore extends SessionStore {
     );
   }
 
-  constructor(loadProfile = true, persist: boolean = true) {
+  constructor(loadProfile = true, persist = true) {
     super(loadProfile);
     makeObservable(this, {
       user: observable.ref,
@@ -192,7 +195,7 @@ export class SupabaseSessionStore extends SessionStore {
       remote.dispose();
     }
 
-    const { data, error } = await this.supabase.from("workspaces").insert([
+    const { error } = await this.supabase.from("workspaces").insert([
       {
         name: username,
         owner_user_id: this.userId,

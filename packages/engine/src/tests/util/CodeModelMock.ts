@@ -1,12 +1,14 @@
-import { event } from "vscode-lib";
-import { CodeModel } from "../../CodeModel.js";
+import { CodeModel } from "@typecell-org/shared";
+import { event, uri } from "vscode-lib";
 
 export class CodeModelMock implements CodeModel {
   public contentChangeEmitter = new event.Emitter<void>();
 
   public onWillDispose() {
     return {
-      dispose: () => {},
+      dispose: () => {
+        // Do nothing
+      },
     };
   }
   public onDidChangeContent = this.contentChangeEmitter.event;
@@ -16,6 +18,10 @@ export class CodeModelMock implements CodeModel {
     public readonly path: string,
     public code: string
   ) {}
+
+  public get uri() {
+    return uri.URI.parse("file:///" + this.path);
+  }
 
   public getValue(): string {
     return this.code;
