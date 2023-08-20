@@ -172,7 +172,7 @@ const ProjectContainer = observer((props: Props) => {
                 // TODO: hardcoded fix for docs
                 path = identifiersToPath([
                   new HttpsIdentifier(
-                    uri.URI.parse("http://" + window.location.host + "/_docs/")
+                    uri.URI.parse(window.location.protocol + "//" + window.location.host + "/_docs/")
                   ),
                   // props.project.identifier,
                   item.data.identifier,
