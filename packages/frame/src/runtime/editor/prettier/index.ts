@@ -9,10 +9,12 @@ export function setupPrettier(monacoInstance: typeof monaco) {
       async provideDocumentFormattingEdits(model, options, token) {
         try {
           const prettier = await import("prettier/standalone");
-          const parserTypescript = await import("prettier/parser-typescript");
-          const newText = prettier.format(model.getValue(), {
+          const parserTypescript = await import("prettier/plugins/typescript");
+          const esTree = await import("prettier/plugins/estree");
+          
+          const newText = await prettier.format(model.getValue(), {
             parser: "typescript",
-            plugins: [parserTypescript],
+            plugins: [parserTypescript, esTree.default],
             tabWidth: 2,
             printWidth: 80,
             jsxBracketSameLine: true,
@@ -34,9 +36,9 @@ export function setupPrettier(monacoInstance: typeof monaco) {
   monacoInstance.languages.registerDocumentFormattingEditProvider("css", {
     async provideDocumentFormattingEdits(model, options, token) {
       const prettier = await import("prettier/standalone");
-      const parserCSS = await import("prettier/parser-postcss");
+      const parserCSS = await import("prettier/plugins/postcss");
       try {
-        const newText = prettier.format(model.getValue(), {
+        const newText = await prettier.format(model.getValue(), {
           parser: "css",
           plugins: [parserCSS],
           tabWidth: 2,
