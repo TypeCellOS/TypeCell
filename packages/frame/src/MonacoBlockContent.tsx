@@ -1,4 +1,5 @@
-import { createTipTapBlock } from "@blocknote/core";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { BlockNoteEditor, createTipTapBlock } from "@blocknote/core";
 import { mergeAttributes } from "@tiptap/core";
 // import styles from "../../Block.module.css";
 
@@ -25,7 +26,7 @@ function arrowHandler(
         side
       );
       console.log("nextPos", nextPos.$head.parent.type.name);
-      if (nextPos.$head && nextPos.$head.parent.type.name === "monaco") {
+      if (nextPos.$head && nextPos.$head.parent.type.name === "codeblock") {
         dispatch(state.tr.setSelection(nextPos));
         return true;
       }
@@ -39,12 +40,15 @@ const arrowHandlers = keymap({
   ArrowRight: arrowHandler("right"),
   ArrowUp: arrowHandler("up"),
   ArrowDown: arrowHandler("down"),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any);
 
 const ComponentWithWrapper = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  props: NodeViewProps & { block: any; htmlAttributes: any; selectionHack: any }
+  props: NodeViewProps & {
+    block: any;
+    htmlAttributes: any;
+    selectionHack: any;
+    blockNoteEditor: BlockNoteEditor<any>;
+  }
 ) => {
   const { htmlAttributes, ...restProps } = props;
   return (
@@ -58,12 +62,13 @@ const ComponentWithWrapper = (
 };
 
 // TODO: clean up listeners
-export const MonacoBlockContent = createTipTapBlock({
-  name: "monaco",
+export const MonacoBlockContent = createTipTapBlock<"codeblock", any>({
+  name: "codeblock",
   content: "inline*",
   editable: true,
   selectable: true,
-
+  whitespace: "pre",
+  code: true,
   addAttributes() {
     return {
       language: {
@@ -71,7 +76,7 @@ export const MonacoBlockContent = createTipTapBlock({
         parseHTML: (element) => element.getAttribute("data-language"),
         renderHTML: (attributes) => {
           return {
-            "data-language": attributes.level,
+            "data-language": attributes.language,
           };
         },
       },
@@ -83,7 +88,7 @@ export const MonacoBlockContent = createTipTapBlock({
       {
         tag: "code",
         priority: 200,
-        node: "monaco",
+        node: "codeblock",
       },
     ];
   },
@@ -95,7 +100,6 @@ export const MonacoBlockContent = createTipTapBlock({
         // class: styles.blockContent,
         "data-content-type": this.name,
       }),
-      ["p", 0],
     ];
   },
 
@@ -131,7 +135,7 @@ export const MonacoBlockContent = createTipTapBlock({
         <ComponentWithWrapper
           htmlAttributes={htmlAttributes}
           block={block}
-          editor={editor}
+          blockNoteEditor={editor}
           {...props}
           // ref={ref}
         />

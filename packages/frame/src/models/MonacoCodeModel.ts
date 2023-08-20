@@ -19,6 +19,13 @@ export class MonacoTypeCellCodeModel
 
   constructor(private readonly monacoModel: monaco.editor.ITextModel) {
     super();
+
+    this._register(
+      monacoModel.onDidChangeLanguage(() => {
+        this._onDidChangeContent.fire();
+      })
+    );
+
     this._register(
       monacoModel.onDidChangeContent(() => {
         this._onDidChangeContent.fire();

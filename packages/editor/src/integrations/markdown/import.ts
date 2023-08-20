@@ -1,6 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+  BlockNoteEditor,
+  createTipTapBlock,
+  defaultBlockSchema,
+} from "@blocknote/core";
+import { mergeAttributes } from "@tiptap/core";
 import * as parsers from "@typecell-org/parsers";
 import { uniqueId } from "@typecell-org/util";
-
 import * as Y from "yjs";
 
 export function markdownToXmlFragment(
@@ -31,12 +37,42 @@ export function markdownToXmlFragment(
   return fragment;
 }
 
-export function markdownToYDoc(markdown: string, title?: string) {
+export async function markdownToYDoc(markdown: string, title?: string) {
   const newDoc = new Y.Doc();
-  newDoc.getMap("meta").set("type", "!notebook");
+  newDoc.getMap("meta").set("type", "!richtext");
 
   const xml = newDoc.getXmlFragment("doc");
-  markdownToXmlFragment(markdown, xml);
+
+  const editor = new BlockNoteEditor({
+    blockSchema: {
+      ...defaultBlockSchema,
+      codeblock: {
+        propSchema: {
+          language: {
+            type: "string",
+            default: "typescript",
+          },
+        },
+        node: MonacoBlockContent,
+      },
+    },
+    collaboration: {
+      fragment: xml,
+      provider: undefined as any,
+      user: undefined as any,
+    },
+    initialContent: [
+      {
+        id: "sdfsdf",
+        type: "paragraph",
+      },
+    ],
+  });
+
+  const blocks = await editor.markdownToBlocks(markdown);
+  editor.replaceBlocks(editor.topLevelBlocks, blocks);
+
+  // markdownToXmlFragment(markdown, xml);
 
   if (title) {
     newDoc.getMap("meta").set("title", title);
@@ -44,5 +80,50 @@ export function markdownToYDoc(markdown: string, title?: string) {
     // newDoc.getText("title").insert(0, title);
   }
 
+  // debugger;
   return newDoc;
 }
+
+// hacky
+export const MonacoBlockContent = createTipTapBlock({
+  name: "codeblock",
+  content: "inline*",
+  editable: true,
+  selectable: true,
+  whitespace: "pre",
+  code: true,
+
+  addAttributes() {
+    return {
+      language: {
+        default: "typescript",
+        parseHTML: (element) => element.getAttribute("data-language"),
+        renderHTML: (attributes) => {
+          return {
+            "data-language": attributes.language,
+          };
+        },
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: "code",
+        priority: 200,
+        node: "codeblock",
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "code",
+      mergeAttributes(HTMLAttributes, {
+        // class: styles.blockContent,
+        "data-content-type": this.name,
+      }),
+    ];
+  },
+});

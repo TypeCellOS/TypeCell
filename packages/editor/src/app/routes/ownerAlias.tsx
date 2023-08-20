@@ -14,6 +14,7 @@ import { SessionStore } from "../../store/local/SessionStore";
 import DocumentView from "../documentRenderers/DocumentView";
 import { SupabaseSessionStore } from "../supabase-auth/SupabaseSessionStore";
 import { RouteContext } from "./RouteContext";
+import { URLUpdater } from "./URLUpdater";
 
 type Props = {
   owner: string;
@@ -203,10 +204,12 @@ export const OwnerAliasRoute = observer(
       );
     }
 
-    const [id, ...subs] = pathToIdentifiers(location.pathname.substring(1));
+    const identifiers = pathToIdentifiers(location.pathname.substring(1));
+    const [id, ...subs] = identifiers;
     return (
       <RouteContext.Provider
         value={{ groups: [[doc.identifier], [id, ...subs]] }}>
+        <URLUpdater identifiers={identifiers} sessionStore={sessionStore} />
         <DocumentView
           id={id}
           subIdentifiers={subs}

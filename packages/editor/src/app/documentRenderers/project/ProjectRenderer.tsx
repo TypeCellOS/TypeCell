@@ -1,10 +1,14 @@
+import { ChildReference, IndexFileReference } from "@typecell-org/shared";
 import { observer } from "mobx-react-lite";
 import React from "react";
+import { parseIdentifier } from "../../../identifiers";
 import { Identifier } from "../../../identifiers/Identifier";
 import ProjectResource from "../../../store/ProjectResource";
 import { SessionStore } from "../../../store/local/SessionStore";
 import DocumentView from "../DocumentView";
 import ProjectContainer from "./ProjectContainer";
+
+import EmptyState from "@atlaskit/empty-state";
 
 type Props = {
   project: ProjectResource;
@@ -13,57 +17,31 @@ type Props = {
   sessionStore: SessionStore;
 };
 
-// const NestedDocument = (props: { parent: Identifier }) => {
-//   const params = useParams();
-//   const sub = params["*"] as string;
-
-//   // const newIdStr = path.join(props.parent.toString(), "/:/", sub);
-//   const documentIdentifier = getIdentifierFromPath(sub, [props.parent]);
-//   // parseIdentifier(newIdStr).fullUriOfSubPath()!.toString()
-//   // );
-//   // return <div>{sub}</div>;
-//   return <DocumentView id={documentIdentifier} isNested={true} />;
+// const RootDirectory = () => {
+//   return <div>hello</div>;
+//   // const defaultDoc = (useOutletContext() as any)?.defaultFileContent as any;
+//   // return defaultDoc || <></>;
 // };
 
-const RootDirectory = () => {
-  return <div>hello</div>;
-  // const defaultDoc = (useOutletContext() as any)?.defaultFileContent as any;
-  // return defaultDoc || <></>;
-};
-
-// const Debug = (props: { children: any }) => {
-//   const params = useParams();
-//   return (
-//     <div>
-//       <div>params: {JSON.stringify(params)}</div>
-//       {props.children}
-//     </div>
-//   );
-// };
 const ProjectRenderer: React.FC<Props> = observer((props) => {
-  // const fileSet = useRef(new ObservableSet<string>());
-  // const identifier = props.project.identifier;
-  // const path = useLocation();
-  // const subPath = (useParams() as any).subPath;
-  // if (subPath) {
-  //   throw new Error("unexpected");
-  // }
+  let [childId, ...remainingIds] = props.subIdentifiers;
 
-  // const identifiers = pathToIdentifiers(path.pathname.substring(1));
-  // const idPath = getPathFromIdentifier(identifier);
-  // let matchedPath: string;
-  // let sep = ":/";
-  // if (typeof idPath === "string") {
-  //   matchedPath = idPath;
-  // } else {
-  //   if (path.pathname.substring(1).startsWith(idPath.shorthand)) {
-  //     matchedPath = idPath.shorthand;
-  //     sep = "/";
-  //   } else {
-  //     matchedPath = idPath.path;
-  //   }
-  // }
-  const [childId, ...remainingIds] = props.subIdentifiers;
+  if (!childId) {
+    const indexFile = props.project.getRefs(IndexFileReference);
+    if (indexFile.length) {
+      childId = parseIdentifier(indexFile[0].target);
+      remainingIds = [];
+    }
+  }
+
+  if (!childId) {
+    const children = props.project.getRefs(ChildReference);
+    if (children.length) {
+      childId = parseIdentifier(children[0].target);
+      remainingIds = [];
+    }
+  }
+
   return (
     <ProjectContainer
       project={props.project}
@@ -77,17 +55,17 @@ const ProjectRenderer: React.FC<Props> = observer((props) => {
           sessionStore={props.sessionStore}
         />
       ) : (
-        <RootDirectory />
+        <div>
+          <EmptyState
+            header="No page found yet!"
+            description="Add a page using the sidebar on the left-hand side."
+            // primaryAction={<Button appearance="primary">Request access</Button>}
+            // secondaryAction={<Button>View permissions</Button>}
+            // tertiaryAction={<Button appearance="link">Learn more</Button>}
+          />
+        </div>
       )}
     </ProjectContainer>
-    // <Routes>
-    //   <Route
-    //     path={matchedPath + (identifiers.length ? sep : "")}
-    //     element={<ProjectContainer project={props.project} />}>
-    //     <Route path="*" element={<NestedDocument parent={identifier} />} />
-    //     <Route index element={<RootDirectory />} />
-    //   </Route>
-    // </Routes>
   );
 });
 

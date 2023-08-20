@@ -120,6 +120,37 @@ export class DocumentCoordinator extends lifecycle.Disposable {
     return ret;
   }
 
+  // hacky fix for docs / httpidentifier
+  public async clearIfNotChanged(identifier: Identifier) {
+    const idStr = identifier.toString();
+    if (!this.indexedDBProvider.synced) {
+      throw new Error("not initialized");
+    }
+
+    // console.log("Coordinator load debug", idStr, this.userId);
+    if (this.loadedDocuments.has(idStr)) {
+      // we expect loadDocument only to be called once per document
+      throw new Error("loadDocument: document already loaded");
+    }
+
+    const meta = this.documents.get(idStr);
+
+    if (!meta) {
+      return "not-found";
+    }
+
+    if (meta.needs_save_since) {
+      return "changed";
+    }
+
+    const doc = await this.loadDocument(identifier, new Y.Doc());
+    if (doc === "not-found") {
+      throw new Error("unexpected: doc not found");
+    }
+    await this.deleteLocal(identifier);
+    doc.ydoc.destroy();
+  }
+
   /**
    * Load a local document if we have it in local storage
    * Otherwise return "not-found"

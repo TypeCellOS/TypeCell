@@ -207,6 +207,7 @@ export const Frame: React.FC<Props> = observer((props) => {
       const newEngine = new ReactiveEngine<BasicCodeModel>(
         resolver.resolveImport
       );
+
       const newExecutionHost: ExecutionHost = new LocalExecutionHost(
         props.documentIdString,
         newCompiler,
@@ -249,13 +250,15 @@ export const Frame: React.FC<Props> = observer((props) => {
   // }, [document.awareness, props.userColor, props.userName]);
 
   const editor = useBlockNote({
-    editorDOMAttributes: {
-      class: styles.editor,
-      "data-test": "editor",
+    domAttributes: {
+      editor: {
+        class: styles.editor,
+        "data-test": "editor",
+      },
     },
     blockSchema: {
       ...defaultBlockSchema,
-      monaco: {
+      codeblock: {
         propSchema: {
           language: {
             type: "string",
@@ -271,7 +274,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         name: "Code block",
         execute: (editor) =>
           insertOrUpdateBlock(editor, {
-            type: "monaco",
+            type: "codeblock",
           }),
         aliases: ["code"],
       },

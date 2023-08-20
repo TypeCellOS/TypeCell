@@ -7,4 +7,5 @@ export * from "./frameInterop/HostBridgeMethods.js";
 export * from "./frameInterop/IframeBridgeMethods.js";
 export * from "./referenceDefinitions/child.js";
 export * from "./referenceDefinitions/fork.js";
+export * from "./referenceDefinitions/indexFile.js";
 export * from "./schema.js";

@@ -35,7 +35,6 @@
     "lint": "npm run lint --workspaces",
     "watch": "npm run build && npm run --parallel watch",
     "start": "npm run start-react",
-    "start-filebridge": "npx filebridge packages/editor/public/_docs",
     "start-react": "npm run start --workspace=packages/editor",
     "start:preview": "npm run preview --workspace=packages/editor",
     "start:server": "npm run dev --workspace=packages/server",

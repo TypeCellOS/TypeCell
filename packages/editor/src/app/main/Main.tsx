@@ -1,4 +1,6 @@
+import classNames from "classnames";
 import { observer } from "mobx-react-lite";
+import { useCallback, useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Outlet, useLocation } from "react-router-dom";
@@ -11,28 +13,41 @@ const Main = observer((props: { sessionStore: SessionStore }) => {
   const location = useLocation();
   // const navigate = useNavigate();
 
+  const [top, setTop] = useState(true);
+
+  const controlNavbar = useCallback(() => {
+    if (typeof window !== "undefined") {
+      if (window.scrollY > 0) {
+        setTop(false);
+      } else {
+        setTop(true);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.addEventListener("scroll", controlNavbar);
+
+      // cleanup function
+      return () => {
+        window.removeEventListener("scroll", controlNavbar);
+      };
+    }
+  }, [controlNavbar]);
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div
-        className={
-          styles.main +
-          " " +
-          (location.pathname === "/" || location.pathname === "/ai"
-            ? styles.homepage
-            : "") +
-          " " +
-          (location.pathname === "/ai" ? styles.ai : "")
-        }>
+        className={classNames(
+          styles.main,
+          top && styles.top,
+          (location.pathname === "/" || location.pathname === "/ai") &&
+            styles.homepage,
+          location.pathname === "/ai" && styles.ai
+        )}>
         <Navigation sessionStore={props.sessionStore} />
         <Outlet />
-        {/* {props.sessionStore.loggedInUserId && (
-          <NewPageDialog
-            sessionStore={props.sessionStore}
-            ownerId={props.sessionStore.loggedInUserId}
-            close={() => CloseNewPageDialog(navigate)}
-            isOpen={IsNewPageDialogOpen(location)}
-          />
-        )} */}
       </div>
     </DndProvider>
   );

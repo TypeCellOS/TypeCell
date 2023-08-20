@@ -14,7 +14,6 @@ import styles from "./DocumentView.module.css";
 import ProfileResource from "../../store/ProfileResource";
 import { SessionStore } from "../../store/local/SessionStore";
 import { DocumentMenu } from "../main/components/documentMenu/DocumentMenu";
-import { MenuBar } from "../main/components/menuBar/MenuBar";
 
 import ProfileRenderer from "./profile/ProfileRenderer";
 import ProjectContainer from "./project/ProjectContainer";
@@ -94,10 +93,9 @@ const DocumentView = observer((props: Props) => {
       return (
         <div className={styles.view}>
           {!props.hideDocumentMenu && (
-            <MenuBar>
-              <div></div>
-              {/* <Breadcrumb identifier={props.id} />  TODO */}
-            </MenuBar>
+            <DocumentMenu
+              document={connection.doc.getSpecificType(ProjectResource)!}
+              sessionStore={props.sessionStore}></DocumentMenu>
           )}
           <ProjectContainer
             isNested={true}

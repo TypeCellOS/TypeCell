@@ -84,12 +84,12 @@ function saveCachedItem(
   model: monaco.editor.ITextModel,
   item: { hash: string; compiledCode: string }
 ) {
-  const key = "cc-" + model.uri.toString();
+  const key = "cc-" + model.uri.toString(false);
   localStorage.setItem(key, JSON.stringify(item));
 }
 
 function getCachedItem(model: monaco.editor.ITextModel) {
-  const key = "cc-" + model.uri.toString();
+  const key = "cc-" + model.uri.toString(false);
   const cached = localStorage.getItem(key);
   if (cached) {
     try {

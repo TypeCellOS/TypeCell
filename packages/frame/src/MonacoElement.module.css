@@ -1,6 +1,7 @@
 .codeCell {
   display: flex;
   flex-direction: row;
+  padding: 15px 0;
 }
 
 .codeCellSideIcon {

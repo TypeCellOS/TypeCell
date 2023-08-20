@@ -17,7 +17,6 @@ import { MatrixIdentifier } from "../../identifiers/MatrixIdentifier";
 import { TypeCellIdentifier } from "../../identifiers/TypeCellIdentifier";
 import { LocalDoc } from "./DocumentCoordinator";
 import FetchRemote from "./remote/FetchRemote";
-import { FilebridgeRemote } from "./remote/FilebridgeRemote";
 
 // import { MatrixRemote } from "./remote/MatrixRemote";
 import { makeYDocObservable } from "@syncedstore/yjs-reactive-bindings";
@@ -131,12 +130,21 @@ export class SyncManager extends lifecycle.Disposable {
   }
 
   get canWrite(): boolean {
+    if (
+      this.remote instanceof FetchRemote &&
+      this.state.status === "syncing" &&
+      this.state.localDoc.meta.needs_save_since
+    ) {
+      // hacky fix for docs / httpidentifier
+      return false;
+    }
     return this.remote.canWrite;
   }
 
   private remoteForIdentifier(identifier: Identifier): Remote {
     if (identifier instanceof FileIdentifier) {
-      return new FilebridgeRemote(this.ydoc, identifier);
+      throw new Error("not implemented anymore");
+      // return new FilebridgeRemote(this.ydoc, identifier);
     } else if (identifier instanceof GithubIdentifier) {
       throw new Error("not implemented anymore");
       // return new GithubRemote(this.ydoc, identifier);
@@ -245,6 +253,13 @@ export class SyncManager extends lifecycle.Disposable {
     if (!this.sessionStore.documentCoordinator) {
       throw new Error("logged out while loading");
     }
+
+    if (this.identifier instanceof HttpsIdentifier) {
+      await this.sessionStore.documentCoordinator.clearIfNotChanged(
+        this.identifier
+      );
+    }
+
     const doc = this.sessionStore.documentCoordinator.loadDocument(
       this.identifier,
       this.ydoc
@@ -258,14 +273,18 @@ export class SyncManager extends lifecycle.Disposable {
 
       // TODO: catch when doc didn't exist locally
       await doc.idbProvider.whenSynced;
-      // console.log("done synced", doc.ydoc.toJSON());
+
       runInAction(() => {
         this.state = {
           status: "syncing",
           localDoc: doc,
         };
       });
-      return this.startSyncing();
+
+      // hacky fix for docs / httpidentifier
+      if (!(this.identifier instanceof HttpsIdentifier)) {
+        return this.startSyncing();
+      }
     }
   }
 

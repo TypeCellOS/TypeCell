@@ -4,6 +4,7 @@ import parserTypescript from "prettier/parser-typescript";
 import prettier from "prettier/standalone";
 import { diffToMonacoTextEdits } from "./diffToMonacoTextEdits";
 
+// TODO: move to shared webworker or host frame?
 export function setupPrettier(monacoInstance: typeof monaco) {
   monacoInstance.languages.registerDocumentFormattingEditProvider(
     "typescript",

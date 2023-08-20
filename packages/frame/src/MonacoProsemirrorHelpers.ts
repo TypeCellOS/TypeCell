@@ -38,6 +38,25 @@ function getTransactionForSelectionUpdate(
   }
 }
 
+// because node.textContent doesn't preserve newlines
+export function textFromPMNode(node: Node): string {
+  if (!node.isTextblock) {
+    throw new Error("not a text node");
+  }
+  let text = "";
+  node.forEach((c) => {
+    if (c.type.name === "hardBreak") {
+      text += "\n";
+    } else if (c.isText) {
+      text += c.text;
+    } else {
+      throw new Error("not a text or hardBreak node");
+    }
+  });
+
+  return text;
+}
+
 export function bindMonacoAndProsemirror(
   mon: monaco.editor.IStandaloneCodeEditor,
   view: EditorView,
@@ -210,7 +229,7 @@ export function applyNodeChangesToMonaco(
   node: Node,
   model: monaco.editor.ITextModel
 ) {
-  const newText = node.textContent;
+  const newText = textFromPMNode(node);
   const curText = model.getValue();
   if (newText === curText) {
     return;

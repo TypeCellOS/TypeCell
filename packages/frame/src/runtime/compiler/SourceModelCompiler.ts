@@ -116,12 +116,14 @@ export default class SourceModelCompiler
       }
     };
     let prevValue: string | undefined = sourceModel.getValue();
+    let prevLanguage: string | undefined = sourceModel.language;
 
     this._register(
       sourceModel.onDidChangeContent((_event) => {
         // make sure there were actual changes from the previous value
         const newValue = sourceModel.getValue();
-        if (newValue === prevValue) {
+        const newLanguage = sourceModel.language;
+        if (newValue === prevValue && newLanguage === prevLanguage) {
           console.warn("same value");
           return;
         }
@@ -131,6 +133,7 @@ export default class SourceModelCompiler
         }
 
         prevValue = newValue;
+        prevLanguage = newLanguage;
         compile();
       })
     );

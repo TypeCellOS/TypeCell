@@ -15,7 +15,11 @@ import ProjectResource from "../../../store/ProjectResource";
 import { SessionStore } from "../../../store/local/SessionStore";
 
 import { ChildReference } from "@typecell-org/shared";
+import { uri } from "vscode-lib";
+import { HttpsIdentifier } from "../../../identifiers/HttpsIdentifier";
+import { TypeCellIdentifier } from "../../../identifiers/TypeCellIdentifier";
 import styles from "./ProjectContainer.module.css";
+import FolderView from "./directoryNavigation/FolderView";
 import SidebarTree from "./directoryNavigation/SidebarTree";
 
 type Props = {
@@ -71,7 +75,7 @@ function docToTreeItem(
       id: doc.id,
       identifier: doc.identifier,
       allChildren: children.map((c) => c.target),
-      title: doc.type === "!notebook" ? doc.doc.title : "",
+      title: doc.type === "!richtext" ? doc.doc.title : doc.title,
     },
   };
 
@@ -141,13 +145,6 @@ const ProjectContainer = observer((props: Props) => {
     navigate({
       pathname: "/" + path,
     });
-
-    // ret.doc.cellList.addCell(0, "markdown", "# " + obj.title);
-    // ret.doc.cellList.addCell(
-    //   1,
-    //   "typescript",
-    //   `export let message = "Hello World"`
-    // );
   };
 
   const onClick = (identifier: Identifier) => {
@@ -158,104 +155,113 @@ const ProjectContainer = observer((props: Props) => {
     });
   };
 
-  // let defaultFile = files.find((f) => f === "README.md");
-  // let defaultFileContent = <></>;
-  // if (defaultFile) {
-  //   // TODO: cleanup?
-  //   // Directory listing with a default file
-  //   let idTemp = parseIdentifier(props.project.identifier.uri.toString());
-  //   idTemp.subPath = defaultFile;
-  //   let documentIdentifier = parseIdentifier(
-  //     idTemp.fullUriOfSubPath()!.toString()
-  //   );
-  //   defaultFileContent = (
-  //     <DocumentView
-  //       hideDocumentMenu={true}
-  //       id={documentIdentifier}
-  //       isNested={true}
-  //     />
-  //   );
-  // }
-
   if (props.isNested) {
+    // nested, no sidebar
     return (
       <div>
         <div className={styles.folderContainer}>
-          {/* <FolderView onClick={onClick} tree={tree} /> */}
+          <FolderView
+            sessionStore={props.sessionStore}
+            onClick={(item) => {
+              let path = identifiersToPath([
+                props.project.identifier,
+                item.data.identifier,
+              ]);
+
+              if (item.data.identifier instanceof HttpsIdentifier) {
+                // TODO: hardcoded fix for docs
+                path = identifiersToPath([
+                  new HttpsIdentifier(
+                    uri.URI.parse("http://" + window.location.host + "/_docs/")
+                  ),
+                  // props.project.identifier,
+                  item.data.identifier,
+                ]);
+              }
+              navigate({
+                pathname: "/" + path,
+              });
+            }}
+            tree={tree}
+          />
         </div>
         {/* {defaultFileContent} */}
       </div>
     );
-  } else {
-    const userIsOwner = [
-      ...(props.sessionStore.profile?.workspaces.values() || []),
-    ].includes(props.project.identifier.toString());
-    return (
-      <div className={styles.projectContainer}>
-        <PageLayout
-          onLeftSidebarExpand={(state: LeftSidebarState) =>
-            console.log("onExpand", state)
-          }
-          onLeftSidebarCollapse={(state: LeftSidebarState) =>
-            console.log("onCollapse", state)
-          }>
-          <Content testId="content">
-            <LeftSidebar
-              testId="left-sidebar"
-              id={styles.leftSidebar}
-              isFixed={false}
-              collapsedState="expanded"
-              onResizeStart={(state: LeftSidebarState) =>
-                console.log("onResizeStart", state)
-              }
-              onResizeEnd={(state: LeftSidebarState) =>
-                console.log("onResizeEnd", state)
-              }
-              onFlyoutExpand={() => console.log("onFlyoutExpand")}
-              onFlyoutCollapse={() => console.log("onFlyoutCollapse")}
-              // overrides={{
-              //   ResizeButton: {
-              //     render: (Component, props) => (
+  }
+  const userIsOwner = [
+    ...(props.sessionStore.profile?.workspaces.values() || []),
+  ].includes(props.project.identifier.toString());
 
-              //       // <Tooltip
-              //       //   content={props.isLeftSidebarCollapsed ? "Expand" : "Collapse"}
-              //       //   hideTooltipOnClick
-              //       //   position="right"
-              //       //   testId="tooltip">
-              //       <Component {...props} />
-              //       // </Tooltip>
-              //     ),
-              //   },
-              // }}
-            >
-              <div style={{ padding: 10 }}>
-                <SidebarTree
-                  onClick={onClick}
-                  tree={tree}
-                  onAddNewPage={onAddPageHandler}
-                  sessionStore={props.sessionStore}
-                  enableAddRootPage={userIsOwner}
-                />
-              </div>
-            </LeftSidebar>
-            {/* <div className={styles.sidebarContainer}>
+  const enableAddPages = props.project.identifier instanceof TypeCellIdentifier;
+
+  return (
+    <div className={styles.projectContainer}>
+      <PageLayout
+        onLeftSidebarExpand={(state: LeftSidebarState) =>
+          console.log("onExpand", state)
+        }
+        onLeftSidebarCollapse={(state: LeftSidebarState) =>
+          console.log("onCollapse", state)
+        }>
+        <Content testId="content">
+          <LeftSidebar
+            testId="left-sidebar"
+            id={styles.leftSidebar}
+            isFixed={false}
+            collapsedState="expanded"
+            onResizeStart={(state: LeftSidebarState) =>
+              console.log("onResizeStart", state)
+            }
+            onResizeEnd={(state: LeftSidebarState) =>
+              console.log("onResizeEnd", state)
+            }
+            onFlyoutExpand={() => console.log("onFlyoutExpand")}
+            onFlyoutCollapse={() => console.log("onFlyoutCollapse")}
+            // overrides={{
+            //   ResizeButton: {
+            //     render: (Component, props) => (
+
+            //       // <Tooltip
+            //       //   content={props.isLeftSidebarCollapsed ? "Expand" : "Collapse"}
+            //       //   hideTooltipOnClick
+            //       //   position="right"
+            //       //   testId="tooltip">
+            //       <Component {...props} />
+            //       // </Tooltip>
+            //     ),
+            //   },
+            // }}
+          >
+            <div style={{ padding: 10 }}>
+              <SidebarTree
+                onClick={onClick}
+                tree={tree}
+                enableDrag={enableAddPages}
+                onAddNewPage={enableAddPages ? onAddPageHandler : false}
+                sessionStore={props.sessionStore}
+                enableAddRootPage={userIsOwner}
+              />
+            </div>
+          </LeftSidebar>
+          {/* <div className={styles.sidebarContainer}>
               <SidebarTree onClick={onClick} tree={tree} />
             </div> */}
-            {/* {defaultFileContent} */}
-            <div style={{ flex: 1 }}>
-              {props.children}
-              {/* <Outlet
+          {/* {defaultFileContent} */}
+          <div style={{ flex: 1 }}>
+            {props.children}
+
+            {/* <Outlet
                 context={{
                   defaultFileContent,
                   parentIdentifier: props.project.identifier,
                 }}
               /> */}
-            </div>
-          </Content>
-        </PageLayout>
-      </div>
-    );
-  }
+          </div>
+        </Content>
+      </PageLayout>
+    </div>
+  );
 });
 
 export default ProjectContainer;

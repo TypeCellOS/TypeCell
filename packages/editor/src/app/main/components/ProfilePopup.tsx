@@ -5,11 +5,13 @@ import DropdownMenu, {
 } from "@atlaskit/dropdown-menu";
 import { observer } from "mobx-react-lite";
 import Avatar from "react-avatar";
+import { useNavigate } from "react-router-dom";
 import { SessionStore } from "../../../store/local/SessionStore";
+import { toProfilePage } from "../../routes/routes";
 
 export const ProfilePopup = observer(
   (props: { sessionStore: SessionStore }) => {
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
 
     /* TODO: props.authStore.user!.firebase.photoURL! */
     return (
@@ -42,8 +44,13 @@ export const ProfilePopup = observer(
         <DropdownItemGroup
           title={"@" + props.sessionStore.loggedInUserId || ""}>
           {/* @${props.authStore.user?.username} */}
-          <DropdownItem>Profile</DropdownItem>
-          <DropdownItem>Account settings</DropdownItem>
+          <DropdownItem
+            onClick={() => {
+              navigate(toProfilePage("@" + props.sessionStore.loggedInUserId));
+            }}>
+            Profile
+          </DropdownItem>
+          {/* <DropdownItem>Account settings</DropdownItem> */}
           <DropdownItem onClick={props.sessionStore.logout}>
             Sign out
           </DropdownItem>
