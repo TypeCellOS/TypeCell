@@ -410,11 +410,12 @@ const getModuleAndRootDefTypePath = async (
 };
 
 const getCachedDTSString = async (config: ATAConfig, url: string) => {
+
   const cached = await cache.getItem(url);
   if (cached) {
     return cached;
   }
-
+ 
   const response = await config.fetcher(url);
 
   if (!response.ok) {

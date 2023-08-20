@@ -3,7 +3,7 @@ import { compress, decompress } from "./compress";
 
 it("compresses / decompressess", async () => {
   const str = "hello world ấɖḯƥĭṩčįɳġ ḝłįʈ 🥳";
-  const compressed = await compress(new Blob([str], { type: "text/plain" }));
-  const decompressed = await (await decompress(compressed)).text();
+  const compressed = await compress(str);
+  const decompressed = await (await decompress(compressed));
   expect(decompressed).to.eq(str);
 });
