@@ -50,7 +50,7 @@ abstract class ShorthandResolver {
 
 export class DefaultShorthandResolver extends ShorthandResolver {
   private readonly shortHands: Record<string, string> = {
-    docs: "http:" + window.location.host + "/_docs/",
+    docs: window.location.protocol + window.location.host + "/_docs/",
     // docs: "fs:localhost:3001",
     // docs: "http:localhost/_docs/",
   };
