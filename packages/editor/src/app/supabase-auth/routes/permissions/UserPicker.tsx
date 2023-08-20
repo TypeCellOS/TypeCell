@@ -1,7 +1,10 @@
-import UserPicker, { OnChange } from "@atlaskit/user-picker";
-import { useCallback, useState } from "react";
-import { IntlProvider } from "react-intl-next";
-
+import {
+  AsyncSelect,
+  LoadingIndicatorProps,
+  OptionType,
+} from "@atlaskit/select";
+import Spinner from "@atlaskit/spinner";
+import { useCallback } from "react";
 import { SupabaseClientType } from "../../SupabaseSessionStore";
 import { User } from "./userUtils";
 
@@ -11,12 +14,11 @@ export function SupabaseUserPicker(props: {
   updateSelectedUser: (user: User | undefined) => void;
 }) {
   const updateSelectedUser = props.updateSelectedUser;
-  // State and function for storing & updating the users to display in the user picker.
-  const [displayedUsers, setDisplayedUsers] = useState<User[]>([]);
 
   async function searchUsers(query = "") {
     if (query === "") {
-      setDisplayedUsers([]);
+      return [];
+      // setDisplayedUsers([]);
     } else {
       const ret = await props.supabase
         .from("workspaces")
@@ -26,39 +28,50 @@ export function SupabaseUserPicker(props: {
         .order("name")
         .limit(10);
 
-      const results: User[] =
+      const results =
         ret.data?.map((result) => ({
-          id: result.owner_user_id,
-          name: "@" + result.name,
-          nameWithoutAtSign: result.name,
+          label: "@" + result.name,
+          value: {
+            id: result.owner_user_id,
+            name: "@" + result.name,
+            nameWithoutAtSign: result.name,
+          },
+          // id: result.owner_user_id,
+          // name: "@" + result.name,
+          // nameWithoutAtSign: result.name,
         })) || [];
-
-      setDisplayedUsers(results);
+      return results;
+      // setDisplayedUsers(results);
     }
   }
 
   const onChange = useCallback(
-    (user: User | User[] | null | undefined) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (user: any) => {
       if (Array.isArray(user)) {
         throw new Error("unexpected");
       }
-      updateSelectedUser(user || undefined);
+      updateSelectedUser(user?.value || undefined);
     },
     [updateSelectedUser]
   );
 
+  const LoadingIndicator = (props: LoadingIndicatorProps<OptionType>) => {
+    return <Spinner {...props} />;
+  };
+
   return (
-    <IntlProvider locale="en">
-      <UserPicker
-        fieldId="add-user"
-        width={"auto"}
-        allowEmail={true}
-        noOptionsMessage={() => null}
-        onInputChange={searchUsers}
-        onChange={onChange as OnChange}
-        options={displayedUsers}
-        menuPosition="fixed"
-      />
-    </IntlProvider>
+    <AsyncSelect
+      fieldId="add-user"
+      width={"auto"}
+      cacheOptions
+      onChange={onChange}
+      loadOptions={searchUsers}
+      menuPosition="fixed"
+      components={{
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        LoadingIndicator: LoadingIndicator as any,
+      }}
+    />
   );
 }

@@ -31,6 +31,7 @@ const PermissionsSettings = observer(
     closeCallback: () => void;
   }) => {
     const [isSaving, setIsSaving] = useState(false);
+    const [userPickerKey, setUserPickerKey] = useState(() => Math.random()+"");
 
     // State for storing & updating the currently selected user from the user picker.
     const [newUser, setNewUser] = useState<User | undefined>();
@@ -72,6 +73,8 @@ const PermissionsSettings = observer(
         doc: editingPermissionData.doc,
         users: editingPermissionData.users,
       });
+
+      setUserPickerKey(Math.random()+"");
     }
 
     function editUserPermission(userId: string, permission: DocPermission) {
@@ -166,6 +169,7 @@ const PermissionsSettings = observer(
                 <div className={styles.userRow}>
                   <div className={styles.pickerContainer}>
                     <SupabaseUserPicker
+                      key={userPickerKey}
                       supabase={props.supabaseClient}
                       updateSelectedUser={updateSelectedUser}
                     />
