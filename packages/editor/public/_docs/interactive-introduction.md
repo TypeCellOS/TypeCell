@@ -279,15 +279,11 @@ export default wetFoodMessage;
 // Setting displayed message for having prepared enough food.
 export let finalMessage =
   $.dryFoodRemaining >= 0 && $.wetFoodRemaining >= 0 ? (
-    <p>
-      <strong>✅ Great job, you fed all the neighborhood cats!</strong>
-    </p>
+    <strong>✅ Great job, you fed all the neighborhood cats!</strong>
   ) : (
-    <p>
-      <strong>
-        ❌ Looks like we need more food! Some cats are still hungry...
-      </strong>
-    </p>
+    <strong>
+      ❌ Looks like we need more food! Some cats are still hungry...
+    </strong>
   );
 
 export default (

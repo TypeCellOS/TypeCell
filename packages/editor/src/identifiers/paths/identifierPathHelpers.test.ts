@@ -5,9 +5,10 @@
 // http:localhost/_docs:/http:localhost/_docs/README.md
 // http:localhost/_docs:/README.md
 
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import {
   DefaultShorthandResolver,
+  defaultShorthandResolver,
   identifiersToPath,
   pathToIdentifier,
   pathToIdentifiers,
@@ -19,6 +20,13 @@ import {
 // typecell:localhost/@yousef:/typecell:localhost/@yousef/id123
 
 describe("Identifier", () => {
+  beforeAll(() => {
+    // hardcode to http:localhost instead of using window.location. This makes writing the tests easier
+    defaultShorthandResolver.current.addShorthand(
+      "docs",
+      "http:localhost/_docs/"
+    );
+  });
   it("parses basic identifier", () => {
     const identifier = pathToIdentifier("http:localhost/_docs/README.md");
     expect(identifier.uri.scheme).toBe("http");

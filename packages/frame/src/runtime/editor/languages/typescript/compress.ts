@@ -1,15 +1,21 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-export function compress(blob: Blob) {
-  const compressedReadableStream = blob
-    .stream()
-    // @ts-ignore
-    .pipeThrough(new CompressionStream("deflate"));
-  return new Response(compressedReadableStream).blob();
+export async function compress(text: string) {
+  const byteArray = new TextEncoder().encode(text)
+  // @ts-ignore
+  const cs = new CompressionStream("deflate")
+  const writer = cs.writable.getWriter()
+  writer.write(byteArray)
+  writer.close()
+  const ret = await new Response(cs.readable).arrayBuffer()
+  return ret;
 }
 
-export async function decompress(blob: Blob) {
+export async function decompress(bytes: ArrayBuffer) {
   // @ts-ignore
-  const ds = new DecompressionStream("deflate");
-  const decompressedStream = blob.stream().pipeThrough(ds);
-  return new Response(decompressedStream).blob();
+  const cs = new DecompressionStream("deflate")
+  const writer = cs.writable.getWriter()
+  writer.write(bytes)
+  writer.close()
+  const arrayBuffer = await new Response(cs.readable).arrayBuffer()
+  return new TextDecoder().decode(arrayBuffer)
 }

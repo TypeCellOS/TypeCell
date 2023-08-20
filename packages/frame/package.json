@@ -12,6 +12,7 @@
     "@tiptap/react": "^2.0.4",
     "@floating-ui/react": "^0.25.1",
     "@syncedstore/yjs-reactive-bindings": "^0.5.1",
+    "localforage":"^1.10.0",
     "lz-string": "^1.4.4",
     "markdown-it": "^12.0.2",
     "monaco-editor": "^0.35.0",
