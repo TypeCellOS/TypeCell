@@ -113,7 +113,7 @@ export default defineConfig((conf) => ({
       // used during production bundling
       plugins: [],
     },
-    // sourcemap: true
+    sourcemap: true,
   },
   test: {
     exclude: [
