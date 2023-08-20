@@ -2,11 +2,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 // from https://github.com/microsoft/TypeScript-Website/blob/v2/packages/sandbox/src/typeAcquisition.ts
 
-import lzstring from "lz-string";
+import { CompressedCache } from "./CompressedCache";
 
 const globalishObj: any =
   typeof globalThis !== "undefined" ? globalThis : window || {};
 globalishObj.typeDefinitions = {};
+
+const cache = new CompressedCache();
 
 /**
  * Type Defs we've already got, and nulls when something has failed.
@@ -408,20 +410,9 @@ const getModuleAndRootDefTypePath = async (
 };
 
 const getCachedDTSString = async (config: ATAConfig, url: string) => {
-  const cached = localStorage.getItem(url);
+  const cached = await cache.getItem(url);
   if (cached) {
-    const [dateString, text] = cached.split("-=-^-=-");
-    const cachedDate = new Date(dateString);
-    const now = new Date();
-
-    const cacheTimeout = 604800000; // 1 week
-    // const cacheTimeout = 60000 // 1 min
-
-    if (now.getTime() - cachedDate.getTime() < cacheTimeout) {
-      return lzstring.decompressFromUTF16(text);
-    } else {
-      config.logger.log("Skipping cache for ", url);
-    }
+    return cached;
   }
 
   const response = await config.fetcher(url);
@@ -448,11 +439,8 @@ const getCachedDTSString = async (config: ATAConfig, url: string) => {
     );
   }
 
-  const now = new Date();
-  const cacheContent = `${now.toISOString()}-=-^-=-${lzstring.compressToUTF16(
-    content
-  )}`;
-  localStorage.setItem(url, cacheContent);
+  cache.setItem(url, content);
+
   return content;
 };
 
