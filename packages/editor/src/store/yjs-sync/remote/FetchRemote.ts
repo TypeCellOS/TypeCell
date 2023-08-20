@@ -93,7 +93,6 @@ export default class FetchRemote extends Remote {
       project.addRef(ChildReference, id, undefined, false);
 
       if (node.fileName === "README.md") {
-        debugger;
         project.addRef(IndexFileReference, id, undefined, false);
       }
     });
