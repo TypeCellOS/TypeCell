@@ -74,7 +74,8 @@
 }
 
 .perks {
-  max-width: 1200px;
+  font-size: 16px;
+  max-width: var(--content-max-width);
   margin: 0 auto;
   /* padding: 4em 0; */
   /* position: relative; */
@@ -85,7 +86,7 @@
   flex: 0 0 auto;
   gap: 20px;
   grid-auto-rows: min-content;
-  grid-template-columns: repeat(3, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, minmax(200px, 1fr));
   grid-template-rows: repeat(2, min-content);
   justify-content: center;
 }
@@ -103,19 +104,25 @@
   flex: 0 0 auto;
   place-self: start;
   text-align: left;
-  padding: 40px;
-  box-shadow: rgb(0 0 0 / 25%) 0px 10px 30px -20px;
+  padding: 30px;
+  box-shadow: rgb(0 0 0 / 25%) 0px 1px 3px -2px;
+
   border-radius: 20px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   width: 100%;
   height: 100%;
   position: relative;
+  transition: box-shadow 0.16s ease;
+}
+
+.perks .perk:hover {
+  box-shadow: rgb(0 0 0 / 25%) 0px 10px 30px -20px;
 }
 
 .perk h3 {
   font-weight: 600;
   margin: 0.5em 0;
-  font-size: 1.8em;
+  font-size: 1.3em;
 }
 
 .perks .perk .icon {
@@ -326,9 +333,11 @@ button {
   }
 }
 
-.header {
+:root {
   --content-max-width: 1480px;
+}
 
+.header {
   position: relative;
   display: flex;
   gap: 84px;

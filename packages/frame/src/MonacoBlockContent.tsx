@@ -1,4 +1,5 @@
-import { createTipTapBlock } from "@blocknote/core";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { BlockNoteEditor, createTipTapBlock } from "@blocknote/core";
 import { mergeAttributes } from "@tiptap/core";
 // import styles from "../../Block.module.css";
 
@@ -39,12 +40,15 @@ const arrowHandlers = keymap({
   ArrowRight: arrowHandler("right"),
   ArrowUp: arrowHandler("up"),
   ArrowDown: arrowHandler("down"),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any);
 
 const ComponentWithWrapper = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  props: NodeViewProps & { block: any; htmlAttributes: any; selectionHack: any }
+  props: NodeViewProps & {
+    block: any;
+    htmlAttributes: any;
+    selectionHack: any;
+    blockNoteEditor: BlockNoteEditor<any>;
+  }
 ) => {
   const { htmlAttributes, ...restProps } = props;
   return (
@@ -58,7 +62,7 @@ const ComponentWithWrapper = (
 };
 
 // TODO: clean up listeners
-export const MonacoBlockContent = createTipTapBlock({
+export const MonacoBlockContent = createTipTapBlock<"codeblock", any>({
   name: "codeblock",
   content: "inline*",
   editable: true,
