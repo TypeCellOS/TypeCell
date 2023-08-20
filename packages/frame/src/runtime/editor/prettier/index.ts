@@ -1,16 +1,15 @@
 import type * as monaco from "monaco-editor";
-import parserCSS from "prettier/parser-postcss";
-import parserTypescript from "prettier/parser-typescript";
-import prettier from "prettier/standalone";
 import { diffToMonacoTextEdits } from "./diffToMonacoTextEdits";
 
-// TODO: move to shared webworker or host frame?
+// TODO: move prettier to shared webworker or host frame?
 export function setupPrettier(monacoInstance: typeof monaco) {
   monacoInstance.languages.registerDocumentFormattingEditProvider(
     "typescript",
     {
-      provideDocumentFormattingEdits(model, options, token) {
+      async provideDocumentFormattingEdits(model, options, token) {
         try {
+          const prettier = await import("prettier/standalone");
+          const parserTypescript = await import("prettier/parser-typescript");
           const newText = prettier.format(model.getValue(), {
             parser: "typescript",
             plugins: [parserTypescript],
@@ -33,7 +32,9 @@ export function setupPrettier(monacoInstance: typeof monaco) {
   );
 
   monacoInstance.languages.registerDocumentFormattingEditProvider("css", {
-    provideDocumentFormattingEdits(model, options, token) {
+    async provideDocumentFormattingEdits(model, options, token) {
+      const prettier = await import("prettier/standalone");
+      const parserCSS = await import("prettier/parser-postcss");
       try {
         const newText = prettier.format(model.getValue(), {
           parser: "css",
