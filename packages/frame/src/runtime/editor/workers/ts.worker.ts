@@ -5,11 +5,11 @@
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
+import * as worker from "monaco-editor/esm/vs/editor/editor.worker.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { TypeScriptWorker } from "monaco-editor/esm/vs/language/typescript/ts.worker.js";
-import { initialize } from "./worker-init";
 
 export class CustomTypeScriptWorker extends TypeScriptWorker {
   // eslint-disable-next-line
@@ -85,37 +85,37 @@ export class CustomTypeScriptWorker extends TypeScriptWorker {
 
 // for regular webWorker:
 
-// globalThis.onmessage = () => {
-//   worker.initialize(
-//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//     (context: any, createData: any) =>
-//       new CustomTypeScriptWorker(context, createData)
-//   );
-// };
+globalThis.onmessage = () => {
+  worker.initialize(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (context: any, createData: any) =>
+      new CustomTypeScriptWorker(context, createData)
+  );
+};
 
 // For SharedWorker:
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const connect = (port: any) => {
-  // let initialized = false;
-  port.onmessage = (e: any) => {
-    initialize(
-      function (ctx: any, createData: any) {
-        return new CustomTypeScriptWorker(ctx, createData);
-      },
-      port,
-      false
-    );
-  };
-};
+// export const connect = (port: any) => {
+//   // let initialized = false;
+//   port.onmessage = (e: any) => {
+//     initialize(
+//       function (ctx: any, createData: any) {
+//         return new CustomTypeScriptWorker(ctx, createData);
+//       },
+//       port,
+//       false
+//     );
+//   };
+// };
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-self.onconnect = (e) => {
-  const [port] = e.ports;
-  connect(port);
-};
+// // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// // @ts-ignore
+// self.onconnect = (e) => {
+//   const [port] = e.ports;
+//   connect(port);
+// };
 
-if (!("SharedWorkerGlobalScope" in self)) {
-  connect(self);
-}
+// if (!("SharedWorkerGlobalScope" in self)) {
+//   connect(self);
+// }
