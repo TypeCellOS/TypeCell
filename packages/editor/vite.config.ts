@@ -71,7 +71,7 @@ export default defineConfig((conf) => ({
       // used during production bundling
       plugins: [nodePolyfills()],
     },
-    // sourcemap: true
+    sourcemap: true
   },
   test: {
     exclude: [
