@@ -81,20 +81,6 @@ export default defineConfig((conf) => ({
       // Enable rollup polyfills plugin
       // used during production bundling
       plugins: [nodePolyfills()],
-      external(source, importer, isResolved) {
-        if (
-          importer?.includes(
-            "monaco-editor/esm/vs/basic-languages/monaco.contribution.js"
-          )
-        ) {
-          if (
-            !source.match(/editor\.api|typescript|css|html|javascript|markdown/)
-          ) {
-            return true;
-          }
-        }
-        return false;
-      },
     },
     sourcemap: true,
   },
