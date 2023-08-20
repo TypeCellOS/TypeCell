@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { NodeViewProps } from "@tiptap/core";
 
@@ -27,7 +28,6 @@ import { MonacoTypeCellCodeModel } from "./models/MonacoCodeModel";
 import { getMonacoModel } from "./models/MonacoModelManager";
 
 const MonacoElementComponent = function MonacoElement(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: NodeViewProps & {
     block: any;
     selectionHack: any;

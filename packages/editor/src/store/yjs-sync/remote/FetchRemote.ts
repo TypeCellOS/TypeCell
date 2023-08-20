@@ -16,24 +16,24 @@ type IndexFile = {
   items: string[];
 };
 
-function isEmptyDoc(doc: Y.Doc) {
-  return areDocsEqual(doc, new Y.Doc());
-}
+// function isEmptyDoc(doc: Y.Doc) {
+//   return areDocsEqual(doc, new Y.Doc());
+// }
 
-// NOTE: only changes in doc xml fragment are checked
-function areFragmentsEqual(fragment1: Y.XmlFragment, fragment2: Y.XmlFragment) {
-  return _.eq(
-    (fragment1.toJSON() as string).replaceAll(/block-id=".*"/g, ""),
-    (fragment2.toJSON() as string).replaceAll(/block-id=".*"/g, "")
-  );
-}
+// // NOTE: only changes in doc xml fragment are checked
+// function areFragmentsEqual(fragment1: Y.XmlFragment, fragment2: Y.XmlFragment) {
+//   return _.eq(
+//     (fragment1.toJSON() as string).replaceAll(/block-id=".*"/g, ""),
+//     (fragment2.toJSON() as string).replaceAll(/block-id=".*"/g, "")
+//   );
+// }
 
-function areDocsEqual(doc1: Y.Doc, doc2: Y.Doc) {
-  return areFragmentsEqual(
-    doc1.getXmlFragment("doc"),
-    doc2.getXmlFragment("doc")
-  );
-}
+// function areDocsEqual(doc1: Y.Doc, doc2: Y.Doc) {
+//   return areFragmentsEqual(
+//     doc1.getXmlFragment("doc"),
+//     doc2.getXmlFragment("doc")
+//   );
+// }
 
 export default class FetchRemote extends Remote {
   private disposed = false;

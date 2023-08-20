@@ -17,11 +17,11 @@ type Props = {
   sessionStore: SessionStore;
 };
 
-const RootDirectory = () => {
-  return <div>hello</div>;
-  // const defaultDoc = (useOutletContext() as any)?.defaultFileContent as any;
-  // return defaultDoc || <></>;
-};
+// const RootDirectory = () => {
+//   return <div>hello</div>;
+//   // const defaultDoc = (useOutletContext() as any)?.defaultFileContent as any;
+//   // return defaultDoc || <></>;
+// };
 
 const ProjectRenderer: React.FC<Props> = observer((props) => {
   let [childId, ...remainingIds] = props.subIdentifiers;
