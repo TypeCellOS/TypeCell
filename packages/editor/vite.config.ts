@@ -67,12 +67,29 @@ export default defineConfig((conf) => ({
   },
   build: {
     rollupOptions: {
+      output: {
+        chunkFileNames: (chunkInfo) => {
+          if (chunkInfo.name.includes("y-websocket")) {
+            // because rollup uses the last source of the chunk as file name, we end
+            // up with a file named "y-websocket.xxx.js" which actually has a lot of node_modules
+            // (not just y-websocket). Rename to "chunk"
+            return "assets/chunk-[hash].js";
+          }
+          return "assets/[name].[hash].js";
+        },
+      },
       // Enable rollup polyfills plugin
       // used during production bundling
       plugins: [nodePolyfills()],
       external(source, importer, isResolved) {
-        if (importer?.includes("monaco-editor/esm/vs/basic-languages/monaco.contribution.js")) {
-          if (!source.match(/editor\.api|typescript|css|html|javascript|markdown/)) {
+        if (
+          importer?.includes(
+            "monaco-editor/esm/vs/basic-languages/monaco.contribution.js"
+          )
+        ) {
+          if (
+            !source.match(/editor\.api|typescript|css|html|javascript|markdown/)
+          ) {
             return true;
           }
         }
