@@ -88,7 +88,7 @@ export class TypeCellRemote extends Remote {
 
   public get awareness(): awarenessProtocol.Awareness | undefined {
     this._awarenessAtom.reportObserved();
-    return this.hocuspocusProvider?.awareness;
+    return this.hocuspocusProvider?.awareness || undefined;
   }
 
   // TODO: "canWrite" isn't a great name, because it's actually "hasNoChanges Or CanWriteAndWaitingForSync". We should probably split "pending messages" and "access" into two separate properties.
