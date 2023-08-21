@@ -29,8 +29,14 @@
     font-style: italic;
 }
 
-.workspaces {
+.workspaces, .forks {
     margin-top:2em
+}
+
+.workspaces button, .forks button {
+    display:block;
+    margin-bottom:1em;
+
 }
 
 .avatar {

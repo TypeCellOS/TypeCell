@@ -144,6 +144,7 @@ const DocumentView = observer((props: Props) => {
           key={connection.doc.id}
           profile={connection.doc.getSpecificType(ProfileResource)!}
           subIdentifiers={[]}
+          sessionStore={props.sessionStore}
         />
       </div>
     );

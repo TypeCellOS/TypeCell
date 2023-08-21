@@ -1,15 +1,20 @@
 import Button from "@atlaskit/button";
+import { useResource } from "@typecell-org/util";
 import { observer } from "mobx-react-lite";
 import React, { useMemo } from "react";
 import Avatar from "react-avatar";
 import { useNavigate } from "react-router-dom";
 import { Identifier } from "../../../identifiers/Identifier";
+import { identifiersToPath } from "../../../identifiers/paths/identifierPathHelpers";
+import { DocConnection } from "../../../store/DocConnection";
 import ProfileResource from "../../../store/ProfileResource";
+import { SessionStore } from "../../../store/local/SessionStore";
 import styles from "./ProfileRenderer.module.css";
 
 type Props = {
   profile: ProfileResource;
   subIdentifiers: Identifier[];
+  sessionStore: SessionStore;
 };
 
 const ProfileRenderer: React.FC<Props> = observer((props) => {
@@ -34,6 +39,20 @@ const ProfileRenderer: React.FC<Props> = observer((props) => {
   //   );
 
   const wsPath = "/@" + props.profile.username + "/public";
+  const forks: string[] = [...props.profile.forks.values()];
+
+  const forkedDocs = useResource(() => {
+    const forkedDocs = forks.map((f) =>
+      DocConnection.load(f, props.sessionStore)
+    );
+
+    return [
+      forkedDocs,
+      () => {
+        forkedDocs.forEach((d) => d.dispose());
+      },
+    ];
+  }, forks);
 
   return (
     <>
@@ -52,7 +71,7 @@ const ProfileRenderer: React.FC<Props> = observer((props) => {
             <div className={styles.userInfo}>Joined {joinedDate}</div>
           )}
         </div>
-        {/* <h2>Workspaces</h2> */}
+        {forkedDocs && <h2>Workspaces</h2>}
         <div className={styles.workspaces}>
           <Button
             onClick={() => {
@@ -60,6 +79,20 @@ const ProfileRenderer: React.FC<Props> = observer((props) => {
             }}>
             Public workspace by {props.profile.title}
           </Button>
+        </div>
+        {forkedDocs && <h2>Forked documents</h2>}
+        <div className={styles.forks}>
+          {forkedDocs.map((f) => (
+            <>
+              <Button
+                key={f.identifier.toString()}
+                onClick={() => {
+                  navigate("/" + identifiersToPath(f.identifier));
+                }}>
+                {f.tryDoc ? f.tryDoc.title : "..."}
+              </Button>
+            </>
+          ))}
         </div>
       </div>
     </>

@@ -168,7 +168,13 @@ export class DocConnection extends lifecycle.Disposable {
 
     const forkDoc = await connection.waitForDoc();
 
-    await forkDoc.addRef(ForkReference, this.identifier);
+    await forkDoc.addRef(
+      ForkReference,
+      this.identifier,
+      undefined,
+      // don't add to inbox of http resources
+      this.identifier instanceof TypeCellIdentifier
+    );
     return forkDoc;
   }
 

@@ -63,6 +63,7 @@ export function FrameHost(props: { url: string; sessionStore: SessionStore }) {
     // iframe.style.height = "100%";
     // iframe.style.pointerEvents = "all";
     iframe.style.border = "none";
+    iframe.style.flex = "1 1";
     iframe.className = "fullSize";
     iframe.sandbox.add(
       "allow-same-origin",
