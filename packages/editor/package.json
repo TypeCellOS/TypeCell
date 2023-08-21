@@ -101,7 +101,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.33.0",
-    "@playwright/experimental-ct-react": "^1.33.0",
+    "@playwright/experimental-ct-react": "^1.36.0",
     "@typecell-org/shared-test": "^0.0.3",
     "@types/lodash": "^4.14.168",
     "@types/node": "^16.0.0",
