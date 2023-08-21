@@ -39,6 +39,7 @@ import styles from "./Frame.module.css";
 
 import { setMonacoDefaults } from "./runtime/editor";
 
+import { RiCodeSSlashFill } from "react-icons/ri";
 import { MonacoColorManager } from "./MonacoColorManager";
 import monacoStyles from "./MonacoSelection.module.css";
 import { setupTypecellHelperTypeResolver } from "./runtime/editor/languages/typescript/TypeCellHelperTypeResolver";
@@ -272,12 +273,18 @@ export const Frame: React.FC<Props> = observer((props) => {
       ...getDefaultReactSlashMenuItems(),
       {
         name: "Code block",
-        execute: (editor) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        execute: (editor: any) =>
           insertOrUpdateBlock(editor, {
-            type: "codeblock",
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            type: "codeblock" as any,
           }),
         aliases: ["code"],
-      },
+        hint: "Add a live code block",
+        group: "Code",
+        icon: <RiCodeSSlashFill size={18} />,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any,
     ],
     collaboration: {
       provider: new FakeProvider(document.awareness),
