@@ -273,18 +273,15 @@ export const Frame: React.FC<Props> = observer((props) => {
       ...getDefaultReactSlashMenuItems(),
       {
         name: "Code block",
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        execute: (editor: any) =>
+        execute: (editor) =>
           insertOrUpdateBlock(editor, {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            type: "codeblock" as any,
+            type: "codeblock",
           }),
         aliases: ["code"],
         hint: "Add a live code block",
         group: "Code",
         icon: <RiCodeSSlashFill size={18} />,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any,
+      },
     ],
     collaboration: {
       provider: new FakeProvider(document.awareness),
