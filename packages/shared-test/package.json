@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {},
   "devDependencies": {
-    "@hocuspocus/provider": "2.1.0",
+    "@hocuspocus/provider": "^2.4.0",
     "@typecell-org/shared": "*",
     "@typecell-org/util": "*",
     "typescript": "5.0.4",
