@@ -136,11 +136,16 @@ const DocumentView = observer((props: Props) => {
     throw new Error("Plugin not implemented");
   } else if (connection.doc.type === "!profile") {
     return (
-      <ProfileRenderer
-        key={connection.doc.id}
-        profile={connection.doc.getSpecificType(ProfileResource)!}
-        subIdentifiers={[]}
-      />
+      <div className={styles.view}>
+        <DocumentMenu
+          document={connection.doc}
+          sessionStore={props.sessionStore}></DocumentMenu>
+        <ProfileRenderer
+          key={connection.doc.id}
+          profile={connection.doc.getSpecificType(ProfileResource)!}
+          subIdentifiers={[]}
+        />
+      </div>
     );
   } else if (connection.doc.type.startsWith("!")) {
     throw new Error("invalid built in type");

@@ -22,12 +22,28 @@ export default class ProfileResource extends BaseResource {
     }
   }
 
+  public get joinedDate(): number {
+    return this.ydoc.getMap("profile").get("joined_at") as number;
+  }
+
+  public set joinedDate(value: number) {
+    this.ydoc.getMap("profile").set("joined_at", value);
+  }
+
   public get username(): string {
     return this.ydoc.getMap("profile").get("username") as string;
   }
 
   public set username(value: string) {
     this.ydoc.getMap("profile").set("username", value);
+  }
+
+  public get avatar_url(): string {
+    return this.ydoc.getMap("profile").get("avatar_url") as string;
+  }
+
+  public set avatar_url(value: string) {
+    this.ydoc.getMap("profile").set("avatar_url", value);
   }
 
   public get title(): string {

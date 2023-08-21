@@ -165,6 +165,10 @@ export class SupabaseSessionStore extends SessionStore {
         return "not-available";
       }
     }
+    const session = (await this.supabase.auth.getSession()).data.session;
+    if (!session) {
+      throw new Error("unexpected: no session")
+    }
 
     // create workspace
     const workspaceId = this.getIdentifierForNewDocument();
@@ -173,11 +177,13 @@ export class SupabaseSessionStore extends SessionStore {
       const ydoc = new Y.Doc();
       const ret = new BaseResource(ydoc, workspaceId);
       ret.create("!project");
+      ret.title = "Public workspace";
       const remote = new TypeCellRemote(ydoc, workspaceId, this);
       await remote.createAndRetry();
       ret.dispose();
       remote.dispose();
     }
+
 
     // create profile
     const profileId = this.getIdentifierForNewDocument();
@@ -189,6 +195,14 @@ export class SupabaseSessionStore extends SessionStore {
       const profile = ret.getSpecificType(ProfileResource);
       profile.workspaces.set("public", workspaceId.toString());
       profile.username = username;
+      profile.joinedDate = Date.now()
+
+      const avatar = session.user.user_metadata?.avatar_url;
+
+      if (avatar) {
+        profile.avatar_url = avatar;
+      }
+
       const remote = new TypeCellRemote(ydoc, profileId, this);
       await remote.createAndRetry();
       ret.dispose();
@@ -208,7 +222,7 @@ export class SupabaseSessionStore extends SessionStore {
       throw new Error(error.message);
     }
 
-    const session = (await this.supabase.auth.getSession()).data.session || undefined;
+
     await this.updateStateFromAuthStore(session, true);
   }
   /**

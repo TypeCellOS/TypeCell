@@ -71,6 +71,11 @@ export class BaseResource {
     // return this.ydoc.getText("title");
   }
 
+  public set title(val: string | undefined) {
+    this.ydoc.getMap("meta").set("title", val);
+    // return this.ydoc.getText("title");
+  }
+
   public get id() {
     return this.identifier.toString();
   }

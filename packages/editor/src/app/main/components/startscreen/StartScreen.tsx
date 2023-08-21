@@ -4,12 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SessionStore } from "../../../../store/local/SessionStore";
 import buttonStyles from "../../../../styles/buttons.module.css";
 // import { NotebookOverviewItem } from "../../../matrix-auth/routes/overview/NotebookOverviewItem";
-import {
-  OpenNewPageDialog,
-  toDocs,
-  toNewGuestNotebook,
-  toTutorial,
-} from "../../../routes/routes";
+import { toDocs, toNewGuestNotebook, toTutorial } from "../../../routes/routes";
 import styles from "./StartScreen.module.css";
 import globe from "./assets/globe.svg";
 import intro from "./assets/intro.gif";
@@ -35,7 +30,7 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
   function onNewNotebookClick(e: any) {
     e.preventDefault();
     if (sessionStore.isLoggedIn) {
-      OpenNewPageDialog(navigate);
+      // OpenNewPageDialog(navigate);
     } else {
       navigate(toNewGuestNotebook());
     }

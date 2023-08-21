@@ -20,6 +20,7 @@ import { MenuBar } from "../menuBar/MenuBar";
 
 import { HttpsIdentifier } from "../../../../identifiers/HttpsIdentifier";
 import { TypeCellIdentifier } from "../../../../identifiers/TypeCellIdentifier";
+import { BaseResource } from "../../../../store/BaseResource";
 import ProjectResource from "../../../../store/ProjectResource";
 import { SupabaseSessionStore } from "../../../supabase-auth/SupabaseSessionStore";
 import SupabasePermissionsDialog from "../../../supabase-auth/routes/permissions/PermissionsDialog";
@@ -29,7 +30,7 @@ import { ForkAlert } from "./ForkAlert";
 import { ShareButton } from "./ShareButton";
 
 type Props = {
-  document: DocumentResource | ProjectResource;
+  document: DocumentResource | ProjectResource | BaseResource;
   sessionStore: SessionStore;
 };
 
