@@ -21,13 +21,17 @@ export const DocumentRoute = observer(
       return <div>Loading</div>;
     }
 
-    const [owner, workspace, ...documentParts] = location.pathname
+    const [owner, workspace, ...documentParts] = decodeURIComponent(
+      location.pathname
+    )
       .substring(1)
       .split("/");
     const document = documentParts.join("/");
 
     if (!owner || owner.length < 2 || !owner.startsWith("@")) {
-      const identifiers = tryPathToIdentifiers(location.pathname.substring(1));
+      const identifiers = tryPathToIdentifiers(
+        decodeURIComponent(location.pathname).substring(1)
+      );
       if (identifiers !== "invalid-identifier") {
         const [id, ...subs] = identifiers;
         return (

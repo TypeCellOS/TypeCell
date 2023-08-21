@@ -210,12 +210,8 @@ export function getIdentifierWithAppendedPath(
   pathToAppend: string
 ): Identifier {
   const uri = identifier.uri.with({
-    path: path.join(
-      identifier.uri.path || "/",
-      encodeURIComponent(pathToAppend)
-    ),
+    path: path.join(identifier.uri.path || "/", pathToAppend),
   });
-
   return parseUriIdentifier(uri);
 }
 

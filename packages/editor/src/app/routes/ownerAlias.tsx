@@ -204,7 +204,9 @@ export const OwnerAliasRoute = observer(
       );
     }
 
-    const identifiers = pathToIdentifiers(location.pathname.substring(1));
+    const identifiers = pathToIdentifiers(
+      decodeURIComponent(location.pathname).substring(1)
+    );
     const [id, ...subs] = identifiers;
     return (
       <RouteContext.Provider
