@@ -14,6 +14,10 @@ type Props = {
   sessionStore: SessionStore;
 };
 
+class FakeProvider {
+  constructor(public readonly awareness: any) {}
+}
+
 const RichTextRenderer: React.FC<Props> = observer((props) => {
   const roomName = useMemo(() => {
     return "room-" + uniqueId.generateUuid();

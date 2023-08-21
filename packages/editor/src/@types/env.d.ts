@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
-
+/// <reference types="vite-plugin-pwa/react" />
+/// <reference types="vite-plugin-pwa/info" />
 interface ImportMetaEnv {
   readonly VITE_ENVIRONMENT: "PROD" | "DEV" | "STAGING";
   readonly VITE_TYPECELL_BACKEND_WS_URL: string;
