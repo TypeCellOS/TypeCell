@@ -26,7 +26,7 @@ export function validateHostDomain() {
   }
 
   if (ENVIRONMENT === "STAGING") {
-    return hostname.match(/^typecell-[A-z0-9-]+-typecell.vercel.app$/);
+    return hostname.match(/^typecell-[A-z0-9-]+-typecell.vercel.app$/) || hostname === "staging.typecell.org";
   }
   return (
     hostname === "notebooks.typecell.org" || hostname === "www.typecell.org"
@@ -50,7 +50,7 @@ export function validateFrameDomain() {
   }
 
   if (ENVIRONMENT === "STAGING") {
-    return hostname.match(/^typecell-[A-z0-9-]+-typecell.vercel.app$/);
+    return hostname.match(/^typecell-[A-z0-9-]+-typecell.vercel.app$/) || hostname === "staging.typecell.org";
   }
   return hostname.match(/^.*\.typescriptrepl\.com$/);
 }
