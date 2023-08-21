@@ -8,14 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
 
       - uses: supabase/setup-cli@v1
         with:
           version: latest
 
       - name: Setup Node.js 18.x
-        uses: actions/setup-node@master
+        uses: actions/setup-node@v3
         with:
           node-version: 18.x
 
@@ -52,7 +52,7 @@ jobs:
       # doesn't seem to cause significant speed up, probably because it still needs to install deps
       - name: cache playwright
         id: playwright-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/ms-playwright
           key: pw3-${{ runner.os }}-${{ hashFiles('./package-lock.json') }}
@@ -67,7 +67,7 @@ jobs:
       #     key: lerna-${{ runner.os }}-${{ hashFiles('./package-lock.json') }}
 
       - name: Cache node modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-node-modules
         with:
@@ -143,7 +143,7 @@ jobs:
       - name: Run Playwright tests (against preview)
         run: npm run playwright:preview
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: playwright-report-editor
