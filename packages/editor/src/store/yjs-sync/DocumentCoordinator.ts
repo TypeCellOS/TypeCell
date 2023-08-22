@@ -34,6 +34,19 @@ async function awaitSynced(provider: IndexeddbPersistence) {
   });
 }
 
+// https://blog.testdouble.com/posts/2019-05-14-locking-with-promises/
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const lockify = (f: any) => {
+  let lock = Promise.resolve();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (...params: any) => {
+    const result = lock.then(() => f(...params));
+    lock = result.catch(() => {
+      //noop
+    });
+    return result;
+  };
+};
 export class DocumentCoordinator extends lifecycle.Disposable {
   private loadedDocuments = new Map<string, LocalDoc>();
 
@@ -51,12 +64,15 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
     this._register({
       dispose: () => {
+        this.indexedDBProvider.destroy();
         this.doc.destroy();
       },
     });
   }
 
-  public async copyFromGuest() {
+  public copyFromGuest = lockify(this.copyFromGuestNoLock.bind(this));
+
+  private async copyFromGuestNoLock() {
     if (this.documents.size > 0) {
       throw new Error("copyFromGuest: target already has documents!");
     }
@@ -89,12 +105,15 @@ export class DocumentCoordinator extends lifecycle.Disposable {
           ydoc
         );
         await awaitSynced(targetDocIDB);
+        ydoc.destroy();
         targetDocIDB.destroy();
+      } else {
+        ydoc.destroy();
       }
-
+      guestDocIDB.destroy();
       await guestDocIDB.clearData();
-      ydoc.destroy();
     }
+    guestIDB.destroy(); // needed because theoretically a ydoc transaction can happen while the indexeddb is being destroyed
     await guestIDB.clearData();
   }
 

@@ -3,7 +3,7 @@ import {
   makeObservable,
   observable,
   reaction,
-  runInAction,
+  runInAction
 } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { Identifier } from "../../identifiers/Identifier";
@@ -18,6 +18,7 @@ import { DocumentCoordinator } from "../yjs-sync/DocumentCoordinator";
  * (e.g.: is the user logged in, what is the user name, etc)
  */
 export abstract class SessionStore extends lifecycle.Disposable {
+  public disposed = false;
   public profileDoc: DocConnection | undefined = undefined;
   public get profile() {
     return this.profileDoc?.tryDoc?.getSpecificType(ProfileResource);
@@ -106,7 +107,13 @@ export abstract class SessionStore extends lifecycle.Disposable {
           return;
         }
 
+        
+
         (async () => {
+          // await when(() => this.initializingCoordinators === false);
+          if (this.disposed) {
+            throw new Error("already disposed");
+          }
           const user = this.user;
           const coordinator = new DocumentCoordinator(userPrefix);
           const coordinators = {
@@ -127,14 +134,17 @@ export abstract class SessionStore extends lifecycle.Disposable {
           await coordinators.aliasStore.initialize();
           await coordinators.backgroundSyncer?.initialize();
           runInAction(() => {
-            if (this.userPrefix === userPrefix) {
-              // console.log("set coordinators", userPrefix);
+            if (this.userPrefix === userPrefix && !this.disposed) {
               this.coordinators = coordinators;
               if (typeof user !== "string" && user.type === "user") {
                 this.profileDoc = this.loadProfile
                   ? DocConnection.load(user.profileId, this)
                   : undefined;
               }
+            } else {
+              coordinators.aliasStore.dispose();
+              coordinators.coordinator.dispose();
+              coordinators.backgroundSyncer?.dispose();
             }
           });
         })();
@@ -144,6 +154,16 @@ export abstract class SessionStore extends lifecycle.Disposable {
 
     this._register({
       dispose,
+    });
+
+    this._register({
+      dispose: () => {
+        this.disposed = true;
+        this.coordinators?.coordinator.dispose();
+        this.coordinators?.aliasStore.dispose();
+        this.coordinators?.backgroundSyncer?.dispose();
+        this.profileDoc?.dispose();
+      },
     });
   }
 

@@ -59,7 +59,6 @@ export class BackgroundSyncer extends lifecycle.Disposable {
         for (const id of this.identifiersToSync) {
           if (!ids.includes(id)) {
             // cleanup
-            console.log("bg syncer unload", id);
             this.identifiersToSync.delete(id);
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const connection = this.loadedConnections.get(id)!;
