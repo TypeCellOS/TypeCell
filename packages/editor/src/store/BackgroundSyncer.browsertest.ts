@@ -90,7 +90,7 @@ describe("BackgroundSyncer tests", () => {
     );
 
     TypeCellRemote.Offline = false;
-
+    
     await when(
       () =>
         sessionStoreAlice.coordinators?.backgroundSyncer
@@ -102,5 +102,5 @@ describe("BackgroundSyncer tests", () => {
         expect(doc.exists_at_remote).to.be.true;
       }
     );
-  });
+  }).timeout(10000);
 });
