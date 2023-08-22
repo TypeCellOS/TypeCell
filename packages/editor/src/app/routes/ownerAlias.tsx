@@ -80,7 +80,7 @@ export const OwnerAliasRoute = observer(
           .select()
           .eq("name", owner)
           .eq("is_username", true)
-          .single();
+          .limit(1);
 
         if (error) {
           setAliasResolveStatus("error");
