@@ -48,8 +48,8 @@ export class SyncManager extends lifecycle.Disposable {
     const remoteStatus = this.remote.status;
     if (this.state.status === "loading") {
       if (remoteStatus === "loaded") {
-        // throw new Error("not possible"); // TODO: is this safe?
-        console.error(
+        // TODO: fix / diagnose when this occurs
+        console.warn(
           "should not be possible, doc status 'loading', but remote 'loaded'"
         );
         return "loading";
