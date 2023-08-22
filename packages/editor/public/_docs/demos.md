@@ -11,4 +11,4 @@ To showcase some of TypeCell's features, explore these demos from our community:
 
 ## Built something exciting?
 
-Let us know [on discord](https://discord.gg/TcJ9TRC3SV) or [Matrix](https://matrix.to/#/#typecell-space:matrix.org) if you'd like to feature your own demo on this page!
+Let us know [on discord](https://discord.gg/TcJ9TRC3SV) if you'd like to feature your own demo on this page!

@@ -1,9 +1,11 @@
-# Introduction to TypeCell
+# TypeCell Live Coding tutorial
 
-Welcome to TypeCell. A TypeCell document is a live, interactive programming environment for Javascript / Typescript
+TypeCell documents contain a live, interactive programming environment for Javascript / Typescript
 running in your browser.
 
-In this introduction, we will go through the basics of using TypeCell.
+In this introduction, we will go through the basics of coding in TypeCell.
+
+__This document is completely editable. Follow the steps below!__
 
 ## Cats
 
@@ -56,10 +58,12 @@ export default (
 );
 ```
 
-Uh oh, what's this? I forgot to add a cell defining our friend. Can you do it for me?
+Uh oh, what's this? I forgot to add a code block defining a friend for our cat. Can you do it for me?
 
-A cell is a container for code & output. To add one, click on the + above or below another cell.
-You can do it wherever you like.
+Add a code block by clicking on the + next to a block when hovering it (or type "/"), and select "code block".
+
+_**Hint:** Our friend only needs a name for now. Use the same structure as you already
+used for your cat (first code block), but only include the "name" field and export it as the variable named "friend"._
 
 ```typescript
 // @default-collapsed
@@ -74,17 +78,16 @@ export default (
 );
 ```
 
-<small><strong>Hint:</strong> Our friend only needs a name for now. Use the same structure as you already
-used for your cat, but only include the `name` field.</small>
 
-Notice how we use `$.friend.name` in the cell above. Whenever you `export` a variable, you can access it across
-the document by using the `$` symbol. In other words, `$` is a store for all variables that you want
+
+Notice how we use _$.friend.name_ in the cell above. Whenever you _export_ a variable, you can access it across
+the document by using the _$_ symbol. In other words, _$_ is a store for all variables that you want
 to access across cells! Exported variables are also displayed below the cell.
 
 Code cells automatically run when:
 
 - You change the code of a cell
-- Any of the reactive variables the cell references (from `$`) are changed
+- Any of the reactive variables the cell references (from _$_) are changed
 
 ## Feeding neighbors
 
@@ -172,16 +175,17 @@ export default (
 );
 ```
 
-We have now stored the number of dry & wet food required (we exported variables `dryFoodToPrepare` and `wetFoodToPrepare`).
+We have now stored the number of dry & wet food required (we exported variables "dryFoodToPrepare" and "wetFoodToPrepare").
 We also visualize them nicely with a friendly message and emojis using React & JSX.
-See the default `export` at the end of the cell above.
+See the default "export" at the end of the cell above.
 
-<small>React? JSX? What's this now? React is a Javascript framework that's used
+_React? JSX? What's this now? React is a Javascript framework that's used
 to create user interfaces. We won't go too in depth on it here, but you can
-check out the documentation at https://reactjs.org/docs/getting-started.html.
+check out the documentation at https://reactjs.org/docs/getting-started.html._
 
-JSX is part of React, and makes it easy to create type-safe HTML elements. In TypeCell, just `export` JSX elements to create user interfaces or visualize data in your notebook.</small>
+_JSX is part of React, and makes it easy to create type-safe HTML elements. In TypeCell, just "export" JSX elements to create user interfaces or visualize data in your notebook._
 
+### Input fields 
 Next, we'll create some user input fields to indicate how much food we have prepared.
 The built-in TypeCell Input library makes this easy:
 
@@ -293,22 +297,25 @@ export default (
 );
 ```
 
-<strong>Go ahead, play with the inputs above to adjust how much food to prepare!</strong>
+**Go ahead, play with the inputs above to adjust how much food to prepare!**
 
 These are just 2 of the many input types that TypeCell supports. To see the
 other choices, make sure to try the TypeCell inputs tutorial.
 
-_<strong>Tip:</strong> expand the 3 cells above to see how they work._
+_**Tip:** expand the 3 cells above to see how they work._
 
 ## Final notes
 
-We hope this introduction has given you a sense of how TypeCell and reactive notebooks work.
+We hope this introduction has given you a sense of how TypeCell interactive documents work.
 
 The live feedback and Reactive programming model should be pretty powerful.
-There are a lot more features to discover, for example,
-did you know you can import any NPM package you like, or even compose different notebooks?
-Try creating your own notebook to give it a try, or have a look at the other examples.
+
+There are a lot more features to discover. For example,
+did you know you can import any NPM package you like, or even compose different documents?
+
+Try signup up and create your own documents to give it a try, or have a look at the other examples.
 
 **Have fun using TypeCell!**
 
-<small>This tutorial is inspired by [pluto.jl](https://github.com/fonsp/Pluto.jl), thanks Fons & Nicholas!</small>
+
+_This tutorial is inspired by [pluto.jl](https://github.com/fonsp/Pluto.jl), thanks Fons & Nicholas!_

@@ -53,7 +53,7 @@ We've written about the main functionality of TypeCell in the [manual](https://w
 
 Another good way to learn is to check out some notebooks from our community:
 
-» [View demo notebooks](/docs/demos.md)
+» [View demo notebooks](/docs/Demos.md)
 
 # Feedback 🙋‍♂️🙋‍♀️
 
