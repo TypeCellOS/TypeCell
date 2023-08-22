@@ -251,9 +251,10 @@ export const Frame: React.FC<Props> = observer((props) => {
   // }, [document.awareness, props.userColor, props.userName]);
 
   const editor = useBlockNote({
+    defaultStyles: false,
     domAttributes: {
       editor: {
-        class: styles.editor,
+        class: styles.editor + " markdown-body",
         "data-test": "editor",
       },
     },
