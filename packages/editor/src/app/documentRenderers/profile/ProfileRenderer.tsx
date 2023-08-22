@@ -89,7 +89,11 @@ const ProfileRenderer: React.FC<Props> = observer((props) => {
                 onClick={() => {
                   navigate("/" + identifiersToPath(f.identifier));
                 }}>
-                {f.tryDoc ? f.tryDoc.title : "..."}
+                {f.tryDoc
+                  ? f.tryDoc.type === "!richtext"
+                    ? f.tryDoc.doc.title
+                    : f.tryDoc.title
+                  : "..."}
               </Button>
             </>
           ))}
