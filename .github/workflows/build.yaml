@@ -20,7 +20,7 @@ jobs:
           node-version: 18.x
 
       # from https://github.com/supabase/supabase-action-example/
-      - run: supabase start -x studio,imgproxy,storage
+      - run: supabase start -x studio,imgproxy,storage,edge-runtime,vector,realtime,storage-api
         working-directory: packages/server
         env:
           TYPECELL_GITHUB_OAUTH_SECRET: ${{ secrets.TYPECELL_GITHUB_OAUTH_SECRET }}
