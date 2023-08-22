@@ -71,7 +71,7 @@ const ProfileRenderer: React.FC<Props> = observer((props) => {
             <div className={styles.userInfo}>Joined {joinedDate}</div>
           )}
         </div>
-        {forkedDocs && <h2>Workspaces</h2>}
+        {forkedDocs?.length && <h2>Workspaces</h2>}
         <div className={styles.workspaces}>
           <Button
             onClick={() => {
@@ -80,7 +80,7 @@ const ProfileRenderer: React.FC<Props> = observer((props) => {
             Public workspace by {props.profile.title}
           </Button>
         </div>
-        {forkedDocs && <h2>Forked documents</h2>}
+        {forkedDocs?.length && <h2>Forked documents</h2>}
         <div className={styles.forks}>
           {forkedDocs.map((f) => (
             <>
