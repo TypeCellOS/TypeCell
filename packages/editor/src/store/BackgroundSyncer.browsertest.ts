@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import { HocuspocusProviderWebsocket } from "@hocuspocus/provider";
 
 import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
-import { createWsProvider } from "@typecell-org/shared-test";
 import { expect } from "chai";
 import * as mobx from "mobx";
 import { when } from "mobx";
@@ -12,6 +10,7 @@ import { async } from "vscode-lib";
 import { loginAsNewRandomUser } from "../../tests/util/loginUtil";
 import { SupabaseSessionStore } from "../app/supabase-auth/SupabaseSessionStore";
 import { DocConnection } from "./DocConnection";
+import { DocumentInfo } from "./yjs-sync/DocumentCoordinator";
 import { TypeCellRemote } from "./yjs-sync/remote/TypeCellRemote";
 
 async function initSessionStore(name: string) {
@@ -30,14 +29,12 @@ async function initSessionStore(name: string) {
 describe("BackgroundSyncer tests", () => {
   let sessionStoreAlice: SupabaseSessionStore;
   let sessionStoreBob: SupabaseSessionStore;
-  let wsProvider: HocuspocusProviderWebsocket;
 
   before(async () => {
     enableMobxBindings(mobx);
   });
 
   beforeEach(async () => {
-    wsProvider = createWsProvider("ws://localhost:1234");
 
     // initialize the main user we're testing
     // await coordinator.initialize();
@@ -53,7 +50,6 @@ describe("BackgroundSyncer tests", () => {
     await sessionStoreBob.supabase.auth.signOut();
     sessionStoreBob.dispose();
     sessionStoreBob = undefined as any;
-    wsProvider.destroy();
   });
 
   /**
@@ -71,6 +67,7 @@ describe("BackgroundSyncer tests", () => {
     const reload = await DocConnection.load(doc.identifier, sessionStoreAlice);
     const reloadedDoc = await reload.waitForDoc();
     expect(reloadedDoc.ydoc.getMap("test").get("hello")).to.eq("world");
+    reload.dispose();
   });
 
   it("creates document remotely that was created offline earlier", async () => {
@@ -87,7 +84,7 @@ describe("BackgroundSyncer tests", () => {
     ).to.eq(2);
 
     [...sessionStoreAlice.documentCoordinator!.documents.values()].forEach(
-      (doc) => {
+      (doc: DocumentInfo) => {
         expect(doc.exists_at_remote).to.be.false;
       }
     );
@@ -101,6 +98,7 @@ describe("BackgroundSyncer tests", () => {
     );
     [...sessionStoreAlice.documentCoordinator!.documents.values()].forEach(
       (doc) => {
+        
         expect(doc.exists_at_remote).to.be.true;
       }
     );
