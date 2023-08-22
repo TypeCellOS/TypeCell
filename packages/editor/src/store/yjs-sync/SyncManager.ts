@@ -254,6 +254,8 @@ export class SyncManager extends lifecycle.Disposable {
       throw new Error("logged out while loading");
     }
 
+    // hacky fix for docs / httpidentifier, so that if there are no changes we fetch the latest state from the server
+    // (works with the rest of this workaround below)
     if (this.identifier instanceof HttpsIdentifier) {
       await this.sessionStore.documentCoordinator.clearIfNotChanged(
         this.identifier
@@ -281,7 +283,8 @@ export class SyncManager extends lifecycle.Disposable {
         };
       });
 
-      // hacky fix for docs / httpidentifier
+      // hacky fix for docs / httpidentifier, if we have a local copy of an https document, we don't want to sync
+      // (because FetchRemote would return a new document that's different / unsyncable with the local copy)
       if (!(this.identifier instanceof HttpsIdentifier)) {
         return this.startSyncing();
       }

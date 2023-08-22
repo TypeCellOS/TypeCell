@@ -18,6 +18,22 @@ export type DocumentInfo = {
   needs_save_since: Date | undefined;
 };
 
+function COORDINATOR_IDB_ID(userId: string) {
+  return userId + "-coordinator";
+}
+
+function DOC_IDB_ID(userId: string, docId: string) {
+  return userId + "-doc-" + docId;
+}
+
+async function awaitSynced(provider: IndexeddbPersistence) {
+  return await new Promise<void>((resolve) => {
+    provider.once("synced", () => {
+      resolve();
+    });
+  });
+}
+
 export class DocumentCoordinator extends lifecycle.Disposable {
   private loadedDocuments = new Map<string, LocalDoc>();
 
@@ -29,7 +45,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
     this.doc = new Y.Doc();
     makeYDocObservable(this.doc);
     this.indexedDBProvider = new IndexeddbPersistence(
-      userId + "-coordinator",
+      COORDINATOR_IDB_ID(userId),
       this.doc
     );
 
@@ -38,6 +54,48 @@ export class DocumentCoordinator extends lifecycle.Disposable {
         this.doc.destroy();
       },
     });
+  }
+
+  public async copyFromGuest() {
+    if (this.documents.size > 0) {
+      throw new Error("copyFromGuest: target already has documents!");
+    }
+    const guestCoordinatorID = COORDINATOR_IDB_ID("user-tc-guest");
+    if (!(await databaseExists(guestCoordinatorID))) {
+      return false;
+    }
+
+    // copy coordinator
+    const guestIDB = new IndexeddbPersistence(guestCoordinatorID, this.doc);
+
+    await guestIDB.whenSynced;
+
+    // copy docs
+    const docs = this.documents.values();
+    for (const doc of docs) {
+      const typedDoc = doc as DocumentInfo;
+
+      const ydoc = new Y.Doc();
+
+      const guestDocIDB = new IndexeddbPersistence(
+        DOC_IDB_ID("user-tc-guest", typedDoc.id),
+        ydoc
+      );
+      await awaitSynced(guestDocIDB);
+
+      if (typedDoc.needs_save_since) {
+        const targetDocIDB = new IndexeddbPersistence(
+          DOC_IDB_ID(this.userId, typedDoc.id),
+          ydoc
+        );
+        await awaitSynced(targetDocIDB);
+        targetDocIDB.destroy();
+      }
+
+      await guestDocIDB.clearData();
+      ydoc.destroy();
+    }
+    await guestIDB.clearData();
   }
 
   public async initialize() {
@@ -143,7 +201,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       return "changed";
     }
 
-    const doc = await this.loadDocument(identifier, new Y.Doc());
+    const doc = this.loadDocument(identifier, new Y.Doc());
     if (doc === "not-found") {
       throw new Error("unexpected: doc not found");
     }
@@ -196,7 +254,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
     });
 
     const idbProvider = new IndexeddbPersistence(
-      this.userId + "-doc-" + idStr,
+      DOC_IDB_ID(this.userId, idStr),
       targetYDoc
     );
 
@@ -244,30 +302,6 @@ export class DocumentCoordinator extends lifecycle.Disposable {
   public async markCreated(localDoc: LocalDoc) {
     localDoc.meta.exists_at_remote = true;
     this.documents.set(localDoc.meta.id, localDoc.meta);
-  }
-
-  public async loadFromGuest(identifier: string, targetYdoc: Y.Doc) {
-    const dbname = "user-tc-guest-doc-" + identifier; // bit hacky, "officially" we don't know the exact source name prefix here
-    const dbExists = await databaseExists(dbname);
-
-    if (dbExists) {
-      const guestIndexedDBProvider = new IndexeddbPersistence(
-        dbname,
-        targetYdoc
-      );
-      // wait for sync
-      await new Promise<void>((resolve) => {
-        guestIndexedDBProvider.once("synced", () => {
-          resolve();
-        });
-      });
-      guestIndexedDBProvider.destroy();
-      console.log("applied changes from guest");
-      return true;
-    } else {
-      console.log("did not apply changes from guest");
-      return false;
-    }
   }
 }
 

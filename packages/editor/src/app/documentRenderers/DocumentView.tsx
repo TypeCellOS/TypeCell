@@ -50,30 +50,6 @@ const DocumentView = observer((props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.id.toString(), props.sessionStore]);
 
-  // if we're a fresh sign up, load changes made as guest. Not great to have this logic here
-  React.useEffect(() => {
-    const doc = connection?.tryDoc;
-    if (!doc) {
-      return;
-    }
-
-    if (
-      props.sessionStore.tryUser?.type === "user" &&
-      props.sessionStore.tryUser.isSignUp &&
-      (doc.type === "!richtext" || doc.type === "!notebook")
-    ) {
-      props.sessionStore.documentCoordinator?.loadFromGuest(
-        doc.identifier.toString(),
-        doc.ydoc
-      );
-    }
-  }, [
-    connection,
-    connection?.tryDoc,
-    props.sessionStore.documentCoordinator,
-    props.sessionStore.tryUser,
-  ]);
-
   if (!connection) {
     return null;
   }

@@ -118,6 +118,11 @@ export abstract class SessionStore extends lifecycle.Disposable {
                 : undefined,
           };
           await coordinators.coordinator.initialize();
+
+          if (typeof this.user !== "string" && this.user.type === "user" && this.user.isSignUp) {
+            await coordinators.coordinator.copyFromGuest();
+          }
+
           await coordinators.aliasStore.initialize();
           await coordinators.backgroundSyncer?.initialize();
           runInAction(() => {
