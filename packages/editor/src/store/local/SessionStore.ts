@@ -107,19 +107,20 @@ export abstract class SessionStore extends lifecycle.Disposable {
         }
 
         (async () => {
+          const user = this.user;
           const coordinator = new DocumentCoordinator(userPrefix);
           const coordinators = {
             userPrefix,
             coordinator: coordinator,
             aliasStore: new AliasCoordinator(userPrefix),
             backgroundSyncer:
-              typeof this.user !== "string" && this.user.type !== "guest-user"
+              typeof user !== "string" && user.type !== "guest-user"
                 ? new BackgroundSyncer(coordinator, this)
                 : undefined,
           };
           await coordinators.coordinator.initialize();
 
-          if (typeof this.user !== "string" && this.user.type === "user" && this.user.isSignUp) {
+          if (typeof user !== "string" && user.type === "user" && user.isSignUp) {
             await coordinators.coordinator.copyFromGuest();
           }
 
@@ -129,9 +130,9 @@ export abstract class SessionStore extends lifecycle.Disposable {
             if (this.userPrefix === userPrefix) {
               // console.log("set coordinators", userPrefix);
               this.coordinators = coordinators;
-              if (typeof this.user !== "string" && this.user.type === "user") {
+              if (typeof user !== "string" && user.type === "user") {
                 this.profileDoc = this.loadProfile
-                  ? DocConnection.load(this.user.profileId, this)
+                  ? DocConnection.load(user.profileId, this)
                   : undefined;
               }
             }
