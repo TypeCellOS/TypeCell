@@ -161,7 +161,7 @@ export class SupabaseSessionStore extends SessionStore {
         .eq("is_username", true)
         .limit(1);
 
-      if (data) {
+      if (data?.length) {
         return "not-available";
       }
     }
