@@ -116,12 +116,6 @@ jobs:
         env:
           CI: true
 
-      - name: Install Playwright
-        run: npx playwright install --with-deps
-        # if: steps.playwright-cache.outputs.cache-hit != 'true'
-        # env:
-        # PLAYWRIGHT_BROWSERS_PATH: 0 # https://github.com/microsoft/playwright/blob/main/docs/src/ci.md#caching-browsers
-
       - name: Start HocusPocus server
         run: RUNNER_TRACKING_ID="" && npm run start:server &
         env:
@@ -132,7 +126,13 @@ jobs:
         env:
           CI: true
 
-      # Actually build and run react code and run tests against that
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+        # if: steps.playwright-cache.outputs.cache-hit != 'true'
+        # env:
+        # PLAYWRIGHT_BROWSERS_PATH: 0 # https://github.com/microsoft/playwright/blob/main/docs/src/ci.md#caching-browsers
+
+      # Actually build and run react code and run playwright tests against that
       - name: Build and run preview
         # Wait on config file needed for vite dev server: https://github.com/jeffbski/wait-on/issues/78
         run: npm run start:preview & npx wait-on http://localhost:4173 -c ./packages/editor/wait-on.conf.json
