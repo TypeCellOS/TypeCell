@@ -6,17 +6,11 @@ import {
   // Import predefined theme
   ThemeSupa,
 } from "@supabase/auth-ui-shared";
-import { createClient } from "@supabase/supabase-js";
 import { SessionStore } from "../../../store/local/SessionStore";
 import { Logo } from "../../main/components/Logo";
 
-import { env } from "../../../config/env";
+import { SupabaseSessionStore } from "../SupabaseSessionStore";
 import AuthStyles from "./AuthStyles.module.css";
-
-const supabase = createClient(
-  env.VITE_TYPECELL_SUPABASE_URL,
-  env.VITE_TYPECELL_SUPABASE_ANON_KEY
-);
 
 export const Login = observer((props: { sessionStore: SessionStore }) => {
   const { sessionStore } = props;
@@ -45,7 +39,7 @@ export const Login = observer((props: { sessionStore: SessionStore }) => {
         <div className={AuthStyles.AuthForm}>
           <Auth
             magicLink={true}
-            supabaseClient={supabase}
+            supabaseClient={(sessionStore as SupabaseSessionStore).supabase}
             view="sign_in"
             appearance={{ theme: ThemeSupa }}
             redirectTo={redirectTo}

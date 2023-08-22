@@ -73,11 +73,6 @@ export const OwnerAliasRoute = observer(
         return;
       }
 
-      if (workspace !== "public") {
-        setAliasResolveStatus("not-found");
-        return;
-      }
-
       (async () => {
         console.log("load alias", owner);
         const { data, error } = await sessionStore.supabase
@@ -113,7 +108,6 @@ export const OwnerAliasRoute = observer(
       ownerProfileIdentifier,
       sessionStore.aliasCoordinator,
       sessionStore.supabase,
-      workspace,
     ]);
 
     if (typeof ownerProfileIdentifier !== "string") {
