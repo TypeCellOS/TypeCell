@@ -68,6 +68,9 @@ export function SupabaseUserPicker(props: {
       onChange={onChange}
       loadOptions={searchUsers}
       menuPosition="fixed"
+      backspaceRemovesValue
+      isClearable
+      
       components={{
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         LoadingIndicator: LoadingIndicator as any,

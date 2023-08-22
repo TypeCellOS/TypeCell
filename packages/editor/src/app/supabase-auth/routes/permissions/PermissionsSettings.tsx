@@ -31,7 +31,9 @@ const PermissionsSettings = observer(
     closeCallback: () => void;
   }) => {
     const [isSaving, setIsSaving] = useState(false);
-    const [userPickerKey, setUserPickerKey] = useState(() => Math.random()+"");
+    const [userPickerKey, setUserPickerKey] = useState(
+      () => Math.random() + ""
+    );
 
     // State for storing & updating the currently selected user from the user picker.
     const [newUser, setNewUser] = useState<User | undefined>();
@@ -74,7 +76,7 @@ const PermissionsSettings = observer(
         users: editingPermissionData.users,
       });
 
-      setUserPickerKey(Math.random()+"");
+      setUserPickerKey(Math.random() + "");
     }
 
     function editUserPermission(userId: string, permission: DocPermission) {
@@ -185,7 +187,7 @@ const PermissionsSettings = observer(
                       label: userPermissionLabels.get("write")!,
                       value: "write",
                     }}
-                    isDisabled={true}
+                    isDisabled={!newUser}
                     onChange={updatePermissionType}
                     options={[
                       {
