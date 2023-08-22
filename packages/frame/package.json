@@ -14,7 +14,6 @@
     "@syncedstore/yjs-reactive-bindings": "^0.5.1",
     "localforage": "^1.10.0",
     "lz-string": "^1.4.4",
-    "markdown-it": "^12.0.2",
     "monaco-editor": "^0.35.0",
     "mobx": "^6.2.0",
     "mobx-react-lite": "^3.2.0",
@@ -43,7 +42,6 @@
     "jsdom": "^22.1.0",
     "@vitest/coverage-v8": "^0.33.0",
     "@vitejs/plugin-react": "^4.0.0",
-    "@types/markdown-it": "^10.0.3",
     "@types/prettier": "^3.0.0",
     "chai": "^4.3.7"
   },

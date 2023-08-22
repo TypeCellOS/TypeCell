@@ -17,24 +17,7 @@ export default class SourceModelCompiler
       const js = await compile(model, this.monacoInstance);
       return js;
     } else if (model.getLanguageId() === "markdown") {
-      // TODO: this is a hacky way to quickly support markdown. We compile markdown to JS so it can pass through the regular "evaluator".
-      // We should refactor to support different languages, probably by creating different CellEvaluators per language
-      return `define(["require", "exports", "markdown-it"], function (require, exports, markdown_it_1) {
-          "use strict";
-          Object.defineProperty(exports, "__esModule", { value: true });
-          const md = markdown_it_1({
-              html: true,
-              linkify: true,
-              typographer: true,
-          });
-
-          const render = md.render(${JSON.stringify(model.getValue())});
-          const el = document.createElement("div");
-          el.className = "markdown-body";
-          el.innerHTML = render;
-          exports.default = el;
-          ;
-      });`;
+      throw new Error("not implemented");
     } else if (model.getLanguageId() === "css") {
       // TODO: same as above comment for markdown
       return `define(["require", "exports"], function (require, exports) {
