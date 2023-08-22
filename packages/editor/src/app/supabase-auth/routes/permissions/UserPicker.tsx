@@ -70,6 +70,7 @@ export function SupabaseUserPicker(props: {
       menuPosition="fixed"
       backspaceRemovesValue
       isClearable
+      placeholder="Search user…"
       
       components={{
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
