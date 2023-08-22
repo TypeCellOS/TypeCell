@@ -154,7 +154,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       exists_at_remote: false,
     };
 
-    this.documents.set(idStr, meta);
+    this.documents.set(idStr, { ...meta });
 
     const ret = this.loadDocument(identifier, targetYDoc);
     if (ret === "not-found") {
@@ -187,7 +187,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       exists_at_remote: true,
     };
 
-    this.documents.set(idStr, meta);
+    this.documents.set(idStr, { ...meta });
 
     const ret = this.loadDocument(identifier, targetYDoc);
     if (ret === "not-found") {
@@ -268,7 +268,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
       if (meta.needs_save_since === undefined) {
         meta.needs_save_since = new Date();
-        this.documents.set(idStr, meta);
+        this.documents.set(idStr, { ...meta });
       }
     });
 
@@ -315,12 +315,12 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
   public async markSynced(localDoc: LocalDoc) {
     localDoc.meta.needs_save_since = undefined;
-    this.documents.set(localDoc.meta.id, localDoc.meta);
+    this.documents.set(localDoc.meta.id, { ...localDoc.meta });
   }
 
   public async markCreated(localDoc: LocalDoc) {
     localDoc.meta.exists_at_remote = true;
-    this.documents.set(localDoc.meta.id, localDoc.meta);
+    this.documents.set(localDoc.meta.id, { ...localDoc.meta });
   }
 }
 
