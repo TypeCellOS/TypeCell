@@ -25,6 +25,7 @@ export const ProfilePopup = observer(
               icon={
                 <Avatar
                   name={props.sessionStore.loggedInUserId}
+                  src={props.sessionStore.profile?.avatar_url || undefined}
                   size="32"
                   round={true}
                   textSizeRatio={2}

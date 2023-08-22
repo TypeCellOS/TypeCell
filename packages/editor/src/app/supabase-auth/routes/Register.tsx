@@ -6,16 +6,11 @@ import {
   // Import predefined theme
   ThemeSupa,
 } from "@supabase/auth-ui-shared";
-import { createClient } from "@supabase/supabase-js";
-import { env } from "../../../config/env";
 import { SessionStore } from "../../../store/local/SessionStore";
 import { Logo } from "../../main/components/Logo";
+import { SupabaseSessionStore } from "../SupabaseSessionStore";
 import AuthStyles from "./AuthStyles.module.css";
 
-const supabase = createClient(
-  env.VITE_TYPECELL_SUPABASE_URL,
-  env.VITE_TYPECELL_SUPABASE_ANON_KEY
-);
 
 export const Register = observer((props: { sessionStore: SessionStore }) => {
   const { sessionStore } = props;
@@ -43,7 +38,7 @@ export const Register = observer((props: { sessionStore: SessionStore }) => {
       <div className={AuthStyles.AuthBody}>
         <div className={AuthStyles.AuthForm}>
           <Auth
-            supabaseClient={supabase}
+            supabaseClient={(sessionStore as SupabaseSessionStore).supabase}
             view="sign_up"
             appearance={{ theme: ThemeSupa }}
             redirectTo={redirectTo}

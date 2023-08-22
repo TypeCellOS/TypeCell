@@ -26,11 +26,13 @@ export const URLUpdater = observer(
 
     useEffect(() => {
       if (!titleSet) {
+        window.document.title = "TypeCell";
         return;
       }
       if (!(lastIdentifier instanceof TypeCellIdentifier)) {
         throw new Error("not expected");
       }
+      window.document.title = title ? title + " | TypeCell" : "TypeCell";
 
       const slugged = slug(title || "");
       const newPath = slugged.length
@@ -42,6 +44,10 @@ export const URLUpdater = observer(
       );
       // console.log("title change", title, url);
       window.history.replaceState(window.history.state, "", url);
+
+      return () => {
+        window.document.title = "TypeCell";
+      };
     }, [title, lastIdentifier, titleSet]);
 
     return null;

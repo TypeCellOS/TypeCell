@@ -25,7 +25,7 @@ function arrowHandler(
         state.doc.resolve(side > 0 ? $head.after() : $head.before()),
         side
       );
-      console.log("nextPos", nextPos.$head.parent.type.name);
+      // console.log("nextPos", nextPos.$head.parent.type.name);
       if (nextPos.$head && nextPos.$head.parent.type.name === "codeblock") {
         dispatch(state.tr.setSelection(nextPos));
         return true;
@@ -130,7 +130,7 @@ export const MonacoBlockContent = createTipTapBlock<"codeblock", any>({
       // Get the block
       const block = editor.getBlock(blockIdentifier);
 
-      console.log("ComponentWithWrapper");
+      // console.log("ComponentWithWrapper");
       return (
         <ComponentWithWrapper
           htmlAttributes={htmlAttributes}

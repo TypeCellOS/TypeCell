@@ -33,6 +33,7 @@ export default function UserPermissionRow(props: {
   return (
     <div className={styles.userRow}>
       <div className={styles.userInfo}>
+        {/* TODO: show avatar img */}
         <Avatar
           name={props.user.nameWithoutAtSign}
           size="32"

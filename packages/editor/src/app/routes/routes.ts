@@ -3,18 +3,6 @@ import { Identifier } from "../../identifiers/Identifier";
 import { identifiersToPath } from "../../identifiers/paths/identifierPathHelpers";
 import { BaseResource } from "../../store/BaseResource";
 
-export function OpenNewPageDialog(navigate: NavigateFunction) {
-  navigate({}, { state: { NewPageDialog: true } });
-}
-
-export function CloseNewPageDialog(navigate: NavigateFunction) {
-  navigate({}, { state: { NewPageDialog: undefined } });
-}
-
-export function IsNewPageDialogOpen(location: Location) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (location as any).state?.NewPageDialog;
-}
 
 export function OpenPermissionsDialog(navigate: NavigateFunction) {
   navigate({}, { state: { permissionsDialog: true } });

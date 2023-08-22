@@ -34,7 +34,7 @@ body {
 
 .restrictionSelect {
   flex: 1;
-  min-width: 100px;
+  min-width: 120px;
 }
 
 .restrictionSelect > div {

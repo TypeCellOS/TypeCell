@@ -39,6 +39,7 @@ import styles from "./Frame.module.css";
 
 import { setMonacoDefaults } from "./runtime/editor";
 
+import { RiCodeSSlashFill } from "react-icons/ri";
 import { MonacoColorManager } from "./MonacoColorManager";
 import monacoStyles from "./MonacoSelection.module.css";
 import { setupTypecellHelperTypeResolver } from "./runtime/editor/languages/typescript/TypeCellHelperTypeResolver";
@@ -250,9 +251,10 @@ export const Frame: React.FC<Props> = observer((props) => {
   // }, [document.awareness, props.userColor, props.userName]);
 
   const editor = useBlockNote({
+    defaultStyles: false,
     domAttributes: {
       editor: {
-        class: styles.editor,
+        class: styles.editor + " markdown-body",
         "data-test": "editor",
       },
     },
@@ -277,6 +279,9 @@ export const Frame: React.FC<Props> = observer((props) => {
             type: "codeblock",
           }),
         aliases: ["code"],
+        hint: "Add a live code block",
+        group: "Code",
+        icon: <RiCodeSSlashFill size={18} />,
       },
     ],
     collaboration: {

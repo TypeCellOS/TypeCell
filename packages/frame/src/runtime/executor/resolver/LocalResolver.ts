@@ -1,5 +1,4 @@
 import { LocalModuleResolver } from "@typecell-org/engine";
-import markdownit from "markdown-it";
 import * as react from "react";
 import * as reactdom from "react-dom";
 import * as jsxruntime from "react/jsx-runtime";
@@ -10,10 +9,6 @@ import * as jsxruntime from "react/jsx-runtime";
  * them from a third party CDN
  */
 async function resolveNestedModule(id: string, mode?: string) {
-  if (id === "markdown-it") {
-    // This is used by markdown cells
-    return markdownit;
-  }
 
   // Any import if React and related libraries, we want to resolve to the
   // local imported React. Otherwise we get multiple instances of React, which breaks things
