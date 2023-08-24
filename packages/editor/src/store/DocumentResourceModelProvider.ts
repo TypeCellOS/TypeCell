@@ -39,7 +39,7 @@ export class DocumentResourceModelProvider
       if (!data) {
         return;
       }
-      const codeNodes = data.querySelectorAll("monaco");
+      const codeNodes = data.querySelectorAll("codeblock");
       const seenIds = new Set<string>();
       const createdModels = new Set<BasicCodeModel>();
 
@@ -77,7 +77,7 @@ export class DocumentResourceModelProvider
           model = new BasicCodeModel(
             "!" + identifier.toString() + "/" + id + ".cell.tsx",
             code.toString(),
-            attrLanguage
+            attrLanguage,
           );
           this.modelMap.set(id, model);
           createdModels.add(model);
