@@ -59,6 +59,7 @@ export class TypeCellRemote extends Remote {
   }
 
   public static set Offline(val: boolean) {
+    console.log("change fake offline mode", val)
     if (val) {
       wsProviders.forEach((wsProvider) => {
         wsProvider?.disconnect();

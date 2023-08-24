@@ -80,19 +80,19 @@ export const OwnerAliasRoute = observer(
           .select()
           .eq("name", owner)
           .eq("is_username", true)
-          .single();
+          .limit(1);
 
         if (error) {
           setAliasResolveStatus("error");
           return;
         }
 
-        if (!data) {
+        if (!data || !data.length) {
           setAliasResolveStatus("not-found");
           return;
         }
 
-        const nanoId = data.document_nano_id;
+        const nanoId = data[0].document_nano_id;
         const id = new TypeCellIdentifier(
           uri.URI.from({
             scheme: "typecell", // TODO

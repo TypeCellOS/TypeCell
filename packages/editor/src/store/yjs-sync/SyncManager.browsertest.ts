@@ -142,6 +142,7 @@ describe("SyncManager tests", () => {
     );
 
     expect(manager.state.localDoc.meta.create_source).eq("remote");
+    manager.dispose();
   });
 
   it("cannot load an unknown remote document offline", async () => {
@@ -171,6 +172,7 @@ describe("SyncManager tests", () => {
     );
 
     expect(loadedManager.state.localDoc.meta.create_source).eq("remote");
+    manager.dispose();
   });
 
   it("can load a known remote document", async () => {

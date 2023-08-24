@@ -8,7 +8,6 @@ import { VscKebabVertical } from "react-icons/vsc";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Identifier } from "../../../../identifiers/Identifier";
 import { MatrixIdentifier } from "../../../../identifiers/MatrixIdentifier";
-import { openAsMarkdown } from "../../../../integrations/markdown/export";
 import { DocumentResource } from "../../../../store/DocumentResource";
 import { SessionStore } from "../../../../store/local/SessionStore";
 import {
@@ -96,37 +95,42 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
             <ShareButton />
           </li>
 
-          <li className={styles.separator}></li>
-          <li className={styles.options}>
-            <DropdownMenu
-              spacing="compact"
-              shouldFlip
-              trigger={({ triggerRef, isSelected, testId, ...props }) => (
-                <div
-                  {...props}
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  ref={triggerRef as any}
-                  style={{ paddingRight: "0.5em", paddingLeft: "1em" }}>
-                  <VscKebabVertical
-                    title="Options"
-                    style={{ fontSize: "14px", transform: "scale(1.3)" }}
-                  />
-                </div>
-              )}
-              placement="bottom-end">
-              {props.document instanceof DocumentResource && (
+          {canEditPermissions && (
+            <>
+              <li className={styles.separator}></li>
+              <li className={styles.options}>
+                <DropdownMenu
+                  spacing="compact"
+                  shouldFlip
+                  trigger={({ triggerRef, isSelected, testId, ...props }) => (
+                    <div
+                      {...props}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      ref={triggerRef as any}
+                      style={{ paddingRight: "0.5em", paddingLeft: "1em" }}>
+                      <VscKebabVertical
+                        title="Options"
+                        style={{ fontSize: "14px", transform: "scale(1.3)" }}
+                      />
+                    </div>
+                  )}
+                  placement="bottom-end">
+                  {/* {props.document instanceof DocumentResource && (
                 <DropdownItem
                   onClick={() => openAsMarkdown(props.document.doc)}>
                   Export as markdown
                 </DropdownItem>
-              )}
-              {canEditPermissions && (
-                <DropdownItem onClick={() => OpenPermissionsDialog(navigate)}>
-                  Permissions
-                </DropdownItem>
-              )}
-            </DropdownMenu>
-          </li>
+              )} */}
+                  {canEditPermissions && (
+                    <DropdownItem
+                      onClick={() => OpenPermissionsDialog(navigate)}>
+                      Permissions
+                    </DropdownItem>
+                  )}
+                </DropdownMenu>
+              </li>
+            </>
+          )}
         </ul>
       </aside>
       {canEditPermissions && permissionsArea}

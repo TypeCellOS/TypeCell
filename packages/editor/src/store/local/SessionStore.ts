@@ -3,7 +3,7 @@ import {
   makeObservable,
   observable,
   reaction,
-  runInAction,
+  runInAction
 } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { Identifier } from "../../identifiers/Identifier";
@@ -18,6 +18,7 @@ import { DocumentCoordinator } from "../yjs-sync/DocumentCoordinator";
  * (e.g.: is the user logged in, what is the user name, etc)
  */
 export abstract class SessionStore extends lifecycle.Disposable {
+  public disposed = false;
   public profileDoc: DocConnection | undefined = undefined;
   public get profile() {
     return this.profileDoc?.tryDoc?.getSpecificType(ProfileResource);
@@ -106,29 +107,44 @@ export abstract class SessionStore extends lifecycle.Disposable {
           return;
         }
 
+        
+
         (async () => {
+          // await when(() => this.initializingCoordinators === false);
+          if (this.disposed) {
+            throw new Error("already disposed");
+          }
+          const user = this.user;
           const coordinator = new DocumentCoordinator(userPrefix);
           const coordinators = {
             userPrefix,
             coordinator: coordinator,
             aliasStore: new AliasCoordinator(userPrefix),
             backgroundSyncer:
-              typeof this.user !== "string" && this.user.type !== "guest-user"
+              typeof user !== "string" && user.type !== "guest-user"
                 ? new BackgroundSyncer(coordinator, this)
                 : undefined,
           };
           await coordinators.coordinator.initialize();
+
+          if (typeof user !== "string" && user.type === "user" && user.isSignUp) {
+            await coordinators.coordinator.copyFromGuest();
+          }
+
           await coordinators.aliasStore.initialize();
           await coordinators.backgroundSyncer?.initialize();
           runInAction(() => {
-            if (this.userPrefix === userPrefix) {
-              // console.log("set coordinators", userPrefix);
+            if (this.userPrefix === userPrefix && !this.disposed) {
               this.coordinators = coordinators;
-              if (typeof this.user !== "string" && this.user.type === "user") {
+              if (typeof user !== "string" && user.type === "user") {
                 this.profileDoc = this.loadProfile
-                  ? DocConnection.load(this.user.profileId, this)
+                  ? DocConnection.load(user.profileId, this)
                   : undefined;
               }
+            } else {
+              coordinators.aliasStore.dispose();
+              coordinators.coordinator.dispose();
+              coordinators.backgroundSyncer?.dispose();
             }
           });
         })();
@@ -138,6 +154,16 @@ export abstract class SessionStore extends lifecycle.Disposable {
 
     this._register({
       dispose,
+    });
+
+    this._register({
+      dispose: () => {
+        this.disposed = true;
+        this.coordinators?.coordinator.dispose();
+        this.coordinators?.aliasStore.dispose();
+        this.coordinators?.backgroundSyncer?.dispose();
+        this.profileDoc?.dispose();
+      },
     });
   }
 

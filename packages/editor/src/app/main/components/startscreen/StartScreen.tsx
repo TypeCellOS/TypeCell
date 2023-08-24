@@ -250,28 +250,26 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
         </section>
       </div>
       <footer className={styles.footer}>
-        <div className="container">
+        <div>
           <div className={styles.links}>
+            <h4>Community</h4>
             <ul>
               <li>
-                <Link to={toTutorial()}>
-                  <span>Interactive introduction</span>
-                </Link>
+                <a
+                  target="_blank"
+                  href="https://github.com/TypeCellOS/TypeCell"
+                  rel="noreferrer">
+                  <span>GitHub</span>
+                </a>
               </li>
               <li>
-                <Link to={toDocs()}>
-                  <span>Documentation</span>
-                </Link>
+                <a
+                  target="_blank"
+                  href="https://twitter.com/TypeCellOS"
+                  rel="noreferrer">
+                  <span>Twitter / X</span>
+                </a>
               </li>
-
-              {/* <li>
-                  <a
-                    target="_blank"
-                    href="https://github.com/YousefED/typecell-next"
-                    rel="noreferrer">
-                    <span>Find us on GitHub</span>
-                  </a>
-                </li> */}
               <li>
                 <a
                   target="_blank"
@@ -290,10 +288,66 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
               </li>
             </ul>
           </div>
-          <div className={styles.bottom}>
-            <span>{new Date().getFullYear()} TypeCell live programming</span>
+
+          <div className={styles.links}>
+            <h4>Documentation</h4>
+            <ul>
+              <li>
+                <Link to={toDocs()}>
+                  <span>Introduction</span>
+                </Link>
+              </li>
+              <li>
+                <Link to={toTutorial()}>
+                  <span>Tutorial</span>
+                </Link>
+              </li>
+              <li>
+                <Link to={toTutorial()}>
+                  <span>Manual</span>
+                </Link>
+              </li>
+              <li>
+                <Link to={toTutorial()}>
+                  <span>Demos</span>
+                </Link>
+              </li>
+            </ul>
           </div>
+          <div className={styles.links}>
+            <h4>Get started</h4>
+            <ul>
+              <li>
+                <Link to={toTutorial()}>
+                  <span>Create account</span>
+                </Link>
+              </li>
+              <li>
+                <Link to={toDocs()}>
+                  <span>Login</span>
+                </Link>
+              </li>
+            </ul>
+          </div>
+          {/* <div className={styles.links}>
+            <h4>Stay updated</h4>
+            <ul>
+              <li>
+                <Link to={toTutorial()}>
+                  <span>Create account</span>
+                </Link>
+              </li>
+              <li>
+                <Link to={toDocs()}>
+                  <span>Login</span>
+                </Link>
+              </li>
+            </ul>
+          </div> */}
         </div>
+        {/* <div className={styles.bottom}>
+          <span>{new Date().getFullYear()} TypeCell live programming</span>
+        </div> */}
       </footer>
     </>
   );

@@ -1,14 +1,13 @@
 {
   "title": "Docs",
   "items": [
-    "demos.md",
-    "interactive-introduction.md",
+    "Demos.md",
+    "Live coding tutorial.md",
     "manual/1. Notebooks and cells.md",
     "manual/2. TypeScript and exports.md",
     "manual/3. Reactive variables.md",
     "manual/4. Inputs.md",
     "manual/5. Imports and NPM.md",
-    "manual/6. Collaboration.md",
     "README.md"
   ]
 }
