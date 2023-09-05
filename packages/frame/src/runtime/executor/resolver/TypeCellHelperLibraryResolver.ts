@@ -5,6 +5,7 @@ export async function TypeCellHelperLibraryResolver(moduleName: string) {
     // Resolve the typecell helper library
     return {
       module: {
+        __esModule: true,
         default: getExposeGlobalVariables(),
       },
       dispose: () => {

@@ -89,7 +89,7 @@ globalThis.onmessage = () => {
   worker.initialize(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (context: any, createData: any) =>
-      new CustomTypeScriptWorker(context, createData)
+      new CustomTypeScriptWorker(context, createData),
   );
 };
 

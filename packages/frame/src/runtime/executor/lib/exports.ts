@@ -33,7 +33,7 @@ export class TypeVisualizer<T> {
   constructor(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public readonly func: (arg: T) => any,
-    public readonly name?: string
+    public readonly name?: string,
   ) {
     if (
       // strings.isFalsyOrWhitespace(visualizer.name) ||

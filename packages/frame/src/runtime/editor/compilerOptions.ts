@@ -11,7 +11,7 @@ export function getDefaultSandboxCompilerOptions(
   typescript: Pick<
     TS,
     "ScriptTarget" | "ModuleResolutionKind" | "JsxEmit" | "ModuleKind"
-  >
+  >,
 ) {
   const settings: CompilerOptions = {
     noImplicitAny: true,
@@ -37,8 +37,8 @@ export function getDefaultSandboxCompilerOptions(
     noUnusedLocals: false,
     noUnusedParameters: false,
 
-    allowSyntheticDefaultImports: false,
-    esModuleInterop: false,
+    allowSyntheticDefaultImports: true,
+    esModuleInterop: true,
     preserveConstEnums: false,
     removeComments: false,
     skipLibCheck: true,
