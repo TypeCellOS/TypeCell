@@ -38,9 +38,21 @@ a {
 body {
   margin: 0;
 
-  font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
-    "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
-    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    "Inter",
+    "SF Pro Display",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Open Sans",
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
@@ -55,14 +67,6 @@ body,
   height: 100%;
 }
 
-.centered {
-  text-align: center;
-}
-
-.page {
-  overflow-y: auto;
-}
-
 h1,
 h2,
 h3,
@@ -70,27 +74,6 @@ h4,
 h5,
 h6 {
   color: #3a3a3a;
-}
-
-.react-draggable {
-  position: absolute;
-}
-
-/* Some generic layout classes */
-.row {
-  display: flex;
-  align-items: stretch;
-  flex-wrap: wrap;
-  width: 100%;
-}
-
-.container {
-  margin: 0 auto;
-  max-width: 1200px;
-}
-
-.white {
-  background: white;
 }
 
 /* .hint::before {

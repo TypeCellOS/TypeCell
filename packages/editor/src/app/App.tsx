@@ -10,7 +10,6 @@ import { SessionStore } from "../store/local/SessionStore";
 
 import { navigateRef, setNavigateRef } from "./GlobalNavigateRef";
 import Main from "./main/Main";
-import { AILanding } from "./main/components/startscreen/AILanding";
 import { StartScreen } from "./main/components/startscreen/StartScreen";
 import { DocumentRoute } from "./routes/document";
 import { SupabaseSessionStore } from "./supabase-auth/SupabaseSessionStore";
@@ -54,10 +53,7 @@ export const App = observer(
                 element={
                   <StartScreen sessionStore={sessionStore}></StartScreen>
                 }></Route>
-              <Route
-                path="/ai"
-                element={<AILanding sessionStore={sessionStore} />}
-              />
+
               <Route
                 path="*"
                 element={<DocumentRoute sessionStore={sessionStore} />}
@@ -66,24 +62,24 @@ export const App = observer(
             <Route
               path="/register"
               element={props.authProvider.routes.register(
-                sessionStore as SupabaseSessionStore
+                sessionStore as SupabaseSessionStore,
               )}
             />
             <Route path="/recover" element={<div>Not implemented yet</div>} />
             <Route
               path="/login"
               element={props.authProvider.routes.login(
-                sessionStore as SupabaseSessionStore
+                sessionStore as SupabaseSessionStore,
               )}
             />
             {props.authProvider.routes.additionalRoutes(
-              sessionStore as SupabaseSessionStore
+              sessionStore as SupabaseSessionStore,
             )}
             {/* todo: notfound?  */}
           </Route>
         </Routes>
       </BrowserRouter>
     );
-  }
+  },
 );
 export default App;

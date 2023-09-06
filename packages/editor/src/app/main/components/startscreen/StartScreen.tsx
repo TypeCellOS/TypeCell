@@ -99,7 +99,7 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
         </section> */}
 
         <section className={styles.perksSection}>
-          <div className={styles.perks}>
+          <div className={styles.perks + " " + styles.content}>
             <div className={styles.perk}>
               <div className={styles.icon}>
                 <img src={lightning} alt="Lightning icon" />
@@ -129,7 +129,7 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
           </div>
         </section>
 
-        <section className={styles.notebooks}>
+        {/* <section className={styles.notebooks}>
           <div className="container">
             <div className="row">
               <h2>Community Notebooks</h2>
@@ -163,7 +163,7 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
 
             <div className={styles.overview + " row"}>
               <div className={styles.notebook}>
-                {/* <NotebookOverviewItem
+                <NotebookOverviewItem
                   title="It’s all about timing"
                   description="Explore TypeCell's reactivity with the help of time"
                   previewImage={timePreviewImage}
@@ -172,10 +172,10 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
                     profileImageUrl: "",
                   }}
                   
-                  }></NotebookOverviewItem> */}
+                  }></NotebookOverviewItem>
               </div>
               <div className={styles.notebook}>
-                {/* <NotebookOverviewItem
+                <NotebookOverviewItem
                   title="Fun with charts"
                   description="Visualize weather data with two React chart libraries"
                   previewImage={chartsPreviewImage}
@@ -184,10 +184,10 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
                     profileImageUrl: "",
                   }}
                   
-                  }></NotebookOverviewItem> */}
+                  }></NotebookOverviewItem>
               </div>
               <div className={styles.notebook}>
-                {/* <NotebookOverviewItem
+                <NotebookOverviewItem
                   title="File upload using API"
                   description="Connect a React file uploader with an API"
                   previewImage={apiPreviewImage}
@@ -197,11 +197,11 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
                   }}
                   to={
                     "TODO"
-                  }></NotebookOverviewItem> */}
+                  }></NotebookOverviewItem>
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         <div className={styles.section_separator}></div>
         {/* <section className={styles.build}>
@@ -220,8 +220,8 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
           </div>
         </section> */}
         <div className={styles.section_separator}></div>
-        <section className={styles.build}>
-          <div className="container">
+        <section className={styles.build + " " + styles.content}>
+          <div>
             <h2>Start building yourself</h2>
             <p>
               We are excited to see what you will do with TypeCell.<br></br>

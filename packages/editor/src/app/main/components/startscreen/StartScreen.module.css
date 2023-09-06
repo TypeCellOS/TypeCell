@@ -1,5 +1,4 @@
 .page {
-  padding: 0 1em;
   font-size: 18px;
 }
 
@@ -75,8 +74,6 @@
 
 .perks {
   font-size: 16px;
-  max-width: calc(var(--content-max-width) - 104px);
-  margin: 0 auto;
   /* padding: 4em 0; */
   /* position: relative; */
   /* top: -8em; */
@@ -86,7 +83,7 @@
   flex: 0 0 auto;
   gap: 20px;
   grid-auto-rows: min-content;
-  grid-template-columns: repeat(4, minmax(200px, 1fr));
+  grid-template-columns: repeat(3, minmax(200px, 1fr));
   grid-template-rows: repeat(2, min-content);
   justify-content: center;
 }
@@ -190,7 +187,7 @@
 
 .build {
   padding: 4em 0;
-  justify-content: center;
+  /* justify-content: center; */
 }
 
 form {
@@ -267,7 +264,61 @@ button {
   padding: 0 0 0.5em 0;
 }
 
-@media only screen and (max-width: 768px) {
+:root {
+  --vp-layout-max-width: 1440px;
+  --content-max-width: 1480px;
+}
+
+.header {
+  position: relative;
+  display: flex;
+  gap: 84px;
+  width: var(--content-max-width);
+  max-width: 100%;
+  margin: 0 auto 52px;
+  padding-top: 226px;
+}
+
+.content {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+}
+.header,
+.content {
+  padding-left: 52px;
+  padding-right: 52px;
+}
+
+@media (max-width: 1280px) {
+  .header {
+    gap: 64px;
+  }
+
+  .header,
+  .content {
+    padding-right: 32px;
+  }
+}
+@media (max-width: 1024px) {
+  .header {
+    flex-direction: column;
+    align-items: center;
+    padding-top: 150px;
+  }
+
+  .perks {
+    grid-template-columns: repeat(1, minmax(200px, 1fr));
+  }
+}
+@media (max-width: 500px) {
+  .header,
+  .content {
+    padding-left: 0;
+    padding-right: 12px;
+  }
+}
+
+@media (max-width: 768px) {
   .introduction {
     padding-left: 1em;
     padding-right: 1em;
@@ -284,10 +335,6 @@ button {
 
   .code_block img {
     width: 100%;
-  }
-
-  .perks {
-    grid-template-columns: repeat(1, minmax(200px, 1fr));
   }
 
   .notebooks {
@@ -324,41 +371,6 @@ button {
 
   .build {
     padding: 3em 1em;
-  }
-}
-
-:root {
-  --vp-layout-max-width: 1440px;
-  --content-max-width: 1480px;
-}
-
-.header {
-  position: relative;
-  display: flex;
-  gap: 84px;
-  width: var(--content-max-width);
-  max-width: 100%;
-  margin: 0 auto 52px;
-  padding: 0 52px;
-  padding-top: 226px;
-}
-
-@media (max-width: 1280px) {
-  .header {
-    gap: 64px;
-    padding-right: 32px;
-  }
-}
-@media (max-width: 1024px) {
-  .header {
-    flex-direction: column;
-    align-items: center;
-    padding-top: 150px;
-  }
-}
-@media (max-width: 500px) {
-  .header {
-    padding: 0 12px;
   }
 }
 

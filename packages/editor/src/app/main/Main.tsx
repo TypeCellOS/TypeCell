@@ -42,9 +42,7 @@ const Main = observer((props: { sessionStore: SessionStore }) => {
         className={classNames(
           styles.main,
           top && styles.top,
-          (location.pathname === "/" || location.pathname === "/ai") &&
-            styles.homepage,
-          location.pathname === "/ai" && styles.ai
+          location.pathname === "/" && styles.homepage,
         )}>
         <Navigation sessionStore={props.sessionStore} />
         <Outlet />
