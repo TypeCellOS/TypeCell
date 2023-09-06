@@ -2,14 +2,10 @@ import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SessionStore } from "../../../../store/local/SessionStore";
-import buttonStyles from "../../../../styles/buttons.module.css";
 // import { NotebookOverviewItem } from "../../../matrix-auth/routes/overview/NotebookOverviewItem";
 import { toDocs, toNewGuestNotebook, toTutorial } from "../../../routes/routes";
 import styles from "./StartScreen.module.css";
-import globe from "./assets/globe.svg";
 import intro from "./assets/intro.gif";
-import lightning from "./assets/lightning.svg";
-import npm from "./assets/npm.svg";
 
 export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
   const { sessionStore } = props;
@@ -97,8 +93,59 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
             </div>
           </div>
         </section> */}
+        <section className={styles.storySection + " " + styles.uneven}>
+          <div className={styles.content + " " + styles.story}>
+            <div className={""}>
+              <img src={intro} alt="TypeCell Demo" />
+            </div>
+            <div className={""}>
+              <h4>Break-free from your tools with hackable software</h4>
+              <p>
+                Why can't we easily insert interactive elements like charts,
+                maps or anything else you can think of into our documents?
+                Modern software is incredibly powerful. But as users, we're
+                limited by the use-cases envisioned by its creators.
+              </p>
+              <p>
+                Hackable, or Malleable software, puts users in control by making
+                tools customizable with End-User Programming.
+              </p>
+              <p>
+                Use TypeCell to create and share your knowledge base of live,
+                interactive documents. With <em>Code Blocks</em>, you always
+                have a powerful programming environment at your fingertips.
+              </p>
+            </div>
+          </div>
 
-        <section className={styles.perksSection}>
+          <div className={styles.perks + " " + styles.content}>
+            <div className={styles.perk}>
+              <h3>Notion-style documents</h3>
+              <span>
+                Create block-based documents and use code blocks for advanced
+                functionality and interactivity.
+              </span>
+            </div>
+
+            <div className={styles.perk}>
+              <h3>Local-first architecture</h3>
+              <span>
+                Built on the principles of local-first software; the
+                architecture that makes apps like Linear fast and fun to use.
+              </span>
+            </div>
+
+            <div className={styles.perk}>
+              <h3>Collaborate</h3>
+              <span>
+                We always liked multiplayer mode best. Share your documents and
+                collaborate in real-time (powered by Yjs CRDT).
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* <section className={styles.perksSection}>
           <div className={styles.perks + " " + styles.content}>
             <div className={styles.perk}>
               <div className={styles.icon}>
@@ -127,8 +174,72 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
               <span>Share your notebooks and collaborate in real-time.</span>
             </div>
           </div>
+        </section> */}
+        <div className={styles.section_separator} role="separator"></div>
+        <section className={styles.storySection + " " + styles.sdf}>
+          <div className={styles.content + " " + styles.story}>
+            <div className={""}>
+              <h4>Simplify the programming experience</h4>
+              <p>
+                Software development is becoming more and more complex and
+                thereby, less transparent.
+              </p>
+              <p>
+                We want to empower the next generation of makers by creating a
+                programming environment that's Live, Simple and Fun to use.
+              </p>
+            </div>
+            <div className={""}>
+              <img src={intro} alt="TypeCell Demo" />
+            </div>
+          </div>
+
+          <div className={styles.perks + " " + styles.content}>
+            <div className={styles.perk}>
+              <h3>Live Reactive Runtime</h3>
+              <span>
+                The Reactive Runtime evaluates as-you-type, directly in your
+                browser.
+              </span>
+            </div>
+
+            <div className={styles.perk}>
+              <h3>Full ecosystem support</h3>
+              <span>
+                Built-in support for TypeScript and React. Import libraries
+                directly from NPM or share code across documents.
+              </span>
+            </div>
+
+            <div className={styles.perk}>
+              <h3>Powered by VS Code</h3>
+              <span>
+                Code blocks are powered by Monaco, the editor you know from
+                Visual Studio Code.
+              </span>
+            </div>
+          </div>
         </section>
 
+        <div className={styles.section_separator} role="separator"></div>
+        <section className={styles.storySection + " " + styles.sdf}>
+          <div className={styles.content + " " + styles.story}>
+            <div className={""}>
+              <img src={intro} alt="TypeCell Demo" />
+            </div>
+            <div className={""}>
+              <h4>Join our journey</h4>
+              <p>
+                Software development is becoming more and more complex and
+                thereby, less transparent.
+              </p>
+              <p>
+                We want to empower the next generation of makers by creating a
+                programming environment that's Live, Simple and Fun to use.
+              </p>
+            </div>
+          </div>
+        </section>
         {/* <section className={styles.notebooks}>
           <div className="container">
             <div className="row">
@@ -203,7 +314,6 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
           </div>
         </section> */}
 
-        <div className={styles.section_separator}></div>
         {/* <section className={styles.build}>
           <div className="container">
             <div>
@@ -219,7 +329,7 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
             </div>
           </div>
         </section> */}
-        <div className={styles.section_separator}></div>
+        {/* <div className={styles.section_separator}></div>
         <section className={styles.build + " " + styles.content}>
           <div>
             <h2>Start building yourself</h2>
@@ -231,23 +341,28 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
                 href="https://discord.gg/TcJ9TRC3SV"
                 rel="noreferrer">
                 <span>join us on Discord</span>
+              </a>{" "}
+              or{" "}
+              <a
+                target="_blank"
+                href="https://github.com/TypeCellOS/TypeCell"
+                rel="noreferrer">
+                <span>contribute on GitHub</span>
               </a>
-              .
+              . .
             </p>
 
-            <div className={styles.buttons}>
-              <Link to={toTutorial()} className={`${buttonStyles.button}`}>
-                Try interactive tutorial
-              </Link>
+            <div className={styles.ctaButtons}>
+              <Link to={toTutorial()}>Try interactive tutorial</Link>
               <a
-                className={`${buttonStyles.button} ${buttonStyles.secondary}`}
+                className={styles.simple}
                 onClick={onNewNotebookClick}
                 href="/">
                 Create new notebook
               </a>
             </div>
           </div>
-        </section>
+        </section> */}
       </div>
       <footer className={styles.footer}>
         <div>

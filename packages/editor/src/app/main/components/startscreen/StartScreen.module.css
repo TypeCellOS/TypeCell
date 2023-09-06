@@ -11,48 +11,6 @@
   -ms-user-select: none;
 }
 
-.introduction {
-  display: flex;
-  align-items: center;
-  padding: 3em 0;
-  position: relative;
-  /* background: url(./assets/background_pattern.png),
-    linear-gradient(0deg, #eff7fc, #eff7fc); */
-  /* background: linear-gradient(0deg, #eff7fc, #eff7fc); */
-  /* background: radial-gradient(
-    106.9% 91.8% at 110% 110%,
-    #7cee6f 0%,
-    white 100%
-  ); */
-  min-height: 80vh;
-}
-
-.introduction .github {
-  position: absolute;
-  right: 0;
-  top: 0;
-  padding: 2em 1.5em;
-}
-
-.introduction .logo {
-  margin-top: 1em;
-  margin-bottom: 2em;
-  width: 70px;
-}
-
-.introduction .buttons {
-  margin-top: 3em;
-  display: flex;
-  gap: 2em;
-}
-
-.introduction h1 {
-  color: #2b4869;
-  font-size: 2.9em;
-  line-height: 1.5em;
-  font-weight: bold;
-}
-
 .demo {
   /* background-color: white; */
   position: relative;
@@ -70,6 +28,51 @@
   border-radius: 20px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   width: 90%;
+}
+
+.storySection {
+  padding: 100px 0;
+  /* box-shadow:
+    rgb(0 0 0 / 25%) 0px 10px 30px -20px,
+    rgb(0 0 0 / 25%) 0px -10px 30px -20px; */
+  /* border: 1px solid rgba(0, 0, 0, 0.08); */
+}
+
+.storySection.uneven {
+  /* box-shadow:
+    inset rgb(0 0 0 / 25%) 0px 10px 30px -20px,
+    inset rgb(0 0 0 / 25%) 0px -10px 30px -20px; */
+}
+
+.storySection .perks {
+  margin-top: 100px;
+  margin-bottom: 0px;
+  font-size: 16px;
+}
+
+.storySection .perks h3,
+.storySection .perks .perk span {
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 1;
+}
+
+.storySection .perks h3 {
+  font-weight: bold;
+}
+.story {
+  max-width: 1096px !important;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 100px;
+  gap: 30px;
+  /* background: black; */
+  margin-bottom: 100px;
+}
+
+.story img {
+  max-width: 100%;
 }
 
 .perks {
@@ -119,6 +122,7 @@
 .perk h3 {
   font-weight: 600;
   margin: 0.5em 0;
+  color: rgb(91 94 118);
   font-size: 1.3em;
 }
 
@@ -134,16 +138,17 @@
   font-weight: 500;
 }
 
-.perks .separator {
-  min-height: 100%;
-  width: 1px;
-  background-color: rgb(230, 230, 230);
-}
-
-.notebooks {
-  /* background: white; */
-  padding: 6em 0;
-  text-align: center;
+.section_separator {
+  height: 1px;
+  width: 50%;
+  margin: 0 auto;
+  /* background-color: rgb(230, 230, 230); */
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgb(0, 0, 0, 0.2) 50%,
+    transparent
+  );
 }
 
 .page h2 {
@@ -152,73 +157,16 @@
   margin: 0 auto 1em auto;
 }
 
-.notebooks .text {
-  text-align: center;
-  width: 100%;
-  padding: 0 6em;
-  margin-bottom: 2em;
-}
-
-.notebooks .overview {
-  margin-top: 3em;
-  padding: 0 2em;
-  display: flex;
-  justify-content: space-evenly;
-}
-
-.social img {
-  height: 40px;
-  border-radius: 10px;
-}
-
-.notebooks .notebook {
-  padding: 0 2em;
-  flex: 1 1;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.section_separator {
+/* .section_separator {
   margin: 0 auto;
   height: 1px;
   background-color: rgb(230, 230, 230);
   width: 100px;
-}
-
-.build {
-  padding: 4em 0;
-  /* justify-content: center; */
-}
+} */
 
 form {
   margin: 0;
   display: contents;
-}
-
-button {
-  cursor: pointer;
-}
-
-.build p {
-  margin-bottom: 2em;
-}
-.buttons {
-  width: 100%;
-  display: flex;
-  gap: 2em;
-  justify-content: center;
-}
-
-.buttons input {
-  border-radius: 10px;
-  font-size: 20px;
-  border: 1px solid #ccc;
-  padding: 1em 1em;
-}
-.build .link {
-  text-decoration: underline;
-  font-weight: 600;
-  color: #5f5f5f;
 }
 
 .footer,
@@ -275,7 +223,7 @@ button {
   gap: 84px;
   width: var(--content-max-width);
   max-width: 100%;
-  margin: 0 auto 52px;
+  margin: 0 auto 112px;
   padding-top: 226px;
 }
 
@@ -315,62 +263,6 @@ button {
   .content {
     padding-left: 0;
     padding-right: 12px;
-  }
-}
-
-@media (max-width: 768px) {
-  .introduction {
-    padding-left: 1em;
-    padding-right: 1em;
-  }
-
-  .introduction h1 {
-    font-size: 1.6em;
-  }
-
-  .buttons {
-    flex-direction: column;
-    gap: 1em !important;
-  }
-
-  .code_block img {
-    width: 100%;
-  }
-
-  .notebooks {
-    padding: 2em 0 0 0;
-  }
-
-  .notebooks h2 {
-    margin-bottom: 0;
-  }
-
-  .notebooks .text {
-    padding: 1em;
-  }
-
-  .notebooks .overview {
-    flex-direction: column;
-    padding: 2em;
-    margin-top: 0;
-    justify-content: center;
-  }
-
-  .notebooks .notebook {
-    padding: 0;
-    flex: 1 1;
-    width: 100%;
-    overflow: hidden;
-    margin: 0 auto 3em auto;
-    max-width: 350px;
-  }
-
-  .notebooks .notebook:last-child {
-    margin-bottom: 1em;
-  }
-
-  .build {
-    padding: 3em 1em;
   }
 }
 
