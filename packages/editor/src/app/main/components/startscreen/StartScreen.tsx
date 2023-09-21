@@ -182,7 +182,7 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
               <h4>Simplify the programming experience</h4>
               <p>
                 Software development is becoming more and more complex and
-                thereby, less transparent.
+                thereby, less transparent and inclusive.
               </p>
               <p>
                 We want to empower the next generation of makers by creating a
