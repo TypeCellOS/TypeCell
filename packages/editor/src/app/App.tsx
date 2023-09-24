@@ -65,7 +65,6 @@ export const App = observer(
                 sessionStore as SupabaseSessionStore,
               )}
             />
-            <Route path="/recover" element={<div>Not implemented yet</div>} />
             <Route
               path="/login"
               element={props.authProvider.routes.login(
