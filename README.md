@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-Welcome to TypeCell! An open source live programming environment. Together, we want to make it a lot easier to build software, and ultimately to understand, build and share knowledge.
+Welcome to TypeCell (old version)! An open source live programming environment. Together, we want to make it a lot easier to build software, and ultimately to understand, build and share knowledge.
 </p>
 
 <p align="center">
