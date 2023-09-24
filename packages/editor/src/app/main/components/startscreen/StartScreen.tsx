@@ -40,7 +40,6 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
             Interactive documents. <strong>Reimagined.</strong>
             <br />
           </h1>
-          {/* <!-- <h1>A fresh take on documents.<br /></h1> --> */}
           <p>
             TypeCell is a fresh take on what documents and software can look
             like. Think <em>Notion + Jupyter Notebooks</em>. Open Source.
@@ -50,12 +49,6 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
             <a className={styles.simple} onClick={onNewNotebookClick} href="/">
               Create new notebook
             </a>
-            {/* <CTAButton href="/docs/quickstart"
-          >Create your workspace (beta)</CTAButton
-        > */}
-            {/* <!-- <CTAButton href="/guides/introduction" layout="simple"
-          >Learn more</CTAButton
-        > --> */}
           </div>
         </div>
         <div className={styles.headerMedia}>
@@ -65,34 +58,6 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
         </div>
       </header>
       <div className={styles.page + "  centered"}>
-        {/* <section className={styles.introduction}>
-          <div className="container">
-            <div>
-              <h1>Create &amp; share live interactive notebooks</h1>
-              <p>
-                TypeCell is an open source Typescript live programming
-                environment. <br /> Running code has never been easier :)
-              </p>
-            </div>
-            <div className={styles.buttons}>
-              <Link
-                className={`${buttonStyles.button} ${buttonStyles.primary}`}
-                to={toTutorial()}>
-                Try interactive tutorial
-              </Link>
-
-              <a
-                className={`${buttonStyles.button} ${buttonStyles.secondary}`}
-                href="/"
-                onClick={onNewNotebookClick}>
-                Create new notebook
-              </a>
-            </div>
-            <div className={styles.code_block}>
-              <img src={intro} alt="TypeCell Demo" />
-            </div>
-          </div>
-        </section> */}
         <section className={styles.storySection + " " + styles.uneven}>
           <div className={styles.content + " " + styles.story}>
             <div className={""}>
@@ -108,7 +73,14 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
               </p>
               <p>
                 Hackable, or Malleable software, puts users in control by making
-                tools customizable with End-User Programming.
+                tools customizable with{" "}
+                <a
+                  href="https://www.inkandswitch.com/end-user-programming/"
+                  target="_blank"
+                  rel="noreferrer">
+                  End-User Programming
+                </a>
+                .
               </p>
               <p>
                 Use TypeCell to create and share your knowledge base of live,
@@ -130,51 +102,35 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
             <div className={styles.perk}>
               <h3>Local-first architecture</h3>
               <span>
-                Built on the principles of local-first software; the
-                architecture that makes apps like Linear fast and fun to use.
+                Built on the principles of{" "}
+                <a
+                  href="https://www.inkandswitch.com/local-first/"
+                  target="_blank"
+                  rel="noreferrer">
+                  local-first software
+                </a>
+                ; the architecture that makes apps like Linear fast and fun to
+                use.
               </span>
             </div>
 
             <div className={styles.perk}>
               <h3>Collaborate</h3>
               <span>
-                We always liked multiplayer mode best. Share your documents and
-                collaborate in real-time (powered by Yjs CRDT).
+                We always liked multiplayer mode best :) Share your documents
+                and collaborate in real-time, powered by{" "}
+                <a
+                  href="https://github.com/yjs/yjs"
+                  target="_blank"
+                  rel="noreferrer">
+                  Yjs CRDT
+                </a>
+                .
               </span>
             </div>
           </div>
         </section>
 
-        {/* <section className={styles.perksSection}>
-          <div className={styles.perks + " " + styles.content}>
-            <div className={styles.perk}>
-              <div className={styles.icon}>
-                <img src={lightning} alt="Lightning icon" />
-              </div>
-              <h3>Reactive Runtime</h3>
-              <span>
-                The Reactive Runtime evaluates as-you-type, directly in your
-                browser.
-              </span>
-            </div>
-
-            <div className={styles.perk}>
-              <div className={styles.icon}>
-                <img src={npm} alt="NPM logo" />
-              </div>
-              <h3>Full ecosystem</h3>
-              <span>Built-in support for TypeScript, React, NPM and more.</span>
-            </div>
-
-            <div className={styles.perk}>
-              <div className={styles.icon}>
-                <img src={globe} alt="Globe icon" />
-              </div>
-              <h3>Collaborate</h3>
-              <span>Share your notebooks and collaborate in real-time.</span>
-            </div>
-          </div>
-        </section> */}
         <div className={styles.section_separator} role="separator"></div>
         <section className={styles.storySection + " " + styles.sdf}>
           <div className={styles.content + " " + styles.story}>
@@ -185,7 +141,7 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
                 thereby, less transparent and inclusive.
               </p>
               <p>
-                We want to empower the next generation of makers by creating a
+                We want to empower the next generation of makers by embedding a
                 programming environment that's Live, Simple and Fun to use.
               </p>
             </div>
@@ -228,15 +184,57 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
               <img src={intro} alt="TypeCell Demo" />
             </div>
             <div className={""}>
-              <h4>Join our journey</h4>
+              <h4>Join the TypeCell community</h4>
               <p>
-                Software development is becoming more and more complex and
-                thereby, less transparent.
+                We're just getting started, and invite you to shape this journey
+                together.
               </p>
               <p>
-                We want to empower the next generation of makers by creating a
-                programming environment that's Live, Simple and Fun to use.
+                Create your own workspace and join the community on Discord to
+                share your thoughts, or contribute to the project on GitHub.
               </p>
+              <p>
+                Dive into the sneak-peeks below to check out some features we
+                plan to work on next:
+              </p>
+            </div>
+          </div>
+          <div className={styles.perks + " " + styles.content}>
+            <div className={styles.perk}>
+              <h3>AI Integration</h3>
+              <span>
+                An AI-programmer that codes live alongside you, ensuring you
+                always remain in control.
+                <br />
+                <a
+                  href="https://twitter.com/YousefED/status/1599805936280907776"
+                  target="_blank"
+                  rel="noreferrer">
+                  Preview experiment
+                </a>
+              </span>
+            </div>
+            <div className={styles.perk}>
+              <h3>Plugins &amp; Shareable Blocks</h3>
+              <span>
+                Extend the TypeCell environment with Plugins and custom
+                shareable Blocks.
+                <br />
+                <a
+                  href="https://twitter.com/YousefED/status/1677342430545301504"
+                  target="_blank"
+                  rel="noreferrer">
+                  Preview experiment
+                </a>
+              </span>
+            </div>
+            <div className={styles.perk}>
+              <h3>Instant deploys</h3>
+              <span>
+                With just a single click, build and deploy TypeCell pages,
+                simplifying the process of creating and sharing interactive
+                websites.
+              </span>
             </div>
           </div>
         </section>
