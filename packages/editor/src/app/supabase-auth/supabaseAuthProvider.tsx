@@ -1,9 +1,10 @@
 import { Route } from "react-router-dom";
 
+import { SupabaseSessionStore } from "./SupabaseSessionStore";
 import { Login } from "./routes/Login";
+import { Recover } from "./routes/Recover";
 import { Register } from "./routes/Register";
 import { Username } from "./routes/Username";
-import { SupabaseSessionStore } from "./SupabaseSessionStore";
 
 export const supabaseAuthProvider = {
   routes: {
@@ -15,7 +16,10 @@ export const supabaseAuthProvider = {
     ),
     additionalRoutes: (sessionStore: SupabaseSessionStore) => (
       <>
-        <Route path="/recover" element={<div>Not implemented yet</div>} />
+        <Route
+          path="/recover"
+          element={<Recover sessionStore={sessionStore} />}
+        />
         <Route
           path="/username"
           element={<Username sessionStore={sessionStore} />}

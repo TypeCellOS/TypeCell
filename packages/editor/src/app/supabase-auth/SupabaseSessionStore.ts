@@ -16,7 +16,6 @@ import ProfileResource from "../../store/ProfileResource";
 import { TypeCellRemote } from "../../store/yjs-sync/remote/TypeCellRemote";
 import { navigateRef } from "../GlobalNavigateRef";
 
-
 export type SupabaseClientType = ReturnType<typeof createClient<Database>>;
 
 const colors = [
@@ -98,7 +97,7 @@ export class SupabaseSessionStore extends SessionStore {
         scheme: "typecell",
         authority: "typecell.org",
         path: "/" + uniqueId.generateId("document"),
-      })
+      }),
     );
   }
 
@@ -110,11 +109,15 @@ export class SupabaseSessionStore extends SessionStore {
       isLoggedIn: computed,
       isLoaded: computed,
     });
-    this.supabase = createClient<Database>(env.VITE_TYPECELL_SUPABASE_URL, env.VITE_TYPECELL_SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: persist,
+    this.supabase = createClient<Database>(
+      env.VITE_TYPECELL_SUPABASE_URL,
+      env.VITE_TYPECELL_SUPABASE_ANON_KEY,
+      {
+        auth: {
+          persistSession: persist,
+        },
       },
-    });
+    );
     this.initializeReactions();
   }
 
@@ -125,17 +128,19 @@ export class SupabaseSessionStore extends SessionStore {
     this.initialized = true;
 
     try {
-      const session = (await this.supabase.auth.getSession()).data.session || undefined;
+      const session =
+        (await this.supabase.auth.getSession()).data.session || undefined;
       let previousSessionId = session?.user.id;
       const cbData = this.supabase.auth.onAuthStateChange((event, session) => {
-
-
         // only trigger if user id changed
         if (session?.user.id !== previousSessionId) {
           previousSessionId = session?.user.id;
           this.updateStateFromAuthStore(session || undefined).catch((e) => {
             console.error("error initializing sessionstore", e);
           });
+        }
+        if (event === "PASSWORD_RECOVERY") {
+          window.location.href = "/recover";
         }
       });
       this._register({
@@ -167,7 +172,7 @@ export class SupabaseSessionStore extends SessionStore {
     }
     const session = (await this.supabase.auth.getSession()).data.session;
     if (!session) {
-      throw new Error("unexpected: no session")
+      throw new Error("unexpected: no session");
     }
 
     // create workspace
@@ -184,7 +189,6 @@ export class SupabaseSessionStore extends SessionStore {
       remote.dispose();
     }
 
-
     // create profile
     const profileId = this.getIdentifierForNewDocument();
     {
@@ -195,7 +199,7 @@ export class SupabaseSessionStore extends SessionStore {
       const profile = ret.getSpecificType(ProfileResource);
       profile.workspaces.set("public", workspaceId.toString());
       profile.username = username;
-      profile.joinedDate = Date.now()
+      profile.joinedDate = Date.now();
 
       const avatar = session.user.user_metadata?.avatar_url;
 
@@ -222,13 +226,15 @@ export class SupabaseSessionStore extends SessionStore {
       throw new Error(error.message);
     }
 
-
     await this.updateStateFromAuthStore(session, true);
   }
   /**
    * Updates the state of sessionStore based on the internal matrixAuthStore.loggedIn
    */
-  private async updateStateFromAuthStore(session: Session | undefined, isSignUp = false) {
+  private async updateStateFromAuthStore(
+    session: Session | undefined,
+    isSignUp = false,
+  ) {
     // TODO: make work in offline mode (save username offline)
     // TODO: don't trigger on refresh of other browser window
 
@@ -245,7 +251,7 @@ export class SupabaseSessionStore extends SessionStore {
       ) {
         return;
       }
-      
+
       let username = session.user.user_metadata.typecell_username;
       let profile_id = session.user.user_metadata.typecell_profile_nano_id;
       if (!username || !profile_id) {
@@ -254,7 +260,7 @@ export class SupabaseSessionStore extends SessionStore {
           .select()
           .eq("owner_user_id", session?.user.id)
           .eq("is_username", true);
-          
+
         if (usernameRes.data?.length === 1) {
           username = usernameRes.data[0].name;
           profile_id = usernameRes.data[0].document_nano_id;
@@ -262,8 +268,8 @@ export class SupabaseSessionStore extends SessionStore {
             data: {
               typecell_username: username,
               typecell_profile_nano_id: profile_id,
-            }
-          })
+            },
+          });
         } else {
           if (!navigateRef) {
             throw new Error("no global navigateRef");
@@ -272,7 +278,9 @@ export class SupabaseSessionStore extends SessionStore {
             this.userId = session.user.id;
           });
           console.log("redirect");
-          navigateRef.current?.("/username", { state: window.history?.state?.usr});
+          navigateRef.current?.("/username", {
+            state: window.history?.state?.usr,
+          });
           // runInAction(() => {
           //   this.user = {
           //     type: "user",
@@ -297,7 +305,7 @@ export class SupabaseSessionStore extends SessionStore {
             userId: username,
             fullUserId: username,
             profileId: profile_id,
-            isSignUp
+            isSignUp,
           };
         });
       }

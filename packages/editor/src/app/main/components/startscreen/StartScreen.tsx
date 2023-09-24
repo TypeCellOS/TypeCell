@@ -190,8 +190,21 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
                 together.
               </p>
               <p>
-                Create your own workspace and join the community on Discord to
-                share your thoughts, or contribute to the project on GitHub.
+                Create your own workspace and join the community on{" "}
+                <a
+                  target="_blank"
+                  href="https://discord.gg/TcJ9TRC3SV"
+                  rel="noreferrer">
+                  Discord
+                </a>{" "}
+                to share your thoughts, or contribute to the project on{" "}
+                <a
+                  target="_blank"
+                  href="https://github.com/TypeCellOS/TypeCell"
+                  rel="noreferrer">
+                  GitHub
+                </a>
+                .
               </p>
               <p>
                 Dive into the sneak-peeks below to check out some features we
@@ -388,7 +401,7 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
                   target="_blank"
                   href="https://discord.gg/TcJ9TRC3SV"
                   rel="noreferrer">
-                  <span>Chat on discord</span>
+                  <span>Chat on Discord</span>
                 </a>
               </li>
               <li>
