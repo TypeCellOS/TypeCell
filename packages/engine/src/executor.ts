@@ -10,7 +10,7 @@ async function resolveDependencyArray(
   context: TypeCellContext<any>,
   resolveImport: (module: string) => any,
   exports: any,
-  userDisposes: Array<() => void>
+  userDisposes: Array<() => void>,
 ) {
   return await Promise.all(
     dependencyArray.map((arg) => {
@@ -22,7 +22,7 @@ async function resolveDependencyArray(
           return resolveImport(
             // cell,
             // eslint-disable-next-line prefer-rest-params
-            arguments[0][0]
+            arguments[0][0],
             // eslint-disable-next-line prefer-rest-params
           ).then(arguments[1], arguments[2]);
         };
@@ -49,7 +49,7 @@ async function resolveDependencyArray(
         };
       }
       return resolveImport(arg);
-    })
+    }),
   );
 }
 
@@ -66,7 +66,7 @@ export async function runModule(
   beforeExecuting: () => void,
   onExecuted: (exports: any) => void,
   onError: (error: any) => void,
-  previousVariableDisposer?: (newExportsToKeep: any) => void
+  previousVariableDisposer?: (newExportsToKeep: any) => void,
 ): Promise<ModuleExecution> {
   let cleanVariablesFromContext: Array<(newExports: any) => void> = [];
   let disposeEveryRun: Array<() => void> = [];
@@ -77,7 +77,7 @@ export async function runModule(
     context,
     resolveImport,
     exports,
-    disposeEveryRun
+    disposeEveryRun,
   );
 
   let initialRun = true;
@@ -92,9 +92,12 @@ export async function runModule(
   let detectedLoop = false;
 
   const hostname = window.location.hostname.toLowerCase();
-  if (hostname.includes("typecell.org") || hostname.includes("typecell.com")) {
+  if (
+    hostname.includes("www.typecell.org") ||
+    hostname.includes("www.typecell.com")
+  ) {
     throw new Error(
-      "failed security check, executor can not be running on these domains"
+      "failed security check, executor can not be running on these domains",
     );
   }
 
@@ -122,7 +125,7 @@ export async function runModule(
       try {
         executionPromise = mod.factoryFunction.apply(
           undefined,
-          argsToCallFunctionWith
+          argsToCallFunctionWith,
         ); // TODO: what happens with disposers if a rerun of this function is slow / delayed?
       } finally {
         // Hooks are only installed for sync code. Ideally, we'd want to run it for all code, but then we have the chance hooks will affect other parts of the TypeCell (non-user) code
@@ -199,7 +202,7 @@ export async function runModule(
 
       if (detectedLoop) {
         throw new Error(
-          "loop detected (parent run). Are you referencing an exported variable with $ in the same cell?"
+          "loop detected (parent run). Are you referencing an exported variable with $ in the same cell?",
         );
       }
       onExecuted(exports);
