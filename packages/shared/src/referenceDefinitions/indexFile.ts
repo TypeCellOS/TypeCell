@@ -1,6 +1,6 @@
-import { createManyToOneReferenceDefinition } from "../Ref";
+import { createManyToOneReferenceDefinition } from "../Ref.js";
 
 export const IndexFileReference = createManyToOneReferenceDefinition(
   "typecell",
-  "hasIndexFile"
+  "hasIndexFile",
 );

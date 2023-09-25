@@ -1,6 +1,6 @@
 import { event, lifecycle } from "vscode-lib";
-import { BasicCodeModel } from "./BasicCodeModel";
-import { ModelProvider } from "./ModelProvider";
+import { BasicCodeModel } from "./BasicCodeModel.js";
+import { ModelProvider } from "./ModelProvider.js";
 
 /**
  * The modelReceiver:

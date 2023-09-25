@@ -1,7 +1,7 @@
-import { createManyToManyReferenceDefinition } from "../Ref";
+import { createManyToManyReferenceDefinition } from "../Ref.js";
 
 export const ChildReference = createManyToManyReferenceDefinition(
   "typecell",
   "hasChild",
-  true
+  true,
 );
