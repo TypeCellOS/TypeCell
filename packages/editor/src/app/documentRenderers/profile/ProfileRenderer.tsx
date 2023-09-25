@@ -26,7 +26,7 @@ const ProfileRenderer: React.FC<Props> = observer((props) => {
     }
     const options = { year: "numeric", month: "long", day: "numeric" } as const;
     const date = new Intl.DateTimeFormat("en-US", options).format(
-      props.profile.joinedDate
+      props.profile.joinedDate,
     );
     return date;
   }, [props.profile.joinedDate]);
@@ -43,7 +43,7 @@ const ProfileRenderer: React.FC<Props> = observer((props) => {
 
   const forkedDocs = useResource(() => {
     const forkedDocs = forks.map((f) =>
-      DocConnection.load(f, props.sessionStore)
+      DocConnection.load(f, props.sessionStore),
     );
 
     return [
@@ -71,7 +71,7 @@ const ProfileRenderer: React.FC<Props> = observer((props) => {
             <div className={styles.userInfo}>Joined {joinedDate}</div>
           )}
         </div>
-        {forkedDocs?.length && <h2>Workspaces</h2>}
+        {!!forkedDocs?.length && <h2>Workspaces</h2>}
         <div className={styles.workspaces}>
           <Button
             onClick={() => {
@@ -80,24 +80,28 @@ const ProfileRenderer: React.FC<Props> = observer((props) => {
             Public workspace by {props.profile.title}
           </Button>
         </div>
-        {forkedDocs?.length && <h2>Forked documents</h2>}
-        <div className={styles.forks}>
-          {forkedDocs.map((f) => (
-            <>
-              <Button
-                key={f.identifier.toString()}
-                onClick={() => {
-                  navigate("/" + identifiersToPath(f.identifier));
-                }}>
-                {f.tryDoc
-                  ? f.tryDoc.type === "!richtext"
-                    ? f.tryDoc.doc.title
-                    : f.tryDoc.title
-                  : "..."}
-              </Button>
-            </>
-          ))}
-        </div>
+        {!!forkedDocs?.length && (
+          <>
+            <h2>Forked documents</h2>
+            <div className={styles.forks}>
+              {forkedDocs.map((f) => (
+                <>
+                  <Button
+                    key={f.identifier.toString()}
+                    onClick={() => {
+                      navigate("/" + identifiersToPath(f.identifier));
+                    }}>
+                    {f.tryDoc
+                      ? f.tryDoc.type === "!richtext"
+                        ? f.tryDoc.doc.title
+                        : f.tryDoc.title
+                      : "..."}
+                  </Button>
+                </>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </>
   );

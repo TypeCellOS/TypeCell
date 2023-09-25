@@ -25,7 +25,7 @@
     "@atlaskit/textfield": "^5.6.3",
     "@atlaskit/tree": "^8.8.5",
     "@tiptap/core": "^2.0.4",
-    "@blocknote/core": "^0.9.2",
+    "@blocknote/core": "^0.9.3",
     "@emotion/react": "^11.4.0",
     "@supabase/auth-ui-react": "^0.4.5",
     "@supabase/auth-ui-shared": "^0.1.7",

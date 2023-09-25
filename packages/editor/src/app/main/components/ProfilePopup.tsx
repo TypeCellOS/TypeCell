@@ -9,6 +9,29 @@ import { useNavigate } from "react-router-dom";
 import { SessionStore } from "../../../store/local/SessionStore";
 import { toProfilePage } from "../../routes/routes";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Trigger = observer((props: any) => {
+  const { triggerRef, isSelected, testId, ...passProps } = props;
+  return (
+    <Profile
+      testId="profile-button"
+      icon={
+        <Avatar
+          name={props.sessionStore.loggedInUserId}
+          src={props.sessionStore.profile?.avatar_url || undefined}
+          size="32"
+          round={true}
+          textSizeRatio={2}
+        />
+      }
+      ref={triggerRef}
+      {...passProps}
+      // icon={<img alt="" style={imgCSS} src={""} />}
+      tooltip=""
+    />
+  );
+});
+
 export const ProfilePopup = observer(
   (props: { sessionStore: SessionStore }) => {
     const navigate = useNavigate();
@@ -17,27 +40,9 @@ export const ProfilePopup = observer(
     return (
       <DropdownMenu
         spacing="compact"
-        trigger={(innerProps) => {
-          const { triggerRef, isSelected, testId, ...passProps } = innerProps;
-          return (
-            <Profile
-              testId="profile-button"
-              icon={
-                <Avatar
-                  name={props.sessionStore.loggedInUserId}
-                  src={props.sessionStore.profile?.avatar_url || undefined}
-                  size="32"
-                  round={true}
-                  textSizeRatio={2}
-                />
-              }
-              ref={triggerRef}
-              {...passProps}
-              // icon={<img alt="" style={imgCSS} src={""} />}
-              tooltip=""
-            />
-          );
-        }}
+        trigger={(innerProps) => (
+          <Trigger {...innerProps} sessionStore={props.sessionStore} />
+        )}
         placement="bottom-end">
         {/* <DropdownItem onClick={() => OpenNewPageDialog(navigate)}>
           New page
@@ -58,5 +63,5 @@ export const ProfilePopup = observer(
         </DropdownItemGroup>
       </DropdownMenu>
     );
-  }
+  },
 );

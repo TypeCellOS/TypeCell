@@ -1,5 +1,5 @@
-import { BasicCodeModel } from "@typecell-org/shared/src/codeModels/BasicCodeModel";
 import { event, lifecycle } from "vscode-lib";
+import { BasicCodeModel } from "./BasicCodeModel";
 import { ModelProvider } from "./ModelProvider";
 
 /**
@@ -36,7 +36,7 @@ export class ModelReceiver
 
   public updateModel(
     modelId: string,
-    model: { value: string; language: string }
+    model: { value: string; language: string },
   ) {
     console.log("updateModel", modelId);
     let existingModel = this.registeredModels.get(modelId);
