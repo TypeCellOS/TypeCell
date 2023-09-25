@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CodeModel } from "@typecell-org/shared/src/codeModels/CodeModel.js";
-import _ from "lodash";
+import debounce from "lodash.debounce";
 import { event, lifecycle } from "vscode-lib";
 import { createCellEvaluator } from "./CellEvaluator.js";
 import { TypeCellContext, createContext } from "./context.js";
@@ -57,9 +57,9 @@ export class ReactiveEngine<T extends CodeModel> extends lifecycle.Disposable {
   constructor(
     private resolveImport: (
       module: string,
-      forModel: T
+      forModel: T,
     ) => Promise<ResolvedImport | undefined>,
-    private debounceMillis = 100
+    private debounceMillis = 100,
   ) {
     super();
   }
@@ -72,7 +72,7 @@ export class ReactiveEngine<T extends CodeModel> extends lifecycle.Disposable {
     this._register(
       compiledModelProvider.onDidCreateModel((m) => {
         this.registerModel(m);
-      })
+      }),
     );
   }
 
@@ -107,13 +107,13 @@ export class ReactiveEngine<T extends CodeModel> extends lifecycle.Disposable {
           }
           return ret.module;
         },
-        (model, output) => this._onOutput.fire({ model, output })
+        (model, output) => this._onOutput.fire({ model, output }),
       ); // catch errors?
     };
     let prevValue: string | undefined = model.getValue();
 
     // TODO: maybe only debounce (or increase debounce timeout) if an execution is still pending?
-    const reEvaluate = _.debounce(() => {
+    const reEvaluate = debounce(() => {
       if (model.getValue() !== prevValue) {
         // make sure there were actual changes from the previous value
 
@@ -138,7 +138,7 @@ export class ReactiveEngine<T extends CodeModel> extends lifecycle.Disposable {
           evaluator.dispose();
           this.evaluatorCache.delete(model);
         }
-      })
+      }),
     );
   }
 
@@ -156,7 +156,7 @@ export class ReactiveEngine<T extends CodeModel> extends lifecycle.Disposable {
     model: T,
     typecellContext: TypeCellContext<any>,
     resolveImport: (module: string) => Promise<any>,
-    onOutput: (model: T, output: any) => void
+    onOutput: (model: T, output: any) => void,
   ) {
     if (!this.evaluatorCache.has(model)) {
       this.evaluatorCache.set(
@@ -166,8 +166,8 @@ export class ReactiveEngine<T extends CodeModel> extends lifecycle.Disposable {
           resolveImport,
           true,
           (output) => onOutput(model, output),
-          () => this._onBeforeExecution.fire({ model })
-        )
+          () => this._onBeforeExecution.fire({ model }),
+        ),
       );
     }
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
