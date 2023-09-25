@@ -29,7 +29,7 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
     const frameClientIds = new Set<number>();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    props.document.awareness.on("change", (changes: any, origin: any) => {
+    props.document.awareness?.on("change", (changes: any, origin: any) => {
       if (origin !== provider) {
         return;
       }
@@ -44,11 +44,13 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
 
     const removePresence = () => {
       // remove cursor from awareness when we navigate away
-      awarenessProtocol.removeAwarenessStates(
-        props.document.awareness,
-        [...frameClientIds],
-        "window unload",
-      );
+      if (props.document.awareness) {
+        awarenessProtocol.removeAwarenessStates(
+          props.document.awareness,
+          [...frameClientIds],
+          "window unload",
+        );
+      }
     };
 
     window.addEventListener("beforeunload", removePresence);
