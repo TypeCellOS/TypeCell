@@ -60,7 +60,10 @@ export class ImportShimResolver {
         );
         console.log("loaded module", moduleName, "using", resolver.name);
         return {
-          module,
+          module: {
+            ...module,
+            __esModule: true,
+          },
           dispose: () => {
             //do nothing
           },

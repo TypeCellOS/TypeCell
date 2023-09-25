@@ -32,7 +32,7 @@ const MonacoElementComponent = function MonacoElement(
     block: any;
     selectionHack: any;
     blockNoteEditor: any;
-  }
+  },
 ) {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
   // const refa = useRef<any>(Math.random());
@@ -41,7 +41,7 @@ const MonacoElementComponent = function MonacoElement(
   const models = useResource(() => {
     // console.log("create", props.block.id, refa.current);
     const uri = monaco.Uri.parse(
-      `file:///!${context.documentId}/${props.block.id}.cell.tsx`
+      `file:///!${context.documentId}/${props.block.id}.cell.tsx`,
     );
     console.log("allocate model", uri.toString());
 
@@ -49,7 +49,7 @@ const MonacoElementComponent = function MonacoElement(
       textFromPMNode(props.node),
       props.block.props.language,
       uri,
-      monaco
+      monaco,
     );
 
     const codeModel = new MonacoTypeCellCodeModel(model.object);
@@ -83,7 +83,7 @@ const MonacoElementComponent = function MonacoElement(
       if (props.block.props.language !== models.codeModel.language) {
         monaco.editor.setModelLanguage(
           models.model,
-          props.block.props.language
+          props.block.props.language,
         );
       }
       applyNodeChangesToMonaco(props.node, models.model);
@@ -94,7 +94,7 @@ const MonacoElementComponent = function MonacoElement(
         editorRef.current!,
         models.state.lastDecorations,
         monacoStyles.yRemoteSelectionHead,
-        monacoStyles.yRemoteSelection
+        monacoStyles.yRemoteSelection,
       );
     } finally {
       models.state.isUpdating = false;
@@ -115,13 +115,13 @@ const MonacoElementComponent = function MonacoElement(
 
   useEffect(() => {
     console.log("selected effect", props.selected);
-    if (props.selected) {
-      editorRef.current?.focus();
-    }
+    // if (props.selected) {
+    //   editorRef.current?.focus();
+    // }
   }, [props.selected]);
 
   useEffect(() => {
-    // console.log("selectionHack effect", props.selectionHack);
+    console.log("selectionHack effect", props.selectionHack);
     if (!props.selectionHack) {
       return;
     }
@@ -129,7 +129,7 @@ const MonacoElementComponent = function MonacoElement(
     const endPos = models.model.getPositionAt(props.selectionHack.head);
     models.state.isUpdating = true;
     editorRef.current?.setSelection(
-      monaco.Selection.fromPositions(startPos, endPos)
+      monaco.Selection.fromPositions(startPos, endPos),
     );
     models.state.isUpdating = false;
     editorRef.current?.focus();
@@ -164,7 +164,7 @@ const MonacoElementComponent = function MonacoElement(
         newEditor,
         props.editor.view,
         props.getPos,
-        models.state
+        models.state,
       );
 
       // disable per-cell find command (https://github.com/microsoft/monaco-editor/issues/102)
@@ -174,7 +174,7 @@ const MonacoElementComponent = function MonacoElement(
         null, // keybinding
         () => {
           // need to pass an empty handler
-        }
+        },
       );
 
       // if (initialFocus && initial.current) {
@@ -197,11 +197,11 @@ const MonacoElementComponent = function MonacoElement(
 
       editorRef.current = newEditor;
     },
-    [models.model, models.state, props.editor.view, props.getPos]
+    [models.model, models.state, props.editor.view, props.getPos],
   );
 
   const [codeVisible, setCodeVisible] = useState(
-    () => props.node.textContent.startsWith("// @default-collapsed") === false
+    () => props.node.textContent.startsWith("// @default-collapsed") === false,
   );
 
   return (
@@ -238,7 +238,7 @@ const MonacoElementComponent = function MonacoElement(
                     props: {
                       language: lang,
                     },
-                  }
+                  },
                 );
               }}
             />
@@ -251,7 +251,7 @@ const MonacoElementComponent = function MonacoElement(
             models.model.uri.toString(),
             () => {
               // noop
-            }
+            },
           )}
         </div>
       </div>

@@ -26,9 +26,8 @@ Welcome to TypeCell! An open source live programming environment. Together, we w
 - Reactive Runtime, cells automatically re-evaluate when their dependencies update ([learn more](https://www.typecell.org/docs/manual/3.%20Reactive%20variables.md))
 - Import NPM packages + types just by writing an `import` statement
 - Support for real-time collaboration (using [Yjs](https://github.com/yjs/yjs))
-- Runs on top of [Matrix](https://www.matrix.org) using [Matrix-CRDT](https://github.com/yousefed/matrix-crdt).
 
-[Try the Tutorial to get started!](https://www.typecell.org/docs/interactive-introduction.md)
+[Try the Tutorial to get started!](https://www.typecell.org/docs/)
 
 # Documentation 📖
 
@@ -36,24 +35,24 @@ Welcome to TypeCell! An open source live programming environment. Together, we w
 
 Complete the tutorial to get familiar with TypeCell:
 
-» [Interactive introduction](https://www.typecell.org/docs/interactive-introduction.md)
+» [Interactive introduction](https://www.typecell.org/docs/)
 
 ## Manual
 
 We've written about the main functionality of TypeCell in the [manual](https://www.typecell.org/docs/manual):
 
-- [Notebooks and cells](https://www.typecell.org/docs/manual/1.%20Notebooks%20and%20cells.md)
+- [Blocks and code blocks](https://www.typecell.org/docs/manual/1.%20Blocks%20and%20code%20blocks.md)
 - [TypeScript and exports](https://www.typecell.org/docs/manual/2.%20TypeScript%20and%20exports.md)
 - [Reactive variables](https://www.typecell.org/docs/manual/3.%20Reactive%20variables.md)
 - [Working with user input](https://www.typecell.org/docs/manual/4.%20Inputs.md)
 - [Imports & NPM](https://www.typecell.org/docs/manual/5.%20Imports%20and%20NPM.md)
-- [Collaboration](https://www.typecell.org/docs/manual/6.%20Collaboration.md)
+<!-- - [Collaboration](https://www.typecell.org/docs/manual/6.%20Collaboration.md) -->
 
-## Demos
+<!-- ## Demos
 
 Another good way to learn is to check out some notebooks from our community:
 
-» [View demo notebooks](/docs/Demos.md)
+» [View demo notebooks](/docs/Demos.md) -->
 
 # Feedback 🙋‍♂️🙋‍♀️
 
@@ -86,7 +85,6 @@ We build on top of some really great technologies:
 - [Monaco](https://github.com/microsoft/monaco-editor): the open source editor that also powers VS Code
 - [Yjs](https://github.com/yjs/yjs): CRDT for multi-user collaboration
 - [MobX](https://mobx.js.org/): for our Reactive Runtime
-- [Matrix](https://www.matrix.org): the backend of TypeCell.org is a single Matrix instance, using [Matrix-CRDT](https://github.com/yousefed/matrix-crdt) to store and collaborate on "documents as chat rooms"
 - [ESM.sh](https://www.esm.sh/): for dynamic ESM imports from NPM
 - [Typescript](https://www.typescriptlang.org/): for our compiler and language toolkit
 

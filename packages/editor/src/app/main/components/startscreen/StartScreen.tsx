@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SessionStore } from "../../../../store/local/SessionStore";
 // import { NotebookOverviewItem } from "../../../matrix-auth/routes/overview/NotebookOverviewItem";
-import { toDocs, toNewGuestNotebook, toTutorial } from "../../../routes/routes";
+import { toDocs, toRegisterScreen, toTutorial } from "../../../routes/routes";
 import styles from "./StartScreen.module.css";
 import intro from "./assets/intro.gif";
 
@@ -22,16 +22,6 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
     }
   }, [location.pathname, sessionStore.loggedInUserId, navigate]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function onNewNotebookClick(e: any) {
-    e.preventDefault();
-    if (sessionStore.isLoggedIn) {
-      // OpenNewPageDialog(navigate);
-    } else {
-      navigate(toNewGuestNotebook());
-    }
-  }
-
   return (
     <>
       <header className={styles.header}>
@@ -46,8 +36,14 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
           </p>
           <div className={styles.ctaButtons}>
             <Link to={toTutorial()}>Try interactive tutorial</Link>
-            <a className={styles.simple} onClick={onNewNotebookClick} href="/">
-              Create new notebook
+            <a
+              className={styles.simple}
+              onClick={(e) => {
+                navigate(toRegisterScreen(), { state: { from: location } });
+                e.preventDefault();
+              }}
+              href="/register">
+              Create your workspace
             </a>
           </div>
         </div>
@@ -181,7 +177,26 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
         <section className={styles.storySection + " " + styles.sdf}>
           <div className={styles.content + " " + styles.story}>
             <div className={""}>
-              <img src={intro} alt="TypeCell Demo" />
+              <a
+                href="https://discord.gg/TcJ9TRC3SV"
+                target="_blank"
+                rel="noreferrer">
+                <img
+                  style={{ borderRadius: "5px" }}
+                  alt="Discord"
+                  src="https://img.shields.io/badge/Join us on discord%20-%237289DA.svg?style=for-the-badge&logo=discord&logoColor=white"
+                />
+              </a>
+              <a
+                href="https://github.com/typecellOS/typecell"
+                target="_blank"
+                rel="noreferrer">
+                <img
+                  style={{ borderRadius: "5px" }}
+                  alt="GitHub"
+                  src="https://img.shields.io/badge/Star on GitHub%20-%23eeeeee.svg?style=for-the-badge&logo=github&logoColor=black"
+                />
+              </a>
             </div>
             <div className={""}>
               <h4>Join the TypeCell community</h4>
@@ -251,129 +266,6 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
             </div>
           </div>
         </section>
-        {/* <section className={styles.notebooks}>
-          <div className="container">
-            <div className="row">
-              <h2>Community Notebooks</h2>
-              <p className={styles.text}>
-                With TypeCell you can easily share your work with others. Below
-                we listed the Notebooks made by some of our users. View and
-                interact with a Notebook or use it as a starting point for your
-                next project.
-              </p>
-              <div className={styles.buttons + " " + styles.social}>
-                <a
-                  href="https://discord.gg/TcJ9TRC3SV"
-                  target="_blank"
-                  rel="noreferrer">
-                  <img
-                    alt="Discord"
-                    src="https://img.shields.io/badge/Join us on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"
-                  />
-                </a>
-                <a
-                  href="https://matrix.to/#/#typecell-space:matrix.org"
-                  target="_blank"
-                  rel="noreferrer">
-                  <img
-                    alt="Matrix"
-                    src="https://img.shields.io/badge/Chat on matrix%20-%23000.svg?&style=for-the-badge&logo=matrix&logoColor=white"
-                  />
-                </a>
-              </div>
-            </div>
-
-            <div className={styles.overview + " row"}>
-              <div className={styles.notebook}>
-                <NotebookOverviewItem
-                  title="It’s all about timing"
-                  description="Explore TypeCell's reactivity with the help of time"
-                  previewImage={timePreviewImage}
-                  author={{
-                    username: "niklas",
-                    profileImageUrl: "",
-                  }}
-                  
-                  }></NotebookOverviewItem>
-              </div>
-              <div className={styles.notebook}>
-                <NotebookOverviewItem
-                  title="Fun with charts"
-                  description="Visualize weather data with two React chart libraries"
-                  previewImage={chartsPreviewImage}
-                  author={{
-                    username: "yousef",
-                    profileImageUrl: "",
-                  }}
-                  
-                  }></NotebookOverviewItem>
-              </div>
-              <div className={styles.notebook}>
-                <NotebookOverviewItem
-                  title="File upload using API"
-                  description="Connect a React file uploader with an API"
-                  previewImage={apiPreviewImage}
-                  author={{
-                    username: "niklas",
-                    profileImageUrl: "",
-                  }}
-                  to={
-                    "TODO"
-                  }></NotebookOverviewItem>
-              </div>
-            </div>
-          </div>
-        </section> */}
-
-        {/* <section className={styles.build}>
-          <div className="container">
-            <div>
-              <h2>Intro @ LiveProg 2021</h2>
-
-              <iframe
-                width="560"
-                height="315"
-                src="https://www.youtube-nocookie.com/embed/paLS2M-XP6M"
-                title="YouTube video player"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen></iframe>
-            </div>
-          </div>
-        </section> */}
-        {/* <div className={styles.section_separator}></div>
-        <section className={styles.build + " " + styles.content}>
-          <div>
-            <h2>Start building yourself</h2>
-            <p>
-              We are excited to see what you will do with TypeCell.<br></br>
-              We'd love to get your feedback and ideas, so{" "}
-              <a
-                target="_blank"
-                href="https://discord.gg/TcJ9TRC3SV"
-                rel="noreferrer">
-                <span>join us on Discord</span>
-              </a>{" "}
-              or{" "}
-              <a
-                target="_blank"
-                href="https://github.com/TypeCellOS/TypeCell"
-                rel="noreferrer">
-                <span>contribute on GitHub</span>
-              </a>
-              . .
-            </p>
-
-            <div className={styles.ctaButtons}>
-              <Link to={toTutorial()}>Try interactive tutorial</Link>
-              <a
-                className={styles.simple}
-                onClick={onNewNotebookClick}
-                href="/">
-                Create new notebook
-              </a>
-            </div>
-          </div>
-        </section> */}
       </div>
       <footer className={styles.footer}>
         <div>

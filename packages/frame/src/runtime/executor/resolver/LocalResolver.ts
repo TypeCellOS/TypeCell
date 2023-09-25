@@ -9,7 +9,6 @@ import * as jsxruntime from "react/jsx-runtime";
  * them from a third party CDN
  */
 async function resolveNestedModule(id: string, mode?: string) {
-
   // Any import if React and related libraries, we want to resolve to the
   // local imported React. Otherwise we get multiple instances of React, which breaks things
   // (plus, it's inefficient to load the library from a CDN)
@@ -18,13 +17,16 @@ async function resolveNestedModule(id: string, mode?: string) {
     (!mode ||
       mode === "imports/optimized/react.js" ||
       mode === "es2021/react.js" ||
-      mode === "es2022/react.js")
+      mode === "es2022/react.js" ||
+      mode === "es2022/react.mjs")
   ) {
     return react;
   }
 
   if (
-    (id === "react" && mode === "imports/unoptimized/jsx-runtime.js") ||
+    (id === "react" &&
+      (mode === "imports/unoptimized/jsx-runtime.js" ||
+        mode === "es2022/jsx-runtime.js")) ||
     id === "react/jsx-runtime"
   ) {
     return jsxruntime;

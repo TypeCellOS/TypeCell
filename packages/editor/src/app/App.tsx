@@ -14,7 +14,6 @@ import { StartScreen } from "./main/components/startscreen/StartScreen";
 import { DocumentRoute } from "./routes/document";
 import { SupabaseSessionStore } from "./supabase-auth/SupabaseSessionStore";
 import { supabaseAuthProvider } from "./supabase-auth/supabaseAuthProvider";
-
 const Wrapper = observer((props: { sessionStore: SessionStore }) => {
   const navigate = useNavigate();
 
@@ -38,6 +37,7 @@ export const App = observer(
   }) => {
     console.log("app render");
     const { sessionStore } = props;
+    // return <ConfettiExplosion />;
     return (
       <BrowserRouter>
         <Routes>

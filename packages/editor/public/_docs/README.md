@@ -26,18 +26,18 @@ Complete the tutorial to get familiar with programming in TypeCell:
 
 We've written about the main functionality of TypeCell in the [manual](/docs/manual):
 
-- [Notebooks and cells](/docs/manual/1.%20Notebooks%20and%20cells.md)
+- [Blocks and code blocks](/docs/manual/1.%20Blocks%20and%20code%20blocks.md)
 - [TypeScript and exports](/docs/manual/2.%20TypeScript%20and%20exports.md)
 - [Reactive variables](/docs/manual/3.%20Reactive%20variables.md)
 - [Working with user input](/docs/manual/4.%20Inputs.md)
 - [Imports & NPM](/docs/manual/5.%20Imports%20and%20NPM.md)
-- [Collaboration](/docs/manual/6.%20Collaboration.md)
+<!-- - [Collaboration](/docs/manual/6.%20Collaboration.md) -->
 
-## Demos
+<!-- ## Demos
 
 Another good way to learn is to check out some notebooks from our community:
 
-- [View demo notebooks](/docs/Demos.md)
+- [View demo notebooks](/docs/Demos.md) -->
 
 # Feedback ❤️
 

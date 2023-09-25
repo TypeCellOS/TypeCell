@@ -3,7 +3,6 @@ import { Identifier } from "../../identifiers/Identifier";
 import { identifiersToPath } from "../../identifiers/paths/identifierPathHelpers";
 import { BaseResource } from "../../store/BaseResource";
 
-
 export function OpenPermissionsDialog(navigate: NavigateFunction) {
   navigate({}, { state: { permissionsDialog: true } });
 }
@@ -38,7 +37,7 @@ export function toDocs(): To {
 }
 
 export function toTutorial(): To {
-  return { pathname: "/docs/interactive-introduction.md" };
+  return { pathname: "/docs/Live%20coding%20tutorial.md" };
 }
 
 export function toDocument(doc: BaseResource): To {
