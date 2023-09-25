@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import _ from "lodash";
+import memoize from "lodash.memoize";
 import { ExternalModuleResolver } from "./ExternalModuleResolver.js";
 import { LocalModuleResolver } from "./LocalModuleResolver.js";
 
@@ -7,7 +7,7 @@ let importShimCreated = false;
 
 function createBlob(source: string) {
   return URL.createObjectURL(
-    new Blob([source], { type: "application/javascript" })
+    new Blob([source], { type: "application/javascript" }),
   );
 }
 
@@ -16,11 +16,11 @@ export class ImportShimResolver {
 
   public constructor(
     private readonly resolvers: ExternalModuleResolver[],
-    private readonly localResolver: LocalModuleResolver
+    private readonly localResolver: LocalModuleResolver,
   ) {
     if (importShimCreated) {
       throw new Error(
-        "only 1 ImportShimResolver can exists because it uses a global importShim"
+        "only 1 ImportShimResolver can exists because it uses a global importShim",
       );
     }
     importShimCreated = true;
@@ -30,7 +30,7 @@ export class ImportShimResolver {
    * Resolve a moduleName (e.g.: "lodash", "d3") to the actual module
    * using the resolvers passed to the constructor
    */
-  public resolveImport = _.memoize(this.doResolveImport);
+  public resolveImport = memoize(this.doResolveImport);
 
   private async doResolveImport(moduleName: string) {
     await this.initializeImportShim();
@@ -56,7 +56,7 @@ export class ImportShimResolver {
     for (const resolver of this.resolvers) {
       try {
         const module = await this.importShim(
-          "use$" + resolver.name + "$" + moduleName
+          "use$" + resolver.name + "$" + moduleName,
         );
         console.log("loaded module", moduleName, "using", resolver.name);
         return {
@@ -79,7 +79,7 @@ export class ImportShimResolver {
     resolver: ExternalModuleResolver,
     moduleName: string, // can be a relative URL, absolute URL, or "package name"
     parent: string, // the parent URL the package is loaded from
-    importShimResolve: any // the original resolve function from es-module-shims
+    importShimResolve: any, // the original resolve function from es-module-shims
   ): Promise<string> {
     // first try to see if the LocalResolver wants to resolve this module
     const localURL = await this.tryLocalResolver(moduleName);
@@ -107,7 +107,7 @@ export class ImportShimResolver {
           // that we want to override with a package from LocalResolver
           const localURL = await this.tryLocalResolver(
             parsedModule.module,
-            parsedModule.mode
+            parsedModule.mode,
           );
           if (localURL) {
             return localURL;
@@ -121,7 +121,7 @@ export class ImportShimResolver {
                 resolver,
                 "maplibre-gl",
                 parent,
-                importShimResolve
+                importShimResolve,
               );
             }
           }
@@ -142,7 +142,7 @@ export class ImportShimResolver {
 
   private async tryLocalResolver(
     moduleName: string,
-    mode?: string
+    mode?: string,
   ): Promise<string | undefined> {
     const local = await this.localResolver.getModule(moduleName, mode);
     if (local) {
@@ -169,11 +169,11 @@ export class ImportShimResolver {
   private getLocalURLForModule(
     loadedModule: any,
     moduleName: string,
-    mode?: string
+    mode?: string,
   ) {
     const safeName = (moduleName + "/" + mode).replaceAll(
       /[^a-zA-Z0-9_]/g,
-      "$"
+      "$",
     );
 
     if ((window as any)["__typecell_url_" + safeName]) {
@@ -183,7 +183,7 @@ export class ImportShimResolver {
 
     (window as any)["__typecell_pkg_" + safeName] = loadedModule;
     const list = Object.keys(loadedModule).filter(
-      (key) => key !== "default" && key !== "window"
+      (key) => key !== "default" && key !== "window",
     );
 
     const url = createBlob(`
@@ -202,7 +202,7 @@ export class ImportShimResolver {
   private onImportShimResolve = async (
     id: string,
     parent: string,
-    importShimResolve: any
+    importShimResolve: any,
   ) => {
     // by default, try the first resolver
     let resolver = this.resolvers[0];
@@ -221,7 +221,7 @@ export class ImportShimResolver {
         // when there is a parent, this is expected (because it's a nested module).
         console.warn(
           "no explicit resolver detected in import, falling back to default",
-          id
+          id,
         );
       }
     }
@@ -230,7 +230,7 @@ export class ImportShimResolver {
       resolver,
       id,
       parent,
-      importShimResolve
+      importShimResolve,
     );
     return ret;
   };

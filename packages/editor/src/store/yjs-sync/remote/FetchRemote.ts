@@ -2,7 +2,7 @@ import { makeObservable, observable, runInAction } from "mobx";
 import { path, strings } from "vscode-lib";
 
 import { ChildReference, IndexFileReference } from "@typecell-org/shared";
-import _ from "lodash";
+import memoize from "lodash.memoize";
 import * as Y from "yjs";
 import { filesToTreeNodes } from "../../../app/documentRenderers/project/directoryNavigation/treeNodeUtil";
 import { HttpsIdentifier } from "../../../identifiers/HttpsIdentifier";
@@ -48,7 +48,7 @@ export default class FetchRemote extends Remote {
 
   public constructor(
     _ydoc: Y.Doc,
-    private readonly identifier: HttpsIdentifier
+    private readonly identifier: HttpsIdentifier,
   ) {
     super(_ydoc);
     makeObservable(this, {
@@ -85,7 +85,7 @@ export default class FetchRemote extends Remote {
     const project = new ProjectResource(newDoc, this.identifier); // TODO
 
     const tree = filesToTreeNodes(
-      indexFile.items.map((object) => ({ fileName: object }))
+      indexFile.items.map((object) => ({ fileName: object })),
     );
 
     tree.forEach((node) => {
@@ -100,7 +100,7 @@ export default class FetchRemote extends Remote {
     return newDoc;
   }
 
-  private fetchIndex = _.memoize(async (path: string) => {
+  private fetchIndex = memoize(async (path: string) => {
     return (await (await fetch(path)).json()) as IndexFile;
   });
 
@@ -115,7 +115,7 @@ export default class FetchRemote extends Remote {
 
       return markdownToYDoc(
         contents,
-        decodeURIComponent(path.basename(this.identifier.uri.path))
+        decodeURIComponent(path.basename(this.identifier.uri.path)),
       );
     } else {
       // TODO: this is hacky. We should use json from parent route instead. Revise routing?
