@@ -63,7 +63,7 @@ class FakeProvider {
 
 function insertOrUpdateBlock<BSchema extends DefaultBlockSchema>(
   editor: BlockNoteEditor<BSchema>,
-  block: PartialBlock<BSchema>
+  block: PartialBlock<BSchema>,
 ) {
   const currentBlock = editor.getTextCursorPosition().block;
 
@@ -99,7 +99,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         models: {
           modelId: string;
           model: { value: string; language: string };
-        }[]
+        }[],
       ) => {
         for (const model of models) {
           await methods.updateModel(bridgeId, model.modelId, model.model);
@@ -108,7 +108,7 @@ export const Frame: React.FC<Props> = observer((props) => {
       updateModel: async (
         bridgeId: string,
         modelId: string,
-        model: { value: string; language: string }
+        model: { value: string; language: string },
       ) => {
         console.log("register model", modelId);
         const modelReceiver = modelReceivers.get(bridgeId);
@@ -142,7 +142,6 @@ export const Frame: React.FC<Props> = observer((props) => {
 
   const document = useResource(() => {
     const ydoc = new Y.Doc();
-
     // ydoc.on("update", () => {
     //   console.log("frame ydoc", ydoc.toJSON());
     // });
@@ -154,7 +153,7 @@ export const Frame: React.FC<Props> = observer((props) => {
       props.userName,
       props.userColor,
       monacoStyles.yRemoteSelectionHead,
-      monacoStyles.yRemoteSelection
+      monacoStyles.yRemoteSelection,
     );
     provider.connectBc();
 
@@ -190,7 +189,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         const fullIdentifier =
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           await connectionMethods.current!.registerTypeCellModuleCompiler(
-            moduleName
+            moduleName,
           );
 
         // register an alias for the module so that types resolve
@@ -198,7 +197,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         if ("!" + fullIdentifier !== moduleName) {
           monaco.languages.typescript.typescriptDefaults.addExtraLib(
             `export * from "!${fullIdentifier}";`,
-            `file:///node_modules/@types/${moduleName}/index.d.ts`
+            `file:///node_modules/@types/${moduleName}/index.d.ts`,
           );
         }
 
@@ -206,14 +205,14 @@ export const Frame: React.FC<Props> = observer((props) => {
         return subcompiler;
       });
       const newEngine = new ReactiveEngine<BasicCodeModel>(
-        resolver.resolveImport
+        resolver.resolveImport,
       );
 
       const newExecutionHost: ExecutionHost = new LocalExecutionHost(
         props.documentIdString,
         newCompiler,
         monaco,
-        newEngine
+        newEngine,
       );
       return [
         { newCompiler, newExecutionHost },
@@ -222,7 +221,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         },
       ];
     },
-    [props.documentIdString, monaco]
+    [props.documentIdString, monaco],
   );
 
   // useEffect(() => {

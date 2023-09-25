@@ -32,14 +32,14 @@ export function FrameHost(props: { url: string; sessionStore: SessionStore }) {
         const identifier = parseIdentifier(identifierStr);
         const provider = new DocumentResourceModelProvider(
           identifier,
-          props.sessionStore
+          props.sessionStore,
         );
 
         const forwarder = new ModelForwarder(
           "modules/" + moduleName,
           provider,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          connectionMethods!
+          connectionMethods!,
         );
         moduleManagers.set(moduleName, { provider, forwarder });
         await forwarder.initialize();
@@ -73,7 +73,7 @@ export function FrameHost(props: { url: string; sessionStore: SessionStore }) {
       "allow-modals",
       "allow-forms",
       "allow-popups-to-escape-sandbox",
-      "allow-top-navigation-by-user-activation"
+      "allow-top-navigation-by-user-activation",
     );
     iframe.allow =
       "geolocation; microphone; camera; midi; encrypted-media; autoplay; accelerometer; magnetometer; gyroscope";

@@ -4,6 +4,7 @@ import React, { useEffect, useMemo } from "react";
 import "@blocknote/core/style.css";
 
 import { uniqueId } from "@typecell-org/util";
+import * as awarenessProtocol from "y-protocols/awareness";
 import { WebsocketProvider } from "y-websocket";
 import { getFrameDomain } from "../../../config/security";
 import { DocumentResource } from "../../../store/DocumentResource";
@@ -25,15 +26,36 @@ const RichTextRenderer: React.FC<Props> = observer((props) => {
       connect: false,
       awareness: props.document.awareness,
     });
-    // console.log("setup", props.document.ydoc.getXmlFragment("doc").toJSON());
-    // props.document.ydoc.on("update", () => {
-    //   console.log("host ydoc", props.document.ydoc.toJSON());
-    // });
-    // provider.awareness.on("update", () => {
-    //   console.log("update2");
-    // });
+    const frameClientIds = new Set<number>();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    props.document.awareness.on("change", (changes: any, origin: any) => {
+      if (origin !== provider) {
+        return;
+      }
+      if (changes.added.length === 0) {
+        return;
+      }
+      changes.added.forEach((client: number) => {
+        frameClientIds.add(client);
+      });
+    });
     provider.connectBc();
+
+    const removePresence = () => {
+      // remove cursor from awareness when we navigate away
+      awarenessProtocol.removeAwarenessStates(
+        props.document.awareness,
+        [...frameClientIds],
+        "window unload",
+      );
+    };
+
+    window.addEventListener("beforeunload", removePresence);
+
     return () => {
+      window.removeEventListener("beforeunload", removePresence);
+      removePresence();
       provider.disconnectBc();
       provider.destroy();
     };
