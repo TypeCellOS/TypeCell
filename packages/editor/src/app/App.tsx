@@ -37,7 +37,6 @@ export const App = observer(
   }) => {
     console.log("app render");
     const { sessionStore } = props;
-    // return <ConfettiExplosion />;
     return (
       <BrowserRouter>
         <Routes>
