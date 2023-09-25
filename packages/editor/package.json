@@ -108,7 +108,7 @@
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
     "@types/speakingurl": "^13.0.2",
-    "@vitejs/plugin-react": "^4.0.0",
+    "@vitejs/plugin-react": "^4.1.0",
     "connect-history-api-fallback": "^2.0.0",
     "chai": "^4.3.7",
     "cross-env": "^7.0.3",
