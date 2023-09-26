@@ -67,7 +67,11 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
         <section className={styles.storySection + " " + styles.uneven}>
           <div className={styles.content + " " + styles.story}>
             <div className={""}>
-              <video autoPlay={true} loop={true} muted={true}>
+              <video
+                autoPlay={true}
+                loop={true}
+                muted={true}
+                style={{ maxWidth: "85%" }}>
                 <source src={savingsVideo} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
