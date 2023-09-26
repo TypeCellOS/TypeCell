@@ -37,6 +37,9 @@
     },
     {
       "path": "../frame"
+    },
+    {
+      "path": "../y-penpal"
     }
   ]
 }

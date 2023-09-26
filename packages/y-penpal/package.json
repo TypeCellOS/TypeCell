@@ -1,0 +1,30 @@
+{
+  "name": "@typecell-org/y-penpal",
+  "version": "0.0.3",
+  "private": true,
+  "dependencies": {
+    "y-protocols": "^1.0.5",
+    "lib0": "^0.2.82"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "typescript": "5.0.4"
+  },
+  "peerDependencies": {},
+  "source": "src/index.ts",
+  "types": "types/src/index.d.ts",
+  "main": "dist/src/index.js",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf dist && rimraf types",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "watch": "tsc --watch",
+    "lint": "eslint src",
+    "test": "echo \"no tests in project\" && exit 0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../shared/.eslintrc.cjs"
+    ]
+  }
+}
