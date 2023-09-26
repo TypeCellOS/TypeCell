@@ -135,9 +135,16 @@ export const Frame: React.FC<Props> = observer((props) => {
       // Methods child is exposing to parent
       methods,
     });
-    connection.promise.then((parent) => {
-      connectionMethods.current = parent;
-    });
+    console.info("iframe connecting to parent window");
+    connection.promise.then(
+      (parent) => {
+        console.info("connected to parent window succesfully");
+        connectionMethods.current = parent;
+      },
+      (e) => {
+        console.error("connection to parent window failed", e);
+      },
+    );
   }, [modelReceivers]);
 
   const document = useResource(() => {

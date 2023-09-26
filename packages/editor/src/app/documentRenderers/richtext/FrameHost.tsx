@@ -86,9 +86,16 @@ export function FrameHost(props: { url: string; sessionStore: SessionStore }) {
       // Methods the parent is exposing to the child
       methods: methods,
     });
-    connection.promise.then((methods) => {
-      connectionMethods = methods;
-    });
+    console.info("parent window connecting to iframe");
+    connection.promise.then(
+      (methods) => {
+        console.info("connected to iframe succesfully");
+        connectionMethods = methods;
+      },
+      (e) => {
+        console.error("connection to iframe failed", e);
+      },
+    );
     return iframe;
   }, [props.url, props.sessionStore]);
 
