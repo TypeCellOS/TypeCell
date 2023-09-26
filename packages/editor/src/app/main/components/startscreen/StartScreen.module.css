@@ -20,10 +20,9 @@
 
 .code_block {
   display: block;
-  margin: 5em 0;
 }
 
-.code_block img {
+.code_block video {
   box-shadow: rgb(0 0 0 / 25%) 0px 10px 30px -20px;
   border-radius: 20px;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -71,6 +70,17 @@
   margin-bottom: 100px;
 }
 
+.story > div {
+  flex: 1 1 0px;
+}
+
+.story video {
+  max-width: 100%;
+  box-shadow: rgb(0 0 0 / 25%) 0px 10px 30px -20px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
 .story img {
   max-width: 100%;
 }
@@ -105,9 +115,9 @@
   place-self: start;
   text-align: left;
   padding: 30px;
-  box-shadow: rgb(0 0 0 / 25%) 0px 1px 3px -2px;
 
   border-radius: 20px;
+  box-shadow: rgb(0 0 0 / 25%) 0px 1px 3px -2px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   width: 100%;
   height: 100%;
@@ -256,6 +266,14 @@ form {
 
   .perks {
     grid-template-columns: repeat(1, minmax(200px, 1fr));
+  }
+
+  .story {
+    flex-direction: column;
+  }
+
+  .uneven .story {
+    flex-direction: column-reverse;
   }
 }
 @media (max-width: 500px) {
