@@ -5,11 +5,11 @@
 </p>
 
 <p align="center">
-Welcome to TypeCell! An open source live programming environment. Together, we want to make it a lot easier to build software, and ultimately to understand, build and share knowledge.
+Welcome to TypeCell, where Notion meets Jupyter Notebooks - all open source. TypeCell is a fresh take on what documents and software can look like. Together, we want to make it a lot easier to build software, and ultimately to understand, build and share knowledge.
 </p>
 
 <p align="center">
-<a href="https://discord.gg/aDQxXezfNj"><img alt="Discord" src="https://img.shields.io/badge/Chat on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"/></a> <a href="https://matrix.to/#/#typecell-space:matrix.org"><img alt="Matrix" src="https://img.shields.io/badge/Chat on matrix%20-%23000.svg?&style=for-the-badge&logo=matrix&logoColor=white"/></a>
+<a href="https://discord.gg/aDQxXezfNj"><img alt="Discord" src="https://img.shields.io/badge/Chat on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"/></a>
 </p>
 
 <p align="center">
@@ -20,43 +20,25 @@ Welcome to TypeCell! An open source live programming environment. Together, we w
 
 # Features
 
-- Open Source, cell-based notebook environment
+- Open Source Notion-style workspaces and documents (powered by [BlockNote](https://www.blocknotejs.org))
+- [Local-First](https://www.inkandswitch.com/local-first/) architecture built using [Yjs](https://github.com/yjs/yjs), with support for live multi-user collaboration
+- Code Blocks for a live, as-you-type coding experience enabling [End-User Programming](https://www.inkandswitch.com/end-user-programming/)
 - Same, powerful editing experience as VS Code
-- Full TypeScript support! (no weird custom language constructs)
-- Reactive Runtime, cells automatically re-evaluate when their dependencies update ([learn more](https://www.typecell.org/docs/manual/3.%20Reactive%20variables.md))
-- Import NPM packages + types just by writing an `import` statement
-- Support for real-time collaboration (using [Yjs](https://github.com/yjs/yjs))
+- Full TypeScript and React support! (no weird custom language constructs)
+- The Reactive Runtime makes sure code blocks automatically re-evaluate when their dependencies update ([learn more](https://www.typecell.org/docs/manual/3.%20Reactive%20variables.md))
+- Import NPM packages + types just by writing a regular `import` statement
 
-[Try the Tutorial to get started!](https://www.typecell.org/docs/)
+» [Create your free workspace to get started!](https://www.typecell.org/)
 
 # Documentation 📖
 
-## Tutorial
+Read the docs and complete the interactive tutorial to get familiar with TypeCell:
 
-Complete the tutorial to get familiar with TypeCell:
-
-» [Interactive introduction](https://www.typecell.org/docs/)
-
-## Manual
-
-We've written about the main functionality of TypeCell in the [manual](https://www.typecell.org/docs/manual):
-
-- [Blocks and code blocks](https://www.typecell.org/docs/manual/1.%20Blocks%20and%20code%20blocks.md)
-- [TypeScript and exports](https://www.typecell.org/docs/manual/2.%20TypeScript%20and%20exports.md)
-- [Reactive variables](https://www.typecell.org/docs/manual/3.%20Reactive%20variables.md)
-- [Working with user input](https://www.typecell.org/docs/manual/4.%20Inputs.md)
-- [Imports & NPM](https://www.typecell.org/docs/manual/5.%20Imports%20and%20NPM.md)
-<!-- - [Collaboration](https://www.typecell.org/docs/manual/6.%20Collaboration.md) -->
-
-<!-- ## Demos
-
-Another good way to learn is to check out some notebooks from our community:
-
-» [View demo notebooks](/docs/Demos.md) -->
+» [Check out the docs and Live Coding Tutorial](https://www.typecell.org/docs/)
 
 # Feedback 🙋‍♂️🙋‍♀️
 
-We'd love to hear your thoughts and see your experiments, so [come and say hi on Discord](https://discord.gg/TcJ9TRC3SV) or [Matrix](https://matrix.to/#/#typecell-space:matrix.org).
+We'd love to hear your thoughts and see your experiments, so [come and say hi on Discord](https://discord.gg/TcJ9TRC3SV).
 
 # Contributing 🙌
 
@@ -67,13 +49,17 @@ TypeCell is organised as a monorepo containing several packages. Directory struc
 ```
 typecell
 ├── packages
-│   ├── common          - Utility functions shared across the codebase
-│   ├── editor          - The main React application
-│   ├── engine          - The live-code execution engine
-│   ├── packager        - Tool to bundle TypeCell notebook apps (WIP)
-│   └── parsers         - Helpers to convert to / from TypeCell documents
-├── patches             - patch-package patches
-└── test-util           - Server and data for unit tests
+│   ├── editor        - The main React application
+│   ├── engine        - The live-code execution engine and Reactive Runtime
+│   ├── frame         - sandboxed iframe where end-user code evaluates
+│   ├── packager      - Tool to bundle TypeCell notebook apps (WIP)
+│   ├── parsers       - Helpers to convert to / from TypeCell documents
+│   ├── server        - HocusPocus + Supabase server for storing documents
+│   ├── shared        - TypeCell specific models shared across the codebase
+│   ├── shared-test   - Helper functions shared across the codebase for unit tests
+│   └── util          - Generic helper functions
+├── patches           - patch-package patches
+└── test-util         - Data for unit tests
 ```
 
 The codebase is automatically tested using Vitest and Playwright.
