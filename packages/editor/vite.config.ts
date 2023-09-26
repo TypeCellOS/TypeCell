@@ -69,9 +69,9 @@ export default defineConfig((conf) => ({
     rollupOptions: {
       output: {
         chunkFileNames: (chunkInfo) => {
-          if (chunkInfo.name.includes("y-websocket")) {
+          if (chunkInfo.name.includes("startConnectionTimeout")) {
             // because rollup uses the last source of the chunk as file name, we end
-            // up with a file named "y-websocket.xxx.js" which actually has a lot of node_modules
+            // up with a file named "startConnectionTimeout.xxx.js" which actually has a lot of node_modules
             // (not just y-websocket). Rename to "chunk"
             return "assets/chunk-[hash].js";
           }
