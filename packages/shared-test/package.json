@@ -19,7 +19,8 @@
     "clean": "rimraf dist && rimraf types",
     "build": "npm run clean && tsc -p tsconfig.json",
     "watch": "tsc --watch",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "echo \"no tests in project\" && exit 0"
   },
   "eslintConfig": {
     "extends": [

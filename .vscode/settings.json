@@ -12,8 +12,7 @@
     "**/dist": true,
     "**/coverage/**/*": true,
     "**/dist/**/*": true,
-    "**/node_modules/**/*": true,
-    "**/supabase": true
+    "**/node_modules/**/*": true
   },
   "vitest.exclude": [
     "**/node_modules/**",
