@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "es6",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -22,19 +22,5 @@
     "composite": true,
     "jsx": "react-jsx"
   },
-  "include": ["src"],
-  "references": [
-    {
-      "path": "../shared"
-    },
-    {
-      "path": "../util"
-    },
-    {
-      "path": "../engine"
-    },
-    {
-      "path": "../y-penpal"
-    }
-  ]
+  "include": ["src"]
 }

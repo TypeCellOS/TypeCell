@@ -12,6 +12,7 @@
     "playwright": "^1.36.0"
   },
   "workspaces": [
+    "packages/y-penpal",
     "packages/util",
     "packages/shared",
     "packages/shared-test",
