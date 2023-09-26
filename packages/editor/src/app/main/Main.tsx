@@ -1,41 +1,51 @@
+import classNames from "classnames";
 import { observer } from "mobx-react-lite";
+import { useCallback, useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { DocumentResource } from "../../store/DocumentResource";
-import { getStoreService } from "../../store/local/stores";
-import { CloseNewPageDialog, IsNewPageDialogOpen } from "../routes/routes";
-import { Navigation } from "./components/Navigation";
-import NewPageDialog from "./components/NewPageDialog";
+import { SessionStore } from "../../store/local/SessionStore";
 import styles from "./Main.module.css";
+import { Navigation } from "./components/Navigation";
 
-const Main = observer((props: {}) => {
-  const sessionStore = getStoreService().sessionStore;
+const Main = observer((props: { sessionStore: SessionStore }) => {
+  const location = useLocation();
+  // const navigate = useNavigate();
 
-  let location = useLocation();
-  let navigate = useNavigate();
+  const [top, setTop] = useState(true);
+
+  const controlNavbar = useCallback(() => {
+    if (typeof window !== "undefined") {
+      if (window.scrollY > 0) {
+        setTop(false);
+      } else {
+        setTop(true);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.addEventListener("scroll", controlNavbar);
+
+      // cleanup function
+      return () => {
+        window.removeEventListener("scroll", controlNavbar);
+      };
+    }
+  }, [controlNavbar]);
 
   return (
     <DndProvider backend={HTML5Backend}>
       <div
-        className={
-          styles.main +
-          " " +
-          (location.pathname === "/" || location.pathname === "/ai"
-            ? styles.homepage
-            : "") +
-          " " +
-          (location.pathname === "/ai" ? styles.ai : "")
-        }>
-        <Navigation />
+        className={classNames(
+          styles.main,
+          top && styles.top,
+          location.pathname === "/" && styles.homepage,
+        )}>
+        <Navigation sessionStore={props.sessionStore} />
         <Outlet />
-        {sessionStore.loggedInUserId && (
-          <NewPageDialog
-            ownerId={sessionStore.loggedInUserId}
-            close={() => CloseNewPageDialog(navigate)}
-            isOpen={IsNewPageDialogOpen(location)}
-          />
-        )}
       </div>
     </DndProvider>
   );
@@ -43,4 +53,5 @@ const Main = observer((props: {}) => {
 
 export default Main;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).DocumentResource = DocumentResource; // TODO: hacky

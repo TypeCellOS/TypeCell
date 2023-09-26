@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TypeCellContext } from "./context.js";
 import { ModuleExecution, runModule } from "./executor.js";
 import {
@@ -14,7 +15,7 @@ export function assignExecutionExports(
   typecellContext: TypeCellContext<any>
 ) {
   const newExports: any = {};
-  for (let propertyName in exports) {
+  for (const propertyName in exports) {
     if (propertyName === "default") {
       // default exports are not on typecellContext.context
       newExports.default = exports[propertyName];

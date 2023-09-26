@@ -1,26 +1,31 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { useState } from "react";
 import { Identifier } from "../../identifiers/Identifier";
 import { DocConnection } from "../../store/DocConnection";
-import PluginResource from "../../store/PluginResource";
+
 import ProjectResource from "../../store/ProjectResource";
-import DocumentMenu from "../main/components/documentMenu";
-import { Breadcrumb } from "../main/components/documentMenu/Breadcrumb";
-import { MenuBar } from "../main/components/menuBar/MenuBar";
+
+// import { MenuBar } from "../maidocn/components/menuBar/MenuBar";
 // import RichTextRenderer from "./richtext/RichTextRenderer";
 import styles from "./DocumentView.module.css";
 // import { CustomRenderer } from "./custom/CustomRenderer";
-import NotebookRenderer from "./notebook/NotebookRenderer";
-import PluginRenderer from "./plugin/PluginRenderer";
+import ProfileResource from "../../store/ProfileResource";
+import { SessionStore } from "../../store/local/SessionStore";
+import { DocumentMenu } from "../main/components/documentMenu/DocumentMenu";
+
+import ProfileRenderer from "./profile/ProfileRenderer";
 import ProjectContainer from "./project/ProjectContainer";
 import ProjectRenderer from "./project/ProjectRenderer";
 import RichTextRenderer from "./richtext/RichTextRenderer";
 
 type Props = {
   id: Identifier;
+  subIdentifiers: Identifier[];
   isNested?: boolean;
   hideDocumentMenu?: boolean;
+  sessionStore: SessionStore;
 };
 
 /**
@@ -31,7 +36,7 @@ const DocumentView = observer((props: Props) => {
   const [connection, setConnection] = useState<DocConnection>();
 
   React.useEffect(() => {
-    const newConnection = DocConnection.load(props.id);
+    const newConnection = DocConnection.load(props.id, props.sessionStore);
 
     setConnection(newConnection);
     // for testing:
@@ -43,7 +48,7 @@ const DocumentView = observer((props: Props) => {
       setConnection(undefined);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.id.toString()]);
+  }, [props.id.toString(), props.sessionStore]);
 
   if (!connection) {
     return null;
@@ -58,29 +63,21 @@ const DocumentView = observer((props: Props) => {
     return <div>Loading</div>;
   }
   if (connection.doc.type === "!notebook") {
-    const doc = connection.doc.doc;
-
-    return (
-      <div className={styles.view}>
-        {!props.hideDocumentMenu && (
-          <DocumentMenu document={doc}></DocumentMenu>
-        )}
-        <NotebookRenderer key={connection.doc.id} document={doc} />
-      </div>
-    );
+    throw new Error("Notebook not implemented");
   } else if (connection.doc.type === "!project") {
     if (props.isNested) {
       return (
         <div className={styles.view}>
           {!props.hideDocumentMenu && (
-            <MenuBar>
-              <Breadcrumb identifier={props.id} />
-            </MenuBar>
+            <DocumentMenu
+              document={connection.doc.getSpecificType(ProjectResource)!}
+              sessionStore={props.sessionStore}></DocumentMenu>
           )}
           <ProjectContainer
             isNested={true}
             key={connection.doc.id}
             project={connection.doc.getSpecificType(ProjectResource)!}
+            sessionStore={props.sessionStore}
           />
         </div>
       );
@@ -89,6 +86,8 @@ const DocumentView = observer((props: Props) => {
         <ProjectRenderer
           key={connection.doc.id}
           project={connection.doc.getSpecificType(ProjectResource)!}
+          subIdentifiers={props.subIdentifiers}
+          sessionStore={props.sessionStore}
         />
       );
     }
@@ -98,20 +97,32 @@ const DocumentView = observer((props: Props) => {
     return (
       <div className={styles.view}>
         {!props.hideDocumentMenu && (
-          <DocumentMenu document={doc}></DocumentMenu>
+          <DocumentMenu
+            document={doc}
+            sessionStore={props.sessionStore}></DocumentMenu>
         )}
         <RichTextRenderer
           key={connection.doc.id}
           document={connection.doc.doc!}
+          sessionStore={props.sessionStore}
         />
       </div>
     );
   } else if (connection.doc.type === "!plugin") {
+    throw new Error("Plugin not implemented");
+  } else if (connection.doc.type === "!profile") {
     return (
-      <PluginRenderer
-        key={connection.doc.id}
-        plugin={connection.doc.getSpecificType(PluginResource)!}
-      />
+      <div className={styles.view}>
+        <DocumentMenu
+          document={connection.doc}
+          sessionStore={props.sessionStore}></DocumentMenu>
+        <ProfileRenderer
+          key={connection.doc.id}
+          profile={connection.doc.getSpecificType(ProfileResource)!}
+          subIdentifiers={[]}
+          sessionStore={props.sessionStore}
+        />
+      </div>
     );
   } else if (connection.doc.type.startsWith("!")) {
     throw new Error("invalid built in type");

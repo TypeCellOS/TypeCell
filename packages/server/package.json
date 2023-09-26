@@ -1,0 +1,55 @@
+{
+  "name": "@typecell-org/server",
+  "version": "0.0.3",
+  "private": true,
+  "dependencies": {
+    "@typecell-org/shared": "^0.0.3",
+    "@typecell-org/shared-test": "^0.0.3",
+    "@typecell-org/util": "^0.0.3",
+    "@hocuspocus/extension-database": "^2.4.0",
+    "@hocuspocus/extension-logger": "^2.4.0",
+    "@hocuspocus/server": "^2.4.0",
+    "@supabase/supabase-js": "^2.12.1",
+    "vscode-lib": "^0.1.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@hocuspocus/provider": "^2.4.0",
+    "@playwright/test": "^1.33.0",
+    "@vitest/coverage-v8": "^0.33.0",
+    "jsdom": "^22.1.0",
+    "playwright-test": "^12.1.1",
+    "supabase": "^1.93.0",
+    "typescript": "5.0.4",
+    "vite-node": "^0.33.0",
+    "vitest": "^0.33.0",
+    "ws": "^8.13.0",
+    "yjs": "^13.6.4"
+  },
+  "source": "src/index.ts",
+  "types": "types/src/index.d.ts",
+  "main": "dist/src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node dist/src/index.js",
+    "start:supabase": "./supabase.sh start",
+    "stop:supabase": "./supabase.sh stop",
+    "clean": "rimraf dist && rimraf types",
+    "dev": "MODE=development vite-node src/index.ts",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "watch": "tsc --watch",
+    "test-watch": "vitest watch",
+    "unittest:vitest": "vitest run",
+    "unittest:playwright": "playwright-test '**/*.browsertest.ts' --runner mocha",
+    "test": "npm run unittest:vitest && npm run unittest:playwright",
+    "gentypes": "./supabase.sh gen types typescript --local --schema public > ../shared/src/schema.ts",
+    "migrate": "./supabase.sh migration new newmigation_file",
+    "diff": "./supabase.sh db diff",
+    "lint": "eslint src"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../shared/.eslintrc.cjs"
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "ESNext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -15,7 +15,28 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "composite": true
   },
-  "include": ["src"]
+  "include": ["src", "tests"],
+  "references": [
+    {
+      "path": "../shared"
+    },
+    {
+      "path": "../shared-test"
+    },
+    {
+      "path": "../util"
+    },
+    {
+      "path": "../engine"
+    },
+    {
+      "path": "../parsers"
+    },
+    {
+      "path": "../frame"
+    }
+  ]
 }

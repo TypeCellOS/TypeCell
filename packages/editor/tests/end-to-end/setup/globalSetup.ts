@@ -1,8 +1,5 @@
 import { FullConfig } from "@playwright/test";
-import { ensureMatrixIsRunning } from "../../util/startMatrixServer";
 
-async function globalSetup(config: FullConfig) {
-  await ensureMatrixIsRunning();
-}
+async function globalSetup(config: FullConfig) {}
 
 export default globalSetup;

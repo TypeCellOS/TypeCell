@@ -1,19 +1,23 @@
 # Development
 
-TypeCell is a monorepo containing several packages. In VS Code, it's best to open `typecell.code-workspace` to open the project as a workspace.
+TypeCell is a monorepo containing several packages.
 
 ## Directory structure:
 
 ```
-blocknote
+typecell
 ├── packages
-│   ├── common          - Utility functions shared across the codebase
-│   ├── editor          - The main React application
-│   ├── engine          - The live-code execution engine
-│   ├── packager        - Tool to bundle TypeCell notebook apps (WIP)
-│   └── parsers         - Helpers to convert to / from TypeCell notebooks
-├── patches             - patch-package patches
-└── test-util           - Server and data for unit tests
+│   ├── editor        - The main React application
+│   ├── engine        - The live-code execution engine and Reactive Runtime
+│   ├── frame         - sandboxed iframe where end-user code evaluates
+│   ├── packager      - Tool to bundle TypeCell notebook apps (WIP)
+│   ├── parsers       - Helpers to convert to / from TypeCell documents
+│   ├── server        - HocusPocus + Supabase server for storing documents
+│   ├── shared        - TypeCell specific models shared across the codebase
+│   ├── shared-test   - Helper functions shared across the codebase for unit tests
+│   └── util          - Generic helper functions
+├── patches           - patch-package patches
+└── test-util         - Data for unit tests
 ```
 
 ## Running locally
@@ -22,11 +26,14 @@ Node.js is required to run this project. To download Node.js, visit [nodejs.org]
 
 To run the project, open the command line in the project's root directory and enter the following commands:
 
-    # Install all required npm modules for lerna, and bootstrap lerna packages
+    # Install all required npm modules
     npm install
 
     # Initial build of all packages required by the main editor project
     npm run build
+
+    # Start the local server
+    npm run start:server
 
     # Start the main editor project
     npm start

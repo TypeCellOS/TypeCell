@@ -4,15 +4,62 @@
   font-weight: normal !important;
   font-size: 13px !important;
   height: 2.1em !important;
+  padding-right: 2px !important;
 }
 
-.chevron {
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.kebab,
+.addChild {
+  /* visibility: hidden; */
+  display: none;
+  opacity: 0;
+  /* transition: opacity 0.2s ease-in 0.1s; */
+}
+
+.sidebarButton.active {
+  background-color: var(
+    --ds-background-neutral-subtle-hovered,
+    rgba(9, 30, 66, 0.08)
+  );
+  font-weight: bolder !important;
+}
+
+.sidebarButton:hover .kebab,
+.sidebarButton:hover .addChild {
+  display: inline-block;
+  animation: fade-in 0.3s ease-in 0.1s;
+  animation-fill-mode: forwards;
+  /* visibility: visible; */
+  opacity: 0;
+}
+
+.chevron,
+.kebab,
+.addChild,
+.add {
   width: 20px;
   height: 20px;
   padding: 5px;
   border-radius: 3px;
 }
 
-.chevron:hover {
+.kebab {
+  width: 16px;
+  padding: 0;
+  height: 20px;
+  padding-top: 2px;
+}
+.chevron:hover,
+.kebab:hover,
+.addChild:hover,
+.add:hover {
   background-color: #d8dadf;
 }

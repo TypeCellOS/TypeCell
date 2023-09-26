@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { autorun, runInAction } from "mobx";
 import { TypeCellContext } from "./context.js";
 import { installHooks } from "./hookDisposables.js";
@@ -9,7 +10,7 @@ async function resolveDependencyArray(
   context: TypeCellContext<any>,
   resolveImport: (module: string) => any,
   exports: any,
-  userDisposes: Array<() => void>
+  userDisposes: Array<() => void>,
 ) {
   return await Promise.all(
     dependencyArray.map((arg) => {
@@ -20,7 +21,9 @@ async function resolveDependencyArray(
         return function () {
           return resolveImport(
             // cell,
-            arguments[0][0]
+            // eslint-disable-next-line prefer-rest-params
+            arguments[0][0],
+            // eslint-disable-next-line prefer-rest-params
           ).then(arguments[1], arguments[2]);
         };
         // return new Function("import(arguments[0][0]).then(arguments[1], arguments[2]);");
@@ -46,7 +49,7 @@ async function resolveDependencyArray(
         };
       }
       return resolveImport(arg);
-    })
+    }),
   );
 }
 
@@ -63,7 +66,7 @@ export async function runModule(
   beforeExecuting: () => void,
   onExecuted: (exports: any) => void,
   onError: (error: any) => void,
-  previousVariableDisposer?: (newExportsToKeep: any) => void
+  previousVariableDisposer?: (newExportsToKeep: any) => void,
 ): Promise<ModuleExecution> {
   let cleanVariablesFromContext: Array<(newExports: any) => void> = [];
   let disposeEveryRun: Array<() => void> = [];
@@ -74,7 +77,7 @@ export async function runModule(
     context,
     resolveImport,
     exports,
-    disposeEveryRun
+    disposeEveryRun,
   );
 
   let initialRun = true;
@@ -89,9 +92,12 @@ export async function runModule(
   let detectedLoop = false;
 
   const hostname = window.location.hostname.toLowerCase();
-  if (hostname.includes("typecell.org") || hostname.includes("typecell.com")) {
+  if (
+    hostname.includes("www.typecell.org") ||
+    hostname.includes("www.typecell.com")
+  ) {
     throw new Error(
-      "failed security check, executor can not be running on these domains"
+      "failed security check, executor can not be running on these domains",
     );
   }
 
@@ -119,7 +125,7 @@ export async function runModule(
       try {
         executionPromise = mod.factoryFunction.apply(
           undefined,
-          argsToCallFunctionWith
+          argsToCallFunctionWith,
         ); // TODO: what happens with disposers if a rerun of this function is slow / delayed?
       } finally {
         // Hooks are only installed for sync code. Ideally, we'd want to run it for all code, but then we have the chance hooks will affect other parts of the TypeCell (non-user) code
@@ -135,7 +141,7 @@ export async function runModule(
       // Running the assignments to `context` in action should be a performance improvement to prevent triggering observers one-by-one
       wouldLoopOnAutorun = true;
       runInAction(() => {
-        for (let propertyName in exports) {
+        for (const propertyName in exports) {
           // log.log(cell.id, "exported property:", propertyName, exports[propertyName]);
 
           const saveValue = (exported: any) => {
@@ -144,7 +150,7 @@ export async function runModule(
             }
           };
 
-          let exported = exports[propertyName];
+          const exported = exports[propertyName];
           if (isView(exported)) {
             disposeEveryRun.push(autorun(() => saveValue(exported.value)));
             // } else if (isReactView(exported)) {
@@ -183,7 +189,7 @@ export async function runModule(
 
       cleanVariablesFromContext.push((newExports: any) => {
         runInAction(() => {
-          for (let propertyName in exports) {
+          for (const propertyName in exports) {
             if (!(propertyName in newExports)) {
               // don't clean variables that are already exported, we will just overwrite them later in the runInAction above
               delete context.context[propertyName];
@@ -196,7 +202,7 @@ export async function runModule(
 
       if (detectedLoop) {
         throw new Error(
-          "loop detected (parent run). Are you referencing an exported variable with $ in the same cell?"
+          "loop detected (parent run). Are you referencing an exported variable with $ in the same cell?",
         );
       }
       onExecuted(exports);

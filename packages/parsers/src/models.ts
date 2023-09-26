@@ -1,5 +1,5 @@
+import { error } from "@typecell-org/util";
 export type Language = "typescript" | "css" | "markdown";
-import { error } from "@typecell-org/common";
 
 export type Document = {
   cells: Array<Cell>;

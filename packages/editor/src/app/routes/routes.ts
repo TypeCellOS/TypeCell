@@ -1,19 +1,7 @@
 import { Location, NavigateFunction, To } from "react-router-dom";
-import { parseIdentifier } from "../../identifiers";
 import { Identifier } from "../../identifiers/Identifier";
+import { identifiersToPath } from "../../identifiers/paths/identifierPathHelpers";
 import { BaseResource } from "../../store/BaseResource";
-
-export function OpenNewPageDialog(navigate: NavigateFunction) {
-  navigate({}, { state: { NewPageDialog: true } });
-}
-
-export function CloseNewPageDialog(navigate: NavigateFunction) {
-  navigate({}, { state: { NewPageDialog: undefined } });
-}
-
-export function IsNewPageDialogOpen(location: Location) {
-  return (location as any).state?.NewPageDialog;
-}
 
 export function OpenPermissionsDialog(navigate: NavigateFunction) {
   navigate({}, { state: { permissionsDialog: true } });
@@ -24,6 +12,7 @@ export function ClosePermissionsDialog(navigate: NavigateFunction) {
 }
 
 export function IsPermissionsDialogOpen(location: Location) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (location as any).state?.permissionsDialog;
 }
 
@@ -48,7 +37,7 @@ export function toDocs(): To {
 }
 
 export function toTutorial(): To {
-  return { pathname: "/docs/interactive-introduction.md" };
+  return { pathname: "/docs/Live%20coding%20tutorial.md" };
 }
 
 export function toDocument(doc: BaseResource): To {
@@ -56,15 +45,12 @@ export function toDocument(doc: BaseResource): To {
 }
 
 export function toIdentifier(identifier: Identifier): To {
-  return { pathname: identifier.toRouteString() };
-}
-
-export function toIdentifierString(identifier: string): To {
-  return toIdentifier(parseIdentifier(identifier));
+  return { pathname: "/" + identifiersToPath(identifier) };
 }
 
 export function toNewGuestNotebook(): To {
-  return toIdentifier(parseIdentifier({ owner: "@typecell", document: "new" }));
+  return "/TODO";
+  // return toIdentifier(parseIdentifier({ owner: "@typecell", document: "new" }));
 }
 
 export function toProfilePage(owner: string): To {

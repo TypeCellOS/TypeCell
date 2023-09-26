@@ -1,5 +1,5 @@
-import { CodeModel } from "../../CodeModel.js";
-import { ResolvedImport } from "../../Engine.js";
+import { CodeModel } from "@typecell-org/shared";
+import { ResolvedImport } from "../../ReactiveEngine.js";
 import { CodeModelMock } from "./CodeModelMock.js";
 
 export function waitTillEvent<T>(
@@ -28,7 +28,9 @@ export async function importResolver(
       module: {
         default: {},
       },
-      dispose: () => {},
+      dispose: () => {
+        // Do nothing
+      },
     };
   };
 

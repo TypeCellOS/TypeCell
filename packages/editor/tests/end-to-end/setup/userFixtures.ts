@@ -1,4 +1,7 @@
-import { BrowserContext, Page } from "@playwright/test";
+/* eslint-disable no-empty-pattern */
+/* eslint-disable @typescript-eslint/ban-types */
+import { BrowserContext, Page, expect } from "@playwright/test";
+import { DEFAULT_PROVIDER } from "./config";
 import { test as base } from "./networkRequestFilter";
 
 const SESSION_ID = Math.random()
@@ -28,13 +31,13 @@ export type TestUser = {
 // const existingStateBobe = tryLoadState("bob.json");
 
 /**
- * Register a user via the interface
+ * Register a user via the interface (Matrix UI)
  */
-async function registerUser(
+async function registerUserMatrix(
   page: Page,
   user: { username: string; password: string }
 ) {
-  await page.goto(process.env.TYPECELL_BASE_URL + "/register");
+  await page.goto("/register");
   const field = page.locator("input[name='username']");
   await field.type(user.username);
   const pwField = page.locator("input[name='password']");
@@ -47,7 +50,39 @@ async function registerUser(
   await registerBtn.click();
 
   // registered + signed in when profile button is visible
-  await page.waitForSelector("button[data-testid='profile-button']");
+  await expect(
+    page.locator("button[data-testid='profile-button']")
+  ).toBeAttached();
+}
+
+/**
+ * Register a user via the interface (Supabase UI)
+ */
+async function registerUserSupabase(
+  page: Page,
+  user: { username: string; password: string }
+) {
+  await page.goto("/register");
+  const field = page.locator("input[name='email']");
+  await field.type(user.username + "@fakeemail.typecell.org");
+  const pwField = page.locator("input[name='password']");
+  await pwField.type(user.password);
+
+  const registerBtn = page.locator("button[type='submit']");
+  await registerBtn.click();
+
+  await expect(page.locator("input[name='username']")).toBeAttached();
+
+  const usernameField = page.locator("input[name='username']");
+  await usernameField.type(user.username);
+
+  const setUsernameBtn = page.locator("button[type='submit']");
+  await setUsernameBtn.click();
+
+  // registered + signed in when profile button is visible
+  await expect(
+    page.locator("button[data-testid='profile-button']")
+  ).toBeAttached();
 }
 
 // This fixture exposes information (username / password) of alice / bob
@@ -58,7 +93,7 @@ export const testWithUsers = base.extend<
   aliceUser: [
     async ({}, use, workerInfo) => {
       const aliceUser: TestUser = {
-        username: "alice-" + SESSION_ID + "-" + workerInfo.workerIndex,
+        username: "alice_" + SESSION_ID + "_" + workerInfo.workerIndex,
         password: "myPw123ABC@#$",
       };
 
@@ -69,7 +104,7 @@ export const testWithUsers = base.extend<
   bobUser: [
     async ({}, use, workerInfo) => {
       const bobUser: TestUser = {
-        username: "bob-" + SESSION_ID + "-" + workerInfo.workerIndex,
+        username: "bob_" + SESSION_ID + "_" + workerInfo.workerIndex,
         password: "myB0bPw123ABC@#$",
       };
 
@@ -91,7 +126,11 @@ export const test = testWithUsers.extend<
 
       // if (!existingStateAlice) {
       const page = await newContext.newPage();
-      await registerUser(page, aliceUser);
+      if (DEFAULT_PROVIDER === "supabase") {
+        await registerUserSupabase(page, aliceUser);
+      } else {
+        await registerUserMatrix(page, aliceUser);
+      }
       await page.close();
       // fs.writeFileSync(
       //   "alice.json",
@@ -107,7 +146,11 @@ export const test = testWithUsers.extend<
     async ({ browser, bobUser }, use, workerInfo) => {
       const newContext = await browser.newContext();
       const page = await newContext.newPage();
-      await registerUser(page, bobUser);
+      if (DEFAULT_PROVIDER === "supabase") {
+        await registerUserSupabase(page, bobUser);
+      } else {
+        await registerUserMatrix(page, bobUser);
+      }
       await page.close();
 
       // Use the account value.

@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { uri } from "vscode-lib";
-import { Identifier, stringWithoutInitialSlash } from "./Identifier";
+import { Identifier } from "./Identifier";
 
 export class GithubIdentifier extends Identifier {
   public static schemes = ["github"];
@@ -7,17 +8,8 @@ export class GithubIdentifier extends Identifier {
   public readonly repository: string;
   public readonly path: string;
 
-  constructor(uriToParse: uri.URI, title?: string) {
-    let [identifier, subPath] = stringWithoutInitialSlash(
-      uriToParse.path
-    ).split("/:/", 2);
-
-    const parts = identifier.split("/");
-    if (parts.length < 2) {
-      throw new Error("invalid identifier");
-      // return "invalid-identifier" as "invalid-identifier";
-    }
-
+  constructor(uriToParse: uri.URI) {
+    const parts = uriToParse.path.split("/");
     const owner = parts.shift()!.toLowerCase();
     const repository = parts.shift()!.toLowerCase();
     const path = parts.join("/");
@@ -29,9 +21,7 @@ export class GithubIdentifier extends Identifier {
         scheme: uriToParse.scheme,
         authority: uriToParse.authority,
         path: owner + "/" + repository + (path.length ? "/" + path : ""),
-      }),
-      subPath,
-      title
+      })
     );
     this.path = path;
     this.owner = owner;

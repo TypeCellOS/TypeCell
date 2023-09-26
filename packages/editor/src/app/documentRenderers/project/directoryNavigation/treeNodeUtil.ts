@@ -18,12 +18,13 @@ export function sortTreeItems(a: TreeNode, b: TreeNode) {
 
 // https://stackoverflow.com/a/51012811/194651
 export function filesToTreeNodes(arr: File[]): TreeNode[] {
-  var tree: any = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tree: any = {};
   function addnode(obj: File) {
-    var splitpath = obj.fileName.replace(/^\/|\/$/g, "").split("/");
-    var ptr = tree;
+    const splitpath = obj.fileName.replace(/^\/|\/$/g, "").split("/");
+    let ptr = tree;
     for (let i = 0; i < splitpath.length; i++) {
-      let node: any = {
+      const node = {
         fileName: splitpath[i],
         isDirectory: true,
       };
@@ -35,6 +36,7 @@ export function filesToTreeNodes(arr: File[]): TreeNode[] {
       ptr = ptr[splitpath[i]].children;
     }
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function objectToArr(node: any) {
     Object.keys(node || {}).forEach((k) => {
       if (node[k].children) {

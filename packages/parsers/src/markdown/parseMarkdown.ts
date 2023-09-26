@@ -8,7 +8,7 @@ export function markdownRootToDocument(tree: Root): Document {
   const nodes = tree.children;
   const cells: Cell[] = [];
 
-  for (let node of nodes) {
+  for (const node of nodes) {
     if (node.type === "code") {
       const lang = node.lang;
       if (lang && lang !== "typescript" && lang !== "css") {

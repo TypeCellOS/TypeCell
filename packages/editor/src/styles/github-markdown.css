@@ -91,10 +91,10 @@
   }
   
   .markdown-body h1 {
-    font-size: 2em;
-    margin: .67em 0;
+    /* font-size: 2em; */
+    /* margin: .67em 0; */
   }
-  
+
   .markdown-body img {
     border-style: none;
   }
@@ -201,12 +201,13 @@
   .markdown-body h4,
   .markdown-body h5,
   .markdown-body h6 {
+    font-size:1em;
     margin-top: 0;
     margin-bottom: 0;
   }
   
   .markdown-body h1 {
-    font-size: 32px;
+    /* font-size: 32px; */
   }
   
   .markdown-body h1,
@@ -215,11 +216,12 @@
   }
   
   .markdown-body h2 {
-    font-size: 24px;
+    /* font-size: 24px; */
+    font-size:1em;
   }
   
   .markdown-body h3 {
-    font-size: 20px;
+    /* font-size: 20px; */
   }
   
   .markdown-body h3,
@@ -677,7 +679,7 @@
   }
   
   .markdown-body h1 {
-    font-size: 2em;
+    /* font-size: 2em; */
   }
   
   .markdown-body h1,
@@ -687,11 +689,11 @@
   }
   
   .markdown-body h2 {
-    font-size: 1.5em;
+    /* font-size: 1.5em; */
   }
   
   .markdown-body h3 {
-    font-size: 1.25em;
+    /* font-size: 1.25em; */
   }
   
   .markdown-body h4 {
@@ -984,4 +986,34 @@
   .markdown-body .task-list-item input {
     margin: 0 .2em .25em -1.6em;
     vertical-align: middle;
+  }
+
+/**
+Typecell / BlockNote
+**/
+  [data-level="1"] {
+    --level: 2.5em !important;
+  }
+  [data-level="2"] {
+    --level: 24px !important;
+  }
+  [data-level="3"] {
+    --level: 20px !important;
+  }
+  
+  [data-prev-level="1"] {
+    --prev-level: 2.5em !important;
+  }
+  [data-prev-level="2"] {
+    --prev-level: 24px !important;
+  }
+  [data-prev-level="3"] {
+    --prev-level: 20px !important;
+  }
+  .markdown-body p {
+    display: inline;
+  }
+
+  .markdown-body a {
+    cursor:pointer;
   }

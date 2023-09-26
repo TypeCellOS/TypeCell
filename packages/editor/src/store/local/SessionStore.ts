@@ -1,41 +1,47 @@
-import { MatrixClient } from "matrix-js-sdk";
-import { computed, makeObservable, observable, runInAction } from "mobx";
-import { arrays, lifecycle } from "vscode-lib";
-import { MatrixAuthStore } from "../../app/matrix-auth/MatrixAuthStore";
-import { MatrixClientPeg } from "../../app/matrix-auth/MatrixClientPeg";
-import { getUserFromMatrixId } from "../../util/userIds";
-
-const colors = [
-  "#958DF1",
-  "#F98181",
-  "#FBBC88",
-  "#FAF594",
-  "#70CFF8",
-  "#94FADB",
-  "#B9F18D",
-];
+import {
+  computed,
+  makeObservable,
+  observable,
+  reaction,
+  runInAction
+} from "mobx";
+import { lifecycle } from "vscode-lib";
+import { Identifier } from "../../identifiers/Identifier";
+import { BackgroundSyncer } from "../BackgroundSyncer";
+import { DocConnection } from "../DocConnection";
+import ProfileResource from "../ProfileResource";
+import { AliasCoordinator } from "../yjs-sync/AliasCoordinator";
+import { DocumentCoordinator } from "../yjs-sync/DocumentCoordinator";
 
 /**
  * The sessionStore keeps track of user related data
  * (e.g.: is the user logged in, what is the user name, etc)
  */
-export class SessionStore extends lifecycle.Disposable {
-  private initialized = false;
-  public userColor = arrays.getRandomElement(colors)!;
+export abstract class SessionStore extends lifecycle.Disposable {
+  public disposed = false;
+  public profileDoc: DocConnection | undefined = undefined;
+  public get profile() {
+    return this.profileDoc?.tryDoc?.getSpecificType(ProfileResource);
+  }
 
-  public user:
+  public abstract storePrefix: string;
+
+  public abstract userColor: string;
+
+  // MUST be implemented as Observable
+  public abstract user:
     | "loading"
     | "offlineNoUser"
     | {
         type: "guest-user";
-        matrixClient: MatrixClient;
       }
     | {
-        type: "matrix-user";
+        type: "user";
         fullUserId: string;
         userId: string;
-        matrixClient: MatrixClient;
-      } = "loading";
+        profileId: string;
+        isSignUp: boolean;
+      };
 
   /**
    * returns a logged in user or a guest user when available
@@ -46,115 +52,143 @@ export class SessionStore extends lifecycle.Disposable {
   }
 
   /**
-   * returns true if the user is logged in to his own matrix identity.
+   * returns true if the user is logged in to his / her own identity.
    * returns false if only a guest user or no user is available.
    *
-   * Note that this definition of loggedin is different than in the Matrix-related code,
-   * in Matrix code (e.g. MatrixAuthStore.loggedIn), a guest user is also considered logged in ("as guest")
+   * MUST be implemented as Observable (computed)
    */
-  public get isLoggedIn() {
-    return typeof this.user !== "string" && this.user.type === "matrix-user";
-  }
+  public abstract get isLoggedIn(): boolean;
+
+  public abstract get isLoaded(): boolean;
 
   /**
    * Returns the userId (e.g.: @bret) when logged in, undefined otherwise
    */
-  public get loggedInUserId() {
-    return typeof this.user !== "string" && this.user.type === "matrix-user"
-      ? this.user.userId
-      : undefined;
-  }
+  public abstract get loggedInUserId(): string | undefined;
 
-  public logout = async () => {
-    if (!this.isLoggedIn) {
-      throw new Error("can't logout when not logged in");
-    }
-    await this.matrixAuthStore.logout();
+  public abstract logout: () => Promise<void>;
 
-    // after logging out, call initialize() to sign in as a guest
-    await this.matrixAuthStore.initialize(true);
-  };
+  public abstract initialize(): Promise<void>;
 
-  constructor(private matrixAuthStore: MatrixAuthStore) {
+  public abstract getIdentifierForNewDocument(): Identifier;
+
+  constructor(private loadProfile = true) {
     super();
     makeObservable(this, {
-      user: observable.ref,
-      isLoggedIn: computed,
+      documentCoordinator: computed,
+      aliasCoordinator: computed,
+      userPrefix: computed,
+      coordinators: observable.ref,
+      profileDoc: observable.ref,
+      profile: computed,
     });
   }
 
-  // TODO: should be a reaction to prevent calling twice?
-  public async enableGuest() {
-    if (!this.initialized) {
-      throw new Error(
-        "enableGuest should only be called after being initialized"
-      );
-    }
+  protected initializeReactions() {
+    const dispose = reaction(
+      () => this.userPrefix,
+      () => {
+        // console.log(new Date(), "change coordinators", this.userPrefix, "\n\n");
+        const userPrefix = this.userPrefix;
+        if (this.coordinators?.userPrefix === userPrefix) {
+          return;
+        }
 
-    if (this.user === "offlineNoUser") {
-      await this.matrixAuthStore.initialize(true);
-    }
-  }
+        this.coordinators?.coordinator.dispose();
+        this.coordinators?.aliasStore.dispose();
+        this.coordinators?.backgroundSyncer?.dispose();
+        runInAction(() => {
+          this.coordinators = undefined;
+          this.profileDoc?.dispose();
+          this.profileDoc = undefined;
+        });
 
-  public async initialize() {
-    if (this.initialized) {
-      throw new Error("initialize() called when already initialized");
-    }
-    try {
-      // returns true when:
-      // - successfully created / restored a user (or guest)
-      // returns false when:
-      // - failed restore / create user (e.g.: wanted to register a guest, but offline)
-      // throws error when:
-      // - unexpected
-      await this.matrixAuthStore.initialize(false);
-      // catch future login state changes triggered by the sdk
-      this._register(
-        this.matrixAuthStore.onLoggedInChanged(() => {
-          this.updateStateFromAuthStore().catch((e) => {
-            console.error("error initializing sessionstore", e);
+        if (!userPrefix) {
+          return;
+        }
+
+        
+
+        (async () => {
+          // await when(() => this.initializingCoordinators === false);
+          if (this.disposed) {
+            throw new Error("already disposed");
+          }
+          const user = this.user;
+          const coordinator = new DocumentCoordinator(userPrefix);
+          const coordinators = {
+            userPrefix,
+            coordinator: coordinator,
+            aliasStore: new AliasCoordinator(userPrefix),
+            backgroundSyncer:
+              typeof user !== "string" && user.type !== "guest-user"
+                ? new BackgroundSyncer(coordinator, this)
+                : undefined,
+          };
+          await coordinators.coordinator.initialize();
+
+          if (typeof user !== "string" && user.type === "user" && user.isSignUp) {
+            await coordinators.coordinator.copyFromGuest();
+          }
+
+          await coordinators.aliasStore.initialize();
+          await coordinators.backgroundSyncer?.initialize();
+          runInAction(() => {
+            if (this.userPrefix === userPrefix && !this.disposed) {
+              this.coordinators = coordinators;
+              if (typeof user !== "string" && user.type === "user") {
+                this.profileDoc = this.loadProfile
+                  ? DocConnection.load(user.profileId, this)
+                  : undefined;
+              }
+            } else {
+              coordinators.aliasStore.dispose();
+              coordinators.coordinator.dispose();
+              coordinators.backgroundSyncer?.dispose();
+            }
           });
-        })
-      );
-      this.updateStateFromAuthStore();
+        })();
+      },
+      { fireImmediately: true }
+    );
 
-      this.initialized = true;
-    } catch (err) {
-      // keep state as "loading"
-      console.error("error loading session from matrix", err);
-    }
+    this._register({
+      dispose,
+    });
+
+    this._register({
+      dispose: () => {
+        this.disposed = true;
+        this.coordinators?.coordinator.dispose();
+        this.coordinators?.aliasStore.dispose();
+        this.coordinators?.backgroundSyncer?.dispose();
+        this.profileDoc?.dispose();
+      },
+    });
   }
 
-  /**
-   * Updates the state of sessionStore based on the internal matrixAuthStore.loggedIn
-   */
-  private async updateStateFromAuthStore() {
-    if (this.matrixAuthStore.loggedIn) {
-      const matrixClient = MatrixClientPeg.get();
+  public get userPrefix() {
+    return typeof this.user === "string"
+      ? undefined
+      : this.user.type === "guest-user"
+      ? `user-${this.storePrefix}-guest`
+      : `user-${this.storePrefix}-${this.user.fullUserId}`;
+  }
 
-      if (matrixClient.isGuestAccount) {
-        runInAction(() => {
-          this.user = {
-            type: "guest-user",
-            matrixClient,
-          };
-        });
-      } else {
-        // signed in as a real user
-        runInAction(() => {
-          this.user = {
-            type: "matrix-user",
-            matrixClient,
-            userId: getUserFromMatrixId(matrixClient.getUserId() as string)
-              .localUserId,
-            fullUserId: matrixClient.getUserId(), // TODO: nicer to remove make userId represent the full matrix id instead of having a separate property
-          };
-        });
+  public coordinators:
+    | {
+        userPrefix: string;
+        coordinator: DocumentCoordinator;
+        aliasStore: AliasCoordinator;
+        backgroundSyncer?: BackgroundSyncer;
       }
-    } else {
-      runInAction(() => {
-        this.user = "offlineNoUser";
-      });
-    }
+    | undefined = undefined;
+
+  public get documentCoordinator() {
+    return this.coordinators?.coordinator;
+  }
+
+  public get aliasCoordinator() {
+    return this.coordinators?.aliasStore;
   }
 }

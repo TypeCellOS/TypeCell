@@ -1,83 +1,71 @@
+import { ChildReference, IndexFileReference } from "@typecell-org/shared";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import {
-  Route,
-  Routes,
-  useLocation,
-  useOutletContext,
-  useParams,
-} from "react-router-dom";
-import { path } from "vscode-lib";
 import { parseIdentifier } from "../../../identifiers";
 import { Identifier } from "../../../identifiers/Identifier";
 import ProjectResource from "../../../store/ProjectResource";
+import { SessionStore } from "../../../store/local/SessionStore";
 import DocumentView from "../DocumentView";
 import ProjectContainer from "./ProjectContainer";
+
+import EmptyState from "@atlaskit/empty-state";
 
 type Props = {
   project: ProjectResource;
   isNested?: boolean;
+  subIdentifiers: Identifier[];
+  sessionStore: SessionStore;
 };
 
-const NestedDocument = (props: { parent: Identifier }) => {
-  const params = useParams();
-  const sub = params["*"] as string;
-
-  const newIdStr = path.join(props.parent.toString(), "/:/", sub);
-  const documentIdentifier = parseIdentifier(
-    parseIdentifier(newIdStr).fullUriOfSubPath()!.toString()
-  );
-  return <DocumentView id={documentIdentifier} isNested={true} />;
-};
-
-const RootDirectory = (props: {}) => {
-  const defaultDoc = (useOutletContext() as any)?.defaultFileContent as any;
-  return defaultDoc || <></>;
-};
-
-// const Debug = (props: { children: any }) => {
-//   const params = useParams();
-//   return (
-//     <div>
-//       <div>params: {JSON.stringify(params)}</div>
-//       {props.children}
-//     </div>
-//   );
+// const RootDirectory = () => {
+//   return <div>hello</div>;
+//   // const defaultDoc = (useOutletContext() as any)?.defaultFileContent as any;
+//   // return defaultDoc || <></>;
 // };
-const ProjectRenderer: React.FC<Props> = observer((props) => {
-  // const fileSet = useRef(new ObservableSet<string>());
-  const identifier = props.project.identifier;
-  const path = useLocation();
 
-  const subPath = (useParams() as any).subPath;
-  if (subPath) {
-    throw new Error("unexpected");
+const ProjectRenderer: React.FC<Props> = observer((props) => {
+  let [childId, ...remainingIds] = props.subIdentifiers;
+
+  if (!childId) {
+    const indexFile = props.project.getRefs(IndexFileReference);
+    if (indexFile.length) {
+      childId = parseIdentifier(indexFile[0].target);
+      remainingIds = [];
+    }
   }
 
-  const isDocs = path.pathname.startsWith("/docs");
-  const rootPath = isDocs ? "docs" : identifier.toString();
+  if (!childId) {
+    const children = props.project.getRefs(ChildReference);
+    if (children.length) {
+      childId = parseIdentifier(children[0].target);
+      remainingIds = [];
+    }
+  }
 
   return (
-    <Routes>
-      <Route
-        path={rootPath}
-        element={<ProjectContainer project={props.project} />}>
-        <Route index element={<RootDirectory />} />
-        {isDocs ? (
-          <Route path="*" element={<NestedDocument parent={identifier} />} />
-        ) : (
-          <Route path=":/*" element={<NestedDocument parent={identifier} />} />
-        )}
-      </Route>
-      {/* <Route
-        path="*"
-        element={
-          <Debug>
-            errorsdf {rootPath} {path.pathname} {identifier.toRouteString()}
-          </Debug>
-        }
-      /> */}
-    </Routes>
+    <ProjectContainer
+      project={props.project}
+      activeChild={childId}
+      sessionStore={props.sessionStore}>
+      {childId ? (
+        <DocumentView
+          id={childId}
+          isNested={true}
+          subIdentifiers={remainingIds}
+          sessionStore={props.sessionStore}
+        />
+      ) : (
+        <div>
+          <EmptyState
+            header="No page found yet!"
+            description="Add a page using the sidebar on the left-hand side."
+            // primaryAction={<Button appearance="primary">Request access</Button>}
+            // secondaryAction={<Button>View permissions</Button>}
+            // tertiaryAction={<Button appearance="link">Learn more</Button>}
+          />
+        </div>
+      )}
+    </ProjectContainer>
   );
 });
 

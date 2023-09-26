@@ -1,7 +1,5 @@
 import { uri } from "vscode-lib";
-import { Identifier, stringWithoutInitialSlash } from "./Identifier";
-
-const DEFAULT_AUTHORITY = "mx.typecell.org";
+import { Identifier } from "./Identifier";
 
 export class MatrixIdentifier extends Identifier {
   public static schemes = ["mx"];
@@ -9,14 +7,12 @@ export class MatrixIdentifier extends Identifier {
   public readonly document: string;
 
   constructor(uriToParse: uri.URI, title?: string) {
-    let [identifier, subPath] = stringWithoutInitialSlash(
-      uriToParse.path
-    ).split("/:/", 2);
-    identifier = identifier.toLowerCase().trim();
-    const parts = identifier.split("/");
-    if (parts.length !== 2) {
+    const parts = uriToParse.path.split("/");
+
+    if (parts.length !== 3 || parts[0] !== "") {
       throw new Error("invalid identifier");
     }
+    parts.shift();
 
     // TODO: validate parts, lowercase, alphanumeric?
     const [owner, document] = parts;
@@ -30,30 +26,21 @@ export class MatrixIdentifier extends Identifier {
     ) {
       throw new Error("invalid identifier");
     }
+
     // call super to drop fragment, query, and make sure path is lowercase
     super(
       MatrixIdentifier.schemes,
       uri.URI.from({
         scheme: uriToParse.scheme,
-        authority: uriToParse.authority || DEFAULT_AUTHORITY,
+        authority: uriToParse.authority,
         path: "/" + owner + "/" + document,
-      }),
-      subPath,
-      title
+      })
     );
-    this.owner = owner;
+    this.owner = owner.substring(1);
     this.document = document;
   }
 
   public get roomName() {
-    return this.owner + "/" + this.document;
-  }
-
-  public get defaultURI() {
-    return this.uri.authority === DEFAULT_AUTHORITY
-      ? this.uri.with({
-          authority: null,
-        })
-      : this.uri;
+    return "@" + this.owner + "/" + this.document;
   }
 }

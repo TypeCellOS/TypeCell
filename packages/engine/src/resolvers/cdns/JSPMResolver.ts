@@ -9,19 +9,19 @@ export class JSPMResolver extends ExternalModuleResolver {
     const prefix = "https://jspm.dev/";
     if (url.startsWith(prefix)) {
       url = url.substring(prefix.length - 1);
-      let mode: string | undefined;
-      let matches = url.match(/^\/npm:(.*)$/);
+      // let mode: string | undefined;
+      const matches = url.match(/^\/npm:(.*)$/);
       if (!matches || !matches[1]) {
         throw new Error("couldn't match url");
       }
       const matchedModuleName = matches[1];
 
       // mode is necessary for jsx-runtime, e.g.: @yousef/use-p2
-      mode = undefined; //matches[3];
+      // mode = undefined; //matches[3];
 
       return {
         module: matchedModuleName,
-        mode,
+        mode: undefined,
       };
     }
     return undefined;

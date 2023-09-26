@@ -1,0 +1,79 @@
+{
+  "name": "@typecell-org/frame",
+  "version": "0.0.3",
+  "private": true,
+  "dependencies": {
+    "@blocknote/core": "^0.9.3",
+    "@blocknote/react": "^0.9.3",
+    "@typecell-org/util": "^0.0.3",
+    "@typecell-org/shared": "^0.0.3",
+    "@typecell-org/engine": "^0.0.3",
+    "@tiptap/core": "^2.0.4",
+    "@tiptap/react": "^2.0.4",
+    "@floating-ui/react": "^0.25.1",
+    "@syncedstore/yjs-reactive-bindings": "^0.5.1",
+    "localforage": "^1.10.0",
+    "lz-string": "^1.4.4",
+    "monaco-editor": "^0.35.0",
+    "mobx": "^6.2.0",
+    "mobx-react-lite": "^3.2.0",
+    "prosemirror-model": "^1.19.3",
+    "prosemirror-view": "^1.31.7",
+    "prosemirror-state": "^1.4.3",
+    "prosemirror-keymap": "^1.2.2",
+    "penpal": "^6.1.0",
+    "prettier": "^3.0.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.6.0",
+    "react-inspector": "^6.0.1",
+    "typescript": "5.0.4",
+    "vscode-lib": "^0.1.2",
+    "y-protocols": "^1.0.5",
+    "y-websocket": "^1.5.0",
+    "yjs": "^13.6.4"
+  },
+  "devDependencies": {
+    "cross-fetch": "^4.0.0",
+    "typescript": "5.0.4",
+    "@playwright/test": "^1.33.0",
+    "playwright-test": "^12.1.1",
+    "vitest": "^0.33.0",
+    "jsdom": "^22.1.0",
+    "@vitest/coverage-v8": "^0.33.0",
+    "@vitejs/plugin-react": "^4.1.0",
+    "@types/prettier": "^3.0.0",
+    "chai": "^4.3.7"
+  },
+  "type": "module",
+  "source": "src/index.ts",
+  "types": "./types/src/index.d.ts",
+  "main": "./dist/typecell-frame.umd.cjs",
+  "module": "./dist/typecell-frame.js",
+  "exports": {
+    ".": {
+      "types": "./types/src/index.d.ts",
+      "import": "./dist/typecell-frame.js",
+      "require": "./dist/typecell-frame.umd.cjs"
+    },
+    "./style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  },
+  "scripts": {
+    "clean": "rimraf dist && rimraf types",
+    "build": "npm run clean && tsc -p tsconfig.json && vite build",
+    "build:react": "vite build",
+    "watch": "tsc --watch",
+    "unittest:vitest": "vitest run --coverage",
+    "unittest:playwright": "playwright-test '**/*.browsertest.ts' --runner mocha",
+    "test": "npm run unittest:vitest && npm run unittest:playwright",
+    "lint": "eslint src"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../shared/.eslintrc.cjs"
+    ]
+  }
+}

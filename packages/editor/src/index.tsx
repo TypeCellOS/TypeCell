@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import ReactDOM from "react-dom";
 import reportWebVitals from "./reportWebVitals";
@@ -31,7 +32,9 @@ init();
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - for React-based plugins
 window.react = React;
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - for React-based plugins
 window.reactDOM = ReactDOM;

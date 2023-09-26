@@ -1,0 +1,54 @@
+body {
+  overflow: visible;
+}
+
+.select {
+  caret-color: transparent;
+}
+
+.remove {
+  display: inline-block;
+  height: 2.5rem;
+  background: #005cc5;
+}
+
+.userRow {
+  display: flex;
+  height: 2.5rem;
+  align-items: center;
+  column-gap: 0.5rem;
+  flex-direction: row;
+}
+
+.pickerContainer,
+.userInfo {
+  flex: 4;
+  height: 2.5rem;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  column-gap: 0.5rem;
+}
+
+.restrictionSelect {
+  flex: 1;
+  min-width: 120px;
+}
+
+.restrictionSelect > div {
+  height: 100%;
+}
+
+.addButton,
+.removeButton {
+  flex: 1;
+  min-width: 100px;
+  height: 100% !important;
+  line-height: 2.5rem !important;
+}
+
+.body > * {
+  margin-bottom: 0.5rem;
+}

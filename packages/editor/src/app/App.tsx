@@ -1,69 +1,83 @@
 import { observer } from "mobx-react-lite";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { getStoreService } from "../store/local/stores";
-import { AILanding } from "./main/components/startscreen/AILanding";
-import { StartScreen } from "./main/components/startscreen/StartScreen";
-import Main from "./main/Main";
-import { ValidatedServerConfig } from "./matrix-auth/auth/util/AutoDiscoveryUtils";
-import { DocumentRoute } from "./routes/document";
-import { DynamicRoute } from "./routes/dynamic";
-import { Login } from "./routes/login";
-import { ProfileRoute } from "./routes/profile";
-import { Register } from "./routes/register";
+import {
+  BrowserRouter,
+  Outlet,
+  Route,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
+import { SessionStore } from "../store/local/SessionStore";
 
-export const App = observer((props: { config: ValidatedServerConfig }) => {
-  console.log("app render");
-  const { sessionStore } = getStoreService();
-  if (sessionStore.user === "loading") {
+import { navigateRef, setNavigateRef } from "./GlobalNavigateRef";
+import Main from "./main/Main";
+import { StartScreen } from "./main/components/startscreen/StartScreen";
+import { DocumentRoute } from "./routes/document";
+import { SupabaseSessionStore } from "./supabase-auth/SupabaseSessionStore";
+import { supabaseAuthProvider } from "./supabase-auth/supabaseAuthProvider";
+const Wrapper = observer((props: { sessionStore: SessionStore }) => {
+  const navigate = useNavigate();
+
+  if (!navigateRef.current) {
+    setNavigateRef(navigate);
+  }
+
+  if (!props.sessionStore.isLoaded) {
     return <div>Loading</div>;
     // } else if (sessionStore.user === "offlineNoUser") {
     // return <div>Offline</div>;
   } else {
+    return <Outlet />;
+  }
+});
+
+export const App = observer(
+  (props: {
+    authProvider: typeof supabaseAuthProvider;
+    sessionStore: SessionStore;
+  }) => {
+    console.log("app render");
+    const { sessionStore } = props;
     return (
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Main />}>
-            <Route path="@:userParam" element={<ProfileRoute />}></Route>
+          <Route element={<Wrapper sessionStore={sessionStore} />}>
+            <Route path="/" element={<Main sessionStore={sessionStore} />}>
+              <Route
+                index
+                element={
+                  <StartScreen sessionStore={sessionStore}></StartScreen>
+                }></Route>
+              <Route
+                path="/home"
+                element={
+                  <StartScreen sessionStore={sessionStore}></StartScreen>
+                }></Route>
+
+              <Route
+                path="*"
+                element={<DocumentRoute sessionStore={sessionStore} />}
+              />
+            </Route>
             <Route
-              path="@:userParam/:documentParam"
-              element={<DocumentRoute />}></Route>
-            <Route index element={<StartScreen></StartScreen>}></Route>
-            <Route path="/ai" element={<AILanding />} />
-            <Route path="*" element={<DynamicRoute />} />
+              path="/register"
+              element={props.authProvider.routes.register(
+                sessionStore as SupabaseSessionStore,
+              )}
+            />
+            <Route
+              path="/login"
+              element={props.authProvider.routes.login(
+                sessionStore as SupabaseSessionStore,
+              )}
+            />
+            {props.authProvider.routes.additionalRoutes(
+              sessionStore as SupabaseSessionStore,
+            )}
+            {/* todo: notfound?  */}
           </Route>
-          <Route
-            path="/register"
-            element={<Register config={props.config} />}
-          />
-          <Route path="/recover" element={<div>Not implemented yet</div>} />
-          <Route path="/login" element={<Login config={props.config} />} />
-          {/* todo: notfound?  */}
         </Routes>
       </BrowserRouter>
     );
-  }
-});
+  },
+);
 export default App;
-
-//   // Before we continue, let's see if we're supposed to do an SSO redirect
-//   const [userId] = await Lifecycle.getStoredSessionOwner();
-//   const hasPossibleToken = !!userId;
-//   const isReturningFromSso = !!params.loginToken;
-//   const autoRedirect = config["sso_immediate_redirect"] === true;
-//   if (!hasPossibleToken && !isReturningFromSso && autoRedirect) {
-//     console.log("Bypassing app load to redirect to SSO");
-//     const tempCli = createClient({
-//       baseUrl: config["validated_server_config"].hsUrl,
-//       idBaseUrl: config["validated_server_config"].isUrl,
-//     });
-//     PlatformPeg.get().startSingleSignOn(
-//       tempCli,
-//       "sso",
-//       `/${getScreenFromLocation(window.location).screen}`
-//     );
-
-//     // We return here because startSingleSignOn() will asynchronously redirect us. We don't
-//     // care to wait for it, and don't want to show any UI while we wait (not even half a welcome
-//     // page). As such, just don't even bother loading the MatrixChat component.
-//     return;
-//   }

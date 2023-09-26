@@ -1,1 +1,12 @@
-["demos.md","interactive-introduction.md","manual/1. Notebooks and cells.md","manual/2. TypeScript and exports.md","manual/3. Reactive variables.md","manual/4. Inputs.md","manual/5. Imports and NPM.md","manual/6. Collaboration.md","README.md"]
+{
+  "title": "Docs",
+  "items": [
+    "Live coding tutorial.md",
+    "manual/1. Blocks and code blocks.md",
+    "manual/2. TypeScript and exports.md",
+    "manual/3. Reactive variables.md",
+    "manual/4. Inputs.md",
+    "manual/5. Imports and NPM.md",
+    "README.md"
+  ]
+}

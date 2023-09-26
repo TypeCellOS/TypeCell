@@ -7,48 +7,55 @@ import { observer } from "mobx-react-lite";
 import Avatar from "react-avatar";
 import { useNavigate } from "react-router-dom";
 import { SessionStore } from "../../../store/local/SessionStore";
-import { getStoreService } from "../../../store/local/stores";
-import { OpenNewPageDialog } from "../../routes/routes";
+import { toProfilePage } from "../../routes/routes";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Trigger = observer((props: any) => {
+  const { triggerRef, isSelected, testId, ...passProps } = props;
+  return (
+    <Profile
+      testId="profile-button"
+      icon={
+        <Avatar
+          name={props.sessionStore.loggedInUserId}
+          src={props.sessionStore.profile?.avatar_url || undefined}
+          size="32"
+          round={true}
+          textSizeRatio={2}
+        />
+      }
+      ref={triggerRef}
+      {...passProps}
+      // icon={<img alt="" style={imgCSS} src={""} />}
+      tooltip=""
+    />
+  );
+});
 
 export const ProfilePopup = observer(
   (props: { sessionStore: SessionStore }) => {
     const navigate = useNavigate();
-    const navigationStore = getStoreService().navigationStore;
 
     /* TODO: props.authStore.user!.firebase.photoURL! */
     return (
       <DropdownMenu
-        trigger={(props) => {
-          const { triggerRef, isSelected, testId, ...passProps } = props;
-          return (
-            <Profile
-              testId="profile-button"
-              icon={
-                <Avatar
-                  name={getStoreService().sessionStore.loggedInUserId?.substring(
-                    1
-                  )}
-                  size="32"
-                  round={true}
-                  textSizeRatio={2}
-                />
-              }
-              ref={props.triggerRef}
-              {...passProps}
-              // icon={<img alt="" style={imgCSS} src={""} />}
-              tooltip=""
-            />
-          );
-        }}
+        spacing="compact"
+        trigger={(innerProps) => (
+          <Trigger {...innerProps} sessionStore={props.sessionStore} />
+        )}
         placement="bottom-end">
-        <DropdownItem onClick={() => OpenNewPageDialog(navigate)}>
+        {/* <DropdownItem onClick={() => OpenNewPageDialog(navigate)}>
           New page
-        </DropdownItem>
-        {navigationStore.menuPortalChildren.map((c) => c.children)}
-        <DropdownItemGroup title={props.sessionStore.loggedInUserId!}>
-          {" "}
+        </DropdownItem> */}
+        <DropdownItemGroup
+          title={"@" + props.sessionStore.loggedInUserId || ""}>
           {/* @${props.authStore.user?.username} */}
-          {/* <DropdownItem>Profile</DropdownItem> */}
+          <DropdownItem
+            onClick={() => {
+              navigate(toProfilePage("@" + props.sessionStore.loggedInUserId));
+            }}>
+            Profile
+          </DropdownItem>
           {/* <DropdownItem>Account settings</DropdownItem> */}
           <DropdownItem onClick={props.sessionStore.logout}>
             Sign out
@@ -56,5 +63,5 @@ export const ProfilePopup = observer(
         </DropdownItemGroup>
       </DropdownMenu>
     );
-  }
+  },
 );

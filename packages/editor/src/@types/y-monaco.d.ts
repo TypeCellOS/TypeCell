@@ -6,6 +6,7 @@ declare module "y-monaco" {
       ytext: Y.Text,
       model: monaco.editor.ITextModel,
       editors?: Set<monaco.editor.IStandaloneCodeEditor>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       awareness?: any
     );
     destroy();
