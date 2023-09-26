@@ -57,7 +57,8 @@ typecell
 │   ├── server        - HocusPocus + Supabase server for storing documents
 │   ├── shared        - TypeCell specific models shared across the codebase
 │   ├── shared-test   - Helper functions shared across the codebase for unit tests
-│   └── util          - Generic helper functions
+│   ├── util          - Generic helper functions
+│   └── y-penpal      - yjs transport for crossdomain / crossframe communication
 ├── patches           - patch-package patches
 └── test-util         - Data for unit tests
 ```

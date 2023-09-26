@@ -3,16 +3,21 @@
  */
 export type IframeBridgeMethods = {
   /**
+   * Function for y-penpal
+   */
+  processYjsMessage: (message: ArrayBuffer) => Promise<void>;
+
+  /**
    * Functions to update javascript code models
    */
   updateModels: (
     bridgeId: string,
-    models: { modelId: string; model: { value: string; language: string } }[]
+    models: { modelId: string; model: { value: string; language: string } }[],
   ) => Promise<void>;
   updateModel: (
     bridgeId: string,
     modelId: string,
-    model: { value: string; language: string }
+    model: { value: string; language: string },
   ) => Promise<void>;
   deleteModel: (bridgeId: string, modelId: string) => Promise<void>;
 
