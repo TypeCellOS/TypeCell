@@ -3,9 +3,16 @@ import { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SessionStore } from "../../../../store/local/SessionStore";
 // import { NotebookOverviewItem } from "../../../matrix-auth/routes/overview/NotebookOverviewItem";
-import { toDocs, toRegisterScreen, toTutorial } from "../../../routes/routes";
+import {
+  toDocs,
+  toLoginScreen,
+  toRegisterScreen,
+  toTutorial,
+} from "../../../routes/routes";
 import styles from "./StartScreen.module.css";
-import intro from "./assets/intro.gif";
+import confettiVideo from "./assets/video/confetti.mp4";
+import savingsVideo from "./assets/video/savings.mp4";
+import welcomeVideo from "./assets/video/welcome.mp4";
 
 export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
   const { sessionStore } = props;
@@ -49,7 +56,10 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
         </div>
         <div className={styles.headerMedia}>
           <div className={styles.code_block}>
-            <img src={intro} alt="TypeCell Demo" />
+            <video autoPlay={true} loop={true} muted={true}>
+              <source src={welcomeVideo} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </div>
         </div>
       </header>
@@ -57,7 +67,14 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
         <section className={styles.storySection + " " + styles.uneven}>
           <div className={styles.content + " " + styles.story}>
             <div className={""}>
-              <img src={intro} alt="TypeCell Demo" />
+              <video
+                autoPlay={true}
+                loop={true}
+                muted={true}
+                style={{ maxWidth: "85%" }}>
+                <source src={savingsVideo} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             </div>
             <div className={""}>
               <h4>Break-free from your tools with hackable software</h4>
@@ -128,7 +145,7 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
         </section>
 
         <div className={styles.section_separator} role="separator"></div>
-        <section className={styles.storySection + " " + styles.sdf}>
+        <section className={styles.storySection}>
           <div className={styles.content + " " + styles.story}>
             <div className={""}>
               <h4>Simplify the programming experience</h4>
@@ -142,7 +159,10 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
               </p>
             </div>
             <div className={""}>
-              <img src={intro} alt="TypeCell Demo" />
+              <video autoPlay={true} loop={true} muted={true}>
+                <source src={confettiVideo} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             </div>
           </div>
 
@@ -174,29 +194,33 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
         </section>
 
         <div className={styles.section_separator} role="separator"></div>
-        <section className={styles.storySection + " " + styles.sdf}>
+        <section className={styles.storySection + " " + styles.uneven}>
           <div className={styles.content + " " + styles.story}>
-            <div className={""}>
-              <a
-                href="https://discord.gg/TcJ9TRC3SV"
-                target="_blank"
-                rel="noreferrer">
-                <img
-                  style={{ borderRadius: "5px" }}
-                  alt="Discord"
-                  src="https://img.shields.io/badge/Join us on discord%20-%237289DA.svg?style=for-the-badge&logo=discord&logoColor=white"
-                />
-              </a>
-              <a
-                href="https://github.com/typecellOS/typecell"
-                target="_blank"
-                rel="noreferrer">
-                <img
-                  style={{ borderRadius: "5px" }}
-                  alt="GitHub"
-                  src="https://img.shields.io/badge/Star on GitHub%20-%23eeeeee.svg?style=for-the-badge&logo=github&logoColor=black"
-                />
-              </a>
+            <div className={""} style={{ textAlign: "center" }}>
+              <p>
+                <a
+                  href="https://discord.gg/TcJ9TRC3SV"
+                  target="_blank"
+                  rel="noreferrer">
+                  <img
+                    style={{ borderRadius: "5px" }}
+                    alt="Discord"
+                    src="https://img.shields.io/badge/Join us on discord%20-%237289DA.svg?style=for-the-badge&logo=discord&logoColor=white"
+                  />
+                </a>
+              </p>
+              <p>
+                <a
+                  href="https://github.com/typecellOS/typecell"
+                  target="_blank"
+                  rel="noreferrer">
+                  <img
+                    style={{ borderRadius: "5px" }}
+                    alt="GitHub"
+                    src="https://img.shields.io/badge/Star on GitHub%20-%23eeeeee.svg?style=for-the-badge&logo=github&logoColor=black"
+                  />
+                </a>
+              </p>
             </div>
             <div className={""}>
               <h4>Join the TypeCell community</h4>
@@ -320,7 +344,7 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
                   <span>Tutorial</span>
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link to={toTutorial()}>
                   <span>Manual</span>
                 </Link>
@@ -329,19 +353,19 @@ export const StartScreen = observer((props: { sessionStore: SessionStore }) => {
                 <Link to={toTutorial()}>
                   <span>Demos</span>
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
           <div className={styles.links}>
             <h4>Get started</h4>
             <ul>
               <li>
-                <Link to={toTutorial()}>
+                <Link to={toRegisterScreen()}>
                   <span>Create account</span>
                 </Link>
               </li>
               <li>
-                <Link to={toDocs()}>
+                <Link to={toLoginScreen()}>
                   <span>Login</span>
                 </Link>
               </li>
