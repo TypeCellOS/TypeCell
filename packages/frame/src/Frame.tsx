@@ -13,16 +13,6 @@ import {
   getDefaultReactSlashMenuItems,
   useBlockNote,
 } from "@blocknote/react";
-import * as mobx from "mobx";
-import ReactDOM from "react-dom";
-import * as Y from "yjs";
-import { MonacoBlockContent } from "./MonacoBlockContent";
-import { RichTextContext } from "./RichTextContext";
-import SourceModelCompiler from "./runtime/compiler/SourceModelCompiler";
-import { MonacoContext } from "./runtime/editor/MonacoContext";
-import { ExecutionHost } from "./runtime/executor/executionHosts/ExecutionHost";
-import LocalExecutionHost from "./runtime/executor/executionHosts/local/LocalExecutionHost";
-
 import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
 import { ReactiveEngine } from "@typecell-org/engine";
 import {
@@ -32,10 +22,19 @@ import {
   ModelReceiver,
 } from "@typecell-org/shared";
 import { useResource } from "@typecell-org/util";
+import { PenPalProvider } from "@typecell-org/y-penpal";
+import * as mobx from "mobx";
 import * as monaco from "monaco-editor";
 import { AsyncMethodReturns, connectToParent } from "penpal";
-import { WebsocketProvider } from "y-websocket";
+import ReactDOM from "react-dom";
+import * as Y from "yjs";
 import styles from "./Frame.module.css";
+import { MonacoBlockContent } from "./MonacoBlockContent";
+import { RichTextContext } from "./RichTextContext";
+import SourceModelCompiler from "./runtime/compiler/SourceModelCompiler";
+import { MonacoContext } from "./runtime/editor/MonacoContext";
+import { ExecutionHost } from "./runtime/executor/executionHosts/ExecutionHost";
+import LocalExecutionHost from "./runtime/executor/executionHosts/local/LocalExecutionHost";
 
 import { setMonacoDefaults } from "./runtime/editor";
 
@@ -92,8 +91,46 @@ export const Frame: React.FC<Props> = observer((props) => {
   const modelReceivers = useMemo(() => new Map<string, ModelReceiver>(), []);
   const connectionMethods = useRef<AsyncMethodReturns<HostBridgeMethods>>();
 
+  const document = useResource(() => {
+    const ydoc = new Y.Doc();
+    // ydoc.on("update", () => {
+    //   console.log("frame ydoc", ydoc.toJSON());
+    // });
+    const provider = new PenPalProvider(
+      ydoc,
+      (buf, _provider) => {
+        connectionMethods.current?.processYjsMessage(buf);
+      },
+      undefined,
+      false,
+    );
+
+    const colorManager = new MonacoColorManager(
+      provider.awareness,
+      props.userName,
+      props.userColor,
+      monacoStyles.yRemoteSelectionHead,
+      monacoStyles.yRemoteSelection,
+    );
+
+    return [
+      {
+        provider,
+        awareness: provider.awareness,
+        ydoc,
+      },
+      () => {
+        provider.destroy();
+        colorManager.dispose();
+      },
+    ];
+  }, []);
+
   useEffect(() => {
     const methods: IframeBridgeMethods = {
+      processYjsMessage: async (message: ArrayBuffer) => {
+        document.provider.onMessage(message, "penpal");
+      },
       updateModels: async (
         bridgeId: string,
         models: {
@@ -140,42 +177,13 @@ export const Frame: React.FC<Props> = observer((props) => {
       (parent) => {
         console.info("connected to parent window succesfully");
         connectionMethods.current = parent;
+        document.provider.connect();
       },
       (e) => {
         console.error("connection to parent window failed", e);
       },
     );
-  }, [modelReceivers]);
-
-  const document = useResource(() => {
-    const ydoc = new Y.Doc();
-    // ydoc.on("update", () => {
-    //   console.log("frame ydoc", ydoc.toJSON());
-    // });
-    const provider = new WebsocketProvider("", props.roomName, ydoc, {
-      connect: false,
-    });
-    const colorManager = new MonacoColorManager(
-      provider.awareness,
-      props.userName,
-      props.userColor,
-      monacoStyles.yRemoteSelectionHead,
-      monacoStyles.yRemoteSelection,
-    );
-    provider.connectBc();
-
-    return [
-      {
-        provider,
-        awareness: provider.awareness,
-        ydoc,
-      },
-      () => {
-        provider.destroy();
-        colorManager.dispose();
-      },
-    ];
-  }, []);
+  }, [modelReceivers, document]);
 
   const tools = useResource(
     // "compilers",

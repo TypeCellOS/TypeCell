@@ -12,4 +12,9 @@ export type HostBridgeMethods = {
    */
   registerTypeCellModuleCompiler: (moduleName: string) => Promise<string>;
   unregisterTypeCellModuleCompiler: (moduleName: string) => Promise<void>;
+
+  /**
+   * Function for y-penpal
+   */
+  processYjsMessage: (message: Uint8Array) => Promise<void>;
 };
