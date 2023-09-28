@@ -1,3 +1,5 @@
+import { ReactiveEngine } from "@typecell-org/engine";
+import { BasicCodeModel } from "@typecell-org/shared";
 import React from "react";
 import { lifecycle } from "vscode-lib";
 
@@ -30,6 +32,8 @@ export type ExecutionHost = lifecycle.IDisposable & {
    */
   renderOutput(
     modelPath: string,
-    setHovering?: (hover: boolean) => void
+    setHovering?: (hover: boolean) => void,
   ): React.ReactElement;
+
+  readonly engine: ReactiveEngine<BasicCodeModel>;
 };

@@ -1,11 +1,18 @@
+import { RunContext } from "@typecell-org/engine";
+import { CodeModel } from "@typecell-org/shared";
 import { computed } from "mobx";
+import { EditorStore } from "../../../EditorStore";
 import { Input } from "./input/Input";
 
 /**
  * This is used in ../resolver/resolver.ts and exposes the "typecell" helper functions
  * (e.g.: typecell.Input)
  */
-export default function getExposeGlobalVariables() {
+export default function getExposeGlobalVariables(
+  runContext: RunContext,
+  editorStore: EditorStore,
+  forModelList: CodeModel[],
+) {
   return {
     // routing,
     // // DocumentView,
@@ -24,6 +31,34 @@ export default function getExposeGlobalVariables() {
     TypeVisualizer,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     computed: computed as (func: () => any) => any,
+    onDispose: runContext.onDispose,
+    editor: {
+      // registerPlugin: (config: { name: string }) => {
+      //   return config.name;
+      // },
+      registerBlock: (config: { name: string; blockExport: string }) => {
+        debugger;
+        // TODO: this logic should be part of CodeModel / BasicCodeModel
+        const id = forModelList[forModelList.length - 1].path;
+        const parts = decodeURIComponent(id.replace("file:///", "")).split("/");
+        parts.pop();
+
+        const documentId = parts.join("/");
+
+        const completeConfig: any = {
+          ...config,
+          id,
+          documentId,
+        };
+        console.log("ADD BLOCK", completeConfig.id);
+        editorStore.add(completeConfig);
+
+        runContext.onDispose(() => {
+          console.log("REMOVE BLOCK", completeConfig.id);
+          editorStore.delete(completeConfig);
+        });
+      },
+    },
   };
 }
 export class TypeVisualizer<T> {

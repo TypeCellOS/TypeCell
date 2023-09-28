@@ -38,7 +38,9 @@ import LocalExecutionHost from "./runtime/executor/executionHosts/local/LocalExe
 
 import { setMonacoDefaults } from "./runtime/editor";
 
+import { variables } from "@typecell-org/util";
 import { RiCodeSSlashFill } from "react-icons/ri";
+import { EditorStore } from "./EditorStore";
 import { MonacoColorManager } from "./MonacoColorManager";
 import monacoStyles from "./MonacoSelection.module.css";
 import { setupTypecellHelperTypeResolver } from "./runtime/editor/languages/typescript/TypeCellHelperTypeResolver";
@@ -87,9 +89,26 @@ type Props = {
   userColor: string;
 };
 
+const originalItems = [
+  ...getDefaultReactSlashMenuItems(),
+  {
+    name: "Code block",
+    execute: (editor: any) =>
+      insertOrUpdateBlock(editor, {
+        type: "codeblock",
+      } as any),
+    aliases: ["code"],
+    hint: "Add a live code block",
+    group: "Code",
+    icon: <RiCodeSSlashFill size={18} />,
+  },
+];
+const slashMenuItems = [...originalItems];
+
 export const Frame: React.FC<Props> = observer((props) => {
   const modelReceivers = useMemo(() => new Map<string, ModelReceiver>(), []);
   const connectionMethods = useRef<AsyncMethodReturns<HostBridgeMethods>>();
+  const editorStore = useRef(new EditorStore());
 
   const document = useResource(() => {
     const ydoc = new Y.Doc();
@@ -218,7 +237,7 @@ export const Frame: React.FC<Props> = observer((props) => {
 
         // TODO: dispose modelReceiver
         return subcompiler;
-      });
+      }, editorStore.current);
       const newEngine = new ReactiveEngine<BasicCodeModel>(
         resolver.resolveImport,
       );
@@ -239,30 +258,66 @@ export const Frame: React.FC<Props> = observer((props) => {
     [props.documentIdString, monaco],
   );
 
-  // useEffect(() => {
-  //   const t = tools;
-  //   if (!t) {
-  //     return;
-  //   }
-  //   return () => {
-  //     t.newCompiler.dispose();
-  //     t.newExecutionHost.dispose();
-  //   };
-  // }, [tools]);
+  console.log("size", editorStore.current.customBlocks.size);
+  slashMenuItems.splice(
+    originalItems.length,
+    slashMenuItems.length,
+    ...[...editorStore.current.customBlocks.values()].map((data: any) => {
+      console.log("update blocks");
+      return {
+        name: data.name,
+        execute: (editor: any) => {
+          const origVarName = variables.toCamelCaseVariableName(data.name);
+          let varName = origVarName;
+          let i = 0;
+          // eslint-disable-next-line no-constant-condition
+          while (true) {
+            // append _1, _2, _3, ... to the variable name until it is unique
 
-  // useEffect(() => {
-  //   // make sure color info is broadcast, and color info from other users are reflected in monaco editor styles
-  //   if (document.awareness) {
-  //     const colorManager = new MonacoColorManager(
-  //       document.awareness,
-  //       props.userName,
-  //       props.userColor
-  //     );
-  //     return () => {
-  //       colorManager.dispose();
-  //     };
-  //   }
-  // }, [document.awareness, props.userColor, props.userName]);
+            if (
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (
+                tools.newExecutionHost.engine.observableContext
+                  .rawContext as any
+              )[varName] === undefined
+            ) {
+              break;
+            }
+            i++;
+            varName = origVarName + "_" + i;
+          }
+
+          insertOrUpdateBlock(
+            editor as any,
+            {
+              type: "codeblock",
+              props: {
+                language: "typescript",
+                // moduleName: moduleName,
+                // key,
+                bindings: "",
+              },
+              content: `// @default-collapsed
+import * as doc from "${data.documentId}";
+export let ${varName} = doc.${data.blockVariable};
+// export default {
+// block: doc.${data.blockVariable},
+// doc,
+// };
+`,
+            } as any,
+          );
+        },
+        // execute: (editor) =>
+        //   insertOrUpdateBlock(editor, {
+        //     type: data[0],
+        //   }),
+        // aliases: [data[0]],
+        // hint: "Add a " + data[0],
+        group: "Custom",
+      } as any;
+    }),
+  );
 
   const editor = useBlockNote({
     defaultStyles: false,
@@ -284,20 +339,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         node: MonacoBlockContent,
       },
     },
-    slashMenuItems: [
-      ...getDefaultReactSlashMenuItems(),
-      {
-        name: "Code block",
-        execute: (editor) =>
-          insertOrUpdateBlock(editor, {
-            type: "codeblock",
-          }),
-        aliases: ["code"],
-        hint: "Add a live code block",
-        group: "Code",
-        icon: <RiCodeSSlashFill size={18} />,
-      },
-    ],
+    slashMenuItems,
     collaboration: {
       provider: new FakeProvider(document.awareness),
       user: {

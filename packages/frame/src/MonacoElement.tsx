@@ -77,6 +77,10 @@ const MonacoElementComponent = function MonacoElement(
     if (models.model.isDisposed()) {
       return;
     }
+    if (!editorRef.current) {
+      console.warn("no editor");
+      return;
+    }
     models.state.isUpdating = true;
     models.state.node = props.node;
     try {

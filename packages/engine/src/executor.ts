@@ -8,10 +8,21 @@ import { isView } from "./view.js";
 async function resolveDependencyArray(
   dependencyArray: string[],
   context: TypeCellContext<any>,
-  resolveImport: (module: string) => any,
+  resolveImport: (module: string, runContext: RunContext) => any,
   exports: any,
   userDisposes: Array<() => void>,
 ) {
+  const runContext = {
+    onDispose: (disposer: () => void) => {
+      userDisposes.push(() => {
+        try {
+          disposer();
+        } catch (e) {
+          // engineLogger.warn("error in user defined dispose", e);
+        }
+      });
+    },
+  };
   return await Promise.all(
     dependencyArray.map((arg) => {
       if (arg === "exports") {
@@ -23,35 +34,21 @@ async function resolveDependencyArray(
             // cell,
             // eslint-disable-next-line prefer-rest-params
             arguments[0][0],
+            runContext,
             // eslint-disable-next-line prefer-rest-params
           ).then(arguments[1], arguments[2]);
         };
         // return new Function("import(arguments[0][0]).then(arguments[1], arguments[2]);");
       }
-      if (arg === "./input") {
-        return context;
-      }
 
-      // TODO: this is hacky, would rather
-      // (a) have a global dispose() method
-      // (b) move all globals (see scope below) to typecellutils
-      if (arg === "typecellutils") {
-        return {
-          dispose: (disposer: () => void) => {
-            userDisposes.push(() => {
-              try {
-                disposer();
-              } catch (e) {
-                // engineLogger.warn("error in user defined dispose", e);
-              }
-            });
-          },
-        };
-      }
-      return resolveImport(arg);
+      return resolveImport(arg, runContext);
     }),
   );
 }
+
+export type RunContext = {
+  onDispose: (disposer: () => void) => void;
+};
 
 export type ModuleExecution = {
   initialRun: Promise<any>;
@@ -62,7 +59,7 @@ export type ModuleExecution = {
 export async function runModule(
   mod: Module,
   context: TypeCellContext<any>,
-  resolveImport: (module: string) => any,
+  resolveImport: (module: string, runContext: RunContext) => any,
   beforeExecuting: () => void,
   onExecuted: (exports: any) => void,
   onError: (error: any) => void,

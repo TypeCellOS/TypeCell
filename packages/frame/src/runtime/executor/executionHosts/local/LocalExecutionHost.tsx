@@ -23,7 +23,7 @@ export default class LocalExecutionHost
     documentId: string,
     compileEngine: SourceModelCompiler,
     monacoInstance: typeof monaco,
-    private readonly engine: ReactiveEngine<BasicCodeModel>
+    public readonly engine: ReactiveEngine<BasicCodeModel>,
   ) {
     super();
     // this.engine = new Engine(
@@ -38,7 +38,7 @@ export default class LocalExecutionHost
     this.engine.registerModelProvider(compileEngine);
 
     const visualizerExtension = this._register(
-      new VisualizerExtension(compileEngine, documentId, monacoInstance)
+      new VisualizerExtension(compileEngine, documentId, monacoInstance),
     );
 
     this._register(
@@ -47,7 +47,7 @@ export default class LocalExecutionHost
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           this.outputs.get(path)!.updateVisualizers(visualizers);
         }
-      })
+      }),
     );
 
     this._register(
@@ -55,12 +55,12 @@ export default class LocalExecutionHost
         let modelOutput = this.outputs.get(model.path);
         if (!modelOutput) {
           modelOutput = this._register(
-            new ModelOutput(this.engine.observableContext.context)
+            new ModelOutput(this.engine.observableContext.context),
           );
           this.outputs.set(model.path, modelOutput);
         }
         modelOutput.updateValue(output);
-      })
+      }),
     );
   }
 

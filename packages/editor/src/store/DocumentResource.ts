@@ -14,7 +14,7 @@ export class DocumentResource extends BaseResource {
   constructor(
     ydoc: Y.Doc,
     identifier: Identifier,
-    manager: BaseResourceExternalManager = UnimplementedBaseResourceExternalManager
+    manager: BaseResourceExternalManager = UnimplementedBaseResourceExternalManager,
   ) {
     super(ydoc, identifier, manager);
     if (this.type !== "!notebook" && this.type !== "!richtext") {
@@ -58,6 +58,7 @@ export class DocumentResource extends BaseResource {
   /** @internal */
   public get data(): Y.XmlFragment {
     const xml = this.ydoc.getXmlFragment("doc");
+
     return xml;
   }
 }

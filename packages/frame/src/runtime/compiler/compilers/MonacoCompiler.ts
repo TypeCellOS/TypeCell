@@ -9,20 +9,19 @@ let initialPromise: Promise<void> | undefined;
 
 async function getCompiledCodeInternal(
   process: monaco.languages.typescript.TypeScriptWorker,
-  uri: monaco.Uri
+  uri: monaco.Uri,
 ) {
   const result = await process.getEmitOutput(uri.toString());
 
   const firstJS = result.outputFiles.find(
-    (o: any) => o.name.endsWith(".js") || o.name.endsWith(".jsx")
+    (o: any) => o.name.endsWith(".js") || o.name.endsWith(".jsx"),
   );
   const firstJSCode = (firstJS && firstJS.text) || "";
 
   const firstDTS = result.outputFiles.find((o: any) =>
-    o.name.endsWith(".d.ts")
+    o.name.endsWith(".d.ts"),
   );
   const firstDTSCode = (firstDTS && firstDTS.text) || "";
-
   // const ff = await process.getSemanticDiagnostics(uri.toString());
 
   // console.log("\n\n DIAGNOSTICS FOR " + uri.toString());
@@ -82,7 +81,7 @@ const ENABLE_CACHE = true;
 
 function saveCachedItem(
   model: monaco.editor.ITextModel,
-  item: { hash: string; compiledCode: string }
+  item: { hash: string; compiledCode: string },
 ) {
   const key = "cc-" + model.uri.toString(false);
   localStorage.setItem(key, JSON.stringify(item));
@@ -135,7 +134,7 @@ async function getWorker(monacoInstance: typeof monaco) {
 }
 async function _compile(
   model: monaco.editor.ITextModel,
-  monacoInstance: typeof monaco
+  monacoInstance: typeof monaco,
 ) {
   const tscode = model.getValue();
   const hsh = hash.stringHash(tscode, 0) + "";
@@ -156,7 +155,7 @@ async function _compile(
     if (ENABLE_CACHE) {
       saveCachedItem(model, { hash: hsh, compiledCode });
     }
-    // console.log(tscode, compiledCode);
+    console.log(tscode, compiledCode);
     return compiledCode;
   } finally {
     // monacoModel.dispose();

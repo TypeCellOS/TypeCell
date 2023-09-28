@@ -56,7 +56,7 @@ export const DefaultOutputVisualizer = (props: {
           // we update the selector
           const selector2 = selector.replace(
             /([^,]+,?)/g,
-            ".typecell-output $1 "
+            ".typecell-output $1 ",
           );
 
           sheet.deleteRule(i); // we remove the old
@@ -70,6 +70,7 @@ export const DefaultOutputVisualizer = (props: {
 
   if (mainKey) {
     if (React.isValidElement(mainExport)) {
+      console.log("render export", mainExport);
       return (
         <RetryErrorBoundary>
           <div className="typecell-output" style={{ display: "contents" }}>

@@ -33,6 +33,7 @@ export class ImportShimResolver {
   public resolveImport = memoize(this.doResolveImport);
 
   private async doResolveImport(moduleName: string) {
+    console.warn("resolve2", moduleName);
     await this.initializeImportShim();
     const local = await this.localResolver.getModule(moduleName);
 
