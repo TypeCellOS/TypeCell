@@ -25,7 +25,7 @@ import styles from "./SidebarTree.module.css";
 const RenderItem =
   (
     onClick: (item: Identifier) => void,
-    onAddChild: ((parentId: string) => void) | false
+    onAddChild: ((parentId: string) => void) | false,
   ) =>
   ({ item, onExpand, onCollapse, provided, depth }: RenderItemParams) => {
     // const doc = DocConnection.get(item.data.identifier)?.tryDoc;
@@ -201,12 +201,12 @@ export const SidebarTree = observer(
 
     const renderItem = useMemo(
       () => RenderItem(props.onClick, props.onAddNewPage),
-      [props.onAddNewPage, props.onClick]
+      [props.onAddNewPage, props.onClick],
     );
 
     const onDragEnd = (
       source: TreeSourcePosition,
-      destination?: TreeDestinationPosition
+      destination?: TreeDestinationPosition,
     ) => {
       if (!destination) {
         return;
@@ -214,12 +214,12 @@ export const SidebarTree = observer(
       const sourceDoc = DocConnection.get(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         akTree.items[source.parentId].data!.id + "",
-        sessionStore
+        sessionStore,
       )?.tryDoc;
       const destDoc = DocConnection.get(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         akTree.items[destination.parentId].data!.id + "",
-        sessionStore
+        sessionStore,
       )?.tryDoc;
       if (!sourceDoc || !destDoc) {
         throw new Error("Doc not found but should be loaded");
@@ -240,7 +240,7 @@ export const SidebarTree = observer(
           ChildReference,
           itemIdentifier,
           destination.index || 0,
-          false
+          false,
         ); // TODO (must be true)
         sourceDoc.removeRef(ChildReference, itemIdentifier);
       }
@@ -258,6 +258,7 @@ export const SidebarTree = observer(
 
     return (
       <>
+        <div>Hello</div>
         <Tree
           tree={akTree}
           renderItem={renderItem}
@@ -290,7 +291,25 @@ export const SidebarTree = observer(
         )}
       </>
     );
-  }
+  },
 );
 
-export default SidebarTree;
+export default hookable("SidebarTree", SidebarTree);
+
+// PoC: this provides a nice way to modify components, but unfortunately,
+// we can't get nice names of the children, so we should wonder how useful it is
+function hookable(name: string, component: React.FC<any>) {
+  return function (props: any) {
+    const ret = component.type(props);
+    console.log(ret.type.name);
+    if (ret.children?.length) {
+      console.log(ret.props.children[1].type.name);
+    }
+    debugger;
+    const clone = React.cloneElement(ret, ret.props, [
+      <div>New element</div>,
+      ...ret.props.children,
+    ]);
+    return clone;
+  };
+}
