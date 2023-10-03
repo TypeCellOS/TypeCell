@@ -140,6 +140,10 @@ export default function getExposeGlobalVariables(
             settings={editor.currentBlock.storage.settings || {}}
             setSetting={(key: string, value: any) => {
               runInAction(() => {
+                if (!editor.currentBlock.storage.settings) {
+                  // TODO: might not be compatible with Yjs
+                  editor.currentBlock.storage.settings = {};
+                }
                 editor.currentBlock.storage.settings[key] = value;
               });
             }}

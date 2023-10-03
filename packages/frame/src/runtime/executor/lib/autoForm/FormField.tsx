@@ -8,8 +8,8 @@ import DropdownMenu, {
   DropdownItemRadio,
   DropdownItemRadioGroup,
 } from "@atlaskit/dropdown-menu";
-import { Field } from "@atlaskit/form";
-import { VscEllipsis } from "react-icons/vsc";
+import { Field, HelperMessage } from "@atlaskit/form";
+import { VscArrowCircleUp, VscEllipsis } from "react-icons/vsc";
 import MonacoEdit from "./MonacoEdit";
 
 export const FormField = observer(
@@ -27,6 +27,14 @@ export const FormField = observer(
     const [showCode, setShowCode] = React.useState(false);
     const { inputObject, fieldKey } = props;
     const currentValue = inputObject[fieldKey];
+
+    let currentStringified = "<complex object>";
+
+    try {
+      currentStringified = JSON.stringify(currentValue);
+    } catch (e) {
+      // noop
+    }
 
     let currentParsedBinding: string | number | undefined;
 
@@ -65,6 +73,10 @@ export const FormField = observer(
             onChange={(e) => {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const newVal = (e.target as any).value;
+              if (newVal === "") {
+                props.setValue(undefined);
+                return;
+              }
               props.setValue(`export default ${JSON.stringify(newVal)};`);
             }}
           />
@@ -79,8 +91,16 @@ export const FormField = observer(
             value={currentParsedBinding || ""}
             onChange={(e) => {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const newVal = parseFloat((e.target as any).value);
-              props.setValue(`export default ${JSON.stringify(newVal)};`);
+              const newVal = (e.target as any).value;
+
+              if (newVal === "") {
+                props.setValue(undefined);
+                return;
+              }
+
+              props.setValue(
+                `export default ${JSON.stringify(parseFloat(newVal))};`,
+              );
             }}
           />
         );
@@ -144,6 +164,16 @@ export const FormField = observer(
                 </DropdownItemRadioGroup>
               </DropdownMenu>
             </div>
+            <HelperMessage>
+              <Button
+                onClick={() => {
+                  props.setValue(`export default ${currentStringified}`);
+                }}
+                style={{ height: "auto" }}
+                appearance="subtle-link"
+                iconBefore={<VscArrowCircleUp size={18} />}></Button>
+              Current: {currentStringified}
+            </HelperMessage>
           </Fragment>
         )}
       </Field>
