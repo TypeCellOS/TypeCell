@@ -36,13 +36,27 @@ export const DefaultOutputVisualizer = (props: {
     if (styleElement) {
       styleElement.ownerNode?.remove();
       setStyleElement(undefined);
+      document.adoptedStyleSheets = document.adoptedStyleSheets.filter(
+        (sheet) => sheet !== styleElement,
+      );
     }
 
-    if (mainExport instanceof HTMLStyleElement) {
-      document.head.appendChild(mainExport);
-      const sheet = findStyleSheet(mainExport);
-      if (!sheet) {
-        throw new Error("css sheet not found");
+    if (
+      mainExport instanceof HTMLStyleElement ||
+      mainExport instanceof CSSStyleSheet
+    ) {
+      let sheet = mainExport;
+
+      if (sheet instanceof HTMLStyleElement) {
+        document.head.appendChild(sheet);
+        const foundSheet = findStyleSheet(sheet);
+        if (!foundSheet) {
+          throw new Error("css sheet not found");
+        }
+        sheet = foundSheet;
+      } else {
+        // add CSSSTyleSheet sheet to document
+        document.adoptedStyleSheets.push(sheet);
       }
       // based on: https://stackoverflow.com/a/33237161/194651
       const rules = sheet.cssRules;
