@@ -14,7 +14,7 @@ import { EditorView, NodeView } from "prosemirror-view";
 import { MonacoElement } from "./MonacoElement";
 
 function arrowHandler(
-  dir: "up" | "down" | "left" | "right" | "forward" | "backward"
+  dir: "up" | "down" | "left" | "right" | "forward" | "backward",
 ) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (state: EditorState, dispatch: any, view: EditorView) => {
@@ -23,7 +23,7 @@ function arrowHandler(
       const $head = state.selection.$head;
       const nextPos = Selection.near(
         state.doc.resolve(side > 0 ? $head.after() : $head.before()),
-        side
+        side,
       );
       // console.log("nextPos", nextPos.$head.parent.type.name);
       if (nextPos.$head && nextPos.$head.parent.type.name === "codeblock") {
@@ -48,7 +48,7 @@ const ComponentWithWrapper = (
     htmlAttributes: any;
     selectionHack: any;
     blockNoteEditor: BlockNoteEditor<any>;
-  }
+  },
 ) => {
   const { htmlAttributes, ...restProps } = props;
   return (
@@ -77,6 +77,15 @@ export const MonacoBlockContent = createTipTapBlock<"codeblock", any>({
         renderHTML: (attributes) => {
           return {
             "data-language": attributes.language,
+          };
+        },
+      },
+      storage: {
+        default: {},
+        parseHTML: (_element) => ({}),
+        renderHTML: (attributes) => {
+          return {
+            // "data-language": attributes.language,
           };
         },
       },

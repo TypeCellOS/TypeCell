@@ -295,7 +295,7 @@ export const Frame: React.FC<Props> = observer((props) => {
                 language: "typescript",
                 // moduleName: moduleName,
                 // key,
-                bindings: "",
+                storage: "",
               },
               content: `// @default-collapsed
 import * as doc from "${data.documentId}";
@@ -335,6 +335,10 @@ export let ${varName} = doc.${data.blockVariable};
             type: "string",
             default: "typescript",
           },
+          storage: {
+            type: "string",
+            default: "",
+          },
         },
         node: MonacoBlockContent,
       },
@@ -349,6 +353,10 @@ export let ${varName} = doc.${data.blockVariable};
       fragment: document.ydoc.getXmlFragment("doc"),
     },
   });
+
+  if (editor !== editorStore.current.editor) {
+    editorStore.current.editor = editor as any;
+  }
 
   return (
     <div className={styles.container}>
