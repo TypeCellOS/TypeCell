@@ -180,33 +180,3 @@ export const FormField = observer(
     );
   },
 );
-
-/* {!error && (
-              <HelperMessage>
-                <Button
-                  onClick={() => {
-                    const bindings = {
-                      ...props.bindings,
-                      [inputKey]: JSON.stringify(currentValue),
-                    };
-                    props.setBindings(JSON.stringify(bindings));
-                    props.setCode(
-                      getCodeFromBindings(
-                        bindings,
-                        props.mainExport.doc.__moduleName,
-                        props.objKey,
-                      ),
-                    );
-                  }}
-                  style={{ height: "auto" }}
-                  appearance="subtle-link"
-                  iconBefore={<VscArrowCircleUp size={18} />}></Button>
-                Current: {currentStringified}
-              </HelperMessage>
-            )} */
-
-/* {error && (
-              <ErrorMessage>
-                This username is already in use, try another one.
-              </ErrorMessage>
-            )} */

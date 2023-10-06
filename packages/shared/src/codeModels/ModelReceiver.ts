@@ -1,4 +1,4 @@
-import { event, lifecycle } from "vscode-lib";
+import { event, lifecycle, uri } from "vscode-lib";
 import { BasicCodeModel } from "./BasicCodeModel.js";
 import { ModelProvider } from "./ModelProvider.js";
 
@@ -41,7 +41,13 @@ export class ModelReceiver
     console.log("updateModel", modelId);
     let existingModel = this.registeredModels.get(modelId);
     if (!existingModel) {
-      existingModel = new BasicCodeModel(modelId, model.value, model.language);
+      const modelUri = uri.URI.parse(modelId);
+
+      existingModel = new BasicCodeModel(
+        modelUri.path,
+        model.value,
+        model.language,
+      );
       this.registeredModels.set(modelId, existingModel);
 
       this._onDidCreateModel.fire(existingModel);

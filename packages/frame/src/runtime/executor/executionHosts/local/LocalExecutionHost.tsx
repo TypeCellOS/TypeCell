@@ -15,7 +15,7 @@ export default class LocalExecutionHost
 {
   private disposed = false;
 
-  private readonly outputs = observable.map<string, ModelOutput>(undefined, {
+  public readonly outputs = observable.map<string, ModelOutput>(undefined, {
     deep: false,
   });
 

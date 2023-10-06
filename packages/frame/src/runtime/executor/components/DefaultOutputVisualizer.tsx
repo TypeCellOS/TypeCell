@@ -66,7 +66,11 @@ export const DefaultOutputVisualizer = (props: {
         if (rule instanceof CSSStyleRule) {
           const selector = rule.selectorText;
           const def = rule.cssText.replace(selector, "");
-
+          if (selector.startsWith(".typecell-output")) {
+            // hacky, this can occur when a stylesheet has been modified already.
+            // ideally we would not have to do this and always create a copy of the original stylesheet instead of mutate it
+            continue;
+          }
           // we update the selector
           const selector2 = selector.replace(
             /([^,]+,?)/g,

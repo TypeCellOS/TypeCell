@@ -16,6 +16,7 @@ async function getCompiledCodeInternal(
   const firstJS = result.outputFiles.find(
     (o: any) => o.name.endsWith(".js") || o.name.endsWith(".jsx"),
   );
+
   const firstJSCode = (firstJS && firstJS.text) || "";
 
   const firstDTS = result.outputFiles.find((o: any) =>
@@ -31,8 +32,8 @@ async function getCompiledCodeInternal(
   // });
 
   return {
-    firstJSCode,
-    firstDTSCode,
+    javascript: firstJSCode,
+    types: firstDTSCode,
   };
 }
 
@@ -81,7 +82,7 @@ const ENABLE_CACHE = true;
 
 function saveCachedItem(
   model: monaco.editor.ITextModel,
-  item: { hash: string; compiledCode: string },
+  item: { hash: string; javascript: string; types: string },
 ) {
   const key = "cc-" + model.uri.toString(false);
   localStorage.setItem(key, JSON.stringify(item));
@@ -93,10 +94,11 @@ function getCachedItem(model: monaco.editor.ITextModel) {
   if (cached) {
     try {
       const parsed = JSON.parse(cached);
-      if (parsed.hash && parsed.compiledCode) {
+      if (parsed.hash && parsed.javascript && parsed.types) {
         return parsed as {
           hash: string;
-          compiledCode: string;
+          javascript: string;
+          types: string;
         };
       } else {
         // invalid
@@ -143,7 +145,7 @@ async function _compile(
     const cached = getCachedItem(model);
     if (cached && cached.hash === hsh) {
       console.log("cache hit", model.uri.toString());
-      return cached.compiledCode;
+      return cached;
     }
   }
 
@@ -151,9 +153,9 @@ async function _compile(
 
   try {
     const worker = await getWorker(monacoInstance);
-    const compiledCode = (await getCompiledCode(worker, model.uri)).firstJSCode;
+    const compiledCode = await getCompiledCode(worker, model.uri);
     if (ENABLE_CACHE) {
-      saveCachedItem(model, { hash: hsh, compiledCode });
+      saveCachedItem(model, { hash: hsh, ...compiledCode });
     }
     console.log(tscode, compiledCode);
     return compiledCode;

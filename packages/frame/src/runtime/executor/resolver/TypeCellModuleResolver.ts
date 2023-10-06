@@ -35,7 +35,7 @@ export class TypeCellModuleResolver<T extends CodeModel> {
     const key = [...forModelList.map((m) => m.path), moduleName].join("$$");
 
     const cached = this.cache.get(key);
-    debugger;
+
     if (cached) {
       return cached;
     }

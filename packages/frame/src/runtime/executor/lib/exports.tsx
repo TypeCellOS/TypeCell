@@ -27,7 +27,7 @@ export default function getExposeGlobalVariables(
       const parts = decodeURIComponent(id.replace("file:///", "")).split("/");
       parts.pop();
 
-      const documentId = parts.join("/");
+      const documentId = parts.join("/").substring(1); // remove leading slash
 
       const completeConfig: any = {
         ...config,
