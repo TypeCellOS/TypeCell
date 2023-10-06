@@ -32,17 +32,19 @@ import styles from "./Frame.module.css";
 import { MonacoBlockContent } from "./MonacoBlockContent";
 import { RichTextContext } from "./RichTextContext";
 import SourceModelCompiler from "./runtime/compiler/SourceModelCompiler";
+import { setMonacoDefaults } from "./runtime/editor";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
 import { ExecutionHost } from "./runtime/executor/executionHosts/ExecutionHost";
 import LocalExecutionHost from "./runtime/executor/executionHosts/local/LocalExecutionHost";
 
-import { setMonacoDefaults } from "./runtime/editor";
-
 import { variables } from "@typecell-org/util";
 import { RiCodeSSlashFill } from "react-icons/ri";
+import { VscWand } from "react-icons/vsc";
 import { EditorStore } from "./EditorStore";
 import { MonacoColorManager } from "./MonacoColorManager";
 import monacoStyles from "./MonacoSelection.module.css";
+import { getAICode } from "./ai/ai";
+import { applyChanges } from "./ai/applyChanges";
 import { setupTypecellHelperTypeResolver } from "./runtime/editor/languages/typescript/TypeCellHelperTypeResolver";
 import { setupTypecellModuleTypeResolver } from "./runtime/editor/languages/typescript/TypeCellModuleTypeResolver";
 import { setupNpmTypeResolver } from "./runtime/editor/languages/typescript/npmTypeResolver";
@@ -248,6 +250,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         monaco,
         newEngine,
       );
+
       return [
         { newCompiler, newExecutionHost },
         () => {
@@ -262,6 +265,35 @@ export const Frame: React.FC<Props> = observer((props) => {
   slashMenuItems.splice(
     originalItems.length,
     slashMenuItems.length,
+    {
+      name: "AI",
+      execute: async (editor: BlockNoteEditor<any>) => {
+        const p = prompt("AI");
+
+        const commands = await getAICode(p!, tools.newExecutionHost, editor);
+        // debugger;
+        // const commands = [
+        //   {
+        //     // afterId: "3d70d0b1-02d7-4103-b145-452fafb93884",
+        //     afterId: editor.topLevelBlocks[1].id,
+        //     type: "add",
+        //     content:
+        //       "// This is a code block\nexport let value = 10;\nconsole.log(value);",
+        //     blockType: "codeblock",
+        //   } as const,
+        // ];
+        applyChanges(
+          commands,
+          document.ydoc.getXmlFragment("doc"),
+          document.awareness,
+        );
+        // console.log(response);
+      },
+      aliases: ["ai", "magic"],
+      hint: "Prompt your AI code assistant",
+      group: "Code",
+      icon: <VscWand size={18} />,
+    },
     ...[...editorStore.current.customBlocks.values()].map((data: any) => {
       console.log("update blocks");
       return {
@@ -293,17 +325,13 @@ export const Frame: React.FC<Props> = observer((props) => {
               type: "codeblock",
               props: {
                 language: "typescript",
-                // moduleName: moduleName,
-                // key,
                 storage: "",
               },
               content: `// @default-collapsed
 import * as doc from "${data.documentId}";
 export let ${varName} = doc.${data.blockVariable};
-// export default {
-// block: doc.${data.blockVariable},
-// doc,
-// };
+export let ${varName}Scope = doc;
+export default ${varName};
 `,
             } as any,
           );

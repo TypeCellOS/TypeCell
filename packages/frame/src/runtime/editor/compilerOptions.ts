@@ -14,6 +14,7 @@ export function getDefaultSandboxCompilerOptions(
   >,
 ) {
   const settings: CompilerOptions = {
+    noErrorTruncation: true,
     noImplicitAny: true,
     strictNullChecks: !config.useJavaScript,
     strictFunctionTypes: true,

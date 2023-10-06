@@ -19,6 +19,8 @@
     "mobx": "^6.2.0",
     "mobx-react-lite": "^3.2.0",
     "mobx-utils": "^6.0.8",
+    "openai": "^4.11.1",
+    "ai": "2.2.14",
     "prosemirror-model": "^1.19.3",
     "prosemirror-view": "^1.31.7",
     "prosemirror-state": "^1.4.3",
