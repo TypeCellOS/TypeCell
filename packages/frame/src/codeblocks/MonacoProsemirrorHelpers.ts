@@ -7,7 +7,7 @@ function selectionDir(
   view: EditorView,
   pos: number,
   size: number,
-  dir: -1 | 1
+  dir: -1 | 1,
 ) {
   const targetPos = pos + (dir < 0 ? 0 : size);
   const selection = Selection.near(view.state.doc.resolve(targetPos), dir);
@@ -19,7 +19,7 @@ function getTransactionForSelectionUpdate(
   selection: monaco.Selection | null,
   model: monaco.editor.ITextModel | null,
   offset: number,
-  tr: Transaction
+  tr: Transaction,
 ) {
   if (selection && model) {
     const selFrom = model.getOffsetAt(selection.getStartPosition()) + offset;
@@ -32,16 +32,16 @@ function getTransactionForSelectionUpdate(
           : selEnd,
         selection.getDirection() === monaco.SelectionDirection.LTR
           ? selEnd
-          : selFrom
-      )
+          : selFrom,
+      ),
     );
   }
 }
 
 // because node.textContent doesn't preserve newlines
 export function textFromPMNode(node: Node): string {
-  if (!node.isTextblock) {
-    throw new Error("not a text node");
+  if (!node.isTextblock && !node.isInline) {
+    throw new Error("not a text or inline node");
   }
   let text = "";
   node.forEach((c) => {
@@ -64,7 +64,7 @@ export function bindMonacoAndProsemirror(
   state: {
     isUpdating: boolean;
     node: Node;
-  }
+  },
 ) {
   // const id = Math.random();
   /**
@@ -94,7 +94,7 @@ export function bindMonacoAndProsemirror(
       mon.getSelection(),
       mon.getModel(),
       offset,
-      tr
+      tr,
     );
     try {
       view.dispatch(tr);
@@ -134,12 +134,12 @@ export function bindMonacoAndProsemirror(
         tr.replaceWith(
           offset + change.rangeOffset,
           offset + change.rangeOffset + change.rangeLength,
-          view.state.schema.text(change.text.toString())
+          view.state.schema.text(change.text.toString()),
         );
       } else {
         tr.delete(
           offset + change.rangeOffset,
-          offset + change.rangeOffset + change.rangeLength
+          offset + change.rangeOffset + change.rangeLength,
         );
       }
       // TODO: update offset?
@@ -152,7 +152,7 @@ export function bindMonacoAndProsemirror(
         mon.getSelection(),
         mon.getModel(),
         offset,
-        tr
+        tr,
       );
     }
     try {
@@ -178,7 +178,7 @@ export function bindMonacoAndProsemirror(
     if (e.code === "Delete" || e.code === "Backspace") {
       if (state.node.textContent === "") {
         view.dispatch(
-          view.state.tr.deleteRange(getPos(), getPos() + state.node.nodeSize)
+          view.state.tr.deleteRange(getPos(), getPos() + state.node.nodeSize),
         );
         view.focus();
         return;
@@ -227,7 +227,7 @@ export function bindMonacoAndProsemirror(
  */
 export function applyNodeChangesToMonaco(
   node: Node,
-  model: monaco.editor.ITextModel
+  model: monaco.editor.ITextModel,
 ) {
   const newText = textFromPMNode(node);
   const curText = model.getValue();
@@ -256,7 +256,7 @@ export function applyNodeChangesToMonaco(
     {
       range: monaco.Range.fromPositions(
         model.getPositionAt(start),
-        model.getPositionAt(curEnd)
+        model.getPositionAt(curEnd),
       ),
       text: newText.slice(start, newEnd),
     },
@@ -278,7 +278,7 @@ export function applyDecorationsToMonaco(
   mon: monaco.editor.IStandaloneCodeEditor,
   lastDecorations: string[],
   headSelectionClassName: string,
-  selectionClassName: string
+  selectionClassName: string,
 ) {
   if (!decorations.innerDecorations) {
     return [];
@@ -292,7 +292,7 @@ export function applyDecorationsToMonaco(
       const selectionDec = decorations.innerDecorations.local.find(
         (d) =>
           d.spec.type === "selection" &&
-          d.spec.clientID === cursorDec.spec.clientID
+          d.spec.clientID === cursorDec.spec.clientID,
       );
 
       let start: monaco.Position;
@@ -331,7 +331,7 @@ export function applyDecorationsToMonaco(
           start.lineNumber,
           start.column,
           end.lineNumber,
-          end.column
+          end.column,
         ),
         options: {
           className:

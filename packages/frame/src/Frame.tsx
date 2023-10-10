@@ -29,8 +29,8 @@ import { AsyncMethodReturns, connectToParent } from "penpal";
 import ReactDOM from "react-dom";
 import * as Y from "yjs";
 import styles from "./Frame.module.css";
-import { MonacoBlockContent } from "./MonacoBlockContent";
 import { RichTextContext } from "./RichTextContext";
+import { MonacoCodeBlock } from "./codeblocks/MonacoCodeBlock";
 import SourceModelCompiler from "./runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
 import { ExecutionHost } from "./runtime/executor/executionHosts/ExecutionHost";
@@ -42,7 +42,8 @@ import { variables } from "@typecell-org/util";
 import { RiCodeSSlashFill } from "react-icons/ri";
 import { EditorStore } from "./EditorStore";
 import { MonacoColorManager } from "./MonacoColorManager";
-import monacoStyles from "./MonacoSelection.module.css";
+import { MonacoInlineCode } from "./codeblocks/MonacoInlineCode";
+import monacoStyles from "./codeblocks/MonacoSelection.module.css";
 import { setupTypecellHelperTypeResolver } from "./runtime/editor/languages/typescript/TypeCellHelperTypeResolver";
 import { setupTypecellModuleTypeResolver } from "./runtime/editor/languages/typescript/TypeCellModuleTypeResolver";
 import { setupNpmTypeResolver } from "./runtime/editor/languages/typescript/npmTypeResolver";
@@ -101,6 +102,19 @@ const originalItems = [
     hint: "Add a live code block",
     group: "Code",
     icon: <RiCodeSSlashFill size={18} />,
+  },
+  {
+    name: "Inline",
+    execute: (editor: any) => {
+      // state.tr.replaceSelectionWith(dinoType.create({type}))
+      const node = editor._tiptapEditor.schema.node(
+        "inlineCode",
+        undefined,
+        editor._tiptapEditor.schema.text("export default "),
+      );
+      const tr = editor._tiptapEditor.state.tr.replaceSelectionWith(node);
+      editor._tiptapEditor.view.dispatch(tr);
+    },
   },
 ];
 const slashMenuItems = [...originalItems];
@@ -299,11 +313,11 @@ export const Frame: React.FC<Props> = observer((props) => {
               },
               content: `// @default-collapsed
 import * as doc from "${data.documentId}";
+
 export let ${varName} = doc.${data.blockVariable};
-// export default {
-// block: doc.${data.blockVariable},
-// doc,
-// };
+export let ${varName}Scope = doc;
+
+export default ${varName};
 `,
             } as any,
           );
@@ -340,7 +354,20 @@ export let ${varName} = doc.${data.blockVariable};
             default: "",
           },
         },
-        node: MonacoBlockContent,
+        node: MonacoCodeBlock,
+      },
+      inlinecode: {
+        propSchema: {
+          language: {
+            type: "string",
+            default: "typescript",
+          },
+          storage: {
+            type: "string",
+            default: "",
+          },
+        },
+        node: MonacoInlineCode,
       },
     },
     slashMenuItems,
@@ -354,8 +381,12 @@ export let ${varName} = doc.${data.blockVariable};
     },
   });
 
-  if (editor !== editorStore.current.editor) {
+  if (editorStore.current.editor !== editor) {
     editorStore.current.editor = editor as any;
+  }
+
+  if (editorStore.current.executionHost !== tools.newExecutionHost) {
+    editorStore.current.executionHost = tools.newExecutionHost;
   }
 
   return (
