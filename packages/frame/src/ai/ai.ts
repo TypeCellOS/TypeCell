@@ -2,7 +2,7 @@
 import "@blocknote/core/style.css";
 import * as mobx from "mobx";
 import * as monaco from "monaco-editor";
-import { ChatCompletionMessageParam } from "openai";
+import type openai from "openai";
 
 import { BlockNoteEditor } from "@blocknote/core";
 import { HostBridgeMethods } from "@typecell-org/shared";
@@ -260,7 +260,7 @@ type ExpandRecursively<T> = T extends object
     }`
     : undefined;
 
-  const messages: Array<ChatCompletionMessageParam> = [
+  const messages: openai.Chat.ChatCompletionCreateParams["messages"] = [
     {
       role: "system",
       content: TYPECELL_PROMPT,

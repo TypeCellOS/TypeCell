@@ -1,10 +1,10 @@
 import { OpenAIStream, StreamingTextResponse } from "ai";
-import { ChatCompletionCreateParamsBase, OpenAI } from "openai";
+import { OpenAI } from "openai";
 
 export async function queryOpenAI(parameters: {
-  messages: ChatCompletionCreateParamsBase["messages"];
-  functions?: ChatCompletionCreateParamsBase["functions"];
-  function_key?: ChatCompletionCreateParamsBase["function_key"];
+  messages: OpenAI.Chat.ChatCompletionCreateParams["messages"];
+  functions?: OpenAI.Chat.ChatCompletionCreateParams["functions"];
+  function_call?: OpenAI.Chat.ChatCompletionCreateParams["function_call"];
 }) {
   // get key from localstorage
   let key = localStorage.getItem("oai-key");
