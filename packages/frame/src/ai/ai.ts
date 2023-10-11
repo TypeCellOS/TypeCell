@@ -1,12 +1,13 @@
 // import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost"
 import "@blocknote/core/style.css";
-import { OpenAIStream, StreamingTextResponse } from "ai";
 import * as mobx from "mobx";
 import * as monaco from "monaco-editor";
-import { OpenAI } from "openai";
+import { ChatCompletionMessageParam } from "openai";
 
 import { BlockNoteEditor } from "@blocknote/core";
+import { HostBridgeMethods } from "@typecell-org/shared";
 import { uri } from "vscode-lib";
+import { EditorStore } from "../EditorStore";
 import { compile } from "../runtime/compiler/compilers/MonacoCompiler";
 import { ExecutionHost } from "../runtime/executor/executionHosts/ExecutionHost";
 import { customStringify } from "../stringify";
@@ -114,15 +115,12 @@ but instead:
 $.complexObject.newProperty = 5;
 `;
 
-const openai = new OpenAI({
-  apiKey: "",
-  dangerouslyAllowBrowser: true,
-});
-
 export async function getAICode(
   prompt: string,
   executionHost: ExecutionHost,
   editor: BlockNoteEditor<any>,
+  editorStore: EditorStore,
+  queryLLM: HostBridgeMethods["queryLLM"],
 ) {
   const models = monaco.editor.getModels();
   const typeCellModels = models.filter((m) =>
@@ -130,19 +128,48 @@ export async function getAICode(
   );
   const blocks = editor.topLevelBlocks;
 
+  let blockContexts: any[] = [];
+  const iterateBlocks = (blocks: any[]) => {
+    for (const block of blocks) {
+      const b = editorStore.getBlock(block.id);
+      if (b?.context?.default) {
+        blockContexts.push(b.context.default);
+      }
+      iterateBlocks(block.children);
+    }
+  };
+  iterateBlocks(blocks);
+
+  blockContexts = blockContexts.map((output) =>
+    Object.fromEntries(
+      Object.getOwnPropertyNames(output).map((key) => [
+        key,
+        mobx.toJS(output[key]),
+      ]),
+    ),
+  );
+
   const tmpModel = monaco.editor.createModel(
     "",
     "typescript",
     uri.URI.parse("file:///tmp.tsx"),
   );
-  tmpModel.setValue(`import React from "!typecell:typecell.org/dqBLFEyFuSUu1";
-  import * as $ from "!typecell:typecell.org/dqBLFEyFuSUu1";
+  tmpModel.setValue(`import * as React from "react";
+  import * as $ from "!typecell:typecell.org/dVeeYvbKcq2Nz";
   // expands object types one level deep
 type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] extends { Key: React.Key | null } ? "[REACT]" : O[K] } : never;
 
 // expands object types recursively
 type ExpandRecursively<T> = T extends object
-  ? T extends infer O ? { [K in keyof O]: O[K] extends { key: React.Key } ? "[REACT ELEMENT]" : ExpandRecursively<O[K]> } : never
+  ? T extends (...args: any[]) => any
+    ? T
+    : T extends infer O
+    ? {
+        [K in keyof O]: O[K] extends { key: React.Key }
+          ? "[REACT ELEMENT]"
+          : ExpandRecursively<O[K]>;
+      }
+    : never
   : T;
   
   // ? T extends infer O ? { [K in keyof O]: ExpandRecursively<O[K]> } : never
@@ -158,7 +185,6 @@ type ExpandRecursively<T> = T extends object
   const def2 = await ts.getQuickInfoAtPosition(tmpModel.uri.toString(), pos);
   const contextType = def2.displayParts.map((x: any) => x.text).join("");
   // const def3 = await ts.get(tmpModel.uri.toString(), pos, {});
-
   tmpModel.dispose();
 
   const codeInfoPromises = typeCellModels.map(async (m) => {
@@ -212,7 +238,9 @@ type ExpandRecursively<T> = T extends object
     if (block.children) {
       block.children = block.children.map(cleanBlock);
     }
-    block.content = block.content.map((x: any) => x.text).join("");
+    if (Array.isArray(block.content)) {
+      block.content = block.content.map((x: any) => x.text).join("");
+    }
     return block;
   }
   // console.log("request", JSON.stringify(blocks).length);
@@ -225,48 +253,60 @@ type ExpandRecursively<T> = T extends object
     contextType.replace("type ContextType = ", "const $: ") +
     " = " +
     JSON.stringify(outputJS);
-  // Ask OpenAI for a streaming chat completion given the prompt
-  const response = await openai.chat.completions.create({
-    // model: "gpt-3.5-turbo-16k",
-    model: "gpt-4",
-    stream: true,
-    messages: [
-      {
-        role: "system",
-        content: TYPECELL_PROMPT,
-      },
-      {
-        role: "user",
-        content: `This is my document data: 
+
+  const blockContextInfo = blockContexts.length
+    ? `typecell.editor.findBlocks = (predicate: (context) => boolean) {
+        return (${JSON.stringify(blockContexts)}).find(predicate);
+    }`
+    : undefined;
+
+  const messages: Array<ChatCompletionMessageParam> = [
+    {
+      role: "system",
+      content: TYPECELL_PROMPT,
+    },
+    {
+      role: "user",
+      content: `This is my document data: 
 """${JSON.stringify(sanitized)}"""`,
-      },
-      {
-        role: "user",
-        content:
-          "This is the type and runtime data available under the reactive $ variable for read / write access. If you need to change / read some information from the live document, it's likely you need to access it from here using $.<variable name> \n" +
-          contextInfo,
-      },
-      //       codeInfos.length
-      //         ? {
-      //             role: "user",
-      //             content: `This is the runtime / compiler data of the Code Blocks (CodeBlockRuntimeInfo[]):
-      // """${JSON.stringify(codeInfos)}"""`,
-      //           }
-      //         : {
-      //             role: "user",
-      //             content: `There are no code blocks in the document, so there's no runtime / compiler data for these (CodeBlockRuntimeInfo[]).`,
-      //           },
-      {
-        role: "system",
-        content: `You are an AI assistant helping user to modify his document. This means changes can either be code related (in that case, you'll need to add / modify Code Blocks), 
+    },
+    {
+      role: "user",
+      content:
+        "This is the type and runtime data available under the reactive $ variable for read / write access. If you need to change / read some information from the live document, it's likely you need to access it from here using $.<variable name> \n" +
+        contextInfo +
+        (blockContextInfo
+          ? "\n" +
+            `We also have this function "typecell.editor.findBlocks" to extract runtime data from blocks \n` +
+            blockContextInfo
+          : ""),
+    },
+
+    //       codeInfos.length
+    //         ? {
+    //             role: "user",
+    //             content: `This is the runtime / compiler data of the Code Blocks (CodeBlockRuntimeInfo[]):
+    // """${JSON.stringify(codeInfos)}"""`,
+    //           }
+    //         : {
+    //             role: "user",
+    //             content: `There are no code blocks in the document, so there's no runtime / compiler data for these (CodeBlockRuntimeInfo[]).`,
+    //           },
+    {
+      role: "system",
+      content: `You are an AI assistant helping user to modify his document. This means changes can either be code related (in that case, you'll need to add / modify Code Blocks), 
         or not at all (in which case you'll need to add / modify regular blocks), or a mix of both.`,
-      },
-      {
-        role: "user",
-        content: prompt, // +
-        // " . \n\nRemember to reply ONLY with OperationsResponse JSON (DO NOT add any further comments). So start with [{ and end with }]",
-      },
-    ],
+    },
+    {
+      role: "user",
+      content: prompt, // +
+      // " . \n\nRemember to reply ONLY with OperationsResponse JSON (DO NOT add any further comments). So start with [{ and end with }]",
+    },
+  ];
+
+  // Ask OpenAI for a streaming chat completion given the prompt
+  const response = await queryLLM({
+    messages,
     functions: [
       {
         name: "updateDocument",
@@ -372,12 +412,13 @@ type ExpandRecursively<T> = T extends object
     },
   });
 
-  const stream = OpenAIStream(response);
+  console.log(messages);
 
-  // Respond with the stream
-  const ret = new StreamingTextResponse(stream);
-  const data = await ret.json();
-  console.log(data);
-
-  return JSON.parse(data.function_call.arguments).operations;
+  if (response.status === "ok") {
+    const data = JSON.parse(response.result);
+    return JSON.parse(data.function_call.arguments).operations;
+  } else {
+    console.error("queryLLM error", response.error);
+  }
+  return undefined;
 }

@@ -4,7 +4,7 @@ import memoize from "lodash.memoize";
 import { autorun, comparer, computed, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { computedFn, createTransformer } from "mobx-utils";
-import React, { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { EditorStore } from "../../../EditorStore";
 import { AutoForm, AutoFormProps } from "./autoForm";
 import { Input } from "./input/Input";
@@ -125,7 +125,7 @@ export default function getExposeGlobalVariables(
     },
   };
   return {
-    memoize: (func: (...args: any[]) => any) => {
+    memoize: <T extends (...args: any[]) => any>(func: T): T => {
       const wrapped = async function (this: any, ...args: any[]) {
         const ret = await func.apply(this, args);
         // if (typeof ret === "object") {
@@ -135,7 +135,7 @@ export default function getExposeGlobalVariables(
       };
       return memoize(wrapped, (args) => {
         return JSON.stringify(args);
-      });
+      }) as any as T;
     },
     // routing,
     // // DocumentView,
@@ -195,6 +195,7 @@ export default function getExposeGlobalVariables(
                 return undefined;
               }
               return autorun(() => {
+                // console.log("autorun setting", func);
                 func();
               });
             },

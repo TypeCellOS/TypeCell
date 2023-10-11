@@ -85,6 +85,7 @@ export const MonacoCodeBlock = createTipTapBlock<"codeblock", any>({
         // class: styles.blockContent,
         "data-content-type": this.name,
       }),
+      0,
     ];
   },
 

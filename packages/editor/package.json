@@ -38,6 +38,8 @@
     "@typecell-org/parsers": "^0.0.3",
     "@typecell-org/frame": "^0.0.3",
     "@typecell-org/y-penpal": "^0.0.3",
+    "openai": "^4.11.1",
+    "ai": "2.2.14",
     "speakingurl": "^14.0.1",
     "classnames": "^2.3.1",
     "fractional-indexing": "^2.0.0",

@@ -1,4 +1,5 @@
 import { error, uniqueId } from "@typecell-org/util";
+import * as ypm from "y-prosemirror";
 import { Awareness } from "y-protocols/awareness";
 import * as Y from "yjs";
 import { BlockOperation, OperationsResponse } from "./types";
@@ -92,6 +93,9 @@ export async function applyChange(
   data: Y.XmlFragment,
   awareness: Awareness,
 ) {
+  const transact = (op: () => void) => {
+    Y.transact(data.doc!, op, ypm.ySyncPluginKey);
+  };
   if (op.type === "add") {
     const node = findBlock(op.afterId, data);
     if (!node) {
@@ -104,8 +108,9 @@ export async function applyChange(
     child.insert(0, [yText]);
     newElement.insert(0, [child]);
     // TODO: create block
-    (node.parent as Y.XmlElement).insertAfter(node, [newElement]);
-
+    transact(() => {
+      (node.parent as Y.XmlElement).insertAfter(node, [newElement]);
+    });
     // start typing text content
     for (let i = 0; i < op.content.length; i++) {
       const start = Y.createRelativePositionFromTypeIndex(yText, i);
@@ -113,7 +118,9 @@ export async function applyChange(
       updateState(awareness, start, end);
       // return new RelativeSelection(start, end, sel.getDirection())
 
-      yText.insert(i, op.content[i]);
+      transact(() => {
+        yText.insert(i, op.content[i]);
+      });
       await new Promise((resolve) => setTimeout(resolve, 20));
     }
   } else if (op.type === "delete") {
@@ -131,7 +138,9 @@ export async function applyChange(
 
     await new Promise((resolve) => setTimeout(resolve, 200));
 
-    (node.parent as Y.XmlElement).delete(findParentIndex(node), 1);
+    transact(() => {
+      (node.parent as Y.XmlElement).delete(findParentIndex(node), 1);
+    });
     await new Promise((resolve) => setTimeout(resolve, 20));
   } else if (op.type === "update") {
     const node = findBlock(op.id, data);
@@ -160,7 +169,9 @@ export async function applyChange(
           updateState(awareness, start, end);
           // return new RelativeSelection(start, end, sel.getDirection())
 
-          yText.insert(step.from + i, step.text[i]);
+          transact(() => {
+            yText.insert(step.from + i, step.text[i]);
+          });
           await new Promise((resolve) => setTimeout(resolve, 20));
         }
         // cell.code.delete(step.from, step.length);
@@ -172,7 +183,9 @@ export async function applyChange(
         );
         updateState(awareness, start, end);
         await new Promise((resolve) => setTimeout(resolve, 200));
-        yText.delete(step.from, step.length);
+        transact(() => {
+          yText.delete(step.from, step.length);
+        });
         await new Promise((resolve) => setTimeout(resolve, 20));
       }
     }

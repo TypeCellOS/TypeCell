@@ -18,4 +18,22 @@ export type HostBridgeMethods = {
    * Function for y-penpal
    */
   processYjsMessage: (message: Uint8Array) => Promise<void>;
+
+  queryLLM: (parameters: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    messages: any[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    functions?: any[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function_call?: any;
+  }) => Promise<
+    | {
+        status: "ok";
+        result: string;
+      }
+    | {
+        status: "error";
+        error: string;
+      }
+  >;
 };

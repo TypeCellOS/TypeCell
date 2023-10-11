@@ -302,7 +302,13 @@ export const Frame: React.FC<Props> = observer((props) => {
       execute: async (editor: BlockNoteEditor<any>) => {
         const p = prompt("AI");
 
-        const commands = await getAICode(p!, tools.newExecutionHost, editor);
+        const commands = await getAICode(
+          p!,
+          tools.newExecutionHost,
+          editor,
+          editorStore.current!,
+          connectionMethods.current!.queryLLM,
+        );
         // debugger;
         // const commands = [
         //   {
