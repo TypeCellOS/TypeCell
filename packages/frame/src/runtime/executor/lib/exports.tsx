@@ -1,13 +1,13 @@
 import { RunContext } from "@typecell-org/engine";
 import { CodeModel } from "@typecell-org/shared";
-import { autorun, computed, runInAction } from "mobx";
+import memoize from "lodash.memoize";
+import { autorun, comparer, computed, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
-import { createTransformer } from "mobx-utils";
+import { computedFn, createTransformer } from "mobx-utils";
 import { useEffect, useMemo } from "react";
 import { EditorStore } from "../../../EditorStore";
 import { AutoForm, AutoFormProps } from "./autoForm";
 import { Input } from "./input/Input";
-
 /**
  * This is used in ../resolver/resolver.ts and exposes the "typecell" helper functions
  * (e.g.: typecell.Input)
@@ -42,24 +42,101 @@ export default function getExposeGlobalVariables(
         editorStore.delete(completeConfig);
       });
     },
-    get firstBlock() {
+    /**
+     * EXPERIMENTAL
+     */
+    getBlock(id: string): any {
+      return editorStore.getBlock(id);
+    },
+    /**
+     * EXPERIMENTAL
+     */
+    get firstBlock(): any {
       return editorStore.firstBlock;
     },
-    get currentBlock() {
+    /**
+     * EXPERIMENTAL
+     */
+    get currentBlock(): any {
       // TODO: this logic should be part of CodeModel / BasicCodeModel
       const id = forModelList[forModelList.length - 1].path;
       const parts = decodeURIComponent(id.replace("file:///", "")).split("/");
-      const fileId = parts.pop()!;
+      const fileId = parts.pop()!.split("_")[0];
 
       const blockId = fileId.replace(".cell.tsx", "");
       return editorStore.getBlock(blockId)!;
     },
+    /**
+     * EXPERIMENTAL
+     */
+    findBlocks: computedFn(
+      (predicate: (block: any) => boolean) => {
+        const result: any[] = [];
 
+        function find(children: any[]) {
+          for (const block of children) {
+            const asBlock = editorStore.getBlock(block.id)!;
+            if (predicate(asBlock)) {
+              result.push(asBlock);
+            }
+            find(block.children);
+          }
+        }
+        find(editorStore.topLevelBlocks);
+        return result;
+      },
+      { equals: comparer.structural },
+    ),
+    /**
+     * EXPERIMENTAL
+     */
+    findBlockUp(predicate: (block: any) => boolean): any {
+      function find(currentBlock: any): any {
+        const parent = currentBlock.parent;
+        let children = parent?.children;
+        if (!children) {
+          children = editorStore.topLevelBlocks;
+        }
+
+        let foundSelf = false;
+        for (let i = children.length - 1; i >= 0; i--) {
+          const block = children[i];
+          if (!foundSelf) {
+            if (block.id === currentBlock.id) {
+              foundSelf = true;
+            }
+            continue;
+          }
+          const asBlock = editorStore.getBlock(block.id)!;
+          if (predicate(asBlock)) {
+            return asBlock;
+          }
+        }
+
+        return parent ? find(parent) : undefined;
+      }
+      return find(this.currentBlock);
+    },
+    /**
+     * EXPERIMENTAL
+     */
     get storage() {
       return this.currentBlock.storage;
     },
   };
   return {
+    memoize: (func: (...args: any[]) => any) => {
+      const wrapped = async function (this: any, ...args: any[]) {
+        const ret = await func.apply(this, args);
+        // if (typeof ret === "object") {
+        //   return observable(ret);
+        // }
+        return ret;
+      };
+      return memoize(wrapped, (args) => {
+        return JSON.stringify(args);
+      });
+    },
     // routing,
     // // DocumentView,
     Input,
@@ -79,6 +156,7 @@ export default function getExposeGlobalVariables(
     computed: computed as (func: () => any) => any,
     onDispose: runContext.onDispose,
     editor,
+
     AutoForm: observer(
       <
         T extends {
