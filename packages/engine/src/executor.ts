@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { autorun, runInAction } from "mobx";
+import { autorun, runInAction, trace } from "mobx";
 import { TypeCellContext } from "./context.js";
 import { installHooks } from "./hookDisposables.js";
 import { Module } from "./modules.js";
@@ -104,7 +104,7 @@ export async function runModule(
         detectedLoop = true;
         throw new Error("loop detected (child run)");
       }
-      // trace(false);
+      trace(false);
       if (initialRun) {
         // log.debug("engine initial run", cell.id); //, func + "");
       } else {

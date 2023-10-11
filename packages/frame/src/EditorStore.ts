@@ -3,27 +3,53 @@ import { Block, BlockNoteEditor } from "@blocknote/core";
 import {
   ObservableMap,
   action,
+  computed,
   makeObservable,
   observable,
   onBecomeObserved,
   reaction,
   runInAction,
 } from "mobx";
+import { ExecutionHost } from "./runtime/executor/executionHosts/ExecutionHost";
+import LocalExecutionHost from "./runtime/executor/executionHosts/local/LocalExecutionHost";
 
 export class EditorStore {
   private readonly blockCache = new ObservableMap<string, TypeCellBlock>();
+
+  // TODO: hacky properties
+  /** @internal */
   public editor: BlockNoteEditor | undefined;
+  /** @internal */
+  public executionHost: LocalExecutionHost | undefined;
+  public topLevelBlocks: any;
 
   constructor() {
     makeObservable(this, {
       customBlocks: observable.shallow,
       add: action,
       delete: action,
+      topLevelBlocks: observable.ref,
+    });
+
+    onBecomeObserved(this, "topLevelBlocks", () => {
+      this.editor!.onEditorContentChange(() => {
+        runInAction(() => {
+          this.topLevelBlocks = this.editor!.topLevelBlocks.map((block) =>
+            this.getBlock(block.id),
+          );
+        });
+      });
+      this.topLevelBlocks = this.editor!.topLevelBlocks.map((block) =>
+        this.getBlock(block.id),
+      );
     });
   }
 
   customBlocks = new Map<string, any>();
 
+  /**
+   * Add a custom block (slash menu command) to the editor
+   */
   public add(config: any) {
     if (this.customBlocks.has(config.id)) {
       // already has block with this id, maybe loop of documents?
@@ -32,10 +58,17 @@ export class EditorStore {
     this.customBlocks.set(config.id, config);
   }
 
+  /**
+   * Remove a custom block (slash menu command) from the editor
+   */
   public delete(config: any) {
     this.customBlocks.delete(config.id);
   }
 
+  /**
+   * EXPERIMENTAL
+   * @internal
+   * */
   public getBlock(id: string) {
     let block = this.blockCache.get(id);
     if (!block) {
@@ -44,32 +77,97 @@ export class EditorStore {
         return undefined;
       }
 
-      block = new TypeCellBlock(id, this.editor!, () => {
+      block = new TypeCellBlock(id, this.editor!, this.executionHost!, () => {
         this.blockCache.delete(id);
       });
       this.blockCache.set(id, block);
     }
 
+    const b = block;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const that = this;
     return {
       ...block.block,
       storage: block.storage,
+      get parent(): any {
+        const findParent = (
+          searchId: string,
+          parentId: string | undefined,
+          children: Block[],
+        ): string | undefined => {
+          for (const child of children) {
+            if (child.id === searchId) {
+              return parentId;
+            }
+            const found = findParent(searchId, child.id, child.children);
+            if (found) {
+              return found;
+            }
+          }
+          return undefined;
+        };
+        const parentId = findParent(id, undefined, that.editor!.topLevelBlocks);
+        if (!parentId) {
+          return undefined;
+        }
+        return that.getBlock(parentId);
+      },
+      get context() {
+        return b.context;
+      },
     };
   }
 
+  /**
+   * EXPERIMENTAL
+   *
+   * @internal
+   * */
   public get firstBlock() {
     return this.getBlock(this.editor!.topLevelBlocks[0].id);
   }
 }
 
+/**
+ * EXPERIMENTAL
+ */
 class TypeCellBlock {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore it's set using updatePropertiesFromEditorBlock
   block: Block;
   storage: Record<string, any> = {};
 
-  constructor(id: string, editor: BlockNoteEditor, onRemoved: () => void) {
+  get context() {
+    // TODO: hacky
+    const keys = [...this.executionHost.outputs.keys()].filter((key) =>
+      key.includes(this.block.id),
+    );
+
+    if (!keys.length) {
+      return undefined;
+    }
+    // return undefined;
+
+    // debugger;
+    const val = this.executionHost.outputs.get(keys[0])?.value;
+    if (val instanceof Error) {
+      return undefined;
+    }
+    return val;
+    // return Object.fromEntries(
+    //   Object.getOwnPropertyNames(val).map((key) => [key, val[key]]),
+    // );
+  }
+
+  constructor(
+    id: string,
+    editor: BlockNoteEditor,
+    private readonly executionHost: ExecutionHost,
+    onRemoved: () => void,
+  ) {
     makeObservable(this, {
       block: observable.ref,
+      context: computed,
       storage: true,
     });
 
@@ -82,11 +180,11 @@ class TypeCellBlock {
       runInAction(() => {
         this.block = newBlock;
 
-        if (newBlock.props.storage !== JSON.stringify(this.storage)) {
-          if (newBlock.props.storage) {
+        if ((newBlock.props as any).storage !== JSON.stringify(this.storage)) {
+          if (newBlock.props as any) {
             try {
               console.log("update cell storage");
-              this.storage = JSON.parse(newBlock.props.storage) || {};
+              this.storage = JSON.parse((newBlock.props as any).storage) || {};
             } catch (e) {
               console.error(e);
             }
@@ -123,7 +221,7 @@ class TypeCellBlock {
           editor.updateBlock(this.block, {
             props: {
               storage: val,
-            },
+            } as any,
           });
         }
       },

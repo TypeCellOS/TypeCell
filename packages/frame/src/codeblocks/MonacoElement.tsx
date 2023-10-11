@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { NodeViewProps } from "@tiptap/core";
 
+import { NodeViewProps } from "@tiptap/core";
 import * as monaco from "monaco-editor";
 import React, {
   useCallback,
@@ -12,8 +12,19 @@ import React, {
 } from "react";
 import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
 
-import { BlockNoteEditor } from "@blocknote/core";
+import {
+  autoUpdate,
+  safePolygon,
+  size,
+  useDismiss,
+  useFloating,
+  useHover,
+  useInteractions,
+} from "@floating-ui/react";
 import { useResource } from "@typecell-org/util";
+import { RichTextContext } from "../RichTextContext";
+import { MonacoTypeCellCodeModel } from "../models/MonacoCodeModel";
+import { getMonacoModel } from "../models/MonacoModelManager";
 import LanguageSelector from "./LanguageSelector";
 import styles from "./MonacoElement.module.css";
 import {
@@ -23,16 +34,17 @@ import {
   textFromPMNode,
 } from "./MonacoProsemirrorHelpers";
 import monacoStyles from "./MonacoSelection.module.css";
-import { RichTextContext } from "./RichTextContext";
-import { MonacoTypeCellCodeModel } from "./models/MonacoCodeModel";
-import { getMonacoModel } from "./models/MonacoModelManager";
+
+export type MonacoElementProps = NodeViewProps & {
+  modelUri: monaco.Uri;
+  language: string;
+  setLanguage: (lang: string) => void;
+  selectionHack: any;
+  inline: boolean;
+};
 
 const MonacoElementComponent = function MonacoElement(
-  props: NodeViewProps & {
-    block: any;
-    selectionHack: any;
-    blockNoteEditor: any;
-  },
+  props: MonacoElementProps,
 ) {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
   // const refa = useRef<any>(Math.random());
@@ -40,15 +52,15 @@ const MonacoElementComponent = function MonacoElement(
 
   const models = useResource(() => {
     // console.log("create", props.block.id, refa.current);
-    const uri = monaco.Uri.parse(
-      `file:///!${context.documentId}/${props.block.id}.cell.tsx`,
-    );
-    console.log("allocate model", uri.toString());
+    // const uri = monaco.Uri.parse(
+    //   `file:///!${context.documentId}/${props.block.id}.cell.tsx`,
+    // );
+    // console.log("allocate model", props.modelUri.toString());
 
     const model = getMonacoModel(
       textFromPMNode(props.node),
-      props.block.props.language,
-      uri,
+      props.language,
+      props.modelUri,
       monaco,
     );
 
@@ -84,11 +96,8 @@ const MonacoElementComponent = function MonacoElement(
     models.state.isUpdating = true;
     models.state.node = props.node;
     try {
-      if (props.block.props.language !== models.codeModel.language) {
-        monaco.editor.setModelLanguage(
-          models.model,
-          props.block.props.language,
-        );
+      if (props.language !== models.codeModel.language) {
+        monaco.editor.setModelLanguage(models.model, props.language);
       }
       applyNodeChangesToMonaco(props.node, models.model);
       models.state.lastDecorations = applyDecorationsToMonaco(
@@ -103,7 +112,7 @@ const MonacoElementComponent = function MonacoElement(
     } finally {
       models.state.isUpdating = false;
     }
-  }, [props.node, props.block, props.decorations, models]);
+  }, [props.node, props.language, props.decorations, models]);
 
   // useImperativeHandle(
   //   ref,
@@ -140,7 +149,7 @@ const MonacoElementComponent = function MonacoElement(
   }, [models.model, models.state, props.selectionHack]);
 
   const codeRefCallback = useCallback(
-    (el: HTMLDivElement) => {
+    (el: HTMLDivElement, onLayoutChange?: (newHeight: number) => void) => {
       const editor = editorRef.current;
 
       if (editor) {
@@ -150,18 +159,19 @@ const MonacoElementComponent = function MonacoElement(
           editorRef.current = undefined;
         } else {
           // no need for new editor
-          return;
+          return undefined;
         }
       }
 
       if (!el) {
-        return;
+        return undefined;
       }
 
       console.log("create editor");
       const newEditor = monaco.editor.create(el, {
         model: models.model,
         theme: "typecellTheme",
+        renderLineHighlight: props.inline ? "none" : "all",
       });
 
       bindMonacoAndProsemirror(
@@ -191,22 +201,68 @@ const MonacoElementComponent = function MonacoElement(
       });
 
       newEditor.onDidContentSizeChange(() => {
+        console.log("content size", newEditor.getContentHeight());
         const contentHeight = Math.min(500, newEditor.getContentHeight());
 
         newEditor.layout({
           height: contentHeight,
-          width: newEditor.getContainerDomNode()!.offsetWidth,
+          width: props.inline
+            ? newEditor.getContentWidth() + 50
+            : newEditor.getContainerDomNode()!.offsetWidth,
         });
+
+        onLayoutChange?.(contentHeight);
       });
 
       editorRef.current = newEditor;
+      return newEditor;
     },
-    [models.model, models.state, props.editor.view, props.getPos],
+    [
+      models.model,
+      models.state,
+      props.editor.view,
+      props.getPos,
+      props.inline,
+      editorRef,
+    ],
   );
 
+  // useEffect(() => {
+  //   console.log("mount main");
+  //   return () => {
+  //     console.log("unmount main");
+  //   };
+  // }, []);
+
+  return props.inline ? (
+    <MonacoInlineElement
+      {...props}
+      model={models.model}
+      codeRefCallback={codeRefCallback}
+    />
+  ) : (
+    <MonacoBlockElement
+      {...props}
+      model={models.model}
+      codeRefCallback={codeRefCallback}
+    />
+  );
+};
+
+const MonacoBlockElement = (
+  props: NodeViewProps & {
+    inline: boolean;
+    setLanguage: (lang: string) => void;
+    language: string;
+    model: monaco.editor.IModel;
+    codeRefCallback?: (el: HTMLDivElement) => void;
+  },
+) => {
   const [codeVisible, setCodeVisible] = useState(
     () => props.node.textContent.startsWith("// @default-collapsed") === false,
   );
+
+  const context = useContext(RichTextContext);
 
   return (
     <div
@@ -234,25 +290,20 @@ const MonacoElementComponent = function MonacoElement(
           <div className={styles.codeCellCode}>
             {/* {props.toolbar && props.toolbar} */}
             <LanguageSelector
-              language={props.block.props.language}
+              language={props.language as any}
               onChangeLanguage={(lang) => {
-                (props.blockNoteEditor as BlockNoteEditor<any>).updateBlock(
-                  props.block,
-                  {
-                    props: {
-                      language: lang,
-                    },
-                  },
-                );
+                props.setLanguage(lang);
               }}
             />
-            <div className={styles.monacoContainer} ref={codeRefCallback}></div>
+            <div
+              className={styles.monacoContainer}
+              ref={props.codeRefCallback}></div>
           </div>
         )}
 
         <div className={styles.codeCellOutput} contentEditable={false}>
           {context.executionHost.renderOutput(
-            models.model.uri.toString(),
+            props.model.uri.toString(),
             () => {
               // noop
             },
@@ -260,6 +311,126 @@ const MonacoElementComponent = function MonacoElement(
         </div>
       </div>
     </div>
+  );
+};
+
+const MonacoInlineElement = (
+  props: NodeViewProps & {
+    inline: boolean;
+    model: monaco.editor.IModel;
+    selectionHack: any;
+    codeRefCallback?: (
+      el: HTMLDivElement,
+      onLayoutChange: (newHeight: number) => void,
+    ) => monaco.editor.IStandaloneCodeEditor | undefined;
+  },
+) => {
+  const [codeVisible, setCodeVisible] = useState(false);
+  const height = useRef(50);
+  const [editorFocus, setEditorFocused] = useState(false);
+
+  const { refs, floatingStyles, context } = useFloating({
+    open: codeVisible,
+    onOpenChange: setCodeVisible,
+    placement: "top-start",
+    whileElementsMounted: autoUpdate,
+    middleware: [
+      size({
+        apply(args) {
+          args.elements.floating.style.height = height.current + "px";
+          // console.log("size");
+          // debugger;
+        },
+      }),
+    ],
+  });
+
+  const dismiss = useDismiss(context);
+  const hover = useHover(context, {
+    delay: {
+      open: 0,
+      close: 400,
+    },
+    enabled: !codeVisible || !editorFocus,
+    handleClose: safePolygon(),
+  });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    hover,
+    dismiss,
+  ]);
+
+  const codeRef = useCallback(
+    (el: HTMLDivElement) => {
+      console.log(codeVisible);
+      const editor = props.codeRefCallback?.(el, (newHeight: number) => {
+        height.current = newHeight;
+        context.update();
+      });
+      if (editor) {
+        editor.onDidBlurEditorWidget(() => {
+          setCodeVisible(false);
+          setEditorFocused(false);
+        });
+        editor.onDidFocusEditorWidget(() => {
+          setEditorFocused(true);
+        });
+        setEditorFocused(editor.hasWidgetFocus());
+      }
+      refs.setFloating(el);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [props.codeRefCallback, refs.setFloating, codeVisible],
+  );
+
+  useEffect(() => {
+    console.log("selectionHack effect", props.selectionHack);
+    if (!props.selectionHack) {
+      return;
+    }
+
+    setCodeVisible(true);
+  }, [props.selectionHack]);
+
+  // useEffect(() => {
+  //   console.log("mount inline");
+  //   return () => {
+  //     console.log("unmount inline");
+  //   };
+  // }, []);
+
+  const rtcontext = useContext(RichTextContext);
+  // debugger;
+  return (
+    <>
+      {codeVisible && (
+        <div
+          key="code"
+          className={styles.monacoContainer}
+          style={{
+            zIndex: 1000,
+            borderRadius: "4px",
+            boxShadow: "rgb(235, 236, 240) 0px 0px 0px 1.2px",
+            height: "50px",
+            ...floatingStyles,
+          }}
+          {...getFloatingProps()}
+          ref={codeRef}></div>
+      )}
+
+      <span
+        className={styles.codeCellOutput + " " + styles.inline}
+        contentEditable={false}
+        ref={refs.setReference}
+        {...getReferenceProps()}>
+        {rtcontext.executionHost.renderOutput(
+          props.model.uri.toString(),
+          () => {
+            // noop
+          },
+        )}
+      </span>
+    </>
   );
 };
 
