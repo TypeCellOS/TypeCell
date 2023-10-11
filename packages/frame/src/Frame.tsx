@@ -121,6 +121,10 @@ const slashMenuItems = [...originalItems];
 
 export const Frame: React.FC<Props> = observer((props) => {
   const modelReceivers = useMemo(() => new Map<string, ModelReceiver>(), []);
+  const subCompilers = useMemo(
+    () => new Map<string, SourceModelCompiler>(),
+    [],
+  );
   const connectionMethods = useRef<AsyncMethodReturns<HostBridgeMethods>>();
   const editorStore = useRef(new EditorStore());
 
@@ -224,31 +228,45 @@ export const Frame: React.FC<Props> = observer((props) => {
       const newCompiler = new SourceModelCompiler(monaco);
       const resolver = new Resolver(async (moduleName) => {
         // How to resolve typecell modules (i.e.: `import * as nb from "!dALYTUW8TXxsw"`)
-        const subcompiler = new SourceModelCompiler(monaco);
-
-        const modelReceiver = new ModelReceiver();
-        // TODO: what if we have multiple usage of the same module?
-        modelReceivers.set("modules/" + moduleName, modelReceiver);
-
-        modelReceiver.onDidCreateModel((model) => {
-          subcompiler.registerModel(model);
-        });
 
         const fullIdentifier =
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          await connectionMethods.current!.registerTypeCellModuleCompiler(
-            moduleName,
-          );
+          await connectionMethods.current!.resolveModuleName(moduleName);
 
-        // register an alias for the module so that types resolve
-        // (e.g.: from "!dALYTUW8TXxsw" to "!typecell:typecell.org/dALYTUW8TXxsw")
         if ("!" + fullIdentifier !== moduleName) {
+          // register an alias for the module so that types resolve
+          // (e.g.: from "!dALYTUW8TXxsw" to "!typecell:typecell.org/dALYTUW8TXxsw")
+
           monaco.languages.typescript.typescriptDefaults.addExtraLib(
             `export * from "!${fullIdentifier}";`,
             `file:///node_modules/@types/${moduleName}/index.d.ts`,
           );
         }
 
+        let modelReceiver = modelReceivers.get("modules/" + fullIdentifier);
+
+        if (modelReceiver) {
+          const subCompiler = subCompilers.get("modules/" + fullIdentifier);
+          if (!subCompiler) {
+            throw new Error("subCompiler not found");
+          }
+          return subCompiler;
+        }
+        modelReceiver = new ModelReceiver();
+
+        modelReceivers.set("modules/" + fullIdentifier, modelReceiver);
+
+        const subcompiler = new SourceModelCompiler(monaco);
+        modelReceiver.onDidCreateModel((model) => {
+          subcompiler.registerModel(model);
+        });
+
+        subCompilers.set("modules/" + fullIdentifier, subcompiler);
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        await connectionMethods.current!.registerTypeCellModuleCompiler(
+          fullIdentifier,
+        );
         // TODO: dispose modelReceiver
         return subcompiler;
       }, editorStore.current);

@@ -10,8 +10,9 @@ export type HostBridgeMethods = {
    * send the compiled javascript back to the iframe. It also keeps watching the TypeCell module for changes
    * and sends changes across the bridge.
    */
-  registerTypeCellModuleCompiler: (moduleName: string) => Promise<string>;
-  unregisterTypeCellModuleCompiler: (moduleName: string) => Promise<void>;
+  resolveModuleName: (moduleName: string) => Promise<string>;
+  registerTypeCellModuleCompiler: (identifierStr: string) => Promise<string>;
+  unregisterTypeCellModuleCompiler: (identifierStr: string) => Promise<void>;
 
   /**
    * Function for y-penpal
