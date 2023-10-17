@@ -81,13 +81,13 @@ export class SupabaseHocuspocus extends Database {
           .from("documents")
           .update(
             { data: "\\x" + data.state.toString("hex") }, // add \x for postgres binary data
-            { count: "exact" }
+            { count: "exact" },
           )
           .eq("nano_id", data.documentName)
           .select();
         if (ret.data?.length !== 1) {
           throw new Error(
-            "unexpected: not found when storing " + data.documentName
+            "unexpected: not found when storing " + data.documentName,
           );
         }
       },
@@ -164,7 +164,7 @@ export class SupabaseHocuspocus extends Database {
     socketId: string,
     documentId: string,
     event: Y.YEvent<any>[],
-    tr: Y.Transaction
+    tr: Y.Transaction,
   ) => {
     const supabase = this.supabaseMap.get(socketId);
     if (!supabase) {
@@ -191,9 +191,15 @@ export class SupabaseHocuspocus extends Database {
       .filter(
         (r) =>
           r.namespace === ChildReference.namespace &&
-          r.type === ChildReference.type
+          r.type === ChildReference.type,
       )
-      .map((r) => r.target as string);
+      .map((r) => {
+        const target = r.target as string;
+        if (!target.startsWith("typecell:typecell.org/")) {
+          console.error("invalid target", target);
+        }
+        return target.split("/", 2)[1];
+      });
 
     const refsIds = await serviceClient
       .from("documents")
@@ -229,19 +235,20 @@ export class SupabaseHocuspocus extends Database {
 
       if (ret.error) {
         throw new Error(
-          "error executing supabase request (remove) " + ret.error.message
+          "error executing supabase request (remove) " + ret.error.message,
         );
       }
     }
 
     if (toAdd.length) {
-      const ret = await supabase
-        .from("document_relations")
-        .insert(toAdd.map((e) => ({ parent_id: documentId, child_id: e })));
+      const ret = await supabase.from("document_relations").upsert(
+        toAdd.map((e) => ({ parent_id: documentId, child_id: e })),
+        { ignoreDuplicates: true },
+      );
 
       if (ret.error) {
         throw new Error(
-          "error executing supabase request (add) " + ret.error.message
+          "error executing supabase request (add) " + ret.error.message,
         );
       }
     }
@@ -259,7 +266,7 @@ export class SupabaseHocuspocus extends Database {
         data.socketId,
         documentIdByDocument.get(data.document)!,
         event,
-        tr
+        tr,
       );
 
     data.document.getMap("refs").observeDeep(refListener);
