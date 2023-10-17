@@ -191,11 +191,11 @@ form {
 }
 
 .footer > div {
-  /* grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   padding: 90px 40px;
   max-width: calc(var(--vp-layout-max-width) + 16px);
-  /* display: grid; */
-  display: flex;
+  display: grid;
+  /* display: flex; */
   gap: 100px;
   margin: 0 auto;
   justify-content: center;
@@ -279,7 +279,7 @@ form {
 @media (max-width: 500px) {
   .header,
   .content {
-    padding-left: 0;
+    padding-left: 12px;
     padding-right: 12px;
   }
 }

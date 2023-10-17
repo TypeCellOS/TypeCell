@@ -1,9 +1,9 @@
 import { makeYDocObservable } from "@syncedstore/yjs-reactive-bindings";
+import { observable } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
 import { Identifier } from "../../identifiers/Identifier";
-
 export type LocalDoc = {
   ydoc: Y.Doc;
   meta: DocumentInfo;
@@ -12,10 +12,10 @@ export type LocalDoc = {
 
 export type DocumentInfo = {
   id: string;
-  created_at: Date;
+  created_at: number;
   create_source: "local" | "remote";
   exists_at_remote: boolean;
-  needs_save_since: Date | undefined;
+  needs_save_since: number | undefined;
 };
 
 function COORDINATOR_IDB_ID(userId: string) {
@@ -48,7 +48,10 @@ const lockify = (f: any) => {
   };
 };
 export class DocumentCoordinator extends lifecycle.Disposable {
-  private loadedDocuments = new Map<string, LocalDoc>();
+  public readonly loadedDocuments = observable.map<string, LocalDoc>(
+    undefined,
+    { deep: false },
+  );
 
   private readonly doc: Y.Doc;
   private readonly indexedDBProvider: IndexeddbPersistence;
@@ -59,7 +62,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
     makeYDocObservable(this.doc);
     this.indexedDBProvider = new IndexeddbPersistence(
       COORDINATOR_IDB_ID(userId),
-      this.doc
+      this.doc,
     );
 
     this._register({
@@ -95,14 +98,14 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
       const guestDocIDB = new IndexeddbPersistence(
         DOC_IDB_ID("user-tc-guest", typedDoc.id),
-        ydoc
+        ydoc,
       );
       await awaitSynced(guestDocIDB);
 
       if (typedDoc.needs_save_since) {
         const targetDocIDB = new IndexeddbPersistence(
           DOC_IDB_ID(this.userId, typedDoc.id),
-          ydoc
+          ydoc,
         );
         await awaitSynced(targetDocIDB);
         ydoc.destroy();
@@ -136,7 +139,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
    */
   public async createDocument(
     identifier: Identifier,
-    targetYDoc: Y.Doc
+    targetYDoc: Y.Doc,
   ): Promise<LocalDoc> {
     const idStr = identifier.toString();
     if (!this.indexedDBProvider.synced) {
@@ -148,9 +151,9 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
     const meta: DocumentInfo = {
       id: idStr,
-      created_at: new Date(),
+      created_at: Date.now(),
       create_source: "local",
-      needs_save_since: new Date(),
+      needs_save_since: Date.now(),
       exists_at_remote: false,
     };
 
@@ -169,7 +172,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
    */
   public createDocumentFromRemote(
     identifier: Identifier,
-    targetYDoc: Y.Doc
+    targetYDoc: Y.Doc,
   ): LocalDoc {
     const idStr = identifier.toString();
     if (!this.indexedDBProvider.synced) {
@@ -181,7 +184,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
     const meta: DocumentInfo = {
       id: idStr,
-      created_at: new Date(),
+      created_at: Date.now(),
       create_source: "remote",
       needs_save_since: undefined,
       exists_at_remote: true,
@@ -234,7 +237,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
    */
   public loadDocument(
     identifier: Identifier,
-    targetYDoc: Y.Doc
+    targetYDoc: Y.Doc,
   ): LocalDoc | "not-found" {
     const idStr = identifier.toString();
     if (!this.indexedDBProvider.synced) {
@@ -267,14 +270,14 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       }
 
       if (meta.needs_save_since === undefined) {
-        meta.needs_save_since = new Date();
+        meta.needs_save_since = Date.now();
         this.documents.set(idStr, { ...meta });
       }
     });
 
     const idbProvider = new IndexeddbPersistence(
       DOC_IDB_ID(this.userId, idStr),
-      targetYDoc
+      targetYDoc,
     );
 
     const doc: LocalDoc = {
