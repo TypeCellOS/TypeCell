@@ -53,7 +53,7 @@ describe("SupabaseHocuspocus", () => {
         docId,
         ydoc,
         alice.session?.access_token + "$" + alice.session?.refresh_token,
-        wsProvider
+        wsProvider,
       );
 
       ydoc.getMap("mymap").set("hello", "world");
@@ -75,7 +75,7 @@ describe("SupabaseHocuspocus", () => {
         docId,
         ydoc2,
         alice.session?.access_token + "$" + alice.session?.refresh_token,
-        wsProvider
+        wsProvider,
       );
 
       await async.timeout(100);
@@ -92,7 +92,7 @@ describe("SupabaseHocuspocus", () => {
         docId,
         ydoc,
         alice.session?.access_token + "$" + alice.session?.refresh_token,
-        wsProvider
+        wsProvider,
       );
 
       ydoc.getMap("mymap").set("hello", "world");
@@ -102,7 +102,7 @@ describe("SupabaseHocuspocus", () => {
         docId,
         ydoc2,
         alice.session?.access_token + "$" + alice.session?.refresh_token,
-        wsProvider
+        wsProvider,
       );
 
       ydoc2.getMap("anothermap").set("hello", "world");
@@ -122,7 +122,7 @@ describe("SupabaseHocuspocus", () => {
         docId,
         ydoc,
         alice.session?.access_token + "$" + alice.session?.refresh_token,
-        wsProvider
+        wsProvider,
       );
 
       ydoc.getMap("mymap").set("hello", "world");
@@ -132,7 +132,7 @@ describe("SupabaseHocuspocus", () => {
         docId,
         ydoc2,
         bob.session?.access_token + "", // TODO
-        wsProvider
+        wsProvider,
       );
       ydoc2.getMap("anothermap").set("hello", "world");
       await async.timeout(100);
@@ -184,7 +184,7 @@ describe("SupabaseHocuspocus", () => {
       const docB = createDocument(bob.user!.id, "", "no-access");
       const retB = await bob.supabase.from("documents").insert(docB).select();
       expect(retB.error).toBeNull();
-      docBId = retB.data![0].nano_id;
+      docBId = "typecell:typecell.org/" + retB.data![0].nano_id;
       docBDbID = retB.data![0].id;
     });
 
@@ -197,7 +197,7 @@ describe("SupabaseHocuspocus", () => {
         docId,
         ydoc,
         alice.session?.access_token + "$" + alice.session?.refresh_token,
-        wsProvider
+        wsProvider,
       );
 
       ydoc.getMap("refs").set("fakekey", {
