@@ -14,15 +14,11 @@ export default class ProjectResource extends BaseResource {
   constructor(
     ydoc: Y.Doc,
     identifier: Identifier,
-    manager: BaseResourceExternalManager = UnimplementedBaseResourceExternalManager
+    manager: BaseResourceExternalManager = UnimplementedBaseResourceExternalManager,
   ) {
     super(ydoc, identifier, manager);
     if (this.type !== "!project") {
       throw new Error("invalid type for PluginResource");
     }
-  }
-
-  public get files() {
-    return this.ydoc.getMap("files");
   }
 }

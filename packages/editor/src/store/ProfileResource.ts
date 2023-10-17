@@ -14,7 +14,7 @@ export default class ProfileResource extends BaseResource {
   constructor(
     ydoc: Y.Doc,
     identifier: Identifier,
-    manager: BaseResourceExternalManager = UnimplementedBaseResourceExternalManager
+    manager: BaseResourceExternalManager = UnimplementedBaseResourceExternalManager,
   ) {
     super(ydoc, identifier, manager);
     if (this.type !== "!profile") {
@@ -51,6 +51,7 @@ export default class ProfileResource extends BaseResource {
   }
 
   // TODO: if profile is public, then we can currently see the names of all workspaces
+  // TODO: migrate to refs?
   public get workspaces() {
     const ret = this.ydoc.getMap<string>("workspaces");
 
@@ -59,6 +60,7 @@ export default class ProfileResource extends BaseResource {
 
   // these documents (forks) don't have a parent workspace, so we store them on the profile
   // (perhaps not the nicest architecture, but we probably want to revisit the concept of forking entirely)
+  // TODO: migrate to refs?
   public get forks() {
     // we use a map with the same value (identifier) as key and value, effectively using it as a set
     const ret = this.ydoc.getMap<string>("forks");
