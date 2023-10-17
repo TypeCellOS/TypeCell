@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "react-confetti-explosion": "^2.1.2",
-    "@hocuspocus/provider": "^2.4.0",
+    "@hocuspocus/provider": "^2.7.0",
     "@atlaskit/atlassian-navigation": "^2.6.13",
     "@atlaskit/avatar": "^21.3.7",
     "@atlaskit/breadcrumbs": "^11.10.5",
@@ -78,7 +78,7 @@
     "lint": "eslint src",
     "test-watch": "vitest watch",
     "unittest:vitest": "vitest run",
-    "unittest:playwright": "playwright-test '**/*.browsertest.ts' --runner mocha",
+    "unittest:playwright": "playwright-test '**/*Syncer.browsertest.ts' -d --runner mocha",
     "test": "npm run unittest:vitest && npm run unittest:playwright",
     "vite:dev": "vite",
     "vite:build": "vite build --mode=$MODE",
