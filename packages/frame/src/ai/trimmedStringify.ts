@@ -1,5 +1,11 @@
 import React from "react";
 
+// quickly generated with chatgpt:
+// "create a json stringify alternative that can trim long fields / deeply nested objects,
+// and serializes property getters"
+
+// https://chat.openai.com/share/693c349f-3f74-4913-8f1d-ba4477f93e87
+
 type Serializable =
   | string
   | number
@@ -13,7 +19,10 @@ interface QueueItem {
   path: (string | number)[];
 }
 
-export function customStringify(obj: Serializable, budget = 1000): string {
+/**
+ * a stringify function that trims long fields / deeply nested objects, and serializes property getters
+ */
+export function trimmedStringify(obj: Serializable, budget = 1000): string {
   const seen = new Set<Serializable>();
   const queue: QueueItem[] = [{ obj, path: [] }];
   const output: Serializable = Array.isArray(obj) ? [] : {};

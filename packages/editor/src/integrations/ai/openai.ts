@@ -23,6 +23,7 @@ export async function queryOpenAI(parameters: {
 
   const openai = new OpenAI({
     apiKey: key,
+    // this should be ok as we are not exposing any keys
     dangerouslyAllowBrowser: true,
   });
 

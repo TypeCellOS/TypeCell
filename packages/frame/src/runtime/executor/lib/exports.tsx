@@ -195,7 +195,6 @@ export default function getExposeGlobalVariables(
                 return undefined;
               }
               return autorun(() => {
-                // console.log("autorun setting", func);
                 func();
               });
             },

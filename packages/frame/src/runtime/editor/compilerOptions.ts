@@ -14,6 +14,7 @@ export function getDefaultSandboxCompilerOptions(
   >,
 ) {
   const settings: CompilerOptions = {
+    // used so that ts.getQuickInfoAtPosition doesn't truncate too soon
     noErrorTruncation: true,
     noImplicitAny: true,
     strictNullChecks: !config.useJavaScript,

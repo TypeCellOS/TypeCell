@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost"
 import "@blocknote/core/style.css";
 import * as mobx from "mobx";
@@ -8,48 +9,8 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { HostBridgeMethods } from "@typecell-org/shared";
 import { uri } from "vscode-lib";
 import { EditorStore } from "../EditorStore";
-import { compile } from "../runtime/compiler/compilers/MonacoCompiler";
 import { ExecutionHost } from "../runtime/executor/executionHosts/ExecutionHost";
-import { customStringify } from "../stringify";
-import { CodeBlockRuntimeInfo } from "./types";
-
-// and for the runtime info:
-
-// /**
-//  * Runtime information about a code block of the main document
-//  * The code itself is not included (it's in the Block.id with the corresponding blockId)
-//  */
-// type MainCodeBlockRuntimeInfo = {
-//   imported: false;
-//   blockId: string;
-//   // .d.ts TypeScript types of values exported by this block
-//   types: string;
-//   // the runtime values exported by this block. Data can be trimmed for brevity
-//   // IMPORTANT: if this is for example { outputVariable: 5 }, it means the code block exports a variable \`outputVariable\` and the current value is 5
-//   // You can access this reactive variable in other code blocks using the \`$\` variable. e.g.: \`$.outputVariable\` (it supports both reading and writing)
-//   data: any;
-// };
-
-// /**
-//  * Runtime + code information of code blocks imported from other documents
-//  */
-// type ImportedCodeBlockRuntimeInfo = {
-//   imported: true;
-//   /**
-//    * Because we don't pass the entire document this code is imported from, we need to pass the code of this code block
-//    */
-//   code: string;
-//   // .d.ts TypeScript types of values exported by this block
-//   types: string;
-//   documentId: string;
-//   blockId: string;
-//   // the runtime values exported by this block. Data can be trimmed for brevity
-//   data: any;
-// };
-
-// export type CodeBlockRuntimeInfo =
-//   | MainCodeBlockRuntimeInfo
-//   | ImportedCodeBlockRuntimeInfo;
+import { trimmedStringify } from "./trimmedStringify";
 
 const TYPECELL_PROMPT = `
 You're a smart AI assistant for TypeCell: a rich text document tool that also supports interactive Code Blocks written in Typescript. 
@@ -122,10 +83,6 @@ export async function getAICode(
   editorStore: EditorStore,
   queryLLM: HostBridgeMethods["queryLLM"],
 ) {
-  const models = monaco.editor.getModels();
-  const typeCellModels = models.filter((m) =>
-    m.uri.path.startsWith("/!typecell:typecell.org"),
-  );
   const blocks = editor.topLevelBlocks;
 
   let blockContexts: any[] = [];
@@ -187,6 +144,13 @@ type ExpandRecursively<T> = T extends object
   // const def3 = await ts.get(tmpModel.uri.toString(), pos, {});
   tmpModel.dispose();
 
+  /*
+  // const models = monaco.editor.getModels();
+  // const typeCellModels = models.filter((m) =>
+  //   m.uri.path.startsWith("/!typecell:typecell.org"),
+  // );
+
+  
   const codeInfoPromises = typeCellModels.map(async (m) => {
     const code = await compile(m, monaco);
     const output = await executionHost.outputs.get(m.uri.toString())?.value;
@@ -218,7 +182,7 @@ type ExpandRecursively<T> = T extends object
     return ret;
   });
   let codeInfos = await Promise.all(codeInfoPromises);
-  codeInfos = codeInfos.filter((x) => !!x.imported);
+  codeInfos = codeInfos.filter((x) => !!x.imported);*/
 
   const context = executionHost.engine.observableContext.rawContext as any;
 
@@ -228,7 +192,7 @@ type ExpandRecursively<T> = T extends object
       mobx.toJS(context[key]),
     ]),
   );
-  outputJS = JSON.parse(customStringify(outputJS));
+  outputJS = JSON.parse(trimmedStringify(outputJS));
 
   function cleanBlock(block: any) {
     if (!block.content?.length && !block.children?.length) {
@@ -243,12 +207,8 @@ type ExpandRecursively<T> = T extends object
     }
     return block;
   }
-  // console.log("request", JSON.stringify(blocks).length);
-  const sanitized = blocks.map(cleanBlock).filter((x) => !!x);
-  // console.log("sanitized", JSON.stringify(sanitized).length);
 
-  // debugger;
-  // const command = prompt("prompt");
+  const sanitized = blocks.map(cleanBlock).filter((x) => !!x);
   const contextInfo =
     contextType.replace("type ContextType = ", "const $: ") +
     " = " +
@@ -281,17 +241,6 @@ type ExpandRecursively<T> = T extends object
             blockContextInfo
           : ""),
     },
-
-    //       codeInfos.length
-    //         ? {
-    //             role: "user",
-    //             content: `This is the runtime / compiler data of the Code Blocks (CodeBlockRuntimeInfo[]):
-    // """${JSON.stringify(codeInfos)}"""`,
-    //           }
-    //         : {
-    //             role: "user",
-    //             content: `There are no code blocks in the document, so there's no runtime / compiler data for these (CodeBlockRuntimeInfo[]).`,
-    //           },
     {
       role: "system",
       content: `You are an AI assistant helping user to modify his document. This means changes can either be code related (in that case, you'll need to add / modify Code Blocks), 
@@ -299,8 +248,7 @@ type ExpandRecursively<T> = T extends object
     },
     {
       role: "user",
-      content: prompt, // +
-      // " . \n\nRemember to reply ONLY with OperationsResponse JSON (DO NOT add any further comments). So start with [{ and end with }]",
+      content: prompt,
     },
   ];
 

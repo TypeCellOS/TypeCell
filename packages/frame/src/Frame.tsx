@@ -96,10 +96,11 @@ const originalItems = [
   ...getDefaultReactSlashMenuItems(),
   {
     name: "Code block",
-    execute: (editor: any) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    execute: (editor: BlockNoteEditor<any>) =>
       insertOrUpdateBlock(editor, {
         type: "codeblock",
-      } as any),
+      }),
     aliases: ["code"],
     hint: "Add a live code block",
     group: "Code",
@@ -107,7 +108,8 @@ const originalItems = [
   },
   {
     name: "Inline",
-    execute: (editor: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    execute: (editor: BlockNoteEditor<any>) => {
       // state.tr.replaceSelectionWith(dinoType.create({type}))
       const node = editor._tiptapEditor.schema.node(
         "inlineCode",
@@ -293,50 +295,45 @@ export const Frame: React.FC<Props> = observer((props) => {
     [props.documentIdString, monaco],
   );
 
-  console.log("size", editorStore.current.customBlocks.size);
   slashMenuItems.splice(
     originalItems.length,
     slashMenuItems.length,
     {
       name: "AI",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       execute: async (editor: BlockNoteEditor<any>) => {
-        const p = prompt("AI");
+        const p = prompt("What would you like TypeCell AI to do?");
+        if (!p) {
+          return;
+        }
 
         const commands = await getAICode(
-          p!,
+          p,
           tools.newExecutionHost,
           editor,
-          editorStore.current!,
+          editorStore.current,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           connectionMethods.current!.queryLLM,
         );
-        // debugger;
-        // const commands = [
-        //   {
-        //     // afterId: "3d70d0b1-02d7-4103-b145-452fafb93884",
-        //     afterId: editor.topLevelBlocks[1].id,
-        //     type: "add",
-        //     content:
-        //       "// This is a code block\nexport let value = 10;\nconsole.log(value);",
-        //     blockType: "codeblock",
-        //   } as const,
-        // ];
+
+        // TODO: we should validate the commands before applying them
         applyChanges(
           commands,
           document.ydoc.getXmlFragment("doc"),
           document.awareness,
         );
-        // console.log(response);
       },
-      aliases: ["ai", "magic"],
-      hint: "Prompt your AI code assistant",
+      aliases: ["ai", "wizard", "openai", "llm"],
+      hint: "Prompt your TypeCell AI assistant",
       group: "Code",
       icon: <VscWand size={18} />,
     },
-    ...[...editorStore.current.customBlocks.values()].map((data: any) => {
+    ...[...editorStore.current.customBlocks.values()].map((data) => {
       console.log("update blocks");
       return {
         name: data.name,
-        execute: (editor: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        execute: (editor: BlockNoteEditor<any>) => {
           const origVarName = variables.toCamelCaseVariableName(data.name);
           let varName = origVarName;
           let i = 0;
@@ -344,28 +341,23 @@ export const Frame: React.FC<Props> = observer((props) => {
           while (true) {
             // append _1, _2, _3, ... to the variable name until it is unique
 
-            if (
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (
-                tools.newExecutionHost.engine.observableContext
-                  .rawContext as any
-              )[varName] === undefined
-            ) {
+            const context =
+              tools.newExecutionHost.engine.observableContext.rawContext;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if ((context as any)[varName] === undefined) {
               break;
             }
             i++;
             varName = origVarName + "_" + i;
           }
 
-          insertOrUpdateBlock(
-            editor as any,
-            {
-              type: "codeblock",
-              props: {
-                language: "typescript",
-                storage: "",
-              },
-              content: `// @default-collapsed
+          insertOrUpdateBlock(editor, {
+            type: "codeblock",
+            props: {
+              language: "typescript",
+              storage: "",
+            },
+            content: `// @default-collapsed
 import * as doc from "${data.documentId}";
 
 export let ${varName} = doc.${data.blockVariable};
@@ -373,8 +365,7 @@ export let ${varName}Scope = doc;
 
 export default ${varName};
 `,
-            } as any,
-          );
+          });
         },
         // execute: (editor) =>
         //   insertOrUpdateBlock(editor, {
@@ -383,7 +374,7 @@ export default ${varName};
         // aliases: [data[0]],
         // hint: "Add a " + data[0],
         group: "Custom",
-      } as any;
+      };
     }),
   );
 
@@ -436,6 +427,7 @@ export default ${varName};
   });
 
   if (editorStore.current.editor !== editor) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     editorStore.current.editor = editor as any;
   }
 

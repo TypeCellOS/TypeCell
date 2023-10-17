@@ -41,43 +41,9 @@ function updateState(
     cursor: {
       anchor,
       head,
-      // "anchor": {
-      //     "type": {
-      //         "client": 1521604366,
-      //         "clock": 5
-      //     },
-      //     "tname": null,
-      //     "item": {
-      //         "client": 1521604366,
-      //         "clock": 22
-      //     },
-      //     "assoc": 0
-      // },
-      // "head": {
-      //     "type": {
-      //         "client": 1521604366,
-      //         "clock": 5
-      //     },
-      //     "tname": null,
-      //     "item": {
-      //         "client": 1521604366,
-      //         "clock": 41
-      //     },
-      //     "assoc": 0
-      // }
     },
   });
 
-  // if (!initial) {
-  //   awareness.emit("update", [
-  //     {
-  //       added: [99],
-  //       updated: [],
-  //       removed: [],
-  //     },
-  //     origin,
-  //   ]);
-  // }
   awareness.emit("change", [
     {
       added: 0,
@@ -94,6 +60,7 @@ export async function applyChange(
   awareness: Awareness,
 ) {
   const transact = (op: () => void) => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     Y.transact(data.doc!, op, ypm.ySyncPluginKey);
   };
   if (op.type === "add") {
@@ -107,7 +74,7 @@ export async function applyChange(
     const yText = new Y.XmlText();
     child.insert(0, [yText]);
     newElement.insert(0, [child]);
-    // TODO: create block
+
     transact(() => {
       (node.parent as Y.XmlElement).insertAfter(node, [newElement]);
     });
@@ -116,7 +83,6 @@ export async function applyChange(
       const start = Y.createRelativePositionFromTypeIndex(yText, i);
       const end = Y.createRelativePositionFromTypeIndex(yText, i);
       updateState(awareness, start, end);
-      // return new RelativeSelection(start, end, sel.getDirection())
 
       transact(() => {
         yText.insert(i, op.content[i]);
@@ -167,14 +133,12 @@ export async function applyChange(
             step.from + i,
           );
           updateState(awareness, start, end);
-          // return new RelativeSelection(start, end, sel.getDirection())
 
           transact(() => {
             yText.insert(step.from + i, step.text[i]);
           });
           await new Promise((resolve) => setTimeout(resolve, 20));
         }
-        // cell.code.delete(step.from, step.length);
       } else if (step.type === "delete") {
         const start = Y.createRelativePositionFromTypeIndex(yText, step.from);
         const end = Y.createRelativePositionFromTypeIndex(

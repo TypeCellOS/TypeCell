@@ -11,7 +11,7 @@ type Props = {
 };
 
 const MonacoEdit: React.FC<Props> = observer((props) => {
-  console.log(props);
+  // console.log(props);
 
   const uri = useMemo(
     () => monaco.Uri.parse(`${props.documentid}.edit.${Math.random()}.tsx`),

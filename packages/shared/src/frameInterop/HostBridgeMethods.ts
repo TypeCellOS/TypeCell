@@ -19,6 +19,11 @@ export type HostBridgeMethods = {
    */
   processYjsMessage: (message: Uint8Array) => Promise<void>;
 
+  /**
+   * Function to query LLM (openai)
+   * Executed in host, so that the key can be stored in localstorage and
+   * cannot be accessed by user-scripts
+   */
   queryLLM: (parameters: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     messages: any[];

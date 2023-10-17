@@ -34,7 +34,8 @@
     "typescript": "5.0.4",
     "vscode-lib": "^0.1.2",
     "y-protocols": "^1.0.5",
-    "yjs": "^13.6.4"
+    "yjs": "^13.6.4",
+    "y-prosemirror": "^1.0.20"
   },
   "devDependencies": {
     "cross-fetch": "^4.0.0",
