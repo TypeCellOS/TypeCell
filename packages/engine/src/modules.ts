@@ -28,10 +28,11 @@ export function getModulesFromWrappedPatchedTypeCellFunction(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   caller: () => any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  scope: any
+  scope: any,
 ): Module[] {
   const modules: Module[] = [];
   const define = createDefine(modules);
+  console.log("evaluate (module)", caller + "");
   caller.apply({ ...scope, define });
   return modules;
 }
@@ -43,10 +44,11 @@ export function getModulesFromWrappedPatchedTypeCellFunction(
 export function getModulesFromPatchedTypeCellCode(
   code: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  scope: any
+  scope: any,
 ): Module[] {
   const modules: Module[] = [];
   const define = createDefine(modules);
+  console.log("evaluate (module)", code);
   // eslint-disable-next-line
   const f = new Function(code);
   f.apply({ ...scope, define });
@@ -57,7 +59,7 @@ function createDefine(modules: Module[]) {
   return function typeCellDefine(
     moduleNameOrDependencyArray: string | string[],
     dependencyArrayOrFactoryFunction: string[] | Function,
-    factoryFunction?: Function
+    factoryFunction?: Function,
   ) {
     const moduleName: string | typeof unnamedModule =
       typeof moduleNameOrDependencyArray === "string"
@@ -118,7 +120,7 @@ export function getPatchedTypeCellCode(compiledCode: string, scope: any) {
 
   totalCode = totalCode.replace(
     /^\s*(define\((".*", )?\[.*\], )function/gm,
-    "$1async function"
+    "$1async function",
   ); // TODO: remove await?
 
   return totalCode;

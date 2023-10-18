@@ -120,6 +120,7 @@ export async function runModule(
       disposeEveryRun.push(hooks.disposeAll);
       let executionPromise: Promise<any>;
       try {
+        console.log("execute", mod.factoryFunction + "");
         executionPromise = mod.factoryFunction.apply(
           undefined,
           argsToCallFunctionWith,

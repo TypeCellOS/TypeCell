@@ -78,6 +78,7 @@ $.complexObject.newProperty = 5;
 
 export async function getAICode(
   prompt: string,
+  documentId: string,
   executionHost: ExecutionHost,
   editor: BlockNoteEditor<any>,
   editorStore: EditorStore,
@@ -111,8 +112,9 @@ export async function getAICode(
     "typescript",
     uri.URI.parse("file:///tmp.tsx"),
   );
+
   tmpModel.setValue(`import * as React from "react";
-  import * as $ from "!typecell:typecell.org/dVeeYvbKcq2Nz";
+  import * as $ from "!${documentId}";
   // expands object types one level deep
 type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] extends { Key: React.Key | null } ? "[REACT]" : O[K] } : never;
 
@@ -140,7 +142,9 @@ type ExpandRecursively<T> = T extends object
     tmpModel.getValue().length - "pe = ExpandRecursively<typeof $>;".length;
   // const def = await ts.getDefinitionAtPosition(tmpModel.uri.toString(), pos);
   const def2 = await ts.getQuickInfoAtPosition(tmpModel.uri.toString(), pos);
+
   const contextType = def2.displayParts.map((x: any) => x.text).join("");
+
   // const def3 = await ts.get(tmpModel.uri.toString(), pos, {});
   tmpModel.dispose();
 

@@ -309,6 +309,7 @@ export const Frame: React.FC<Props> = observer((props) => {
 
         const commands = await getAICode(
           p,
+          props.documentIdString,
           tools.newExecutionHost,
           editor,
           editorStore.current,
@@ -367,12 +368,6 @@ export default ${varName};
 `,
           });
         },
-        // execute: (editor) =>
-        //   insertOrUpdateBlock(editor, {
-        //     type: data[0],
-        //   }),
-        // aliases: [data[0]],
-        // hint: "Add a " + data[0],
         group: "Custom",
       };
     }),
