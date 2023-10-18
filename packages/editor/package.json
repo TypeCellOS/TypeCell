@@ -46,6 +46,7 @@
     "mobx-react-lite": "^3.2.0",
     "penpal": "^6.1.0",
     "react": "^18.2.0",
+    "react-rnd": "^10.4.1",
     "react-avatar": "^5.0.3",
     "react-dnd": "^14.0.2",
     "react-dnd-html5-backend": "^14.0.0",
@@ -57,7 +58,8 @@
     "web-vitals": "^1.0.1",
     "y-indexeddb": "9.0.6",
     "y-protocols": "^1.0.5",
-    "yjs": "^13.6.4"
+    "yjs": "^13.6.4",
+    "react-inspector": "^6.0.1"
   },
   "scripts": {
     "copytypes:self": "tsc --declaration --emitDeclarationOnly --noEmit false --composite false --declarationDir ./public/types/@typecell-org/editor",
