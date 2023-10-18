@@ -40,11 +40,11 @@ To run the project, open the command line in the project's root directory and en
 
 The above `npm start` executes the `vite dev` command of `packages/editor` and watches for changes to this main package.
 
-## Watch changes
+<!-- ## Watch changes
 
     npm run watch
 
-You might also be making changes to other packages in the `packages` directory. To continuously watch and compile for changes, open a new terminal and run `npm run watch`.
+You might also be making changes to other packages in the `packages` directory. To continuously watch and compile for changes, open a new terminal and run `npm run watch`. -->
 
 ## Testing
 

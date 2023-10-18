@@ -14,7 +14,7 @@ export default class SourceModelCompiler
 
   private async compile(model: monaco.editor.ITextModel) {
     if (model.getLanguageId() === "typescript") {
-      const js = await compile(model, this.monacoInstance);
+      const js = (await compile(model, this.monacoInstance)).javascript;
       return js;
     } else if (model.getLanguageId() === "markdown") {
       throw new Error("not implemented");
@@ -26,7 +26,7 @@ export default class SourceModelCompiler
           const style = document.createElement("style");
           style.setAttribute("type", "text/css");
           style.appendChild(document.createTextNode(${JSON.stringify(
-            model.getValue()
+            model.getValue(),
           )}));
           exports.default = style;
           ;
@@ -52,7 +52,7 @@ export default class SourceModelCompiler
 
   public get models() {
     return Array.from(this.registeredModels.values()).map(
-      (el) => el.compiledModel
+      (el) => el.compiledModel,
     );
   }
 
@@ -74,14 +74,14 @@ export default class SourceModelCompiler
     const compiledModel = new BasicCodeModel(
       sourceModel.path,
       "",
-      "javascript"
+      "javascript",
     );
 
     const monacoModel = getMonacoModel(
       sourceModel.getValue(),
       sourceModel.language,
       sourceModel.uri,
-      this.monacoInstance
+      this.monacoInstance,
     );
 
     this.registeredModels.set(sourceModel.path, {
@@ -118,7 +118,7 @@ export default class SourceModelCompiler
         prevValue = newValue;
         prevLanguage = newLanguage;
         compile();
-      })
+      }),
     );
 
     // evaluate initial
@@ -133,14 +133,14 @@ export default class SourceModelCompiler
         this.registeredModels.delete(sourceModel.path);
         models.compiledModel.dispose();
         models.monacoModel.dispose();
-      })
+      }),
     );
     this._onDidCreateModel.fire(compiledModel);
   }
 
   constructor(
     // private readonly documentId: string,
-    private readonly monacoInstance: typeof monaco
+    private readonly monacoInstance: typeof monaco,
   ) {
     super();
   }

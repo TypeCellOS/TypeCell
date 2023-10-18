@@ -35,11 +35,19 @@
 .monacoContainer {
   height: 100%;
 }
+
 .codeCellOutput {
   line-height: 0;
   position: relative;
+  padding: 10px;
 }
 
+.codeCellOutput.inline {
+  display: inline-block;
+  vertical-align: top;
+  padding: 0;
+  padding-top: 5px;
+}
 .codeCellOutput > * {
   line-height: normal;
 }

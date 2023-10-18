@@ -59,7 +59,7 @@ export class TypeCellRemote extends Remote {
   }
 
   public static set Offline(val: boolean) {
-    console.log("change fake offline mode", val)
+    console.log("change fake offline mode", val);
     if (val) {
       wsProviders.forEach((wsProvider) => {
         wsProvider?.disconnect();
@@ -75,7 +75,7 @@ export class TypeCellRemote extends Remote {
   constructor(
     _ydoc: Y.Doc,
     private readonly identifier: TypeCellIdentifier,
-    private readonly sessionStore: SupabaseSessionStore
+    private readonly sessionStore: SupabaseSessionStore,
   ) {
     super(_ydoc);
     if (!(identifier instanceof TypeCellIdentifier)) {
@@ -97,7 +97,7 @@ export class TypeCellRemote extends Remote {
     console.log(
       "canWrite",
       this.unsyncedChanges,
-      this.hocuspocusProvider?.authorizedScope
+      this.hocuspocusProvider?.authorizedScope,
     );
     return (
       this.unsyncedChanges === 0 ||
@@ -141,7 +141,7 @@ export class TypeCellRemote extends Remote {
     console.log(
       "insert doc",
       (await sessionStore.supabase.auth.getSession()).data.session?.user.id,
-      doc
+      doc,
     );
     const ret = await sessionStore.supabase
       .from("documents")
@@ -184,7 +184,7 @@ export class TypeCellRemote extends Remote {
       document: this._ydoc,
       token,
       websocketProvider: getWSProvider(this.sessionStore),
-      broadcast: false,
+      broadcast: true,
 
       onSynced: () => {
         runInAction(() => {

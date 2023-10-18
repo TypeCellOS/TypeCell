@@ -1,6 +1,6 @@
 import { BasicCodeModel } from "@typecell-org/shared";
 import { autorun } from "mobx";
-import { event, lifecycle } from "vscode-lib";
+import { event, lifecycle, uri } from "vscode-lib";
 import * as Y from "yjs";
 import { Identifier } from "../identifiers/Identifier";
 import { DocConnection } from "./DocConnection";
@@ -75,7 +75,9 @@ export class DocumentResourceModelProvider
 
         if (!model) {
           model = new BasicCodeModel(
-            "!" + identifier.toString() + "/" + id + ".cell.tsx",
+            uri.URI.parse(
+              "file:///!" + identifier.toString() + "/" + id + ".cell.tsx",
+            ).toString(),
             code.toString(),
             attrLanguage,
           );

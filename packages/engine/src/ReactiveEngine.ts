@@ -4,6 +4,7 @@ import debounce from "lodash.debounce";
 import { event, lifecycle } from "vscode-lib";
 import { createCellEvaluator } from "./CellEvaluator.js";
 import { TypeCellContext, createContext } from "./context.js";
+import { RunContext } from "./executor.js";
 
 export type ResolvedImport = {
   module: unknown;
@@ -58,6 +59,7 @@ export class ReactiveEngine<T extends CodeModel> extends lifecycle.Disposable {
     private resolveImport: (
       module: string,
       forModel: T,
+      runContext: RunContext,
     ) => Promise<ResolvedImport | undefined>,
     private debounceMillis = 100,
   ) {
@@ -95,8 +97,8 @@ export class ReactiveEngine<T extends CodeModel> extends lifecycle.Disposable {
       this.evaluateUpdate(
         model,
         this.observableContext,
-        async (moduleName: string) => {
-          const ret = await this.resolveImport(moduleName, model);
+        async (moduleName: string, runContext: RunContext) => {
+          const ret = await this.resolveImport(moduleName, model, runContext);
           if (!ret) {
             throw new Error(`Could not resolve import ${moduleName}`);
           }
@@ -155,7 +157,7 @@ export class ReactiveEngine<T extends CodeModel> extends lifecycle.Disposable {
   private async evaluateUpdate(
     model: T,
     typecellContext: TypeCellContext<any>,
-    resolveImport: (module: string) => Promise<any>,
+    resolveImport: (module: string, runContext: RunContext) => Promise<any>,
     onOutput: (model: T, output: any) => void,
   ) {
     if (!this.evaluatorCache.has(model)) {

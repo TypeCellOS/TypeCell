@@ -1,58 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BlockNoteEditor, createTipTapBlock } from "@blocknote/core";
-import { mergeAttributes } from "@tiptap/core";
 // import styles from "../../Block.module.css";
 
+import { BlockNoteEditor } from "@blocknote/core";
 import {
   NodeViewProps,
+  NodeViewRenderer,
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
-import { keymap } from "prosemirror-keymap";
-import { EditorState, Selection } from "prosemirror-state";
-import { EditorView, NodeView } from "prosemirror-view";
-import { MonacoElement } from "./MonacoElement";
-
-function arrowHandler(
-  dir: "up" | "down" | "left" | "right" | "forward" | "backward"
-) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (state: EditorState, dispatch: any, view: EditorView) => {
-    if (state.selection.empty && view.endOfTextblock(dir)) {
-      const side = dir === "left" || dir === "up" ? -1 : 1;
-      const $head = state.selection.$head;
-      const nextPos = Selection.near(
-        state.doc.resolve(side > 0 ? $head.after() : $head.before()),
-        side
-      );
-      // console.log("nextPos", nextPos.$head.parent.type.name);
-      if (nextPos.$head && nextPos.$head.parent.type.name === "codeblock") {
-        dispatch(state.tr.setSelection(nextPos));
-        return true;
-      }
-    }
-    return false;
-  };
-}
-
-const arrowHandlers = keymap({
-  ArrowLeft: arrowHandler("left"),
-  ArrowRight: arrowHandler("right"),
-  ArrowUp: arrowHandler("up"),
-  ArrowDown: arrowHandler("down"),
-} as any);
+import { uniqueId } from "@typecell-org/util";
+import { NodeView } from "prosemirror-view";
+import { useContext, useRef } from "react";
+import { uri } from "vscode-lib";
+import { RichTextContext } from "../RichTextContext";
+import { MonacoElement, MonacoElementProps } from "./MonacoElement";
+import { getBlockInfoFromPos } from "./blocknotehelpers";
 
 const ComponentWithWrapper = (
-  props: NodeViewProps & {
-    block: any;
-    htmlAttributes: any;
-    selectionHack: any;
-    blockNoteEditor: BlockNoteEditor<any>;
-  }
+  props: { htmlAttributes: any } & MonacoElementProps,
 ) => {
   const { htmlAttributes, ...restProps } = props;
   return (
     <NodeViewWrapper
+      as={props.inline ? "span" : "div"}
       // className={blockStyles.blockContent}
       // data-content-type={blockConfig.type}
       {...htmlAttributes}>
@@ -61,81 +31,63 @@ const ComponentWithWrapper = (
   );
 };
 
-// TODO: clean up listeners
-export const MonacoBlockContent = createTipTapBlock<"codeblock", any>({
-  name: "codeblock",
-  content: "inline*",
-  editable: true,
-  selectable: true,
-  whitespace: "pre",
-  code: true,
-  addAttributes() {
-    return {
-      language: {
-        default: "typescript",
-        parseHTML: (element) => element.getAttribute("data-language"),
-        renderHTML: (attributes) => {
-          return {
-            "data-language": attributes.language,
-          };
-        },
-      },
-    };
-  },
-
-  parseHTML() {
-    return [
-      {
-        tag: "code",
-        priority: 200,
-        node: "codeblock",
-      },
-    ];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return [
-      "code",
-      mergeAttributes(HTMLAttributes, {
-        // class: styles.blockContent,
-        "data-content-type": this.name,
-      }),
-    ];
-  },
-
-  addNodeView() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const BlockContent = (props: any) => {
-      // const Content = blockConfig.render;
-
-      // Add props as HTML attributes in kebab-case with "data-" prefix
+export function MonacoNodeView(inline: boolean) {
+  const nodeView:
+    | ((this: {
+        name: string;
+        options: any;
+        storage: any;
+        editor: any;
+        type: any;
+        parent: any;
+      }) => NodeViewRenderer)
+    | null = function () {
+    const BlockContent = (props: NodeViewProps & { selectionHack: any }) => {
+      const id = useRef(uniqueId.generateUuid());
+      const context = useContext(RichTextContext);
       const htmlAttributes: Record<string, string> = {};
-      // for (const [attribute, value] of Object.entries(props.node.attrs)) {
-      // if (attribute in blockConfig.propSchema) {
-      //   htmlAttributes[camelToDataKebab(attribute)] = value;
-      // }
-      // }
 
       // Gets BlockNote editor instance
-      const editor = this.options.editor;
+      const editor: BlockNoteEditor<any> = this.options.editor;
       // Gets position of the node
       const pos =
         typeof props.getPos === "function" ? props.getPos() : undefined;
-      // Gets TipTap editor instance
+
+      if (!pos) {
+        return null;
+      }
+
       const tipTapEditor = editor._tiptapEditor;
       // Gets parent blockContainer node
-      const blockContainer = tipTapEditor.state.doc.resolve(pos).node();
+      const blockContainer = getBlockInfoFromPos(tipTapEditor.state.doc, pos);
       // Gets block identifier
-      const blockIdentifier = blockContainer.attrs.id;
+      const blockIdentifier = blockContainer.node.attrs.id;
       // Get the block
       const block = editor.getBlock(blockIdentifier);
 
-      // console.log("ComponentWithWrapper");
+      if (!block) {
+        return null;
+      }
+
+      const suffix = inline ? "_" + id.current : "";
+      const modelUri = uri.URI.parse(
+        `file:///!${context.documentId}/${block.id}${suffix}.cell.tsx`,
+      );
+
       return (
         <ComponentWithWrapper
           htmlAttributes={htmlAttributes}
-          block={block}
-          blockNoteEditor={editor}
+          // blockNoteEditor={this.options.editor}
+          inline={inline}
+          modelUri={modelUri}
+          language={props.node.attrs.language || "typescript"}
+          setLanguage={(language) => {
+            editor.updateBlock(block, {
+              props: {
+                language,
+              },
+            });
+          }}
           {...props}
           // ref={ref}
         />
@@ -191,8 +143,6 @@ export const MonacoBlockContent = createTipTapBlock<"codeblock", any>({
       };
       return ret;
     };
-  },
-  addProseMirrorPlugins() {
-    return [arrowHandlers];
-  },
-});
+  };
+  return nodeView;
+}

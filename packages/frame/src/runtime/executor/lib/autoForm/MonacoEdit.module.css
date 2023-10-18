@@ -1,0 +1,15 @@
+.codeContainer {
+  width: 100%;
+
+  border-radius: 3px;
+  /* border-width: 2px; */
+  font-size: 14px;
+  box-sizing: border-box;
+  border: 2px solid var(--ds-border-input, #dfe1e6);
+  display: flex;
+}
+
+.code {
+  width: 100%;
+  height: 2.57em;
+}

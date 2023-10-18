@@ -11,9 +11,10 @@ const skypackResolver = new SkypackResolver();
 // const jspmResolver = new JSPMResolver();
 const importShimResolver = new ImportShimResolver(
   [esmshResolver, skypackResolver],
-  LocalResolver
+  LocalResolver,
 );
 
 export async function NPMLibraryResolver(moduleName: string) {
+  console.warn("resolve", moduleName);
   return importShimResolver.resolveImport(moduleName);
 }

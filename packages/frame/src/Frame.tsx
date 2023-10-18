@@ -29,8 +29,8 @@ import { AsyncMethodReturns, connectToParent } from "penpal";
 import ReactDOM from "react-dom";
 import * as Y from "yjs";
 import styles from "./Frame.module.css";
-import { MonacoBlockContent } from "./MonacoBlockContent";
 import { RichTextContext } from "./RichTextContext";
+import { MonacoCodeBlock } from "./codeblocks/MonacoCodeBlock";
 import SourceModelCompiler from "./runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
 import { ExecutionHost } from "./runtime/executor/executionHosts/ExecutionHost";
@@ -38,9 +38,12 @@ import LocalExecutionHost from "./runtime/executor/executionHosts/local/LocalExe
 
 import { setMonacoDefaults } from "./runtime/editor";
 
+import { variables } from "@typecell-org/util";
 import { RiCodeSSlashFill } from "react-icons/ri";
+import { EditorStore } from "./EditorStore";
 import { MonacoColorManager } from "./MonacoColorManager";
-import monacoStyles from "./MonacoSelection.module.css";
+import { MonacoInlineCode } from "./codeblocks/MonacoInlineCode";
+import monacoStyles from "./codeblocks/MonacoSelection.module.css";
 import { setupTypecellHelperTypeResolver } from "./runtime/editor/languages/typescript/TypeCellHelperTypeResolver";
 import { setupTypecellModuleTypeResolver } from "./runtime/editor/languages/typescript/TypeCellModuleTypeResolver";
 import { setupNpmTypeResolver } from "./runtime/editor/languages/typescript/npmTypeResolver";
@@ -87,9 +90,43 @@ type Props = {
   userColor: string;
 };
 
+const originalItems = [
+  ...getDefaultReactSlashMenuItems(),
+  {
+    name: "Code block",
+    execute: (editor: any) =>
+      insertOrUpdateBlock(editor, {
+        type: "codeblock",
+      } as any),
+    aliases: ["code"],
+    hint: "Add a live code block",
+    group: "Code",
+    icon: <RiCodeSSlashFill size={18} />,
+  },
+  {
+    name: "Inline",
+    execute: (editor: any) => {
+      // state.tr.replaceSelectionWith(dinoType.create({type}))
+      const node = editor._tiptapEditor.schema.node(
+        "inlineCode",
+        undefined,
+        editor._tiptapEditor.schema.text("export default "),
+      );
+      const tr = editor._tiptapEditor.state.tr.replaceSelectionWith(node);
+      editor._tiptapEditor.view.dispatch(tr);
+    },
+  },
+];
+const slashMenuItems = [...originalItems];
+
 export const Frame: React.FC<Props> = observer((props) => {
   const modelReceivers = useMemo(() => new Map<string, ModelReceiver>(), []);
+  const subCompilers = useMemo(
+    () => new Map<string, SourceModelCompiler>(),
+    [],
+  );
   const connectionMethods = useRef<AsyncMethodReturns<HostBridgeMethods>>();
+  const editorStore = useRef(new EditorStore());
 
   const document = useResource(() => {
     const ydoc = new Y.Doc();
@@ -191,34 +228,48 @@ export const Frame: React.FC<Props> = observer((props) => {
       const newCompiler = new SourceModelCompiler(monaco);
       const resolver = new Resolver(async (moduleName) => {
         // How to resolve typecell modules (i.e.: `import * as nb from "!dALYTUW8TXxsw"`)
-        const subcompiler = new SourceModelCompiler(monaco);
-
-        const modelReceiver = new ModelReceiver();
-        // TODO: what if we have multiple usage of the same module?
-        modelReceivers.set("modules/" + moduleName, modelReceiver);
-
-        modelReceiver.onDidCreateModel((model) => {
-          subcompiler.registerModel(model);
-        });
 
         const fullIdentifier =
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          await connectionMethods.current!.registerTypeCellModuleCompiler(
-            moduleName,
-          );
+          await connectionMethods.current!.resolveModuleName(moduleName);
 
-        // register an alias for the module so that types resolve
-        // (e.g.: from "!dALYTUW8TXxsw" to "!typecell:typecell.org/dALYTUW8TXxsw")
         if ("!" + fullIdentifier !== moduleName) {
+          // register an alias for the module so that types resolve
+          // (e.g.: from "!dALYTUW8TXxsw" to "!typecell:typecell.org/dALYTUW8TXxsw")
+
           monaco.languages.typescript.typescriptDefaults.addExtraLib(
             `export * from "!${fullIdentifier}";`,
             `file:///node_modules/@types/${moduleName}/index.d.ts`,
           );
         }
 
+        let modelReceiver = modelReceivers.get("modules/" + fullIdentifier);
+
+        if (modelReceiver) {
+          const subCompiler = subCompilers.get("modules/" + fullIdentifier);
+          if (!subCompiler) {
+            throw new Error("subCompiler not found");
+          }
+          return subCompiler;
+        }
+        modelReceiver = new ModelReceiver();
+
+        modelReceivers.set("modules/" + fullIdentifier, modelReceiver);
+
+        const subcompiler = new SourceModelCompiler(monaco);
+        modelReceiver.onDidCreateModel((model) => {
+          subcompiler.registerModel(model);
+        });
+
+        subCompilers.set("modules/" + fullIdentifier, subcompiler);
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        await connectionMethods.current!.registerTypeCellModuleCompiler(
+          fullIdentifier,
+        );
         // TODO: dispose modelReceiver
         return subcompiler;
-      });
+      }, editorStore.current);
       const newEngine = new ReactiveEngine<BasicCodeModel>(
         resolver.resolveImport,
       );
@@ -239,30 +290,66 @@ export const Frame: React.FC<Props> = observer((props) => {
     [props.documentIdString, monaco],
   );
 
-  // useEffect(() => {
-  //   const t = tools;
-  //   if (!t) {
-  //     return;
-  //   }
-  //   return () => {
-  //     t.newCompiler.dispose();
-  //     t.newExecutionHost.dispose();
-  //   };
-  // }, [tools]);
+  console.log("size", editorStore.current.customBlocks.size);
+  slashMenuItems.splice(
+    originalItems.length,
+    slashMenuItems.length,
+    ...[...editorStore.current.customBlocks.values()].map((data: any) => {
+      console.log("update blocks");
+      return {
+        name: data.name,
+        execute: (editor: any) => {
+          const origVarName = variables.toCamelCaseVariableName(data.name);
+          let varName = origVarName;
+          let i = 0;
+          // eslint-disable-next-line no-constant-condition
+          while (true) {
+            // append _1, _2, _3, ... to the variable name until it is unique
 
-  // useEffect(() => {
-  //   // make sure color info is broadcast, and color info from other users are reflected in monaco editor styles
-  //   if (document.awareness) {
-  //     const colorManager = new MonacoColorManager(
-  //       document.awareness,
-  //       props.userName,
-  //       props.userColor
-  //     );
-  //     return () => {
-  //       colorManager.dispose();
-  //     };
-  //   }
-  // }, [document.awareness, props.userColor, props.userName]);
+            if (
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (
+                tools.newExecutionHost.engine.observableContext
+                  .rawContext as any
+              )[varName] === undefined
+            ) {
+              break;
+            }
+            i++;
+            varName = origVarName + "_" + i;
+          }
+
+          insertOrUpdateBlock(
+            editor as any,
+            {
+              type: "codeblock",
+              props: {
+                language: "typescript",
+                // moduleName: moduleName,
+                // key,
+                storage: "",
+              },
+              content: `// @default-collapsed
+import * as doc from "${data.documentId}";
+
+export let ${varName} = doc.${data.blockVariable};
+export let ${varName}Scope = doc;
+
+export default ${varName};
+`,
+            } as any,
+          );
+        },
+        // execute: (editor) =>
+        //   insertOrUpdateBlock(editor, {
+        //     type: data[0],
+        //   }),
+        // aliases: [data[0]],
+        // hint: "Add a " + data[0],
+        group: "Custom",
+      } as any;
+    }),
+  );
 
   const editor = useBlockNote({
     defaultStyles: false,
@@ -280,24 +367,28 @@ export const Frame: React.FC<Props> = observer((props) => {
             type: "string",
             default: "typescript",
           },
+          storage: {
+            type: "string",
+            default: "",
+          },
         },
-        node: MonacoBlockContent,
+        node: MonacoCodeBlock,
+      },
+      inlinecode: {
+        propSchema: {
+          language: {
+            type: "string",
+            default: "typescript",
+          },
+          storage: {
+            type: "string",
+            default: "",
+          },
+        },
+        node: MonacoInlineCode,
       },
     },
-    slashMenuItems: [
-      ...getDefaultReactSlashMenuItems(),
-      {
-        name: "Code block",
-        execute: (editor) =>
-          insertOrUpdateBlock(editor, {
-            type: "codeblock",
-          }),
-        aliases: ["code"],
-        hint: "Add a live code block",
-        group: "Code",
-        icon: <RiCodeSSlashFill size={18} />,
-      },
-    ],
+    slashMenuItems,
     collaboration: {
       provider: new FakeProvider(document.awareness),
       user: {
@@ -307,6 +398,14 @@ export const Frame: React.FC<Props> = observer((props) => {
       fragment: document.ydoc.getXmlFragment("doc"),
     },
   });
+
+  if (editorStore.current.editor !== editor) {
+    editorStore.current.editor = editor as any;
+  }
+
+  if (editorStore.current.executionHost !== tools.newExecutionHost) {
+    editorStore.current.executionHost = tools.newExecutionHost;
+  }
 
   return (
     <div className={styles.container}>

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TypeCellContext } from "./context.js";
-import { ModuleExecution, runModule } from "./executor.js";
+import { ModuleExecution, RunContext, runModule } from "./executor.js";
 import {
   createExecutionScope,
   getModulesFromPatchedTypeCellCode,
@@ -12,7 +12,7 @@ import { isReactView } from "./reactView.js";
 
 export function assignExecutionExports(
   exports: any,
-  typecellContext: TypeCellContext<any>
+  typecellContext: TypeCellContext<any>,
 ) {
   const newExports: any = {};
   for (const propertyName in exports) {
@@ -42,10 +42,10 @@ export function assignExecutionExports(
 
 export function createCellEvaluator(
   typecellContext: TypeCellContext<any>,
-  resolveImport: (module: string) => Promise<any>,
+  resolveImport: (module: string, runContext: RunContext) => Promise<any>,
   setAndWatchOutput = true,
   onOutputChanged: (output: any) => void,
-  beforeExecuting: () => void
+  beforeExecuting: () => void,
 ) {
   function onExecuted(exports: any) {
     // log.debug("cellEvaluator onExecuted", cell.path);
@@ -58,7 +58,7 @@ export function createCellEvaluator(
   }
 
   function onError(error: any) {
-    // log.warn("cellEvaluator onError", cell.path, error);
+    console.warn("cellEvaluator onError", error);
     onOutputChanged(error);
   }
 
@@ -75,7 +75,7 @@ export function createCellEvaluator(
       const patchedCode = getPatchedTypeCellCode(compiledCode, executionScope);
       const modules = getModulesFromPatchedTypeCellCode(
         patchedCode,
-        executionScope
+        executionScope,
       );
 
       if (modules.length !== 1) {
@@ -90,7 +90,7 @@ export function createCellEvaluator(
         beforeExecuting,
         onExecuted,
         onError,
-        moduleExecution?.disposeVariables
+        moduleExecution?.disposeVariables,
       );
       await moduleExecution.initialRun;
     } catch (e) {

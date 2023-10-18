@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { makeObservable, observable, runInAction } from "mobx";
+import { computed, makeObservable, observable, runInAction } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { TypeVisualizer } from "../lib/exports";
 // import {
@@ -9,7 +9,9 @@ import { TypeVisualizer } from "../lib/exports";
 
 export class ModelOutput extends lifecycle.Disposable {
   private autorunDisposer: (() => void) | undefined;
+
   public value: any = undefined;
+  public _defaultValue: any = {};
   public typeVisualizers = observable.map<
     string,
     {
@@ -22,12 +24,64 @@ export class ModelOutput extends lifecycle.Disposable {
     makeObservable(this, {
       typeVisualizers: observable.ref,
       value: observable.ref,
+      _defaultValue: observable,
+      defaultValue: computed.struct,
     });
   }
 
+  get defaultValue() {
+    return this._defaultValue;
+  }
+
+  /**
+   * All keys except "default" are getters that retrieve the value from the main context, so we don't need
+   * to update them, as the value on the default context has already been updated.
+   *
+   * However, the "default" value is not available on the context, so we need to update it manually.
+   * We cache this via a computed mobx value in this.defaultValue
+   *
+   * TODO: maybe streamline this code with typecell-org/engine, and make other properties than default "computed" as well
+   */
   async updateValue(newValue: any) {
     runInAction(() => {
-      this.value = newValue;
+      if (!this.value) {
+        this.value = {};
+      }
+      // this.value = newValue;
+      // return;
+      if (newValue instanceof Error) {
+        this.value = newValue;
+        return;
+      }
+      let changed = false;
+      const oldKeys = Object.getOwnPropertyNames(this.value);
+      const newKeys = Object.getOwnPropertyNames(newValue);
+
+      for (const key of newKeys) {
+        if (!oldKeys.includes(key)) {
+          // this.value[key] = newValue[key];
+          changed = true;
+        }
+      }
+      for (const key of oldKeys) {
+        if (!newKeys.includes(key)) {
+          // delete this.value[key];
+          changed = true;
+        }
+      }
+
+      this._defaultValue = newValue.default;
+
+      if (changed) {
+        if (Object.hasOwn(newValue, "default")) {
+          Object.defineProperty(newValue, "default", {
+            get: () => {
+              return this.defaultValue;
+            },
+          });
+        }
+        this.value = newValue;
+      }
     });
   }
 
@@ -47,7 +101,7 @@ export class ModelOutput extends lifecycle.Disposable {
             get visualizer() {
               return ctx[key];
             },
-          })
+          }),
         );
       }
     }

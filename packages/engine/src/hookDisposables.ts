@@ -13,16 +13,16 @@ type Hook = {
 function installHook<T, K extends FunctionPropertyNames<T>>(
   obj: T,
   method: K,
-  disposeSingle: (ret: ReturnType<any>, args: IArguments) => void // TODO: fix any
+  disposeSingle: (ret: ReturnType<any>, args: IArguments) => void, // TODO: fix any
 ): Hook {
   const disposes: Array<() => void> = [];
 
   const originalFunction = obj[method];
   (obj[method] as any) = function (this: any) {
     const args = arguments;
-    const ret = (originalFunction as any).apply(this, args); // TODO: fix any?
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const ctx = this;
+    const ctx = this || window;
+    const ret = (originalFunction as any).apply(ctx, args); // TODO: fix any?
     disposes.push(() => disposeSingle.call(ctx, ret, args));
     return ret;
   };
@@ -43,7 +43,7 @@ export function installHooks() {
   const hooks: Hook[] = [];
   hooks.push(installHook(wnd, "setTimeout", (ret) => clearTimeout(ret as any)));
   hooks.push(
-    installHook(wnd, "setInterval", (ret) => clearInterval(ret as any))
+    installHook(wnd, "setInterval", (ret) => clearInterval(ret as any)),
   );
 
   if (typeof EventTarget !== "undefined") {
@@ -53,8 +53,8 @@ export function installHooks() {
         "addEventListener",
         function (this: any, ret, args: IArguments) {
           this.removeEventListener(args[0], args[1]);
-        }
-      )
+        },
+      ),
     );
   }
 

@@ -20,7 +20,8 @@
     "downlevelIteration": true,
     "outDir": "dist",
     "composite": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "stripInternal": true
   },
   "include": ["src"],
   "references": [
