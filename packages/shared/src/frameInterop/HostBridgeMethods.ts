@@ -18,4 +18,27 @@ export type HostBridgeMethods = {
    * Function for y-penpal
    */
   processYjsMessage: (message: Uint8Array) => Promise<void>;
+
+  /**
+   * Function to query LLM (openai)
+   * Executed in host, so that the key can be stored in localstorage and
+   * cannot be accessed by user-scripts
+   */
+  queryLLM: (parameters: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    messages: any[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    functions?: any[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function_call?: any;
+  }) => Promise<
+    | {
+        status: "ok";
+        result: string;
+      }
+    | {
+        status: "error";
+        error: string;
+      }
+  >;
 };

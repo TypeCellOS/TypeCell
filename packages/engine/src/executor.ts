@@ -13,6 +13,7 @@ async function resolveDependencyArray(
   userDisposes: Array<() => void>,
 ) {
   const runContext = {
+    context,
     onDispose: (disposer: () => void) => {
       userDisposes.push(() => {
         try {
@@ -47,6 +48,7 @@ async function resolveDependencyArray(
 }
 
 export type RunContext = {
+  context: TypeCellContext<any>;
   onDispose: (disposer: () => void) => void;
 };
 
@@ -120,6 +122,7 @@ export async function runModule(
       disposeEveryRun.push(hooks.disposeAll);
       let executionPromise: Promise<any>;
       try {
+        console.log("execute", mod.factoryFunction + "");
         executionPromise = mod.factoryFunction.apply(
           undefined,
           argsToCallFunctionWith,

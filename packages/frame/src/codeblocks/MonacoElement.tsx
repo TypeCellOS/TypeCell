@@ -10,7 +10,11 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
+import {
+  VscChevronDown,
+  VscChevronRight,
+  VscSettingsGear,
+} from "react-icons/vsc";
 
 import {
   autoUpdate,
@@ -261,9 +265,13 @@ const MonacoBlockElement = (
   const [codeVisible, setCodeVisible] = useState(
     () => props.node.textContent.startsWith("// @default-collapsed") === false,
   );
+  const [settingsVisible, setSettingsVisible] = useState(false);
 
   const context = useContext(RichTextContext);
 
+  const settings = context.editorStore.blockSettings.get(
+    props.model.uri.toString(),
+  );
   return (
     <div
       contentEditable={false}
@@ -271,20 +279,33 @@ const MonacoBlockElement = (
         styles.codeCell,
         codeVisible ? styles.expanded : styles.collapsed,
       ].join(" ")}>
-      {codeVisible ? (
-        <VscChevronDown
-          title="Show / hide code"
-          className={styles.codeCellSideIcon}
-          onClick={() => setCodeVisible(false)}
-        />
-      ) : (
-        <VscChevronRight
-          title="Show / hide code"
-          className={styles.codeCellSideIcon}
-          onClick={() => setCodeVisible(true)}
-        />
-      )}
-      {}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}>
+        {codeVisible ? (
+          <VscChevronDown
+            title="Show / hide code"
+            className={styles.codeCellSideIcon}
+            onClick={() => setCodeVisible(false)}
+          />
+        ) : (
+          <VscChevronRight
+            title="Show / hide code"
+            className={styles.codeCellSideIcon}
+            onClick={() => setCodeVisible(true)}
+          />
+        )}
+        {settings && (
+          <VscSettingsGear
+            size={12}
+            className={styles.codeCellSideIcon}
+            onClick={() => setSettingsVisible(!settingsVisible)}
+          />
+        )}
+      </div>
       <div className={styles.codeCellContent}>
         {codeVisible && (
           <div className={styles.codeCellCode}>
@@ -309,6 +330,7 @@ const MonacoBlockElement = (
             },
           )}
         </div>
+        {settings && <div>{settings.content(settingsVisible)}</div>}
       </div>
     </div>
   );

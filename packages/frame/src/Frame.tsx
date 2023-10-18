@@ -32,16 +32,18 @@ import styles from "./Frame.module.css";
 import { RichTextContext } from "./RichTextContext";
 import { MonacoCodeBlock } from "./codeblocks/MonacoCodeBlock";
 import SourceModelCompiler from "./runtime/compiler/SourceModelCompiler";
-import { MonacoContext } from "./runtime/editor/MonacoContext";
-import { ExecutionHost } from "./runtime/executor/executionHosts/ExecutionHost";
-import LocalExecutionHost from "./runtime/executor/executionHosts/local/LocalExecutionHost";
-
 import { setMonacoDefaults } from "./runtime/editor";
+import { MonacoContext } from "./runtime/editor/MonacoContext";
+import LocalExecutionHost from "./runtime/executor/executionHosts/local/LocalExecutionHost";
 
 import { variables } from "@typecell-org/util";
 import { RiCodeSSlashFill } from "react-icons/ri";
+import { VscWand } from "react-icons/vsc";
 import { EditorStore } from "./EditorStore";
 import { MonacoColorManager } from "./MonacoColorManager";
+
+import { getAICode } from "./ai/ai";
+import { applyChanges } from "./ai/applyChanges";
 import { MonacoInlineCode } from "./codeblocks/MonacoInlineCode";
 import monacoStyles from "./codeblocks/MonacoSelection.module.css";
 import { setupTypecellHelperTypeResolver } from "./runtime/editor/languages/typescript/TypeCellHelperTypeResolver";
@@ -94,10 +96,11 @@ const originalItems = [
   ...getDefaultReactSlashMenuItems(),
   {
     name: "Code block",
-    execute: (editor: any) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    execute: (editor: BlockNoteEditor<any>) =>
       insertOrUpdateBlock(editor, {
         type: "codeblock",
-      } as any),
+      }),
     aliases: ["code"],
     hint: "Add a live code block",
     group: "Code",
@@ -105,7 +108,8 @@ const originalItems = [
   },
   {
     name: "Inline",
-    execute: (editor: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    execute: (editor: BlockNoteEditor<any>) => {
       // state.tr.replaceSelectionWith(dinoType.create({type}))
       const node = editor._tiptapEditor.schema.node(
         "inlineCode",
@@ -274,12 +278,13 @@ export const Frame: React.FC<Props> = observer((props) => {
         resolver.resolveImport,
       );
 
-      const newExecutionHost: ExecutionHost = new LocalExecutionHost(
+      const newExecutionHost = new LocalExecutionHost(
         props.documentIdString,
         newCompiler,
         monaco,
         newEngine,
       );
+
       return [
         { newCompiler, newExecutionHost },
         () => {
@@ -290,15 +295,46 @@ export const Frame: React.FC<Props> = observer((props) => {
     [props.documentIdString, monaco],
   );
 
-  console.log("size", editorStore.current.customBlocks.size);
   slashMenuItems.splice(
     originalItems.length,
     slashMenuItems.length,
-    ...[...editorStore.current.customBlocks.values()].map((data: any) => {
+    {
+      name: "AI",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      execute: async (editor: BlockNoteEditor<any>) => {
+        const p = prompt("What would you like TypeCell AI to do?");
+        if (!p) {
+          return;
+        }
+
+        const commands = await getAICode(
+          p,
+          props.documentIdString,
+          tools.newExecutionHost,
+          editor,
+          editorStore.current,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          connectionMethods.current!.queryLLM,
+        );
+
+        // TODO: we should validate the commands before applying them
+        applyChanges(
+          commands,
+          document.ydoc.getXmlFragment("doc"),
+          document.awareness,
+        );
+      },
+      aliases: ["ai", "wizard", "openai", "llm"],
+      hint: "Prompt your TypeCell AI assistant",
+      group: "Code",
+      icon: <VscWand size={18} />,
+    },
+    ...[...editorStore.current.customBlocks.values()].map((data) => {
       console.log("update blocks");
       return {
         name: data.name,
-        execute: (editor: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        execute: (editor: BlockNoteEditor<any>) => {
           const origVarName = variables.toCamelCaseVariableName(data.name);
           let varName = origVarName;
           let i = 0;
@@ -306,48 +342,47 @@ export const Frame: React.FC<Props> = observer((props) => {
           while (true) {
             // append _1, _2, _3, ... to the variable name until it is unique
 
-            if (
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (
-                tools.newExecutionHost.engine.observableContext
-                  .rawContext as any
-              )[varName] === undefined
-            ) {
+            const context =
+              tools.newExecutionHost.engine.observableContext.rawContext;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if ((context as any)[varName] === undefined) {
               break;
             }
             i++;
             varName = origVarName + "_" + i;
           }
 
-          insertOrUpdateBlock(
-            editor as any,
-            {
-              type: "codeblock",
-              props: {
-                language: "typescript",
-                // moduleName: moduleName,
-                // key,
-                storage: "",
-              },
-              content: `// @default-collapsed
+          const settingsPart = data.settings
+            ? `
+typecell.editor.registerBlockSettings({
+  content: (visible: boolean) => (
+    <typecell.AutoForm
+      inputObject={doc}
+      fields={${JSON.stringify(data.settings, undefined, 2)}}
+      visible={visible}
+    />
+  ),
+});
+`
+            : "";
+          insertOrUpdateBlock(editor, {
+            type: "codeblock",
+            props: {
+              language: "typescript",
+              storage: "",
+            },
+            content: `// @default-collapsed
 import * as doc from "${data.documentId}";
 
-export let ${varName} = doc.${data.blockVariable};
+export let ${varName} = doc.${data.blockExport};
 export let ${varName}Scope = doc;
-
+${settingsPart}
 export default ${varName};
 `,
-            } as any,
-          );
+          });
         },
-        // execute: (editor) =>
-        //   insertOrUpdateBlock(editor, {
-        //     type: data[0],
-        //   }),
-        // aliases: [data[0]],
-        // hint: "Add a " + data[0],
         group: "Custom",
-      } as any;
+      };
     }),
   );
 
@@ -400,6 +435,7 @@ export default ${varName};
   });
 
   if (editorStore.current.editor !== editor) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     editorStore.current.editor = editor as any;
   }
 
@@ -412,6 +448,7 @@ export default ${varName};
       <MonacoContext.Provider value={{ monaco }}>
         <RichTextContext.Provider
           value={{
+            editorStore: editorStore.current,
             executionHost: tools.newExecutionHost,
             compiler: tools.newCompiler,
             documentId: props.documentIdString,

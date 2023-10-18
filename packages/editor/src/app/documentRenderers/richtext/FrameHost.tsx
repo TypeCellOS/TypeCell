@@ -1,10 +1,11 @@
-import { IframeBridgeMethods } from "@typecell-org/shared";
+import { HostBridgeMethods, IframeBridgeMethods } from "@typecell-org/shared";
 import { ContainedElement, useResource } from "@typecell-org/util";
 import { PenPalProvider } from "@typecell-org/y-penpal";
 import { AsyncMethodReturns, connectToChild } from "penpal";
 import { useRef } from "react";
 import * as awarenessProtocol from "y-protocols/awareness";
 import { parseIdentifier } from "../../../identifiers";
+import { queryOpenAI } from "../../../integrations/ai/openai";
 import { DocumentResource } from "../../../store/DocumentResource";
 import { DocumentResourceModelProvider } from "../../../store/DocumentResourceModelProvider";
 import { SessionStore } from "../../../store/local/SessionStore";
@@ -64,7 +65,7 @@ export function FrameHost(props: {
       { provider: DocumentResourceModelProvider; forwarder: ModelForwarder }
     >();
 
-    const methods = {
+    const methods: HostBridgeMethods = {
       processYjsMessage: async (message: ArrayBuffer) => {
         provider.onMessage(message, "penpal");
       },
@@ -110,6 +111,7 @@ export function FrameHost(props: {
         moduleManager.forwarder.dispose();
         moduleManagers.delete(identifierStr);
       },
+      queryLLM: queryOpenAI,
     };
 
     const iframe = document.createElement("iframe");

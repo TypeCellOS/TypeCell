@@ -35,7 +35,10 @@ export default class LocalExecutionHost
     //     );
     //   })
     // );
-    this.engine.registerModelProvider(compileEngine);
+
+    if (!window.location.hash.includes("noRun")) {
+      this.engine.registerModelProvider(compileEngine);
+    }
 
     const visualizerExtension = this._register(
       new VisualizerExtension(compileEngine, documentId, monacoInstance),
