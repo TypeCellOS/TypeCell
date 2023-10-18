@@ -352,6 +352,19 @@ export const Frame: React.FC<Props> = observer((props) => {
             varName = origVarName + "_" + i;
           }
 
+          const settingsPart = data.settings
+            ? `
+typecell.editor.registerBlockSettings({
+  content: (visible: boolean) => (
+    <typecell.AutoForm
+      inputObject={doc}
+      fields={${JSON.stringify(data.settings, undefined, 2)}}
+      visible={visible}
+    />
+  ),
+});
+`
+            : "";
           insertOrUpdateBlock(editor, {
             type: "codeblock",
             props: {
@@ -361,9 +374,9 @@ export const Frame: React.FC<Props> = observer((props) => {
             content: `// @default-collapsed
 import * as doc from "${data.documentId}";
 
-export let ${varName} = doc.${data.blockVariable};
+export let ${varName} = doc.${data.blockExport};
 export let ${varName}Scope = doc;
-
+${settingsPart}
 export default ${varName};
 `,
           });
@@ -435,6 +448,7 @@ export default ${varName};
       <MonacoContext.Provider value={{ monaco }}>
         <RichTextContext.Provider
           value={{
+            editorStore: editorStore.current,
             executionHost: tools.newExecutionHost,
             compiler: tools.newCompiler,
             documentId: props.documentIdString,

@@ -23,11 +23,17 @@ export class EditorStore {
   public executionHost: LocalExecutionHost | undefined;
   public topLevelBlocks: any;
 
+  public readonly customBlocks = new Map<string, any>();
+  public readonly blockSettings = new Map<string, any>();
+
   constructor() {
     makeObservable(this, {
       customBlocks: observable.shallow,
-      add: action,
-      delete: action,
+      addCustomBlock: action,
+      deleteCustomBlock: action,
+      blockSettings: observable.shallow,
+      addBlockSettings: action,
+      deleteBlockSettings: action,
       topLevelBlocks: observable.ref,
     });
 
@@ -45,12 +51,10 @@ export class EditorStore {
     });
   }
 
-  customBlocks = new Map<string, any>();
-
   /**
    * Add a custom block (slash menu command) to the editor
    */
-  public add(config: any) {
+  public addCustomBlock(config: any) {
     if (this.customBlocks.has(config.id)) {
       // already has block with this id, maybe loop of documents?
       return;
@@ -61,8 +65,26 @@ export class EditorStore {
   /**
    * Remove a custom block (slash menu command) from the editor
    */
-  public delete(config: any) {
+  public deleteCustomBlock(config: any) {
     this.customBlocks.delete(config.id);
+  }
+
+  /**
+   * Add a block settings (block settings menu) to the editor
+   */
+  public addBlockSettings(config: any) {
+    if (this.blockSettings.has(config.id)) {
+      // already has block with this id, maybe loop of documents?
+      return;
+    }
+    this.blockSettings.set(config.id, config);
+  }
+
+  /**
+   * Remove block settings (block settings menu) from the editor
+   */
+  public deleteBlockSettings(config: any) {
+    this.blockSettings.delete(config.id);
   }
 
   /**

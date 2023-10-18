@@ -21,7 +21,11 @@ export default function getExposeGlobalVariables(
     // registerPlugin: (config: { name: string }) => {
     //   return config.name;
     // },
-    registerBlock: (config: { name: string; blockExport: string }) => {
+    registerBlock: (config: {
+      name: string;
+      blockExport: string;
+      settings?: Record<string, boolean>;
+    }) => {
       // TODO: this logic should be part of CodeModel / BasicCodeModel
       const id = forModelList[forModelList.length - 1].path;
       const parts = decodeURIComponent(id.replace("file:///", "")).split("/");
@@ -35,11 +39,27 @@ export default function getExposeGlobalVariables(
         documentId,
       };
       console.log("ADD BLOCK", completeConfig.id);
-      editorStore.add(completeConfig);
+      editorStore.addCustomBlock(completeConfig);
 
       runContext.onDispose(() => {
         console.log("REMOVE BLOCK", completeConfig.id);
-        editorStore.delete(completeConfig);
+        editorStore.deleteCustomBlock(completeConfig);
+      });
+    },
+    registerBlockSettings: (config: any) => {
+      // TODO: this logic should be part of CodeModel / BasicCodeModel
+      const id = forModelList[forModelList.length - 1].uri;
+
+      const completeConfig: any = {
+        ...config,
+        id: id.toString(),
+      };
+      // console.log("ADD BLOCK", completeConfig.id);
+      editorStore.addBlockSettings(completeConfig);
+
+      runContext.onDispose(() => {
+        // console.log("REMOVE BLOCK", completeConfig.id);
+        editorStore.deleteBlockSettings(completeConfig);
       });
     },
     /**
@@ -163,7 +183,9 @@ export default function getExposeGlobalVariables(
           [key: string]: unknown;
         },
       >(
-        props: Exclude<AutoFormProps<T>, "settings" | "setSettings">,
+        props: Exclude<AutoFormProps<T>, "settings" | "setSettings"> & {
+          visible: boolean;
+        },
       ) => {
         const storage = editor.currentBlock.storage;
 
@@ -182,7 +204,7 @@ export default function getExposeGlobalVariables(
             const func = new Function("$target", "$", sanitizedCode);
             return () => {
               console.log("eval", key, code);
-              func(props.inputObject, props.inputObject); // TODO
+              func(props.inputObject, runContext.context.context);
             };
           });
         }, [props.inputObject, storage.settings]);
@@ -211,6 +233,10 @@ export default function getExposeGlobalVariables(
             console.log("cells", cells);
           });
         }, [props.fields, createFunctionTransformer]);
+
+        if (!props.visible) {
+          return <></>;
+        }
 
         return (
           <AutoForm

@@ -57,6 +57,8 @@ export const FormField = observer(
 
     let inputField: React.ReactNode = <div>Unsupported type</div>;
 
+    const realShowCode = showCode || !canUseInput;
+
     if (canUseInput) {
       const valueType =
         currentParsedBinding === undefined
@@ -112,7 +114,7 @@ export const FormField = observer(
         {({ fieldProps, error }) => (
           <Fragment>
             <div style={{ display: "flex" }}>
-              {showCode ? (
+              {realShowCode ? (
                 <MonacoEdit
                   value={props.value || "export default"}
                   documentid={"TODO"}
@@ -151,14 +153,14 @@ export const FormField = observer(
                   <DropdownItemRadio
                     id="value"
                     onClick={() => setShowCode(false)}
-                    isSelected={!showCode}
+                    isSelected={!realShowCode}
                     isDisabled={!canUseInput}>
                     Value view
                   </DropdownItemRadio>
                   <DropdownItemRadio
                     id="code"
                     onClick={() => setShowCode(true)}
-                    isSelected={showCode}>
+                    isSelected={realShowCode}>
                     Code view
                   </DropdownItemRadio>
                 </DropdownItemRadioGroup>
