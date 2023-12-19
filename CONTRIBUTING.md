@@ -32,6 +32,10 @@ To run the project, open the command line in the project's root directory and en
     # Initial build of all packages required by the main editor project
     npm run build
 
+    # Start supabase
+    npm run start:supabase
+    # to stop docker containers later, run: npm run stop:supabase
+
     # Start the local server
     npm run start:server
 
