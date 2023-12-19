@@ -39,6 +39,8 @@
     "start-react": "npm run start --workspace=packages/editor",
     "start:preview": "npm run preview --workspace=packages/editor",
     "start:server": "npm run dev --workspace=packages/server",
+    "start:supabase": "npm run start:supabase --workspace=packages/server",
+    "stop:supabase": "npm run stop:supabase --workspace=packages/server",
     "prepublishOnly": "npm run test && npm run build"
   },
   "overrides": {
