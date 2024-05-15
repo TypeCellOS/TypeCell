@@ -93,7 +93,7 @@ export class EditorStore {
         const findParent = (
           searchId: string,
           parentId: string | undefined,
-          children: Block[],
+          children: Block<any, any, any>[],
         ): string | undefined => {
           for (const child of children) {
             if (child.id === searchId) {

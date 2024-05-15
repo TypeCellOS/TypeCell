@@ -35,7 +35,6 @@ import styles from "./Frame.module.css";
 import { RichTextContext } from "./RichTextContext";
 import SourceModelCompiler from "./runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
-import { ExecutionHost } from "./runtime/executor/executionHosts/ExecutionHost";
 import LocalExecutionHost from "./runtime/executor/executionHosts/local/LocalExecutionHost";
 
 import { setMonacoDefaults } from "./runtime/editor";
@@ -264,7 +263,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         resolver.resolveImport,
       );
 
-      const newExecutionHost: ExecutionHost = new LocalExecutionHost(
+      const newExecutionHost: LocalExecutionHost = new LocalExecutionHost(
         props.documentIdString,
         newCompiler,
         monaco,
