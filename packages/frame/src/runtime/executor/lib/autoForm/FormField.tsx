@@ -20,7 +20,7 @@ export const FormField = observer(
       [key: string]: unknown;
     };
     fieldKey: Key;
-    modelPath: string;
+    // modelPath: string;
     value: string | undefined;
     setValue: (value: string | undefined) => void;
   }) => {
@@ -115,7 +115,7 @@ export const FormField = observer(
               {showCode ? (
                 <MonacoEdit
                   value={props.value || "export default"}
-                  documentid={props.modelPath}
+                  documentid={"TODO"}
                   onChange={(newValue) => {
                     if (!newValue || newValue.trim() === "export default") {
                       props.setValue(undefined);

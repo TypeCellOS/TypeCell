@@ -34,6 +34,7 @@
     "start": "node dist/src/index.js",
     "start:supabase": "./supabase.sh start",
     "stop:supabase": "./supabase.sh stop",
+    "dump": "./supabase.sh db dump -f export.sql --db-url=postgresql://postgres:postgres@localhost:54322 --data-only",
     "clean": "rimraf dist && rimraf types",
     "dev": "MODE=development vite-node src/index.ts",
     "build": "npm run clean && tsc -p tsconfig.json",

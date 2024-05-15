@@ -54,7 +54,7 @@ export const AutoForm = observer(
                       key={input}
                       inputObject={props.inputObject as any}
                       fieldKey={input}
-                      modelPath={props.modelPath}
+                      // modelPath={props.modelPath}
                       value={props.settings[input]}
                       setValue={(value: string | undefined) => {
                         props.setSetting(input, value);

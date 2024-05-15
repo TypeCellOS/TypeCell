@@ -34,12 +34,12 @@ export default function getExposeGlobalVariables(
         id,
         documentId,
       };
-      console.log("ADD BLOCK", completeConfig.id);
-      editorStore.add(completeConfig);
+      // console.log("ADD BLOCK", completeConfig.id);
+      editorStore.addBlockSettings(completeConfig);
 
       runContext.onDispose(() => {
-        console.log("REMOVE BLOCK", completeConfig.id);
-        editorStore.delete(completeConfig);
+        // console.log("REMOVE BLOCK", completeConfig.id);
+        editorStore.deleteCustomBlock(completeConfig);
       });
     },
     /**

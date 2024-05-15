@@ -3,14 +3,12 @@ import { Block, BlockNoteEditor } from "@blocknote/core";
 import {
   ObservableMap,
   action,
-  computed,
   makeObservable,
   observable,
   onBecomeObserved,
-  reaction,
   runInAction,
 } from "mobx";
-import { ExecutionHost } from "./runtime/executor/executionHosts/ExecutionHost";
+import { TypeCellBlock } from "./TypeCellBlock";
 import LocalExecutionHost from "./runtime/executor/executionHosts/local/LocalExecutionHost";
 
 export class EditorStore {
@@ -26,8 +24,11 @@ export class EditorStore {
   constructor() {
     makeObservable(this, {
       customBlocks: observable.shallow,
-      add: action,
-      delete: action,
+      addCustomBlock: action,
+      deleteCustomBlock: action,
+      blockSettings: observable.shallow,
+      addBlockSettings: action,
+      deleteBlockSettings: action,
       topLevelBlocks: observable.ref,
     });
 
@@ -46,11 +47,12 @@ export class EditorStore {
   }
 
   customBlocks = observable.map<string, any>();
+  blockSettings = observable.map<string, any>();
 
   /**
    * Add a custom block (slash menu command) to the editor
    */
-  public add(config: any) {
+  public addCustomBlock(config: any) {
     if (this.customBlocks.has(config.id)) {
       // already has block with this id, maybe loop of documents?
       return;
@@ -61,8 +63,26 @@ export class EditorStore {
   /**
    * Remove a custom block (slash menu command) from the editor
    */
-  public delete(config: any) {
+  public deleteCustomBlock(config: any) {
     this.customBlocks.delete(config.id);
+  }
+
+  /**
+   * Add a block settings (block settings menu) to the editor
+   */
+  public addBlockSettings(config: any) {
+    if (this.blockSettings.has(config.id)) {
+      // already has block with this id, maybe loop of documents?
+      return;
+    }
+    this.blockSettings.set(config.id, config);
+  }
+
+  /**
+   * Remove block settings (block settings menu) from the editor
+   */
+  public deleteBlockSettings(config: any) {
+    this.blockSettings.delete(config.id);
   }
 
   /**
@@ -124,108 +144,6 @@ export class EditorStore {
    * @internal
    * */
   public get firstBlock() {
-    return this.getBlock(this.editor!.topLevelBlocks[0].id);
-  }
-}
-
-/**
- * EXPERIMENTAL
- */
-class TypeCellBlock {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore it's set using updatePropertiesFromEditorBlock
-  block: Block;
-  storage: Record<string, any> = {};
-
-  get context() {
-    // TODO: hacky
-    const keys = [...this.executionHost.outputs.keys()].filter((key) =>
-      key.includes(this.block.id),
-    );
-
-    if (!keys.length) {
-      return undefined;
-    }
-    // return undefined;
-
-    // debugger;
-    const val = this.executionHost.outputs.get(keys[0])?.value;
-    if (val instanceof Error) {
-      return undefined;
-    }
-    return val;
-    // return Object.fromEntries(
-    //   Object.getOwnPropertyNames(val).map((key) => [key, val[key]]),
-    // );
-  }
-
-  constructor(
-    id: string,
-    editor: BlockNoteEditor,
-    private readonly executionHost: ExecutionHost,
-    onRemoved: () => void,
-  ) {
-    makeObservable(this, {
-      block: observable.ref,
-      context: computed,
-      storage: true,
-    });
-
-    const editorBlock = editor.getBlock(id);
-    if (!editorBlock) {
-      throw new Error("Editor block not found");
-    }
-
-    const updatePropertiesFromEditorBlock = (newBlock: Block) => {
-      runInAction(() => {
-        this.block = newBlock;
-
-        if (newBlock.props.storage !== JSON.stringify(this.storage)) {
-          if (newBlock.props.storage) {
-            try {
-              console.log("update cell storage");
-              this.storage = JSON.parse(newBlock.props.storage) || {};
-            } catch (e) {
-              console.error(e);
-            }
-          } else {
-            this.storage = {};
-          }
-        }
-      });
-    };
-    updatePropertiesFromEditorBlock(editorBlock);
-
-    const updateBlock = () => {
-      const newBlock = editor.getBlock(id);
-      if (!newBlock) {
-        onRemoved();
-        return;
-      }
-      if (newBlock !== this.block) {
-        updatePropertiesFromEditorBlock(newBlock);
-      }
-    };
-
-    onBecomeObserved(this, "block", () => {
-      editor.onEditorContentChange(() => {
-        updateBlock();
-      });
-      updateBlock();
-    });
-
-    reaction(
-      () => (this.storage ? JSON.stringify(this.storage) : undefined),
-      (val) => {
-        if (val) {
-          editor.updateBlock(this.block, {
-            props: {
-              storage: val,
-            },
-          });
-        }
-      },
-      { fireImmediately: false },
-    );
+    return this.getBlock(this.editor!.document[0].id);
   }
 }
