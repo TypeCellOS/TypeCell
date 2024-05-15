@@ -1,18 +1,21 @@
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 // import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost"
 import {
-  BlockNoteEditor,
-  DefaultBlockSchema,
-  PartialBlock,
-  defaultBlockSchema,
+  BlockNoteSchema,
+  defaultBlockSpecs,
+  filterSuggestionItems,
+  insertOrUpdateBlock,
 } from "@blocknote/core";
-import "@blocknote/core/style.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
-  BlockNoteView,
+  SuggestionMenuController,
   getDefaultReactSlashMenuItems,
-  useBlockNote,
+  useCreateBlockNote,
 } from "@blocknote/react";
+import { RiCodeSSlashFill } from "react-icons/ri";
+
 import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
 import { ReactiveEngine } from "@typecell-org/engine";
 import {
@@ -21,7 +24,7 @@ import {
   IframeBridgeMethods,
   ModelReceiver,
 } from "@typecell-org/shared";
-import { useResource } from "@typecell-org/util";
+import { useResource, variables } from "@typecell-org/util";
 import { PenPalProvider } from "@typecell-org/y-penpal";
 import * as mobx from "mobx";
 import * as monaco from "monaco-editor";
@@ -30,7 +33,6 @@ import ReactDOM from "react-dom";
 import * as Y from "yjs";
 import styles from "./Frame.module.css";
 import { RichTextContext } from "./RichTextContext";
-import { MonacoCodeBlock } from "./codeblocks/MonacoCodeBlock";
 import SourceModelCompiler from "./runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
 import { ExecutionHost } from "./runtime/executor/executionHosts/ExecutionHost";
@@ -38,10 +40,11 @@ import LocalExecutionHost from "./runtime/executor/executionHosts/local/LocalExe
 
 import { setMonacoDefaults } from "./runtime/editor";
 
-import { variables } from "@typecell-org/util";
-import { RiCodeSSlashFill } from "react-icons/ri";
+import { reaction } from "mobx";
+import { uri } from "vscode-lib";
 import { EditorStore } from "./EditorStore";
 import { MonacoColorManager } from "./MonacoColorManager";
+import { MonacoCodeBlock } from "./codeblocks/MonacoCodeBlock";
 import { MonacoInlineCode } from "./codeblocks/MonacoInlineCode";
 import monacoStyles from "./codeblocks/MonacoSelection.module.css";
 import { setupTypecellHelperTypeResolver } from "./runtime/editor/languages/typescript/TypeCellHelperTypeResolver";
@@ -63,61 +66,19 @@ class FakeProvider {
   constructor(public readonly awareness: unknown) {}
 }
 
-function insertOrUpdateBlock<BSchema extends DefaultBlockSchema>(
-  editor: BlockNoteEditor<BSchema>,
-  block: PartialBlock<BSchema>,
-) {
-  const currentBlock = editor.getTextCursorPosition().block;
-
-  if (
-    (currentBlock.content.length === 1 &&
-      currentBlock.content[0].type === "text" &&
-      currentBlock.content[0].text === "/") ||
-    currentBlock.content.length === 0
-  ) {
-    editor.updateBlock(currentBlock, block);
-  } else {
-    editor.insertBlocks([block], currentBlock, "after");
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
-  }
-}
-
 type Props = {
   documentIdString: string;
   roomName: string;
   userName: string;
   userColor: string;
 };
-
-const originalItems = [
-  ...getDefaultReactSlashMenuItems(),
-  {
-    name: "Code block",
-    execute: (editor: any) =>
-      insertOrUpdateBlock(editor, {
-        type: "codeblock",
-      } as any),
-    aliases: ["code"],
-    hint: "Add a live code block",
-    group: "Code",
-    icon: <RiCodeSSlashFill size={18} />,
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    codeblock: MonacoCodeBlock,
+    inlineCode: MonacoInlineCode,
   },
-  {
-    name: "Inline",
-    execute: (editor: any) => {
-      // state.tr.replaceSelectionWith(dinoType.create({type}))
-      const node = editor._tiptapEditor.schema.node(
-        "inlineCode",
-        undefined,
-        editor._tiptapEditor.schema.text("export default "),
-      );
-      const tr = editor._tiptapEditor.state.tr.replaceSelectionWith(node);
-      editor._tiptapEditor.view.dispatch(tr);
-    },
-  },
-];
-const slashMenuItems = [...originalItems];
+});
 
 export const Frame: React.FC<Props> = observer((props) => {
   const modelReceivers = useMemo(() => new Map<string, ModelReceiver>(), []);
@@ -127,6 +88,29 @@ export const Frame: React.FC<Props> = observer((props) => {
   );
   const connectionMethods = useRef<AsyncMethodReturns<HostBridgeMethods>>();
   const editorStore = useRef(new EditorStore());
+
+  // listen to custom blocks and mark exposed plugins to the parent window, so these can be displayed in the plugin dialog
+  useEffect(() => {
+    return reaction(
+      () => editorStore.current.customBlocks.toJSON(),
+      (data, prev) => {
+        const oldItems = new Set(prev?.map((data) => data[1].documentId) ?? []);
+        const newItems = new Set(data?.map((data) => data[1].documentId) ?? []);
+
+        for (const item of oldItems) {
+          if (!newItems.has(item)) {
+            connectionMethods.current?.markPlugins(item, false);
+          }
+        }
+
+        for (const item of newItems) {
+          if (!oldItems.has(item)) {
+            connectionMethods.current?.markPlugins(item, true);
+          }
+        }
+      },
+    );
+  }, [editorStore.current]);
 
   const document = useResource(() => {
     const ydoc = new Y.Doc();
@@ -184,7 +168,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         modelId: string,
         model: { value: string; language: string },
       ) => {
-        console.log("register model", modelId);
+        console.log("register models", modelId);
         const modelReceiver = modelReceivers.get(bridgeId);
         if (modelReceiver) {
           modelReceiver.updateModel(modelId, model);
@@ -215,12 +199,15 @@ export const Frame: React.FC<Props> = observer((props) => {
         console.info("connected to parent window succesfully");
         connectionMethods.current = parent;
         document.provider.connect();
+
+        // mark as false until code has been executed and we surely know doc still contains plugins
+        parent.markPlugins(props.documentIdString, false);
       },
       (e) => {
         console.error("connection to parent window failed", e);
       },
     );
-  }, [modelReceivers, document]);
+  }, [modelReceivers, document, props.documentIdString]);
 
   const tools = useResource(
     // "compilers",
@@ -257,6 +244,8 @@ export const Frame: React.FC<Props> = observer((props) => {
         modelReceivers.set("modules/" + fullIdentifier, modelReceiver);
 
         const subcompiler = new SourceModelCompiler(monaco);
+        // mark as false until code has been executed and we surely know doc still contains plugins
+        connectionMethods.current!.markPlugins(fullIdentifier, false);
         modelReceiver.onDidCreateModel((model) => {
           subcompiler.registerModel(model);
         });
@@ -270,6 +259,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         // TODO: dispose modelReceiver
         return subcompiler;
       }, editorStore.current);
+
       const newEngine = new ReactiveEngine<BasicCodeModel>(
         resolver.resolveImport,
       );
@@ -290,68 +280,7 @@ export const Frame: React.FC<Props> = observer((props) => {
     [props.documentIdString, monaco],
   );
 
-  console.log("size", editorStore.current.customBlocks.size);
-  slashMenuItems.splice(
-    originalItems.length,
-    slashMenuItems.length,
-    ...[...editorStore.current.customBlocks.values()].map((data: any) => {
-      console.log("update blocks");
-      return {
-        name: data.name,
-        execute: (editor: any) => {
-          const origVarName = variables.toCamelCaseVariableName(data.name);
-          let varName = origVarName;
-          let i = 0;
-          // eslint-disable-next-line no-constant-condition
-          while (true) {
-            // append _1, _2, _3, ... to the variable name until it is unique
-
-            if (
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (
-                tools.newExecutionHost.engine.observableContext
-                  .rawContext as any
-              )[varName] === undefined
-            ) {
-              break;
-            }
-            i++;
-            varName = origVarName + "_" + i;
-          }
-
-          insertOrUpdateBlock(
-            editor as any,
-            {
-              type: "codeblock",
-              props: {
-                language: "typescript",
-                // moduleName: moduleName,
-                // key,
-                storage: "",
-              },
-              content: `// @default-collapsed
-import * as doc from "${data.documentId}";
-
-export let ${varName} = doc.${data.blockVariable};
-export let ${varName}Scope = doc;
-
-export default ${varName};
-`,
-            } as any,
-          );
-        },
-        // execute: (editor) =>
-        //   insertOrUpdateBlock(editor, {
-        //     type: data[0],
-        //   }),
-        // aliases: [data[0]],
-        // hint: "Add a " + data[0],
-        group: "Custom",
-      } as any;
-    }),
-  );
-
-  const editor = useBlockNote({
+  const editor = useCreateBlockNote({
     defaultStyles: false,
     domAttributes: {
       editor: {
@@ -359,36 +288,7 @@ export default ${varName};
         "data-test": "editor",
       },
     },
-    blockSchema: {
-      ...defaultBlockSchema,
-      codeblock: {
-        propSchema: {
-          language: {
-            type: "string",
-            default: "typescript",
-          },
-          storage: {
-            type: "string",
-            default: "",
-          },
-        },
-        node: MonacoCodeBlock,
-      },
-      inlinecode: {
-        propSchema: {
-          language: {
-            type: "string",
-            default: "typescript",
-          },
-          storage: {
-            type: "string",
-            default: "",
-          },
-        },
-        node: MonacoInlineCode,
-      },
-    },
-    slashMenuItems,
+    schema,
     collaboration: {
       provider: new FakeProvider(document.awareness),
       user: {
@@ -399,8 +299,132 @@ export default ${varName};
     },
   });
 
+  useEffect(() => {
+    const pluginModels = new Map<string, BasicCodeModel>();
+
+    const observer = () => {
+      const plugins = document.ydoc.getMap("plugins");
+      const keys = [...plugins.keys()];
+      for (const key of keys) {
+        const code = `import * as doc from "!${key.toString()}"; export default { doc };`;
+        const path = uri.URI.parse(
+          "file:///!plugins/" + key.toString() + ".cell.tsx",
+        ).toString();
+        const model = new BasicCodeModel(path, code, "typescript");
+        pluginModels.set(key, model);
+        tools.newCompiler.registerModel(model);
+      }
+
+      for (const [key, model] of pluginModels) {
+        if (!plugins.has(key)) {
+          model.dispose();
+          pluginModels.delete(key);
+        }
+      }
+    };
+
+    observer();
+    document.ydoc.getMap("plugins").observeDeep(observer);
+
+    return () => {
+      document.ydoc.getMap("plugins").unobserveDeep(observer);
+      for (const [key, model] of pluginModels) {
+        model.dispose();
+        pluginModels.delete(key);
+      }
+    };
+  }, [document.ydoc, tools.newExecutionHost.engine]);
+
+  const getSlashMenuItems = useCallback(
+    async (query: string) => {
+      const pluginBlocks = [...editorStore.current.customBlocks.values()].map(
+        (data) => {
+          return {
+            title: data.name,
+            onItemClick: () => {
+              const origVarName = variables.toCamelCaseVariableName(data.name);
+              let varName = origVarName;
+              let i = 0;
+              // eslint-disable-next-line no-constant-condition
+              while (true) {
+                // append _1, _2, _3, ... to the variable name until it is unique
+
+                if (
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (
+                    tools.newExecutionHost.engine.observableContext
+                      .rawContext as any
+                  )[varName] === undefined
+                ) {
+                  break;
+                }
+                i++;
+                varName = origVarName + "_" + i;
+              }
+
+              insertOrUpdateBlock(editor, {
+                type: "codeblock",
+                props: {
+                  language: "typescript",
+                  // moduleName: moduleName,
+                  // key,
+                  storage: "",
+                },
+                content: `// @default-collapsed
+  import * as doc from "!${data.documentId}";
+  
+  export let ${varName} = doc.${data.blockVariable};
+  export let ${varName}Scope = doc;
+  
+  export default ${varName};
+  `,
+              });
+            },
+            group: "Custom",
+          };
+        },
+      );
+
+      return filterSuggestionItems(
+        [
+          ...getDefaultReactSlashMenuItems(editor),
+          {
+            title: "Code block",
+            onItemClick: () =>
+              insertOrUpdateBlock(editor, {
+                type: "codeblock",
+              }),
+            aliases: ["code"],
+            subtext: "Add a live code block",
+            group: "Code",
+            icon: <RiCodeSSlashFill size={18} />,
+          },
+          {
+            title: "Inline code",
+            onItemClick: () => {
+              const node = editor._tiptapEditor.schema.node(
+                "inlineCode",
+                undefined,
+                editor._tiptapEditor.schema.text("export default "),
+              );
+              const tr =
+                editor._tiptapEditor.state.tr.replaceSelectionWith(node);
+              editor._tiptapEditor.view.dispatch(tr);
+            },
+            subtext: "Add an inline live code block",
+            group: "Code",
+            icon: <RiCodeSSlashFill size={18} />,
+          },
+          ...pluginBlocks,
+        ],
+        query,
+      );
+    },
+    [editor, editorStore.current.customBlocks],
+  );
+
   if (editorStore.current.editor !== editor) {
-    editorStore.current.editor = editor as any;
+    editorStore.current.editor = editor;
   }
 
   if (editorStore.current.executionHost !== tools.newExecutionHost) {
@@ -416,7 +440,11 @@ export default ${varName};
             compiler: tools.newCompiler,
             documentId: props.documentIdString,
           }}>
-          <BlockNoteView editor={editor}></BlockNoteView>
+          <BlockNoteView editor={editor} slashMenu={false}>
+            <SuggestionMenuController
+              triggerCharacter="/"
+              getItems={getSlashMenuItems}></SuggestionMenuController>
+          </BlockNoteView>
         </RichTextContext.Provider>
       </MonacoContext.Provider>
     </div>

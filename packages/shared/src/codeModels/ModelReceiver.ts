@@ -44,7 +44,7 @@ export class ModelReceiver
       const modelUri = uri.URI.parse(modelId);
 
       existingModel = new BasicCodeModel(
-        modelUri.path,
+        modelUri.toString(),
         model.value,
         model.language,
       );

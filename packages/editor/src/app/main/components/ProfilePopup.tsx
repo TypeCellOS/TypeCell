@@ -11,14 +11,14 @@ import { toProfilePage } from "../../routes/routes";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Trigger = observer((props: any) => {
-  const { triggerRef, isSelected, testId, ...passProps } = props;
+  const { triggerRef, isSelected, testId, sessionStore, ...passProps } = props;
   return (
     <Profile
       testId="profile-button"
       icon={
         <Avatar
-          name={props.sessionStore.loggedInUserId}
-          src={props.sessionStore.profile?.avatar_url || undefined}
+          name={sessionStore.loggedInUserId}
+          src={sessionStore.profile?.avatar_url || undefined}
           size="32"
           round={true}
           textSizeRatio={2}

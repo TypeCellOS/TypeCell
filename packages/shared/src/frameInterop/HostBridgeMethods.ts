@@ -18,4 +18,6 @@ export type HostBridgeMethods = {
    * Function for y-penpal
    */
   processYjsMessage: (message: Uint8Array) => Promise<void>;
+
+  markPlugins: (identifierStr: string, value: boolean) => Promise<void>;
 };

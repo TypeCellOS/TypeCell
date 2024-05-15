@@ -1,17 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  BlockNoteEditor,
-  createTipTapBlock,
-  defaultBlockSchema,
-} from "@blocknote/core";
-import { mergeAttributes } from "@tiptap/core";
+
 import * as parsers from "@typecell-org/parsers";
 import { uniqueId } from "@typecell-org/util";
 import * as Y from "yjs";
 
 export function markdownToXmlFragment(
   markdown: string,
-  fragment: Y.XmlFragment | undefined
+  fragment: Y.XmlFragment | undefined,
 ) {
   if (!fragment) {
     const containerDoc = new Y.Doc(); // the doc is needed because otherwise the fragment doesn't work
@@ -43,7 +38,7 @@ export async function markdownToYDoc(markdown: string, title?: string) {
 
   const xml = newDoc.getXmlFragment("doc");
 
-  const editor = new BlockNoteEditor({
+  const editor = undefined as any; /*new BlockNoteEditor({
     blockSchema: {
       ...defaultBlockSchema,
       codeblock: {
@@ -67,7 +62,7 @@ export async function markdownToYDoc(markdown: string, title?: string) {
         type: "paragraph",
       },
     ],
-  });
+  });*/
 
   const blocks = await editor.markdownToBlocks(markdown);
   editor.replaceBlocks(editor.topLevelBlocks, blocks);
@@ -85,45 +80,45 @@ export async function markdownToYDoc(markdown: string, title?: string) {
 }
 
 // hacky
-export const MonacoBlockContent = createTipTapBlock({
-  name: "codeblock",
-  content: "inline*",
-  editable: true,
-  selectable: true,
-  whitespace: "pre",
-  code: true,
+// export const MonacoBlockContent = createTipTapBlock({
+//   name: "codeblock",
+//   content: "inline*",
+//   editable: true,
+//   selectable: true,
+//   whitespace: "pre",
+//   code: true,
 
-  addAttributes() {
-    return {
-      language: {
-        default: "typescript",
-        parseHTML: (element) => element.getAttribute("data-language"),
-        renderHTML: (attributes) => {
-          return {
-            "data-language": attributes.language,
-          };
-        },
-      },
-    };
-  },
+//   addAttributes() {
+//     return {
+//       language: {
+//         default: "typescript",
+//         parseHTML: (element) => element.getAttribute("data-language"),
+//         renderHTML: (attributes) => {
+//           return {
+//             "data-language": attributes.language,
+//           };
+//         },
+//       },
+//     };
+//   },
 
-  parseHTML() {
-    return [
-      {
-        tag: "code",
-        priority: 200,
-        node: "codeblock",
-      },
-    ];
-  },
+//   parseHTML() {
+//     return [
+//       {
+//         tag: "code",
+//         priority: 200,
+//         node: "codeblock",
+//       },
+//     ];
+//   },
 
-  renderHTML({ HTMLAttributes }) {
-    return [
-      "code",
-      mergeAttributes(HTMLAttributes, {
-        // class: styles.blockContent,
-        "data-content-type": this.name,
-      }),
-    ];
-  },
-});
+//   renderHTML({ HTMLAttributes }) {
+//     return [
+//       "code",
+//       mergeAttributes(HTMLAttributes, {
+//         // class: styles.blockContent,
+//         "data-content-type": this.name,
+//       }),
+//     ];
+//   },
+// });

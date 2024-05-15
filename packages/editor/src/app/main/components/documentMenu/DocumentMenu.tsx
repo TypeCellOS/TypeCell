@@ -12,8 +12,11 @@ import { DocumentResource } from "../../../../store/DocumentResource";
 import { SessionStore } from "../../../../store/local/SessionStore";
 import {
   ClosePermissionsDialog,
+  ClosePluginDialog,
   IsPermissionsDialogOpen,
+  IsPluginDialogOpen,
   OpenPermissionsDialog,
+  OpenPluginDialog,
 } from "../../../routes/routes";
 import { MenuBar } from "../menuBar/MenuBar";
 
@@ -26,6 +29,7 @@ import SupabasePermissionsDialog from "../../../supabase-auth/routes/permissions
 import { Breadcrumb } from "./Breadcrumb";
 import styles from "./DocumentMenu.module.css";
 import { ForkAlert } from "./ForkAlert";
+import PluginDialog from "./PluginDialog";
 import { ShareButton } from "./ShareButton";
 
 type Props = {
@@ -36,7 +40,7 @@ type Props = {
 // TODO: move?
 function userCanEditPermissions(
   sessionStore: SessionStore,
-  identifier: Identifier
+  identifier: Identifier,
 ) {
   if (identifier instanceof HttpsIdentifier) {
     return false;
@@ -56,7 +60,7 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
   const { sessionStore } = props;
   const canEditPermissions = userCanEditPermissions(
     sessionStore,
-    props.document.identifier
+    props.document.identifier,
   );
   const location = useLocation();
   const navigate = useNavigate();
@@ -127,6 +131,11 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
                       Permissions
                     </DropdownItem>
                   )}
+                  {props.document instanceof DocumentResource && (
+                    <DropdownItem onClick={() => OpenPluginDialog(navigate)}>
+                      Plugins
+                    </DropdownItem>
+                  )}
                 </DropdownMenu>
               </li>
             </>
@@ -134,6 +143,15 @@ export const DocumentMenu: React.FC<Props> = observer((props) => {
         </ul>
       </aside>
       {canEditPermissions && permissionsArea}
+      {props.document instanceof DocumentResource && (
+        <PluginDialog
+          close={() => ClosePluginDialog(navigate)}
+          isOpen={IsPluginDialogOpen(location)}
+          identifier={props.document.identifier}
+          sessionStore={sessionStore}
+          document={props.document}
+        />
+      )}
     </MenuBar>
   );
 });

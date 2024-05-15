@@ -18,7 +18,7 @@ export class EditorStore {
 
   // TODO: hacky properties
   /** @internal */
-  public editor: BlockNoteEditor | undefined;
+  public editor: BlockNoteEditor<any, any, any> | undefined;
   /** @internal */
   public executionHost: LocalExecutionHost | undefined;
   public topLevelBlocks: any;
@@ -45,7 +45,7 @@ export class EditorStore {
     });
   }
 
-  customBlocks = new Map<string, any>();
+  customBlocks = observable.map<string, any>();
 
   /**
    * Add a custom block (slash menu command) to the editor
@@ -106,7 +106,7 @@ export class EditorStore {
           }
           return undefined;
         };
-        const parentId = findParent(id, undefined, that.editor!.topLevelBlocks);
+        const parentId = findParent(id, undefined, that.editor!.document);
         if (!parentId) {
           return undefined;
         }

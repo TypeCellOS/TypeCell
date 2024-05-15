@@ -21,7 +21,7 @@ export default function getExposeGlobalVariables(
     // registerPlugin: (config: { name: string }) => {
     //   return config.name;
     // },
-    registerBlock: (config: { name: string; blockExport: string }) => {
+    registerBlock: (config: { name: string; blockVariable: string }) => {
       // TODO: this logic should be part of CodeModel / BasicCodeModel
       const id = forModelList[forModelList.length - 1].path;
       const parts = decodeURIComponent(id.replace("file:///", "")).split("/");

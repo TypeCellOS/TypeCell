@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createTipTapBlock } from "@blocknote/core";
+import {
+  createInternalBlockSpec,
+  createStronglyTypedTiptapNode,
+} from "@blocknote/core";
 import { mergeAttributes } from "@tiptap/core";
 // import styles from "../../Block.module.css";
 
@@ -37,14 +40,16 @@ const arrowHandlers = keymap({
   ArrowDown: arrowHandler("down"),
 } as any);
 
-// TODO: clean up listeners
-export const MonacoCodeBlock = createTipTapBlock<"codeblock", any>({
+const node = createStronglyTypedTiptapNode({
   name: "codeblock",
   content: "inline*",
   editable: true,
+  group: "blockContent",
+
   selectable: true,
   whitespace: "pre",
   code: true,
+
   addAttributes() {
     return {
       language: {
@@ -93,3 +98,26 @@ export const MonacoCodeBlock = createTipTapBlock<"codeblock", any>({
     return [arrowHandlers];
   },
 });
+// TODO: clean up listeners
+export const MonacoCodeBlock = createInternalBlockSpec(
+  {
+    type: "codeblock",
+    content: "inline",
+
+    propSchema: {
+      language: {
+        type: "string",
+        default: "typescript",
+      },
+      storage: {
+        type: "string",
+        default: "",
+      },
+    },
+  },
+  {
+    node,
+    toExternalHTML: undefined as any, // TODO
+    toInternalHTML: undefined as any,
+  },
+);

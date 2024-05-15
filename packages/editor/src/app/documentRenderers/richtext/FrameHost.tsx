@@ -65,6 +65,10 @@ export function FrameHost(props: {
     >();
 
     const methods = {
+      markPlugins: async (identifierStr: string, value: boolean) => {
+        const identifier = parseIdentifier(identifierStr);
+        props.sessionStore.documentCoordinator?.markPlugins(identifier, value);
+      },
       processYjsMessage: async (message: ArrayBuffer) => {
         provider.onMessage(message, "penpal");
       },

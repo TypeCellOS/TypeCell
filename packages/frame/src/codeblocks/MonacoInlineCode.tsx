@@ -1,7 +1,10 @@
-import { createTipTapBlock } from "@blocknote/core";
 import { mergeAttributes } from "@tiptap/core";
 // import styles from "../../Block.module.css";
 
+import {
+  createInternalBlockSpec,
+  createStronglyTypedTiptapNode,
+} from "@blocknote/core";
 import { keymap } from "prosemirror-keymap";
 import { EditorState, Selection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
@@ -36,10 +39,10 @@ const arrowHandlers = keymap({
   ArrowDown: arrowHandler("down"),
 } as any);
 
-// TODO: clean up listeners
-export const MonacoInlineCode = createTipTapBlock({
+const node = createStronglyTypedTiptapNode({
   name: "inlineCode",
-  // inline: true,
+  inline: true,
+  group: "inline",
   content: "inline*",
   editable: true,
   selectable: false,
@@ -70,8 +73,28 @@ export const MonacoInlineCode = createTipTapBlock({
   },
 });
 
-MonacoInlineCode.config.group = "inline" as any;
-(MonacoInlineCode as any).config.inline = true as any;
+// TODO: clean up listeners
+export const MonacoInlineCode = createInternalBlockSpec(
+  {
+    content: "inline",
+    type: "inlineCode",
+    propSchema: {
+      language: {
+        type: "string",
+        default: "typescript",
+      },
+      storage: {
+        type: "string",
+        default: "",
+      },
+    },
+  },
+  {
+    node,
+    toExternalHTML: undefined as any,
+    toInternalHTML: undefined as any,
+  },
+);
 
 // export function smartBlock(block: any) {
 //   const entries = block.children.map((b: any) => {

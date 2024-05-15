@@ -40,14 +40,14 @@ export class TypeCellModuleResolver<T extends CodeModel> {
       return cached;
     }
     const provider = await this.createTypeCellCompiledCodeProvider(moduleName);
-    const engine = new ReactiveEngine<T>((moduleName, forModel, runContext) =>
-      this.resolverForNestedModules(
+    const engine = new ReactiveEngine<T>((moduleName, forModel, runContext) => {
+      return this.resolverForNestedModules(
         moduleName,
         [...forModelList, forModel],
         runContext,
         editorStore,
-      ),
-    );
+      );
+    });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     engine.registerModelProvider(provider as any); // TODO
