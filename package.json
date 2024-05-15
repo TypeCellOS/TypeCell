@@ -26,7 +26,7 @@
     "patch-package": "patch-package",
     "postinstall": "patch-package",
     "playwright:dev": "npm run playwright:dev --workspaces",
-    "playwright:preview": "npm run playwright:preview --workspaces",
+    "playwright:preview": "npm run playwright:preview --workspace=packages/editor",
     "install-playwright": "npx playwright install --with-deps",
     "test": "npm run test --workspaces",
     "unittest:vitest": "npm run unittest:vitest --workspaces",
