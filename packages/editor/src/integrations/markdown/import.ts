@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import {
+  BlockNoteEditor,
+  BlockNoteSchema,
+  defaultBlockSpecs,
+} from "@blocknote/core";
+import { MonacoCodeBlock, MonacoInlineCode } from "@typecell-org/frame";
 import * as parsers from "@typecell-org/parsers";
 import { uniqueId } from "@typecell-org/util";
 import * as Y from "yjs";
@@ -38,19 +44,16 @@ export async function markdownToYDoc(markdown: string, title?: string) {
 
   const xml = newDoc.getXmlFragment("doc");
 
-  const editor = undefined as any; /*new BlockNoteEditor({
-    blockSchema: {
-      ...defaultBlockSchema,
-      codeblock: {
-        propSchema: {
-          language: {
-            type: "string",
-            default: "typescript",
-          },
-        },
-        node: MonacoBlockContent,
-      },
+  const schema = BlockNoteSchema.create({
+    blockSpecs: {
+      ...defaultBlockSpecs,
+      codeblock: MonacoCodeBlock,
+      inlineCode: MonacoInlineCode,
     },
+  });
+
+  const editor = BlockNoteEditor.create({
+    schema,
     collaboration: {
       fragment: xml,
       provider: undefined as any,
@@ -62,21 +65,29 @@ export async function markdownToYDoc(markdown: string, title?: string) {
         type: "paragraph",
       },
     ],
-  });*/
+  });
 
-  const blocks = await editor.markdownToBlocks(markdown);
-  editor.replaceBlocks(editor.topLevelBlocks, blocks);
+  const blocks = await editor.tryParseMarkdownToBlocks(markdown);
+  // TODO: this should be possible without mounting (fix in blocknote)
+  const div = document.createElement("div");
+  editor.mount(div);
 
-  // markdownToXmlFragment(markdown, xml);
+  return new Promise<Y.Doc>((resolve) => {
+    queueMicrotask(() => {
+      editor.replaceBlocks(editor.document, blocks);
 
-  if (title) {
-    newDoc.getMap("meta").set("title", title);
-    // newDoc.getText("title").delete(0, newDoc.getText("title").length);
-    // newDoc.getText("title").insert(0, title);
-  }
+      // markdownToXmlFragment(markdown, xml);
 
-  // debugger;
-  return newDoc;
+      if (title) {
+        newDoc.getMap("meta").set("title", title);
+        // newDoc.getText("title").delete(0, newDoc.getText("title").length);
+        // newDoc.getText("title").insert(0, title);
+      }
+
+      // debugger;
+      resolve(newDoc);
+    });
+  });
 }
 
 // hacky
