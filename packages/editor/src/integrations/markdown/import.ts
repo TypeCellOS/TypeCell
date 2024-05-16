@@ -3,9 +3,14 @@
 import {
   BlockNoteEditor,
   BlockNoteSchema,
+  createInternalBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
-import { MonacoCodeBlock, MonacoInlineCode } from "@typecell-org/frame";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { createStronglyTypedTiptapNode } from "@blocknote/core";
+import { mergeAttributes } from "@tiptap/core";
+// import styles from "../../Block.module.css";
+
 import * as parsers from "@typecell-org/parsers";
 import { uniqueId } from "@typecell-org/util";
 import * as Y from "yjs";
@@ -91,45 +96,141 @@ export async function markdownToYDoc(markdown: string, title?: string) {
 }
 
 // hacky
-// export const MonacoBlockContent = createTipTapBlock({
-//   name: "codeblock",
-//   content: "inline*",
-//   editable: true,
-//   selectable: true,
-//   whitespace: "pre",
-//   code: true,
+const node = createStronglyTypedTiptapNode({
+  name: "codeblock",
+  content: "inline*",
+  editable: true,
+  group: "blockContent",
 
-//   addAttributes() {
-//     return {
-//       language: {
-//         default: "typescript",
-//         parseHTML: (element) => element.getAttribute("data-language"),
-//         renderHTML: (attributes) => {
-//           return {
-//             "data-language": attributes.language,
-//           };
-//         },
-//       },
-//     };
-//   },
+  selectable: true,
+  whitespace: "pre",
+  code: true,
 
-//   parseHTML() {
-//     return [
-//       {
-//         tag: "code",
-//         priority: 200,
-//         node: "codeblock",
-//       },
-//     ];
-//   },
+  addAttributes() {
+    return {
+      language: {
+        default: "typescript",
+        parseHTML: (element) => element.getAttribute("data-language"),
+        renderHTML: (attributes) => {
+          return {
+            "data-language": attributes.language,
+          };
+        },
+      },
+      storage: {
+        default: {},
+        parseHTML: (_element) => ({}),
+        renderHTML: (attributes) => {
+          return {
+            // "data-language": attributes.language,
+          };
+        },
+      },
+    };
+  },
 
-//   renderHTML({ HTMLAttributes }) {
-//     return [
-//       "code",
-//       mergeAttributes(HTMLAttributes, {
-//         // class: styles.blockContent,
-//         "data-content-type": this.name,
-//       }),
-//     ];
-//   },
-// });
+  parseHTML() {
+    return [
+      {
+        tag: "code",
+        priority: 200,
+        node: "codeblock",
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "code",
+      mergeAttributes(HTMLAttributes, {
+        // class: styles.blockContent,
+        "data-content-type": this.name,
+      }),
+    ];
+  },
+
+  // addNodeView: MonacoNodeView(false),
+  // addProseMirrorPlugins() {
+  //   return [arrowHandlers];
+  // },
+});
+
+export const MonacoCodeBlock = createInternalBlockSpec(
+  {
+    type: "codeblock",
+    content: "inline",
+
+    propSchema: {
+      language: {
+        type: "string",
+        default: "typescript",
+      },
+      storage: {
+        type: "string",
+        default: "",
+      },
+    },
+  },
+  {
+    node,
+    toExternalHTML: undefined as any, // TODO
+    toInternalHTML: undefined as any,
+  },
+);
+
+const nodeInline = createStronglyTypedTiptapNode({
+  name: "inlineCode",
+  inline: true,
+  group: "inline",
+  content: "inline*",
+  editable: true,
+  selectable: false,
+  parseHTML() {
+    return [
+      {
+        tag: "inlineCode",
+        priority: 200,
+        node: "inlineCode",
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "inlineCode",
+      mergeAttributes(HTMLAttributes, {
+        // class: styles.blockContent,
+        "data-content-type": this.name,
+      }),
+      0,
+    ];
+  },
+
+  // addNodeView: MonacoNodeView(true),
+  // addProseMirrorPlugins() {
+  //   return [arrowHandlers] as any;
+  // },
+});
+
+// TODO: clean up listeners
+export const MonacoInlineCode = createInternalBlockSpec(
+  {
+    content: "inline",
+    type: "inlineCode",
+    propSchema: {
+      language: {
+        type: "string",
+        default: "typescript",
+      },
+      storage: {
+        type: "string",
+        default: "",
+      },
+    },
+  },
+  {
+    node: nodeInline,
+    toExternalHTML: undefined as any,
+    toInternalHTML: undefined as any,
+  },
+);
