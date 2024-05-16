@@ -322,7 +322,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
     if (!localDoc) {
       // we expect loadDocument only to be called once per document
-      throw new Error("loadDocument: document already loaded");
+      throw new Error("deleteLocal: document not loaded");
     }
 
     await localDoc.idbProvider.clearData();
@@ -343,15 +343,15 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       throw new Error("not initialized");
     }
 
-    const localDoc = this.loadedDocuments.get(idStr);
+    const localDoc = this.documents.get(idStr);
 
     if (!localDoc) {
       // we expect loadDocument only to be called once per document
-      throw new Error("markPlugins: document already loaded");
+      throw new Error("markPlugins: document not found");
     }
 
-    localDoc.meta.has_plugins = value;
-    this.documents.set(localDoc.meta.id, { ...localDoc.meta });
+    localDoc.has_plugins = value;
+    this.documents.set(localDoc.id, { ...localDoc });
     // console.log("plugins", JSON.stringify(localDoc.meta), value);
   }
 

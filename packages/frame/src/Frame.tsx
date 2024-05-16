@@ -298,6 +298,7 @@ export const Frame: React.FC<Props> = observer((props) => {
     },
   });
 
+  // enable / disable plugins for the document
   useEffect(() => {
     const pluginModels = new Map<string, BasicCodeModel>();
 
@@ -305,6 +306,7 @@ export const Frame: React.FC<Props> = observer((props) => {
       const plugins = document.ydoc.getMap("plugins");
       const keys = [...plugins.keys()];
       for (const key of keys) {
+        // create a hidden model for each plugin
         const code = `import * as doc from "!${key.toString()}"; export default { doc };`;
         const path = uri.URI.parse(
           "file:///!plugins/" + key.toString() + ".cell.tsx",
@@ -332,7 +334,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         pluginModels.delete(key);
       }
     };
-  }, [document.ydoc, tools.newExecutionHost.engine]);
+  }, [document.ydoc, tools.newCompiler, tools.newExecutionHost.engine]);
 
   const getSlashMenuItems = useCallback(
     async (query: string) => {
@@ -361,6 +363,19 @@ export const Frame: React.FC<Props> = observer((props) => {
                 varName = origVarName + "_" + i;
               }
 
+              const settingsPart = data.settings
+                ? `
+typecell.editor.registerBlockSettings({
+  content: (visible: boolean) => (
+    <typecell.AutoForm
+      inputObject={doc}
+      fields={${JSON.stringify(data.settings, undefined, 2)}}
+      visible={visible}
+    />
+  ),
+});`
+                : "";
+
               insertOrUpdateBlock(editor, {
                 type: "codeblock",
                 props: {
@@ -374,6 +389,8 @@ export const Frame: React.FC<Props> = observer((props) => {
   
   export let ${varName} = doc.${data.blockVariable};
   export let ${varName}Scope = doc;
+  
+  ${settingsPart}
   
   export default ${varName};
   `,
@@ -435,6 +452,7 @@ export const Frame: React.FC<Props> = observer((props) => {
       <MonacoContext.Provider value={{ monaco }}>
         <RichTextContext.Provider
           value={{
+            editorStore: editorStore.current,
             executionHost: tools.newExecutionHost,
             compiler: tools.newCompiler,
             documentId: props.documentIdString,

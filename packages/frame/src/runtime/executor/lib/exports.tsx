@@ -21,7 +21,11 @@ export default function getExposeGlobalVariables(
     // registerPlugin: (config: { name: string }) => {
     //   return config.name;
     // },
-    registerBlock: (config: { name: string; blockVariable: string }) => {
+    registerBlock: (config: {
+      name: string;
+      blockVariable: string;
+      settings?: Record<string, boolean>;
+    }) => {
       // TODO: this logic should be part of CodeModel / BasicCodeModel
       const id = forModelList[forModelList.length - 1].path;
       const parts = decodeURIComponent(id.replace("file:///", "")).split("/");
@@ -35,11 +39,27 @@ export default function getExposeGlobalVariables(
         documentId,
       };
       // console.log("ADD BLOCK", completeConfig.id);
-      editorStore.addBlockSettings(completeConfig);
+      editorStore.addCustomBlock(completeConfig);
 
       runContext.onDispose(() => {
         // console.log("REMOVE BLOCK", completeConfig.id);
         editorStore.deleteCustomBlock(completeConfig);
+      });
+    },
+    registerBlockSettings: (config: any) => {
+      // TODO: this logic should be part of CodeModel / BasicCodeModel
+      const id = forModelList[forModelList.length - 1].uri;
+
+      const completeConfig: any = {
+        ...config,
+        id: id.toString(),
+      };
+      // console.log("ADD BLOCK", completeConfig.id);
+      editorStore.addBlockSettings(completeConfig);
+
+      runContext.onDispose(() => {
+        // console.log("REMOVE BLOCK", completeConfig.id);
+        editorStore.deleteBlockSettings(completeConfig);
       });
     },
     /**
@@ -163,14 +183,16 @@ export default function getExposeGlobalVariables(
           [key: string]: unknown;
         },
       >(
-        props: Exclude<AutoFormProps<T>, "settings" | "setSettings">,
+        props: Exclude<AutoFormProps<T>, "settings" | "setSettings"> & {
+          visible: boolean;
+        },
       ) => {
         const storage = editor.currentBlock.storage;
 
         const createFunctionTransformer = useMemo(() => {
           return createTransformer((key: string) => {
             const code = storage.settings[key];
-            console.log(storage.settings, code);
+            // console.log(storage.settings, code);
             if (!code) {
               return undefined;
             }
@@ -181,19 +203,22 @@ export default function getExposeGlobalVariables(
             // eslint-disable-next-line no-new-func
             const func = new Function("$target", "$", sanitizedCode);
             return () => {
-              console.log("eval", key, code);
-              func(props.inputObject, props.inputObject); // TODO
+              // console.log("eval", key, code);
+              func(props.inputObject, runContext.context.context);
             };
           });
         }, [props.inputObject, storage.settings]);
 
         useEffect(() => {
-          console.log("effect");
           const transformer = createTransformer(
             (func: () => void) => {
               if (!func) {
                 return undefined;
               }
+              setTimeout(() => {
+                // so we override variables set earlier cells. This is hacky and we need to architect a cleaner solution
+                func();
+              }, 500);
               return autorun(() => {
                 func();
               });
@@ -208,9 +233,12 @@ export default function getExposeGlobalVariables(
               createFunctionTransformer,
             );
             cells.filter((cell): cell is () => void => !!cell).map(transformer);
-            console.log("cells", cells);
           });
-        }, [props.fields, createFunctionTransformer]);
+        }, [JSON.stringify(props.fields), createFunctionTransformer]);
+
+        if (!props.visible) {
+          return <></>;
+        }
 
         return (
           <AutoForm

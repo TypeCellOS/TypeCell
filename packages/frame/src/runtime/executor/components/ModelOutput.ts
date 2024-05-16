@@ -11,7 +11,9 @@ export class ModelOutput extends lifecycle.Disposable {
   private autorunDisposer: (() => void) | undefined;
 
   public value: any = undefined;
-  public _defaultValue: any = {};
+  public _defaultValue = {
+    value: {} as any,
+  };
   public typeVisualizers = observable.map<
     string,
     {
@@ -70,13 +72,14 @@ export class ModelOutput extends lifecycle.Disposable {
         }
       }
 
-      this._defaultValue = newValue.default;
+      // hacky nesting to make sure our customAnnotation (for react elements) is used
+      this._defaultValue = { value: newValue.default };
 
       if (changed) {
         if (Object.hasOwn(newValue, "default")) {
           Object.defineProperty(newValue, "default", {
             get: () => {
-              return this.defaultValue;
+              return this.defaultValue.value;
             },
           });
         }

@@ -24,7 +24,7 @@ export const AutoForm = observer(
     props: AutoFormProps<T>,
   ) => {
     // const [settings, setSettings] = React.useState({} as Settings);
-    console.log("settings", JSON.stringify(props.settings));
+    // console.log("settings", JSON.stringify(props.settings));
     return (
       <div
         style={{

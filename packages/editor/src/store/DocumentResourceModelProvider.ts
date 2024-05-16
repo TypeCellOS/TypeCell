@@ -11,6 +11,20 @@ type ModelProvider = {
   models: BasicCodeModel[];
 };
 
+function textFromYXmlFragment(node: Y.XmlFragment): string {
+  let text = "";
+  node.forEach((c) => {
+    if (c instanceof Y.XmlElement && c.nodeName === "hardBreak") {
+      text += "\n";
+    } else if (c instanceof Y.XmlText) {
+      text += c.toString();
+    } else {
+      throw new Error("not a text or hardBreak node");
+    }
+  });
+  return text;
+}
+
 export class DocumentResourceModelProvider
   extends lifecycle.Disposable
   implements ModelProvider
@@ -52,10 +66,7 @@ export class DocumentResourceModelProvider
           throw new Error("no id specified");
         }
 
-        const code = node.firstChild;
-        if (!code || !(code instanceof Y.XmlText)) {
-          throw new Error("should be text");
-        }
+        const code = textFromYXmlFragment(node);
 
         const attrLanguage = node.getAttribute("language");
         if (!attrLanguage) {

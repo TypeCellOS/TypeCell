@@ -10,7 +10,11 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { VscChevronDown, VscChevronRight } from "react-icons/vsc";
+import {
+  VscChevronDown,
+  VscChevronRight,
+  VscSettingsGear,
+} from "react-icons/vsc";
 
 import {
   autoUpdate,
@@ -22,6 +26,7 @@ import {
   useInteractions,
 } from "@floating-ui/react";
 import { useResource } from "@typecell-org/util";
+import { observer } from "mobx-react-lite";
 import { RichTextContext } from "../RichTextContext";
 import { MonacoTypeCellCodeModel } from "../models/MonacoCodeModel";
 import { getMonacoModel } from "../models/MonacoModelManager";
@@ -34,7 +39,6 @@ import {
   textFromPMNode,
 } from "./MonacoProsemirrorHelpers";
 import monacoStyles from "./MonacoSelection.module.css";
-
 export type MonacoElementProps = NodeViewProps & {
   modelUri: monaco.Uri;
   language: string;
@@ -249,70 +253,93 @@ const MonacoElementComponent = function MonacoElement(
   );
 };
 
-const MonacoBlockElement = (
-  props: NodeViewProps & {
-    inline: boolean;
-    setLanguage: (lang: string) => void;
-    language: string;
-    model: monaco.editor.IModel;
-    codeRefCallback?: (el: HTMLDivElement) => void;
-  },
-) => {
-  const [codeVisible, setCodeVisible] = useState(
-    () => props.node.textContent.startsWith("// @default-collapsed") === false,
-  );
+const MonacoBlockElement = observer(
+  (
+    props: NodeViewProps & {
+      inline: boolean;
+      setLanguage: (lang: string) => void;
+      language: string;
+      model: monaco.editor.IModel;
+      codeRefCallback?: (el: HTMLDivElement) => void;
+    },
+  ) => {
+    const [codeVisible, setCodeVisible] = useState(
+      () =>
+        props.node.textContent.startsWith("// @default-collapsed") === false,
+    );
 
-  const context = useContext(RichTextContext);
+    const [settingsVisible, setSettingsVisible] = useState(false);
 
-  return (
-    <div
-      contentEditable={false}
-      className={[
-        styles.codeCell,
-        codeVisible ? styles.expanded : styles.collapsed,
-      ].join(" ")}>
-      {codeVisible ? (
-        <VscChevronDown
-          title="Show / hide code"
-          className={styles.codeCellSideIcon}
-          onClick={() => setCodeVisible(false)}
-        />
-      ) : (
-        <VscChevronRight
-          title="Show / hide code"
-          className={styles.codeCellSideIcon}
-          onClick={() => setCodeVisible(true)}
-        />
-      )}
-      {}
-      <div className={styles.codeCellContent}>
-        {codeVisible && (
-          <div className={styles.codeCellCode}>
-            {/* {props.toolbar && props.toolbar} */}
-            <LanguageSelector
-              language={props.language as any}
-              onChangeLanguage={(lang) => {
-                props.setLanguage(lang);
-              }}
+    const context = useContext(RichTextContext);
+
+    const settings = context.editorStore.blockSettings.get(
+      props.model.uri.toString(),
+    );
+
+    return (
+      <div
+        contentEditable={false}
+        className={[
+          styles.codeCell,
+          codeVisible ? styles.expanded : styles.collapsed,
+        ].join(" ")}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}>
+          {codeVisible ? (
+            <VscChevronDown
+              title="Show / hide code"
+              className={styles.codeCellSideIcon}
+              onClick={() => setCodeVisible(false)}
             />
-            <div
-              className={styles.monacoContainer}
-              ref={props.codeRefCallback}></div>
-          </div>
-        )}
-
-        <div className={styles.codeCellOutput} contentEditable={false}>
-          {context.executionHost.renderOutput(
-            props.model.uri.toString(),
-            () => {
-              // noop
-            },
+          ) : (
+            <VscChevronRight
+              title="Show / hide code"
+              className={styles.codeCellSideIcon}
+              onClick={() => setCodeVisible(true)}
+            />
+          )}
+          {settings && (
+            <VscSettingsGear
+              size={12}
+              className={styles.codeCellSideIcon}
+              onClick={() => setSettingsVisible(!settingsVisible)}
+            />
           )}
         </div>
+        <div className={styles.codeCellContent}>
+          {codeVisible && (
+            <div className={styles.codeCellCode}>
+              {/* {props.toolbar && props.toolbar} */}
+              <LanguageSelector
+                language={props.language as any}
+                onChangeLanguage={(lang) => {
+                  props.setLanguage(lang);
+                }}
+              />
+              <div
+                className={styles.monacoContainer}
+                ref={props.codeRefCallback}></div>
+            </div>
+          )}
+
+          <div className={styles.codeCellOutput} contentEditable={false}>
+            {context.executionHost.renderOutput(
+              props.model.uri.toString(),
+              () => {
+                // noop
+              },
+            )}
+          </div>
+          {settings && <div>{settings.content(settingsVisible)}</div>}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  },
+);
 
 const MonacoInlineElement = (
   props: NodeViewProps & {

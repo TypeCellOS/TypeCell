@@ -13,6 +13,7 @@ async function resolveDependencyArray(
   userDisposes: Array<() => void>,
 ) {
   const runContext = {
+    context,
     onDispose: (disposer: () => void) => {
       userDisposes.push(() => {
         try {
@@ -47,6 +48,7 @@ async function resolveDependencyArray(
 }
 
 export type RunContext = {
+  context: TypeCellContext<any>;
   onDispose: (disposer: () => void) => void;
 };
 

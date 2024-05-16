@@ -79,6 +79,10 @@ const PluginDialog = observer(
 
     const enabledPlugins = [...props.document.plugins.keys()];
 
+    const enabledAndAvailablePlugins = enabledPlugins.filter((p) =>
+      availablePlugins.includes(p),
+    );
+
     const oldPlugins = enabledPlugins.filter(
       (p) => !availablePlugins.includes(p),
     );
@@ -102,7 +106,7 @@ const PluginDialog = observer(
               <ModalTitle>Plugins</ModalTitle>
             </ModalHeader>
             <ModalBody>
-              {enabledPlugins.map((plugin) => (
+              {enabledAndAvailablePlugins.map((plugin) => (
                 <div key={plugin}>
                   <PluginCheckbox
                     onChange={(val) => {
