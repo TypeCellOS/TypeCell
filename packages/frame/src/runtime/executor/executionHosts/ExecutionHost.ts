@@ -1,5 +1,8 @@
+import { ReactiveEngine } from "@typecell-org/engine";
+import { BasicCodeModel } from "@typecell-org/shared";
 import React from "react";
 import { lifecycle } from "vscode-lib";
+import { ModelOutput } from "../components/ModelOutput";
 
 /**
  * The ExecutionHost is responsible for rendering the output of a notebook/code cell.
@@ -30,6 +33,9 @@ export type ExecutionHost = lifecycle.IDisposable & {
    */
   renderOutput(
     modelPath: string,
-    setHovering?: (hover: boolean) => void
+    setHovering?: (hover: boolean) => void,
   ): React.ReactElement;
+
+  readonly engine: ReactiveEngine<BasicCodeModel>;
+  readonly outputs: Map<string, ModelOutput>; // TODO
 };

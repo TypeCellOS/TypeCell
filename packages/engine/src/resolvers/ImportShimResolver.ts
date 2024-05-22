@@ -33,6 +33,7 @@ export class ImportShimResolver {
   public resolveImport = memoize(this.doResolveImport);
 
   private async doResolveImport(moduleName: string) {
+    console.warn("resolve2", moduleName);
     await this.initializeImportShim();
     const local = await this.localResolver.getModule(moduleName);
 
@@ -59,6 +60,40 @@ export class ImportShimResolver {
           "use$" + resolver.name + "$" + moduleName,
         );
         console.log("loaded module", moduleName, "using", resolver.name);
+
+        if (module.default instanceof CSSStyleSheet) {
+          const sheet = module.default;
+          const rules = sheet.cssRules;
+          // we loop over all rules
+          for (let i = 0; i < rules.length; i++) {
+            const rule = rules[i];
+            if (rule instanceof CSSStyleRule) {
+              const selector = rule.selectorText;
+              const def = rule.cssText.replace(selector, "");
+
+              // we update the selector
+              const selector2 = selector.replace(
+                /([^,]+,?)/g,
+                ".typecell-output $1 ",
+              );
+
+              sheet.deleteRule(i); // we remove the old
+              sheet.insertRule(selector2 + def, i); // we add the new
+            }
+          }
+          document.adoptedStyleSheets.push(sheet);
+          return {
+            module: {
+              ...module,
+              __esModule: true,
+            },
+            dispose: () => {
+              document.adoptedStyleSheets = document.adoptedStyleSheets.filter(
+                (s) => s !== sheet,
+              );
+            },
+          };
+        }
         return {
           module: {
             ...module,
@@ -114,19 +149,6 @@ export class ImportShimResolver {
           );
           if (localURL) {
             return localURL;
-          }
-
-          // hack to use maplibre instead of mapbox for react-map-gl
-          if (parsedModule.module === "mapbox-gl") {
-            const parsedParent = await resolver.getModuleInfoFromURL(parent);
-            if (parsedParent?.module === "react-map-gl") {
-              return this.doResolveImportURL(
-                resolver,
-                "maplibre-gl",
-                parent,
-                importShimResolve,
-              );
-            }
           }
         }
       }

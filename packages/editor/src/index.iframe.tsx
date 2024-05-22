@@ -1,3 +1,6 @@
+// // @ts-ignore
+// // eslint-disable-next-line no-restricted-globals
+// __REACT_DEVTOOLS_GLOBAL_HOOK__ = parent.__REACT_DEVTOOLS_GLOBAL_HOOK__;
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { createRoot } from "react-dom/client";
@@ -46,7 +49,7 @@ async function init() {
       roomName={search.get("roomName")!}
       userColor={search.get("userColor")!}
       userName={search.get("userName")!}
-    />
+    />,
     //</React.StrictMode>
   );
 }

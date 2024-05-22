@@ -2,12 +2,12 @@ import { event, lifecycle, uri } from "vscode-lib";
 
 export class BasicCodeModel extends lifecycle.Disposable {
   private readonly _onWillDispose: event.Emitter<void> = this._register(
-    new event.Emitter<void>()
+    new event.Emitter<void>(),
   );
   public readonly onWillDispose: event.Event<void> = this._onWillDispose.event;
 
   private readonly _onDidChangeContent: event.Emitter<void> = this._register(
-    new event.Emitter<void>()
+    new event.Emitter<void>(),
   );
   public readonly onDidChangeContent: event.Event<void> =
     this._onDidChangeContent.event;
@@ -15,7 +15,7 @@ export class BasicCodeModel extends lifecycle.Disposable {
   constructor(
     public readonly path: string,
     private code: string,
-    public readonly language: string
+    public readonly language: string,
   ) {
     super();
   }
@@ -33,7 +33,7 @@ export class BasicCodeModel extends lifecycle.Disposable {
   }
 
   get uri(): uri.URI {
-    return uri.URI.parse("file:///" + this.path);
+    return uri.URI.parse(this.path);
   }
 
   public dispose() {

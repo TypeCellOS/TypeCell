@@ -36,13 +36,27 @@ export const DefaultOutputVisualizer = (props: {
     if (styleElement) {
       styleElement.ownerNode?.remove();
       setStyleElement(undefined);
+      document.adoptedStyleSheets = document.adoptedStyleSheets.filter(
+        (sheet) => sheet !== styleElement,
+      );
     }
 
-    if (mainExport instanceof HTMLStyleElement) {
-      document.head.appendChild(mainExport);
-      const sheet = findStyleSheet(mainExport);
-      if (!sheet) {
-        throw new Error("css sheet not found");
+    if (
+      mainExport instanceof HTMLStyleElement ||
+      mainExport instanceof CSSStyleSheet
+    ) {
+      let sheet = mainExport;
+
+      if (sheet instanceof HTMLStyleElement) {
+        document.head.appendChild(sheet);
+        const foundSheet = findStyleSheet(sheet);
+        if (!foundSheet) {
+          throw new Error("css sheet not found");
+        }
+        sheet = foundSheet;
+      } else {
+        // add CSSSTyleSheet sheet to document
+        document.adoptedStyleSheets.push(sheet);
       }
       // based on: https://stackoverflow.com/a/33237161/194651
       const rules = sheet.cssRules;
@@ -52,11 +66,15 @@ export const DefaultOutputVisualizer = (props: {
         if (rule instanceof CSSStyleRule) {
           const selector = rule.selectorText;
           const def = rule.cssText.replace(selector, "");
-
+          if (selector.startsWith(".typecell-output")) {
+            // hacky, this can occur when a stylesheet has been modified already.
+            // ideally we would not have to do this and always create a copy of the original stylesheet instead of mutate it
+            continue;
+          }
           // we update the selector
           const selector2 = selector.replace(
             /([^,]+,?)/g,
-            ".typecell-output $1 "
+            ".typecell-output $1 ",
           );
 
           sheet.deleteRule(i); // we remove the old
@@ -70,6 +88,7 @@ export const DefaultOutputVisualizer = (props: {
 
   if (mainKey) {
     if (React.isValidElement(mainExport)) {
+      console.log("render export", mainExport);
       return (
         <RetryErrorBoundary>
           <div className="typecell-output" style={{ display: "contents" }}>

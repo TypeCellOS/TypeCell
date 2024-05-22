@@ -16,6 +16,19 @@ export function IsPermissionsDialogOpen(location: Location) {
   return (location as any).state?.permissionsDialog;
 }
 
+export function OpenPluginDialog(navigate: NavigateFunction) {
+  navigate({}, { state: { pluginDialog: true } });
+}
+
+export function ClosePluginDialog(navigate: NavigateFunction) {
+  navigate({}, { state: { pluginDialog: undefined } });
+}
+
+export function IsPluginDialogOpen(location: Location) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (location as any).state?.pluginDialog;
+}
+
 export function toRegisterScreen(): To {
   return { pathname: "/register" };
 }

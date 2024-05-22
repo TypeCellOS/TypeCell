@@ -1,0 +1,62 @@
+diff --git a/node_modules/y-prosemirror/dist/y-prosemirror.cjs b/node_modules/y-prosemirror/dist/y-prosemirror.cjs
+index 82d5a7f..ccf403a 100644
+--- a/node_modules/y-prosemirror/dist/y-prosemirror.cjs
++++ b/node_modules/y-prosemirror/dist/y-prosemirror.cjs
+@@ -1699,6 +1699,8 @@ const createDecorations = (
+         head = math__namespace.min(head, maxsize);
+         decorations.push(
+           prosemirrorView.Decoration.widget(head, () => createCursor(user), {
++            type: "cursor", 
++            clientId: clientId + '',
+             key: clientId + '', 
+             side: 10 
+           })
+@@ -1707,6 +1709,8 @@ const createDecorations = (
+         const to = math__namespace.max(anchor, head);
+         decorations.push(
+           prosemirrorView.Decoration.inline(from, to, createSelection(user), {
++            type: "selection", 
++            clientId: clientId + '',
+             inclusiveEnd: true,
+             inclusiveStart: false
+           })
+@@ -1790,7 +1794,7 @@ const yCursorPlugin = (
+         if (ystate.binding == null) {
+           return
+         }
+-        if (view.hasFocus()) {
++        if (view.hasFocus() || view.dom.contains(document.activeElement)) {
+           const selection = getSelection(view.state);
+           /**
+            * @type {Y.RelativePosition}
+diff --git a/node_modules/y-prosemirror/src/plugins/cursor-plugin.js b/node_modules/y-prosemirror/src/plugins/cursor-plugin.js
+index 1bbbdc6..e017954 100644
+--- a/node_modules/y-prosemirror/src/plugins/cursor-plugin.js
++++ b/node_modules/y-prosemirror/src/plugins/cursor-plugin.js
+@@ -116,6 +116,8 @@ export const createDecorations = (
+         head = math.min(head, maxsize)
+         decorations.push(
+           Decoration.widget(head, () => createCursor(user), {
++            type: "cursor", 
++            clientId: clientId + '',
+             key: clientId + '',
+             side: 10
+           })
+@@ -124,6 +126,8 @@ export const createDecorations = (
+         const to = math.max(anchor, head)
+         decorations.push(
+           Decoration.inline(from, to, createSelection(user), {
++            type: "selection", 
++            clientId: clientId + '',
+             inclusiveEnd: true,
+             inclusiveStart: false
+           })
+@@ -207,7 +211,7 @@ export const yCursorPlugin = (
+         if (ystate.binding == null) {
+           return
+         }
+-        if (view.hasFocus()) {
++        if (view.hasFocus() || view.dom.contains(document.activeElement)) {
+           const selection = getSelection(view.state)
+           /**
+            * @type {Y.RelativePosition}

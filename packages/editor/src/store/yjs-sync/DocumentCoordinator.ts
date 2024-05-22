@@ -2,6 +2,7 @@ import { makeYDocObservable } from "@syncedstore/yjs-reactive-bindings";
 import { observable } from "mobx";
 import { lifecycle } from "vscode-lib";
 import { IndexeddbPersistence } from "y-indexeddb";
+import { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
 import { Identifier } from "../../identifiers/Identifier";
 export type LocalDoc = {
@@ -16,6 +17,7 @@ export type DocumentInfo = {
   create_source: "local" | "remote";
   exists_at_remote: boolean;
   needs_save_since: number | undefined;
+  has_plugins: boolean | undefined;
 };
 
 function COORDINATOR_IDB_ID(userId: string) {
@@ -55,6 +57,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
   private readonly doc: Y.Doc;
   private readonly indexedDBProvider: IndexeddbPersistence;
+  private readonly websocketProvider: WebsocketProvider;
 
   constructor(private readonly userId: string) {
     super();
@@ -65,8 +68,18 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       this.doc,
     );
 
+    this.websocketProvider = new WebsocketProvider(
+      "",
+      COORDINATOR_IDB_ID(userId),
+      this.doc,
+      {
+        connect: false,
+      },
+    );
+    this.websocketProvider.connectBc();
     this._register({
       dispose: () => {
+        this.websocketProvider.destroy();
         this.indexedDBProvider.destroy();
         this.doc.destroy();
       },
@@ -155,6 +168,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       create_source: "local",
       needs_save_since: Date.now(),
       exists_at_remote: false,
+      has_plugins: false,
     };
 
     this.documents.set(idStr, { ...meta });
@@ -188,6 +202,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
       create_source: "remote",
       needs_save_since: undefined,
       exists_at_remote: true,
+      has_plugins: false,
     };
 
     this.documents.set(idStr, { ...meta });
@@ -307,7 +322,7 @@ export class DocumentCoordinator extends lifecycle.Disposable {
 
     if (!localDoc) {
       // we expect loadDocument only to be called once per document
-      throw new Error("loadDocument: document already loaded");
+      throw new Error("deleteLocal: document not loaded");
     }
 
     await localDoc.idbProvider.clearData();
@@ -319,6 +334,25 @@ export class DocumentCoordinator extends lifecycle.Disposable {
   public async markSynced(localDoc: LocalDoc) {
     localDoc.meta.needs_save_since = undefined;
     this.documents.set(localDoc.meta.id, { ...localDoc.meta });
+  }
+
+  // Todo: should this be done via syncmanager?
+  public async markPlugins(identifier: Identifier, value: boolean) {
+    const idStr = identifier.toString();
+    if (!this.indexedDBProvider.synced) {
+      throw new Error("not initialized");
+    }
+
+    const localDoc = this.documents.get(idStr);
+
+    if (!localDoc) {
+      // we expect loadDocument only to be called once per document
+      throw new Error("markPlugins: document not found");
+    }
+
+    localDoc.has_plugins = value;
+    this.documents.set(localDoc.id, { ...localDoc });
+    // console.log("plugins", JSON.stringify(localDoc.meta), value);
   }
 
   public async markCreated(localDoc: LocalDoc) {

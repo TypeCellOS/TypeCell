@@ -65,43 +65,54 @@ export function FrameHost(props: {
     >();
 
     const methods = {
+      markPlugins: async (identifierStr: string, value: boolean) => {
+        const identifier = parseIdentifier(identifierStr);
+        props.sessionStore.documentCoordinator?.markPlugins(identifier, value);
+      },
       processYjsMessage: async (message: ArrayBuffer) => {
         provider.onMessage(message, "penpal");
       },
-      registerTypeCellModuleCompiler: async (moduleName: string) => {
-        if (moduleManagers.has(moduleName)) {
-          console.warn("already has moduleManager for", moduleName);
-          return;
-        }
+      resolveModuleName: async (moduleName: string) => {
         if (!moduleName.startsWith("!")) {
           throw new Error("invalid module name");
         }
-        const identifierStr = moduleName.substring(1);
+
+        const identifier = parseIdentifier(moduleName.substring(1));
+        const identifierStr = identifier.toString();
+        return identifierStr;
+      },
+      registerTypeCellModuleCompiler: async (identifierStr: string) => {
         const identifier = parseIdentifier(identifierStr);
+        if (moduleManagers.has(identifierStr)) {
+          console.warn("already has moduleManager for", identifierStr);
+          return identifierStr;
+        }
+
         const provider = new DocumentResourceModelProvider(
           identifier,
           props.sessionStore,
         );
 
         const forwarder = new ModelForwarder(
-          "modules/" + moduleName,
+          "modules/" + identifierStr,
           provider,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           connectionMethods.current!,
         );
-        moduleManagers.set(moduleName, { provider, forwarder });
+
+        moduleManagers.set(identifierStr, { provider, forwarder });
         await forwarder.initialize();
-        return identifier.toString();
+        return identifierStr;
       },
-      unregisterTypeCellModuleCompiler: async (moduleName: string) => {
-        const moduleManager = moduleManagers.get(moduleName);
+      unregisterTypeCellModuleCompiler: async (identifierStr: string) => {
+        const moduleManager = moduleManagers.get(identifierStr);
         if (!moduleManager) {
-          console.warn("no moduleManager for", moduleName);
+          console.warn("no moduleManager for", identifierStr);
           return;
         }
         moduleManager.provider.dispose();
         moduleManager.forwarder.dispose();
-        moduleManagers.delete(moduleName);
+        moduleManagers.delete(identifierStr);
       },
     };
 
