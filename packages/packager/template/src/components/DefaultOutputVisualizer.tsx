@@ -54,7 +54,7 @@ export const DefaultOutputVisualizer = (props: {
           // we update the selector
           let selector2 = selector.replace(
             /([^,]+,?)/g,
-            ".typecell-output $1 "
+            ".typecell-output $1 ",
           );
 
           sheet.deleteRule(i); // we remove the old

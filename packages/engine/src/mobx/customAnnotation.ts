@@ -19,13 +19,16 @@ export const customAnnotation: Annotation = createCustomAnnotation();
 export function createCustomAnnotation(options?: object): Annotation {
   return {
     annotationType_: "custom",
+    decorate_20223_: () => {
+      throw new Error("not implemented");
+    },
     options_: options,
     make_: function (
       this: any,
       adm: ObservableObjectAdministration,
       key: PropertyKey,
       descriptor: PropertyDescriptor,
-      source: object
+      source: object,
     ) {
       return defaultAnnotation.make_.call(this, adm, key, descriptor, source);
     } as any,
@@ -34,7 +37,7 @@ export function createCustomAnnotation(options?: object): Annotation {
       adm: ObservableObjectAdministration,
       key: PropertyKey,
       descriptor: PropertyDescriptor,
-      proxyTrap: boolean
+      proxyTrap: boolean,
     ) {
       if (React.isValidElement(descriptor.value)) {
         return observable.ref.extend_(adm, key, descriptor, proxyTrap);
@@ -47,7 +50,7 @@ export function createCustomAnnotation(options?: object): Annotation {
           adm,
           key,
           descriptor,
-          proxyTrap
+          proxyTrap,
         );
       }
     } as any,

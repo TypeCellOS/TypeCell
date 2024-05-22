@@ -35,7 +35,7 @@ export class DocConnection extends lifecycle.Disposable {
   protected constructor(
     public readonly identifier: Identifier,
     syncManager: SyncManager,
-    private readonly sessionStore: SessionStore
+    private readonly sessionStore: SessionStore,
   ) {
     super();
 
@@ -67,7 +67,7 @@ export class DocConnection extends lifecycle.Disposable {
           newManager = SyncManager.load(identifier, this.sessionStore);
           const cacheKey = DocConnection.getCacheKey(
             this.sessionStore,
-            identifier
+            identifier,
           );
           cache.set(cacheKey, this);
         }
@@ -75,7 +75,7 @@ export class DocConnection extends lifecycle.Disposable {
           this.manager = newManager;
         });
       },
-      { fireImmediately: false }
+      { fireImmediately: false },
     );
 
     this._register({
@@ -161,7 +161,7 @@ export class DocConnection extends lifecycle.Disposable {
     const connection = await DocConnection.createNewDocConnection(
       this.sessionStore.getIdentifierForNewDocument(),
       this.sessionStore,
-      doc.ydoc
+      doc.ydoc,
     );
 
     await this.revert();
@@ -173,7 +173,7 @@ export class DocConnection extends lifecycle.Disposable {
       this.identifier,
       undefined,
       // don't add to inbox of http resources
-      this.identifier instanceof TypeCellIdentifier
+      this.identifier instanceof TypeCellIdentifier,
     );
     return forkDoc;
   }
@@ -182,7 +182,7 @@ export class DocConnection extends lifecycle.Disposable {
     identifier: Identifier,
     sessionStore: SessionStore,
     forkSource?: Y.Doc,
-    isInbox = false
+    isInbox = false,
   ) {
     const cacheKey = DocConnection.getCacheKey(sessionStore, identifier);
     if (cache.has(cacheKey)) {
@@ -195,13 +195,13 @@ export class DocConnection extends lifecycle.Disposable {
 
     if (!isInbox) {
       const inboxIdentifier = parseIdentifier(
-        identifier.toString() + "/.inbox"
+        identifier.toString() + "/.inbox",
       );
       const inboxConnection = await DocConnection.createNewDocConnection(
         inboxIdentifier,
         sessionStore,
         undefined,
-        true
+        true,
       );
 
       const doc = await inboxConnection.waitForDoc();
@@ -217,7 +217,7 @@ export class DocConnection extends lifecycle.Disposable {
     const connection = new DocConnection(
       manager.identifier,
       manager,
-      sessionStore
+      sessionStore,
     );
     cache.set(cacheKey, connection);
     connection.addRef();
@@ -229,7 +229,7 @@ export class DocConnection extends lifecycle.Disposable {
     const doc = this.tryDoc;
     if (!doc) {
       throw new Error(
-        "unexpected, doc not available after waiting in waitForDoc"
+        "unexpected, doc not available after waiting in waitForDoc",
       );
     }
     return doc;
@@ -240,11 +240,11 @@ export class DocConnection extends lifecycle.Disposable {
 
   public static async loadInboxResource(
     id: Identifier,
-    sessionStore: SessionStore
+    sessionStore: SessionStore,
   ): Promise<InboxResource> {
     if (!(id instanceof TypeCellIdentifier)) {
       throw new Error(
-        "unimplemented, only typecellidentifier supported for loadInboxResource"
+        "unimplemented, only typecellidentifier supported for loadInboxResource",
       );
     }
     if (id.toString().endsWith("/.inbox")) {
@@ -253,7 +253,7 @@ export class DocConnection extends lifecycle.Disposable {
     // console.log("loadInboxResource", id.toString() + "/.inbox");
     const doc = DocConnection.load(
       parseIdentifier(id.toString() + "/.inbox"),
-      sessionStore
+      sessionStore,
     );
     const ret = await doc.waitForDoc();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -266,7 +266,7 @@ export class DocConnection extends lifecycle.Disposable {
     if (!sessionStore.loggedInUserId) {
       // Note: can happen on sign up
       console.warn(
-        "DocConnection: no loggedInUserId available on create document"
+        "DocConnection: no loggedInUserId available on create document",
       );
     }
 
@@ -275,7 +275,7 @@ export class DocConnection extends lifecycle.Disposable {
     // TODO: async or not?
     const connection = await DocConnection.createNewDocConnection(
       identifier,
-      sessionStore
+      sessionStore,
     );
 
     return connection.waitForDoc();
@@ -283,21 +283,21 @@ export class DocConnection extends lifecycle.Disposable {
 
   public static get(
     identifier: string | Identifier,
-    sessionStore: SessionStore
+    sessionStore: SessionStore,
   ) {
     if (!(identifier instanceof Identifier)) {
       identifier = parseIdentifier(identifier);
     }
 
     const connection = cache.get(
-      DocConnection.getCacheKey(sessionStore, identifier)
+      DocConnection.getCacheKey(sessionStore, identifier),
     );
     return connection;
   }
 
   public static load(
     identifier: string | Identifier,
-    sessionStore: SessionStore
+    sessionStore: SessionStore,
   ) {
     if (!(identifier instanceof Identifier)) {
       identifier = parseIdentifier(identifier);
@@ -344,7 +344,7 @@ export class DocConnection extends lifecycle.Disposable {
 
   private static getCacheKey(
     sessionStore: SessionStore,
-    identifier: Identifier
+    identifier: Identifier,
   ) {
     return sessionStore.userPrefix + identifier.toString();
   }

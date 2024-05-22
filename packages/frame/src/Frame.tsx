@@ -1,18 +1,21 @@
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 // import LocalExecutionHost from "../../../runtime/executor/executionHosts/local/LocalExecutionHost"
 import {
-  BlockNoteEditor,
-  DefaultBlockSchema,
-  PartialBlock,
-  defaultBlockSchema,
+  BlockNoteSchema,
+  defaultBlockSpecs,
+  filterSuggestionItems,
+  insertOrUpdateBlock,
 } from "@blocknote/core";
-import "@blocknote/core/style.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
-  BlockNoteView,
+  SuggestionMenuController,
   getDefaultReactSlashMenuItems,
-  useBlockNote,
+  useCreateBlockNote,
 } from "@blocknote/react";
+import { RiCodeSSlashFill } from "react-icons/ri";
+
 import { enableMobxBindings } from "@syncedstore/yjs-reactive-bindings";
 import { ReactiveEngine } from "@typecell-org/engine";
 import {
@@ -21,7 +24,7 @@ import {
   IframeBridgeMethods,
   ModelReceiver,
 } from "@typecell-org/shared";
-import { useResource } from "@typecell-org/util";
+import { useResource, variables } from "@typecell-org/util";
 import { PenPalProvider } from "@typecell-org/y-penpal";
 import * as mobx from "mobx";
 import * as monaco from "monaco-editor";
@@ -29,18 +32,20 @@ import { AsyncMethodReturns, connectToParent } from "penpal";
 import ReactDOM from "react-dom";
 import * as Y from "yjs";
 import styles from "./Frame.module.css";
-import { MonacoBlockContent } from "./MonacoBlockContent";
 import { RichTextContext } from "./RichTextContext";
 import SourceModelCompiler from "./runtime/compiler/SourceModelCompiler";
 import { MonacoContext } from "./runtime/editor/MonacoContext";
-import { ExecutionHost } from "./runtime/executor/executionHosts/ExecutionHost";
 import LocalExecutionHost from "./runtime/executor/executionHosts/local/LocalExecutionHost";
 
 import { setMonacoDefaults } from "./runtime/editor";
 
-import { RiCodeSSlashFill } from "react-icons/ri";
+import { reaction } from "mobx";
+import { uri } from "vscode-lib";
+import { EditorStore } from "./EditorStore";
 import { MonacoColorManager } from "./MonacoColorManager";
-import monacoStyles from "./MonacoSelection.module.css";
+import { MonacoCodeBlock } from "./codeblocks/MonacoCodeBlock";
+import { MonacoInlineCode } from "./codeblocks/MonacoInlineCode";
+import monacoStyles from "./codeblocks/MonacoSelection.module.css";
 import { setupTypecellHelperTypeResolver } from "./runtime/editor/languages/typescript/TypeCellHelperTypeResolver";
 import { setupTypecellModuleTypeResolver } from "./runtime/editor/languages/typescript/TypeCellModuleTypeResolver";
 import { setupNpmTypeResolver } from "./runtime/editor/languages/typescript/npmTypeResolver";
@@ -60,36 +65,51 @@ class FakeProvider {
   constructor(public readonly awareness: unknown) {}
 }
 
-function insertOrUpdateBlock<BSchema extends DefaultBlockSchema>(
-  editor: BlockNoteEditor<BSchema>,
-  block: PartialBlock<BSchema>,
-) {
-  const currentBlock = editor.getTextCursorPosition().block;
-
-  if (
-    (currentBlock.content.length === 1 &&
-      currentBlock.content[0].type === "text" &&
-      currentBlock.content[0].text === "/") ||
-    currentBlock.content.length === 0
-  ) {
-    editor.updateBlock(currentBlock, block);
-  } else {
-    editor.insertBlocks([block], currentBlock, "after");
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
-  }
-}
-
 type Props = {
   documentIdString: string;
   roomName: string;
   userName: string;
   userColor: string;
 };
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    codeblock: MonacoCodeBlock,
+    inlineCode: MonacoInlineCode,
+  },
+});
 
 export const Frame: React.FC<Props> = observer((props) => {
   const modelReceivers = useMemo(() => new Map<string, ModelReceiver>(), []);
+  const subCompilers = useMemo(
+    () => new Map<string, SourceModelCompiler>(),
+    [],
+  );
   const connectionMethods = useRef<AsyncMethodReturns<HostBridgeMethods>>();
+  const editorStore = useRef(new EditorStore());
+
+  // listen to custom blocks and mark exposed plugins to the parent window, so these can be displayed in the plugin dialog
+  useEffect(() => {
+    return reaction(
+      () => editorStore.current.customBlocks.toJSON(),
+      (data, prev) => {
+        const oldItems = new Set(prev?.map((data) => data[1].documentId) ?? []);
+        const newItems = new Set(data?.map((data) => data[1].documentId) ?? []);
+
+        for (const item of oldItems) {
+          if (!newItems.has(item)) {
+            connectionMethods.current?.markPlugins(item, false);
+          }
+        }
+
+        for (const item of newItems) {
+          if (!oldItems.has(item)) {
+            connectionMethods.current?.markPlugins(item, true);
+          }
+        }
+      },
+    );
+  }, [editorStore.current]);
 
   const document = useResource(() => {
     const ydoc = new Y.Doc();
@@ -147,7 +167,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         modelId: string,
         model: { value: string; language: string },
       ) => {
-        console.log("register model", modelId);
+        console.log("register models", modelId);
         const modelReceiver = modelReceivers.get(bridgeId);
         if (modelReceiver) {
           modelReceiver.updateModel(modelId, model);
@@ -178,12 +198,15 @@ export const Frame: React.FC<Props> = observer((props) => {
         console.info("connected to parent window succesfully");
         connectionMethods.current = parent;
         document.provider.connect();
+
+        // mark as false until code has been executed and we surely know doc still contains plugins
+        parent.markPlugins(props.documentIdString, false);
       },
       (e) => {
         console.error("connection to parent window failed", e);
       },
     );
-  }, [modelReceivers, document]);
+  }, [modelReceivers, document, props.documentIdString]);
 
   const tools = useResource(
     // "compilers",
@@ -191,39 +214,56 @@ export const Frame: React.FC<Props> = observer((props) => {
       const newCompiler = new SourceModelCompiler(monaco);
       const resolver = new Resolver(async (moduleName) => {
         // How to resolve typecell modules (i.e.: `import * as nb from "!dALYTUW8TXxsw"`)
-        const subcompiler = new SourceModelCompiler(monaco);
-
-        const modelReceiver = new ModelReceiver();
-        // TODO: what if we have multiple usage of the same module?
-        modelReceivers.set("modules/" + moduleName, modelReceiver);
-
-        modelReceiver.onDidCreateModel((model) => {
-          subcompiler.registerModel(model);
-        });
 
         const fullIdentifier =
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          await connectionMethods.current!.registerTypeCellModuleCompiler(
-            moduleName,
-          );
+          await connectionMethods.current!.resolveModuleName(moduleName);
 
-        // register an alias for the module so that types resolve
-        // (e.g.: from "!dALYTUW8TXxsw" to "!typecell:typecell.org/dALYTUW8TXxsw")
         if ("!" + fullIdentifier !== moduleName) {
+          // register an alias for the module so that types resolve
+          // (e.g.: from "!dALYTUW8TXxsw" to "!typecell:typecell.org/dALYTUW8TXxsw")
+
           monaco.languages.typescript.typescriptDefaults.addExtraLib(
             `export * from "!${fullIdentifier}";`,
             `file:///node_modules/@types/${moduleName}/index.d.ts`,
           );
         }
 
+        let modelReceiver = modelReceivers.get("modules/" + fullIdentifier);
+
+        if (modelReceiver) {
+          const subCompiler = subCompilers.get("modules/" + fullIdentifier);
+          if (!subCompiler) {
+            throw new Error("subCompiler not found");
+          }
+          return subCompiler;
+        }
+        modelReceiver = new ModelReceiver();
+
+        modelReceivers.set("modules/" + fullIdentifier, modelReceiver);
+
+        const subcompiler = new SourceModelCompiler(monaco);
+        // mark as false until code has been executed and we surely know doc still contains plugins
+        connectionMethods.current!.markPlugins(fullIdentifier, false);
+        modelReceiver.onDidCreateModel((model) => {
+          subcompiler.registerModel(model);
+        });
+
+        subCompilers.set("modules/" + fullIdentifier, subcompiler);
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        await connectionMethods.current!.registerTypeCellModuleCompiler(
+          fullIdentifier,
+        );
         // TODO: dispose modelReceiver
         return subcompiler;
-      });
+      }, editorStore.current);
+
       const newEngine = new ReactiveEngine<BasicCodeModel>(
         resolver.resolveImport,
       );
 
-      const newExecutionHost: ExecutionHost = new LocalExecutionHost(
+      const newExecutionHost: LocalExecutionHost = new LocalExecutionHost(
         props.documentIdString,
         newCompiler,
         monaco,
@@ -239,32 +279,7 @@ export const Frame: React.FC<Props> = observer((props) => {
     [props.documentIdString, monaco],
   );
 
-  // useEffect(() => {
-  //   const t = tools;
-  //   if (!t) {
-  //     return;
-  //   }
-  //   return () => {
-  //     t.newCompiler.dispose();
-  //     t.newExecutionHost.dispose();
-  //   };
-  // }, [tools]);
-
-  // useEffect(() => {
-  //   // make sure color info is broadcast, and color info from other users are reflected in monaco editor styles
-  //   if (document.awareness) {
-  //     const colorManager = new MonacoColorManager(
-  //       document.awareness,
-  //       props.userName,
-  //       props.userColor
-  //     );
-  //     return () => {
-  //       colorManager.dispose();
-  //     };
-  //   }
-  // }, [document.awareness, props.userColor, props.userName]);
-
-  const editor = useBlockNote({
+  const editor = useCreateBlockNote({
     defaultStyles: false,
     domAttributes: {
       editor: {
@@ -272,32 +287,7 @@ export const Frame: React.FC<Props> = observer((props) => {
         "data-test": "editor",
       },
     },
-    blockSchema: {
-      ...defaultBlockSchema,
-      codeblock: {
-        propSchema: {
-          language: {
-            type: "string",
-            default: "typescript",
-          },
-        },
-        node: MonacoBlockContent,
-      },
-    },
-    slashMenuItems: [
-      ...getDefaultReactSlashMenuItems(),
-      {
-        name: "Code block",
-        execute: (editor) =>
-          insertOrUpdateBlock(editor, {
-            type: "codeblock",
-          }),
-        aliases: ["code"],
-        hint: "Add a live code block",
-        group: "Code",
-        icon: <RiCodeSSlashFill size={18} />,
-      },
-    ],
+    schema,
     collaboration: {
       provider: new FakeProvider(document.awareness),
       user: {
@@ -308,16 +298,170 @@ export const Frame: React.FC<Props> = observer((props) => {
     },
   });
 
+  // enable / disable plugins for the document
+  useEffect(() => {
+    const pluginModels = new Map<string, BasicCodeModel>();
+
+    const observer = () => {
+      const plugins = document.ydoc.getMap("plugins");
+      const keys = [...plugins.keys()];
+      for (const key of keys) {
+        // create a hidden model for each plugin
+        const code = `import * as doc from "!${key.toString()}"; export default { doc };`;
+        const path = uri.URI.parse(
+          "file:///!plugins/" + key.toString() + ".cell.tsx",
+        ).toString();
+        const model = new BasicCodeModel(path, code, "typescript");
+        pluginModels.set(key, model);
+        tools.newCompiler.registerModel(model);
+      }
+
+      for (const [key, model] of pluginModels) {
+        if (!plugins.has(key)) {
+          model.dispose();
+          pluginModels.delete(key);
+        }
+      }
+    };
+
+    observer();
+    document.ydoc.getMap("plugins").observeDeep(observer);
+
+    return () => {
+      document.ydoc.getMap("plugins").unobserveDeep(observer);
+      for (const [key, model] of pluginModels) {
+        model.dispose();
+        pluginModels.delete(key);
+      }
+    };
+  }, [document.ydoc, tools.newCompiler, tools.newExecutionHost.engine]);
+
+  const getSlashMenuItems = useCallback(
+    async (query: string) => {
+      const pluginBlocks = [...editorStore.current.customBlocks.values()].map(
+        (data) => {
+          return {
+            title: data.name,
+            onItemClick: () => {
+              const origVarName = variables.toCamelCaseVariableName(data.name);
+              let varName = origVarName;
+              let i = 0;
+              // eslint-disable-next-line no-constant-condition
+              while (true) {
+                // append _1, _2, _3, ... to the variable name until it is unique
+
+                if (
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (
+                    tools.newExecutionHost.engine.observableContext
+                      .rawContext as any
+                  )[varName] === undefined
+                ) {
+                  break;
+                }
+                i++;
+                varName = origVarName + "_" + i;
+              }
+
+              const settingsPart = data.settings
+                ? `
+typecell.editor.registerBlockSettings({
+  content: (visible: boolean) => (
+    <typecell.AutoForm
+      inputObject={doc}
+      fields={${JSON.stringify(data.settings, undefined, 2)}}
+      visible={visible}
+    />
+  ),
+});`
+                : "";
+
+              insertOrUpdateBlock(editor, {
+                type: "codeblock",
+                props: {
+                  language: "typescript",
+                  // moduleName: moduleName,
+                  // key,
+                  storage: "",
+                },
+                content: `// @default-collapsed
+  import * as doc from "!${data.documentId}";
+  
+  export let ${varName} = doc.${data.blockVariable};
+  export let ${varName}Scope = doc;
+  
+  ${settingsPart}
+  
+  export default ${varName};
+  `,
+              });
+            },
+            group: "Custom",
+          };
+        },
+      );
+
+      return filterSuggestionItems(
+        [
+          ...getDefaultReactSlashMenuItems(editor),
+          {
+            title: "Code block",
+            onItemClick: () =>
+              insertOrUpdateBlock(editor, {
+                type: "codeblock",
+              }),
+            aliases: ["code"],
+            subtext: "Add a live code block",
+            group: "Code",
+            icon: <RiCodeSSlashFill size={18} />,
+          },
+          {
+            title: "Inline code",
+            onItemClick: () => {
+              const node = editor._tiptapEditor.schema.node(
+                "inlineCode",
+                undefined,
+                editor._tiptapEditor.schema.text("export default "),
+              );
+              const tr =
+                editor._tiptapEditor.state.tr.replaceSelectionWith(node);
+              editor._tiptapEditor.view.dispatch(tr);
+            },
+            subtext: "Add an inline live code block",
+            group: "Code",
+            icon: <RiCodeSSlashFill size={18} />,
+          },
+          ...pluginBlocks,
+        ],
+        query,
+      );
+    },
+    [editor, editorStore.current.customBlocks],
+  );
+
+  if (editorStore.current.editor !== editor) {
+    editorStore.current.editor = editor;
+  }
+
+  if (editorStore.current.executionHost !== tools.newExecutionHost) {
+    editorStore.current.executionHost = tools.newExecutionHost;
+  }
+
   return (
     <div className={styles.container}>
       <MonacoContext.Provider value={{ monaco }}>
         <RichTextContext.Provider
           value={{
+            editorStore: editorStore.current,
             executionHost: tools.newExecutionHost,
             compiler: tools.newCompiler,
             documentId: props.documentIdString,
           }}>
-          <BlockNoteView editor={editor}></BlockNoteView>
+          <BlockNoteView editor={editor} slashMenu={false}>
+            <SuggestionMenuController
+              triggerCharacter="/"
+              getItems={getSlashMenuItems}></SuggestionMenuController>
+          </BlockNoteView>
         </RichTextContext.Provider>
       </MonacoContext.Provider>
     </div>

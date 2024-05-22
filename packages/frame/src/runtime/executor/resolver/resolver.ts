@@ -1,4 +1,6 @@
+import { RunContext } from "@typecell-org/engine";
 import { CodeModel } from "@typecell-org/shared";
+import { EditorStore } from "../../../EditorStore";
 import SourceModelCompiler from "../../compiler/SourceModelCompiler";
 import { NPMLibraryResolver } from "./NPMResolver";
 import { TypeCellHelperLibraryResolver } from "./TypeCellHelperLibraryResolver";
@@ -34,18 +36,23 @@ export class Resolver<T extends CodeModel> {
 
   constructor(
     typeCellModuleCompilerFactory: (
-      moduleName: string
-    ) => Promise<SourceModelCompiler>
+      moduleName: string,
+    ) => Promise<SourceModelCompiler>,
+    private readonly editorStore: EditorStore,
   ) {
     this.typecellResolver = new TypeCellModuleResolver(
       typeCellModuleCompilerFactory,
       // use this resolver to resolve nested imports
-      (moduleName: string, forModelList: T[]) =>
-        this.resolveImportList(moduleName, forModelList)
+      (moduleName: string, forModelList: T[], runContext: RunContext) =>
+        this.resolveImportList(moduleName, forModelList, runContext),
     );
   }
 
-  public resolveImportList = async (moduleName: string, forModelList: T[]) => {
+  public resolveImportList = async (
+    moduleName: string,
+    forModelList: T[],
+    runContext: RunContext,
+  ) => {
     const resolvers = [
       TypeCellHelperLibraryResolver,
       this.typecellResolver.resolveImport,
@@ -53,7 +60,12 @@ export class Resolver<T extends CodeModel> {
     ];
     // try above resolvers one-by-one
     for (const resolver of resolvers) {
-      const ret = await resolver(moduleName, forModelList);
+      const ret = await resolver(
+        moduleName,
+        forModelList,
+        runContext,
+        this.editorStore,
+      );
       if (ret) {
         return ret;
       }
@@ -61,7 +73,11 @@ export class Resolver<T extends CodeModel> {
     throw new Error(`Could not resolve import ${moduleName}`);
   };
 
-  public resolveImport = async (moduleName: string, forModel: T) => {
-    return this.resolveImportList(moduleName, [forModel]);
+  public resolveImport = async (
+    moduleName: string,
+    forModel: T,
+    runContext: RunContext,
+  ) => {
+    return this.resolveImportList(moduleName, [forModel], runContext);
   };
 }

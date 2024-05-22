@@ -1,6 +1,6 @@
 import { BasicCodeModel } from "@typecell-org/shared";
 import { autorun } from "mobx";
-import { event, lifecycle } from "vscode-lib";
+import { event, lifecycle, uri } from "vscode-lib";
 import * as Y from "yjs";
 import { Identifier } from "../identifiers/Identifier";
 import { DocConnection } from "./DocConnection";
@@ -10,6 +10,20 @@ type ModelProvider = {
   onDidCreateModel: event.Event<BasicCodeModel>;
   models: BasicCodeModel[];
 };
+
+function textFromYXmlFragment(node: Y.XmlFragment): string {
+  let text = "";
+  node.forEach((c) => {
+    if (c instanceof Y.XmlElement && c.nodeName === "hardBreak") {
+      text += "\n";
+    } else if (c instanceof Y.XmlText) {
+      text += c.toString();
+    } else {
+      throw new Error("not a text or hardBreak node");
+    }
+  });
+  return text;
+}
 
 export class DocumentResourceModelProvider
   extends lifecycle.Disposable
@@ -52,10 +66,7 @@ export class DocumentResourceModelProvider
           throw new Error("no id specified");
         }
 
-        const code = node.firstChild;
-        if (!code || !(code instanceof Y.XmlText)) {
-          throw new Error("should be text");
-        }
+        const code = textFromYXmlFragment(node);
 
         const attrLanguage = node.getAttribute("language");
         if (!attrLanguage) {
@@ -75,7 +86,9 @@ export class DocumentResourceModelProvider
 
         if (!model) {
           model = new BasicCodeModel(
-            "!" + identifier.toString() + "/" + id + ".cell.tsx",
+            uri.URI.parse(
+              "file:///!" + identifier.toString() + "/" + id + ".cell.tsx",
+            ).toString(),
             code.toString(),
             attrLanguage,
           );

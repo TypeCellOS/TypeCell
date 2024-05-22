@@ -1,17 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import {
   BlockNoteEditor,
-  createTipTapBlock,
-  defaultBlockSchema,
+  BlockNoteSchema,
+  createInternalBlockSpec,
+  defaultBlockSpecs,
 } from "@blocknote/core";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { createStronglyTypedTiptapNode } from "@blocknote/core";
 import { mergeAttributes } from "@tiptap/core";
+// import styles from "../../Block.module.css";
+
 import * as parsers from "@typecell-org/parsers";
 import { uniqueId } from "@typecell-org/util";
 import * as Y from "yjs";
 
 export function markdownToXmlFragment(
   markdown: string,
-  fragment: Y.XmlFragment | undefined
+  fragment: Y.XmlFragment | undefined,
 ) {
   if (!fragment) {
     const containerDoc = new Y.Doc(); // the doc is needed because otherwise the fragment doesn't work
@@ -43,19 +49,16 @@ export async function markdownToYDoc(markdown: string, title?: string) {
 
   const xml = newDoc.getXmlFragment("doc");
 
-  const editor = new BlockNoteEditor({
-    blockSchema: {
-      ...defaultBlockSchema,
-      codeblock: {
-        propSchema: {
-          language: {
-            type: "string",
-            default: "typescript",
-          },
-        },
-        node: MonacoBlockContent,
-      },
+  const schema = BlockNoteSchema.create({
+    blockSpecs: {
+      ...defaultBlockSpecs,
+      codeblock: MonacoCodeBlock,
+      inlineCode: MonacoInlineCode,
     },
+  });
+
+  const editor = BlockNoteEditor.create({
+    schema,
     collaboration: {
       fragment: xml,
       provider: undefined as any,
@@ -69,26 +72,36 @@ export async function markdownToYDoc(markdown: string, title?: string) {
     ],
   });
 
-  const blocks = await editor.markdownToBlocks(markdown);
-  editor.replaceBlocks(editor.topLevelBlocks, blocks);
+  const blocks = await editor.tryParseMarkdownToBlocks(markdown);
+  // TODO: this should be possible without mounting (fix in blocknote)
+  const div = document.createElement("div");
+  editor.mount(div);
 
-  // markdownToXmlFragment(markdown, xml);
+  return new Promise<Y.Doc>((resolve) => {
+    queueMicrotask(() => {
+      editor.replaceBlocks(editor.document, blocks);
 
-  if (title) {
-    newDoc.getMap("meta").set("title", title);
-    // newDoc.getText("title").delete(0, newDoc.getText("title").length);
-    // newDoc.getText("title").insert(0, title);
-  }
+      // markdownToXmlFragment(markdown, xml);
 
-  // debugger;
-  return newDoc;
+      if (title) {
+        newDoc.getMap("meta").set("title", title);
+        // newDoc.getText("title").delete(0, newDoc.getText("title").length);
+        // newDoc.getText("title").insert(0, title);
+      }
+
+      // debugger;
+      resolve(newDoc);
+    });
+  });
 }
 
 // hacky
-export const MonacoBlockContent = createTipTapBlock({
+const node = createStronglyTypedTiptapNode({
   name: "codeblock",
   content: "inline*",
   editable: true,
+  group: "blockContent",
+
   selectable: true,
   whitespace: "pre",
   code: true,
@@ -101,6 +114,15 @@ export const MonacoBlockContent = createTipTapBlock({
         renderHTML: (attributes) => {
           return {
             "data-language": attributes.language,
+          };
+        },
+      },
+      storage: {
+        default: {},
+        parseHTML: (_element) => ({}),
+        renderHTML: (attributes) => {
+          return {
+            // "data-language": attributes.language,
           };
         },
       },
@@ -126,4 +148,89 @@ export const MonacoBlockContent = createTipTapBlock({
       }),
     ];
   },
+
+  // addNodeView: MonacoNodeView(false),
+  // addProseMirrorPlugins() {
+  //   return [arrowHandlers];
+  // },
 });
+
+export const MonacoCodeBlock = createInternalBlockSpec(
+  {
+    type: "codeblock",
+    content: "inline",
+
+    propSchema: {
+      language: {
+        type: "string",
+        default: "typescript",
+      },
+      storage: {
+        type: "string",
+        default: "",
+      },
+    },
+  },
+  {
+    node,
+    toExternalHTML: undefined as any, // TODO
+    toInternalHTML: undefined as any,
+  },
+);
+
+const nodeInline = createStronglyTypedTiptapNode({
+  name: "inlineCode",
+  inline: true,
+  group: "inline",
+  content: "inline*",
+  editable: true,
+  selectable: false,
+  parseHTML() {
+    return [
+      {
+        tag: "inlineCode",
+        priority: 200,
+        node: "inlineCode",
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "inlineCode",
+      mergeAttributes(HTMLAttributes, {
+        // class: styles.blockContent,
+        "data-content-type": this.name,
+      }),
+      0,
+    ];
+  },
+
+  // addNodeView: MonacoNodeView(true),
+  // addProseMirrorPlugins() {
+  //   return [arrowHandlers] as any;
+  // },
+});
+
+// TODO: clean up listeners
+export const MonacoInlineCode = createInternalBlockSpec(
+  {
+    content: "inline",
+    type: "inlineCode",
+    propSchema: {
+      language: {
+        type: "string",
+        default: "typescript",
+      },
+      storage: {
+        type: "string",
+        default: "",
+      },
+    },
+  },
+  {
+    node: nodeInline,
+    toExternalHTML: undefined as any,
+    toInternalHTML: undefined as any,
+  },
+);

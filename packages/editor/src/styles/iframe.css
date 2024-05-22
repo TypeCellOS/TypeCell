@@ -19,9 +19,21 @@ html {
 
 body {
   margin: 0;
-  font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
-    "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
-    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    "Inter",
+    "SF Pro Display",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Open Sans",
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
@@ -43,4 +55,13 @@ h4,
 h5,
 h6 {
   color: #3a3a3a;
+}
+
+.markdown-body p {
+  margin-bottom: 0px;
+}
+
+.bn-container .node-codeblock * {
+  /* TODO: remove bn-container * rule from blocknote? That's why we need to unset this */
+  font-family: unset;
 }

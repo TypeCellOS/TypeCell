@@ -25,7 +25,7 @@ const moduleJSONURL = (name: string) =>
 
 const unpkgURL = (name: string, path: string) =>
   `https://www.unpkg.com/${encodeURIComponent(name)}/${encodeURIComponent(
-    path
+    path,
   )}`;
 
 const packageJSONURL = (name: string) => unpkgURL(name, "package.json");
@@ -35,7 +35,7 @@ const errorMsg = (msg: string, response: any, config: ATAConfig) => {
     `${msg} - will not try again in this session`,
     response.status,
     response.statusText,
-    response
+    response,
   );
 };
 
@@ -43,12 +43,12 @@ const errorMsg = (msg: string, response: any, config: ATAConfig) => {
 
 const requirePattern = RegExp(
   /(const|let|var)(.|\n)*? require\(('|")(.*)('|")\);?$/,
-  "gm"
+  "gm",
 );
 // this handle ths 'from' imports  https://regex101.com/r/hdEpzO/4
 const es6Pattern = RegExp(
   /(import|export)((?!from)(?!require)(.|\n))*?(from|require\()\s?('|")(.*)('|")\)?;?$/,
-  "gm"
+  "gm",
 );
 // https://regex101.com/r/hdEpzO/6
 const es6ImportOnly = RegExp(/import\s?\(?('|")(.*)('|")\)?;?/, "gm");
@@ -59,7 +59,7 @@ const es6ImportOnly = RegExp(/import\s?\(?('|")(.*)('|")\)?;?/, "gm");
  */
 const parseFileForModuleReferences = (
   moduleName: string | undefined,
-  sourceCode: string
+  sourceCode: string,
 ) => {
   if (moduleName === "react") {
     // speed up, hardcode
@@ -179,7 +179,7 @@ const mapRelativePath = (moduleDeclaration: string, currentPath: string) => {
 const convertToModuleReferenceID = (
   outerModule: string,
   moduleDeclaration: string,
-  currentPath: string
+  currentPath: string,
 ) => {
   const modIsScopedPackageOnly =
     moduleDeclaration.indexOf("@") === 0 &&
@@ -208,7 +208,7 @@ const isBuiltInModule = (mod: string) => {
 const addBuiltInTypesToRuntime = async (
   mod: string,
   path: string,
-  config: ATAConfig
+  config: ATAConfig,
 ) => {
   let typePath = mod;
 
@@ -233,7 +233,7 @@ const addBuiltInTypesToRuntime = async (
     const fs = require("fs");
     content = fs.readFileSync(
       "../editor/public/types/" + typePath + "/" + path,
-      "utf-8"
+      "utf-8",
     );
   } else {
     const url = new URL("/types/" + typePath + "/" + path, import.meta.url);
@@ -245,7 +245,7 @@ const addBuiltInTypesToRuntime = async (
     return errorMsg(
       `Could not get root d.ts file for the module '${mod}' at ${path}`,
       {},
-      config
+      config,
     );
   }
   // Now look and grab dependent modules where you need the
@@ -253,11 +253,11 @@ const addBuiltInTypesToRuntime = async (
 
   config.logger.log(
     "adding typecell module",
-    `file:///node_modules/@types/${mod}/${path}`
+    `file:///node_modules/@types/${mod}/${path}`,
   );
   config.addLibraryToRuntime(
     content,
-    `file:///node_modules/@types/${mod}/${path}`
+    `file:///node_modules/@types/${mod}/${path}`,
   );
 };
 
@@ -268,11 +268,11 @@ const addBuiltInTypesToRuntime = async (
 const addModuleToRuntime = async (
   mod: string,
   path: string,
-  config: ATAConfig
+  config: ATAConfig,
 ) => {
   if (mod === "yjs" || mod.startsWith("y-")) {
     throw new Error(
-      "looking for yjs types, this indicates internal type leaking from typecell"
+      "looking for yjs types, this indicates internal type leaking from typecell",
     );
   }
 
@@ -289,7 +289,7 @@ const addModuleToRuntime = async (
     return errorMsg(
       `Could not get root d.ts file for the module '${mod}' at ${path}`,
       {},
-      config
+      config,
     );
   }
 
@@ -315,7 +315,7 @@ const addModuleToRuntime = async (
  */
 const getModuleAndRootDefTypePath = async (
   packageName: string,
-  config: ATAConfig
+  config: ATAConfig,
 ) => {
   const url = moduleJSONURL(packageName);
 
@@ -325,7 +325,7 @@ const getModuleAndRootDefTypePath = async (
     return errorMsg(
       `Could not get Algolia JSON for the module '${packageName}'`,
       response,
-      config
+      config,
     );
   }
 
@@ -334,18 +334,18 @@ const getModuleAndRootDefTypePath = async (
     return errorMsg(
       `Could the Algolia JSON was un-parsable for the module '${packageName}'`,
       response,
-      config
+      config,
     );
   }
 
   if (!responseJSON.types) {
     return config.logger.log(
-      `There were no types for '${packageName}' - will not try again in this session`
+      `There were no types for '${packageName}' - will not try again in this session`,
     );
   }
   if (!responseJSON.types.ts) {
     return config.logger.log(
-      `There were no types for '${packageName}' - will not try again in this session`
+      `There were no types for '${packageName}' - will not try again in this session`,
     );
   }
 
@@ -359,7 +359,7 @@ const getModuleAndRootDefTypePath = async (
       return errorMsg(
         `Could not get Package JSON for the module '${packageName}'`,
         response,
-        config
+        config,
       );
     }
 
@@ -368,13 +368,13 @@ const getModuleAndRootDefTypePath = async (
       return errorMsg(
         `Could not get Package JSON for the module '${packageName}'`,
         response,
-        config
+        config,
       );
     }
 
     config.addLibraryToRuntime(
       JSON.stringify(responseJSON, null, "  "),
-      `file:///node_modules/${packageName}/package.json`
+      `file:///node_modules/${packageName}/package.json`,
     );
 
     // Get the path of the root d.ts file
@@ -410,19 +410,18 @@ const getModuleAndRootDefTypePath = async (
 };
 
 const getCachedDTSString = async (config: ATAConfig, url: string) => {
-
   const cached = await cache.getItem(url);
   if (cached) {
     return cached;
   }
- 
+
   const response = await config.fetcher(url);
 
   if (!response.ok) {
     return errorMsg(
       `Could not get DTS response for the module at ${url}`,
       response,
-      config
+      config,
     );
   }
 
@@ -436,7 +435,7 @@ const getCachedDTSString = async (config: ATAConfig, url: string) => {
     return errorMsg(
       `Could not get text for DTS response at ${url}`,
       response,
-      config
+      config,
     );
   }
 
@@ -447,14 +446,14 @@ const getCachedDTSString = async (config: ATAConfig, url: string) => {
 
 const referencePathExtractionPattern = RegExp(
   /<reference path="(.*)" \/>/,
-  "gm"
+  "gm",
 );
 
 const getReferenceDependencies = async (
   sourceCode: string,
   mod: string,
   path: string,
-  config: ATAConfig
+  config: ATAConfig,
 ) => {
   let match;
   if (sourceCode.indexOf("reference path") > 0) {
@@ -473,13 +472,13 @@ const getReferenceDependencies = async (
 
           const dtsReferenceResponseText = await getCachedDTSString(
             config,
-            dtsRefURL
+            dtsRefURL,
           );
           if (!dtsReferenceResponseText) {
             return errorMsg(
               `Could not get root d.ts file for the module '${mod}' at ${path}`,
               {},
-              config
+              config,
             );
           }
 
@@ -487,12 +486,12 @@ const getReferenceDependencies = async (
             dtsReferenceResponseText,
             mod,
             newPath,
-            config
+            config,
           );
           const representationalPath = `file://node_modules/${mod}/${newPath}`;
           config.addLibraryToRuntime(
             dtsReferenceResponseText,
-            representationalPath
+            representationalPath,
           );
         }
       }
@@ -515,7 +514,7 @@ export const detectNewImportsToAcquireTypeFor = async (
   userAddLibraryToRuntime: AddLibToRuntimeFunc,
   fetcher = fetch,
   logger: any,
-  moduleName?: string
+  moduleName?: string,
 ) => {
   // Wrap the runtime func with our own side-effect for visibility
   const addLibraryToRuntime = (code: string, path: string) => {
@@ -534,7 +533,7 @@ export const detectNewImportsToAcquireTypeFor = async (
     sourceCode,
     moduleName,
     "playground.ts",
-    config
+    config,
   );
   return results;
 };
@@ -547,12 +546,12 @@ const getDependenciesForModule = async (
   sourceCode: string,
   moduleName: string | undefined,
   path: string,
-  config: ATAConfig
+  config: ATAConfig,
 ) => {
   // Get all the import/requires for the file
   const filteredModulesToLookAt = parseFileForModuleReferences(
     moduleName,
-    sourceCode
+    sourceCode,
   );
 
   const promises = filteredModulesToLookAt.map(async (name) => {
@@ -562,14 +561,14 @@ const getDependenciesForModule = async (
 
     if (!moduleName && moduleToDownload.startsWith(".")) {
       return config.logger.log(
-        "[ATA] Can't resolve relative dependencies from the playground root"
+        "[ATA] Can't resolve relative dependencies from the playground root",
       );
     }
 
     const moduleID = convertToModuleReferenceID(
       moduleName!,
       moduleToDownload,
-      moduleName!
+      moduleName!,
     );
     if (acquiredTypeDefs[moduleID] || acquiredTypeDefs[moduleID] === null) {
       return;
@@ -605,7 +604,7 @@ const getDependenciesForModule = async (
         // E.g. import danger from "danger"
         const packageDef = await getModuleAndRootDefTypePath(
           moduleToDownload,
-          config
+          config,
         );
 
         if (packageDef) {
@@ -621,7 +620,7 @@ const getDependenciesForModule = async (
       const parts = moduleToDownload.split("/", 2);
       const modname = parts[0];
       const pathName = parts[1] + ".d.ts";
-      if (isBuiltInModule(moduleName!)) {
+      if (isBuiltInModule(modname)) {
         await addBuiltInTypesToRuntime(modname, pathName, config);
       } else {
         await addModuleToRuntime(modname, pathName, config);
@@ -630,7 +629,7 @@ const getDependenciesForModule = async (
       // E.g. import {Component} from "./MyThing"
       if (!moduleToDownload || !path) {
         throw new Error(
-          `No outer module or path for a relative import: ${moduleToDownload}`
+          `No outer module or path for a relative import: ${moduleToDownload}`,
         );
       }
 
@@ -669,7 +668,7 @@ const getDependenciesForModule = async (
   if (!moduleName || !isBuiltInModule(moduleName)) {
     // Also support the <reference> comments
     promises.push(
-      getReferenceDependencies(sourceCode, moduleName!, path!, config)
+      getReferenceDependencies(sourceCode, moduleName!, path!, config),
     );
   }
 

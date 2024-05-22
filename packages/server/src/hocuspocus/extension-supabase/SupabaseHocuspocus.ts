@@ -13,7 +13,7 @@ import {
   onLoadDocumentPayload,
   storePayload,
 } from "@hocuspocus/server";
-import { ChildReference } from "@typecell-org/shared";
+import { ChildReference, Ref } from "@typecell-org/shared";
 import {
   createAnonClient,
   createServiceClient,
@@ -187,7 +187,7 @@ export class SupabaseHocuspocus extends Database {
 
     const serviceClient = await createServiceClient();
 
-    const refs = [...tr.doc.getMap("refs").values()]
+    const refs = [...tr.doc.getMap<Ref<any>>("refs").values()]
       .filter(
         (r) =>
           r.namespace === ChildReference.namespace &&
